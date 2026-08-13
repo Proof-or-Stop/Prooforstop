@@ -1630,6 +1630,7 @@ try {
   assert.equal(typoGate.missingRedEvidence.length, 0, 'documented typo example has no red evidence diagnostic gap');
   assert.equal(typoGate.scopeAmbiguity.length, 0, 'documented typo example has no scope ambiguity diagnostic gap');
 
+  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['intent-hardening-matrix', 'scope-collision', 'red-evidence', 'milestone-intent'], mutations: ['scope-ambiguity', 'collision-omission', 'red-evidence-omission', 'milestone-coverage-omission'] })}`);
   console.log('ProofStory intent hardening smoke passed');
 } finally {
   rmSync(root, { recursive: true, force: true });

@@ -1,0 +1,135 @@
+{
+  "storyId": "B-9812",
+  "checkedAt": "2026-08-12T12:48:12.326Z",
+  "features": [
+    {
+      "feature": "Canonical root npm test completes every required member below 300000 ms in three consecutive same-material clean-clone runs.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/original-intent-snapshot.json"
+    },
+    {
+      "feature": "The authoritative current baseline freezes the 45 canonical B-9812 members while bidirectional completeness incorporates every required member merged before final verification.",
+      "covered_by": "CHK-001/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/background.md"
+    },
+    {
+      "feature": "Parallelism is allowed only for explicitly classified compatible resources; unknown or conflicting Git common-dir, fixed path or port, runtime-lock, and main-write-lock claims fail closed or serialize.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/checklist.json"
+    },
+    {
+      "feature": "Concurrent tasks own unique temporary roots and terminate all descendants with bounded cleanup on completion, timeout, or interruption.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/checklist.json"
+    },
+    {
+      "feature": "Optimization preserves complete member, assertion, mutation, diagnostic, restoration, reviewer-lane, quorum, and critical-evidence inventories rather than moving or deleting assurance.",
+      "covered_by": "CHK-001/CHK-003/CHK-004/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/background.md"
+    },
+    {
+      "feature": "The acceptance rollout generates each logical cohort once, binds it to a digest, reuses it safely, and retains representative real dist and CLI black-box equivalence sentinels.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/plan.md"
+    },
+    {
+      "feature": "Incremental-context and intent-hardening retain deterministic mixed-writer, ABA, cutoff, restoration, and mutation-killing coverage while only independent shards overlap.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/plan.md"
+    },
+    {
+      "feature": "Canonical root npm test uses the resource-aware manifest runner, executes every current or later-merged required canonical member exactly once, and preserves focused diagnostic entrypoints.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/checklist.json"
+    },
+    {
+      "feature": "An initial FAIL, TIMEOUT, signal exit, worker rejection, or missing terminal record remains terminal and cannot be laundered by an automatic retry.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/decision.json"
+    },
+    {
+      "feature": "Performance evidence records machine-readable per-member timing, process launches, critical path, utilization, lock waits, material identity, bounded output identity, and terminal outcomes.",
+      "covered_by": "CHK-001/CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9812/checklist.json"
+    },
+    {
+      "feature": "The self-host DONE-required policy continues to execute same-material packages/main build proof before canonical root npm test and produces fresh exact command receipts.",
+      "covered_by": "CHK-005/CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    },
+    {
+      "feature": "Routine lattice validate remains distinct from opt-in DONE-required full-suite validation; external projects do not inherit the self-host cost or assurance claim.",
+      "covered_by": "CHK-005/CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/testing-infra.md"
+    },
+    {
+      "feature": "Optimized smokes preserve compiled-dist standalone black-box behavior while redundant behavioral matrices may reuse initialized state only behind differential CLI sentinels.",
+      "covered_by": "CHK-003/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/test-runner-consolidation-plan.md"
+    },
+    {
+      "feature": "High-risk implementation receives three distinct review rounds with two independent hosts per round over final material.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This remains a lifecycle review-assurance obligation enforced during REVIEW and closeout; B-9812 neither changes nor weakens it.",
+      "source": "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-9812/background.md",
+      ".lattice/story/actives/B-9812/checklist.json",
+      ".lattice/story/actives/B-9812/decision.json",
+      ".lattice/story/actives/B-9812/plan.md",
+      ".lattice/story/actives/B-9812/understanding.json",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "d0801ad953dadfab56330c20fa7d7c0169baaf037fe0cf4b705edc65f89ce784",
+    "corpusDigest": "f55b70803c1a66094b718b4bf85b003e64d51658679e3cdd580a2e2dee24fc03"
+  },
+  "summary": {
+    "total": 14,
+    "covered": 13,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c5aed09e16119d010142c0135c083042050539b59f2ce0d84236b0d8f8488da5",
+  "openQuestions": []
+}

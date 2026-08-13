@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Assurance equivalence is a hard constraint, not a performance trade.",
+    "Concurrency is granted by explicit resource isolation and denied by default.",
+    "Process-boundary coverage needs representative sentinels, while behavioral matrices should reuse initialized state.",
+    "The canonical suite preserves the first observed failure and emits auditable timing and membership data."
+  ],
+  "drivers": [
+    "The measured 1688.9-second feedback loop blocks normal development.",
+    "Three long-tail integration suites dominate runtime, so top-level parallelism alone bottoms out at 798.8 seconds.",
+    "Existing standalone smoke architecture must remain compatible with black-box validation and DONE-required receipts.",
+    "Shared Git and runtime artifacts make unclassified parallelism unsafe."
+  ],
+  "options": [
+    {
+      "name": "A: Top-level worker pool only",
+      "pros": [
+        "Small implementation",
+        "Preserves each smoke unchanged"
+      ],
+      "cons": [
+        "Cannot beat the 798.8-second longest member",
+        "Existing retry behavior masks first failures",
+        "Resource conflicts remain implicit"
+      ]
+    },
+    {
+      "name": "B: Resource-aware runner plus internal long-tail optimization",
+      "pros": [
+        "Can satisfy the five-minute target",
+        "Makes concurrency safety mechanical",
+        "Retains focused standalone smokes and bounded black-box sentinels"
+      ],
+      "cons": [
+        "Requires manifest migration and equivalence tests",
+        "Touches three complex long-tail suites"
+      ]
+    },
+    {
+      "name": "C: Move long tests out of canonical npm test",
+      "pros": [
+        "Fastest superficial result",
+        "Minimal internal refactor"
+      ],
+      "cons": [
+        "Weakens DONE-required assurance",
+        "Violates the user-confirmed scope and hides rather than removes cost"
+      ]
+    }
+  ],
+  "chosen": "B: Resource-aware runner plus internal long-tail optimization",
+  "rationale": "Only B addresses both measured critical-path cost and safety. It retains published CLI behavior checks while removing repeated initialization that does not add independent assurance.",
+  "preMortem": [
+    {
+      "scenario": "Parallel tests corrupt or race on a shared Git common directory or fixed path.",
+      "trigger": "Two workers receive entries with an absent or incorrect resource declaration.",
+      "consequence": "Flaky false failures, overwritten evidence, or false PASS results.",
+      "mitigation": "Default unknown entries to serial, validate manifest resource declarations, allocate unique temp roots, and add conflict mutations that must serialize."
+    },
+    {
+      "scenario": "The suite meets the budget by silently losing members or mutations.",
+      "trigger": "The new manifest diverges from the frozen canonical inventory or an optimized matrix omits a diagnostic branch.",
+      "consequence": "Faster but weaker DONE assurance.",
+      "mitigation": "Add bidirectional inventory and assertion or mutation failure-matrix equivalence checks; omissions, duplicates, and skips fail closed."
+    },
+    {
+      "scenario": "A flaky test fails in parallel then passes under an automatic serial retry.",
+      "trigger": "Legacy two-pass retry semantics remain enabled in the canonical path.",
+      "consequence": "The full-suite receipt records PASS despite an observed failure.",
+      "mitigation": "Canonical mode disables retries and tests assert the first FAIL or TIMEOUT remains terminal with preserved diagnostics."
+    },
+    {
+      "scenario": "The benchmark passes only on a warm checkout or leaves child processes behind.",
+      "trigger": "Caching, inherited artifacts, or incomplete timeout cleanup reduce measured time.",
+      "consequence": "The five-minute claim is not reproducible and later runs interfere with each other.",
+      "mitigation": "Run three clean temporary clones after same-material builds, record process and lock telemetry, and mutation-test timeout and process-tree cleanup."
+    }
+  ],
+  "timestamp": "2026-08-12T12:35:08.178Z"
+}

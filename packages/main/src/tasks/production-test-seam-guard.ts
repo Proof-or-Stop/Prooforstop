@@ -1102,7 +1102,12 @@ function main(): void {
     'node packages/main/dist/tasks/production-test-seam-guard.js',
     'root package must expose the focused production test seam guard script',
   );
-  assert.match(packageJson.scripts?.test ?? '', /npm run test:production-test-seam-guard/, 'root npm test must run the production seam guard');
+  assert.equal(packageJson.scripts?.test, 'node packages/main/dist/tasks/full-suite-runner.js', 'root npm test must delegate to the canonical full-suite runner');
+  const canonicalRoutineIncludes = (scripts: Record<string, string> | undefined, name: string): boolean => [scripts?.['test:serial-reference-prefix'], scripts?.['test:serial-reference']]
+    .filter(Boolean).join(' && ').split(/\s*&&\s*/).includes(`npm run ${name}`);
+  assert.equal(canonicalRoutineIncludes(packageJson.scripts, 'test:production-test-seam-guard'), true, 'canonical serial membership authority must include the production seam guard');
+  assert.equal(canonicalRoutineIncludes({ ...packageJson.scripts, 'test:serial-reference': packageJson.scripts?.['test:serial-reference']?.replace('npm run test:production-test-seam-guard', '') ?? '' }, 'test:production-test-seam-guard'), false, 'removing the seam guard from main serial-reference fails membership');
+  assert.equal(canonicalRoutineIncludes({ ...packageJson.scripts, 'test:serial-reference-prefix': '' }, 'test:full-suite-runner-smoke'), false, 'removing prefix serial-reference fails canonical smoke membership');
   const latticeConfig = readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8');
   assert.match(latticeConfig, /packages\/main\/dist\/tasks\/production-test-seam-guard\.js/, 'routine validate must run the production seam guard');
   const scanRoots = [join(repoRoot, 'packages/main/src/core'), join(repoRoot, 'packages/main/src/handlers')];

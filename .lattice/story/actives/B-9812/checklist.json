@@ -3,15 +3,223 @@
     {
       "id": "CHK-001",
       "title": "Establish a reproducible full-suite performance and coverage baseline",
-      "context": "Produce machine-readable wall, user, and system timing per root npm test member together with process launch counts, suite membership, assertion and mutation inventories, and failure outcomes. Pin the current 46-member passing baseline and the 1688.9-second reference. Measure only from a clean temporary clone after a same-material packages/main build without polluting the project directory.",
+      "context": "Produce machine-readable timing, process-launch, membership, assertion, mutation, and failure baselines for the frozen current canonical inventory (45 members on the B-9812 base). Bidirectional completeness must incorporate any required member merged before final verification. Measure only in clean temporary clones after same-material builds.",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-12T12:52:07.725Z",
+      "endTime": "2026-08-12T14:15:59.870Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From a clean temporary clone at the story material HEAD, build packages/main and run the current canonical root suite baseline; emit machine-readable per-member wall, user, system, exit status, process-launch count, assertion inventory, mutation inventory, and failure outcome for the frozen current canonical inventory (45 on the B-9812 base), with bidirectional completeness requiring every later-merged required canonical member to enter the inventory and forbidding omissions, including the measured 1688.9-second historical reference; WHY: optimization needs a reproducible oracle for both speed and retained coverage without freezing an obsolete member count.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:happy:0"
+            }
+          },
+          {
+            "desc": "Run the baseline collector twice against unchanged material and compare normalized membership, assertion, mutation, and outcome inventories; all semantic inventories match while timings may vary, and the source worktree remains unchanged; WHY: the baseline must be deterministic and non-polluting.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:happy:1"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Measure from a temporary clone whose absolute path contains spaces and after clearing generated dist before the required same-material build; the collector attributes every member in the frozen current canonical inventory (45 on the B-9812 base, plus any later-merged required canonical members discovered by the bidirectional completeness contract) exactly once and binds results to the rebuilt HEAD/material hash; WHY: path quoting, stale-build assumptions, and later inventory growth must not corrupt or shrink the oracle.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:edge:0"
+            }
+          },
+          {
+            "desc": "Force one baseline member to exit nonzero after emitting partial output; the report preserves its timing and failure status, marks the overall run failed, and does not misclassify later absent members as passing; WHY: failure outcomes are part of the comparison contract.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:edge:1"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the baseline inventory by deleting one member, duplicating one member, and deleting one assertion or mutation signature in separate trials; the equivalence checker fails each trial with the exact missing or duplicate identity; WHY: a faster but smaller suite must be mechanically rejected.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:adversarial:0"
+            }
+          },
+          {
+            "desc": "Attempt to benchmark with mismatched source and dist material or with outputs written inside the project worktree; the collector refuses or reports a binding violation and leaves tracked files untouched; WHY: stale artifacts and benchmark pollution could create false performance evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-001:adversarial:1"
+            }
+          }
+        ]
+      },
+      "userSees": "The terminal prints a machine-readable baseline naming every canonical member, its status and duration, and confirms the frozen inventory is complete with no duplicates or skips.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/full-suite-baseline.ts",
+          "docs/dev/full-suite-performance.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/full-suite-baseline-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:25.438Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:27.016Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:28.575Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:30.149Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:31.728Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:33.340Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "7094b2826df101b50f9409591536037a8f6b75f7d51425ee40a85ca75e32d9a6",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:00.067Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     },
     {
       "id": "CHK-002",
@@ -22,9 +230,307 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-12T14:16:01.002Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Schedule at least two manifest tasks declared parallel-safe with distinct temporary roots; execution intervals overlap, both pass, and the report names their acquired resources and unique roots; WHY: the contract must enable real concurrency rather than merely describe it.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:happy:0"
+            }
+          },
+          {
+            "desc": "Schedule pairs sharing each protected class in turn: Git common-dir, fixed port or path, shared runtime lock, and main-write lock; conflicting intervals never overlap while unrelated work continues, and lock-wait time is recorded; WHY: every declared shared resource must be mechanically serialized.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:happy:1"
+            }
+          },
+          {
+            "desc": "On normal completion, timeout, and external interruption, verify all worker descendants are terminated and every task-owned temporary root is removed without touching another task root; WHY: safe concurrency includes process-tree and filesystem lifecycle ownership.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:happy:2"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Give two lexically different paths that resolve through symlink or realpath to the same Git common-dir or fixed path; the scheduler canonicalizes them to one resource key and serializes the tasks; WHY: textual path inequality must not bypass isolation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:edge:0"
+            }
+          },
+          {
+            "desc": "Run an unclassified manifest member and a member with an unknown resource kind; execution fails closed or runs serially with an explicit diagnostic, never concurrently by default; WHY: incomplete classifications must not become unsafe optimism.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:edge:1"
+            }
+          },
+          {
+            "desc": "Use jobs=1, jobs greater than member count, and a queue containing both exclusive and parallel-safe tasks; all members execute once without deadlock or starvation and statuses match; WHY: boundary worker counts and mixed locks exercise scheduler progress.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:edge:2"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the scheduler to ignore one protected resource key; a collision sentinel that holds the resource while writing an ownership token detects overlap and fails the test; WHY: the isolation test must bite if locking is removed.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:adversarial:0"
+            }
+          },
+          {
+            "desc": "Spawn a grandchild that ignores the first termination signal and keeps a file or port open, then timeout its member; the scheduler escalates termination for the owned process tree, reports TIMEOUT, and a probe proves no descendant or resource survives; WHY: killing only the direct child leaks interference into later tests.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:adversarial:1"
+            }
+          },
+          {
+            "desc": "Make cleanup target resolution point outside the task-owned temporary root; cleanup is refused and the external sentinel remains intact; WHY: concurrent cleanup must be bounded and non-destructive.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-002:adversarial:2"
+            }
+          }
+        ]
+      },
+      "userSees": "The runner reports each test's resource class and lock wait, runs compatible tests concurrently, and rejects unsafe or unclassified concurrent work.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:34.899Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:36.499Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:38.101Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:39.597Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:41.082Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:42.654Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:44.293Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:45.896Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:47.501Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "598ac50513200fde16196298cbbaf3a31ff94e4532b28fefce8aa43e2cabc6b0",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:01.190Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     },
     {
       "id": "CHK-003",
@@ -35,9 +541,308 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-12T14:16:02.143Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the optimized acceptance rollout and prove each logical cohort is generated exactly once, frozen with a content digest, and reused by all consumers; the complete prior diagnostics, mutation/restoration outcomes, reviewer-lane results, and quorum assertions equal the pinned baseline inventory; WHY: removing duplicate generation must not remove acceptance coverage.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:happy:0"
+            }
+          },
+          {
+            "desc": "Execute independent cohort cases concurrently in isolated temporary repositories and retain the required real dist and CLI black-box sentinel cases; every case passes once and the output records both batch/in-process and real-CLI paths; WHY: speedup must preserve process-boundary coverage where it matters.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:happy:1"
+            }
+          },
+          {
+            "desc": "For every matrix check moved in-process or into a batch entry, run an equivalence sample through the real CLI and compare normalized exit class, diagnostic codes, and evidence artifacts; mismatches are zero; WHY: handler reuse must remain behaviorally equivalent to the production entrypoint.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:happy:2"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tamper with one byte of the frozen cohort or change its bound material hash before reuse; digest verification rejects the artifact before any acceptance claim is made; WHY: reuse is safe only when identity and integrity are enforced.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:edge:0"
+            }
+          },
+          {
+            "desc": "Cause one concurrent cohort case to fail midway after mutation but before restoration; that case reports failure, its repository is restored or quarantined, sibling repositories remain unchanged, and the overall rollout fails; WHY: case isolation must survive partial execution.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:edge:1"
+            }
+          },
+          {
+            "desc": "Run with jobs=1 and with the supported parallel worker count; cohort membership, diagnostics, mutations, restorations, reviewer lanes, quorum outcomes, and digest are equivalent independent of completion order; WHY: concurrency must not alter semantics.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:edge:2"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the implementation to invoke cohort generation twice or accept an unsigned or stale cached cohort; a generation-count or digest-binding assertion fails; WHY: the principal duplicate-work regression must be directly killed.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:adversarial:0"
+            }
+          },
+          {
+            "desc": "Introduce a divergence that is visible only through the real CLI wrapper, such as argument normalization or exit-code mapping, while leaving the in-process handler unchanged; the CLI equivalence sentinel fails; WHY: replacing all black-box checks with handlers would hide entrypoint regressions.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:adversarial:1"
+            }
+          },
+          {
+            "desc": "Force two cases to share a repository or temporary path and write distinct ownership sentinels; the isolation guard rejects scheduling or the collision test fails before results can pass; WHY: concurrent cohort speedup must not rely on accidental non-overlap.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-003:adversarial:2"
+            }
+          }
+        ]
+      },
+      "userSees": "The acceptance rollout summary shows one digest-bound cohort generation, retained CLI sentinels, and every rollout diagnostic and restoration assertion passing.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:49.060Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:50.670Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:52.308Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:53.914Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:55.484Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:57.075Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:51:58.763Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:00.333Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:01.884Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "70eec4bd28aa489c1a6c7ba2b108829d072d28f15187192e7c60693a0e41e752",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:02.334Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     },
     {
       "id": "CHK-004",
@@ -48,22 +853,622 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-12T14:16:03.284Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the deterministic canonical incremental-context schedules for mixed reviewer writers, ABA, cutoff, restoration, and intent-hardening mutations; every pinned assertion and failure-matrix cell from the old suite is present and produces the same outcome; WHY: shorter execution must preserve race and mutation coverage, not just lower iteration count.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:happy:0"
+            }
+          },
+          {
+            "desc": "Shard only scenarios declared independent and run them concurrently with deterministic seed or schedule recorded in the report; jobs=1 and parallel runs have identical normalized member, assertion, mutation, and failure outcomes; WHY: concurrency must be reproducible and semantically neutral.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:happy:1"
+            }
+          },
+          {
+            "desc": "If redundant burn-in iterations move to a stress command, prove canonical root npm test still runs deterministic representatives that kill every previously covered mutation class and prove the stress command retains the full twenty-iteration campaign; WHY: classification may move probabilistic repetition but not coverage.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:happy:2"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay each failing randomized or scheduled scenario from its recorded seed and schedule under jobs=1; it reaches the same failure class and identifies the responsible lane or mutation; WHY: race failures must be diagnosable rather than flaky.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:edge:0"
+            }
+          },
+          {
+            "desc": "Exercise ABA transitions at the cutoff boundary and restoration immediately before and after the binding read; stale evidence is rejected and valid restored state is accepted exactly as in the baseline matrix; WHY: off-by-one timing is the core concurrency boundary.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:edge:1"
+            }
+          },
+          {
+            "desc": "Run a shard that times out beside successful shards; successful results remain attributable, the full command fails, and no state from the timed-out shard appears in another shard; WHY: partial shard completion must not contaminate evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:edge:2"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reduce canonical schedules or iterations without supplying an equivalent mutation-kill mapping; the old-versus-new inventory comparison fails on the missing assertion or mutation class; WHY: raw speed cannot authorize silent race-coverage shrinkage.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:adversarial:0"
+            }
+          },
+          {
+            "desc": "Remove seed recording or introduce order-dependent shared state between shards; repeat/replay comparison detects nondeterminism or cross-shard contamination and fails; WHY: parallel tests must not exchange hidden state.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:adversarial:1"
+            }
+          },
+          {
+            "desc": "Mutate ABA, cutoff, or restoration guards one at a time; at least one retained deterministic canonical case fails for every mutation previously killed by the twenty-iteration suite; WHY: the reduced long tail must still bite the actual race protections.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-004:adversarial:2"
+            }
+          }
+        ]
+      },
+      "userSees": "The canonical suite reports deterministic incremental-context and intent-hardening coverage separately from optional burn-in, with the same injected mutations detected.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:03.465Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:05.022Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:06.568Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:08.192Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:09.822Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:11.428Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:13.049Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:14.621Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:16.567Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e437b55b2ba151dfd5bec97be44b3297ec26d630ec2a2ffc054516863f4d4a0f",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:03.504Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     },
     {
       "id": "CHK-005",
       "title": "Route canonical root npm test through the safe scheduler with complete membership",
-      "context": "Replace the 46-command npm run serial chain with the resource-aware runner. Add a bidirectional completeness check between the old script inventory and the new manifest so omissions, duplicates, and unexpected skips fail. Preserve focused test diagnostic entries. An initial FAIL or TIMEOUT must remain failed and cannot be masked by automatic serial retry. Parallel execution and jobs=1 must produce equivalent member status and critical evidence.",
+      "context": "Replace the current 45-command serial chain with a resource-aware runner over the frozen current canonical inventory, with bidirectional checks that automatically expose omissions, duplicates, skips, and later required-member drift. Preserve focused test entries and make first FAIL/TIMEOUT terminal.",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-12T14:16:04.425Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run canonical root npm test through the resource-aware scheduler and compare its manifest bidirectionally with the frozen current canonical inventory (45 on the B-9812 base) plus every later-merged required canonical member; every identity appears exactly once, no required later member can be omitted, no unexpected skip occurs, and all focused diagnostic entrypoints remain callable; WHY: replacing the shell chain must retain complete suite membership while allowing the authoritative inventory to grow.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:happy:0"
+            }
+          },
+          {
+            "desc": "Run the canonical manifest with jobs=1 and with safe parallelism; normalized member status, exit class, critical evidence, assertion inventory, and mutation inventory are equivalent, while the parallel report demonstrates overlap only for non-conflicting resources; WHY: scheduling must change time but not verdicts.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:happy:1"
+            }
+          },
+          {
+            "desc": "Make one member fail with a unique diagnostic; root npm test exits nonzero, reports the original first failure and member logs, and does not convert the result to pass through retry; WHY: the canonical command must remain trustworthy and debuggable.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:happy:2"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run with an empty filtered selection, an unknown member request, jobs=1, and jobs larger than the suite; invalid or empty selections fail explicitly where appropriate, and valid worker boundaries execute each selected member once; WHY: scheduler argument boundaries must not create silent success.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:edge:0"
+            }
+          },
+          {
+            "desc": "Queue a long exclusive member between many short parallel-safe members; the lock-aware scheduler eventually runs it without deadlock or starvation and records its wait; WHY: safety must not sacrifice progress.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:edge:1"
+            }
+          },
+          {
+            "desc": "Interrupt canonical npm test while members are active; root exits nonzero after bounded process-tree cleanup and emits a terminal interrupted status for started members rather than fabricated PASS or SKIP results; WHY: operator cancellation must preserve truthful terminal state.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:edge:2"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delete, duplicate, rename, or mark skipped one manifest member in separate mutations, including a required member merged after the B-9812 base; the bidirectional completeness contract fails before or during execution with the exact inventory discrepancy; WHY: omissions and duplicates are the easiest way to manufacture a faster suite, and later-required members must not fall outside a frozen snapshot.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:adversarial:0"
+            }
+          },
+          {
+            "desc": "Add a retry path that reruns an initial FAIL or TIMEOUT serially and returns only the later pass; a terminal-first-outcome test proves root remains failed and retains both observations without status laundering; WHY: retry must never mask the first authoritative failure.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:adversarial:1"
+            }
+          },
+          {
+            "desc": "Mutate result aggregation so a worker rejection, signal exit, or missing terminal record is treated as success; fail-closed aggregation tests make root npm test exit nonzero; WHY: scheduler plumbing failures must not become green builds.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-005:adversarial:2"
+            }
+          }
+        ]
+      },
+      "userSees": "Running npm test executes the complete manifest through the safe scheduler, prints a critical-path summary, and exits nonzero on the first observed failed or timed-out member without retry masking.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/full-suite-manifest.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "scripts/verify-full-suite-membership.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:18.220Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:19.839Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:21.401Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Digest-bound verifier consumes runner-smoke receipts for empty and unknown selection refusal plus jobs boundary execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:54:02.816Z"
+          },
+          "headHash": "1c104a672815b986b61d1bea78dd050724ebd05e",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "timestamp": "2026-08-13T13:54:02.963Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:26.498Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:28.973Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:31.158Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Digest-bound verifier consumes real terminal-failure runner-smoke receipt proving no retry-to-green masking.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:54:05.344Z"
+          },
+          "headHash": "7518993275efb28698044d52ab02e076a5b75104",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "timestamp": "2026-08-13T13:54:05.475Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:35.393Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "1d7f387bc3a02c04b50a3c954e2c045f7ae0d77a4fd95c59e59dafdfebf87b34",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:04.626Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     },
     {
       "id": "CHK-006",
@@ -74,9 +1479,340 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-12T14:16:05.526Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In a clean temporary clone bound to the implementation HEAD, perform the required same-material packages/main build and run canonical root npm test three consecutive times; each run executes the completeness-checked full set, all members pass, and each independently measured wall time is below 300000 milliseconds; WHY: the user-visible performance goal requires repeatable end-to-end proof rather than one warm outlier.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:happy:0"
+            }
+          },
+          {
+            "desc": "For all three runs persist machine-readable per-member timing, critical path, worker utilization, resource-lock wait, process-launch counts, material identity, and terminal outcomes; totals reconcile with the root result and expose the bottleneck; WHY: the performance claim must be auditable and regression-ready.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:happy:1"
+            }
+          },
+          {
+            "desc": "Run the same material with jobs=1 and compare full membership, assertions, mutations, statuses, and critical evidence to the parallel runs; all semantic fields match even though jobs=1 need not meet the five-minute target; WHY: concurrency safety requires a serial oracle.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:happy:2"
+            }
+          },
+          {
+            "desc": "Generate DONE-required validation evidence through the canonical root npm test path and verify the receipt names the exact command, HEAD/material/story-files hashes, exit status, full-suite identity, and fresh timing; WHY: optimization must not weaken the lifecycle gate evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:happy:3"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Execute the three-run proof with cold filesystem state for the first run and ordinary warm state thereafter without sharing task-owned temporary repositories between runs; every run remains below the limit and semantically equivalent; WHY: the threshold must not depend on a hidden dirty fixture.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:edge:0"
+            }
+          },
+          {
+            "desc": "Set available workers to one less and one more than the recommended default while preserving safe resource limits; runs either complete correctly or refuse unsupported capacity explicitly, with no oversubscription-induced false pass; WHY: the scheduler must handle realistic host variability safely.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:edge:1"
+            }
+          },
+          {
+            "desc": "Approach the 300000-millisecond boundary using a controlled slow member; elapsed time is measured by a monotonic clock, a run at or above the limit fails the performance assertion, and report serialization time cannot hide the breach; WHY: the acceptance threshold needs exact boundary semantics.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:edge:2"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject, in separate trials, a shared-path collision, a fixed-port collision, a timeout with a surviving grandchild attempt, and an ordinary member failure; locking prevents unsafe overlap, cleanup leaves no descendant or resource, and every timeout or failure makes root npm test fail terminally; WHY: concurrency safety must be proven by failures that bite.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:adversarial:0"
+            }
+          },
+          {
+            "desc": "Tamper with timing output, drop a slow member, forge a PASS without a terminal record, or reuse evidence from another material hash; reconciliation, completeness, terminal-state, or freshness checks reject every trial; WHY: the sub-five-minute claim must resist evidence fabrication and suite shrinkage.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:adversarial:1"
+            }
+          },
+          {
+            "desc": "Mutate resource classification or lock acquisition so two known-conflicting sentinel members overlap; ownership-token assertions fail and no DONE-required PASS receipt is emitted; WHY: lifecycle evidence must be impossible when concurrency isolation regresses.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-full-suite-contract.mjs",
+              "selector": "VERIFIED CHK-006:adversarial:2"
+            }
+          }
+        ]
+      },
+      "userSees": "A clean-clone benchmark report shows three consecutive complete npm test runs below 300000 ms, jobs=1 equivalence, zero leaked children, and every safety mutation detected.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [
+          "scripts/verify-full-suite-performance.mjs"
+        ],
+        "test": [
+          "scripts/verify-full-suite-performance.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:36.941Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:38.489Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:40.022Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:41.512Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:43.018Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:44.521Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:46.020Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:47.538Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:49.011Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-full-suite-contract.mjs",
+          "command": "node scripts/verify-full-suite-contract.mjs",
+          "result": "pass",
+          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
+          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+          "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:52:50.488Z"
+          },
+          "timestamp": "2026-08-13T13:52:50.501Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "28c9735921d4ceed2f136e0508a15c4964eb7b2dbf280a9c11579eb24ae84930",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:05.716Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
+      }
     }
   ]
 }

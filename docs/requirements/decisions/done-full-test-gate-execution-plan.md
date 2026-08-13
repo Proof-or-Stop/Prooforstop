@@ -9,21 +9,17 @@ Important caveat: this proves a gate coverage gap, not that current main `npm te
 ## Current Evidence Anchors
 
 - `lattice.config.json` defines 8 entries under `validate.commands` at `validate.commands[0..7]`.
-- Root `package.json` defines `scripts.test` as a 22-step `npm test` chain.
+- Root `package.json` defines `scripts.test` as the resource-aware full-suite runner. Canonical membership is independently derived from `test:serial-reference-prefix` plus `test:serial-reference`; the current authority contains 47 members and bidirectional inventory validation rejects missing, duplicate, stale-policy, or later unclassified members.
 - `packages/main/src/handlers/verifier.ts` reads configured `validate.command` / `validate.commands` first. When configured commands exist, fallback discovery is skipped, so the fallback `npm test` path is not used for this repository.
 - `packages/main/src/handlers/phase-gates.ts` runs `lattice validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
 - `packages/main/src/core/done-oracle.ts` builds the DONE row from `test-evidence.json`, including result and freshness, and does not independently require root full-suite evidence.
 - `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is scoped to the self-host package name `@lattice/core`; it is a type/build push guard, not the root full-suite gate.
 
-Together these anchors mean local DONE, release/push, pre-push, and root full-suite health are currently separate assurance surfaces. The local DONE row can be green because configured validation passed, while a script present only in root `npm test` has never been executed by that gate. The current pre-push hook also must not be described as build+tsc assurance for this repo until its self-host boundary is corrected or deliberately narrowed.
+Together these anchors explain why ordinary validation and DONE-required assurance remain separate surfaces. The implemented self-host DONE-required policy now builds the runtime and executes the complete 47-member canonical root suite through the resource-aware parallel runner; its receipt is independently freshness-bound and consumed by DONE. Pre-push remains a narrower surface and must not be described as equivalent full-suite assurance.
 
 ## Scope For This Story
 
-This story only writes this execution plan document:
-
-- `docs/requirements/decisions/done-full-test-gate-execution-plan.md`
-
-No runtime implementation is in scope for B-3321. Do not change runtime code, config, package scripts, hooks, generated artifacts, story JSON, fixtures, or other documentation in this story. Any implementation must be handled by a future code-changing story that uses this plan as its requirements source.
+The original B-3321 story was documentation-only. Subsequent implementation stories delivered the DONE-required policy and B-9812 replaced the obsolete serial root chain with the complete resource-aware parallel runner. This document now records that implemented state; it is not a claim that B-3321 itself changed runtime code.
 
 ## Chosen Solution
 
@@ -193,17 +189,19 @@ Emergency or degraded path:
 - If an emergency override is introduced, it must require explicit reason, actor, timestamp, and affected story, and it must render as degraded in DONE summary and release notes.
 - Degraded evidence must not satisfy future checks that specifically require full-suite PASS evidence.
 
-## Runner And Artifact Plan
+## Runner And Artifact State
 
-1. Add schema/config support for a DONE-required validation profile or `doneRequiredCommands`.
-2. Add a runner entry point that executes the DONE-required command set independently from ordinary `lattice validate`.
-3. Persist bounded command receipts with status, output digest/tail, duration, `headHash`, `materialHash`, and `storyFilesHash`.
-4. Add freshness checks that compare both material state and effective policy/command set.
-5. Add a dedicated `done-oracle` row that consumes only DONE-required evidence for the full-suite claim.
-6. Register the DONE-required artifact and semantics in the process fact registry, process fact levels, and process fact contract verifier.
-7. Configure the self-host repository to require `npm --prefix packages/main run build` plus root `npm test`, or an equivalent complete root-suite command with a same-material build receipt.
-8. Keep normal `validate.commands` optimized for routine feedback.
-9. Decide whether release approval and `.githooks/pre-push` should consume the same evidence, rerun the same profile, or remain narrower with explicit claim boundaries.
+1. `doneRequiredCommands` executes independently from ordinary `lattice validate`.
+2. The self-host policy builds `packages/main` and then invokes root `npm test`.
+3. Root `npm test` derives all 47 current canonical members from the independent serial reference, schedules compatible resource claims concurrently, preserves canonical report order, and stops on the first FAIL/TIMEOUT without retry masking.
+4. The runner emits bounded member logs plus wall/CPU/resource/identity telemetry and an atomic out-of-tree JSON result.
+   Runner-cleanable owned-path claims record pre-spawn existence/type/marker and
+   must be absent before spawn. Cancellation removes only targets proven absent
+   before launch that still carry the exact per-launch token inside approved
+   runtime/lock roots; empty or missing/tampered-marker targets, symlinked/shared/
+   out-of-bound targets, and all foreign residue are retained and fail closed.
+5. DONE-required evidence binds command identity, output digest/tail, `headHash`, `materialHash`, and `storyFilesHash`; the DONE oracle consumes it separately from routine validation.
+6. Release approval and pre-push remain separate assurance surfaces unless their own policy explicitly consumes this receipt.
 
 ## Milestones
 

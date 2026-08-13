@@ -2,9 +2,9 @@
   "storyId": "B-9812",
   "name": "safe-parallel-full-suite-under-five-minutes",
   "title": "Run the complete root test suite safely in parallel in under five minutes",
-  "description": "An isolated measurement at commit 58c7cdc showed that root npm test passed all 46 members but took 1688.9 seconds. proofstory-acceptance-rollout, review-incremental-context-smoke, and proofstory-intent-hardening-smoke consumed 79.9 percent of the total. One acceptance cohort case took 26.42 seconds, with about 95.2 percent spent in 26 fresh-process Lattice CLI invocations while Git and build together took less than 0.5 seconds. Implement safe concurrency and eliminate redundant initialization so canonical root npm test completes in less than 300 seconds on each of three consecutive runs from a reproducible clean temporary clone after a same-material packages/main build. Preserve the complete current test membership, deterministic assertions, mutation bites, black-box dist and CLI boundaries, and DONE-required evidence semantics. The target must not be met by deleting tests, silently reducing coverage, moving current required members out of the canonical full suite, concurrently writing an unisolated repository, or converting an initial FAIL or TIMEOUT into PASS through serial retry. Repeated stress iterations may move to an explicit stress layer only when equivalence is proven and the canonical full suite retains deterministic coverage of the same concurrency, ABA, and restoration contracts without weakening gate assurance.",
+  "description": "An isolated measurement at commit 58c7cdc showed that root npm test passed all 46 members on the measured B-cdf6 descendant but took 1688.9 seconds. The authoritative B-9812 base has a frozen current canonical inventory of 45 members; the descendant-only audit-scan-bin-token member is not silently imported, while bidirectional completeness must include any required member merged before final verification. proofstory-acceptance-rollout, review-incremental-context-smoke, and proofstory-intent-hardening-smoke consumed 79.9 percent of the measured total. One acceptance cohort case took 26.42 seconds, with about 95.2 percent spent in 26 fresh-process Lattice CLI invocations while Git and build together took less than 0.5 seconds. Implement safe concurrency and eliminate redundant initialization so canonical root npm test completes in less than 300 seconds on each of three consecutive runs from a reproducible clean temporary clone after a same-material packages/main build. Preserve the complete frozen test membership, deterministic assertions, mutation bites, black-box dist and CLI boundaries, and DONE-required evidence semantics. The target must not be met by deleting tests, silently reducing coverage, moving required members out of the canonical full suite, concurrently writing an unisolated repository, or converting an initial FAIL or TIMEOUT into PASS through serial retry.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "full test performance",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-08-12T12:30:36.394Z",
   "startedAt": "2026-08-12T12:30:36.394Z",
-  "endedAt": null,
+  "endedAt": "2026-08-13T14:25:19.393Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,286 @@
       "user": "Pan Qi",
       "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:34:30.322Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:44:24.370Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:47:01.505Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:47:03.058Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:51:26.637Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T15:16:01.187Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T15:24:01.632Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T18:49:53.984Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T18:56:58.968Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T21:07:50.057Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T21:14:50.603Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T22:03:50.648Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-12T22:10:26.352Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T01:04:49.359Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T01:11:16.449Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T04:39:54.955Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T04:47:16.336Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T06:55:29.515Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T07:04:30.344Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T08:29:23.782Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T08:49:09.372Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T10:12:04.834Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T10:21:38.340Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T10:49:45.680Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T11:32:51.826Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T12:29:56.174Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T13:04:01.363Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T13:10:46.378Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T13:54:26.204Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T14:17:30.655Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-13T14:25:19.393Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9812",
-    "branch": "story/B-9812",
-    "createdAt": "2026-08-12T12:33:40.426Z"
-  }
+  "currentReviewRound": "2026-08-13T13:54:26.204Z"
 }
