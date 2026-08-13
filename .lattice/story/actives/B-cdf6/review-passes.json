@@ -476,6 +476,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1658dacf6d45306044ea3e8025a9e4634fa1d321212778ecaf5d1301dd56df5e"
+    },
+    {
+      "id": "B-cdf6:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Docs-lane re-review bound to current HEAD (review_run_start reported head 0edef71f8; f78856fe61 plus one intervening metadata-only commit recording another lanes review_pass_set -- diffed 0edef71f8 vs f78856fe61 and confirmed the delta touches only .lattice/story/actives/B-cdf6/* process files, zero material change). review_incremental_context for lattice-review-docs confirmed the same 2 material files as the dispatch: packages/main/src/tasks/decision-doc-promotion-smoke.ts and lattice-cli-migration-smoke.ts, classification RELATED_STORY_MATERIAL_DRIFT off prior pass RP-012/RR-028. Independently verified both explanatory comments against live CLI output (not trusting the prose): (1) decision-doc-promotion-smoke.ts comment on decision_doc_proposal/_preview/_save --help -- ran all three help commands live, confirmed exactly 2x proof-or-stop decision_doc_* occurrences each, Alias: proof-or-stop decision doc * present, zero lattice occurrences -- comment accurate. (2) lattice-cli-migration-smoke.ts comment claims (a) the 4 fixed assertions were MASKED by the pre-existing host-status alias assertion throwing first -- ran the built smoke (dist/tasks/lattice-cli-migration-smoke.js), confirmed it still exits 1 at the lattice host status alias match assertion (that string is absent from live help output), before ever reaching the fixed lines -- MASKED claim confirmed true; (b) measured output for the 4 fixed assertions is the proof-or-stop form -- ran story_create --help and story_advance --help live, confirmed proof-or-stop story_create with checklist / proof-or-stop story_advance phase=INIT_CHECK / proof-or-stop story_review / the pinned story_advance example all present, zero lattice-prefixed equivalents -- comment accurate. Also independently executed all 8 assertions (4 match + 4 doesNotMatch) as a standalone script against the live built CLI (not the authors script, my own): all 8 passed, corroborating the authors claimed standalone verification. No comment overstates the smokes coverage: CLAUDE.md does not reference this file; finding_list resolvedReason for the underlying finding and the concept lanes independent RP-015 pass both state explicitly that the smoke still exits 1, with no green-coverage overclaim anywhere I found. Checked B-META-framework-audit:F-025 (run-all-smokes red baseline outside doneRequiredCommands): confirmed lattice.config.json doneRequiredCommands has exactly 2 entries (packages/main build, npm test) and npm test in package.json is a curated ~46-target chain that does not invoke run-all-smokes/test:all/test:legacy anywhere; test:all and test:legacy separately map to run-all-smokes.js per package.json scripts. Cited files run-all-smokes.ts and milestone-status.test.mjs:3158 exist and match the described content (discoverSmokes near line 125; a 2000ms-ceiling timeout assertion at 3158). Claim holds, no correction needed. Re-ran scripts/verify-lattice-residue.mjs myself: all 3 checks (koala, brand-prose, brand-exec) PASS, exit 0. finding_list confirms 30 findings total, 0 open, consistent with story state summary. No doc-drift or comment-vs-code mismatch found in my lane. PASS.",
+      "createdAt": "2026-08-13T12:16:01.827Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-033",
+      "envelopeId": "ec250ea22481115f85025dce44a19a852e4c14eaa055eedcf6e85cb0335537da",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e538c51ea9b44a906dcb74d45fb7c27c1e203d2ec4575cb705aa81827461d3bb"
     }
   ]
 }
