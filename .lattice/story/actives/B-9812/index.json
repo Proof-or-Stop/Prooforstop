@@ -4,7 +4,7 @@
   "title": "Run the complete root test suite safely in parallel in under five minutes",
   "description": "An isolated measurement at commit 58c7cdc showed that root npm test passed all 46 members on the measured B-cdf6 descendant but took 1688.9 seconds. The authoritative B-9812 base has a frozen current canonical inventory of 45 members; the descendant-only audit-scan-bin-token member is not silently imported, while bidirectional completeness must include any required member merged before final verification. proofstory-acceptance-rollout, review-incremental-context-smoke, and proofstory-intent-hardening-smoke consumed 79.9 percent of the measured total. One acceptance cohort case took 26.42 seconds, with about 95.2 percent spent in 26 fresh-process Lattice CLI invocations while Git and build together took less than 0.5 seconds. Implement safe concurrency and eliminate redundant initialization so canonical root npm test completes in less than 300 seconds on each of three consecutive runs from a reproducible clean temporary clone after a same-material packages/main build. Preserve the complete frozen test membership, deterministic assertions, mutation bites, black-box dist and CLI boundaries, and DONE-required evidence semantics. The target must not be met by deleting tests, silently reducing coverage, moving required members out of the canonical full suite, concurrently writing an unisolated repository, or converting an initial FAIL or TIMEOUT into PASS through serial retry.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "full test performance",
@@ -246,6 +246,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-08-13T10:49:45.680Z",
+      "branch": "story/B-9812",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "lattice-implementer"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T11:32:51.826Z",
       "branch": "story/B-9812",
       "user": "Pan Qi",
       "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
