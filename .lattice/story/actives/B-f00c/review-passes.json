@@ -387,6 +387,37 @@
         "scanEscalationReason": null
       },
       "_hash": "dd44691d2c6238d64ce751fcf32cad72a4e3d795a0e7cf4c7f3aeb42507ffc88"
+    },
+    {
+      "id": "B-f00c:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation pass at head 07ed7ff. Diff since prior pass (0d7da02, RP-012) is metadata-only: finding_resolve of F-005 (findings.json/review-runs.json/review-passes.json/prompt-envelopes.json/process-events.jsonl/process-metrics.json). No source files changed (verified via git diff 0d7da02..HEAD --stat). All findings F-001..F-005 status=resolved. Rebuilt packages/main (npm run build, clean) and re-ran node dist/tasks/validation-reuse-merge-lineage-smoke.js: PASS (exit 0). No dead code, unsafe as any, empty catch, or bridge/shell isolation violations found in the reviewed diff. No new blockers.",
+      "createdAt": "2026-08-13T17:45:11.764Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-026",
+      "envelopeId": "508d326898e73849861666fed3bc8c1634e8d7ab6ba1b2c1b586c004304d573e",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dda01fee9dd8c470ef3934977b8ed60130dbd278b983a11c62b2c3bdbc4fe8f4"
     }
   ]
 }
