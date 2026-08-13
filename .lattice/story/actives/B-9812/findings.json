@@ -1328,6 +1328,154 @@
       "resolvedAt": "2026-08-13T04:40:29.595Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-044",
+      "desc": "Current final REVIEW again makes the required immutable verifier unusable. `node scripts/verify-full-suite-contract.mjs` at clean source HEAD d63c3de fails immediately with `capture HEAD is not an admissible metadata-only ancestor`. The capture is at 8493717 with the same material hash, and `git diff --name-only 8493717..HEAD` contains only story metadata; the sole path excluded by both exact allowlists is `.lattice/story/actives/B-9812/stall-adjudication.json`, created by normal convergence review commit cfe9d261. scripts/verify-full-suite-selector.mjs:34-40 and scripts/verify-full-suite-contract.mjs:27-34 omit this lifecycle artifact, so all 52 selectors are unavailable in the very final REVIEW they must support. F-041 itself is closed: runner, selector, and contract now preflight the source/dist binding, and smoke contains real stale-source/tampered-dist launches=0 bites. Fix the bounded metadata policy for stall-adjudication in both verifier layers, add a positive exact-path and negative unknown-path self-test, recapture if required, and prove the no-arg command passes after fresh review dispatch metadata.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-13T04:43:25.470Z",
+      "reviewRound": "2026-08-13T04:39:54.955Z",
+      "reviewRunId": "B-9812:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2d8fee1241572534429f45f889cb1487f370eca3c56230450dd863a4bf0d52c"
+      },
+      "readDiagnostics": [],
+      "_hash": "2851512b85279c6c8e42b905d3e233db3730202a88d6ac85f8aab1aada282c0e",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs",
+        "scripts/verify-full-suite-contract.mjs",
+        ".lattice/story/actives/B-9812/stall-adjudication.json",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|current-final-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-045",
+      "desc": "CHK-004:adversarial:1 is still falsely certified after the F-042 fix. In packages/main/src/tasks/review-incremental-context-smoke.ts:1688-1705, scheduleMutation only reruns the same isolated, passing scenarios in order [21,10,31] and declares detected=true because JSON.stringify of the ordered receipt differs from the baseline [31,10,21]. The digest must differ solely because the array/mask order differs; no seed recording is removed and no order-dependent shared state is introduced. The final stress receipt confirms every reordered observation remains all-true while detected=true. scripts/verify-full-suite-contract.mjs:170-172 then accepts this tautology for stressValid, and CHK-004:adversarial:1 at :261 inherits it. This cannot detect the promised hidden cross-shard state or nondeterminism regression. Add a real injection that shares/order-depends state across reordered shards (or suppresses seed recording), assert the normalized per-mask outcomes/attribution change or verifier fails, and compare order-insensitive semantic maps so a mere permutation is not itself the detection signal.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-13T04:45:22.364Z",
+      "reviewRound": "2026-08-13T04:39:54.955Z",
+      "reviewRunId": "B-9812:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "70b4749b435ff208f745376e0ff21781986dc06209a7b8a242e9124f4f58e401",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-still-falsely",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-046",
+      "desc": "Current final HEAD does not have replayable verificationEvidence. At HEAD d63c3de8b8, the immutable pinned command `node scripts/verify-full-suite-contract.mjs` exits nonzero before emitting any of the 52 selectors: `/tmp/b9812-final-v3-contract-capture.json` is bound to 8493717369, and the intervening diff includes `.lattice/story/actives/B-9812/scope-contract.json` and `stall-adjudication.json`, which are intentionally outside scripts/verify-full-suite-selector.mjs:34-40 METADATA_ALLOWLIST. The observed failure is `capture HEAD is not an admissible metadata-only ancestor`. Build binding itself passes, so this is specifically a stale final selector capture, not a missing build. WHY: every must intent currently cites this exact command; a final REVIEW cannot pass when the cited command fails and the scope changed after capture. Re-capture after the final scope/source state, refresh all 52 mechanical receipts, and prove post-dispatch no-arg replay.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T04:46:22.149Z",
+      "reviewRound": "2026-08-13T04:39:54.955Z",
+      "reviewRunId": "B-9812:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/done-required-evidence.json",
+          ".lattice/story/actives/B-9812/findings.json",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be1b52c52c57e1a2e5afc9d4b57bdbf9d0649b875a4ace47ee52d9508a4b80d3",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|current-final-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
