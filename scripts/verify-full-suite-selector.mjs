@@ -34,7 +34,7 @@ const identity = () => ({
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
 const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
-const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'test-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json', 'review-passes.json', 'stall-adjudication.json', 'scope-contract.json']);
+const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'test-evidence.json', 'checklist.json', 'findings.json', 'gate-failure-counts.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json', 'review-passes.json', 'stall-adjudication.json', 'scope-contract.json']);
 export const captureHeadIsAdmissible = (receiptHead, currentHead, cwd = root) => {
   try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd, stdio: 'ignore' }); }
   catch { return false; }
@@ -121,6 +121,7 @@ if (args.length === 1 && args[0] === '--capture') {
   assert.equal(METADATA_ALLOWLIST.has('prompt-envelopes.json') && METADATA_ALLOWLIST.has('review-runs.json') && METADATA_ALLOWLIST.has('review-passes.json'), true, 'normal REVIEW dispatch and pass metadata is allowlisted');
   assert.equal(METADATA_ALLOWLIST.has('stall-adjudication.json') && METADATA_ALLOWLIST.has('scope-contract.json'), true, 'normal convergence and scope metadata is allowlisted');
   assert.equal(METADATA_ALLOWLIST.has('test-evidence.json'), true, 'normal DONE-required command evidence metadata is allowlisted');
+  assert.equal(METADATA_ALLOWLIST.has('gate-failure-counts.json'), true, 'normal lifecycle gate-attempt metadata is allowlisted');
   assert.equal(METADATA_ALLOWLIST.has('unknown-review-metadata.json'), false, 'unknown REVIEW metadata remains denied');
   const fixture = mkdtempSync(join(tmpdir(), 'b9812-selector-metadata-'));
   try {
@@ -137,6 +138,7 @@ if (args.length === 1 && args[0] === '--capture') {
     writeFileSync(join(metadataRoot, 'scope-contract.json'), '{}\n');
     writeFileSync(join(metadataRoot, 'review-passes.json'), '{}\n');
     writeFileSync(join(metadataRoot, 'test-evidence.json'), '{}\n');
+    writeFileSync(join(metadataRoot, 'gate-failure-counts.json'), '{}\n');
     execFileSync('git', ['add', '.'], { cwd: fixture });
     execFileSync('git', ['commit', '-qm', 'normal lifecycle descendant'], { cwd: fixture });
     const lifecycleHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: fixture, encoding: 'utf8' }).trim();
