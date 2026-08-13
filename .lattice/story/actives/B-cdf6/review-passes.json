@@ -374,6 +374,32 @@
         "scanEscalationReason": null
       },
       "_hash": "4e51c0b34cd0487f37b64089d21d3e5f1e752103aa17df1187708630fdacfe77"
+    },
+    {
+      "id": "B-cdf6:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Fresh round bound to HEAD 339138dbaa (storyFilesHash fa56287b). review_incremental_context confirmed exactly 2 changed files since prior pass (RP-009/RR-023, invalidated by material fix 03b39c852c): packages/main/src/tasks/rollout-check-smoke.ts and packages/main/src/core/review-run.ts. (1) rollout-check-smoke.ts (602bf8b8dd): measured actual help output myself -- node bin/proof-or-stop.js story_create --help gives exactly 5 hits of proof-or-stop story_create / 0 hits of lattice story_create, and 2 hits of proof-or-stop session_brief / 0 hits of lattice session_brief, matching both the new assert.match/doesNotMatch pairs and the added comment (lines 115-119) word for word; the comment accurately narrates why the old pinned-brand assertion inverted into a false failure after the rename succeeded. (2) review-run.ts (03b39c852c): confirmed the dead agentsWithCurrentValidEvidence computation is gone (grep for the identifier returns exactly one hit, line 1602) and that one surviving hit sits inside a paragraph explicitly framed as historical (Why the old ... conjunct was a deadlock) describing code that no longer exists in the function body below it (which now computes hasNewerValidEvidence inline, lines 1627-1633) -- reads as retained rationale, not stale prose naming a live identifier. (3) Verified the two docs-lies flagged for extra scepticism are genuinely fixed: docs/CLI.md:5 now says canonical (not only active) and bin/lattice.js --version / bin/proof-or-stop.js --version both print the same version, confirming canonical is accurate; docs/CLI.md:17 now names the three aliases inline (bin/proof-or-stop.js, bin/proof-or-stop-codex.js, npm proof-or-stop) rather than pointing at a nonexistent CHANGELOG.md alias inventory, and a repo-wide grep for the old placeholder string returns zero hits. (4) Verified the two cited B-META framework-gap line references against source: evidence-freshness.ts:458 currentStoryFilesHash filters via isMaterialExcludedPath at line 464 exactly as F-023 states; scripts/verify-lattice-residue.mjs:553 does render dollar-n slash dollar-n detector unit tests from the live self-test count exactly as F-024 states (confirmed by running --self-test: currently 38/38, consistent with the counter having grown from the 29/29 the finding describes). (5) Ran verify-lattice-residue.mjs plain scan and --self-test: all PASS (koala/brand-prose/brand-exec, 38/38 self-test). No doc-code drift found in scope; no finding registered.",
+      "createdAt": "2026-08-13T05:29:51.658Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-028",
+      "envelopeId": "8e2fe1ffe956858ab82caaa2534a5af795d26b7ca3b661180d5ae922b5d2b16d",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f0a6b923d3c6b7d7b81f613c7d0ee857d50e97b465bd882458a1b54d6df9ce8"
     }
   ]
 }
