@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, win32 } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
@@ -22,6 +22,16 @@ function assertWithDetail(condition: unknown, stableMessage: string, detail: str
 }
 const isolatedTempRootsMatch = (roots: string[], expected: string | undefined): boolean =>
   roots.length === 4 && new Set(roots).size === 1 && roots[0] === expected;
+function createFixtureBuildBinding(root: string): void {
+  mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+  mkdirSync(join(root, 'packages/main/dist'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/src/input.ts'), 'export const fixture = true;\n');
+  writeFileSync(join(root, 'packages/main/dist/input.js'), 'export const fixture = true;\n');
+  writeFileSync(join(root, 'packages/main/tsconfig.json'), '{}\n');
+  writeFileSync(join(root, 'packages/main/package.json'), '{}\n');
+  symlinkSync(join(process.cwd(), 'scripts'), join(root, 'scripts'), 'dir');
+  execFileSync(process.execPath, ['--input-type=module', '-e', `import{writeBuildBinding}from${JSON.stringify(`file://${join(process.cwd(), 'scripts/full-suite-build-binding.mjs')}`)};writeBuildBinding(process.cwd())`], { cwd: root });
+}
 const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', durationMs: 1, output: '' });
 const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): ResourceClaim => ({ class: 'fixed-path', key, access, canonicalKey: `fixed-path:${key}` });
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
@@ -263,6 +273,16 @@ async function main(): Promise<void> {
     assert(JSON.stringify(markerA.detailedAssertions) !== JSON.stringify(markerChanged.detailedAssertions)
       && JSON.stringify(markerA.mutationInventory) !== JSON.stringify(markerChanged.mutationInventory), 'changing parsed marker assertions and mutations alters member inventory');
     assert(markerA.detailedAssertions?.includes('marker-proof') && markerA.detailedAssertions.some(value => value.startsWith('output-sha256:')), 'marker assertions and non-marker output signatures are retained as separate facts');
+    writeFileSync(join(cpuFixture, 'suppressible.js'), `console.log('PASS assertion-one');if(process.env.SUPPRESS_ASSERTION!=='1')console.log('PASS assertion-two');console.log('LATTICE_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:process.env.SUPPRESS_MARKER_ASSERTION==='1'?[]:['marker-assertion'],mutations:process.env.SUPPRESS_MARKER_MUTATION==='1'?[]:['marker-mutation']}));\n`);
+    writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: { 'test:suppressible': 'node suppressible.js' } }));
+    delete process.env.SUPPRESS_ASSERTION; delete process.env.SUPPRESS_MARKER_ASSERTION; delete process.env.SUPPRESS_MARKER_MUTATION;
+    const suppressibleBaseline = await runEntry(entry('test:suppressible'), cpuFixture);
+    process.env.SUPPRESS_ASSERTION = '1'; const suppressedOutput = await runEntry(entry('test:suppressible'), cpuFixture); delete process.env.SUPPRESS_ASSERTION;
+    process.env.SUPPRESS_MARKER_ASSERTION = '1'; const suppressedMarkerAssertion = await runEntry(entry('test:suppressible'), cpuFixture); delete process.env.SUPPRESS_MARKER_ASSERTION;
+    process.env.SUPPRESS_MARKER_MUTATION = '1'; const suppressedMarkerMutation = await runEntry(entry('test:suppressible'), cpuFixture); delete process.env.SUPPRESS_MARKER_MUTATION;
+    assert(JSON.stringify(suppressibleBaseline.detailedAssertions) !== JSON.stringify(suppressedOutput.detailedAssertions), 'suppressing an assertion before member output changes observed detailed inventory');
+    assert(suppressibleBaseline.detailedAssertions?.includes('marker-assertion') && !suppressedMarkerAssertion.detailedAssertions?.includes('marker-assertion'), 'suppressing an explicit marker assertion before emission changes parsed inventory');
+    assert(suppressibleBaseline.mutationInventory?.includes('marker-mutation') && suppressedMarkerMutation.mutationInventory?.length === 0, 'suppressing an explicit marker mutation before emission changes mutation inventory');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
     const tempOwnershipLabel = 'member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP';
     assertWithDetail(isolatedTempRootsMatch(isolatedRoots, cpuResult.tempRoot), tempOwnershipLabel, `${isolatedRoots.join('|')} vs ${cpuResult.tempRoot}`);
@@ -297,6 +317,7 @@ async function main(): Promise<void> {
   try {
     const heartbeat = join(interruptRoot, 'heartbeat'); const resultPath = join(interruptOutputRoot, 'result.json');
     mkdirSync(join(interruptRoot, '.lattice', 'runtime'), { recursive: true });
+    createFixtureBuildBinding(interruptRoot);
     writeFileSync(join(interruptRoot, 'hang.js'), `const fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20);\n`);
     const fixtureScripts = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, 'node hang.js']));
     fixtureScripts['test:serial-reference'] = FULL_SUITE_ENTRIES.map((item) => `npm run ${item.name}`).join(' && ');
@@ -315,6 +336,31 @@ async function main(): Promise<void> {
     const before = readFileSync(heartbeat, 'utf8').length; await new Promise((done) => setTimeout(done, 100));
     assert(readFileSync(heartbeat, 'utf8').length === before, 'top-level SIGINT leaves no descendant heartbeat');
   } finally { rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true }); }
+
+  const staleRoot = mkdtempSync(join(tmpdir(), 'full-suite-stale-binding-'));
+  try {
+    createFixtureBuildBinding(staleRoot);
+    const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
+    writeFileSync(join(staleRoot, 'package.json'), JSON.stringify({ scripts: { test: `node ${JSON.stringify(runnerPath)}` } }));
+    writeFileSync(join(staleRoot, 'packages/main/src/input.ts'), 'export const fixture = false;\n');
+    const launchMarker = join(staleRoot, 'npm-launched');
+    const fakeBin = join(staleRoot, 'bin'); mkdirSync(fakeBin);
+    writeFileSync(join(fakeBin, 'npm'), `#!/bin/sh\necho launched > ${JSON.stringify(launchMarker)}\nexit 99\n`); chmodSync(join(fakeBin, 'npm'), 0o755);
+    const stale = spawnSync(process.execPath, [process.env.npm_execpath!, 'test', '--', '--unknown'], {
+      cwd: staleRoot, encoding: 'utf8', env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH ?? ''}` },
+    });
+    const staleOutput = `${stale.stdout}${stale.stderr}`;
+    assert(stale.status !== 0 && /source\/dist build binding mismatch/.test(staleOutput) && !/unknown argument/.test(staleOutput) && !existsSync(launchMarker), 'stale source makes direct npm test fail before argument parsing with launches0');
+
+    writeFileSync(join(staleRoot, 'packages/main/src/input.ts'), 'export const fixture = true;\n');
+    execFileSync(process.execPath, ['--input-type=module', '-e', `import{writeBuildBinding}from${JSON.stringify(`file://${join(process.cwd(), 'scripts/full-suite-build-binding.mjs')}`)};writeBuildBinding(process.cwd())`], { cwd: staleRoot });
+    writeFileSync(join(staleRoot, 'packages/main/dist/input.js'), 'export const fixture = false;\n');
+    const tampered = spawnSync(process.execPath, [process.env.npm_execpath!, 'test', '--', '--unknown'], {
+      cwd: staleRoot, encoding: 'utf8', env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH ?? ''}` },
+    });
+    const tamperedOutput = `${tampered.stdout}${tampered.stderr}`;
+    assert(tampered.status !== 0 && /source\/dist build binding mismatch/.test(tamperedOutput) && !/unknown argument/.test(tamperedOutput) && !existsSync(launchMarker), 'tampered dist makes direct npm test fail before argument parsing with launches0');
+  } finally { rmSync(staleRoot, { recursive: true, force: true }); }
 
   const dynamicMarkerPatterns = [
     /(?:actual=|output=|\b(?:elapsed|duration)(?:Ms)?\s*[=:]\s*\d|\bPID\s*[=:]?\s*\d|\bB-[0-9a-f]{4}\b)/i,

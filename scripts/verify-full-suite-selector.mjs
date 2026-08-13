@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 
 const root = process.cwd();
+execFileSync(process.execPath, ['scripts/verify-full-suite-build-binding.mjs'], { cwd: root, stdio: 'pipe' });
 const receiptPath = process.env.B9812_SELECTOR_RECEIPT ?? '/tmp/b9812-final-v3-contract-capture.json';
 const artifacts = [
   '/tmp/b9812-final-v3-cohort-jobs1.json', '/tmp/b9812-final-v3-cohort-jobs1.identity',

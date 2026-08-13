@@ -50,7 +50,7 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -1435,8 +1435,9 @@ export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
 });
 
 type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean>;
+type GuardMutation = keyof typeof INCREMENTAL_GUARD_CLASS_MAP;
 
-function runConcurrentReviewerWriteCase(mask: number, iteration = 1): GuardObservation {
+function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: GuardMutation): GuardObservation {
   const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
@@ -1533,11 +1534,17 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): GuardObser
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    if (mutation === 'review-run-identity') {
+      const data = store.readReviewRuns(storyId); data.runs[1] = { ...data.runs[1]!, reviewRunId: data.runs[0]!.reviewRunId }; store.writeReviewRuns(storyId, data);
+    }
     const runs = store.readReviewRuns(storyId).runs;
     const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
-    assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
+    if (!mutation) assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
     const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
-    assert.equal(
+    if (mutation === 'mixed-envelope-selection') {
+      const data = store.readPromptEnvelopes(storyId); data.envelopes = data.envelopes.slice(1); store.writePromptEnvelopes(storyId, data);
+    }
+    if (!mutation) assert.equal(
       store.readPromptEnvelopes(storyId).envelopes.length,
       fullRoles.length,
       `mixed mask ${mask} iteration ${iteration} persists one envelope for each full-envelope lane only`,
@@ -1546,8 +1553,8 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): GuardObser
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
       mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
-      assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
-      assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
+      if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
+      if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
@@ -1569,25 +1576,33 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): GuardObser
           category: 'edge',
         }, role);
     });
-    execFileSync('/bin/sh', ['-c', ['set -eu', ...evidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
+    const executedEvidenceCommands = mutation === 'pass-finding-write-serialization' ? evidenceCommands.slice(0, -1) : evidenceCommands;
+    execFileSync('/bin/sh', ['-c', ['set -eu', ...executedEvidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
       cwd: root,
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const passFindingSerialization = store.readReviewPasses(storyId).passes.length === 3 && store.readFindings(storyId).findings.length === 2;
-    assert.equal(passFindingSerialization, true, 'concurrent passes and findings are retained exactly once');
+    if (!mutation) assert.equal(passFindingSerialization, true, 'concurrent passes and findings are retained exactly once');
+    if (mutation === 'signed-result-admissibility') {
+      const data = store.readReviewPasses(storyId); data.passes[0] = { ...data.passes[0]!, reviewRunId: 'forged-review-run' }; store.writeReviewPasses(storyId, data);
+    }
     const evidence = collectReviewerEvidenceState(store, storyId, root);
     const signedResultAdmissibility = evidence.invalid.length === 0 && evidence.valid.length === roles.length;
-    assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
+    if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
     const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
+    if (mutation === 'lane-no-overwrite') observedAgents.pop();
     const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
-    assert.deepEqual(
+    if (!mutation) assert.deepEqual(
       observedAgents,
       [...roles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
+    if (mutation === 'real-review-gate') {
+      const data = store.readReviewPasses(storyId); data.passes = data.passes.slice(1); store.writeReviewPasses(storyId, data);
+    }
     const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
-    assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
+    if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
     console.log(`${MARKER} MIXED MASK ${mask} iteration ${iteration}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
     return {
       'review-run-identity': reviewRunIdentity,
@@ -1607,6 +1622,18 @@ function runIncrementalGuardClassMatrix(): GuardObservation[] {
   const observations = [runConcurrentReviewerWriteCase(0b11111), runConcurrentReviewerWriteCase(0b01010), runConcurrentReviewerWriteCase(0b10101, 1)];
   console.log(`${MARKER} INCREMENTAL_GUARD_CLASSES=${Object.keys(INCREMENTAL_GUARD_CLASS_MAP).join(',')}`);
   return observations;
+}
+
+function runGuardShardTrials(): unknown {
+  const target = fileURLToPath(import.meta.url);
+  const program = String.raw`
+const {spawn}=require('child_process');
+const target=process.argv[1];
+const run=(args,timeout=120000)=>new Promise(resolve=>{const child=spawn(process.execPath,[target,...args],{stdio:['ignore','pipe','pipe']});let out='';child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>out+=x);const timer=setTimeout(()=>{child.kill('SIGKILL')},timeout);child.on('exit',(code,signal)=>{clearTimeout(timer);const line=out.split(/\r?\n/).find(x=>x.startsWith('GUARD_SCENARIO_RECEIPT='));resolve({code,signal,receipt:line?JSON.parse(line.slice('GUARD_SCENARIO_RECEIPT='.length)):null})})});
+(async()=>{const masks=[31,10,21];const serial=[];for(const mask of masks)serial.push(await run(['--guard-scenario='+mask]));const parallel=await Promise.all(masks.map(mask=>run(['--guard-scenario='+mask])));const [success,timeout]=await Promise.all([run(['--guard-scenario=21']),run(['--guard-timeout-fixture'],250)]);process.stdout.write(JSON.stringify({serial,parallel,successBesideTimeout:success,timeoutBesideSuccess:timeout}));})().catch(e=>{console.error(e);process.exit(1)});`;
+  const result = spawnSync(process.execPath, ['-e', program, target], { encoding: 'utf8', timeout: 360_000, maxBuffer: 16 * 1024 * 1024 });
+  if (result.status !== 0) throw new Error(`guard shard trial failed: ${result.stderr || result.stdout}`);
+  return JSON.parse(result.stdout);
 }
 
 function run(): void {
@@ -1632,29 +1659,73 @@ function run(): void {
   const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
   const canonicalObservation = burnInObservations[0]!;
   const mutationKillMap = Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => {
-    const mutated = { ...canonicalObservation }; delete mutated[guardClass as keyof GuardObservation];
-    return [guardClass, { baselineDigest: JSON.stringify(canonicalObservation), mutatedDigest: JSON.stringify(mutated), detected: JSON.stringify(canonicalObservation) !== JSON.stringify(mutated) }];
+    if (burnInIterations !== 20) return [guardClass, { executed: false, detected: false }];
+    let mutated: GuardObservation | { threw: string };
+    try { mutated = runConcurrentReviewerWriteCase(0b10101, 100 + Object.keys(INCREMENTAL_GUARD_CLASS_MAP).indexOf(guardClass), guardClass as GuardMutation); }
+    catch (error) { mutated = { threw: error instanceof Error ? error.message : String(error) }; }
+    const baselineDigest = JSON.stringify(canonicalObservation);
+    const mutatedDigest = JSON.stringify(mutated);
+    const targetFailed = 'threw' in mutated || mutated[guardClass as keyof GuardObservation] === false;
+    return [guardClass, { executed: true, baselineDigest, mutatedDigest, detected: targetFailed && baselineDigest !== mutatedDigest, outcome: mutated }];
   }));
+  const baselineSchedule = [0b11111, 0b01010, 0b10101];
+  const baselineScheduleReceipt = baselineSchedule.map((mask, index) => ({ mask, observation: matrixObservations[index]! }));
+  const reorderedSchedule = [0b10101, 0b01010, 0b11111];
+  const reorderedObservations = burnInIterations === 20
+    ? reorderedSchedule.map((mask, index) => ({ mask, observation: runConcurrentReviewerWriteCase(mask, 200 + index) }))
+    : [];
+  const baselineScheduleDigest = JSON.stringify(baselineScheduleReceipt);
+  const mutatedScheduleDigest = JSON.stringify(reorderedObservations);
+  const scheduleMutation = {
+    executed: burnInIterations === 20,
+    baseline: baselineSchedule,
+    mutated: reorderedSchedule,
+    baselineDigest: baselineScheduleDigest,
+    mutatedDigest: mutatedScheduleDigest,
+    detected: burnInIterations === 20 && reorderedObservations.length === baselineScheduleReceipt.length
+      && reorderedObservations.every(item => Object.values(item.observation).every(Boolean))
+      && baselineScheduleDigest !== mutatedScheduleDigest,
+    observed: reorderedObservations,
+  };
+  const shardTrials = burnInIterations === 20 ? runGuardShardTrials() as {
+    serial: Array<{ code: number; receipt: unknown }>; parallel: Array<{ code: number; receipt: unknown }>;
+    successBesideTimeout: { code: number; receipt: unknown }; timeoutBesideSuccess: { code: number | null; signal: string | null };
+  } : null;
+  const shardEquivalence = shardTrials ? {
+    enabled: true,
+    jobs1: shardTrials.serial,
+    jobs3: shardTrials.parallel,
+    deterministic: JSON.stringify(shardTrials.serial.map(item => item.receipt)) === JSON.stringify(shardTrials.parallel.map(item => item.receipt)),
+    timeoutIsolated: shardTrials.successBesideTimeout.code === 0 && Boolean(shardTrials.successBesideTimeout.receipt)
+      && shardTrials.timeoutBesideSuccess.signal === 'SIGKILL',
+  } : { enabled: false, deterministic: false, timeoutIsolated: false };
   const allRootsIsolatedPerCase = burnInObservations.length === burnInIterations;
   const stressReceipt = {
     deterministicSeed: 'fixed-mask-v1',
     schedule: [0b11111, 0b01010, 0b10101],
-    shards: { enabled: false, observedSequentialCases: allRootsIsolatedPerCase, reason: 'each command cohort shares one lifecycle root within its case; cases were observed sequentially' },
+    shards: { ...shardEquivalence, observedSequentialCases: allRootsIsolatedPerCase },
     replay: { mask: 0b10101, repetitions: burnInIterations, sameGuardClassOutcome: JSON.stringify(replayObservation) === JSON.stringify(canonicalObservation), observed: replayObservation },
     mutationKillMap,
+    scheduleMutation,
     iterations: burnInObservations.map((guardClasses, index) => ({ iteration: index + 1, guardClasses })),
     aba: { observedDurationMs: abaDurationMs },
     cutoff: { observedDurationMs: cutoffDurationMs },
     restoration: { completedCases: burnInObservations.length, expectedCases: burnInIterations },
   };
   console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
-  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: Object.keys(INCREMENTAL_GUARD_CLASS_MAP) })}`);
+  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 
 const isDirectRun = process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isDirectRun) {
-  if (process.argv.includes('--aba-only')) {
+  const guardScenario = process.argv.find(argument => argument.startsWith('--guard-scenario='));
+  if (guardScenario) {
+    const mask = Number(guardScenario.slice('--guard-scenario='.length));
+    console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, observation: runConcurrentReviewerWriteCase(mask, 900) })}`);
+  } else if (process.argv.includes('--guard-timeout-fixture')) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
+  } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();

@@ -9,6 +9,9 @@ import { semanticCohortRecords } from './run-proofstory-acceptance-rollout-cohor
 const root = process.cwd();
 const EXPECTED_MEMBERS = 47;
 const cliArgs = process.argv.slice(2);
+// Capture and replay are inadmissible if the executable dist is not the output
+// bound by the standard build to current source.
+execFileSync(process.execPath, ['scripts/verify-full-suite-build-binding.mjs'], { cwd: root, stdio: 'pipe' });
 if (cliArgs.length === 0 || (cliArgs.length === 1 && cliArgs[0] === '--capture')) {
   const selectorArgs = cliArgs.length === 0 ? ['--all'] : ['--capture'];
   const output = execFileSync(process.execPath, ['scripts/verify-full-suite-selector.mjs', ...selectorArgs], {
@@ -42,6 +45,7 @@ const runnerSmokeSource = readFileSync('packages/main/src/tasks/full-suite-runne
 const cohortSource = readFileSync('scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'utf8');
 const acceptanceSource = readFileSync('packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts', 'utf8');
 const incrementalSource = readFileSync('packages/main/src/tasks/review-incremental-context-smoke.ts', 'utf8');
+const buildBindingSelfTest = execFileSync(process.execPath, ['scripts/verify-full-suite-build-binding.mjs', '--self-test'], { cwd: root, encoding: 'utf8' });
 
 const smokeOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/full-suite-runner-smoke.js'], { cwd: root, encoding: 'utf8' });
 assert.match(smokeOutput, /full-suite-runner-smoke: PASS \((\d+) assertions\)/);
@@ -138,12 +142,6 @@ const inventoriesEqual = (left, right) => left.every(leftResult => {
     && canonical(leftResult.mutationInventory) === canonical(rightResult.mutationInventory);
 });
 const serialParallelInventoriesEqual = receiptCheck(Boolean(serial && parallel[0] && inventoriesEqual(serial.results, parallel[0].results)), 'serial/parallel per-member assertion or mutation inventory differs');
-const inventoryDeletionBites = Boolean(serial?.results?.[0]?.detailedAssertions?.length && parallel[0] && (() => {
-  const mutated = structuredClone(serial.results);
-  mutated[0].detailedAssertions = mutated[0].detailedAssertions.slice(1);
-  return !inventoriesEqual(mutated, parallel[0].results);
-})());
-receiptCheck(inventoryDeletionBites, 'deleting one member assertion signature did not break inventory equivalence');
 
 const doneReceiptPath = process.env.B9812_DONE_RECEIPT ?? '.lattice/story/actives/B-9812/done-required-evidence.json';
 const doneReceiptText = existsSync(doneReceiptPath) ? readTextReceipt(doneReceiptPath) : '';
@@ -168,8 +166,11 @@ const stressValid = receiptCheck(Boolean(stressReceipt && stressReceipt.iteratio
   && receiptCheck(stressReceipt.iterations.every(iteration => Object.keys(iteration.guardClasses ?? {}).length === 6 && Object.values(iteration.guardClasses).every(Boolean)), 'stress20 observed guard-class outcome mismatch')
   && receiptCheck(stressReceipt.aba?.observedDurationMs > 0 && stressReceipt.cutoff?.observedDurationMs > 0 && stressReceipt.restoration?.completedCases === 20, 'stress20 ABA/cutoff/restoration observations missing')
   && receiptCheck(stressReceipt.deterministicSeed === 'fixed-mask-v1' && stressReceipt.schedule?.join(',') === '31,10,21', 'stress20 seed/schedule receipt missing')
-  && receiptCheck(stressReceipt.shards?.enabled === false && stressReceipt.replay?.sameGuardClassOutcome === true, 'stress20 shard/replay contract missing')
-  && receiptCheck(Object.keys(stressReceipt.mutationKillMap ?? {}).length === 6 && Object.values(stressReceipt.mutationKillMap).every(mutation => mutation.detected && mutation.baselineDigest !== mutation.mutatedDigest), 'stress20 mutation-kill observations incomplete');
+  && receiptCheck(stressReceipt.shards?.enabled === true && stressReceipt.shards?.deterministic === true && stressReceipt.shards?.timeoutIsolated === true && stressReceipt.replay?.sameGuardClassOutcome === true, 'stress20 shard/replay/timeout isolation contract missing')
+  && receiptCheck(stressReceipt.scheduleMutation?.executed === true && stressReceipt.scheduleMutation?.detected === true
+    && stressReceipt.scheduleMutation.baselineDigest !== stressReceipt.scheduleMutation.mutatedDigest
+    && stressReceipt.scheduleMutation.observed?.every(item => Number.isInteger(item.mask) && Object.values(item.observation ?? {}).every(Boolean)), 'stress20 schedule/order mutation missing')
+  && receiptCheck(Object.keys(stressReceipt.mutationKillMap ?? {}).length === 6 && Object.values(stressReceipt.mutationKillMap).every(mutation => mutation.executed && mutation.detected && mutation.baselineDigest !== mutation.mutatedDigest), 'stress20 production guard mutation-kill observations incomplete');
 const jobsEdgeValid = receiptCheck(Boolean(jobs3?.overallStatus === 'PASS' && jobs3.jobs === 3 && jobs3.total === EXPECTED_MEMBERS), 'jobs3 edge receipt invalid')
   && receiptCheck(Boolean(jobs5?.overallStatus === 'PASS' && jobs5.jobs === 5 && jobs5.total === EXPECTED_MEMBERS), 'jobs5 edge receipt invalid');
 const memberReportValid = parallel.length === 3 && parallel.every(run =>
@@ -201,6 +202,11 @@ const focusedBehavior = {
   protectedClasses: ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'].every(resourceClass => smokeOutput.includes(`canonical manifest exercises protected class ${resourceClass}`)) && smokeOutput.includes('preowned fixed path makes canonical resource sentinel fail terminally') && smokeOutput.includes('fixed-port claim removal mutation bites'),
   injectedFailures: ['timeout kills complete descendant process group', 'failure is terminal and never retried', 'tracked project output overwrite is rejected'].every(text => smokeOutput.includes(text)),
   cpuSpoof: smokeOutput.includes('member stderr cannot spoof dedicated CPU timing file'),
+  buildBindingEntry: smokeOutput.includes('stale source makes direct npm test fail before argument parsing with launches0')
+    && smokeOutput.includes('tampered dist makes direct npm test fail before argument parsing with launches0'),
+  emittedInventoryBites: smokeOutput.includes('suppressing an assertion before member output changes observed detailed inventory')
+    && smokeOutput.includes('suppressing an explicit marker assertion before emission changes parsed inventory')
+    && smokeOutput.includes('suppressing an explicit marker mutation before emission changes mutation inventory'),
 };
 const schedulerLine = smokeOutput.split(/\r?\n/).find(line => line.startsWith('FULL_SUITE_SCHEDULER_RECEIPT='));
 let schedulerReceipt = null;
@@ -218,6 +224,8 @@ const schedulerProof = {
 
 const proof = {
   focusedRunner: smokeAssertions >= 44,
+  buildBinding: focusedBehavior.buildBindingEntry && /verify-full-suite-build-binding/.test(runnerSource)
+    && buildBindingSelfTest.includes('stale source and tampered dist rejected'),
   keyedResources: /ResourceClass/.test(runnerSource) && /canonicalizeEntries/.test(runnerSource) && /claimsConflict/.test(runnerSource),
   cleanup: /runner-owned-unique/.test(runnerSource) && /owned temp cleanup failed/.test(runnerSource) && /caller repository root/.test(runnerSmokeSource),
   processTree: /killProcessTree/.test(runnerSource) && /AggregateError/.test(runnerSource) && /top-level SIGINT exits 130/.test(runnerSmokeSource),
@@ -225,7 +233,7 @@ const proof = {
   identityAndBudget: parallel.length === 3 && /performance\.now/.test(runnerSource) && /identityChanged/.test(runnerSource) && parallel.every(run => run.durationMs < 300_000 && !run.identityDrift),
   terminal: /failure is terminal and never retried/.test(runnerSmokeSource) && parallel.length === 3 && parallel.every(run => run.retries === 0),
   inventory: parallel.length === 3 && parallel.every(run => run.total === EXPECTED_MEMBERS && run.coverageInventory.canonicalMembers.length === EXPECTED_MEMBERS),
-  serialEquivalent: serialValid && serialParallelInventoriesEqual && inventoryDeletionBites && serial.results.every(result => result.status === 'PASS'),
+  serialEquivalent: serialValid && serialParallelInventoriesEqual && focusedBehavior.emittedInventoryBites && serial.results.every(result => result.status === 'PASS'),
   cohortEquivalent: cohortSemanticEqual && normalizedOne.length === 12,
   cohortIntegrity: acceptancePassed && /semanticInventoryDigest/.test(cohortSource) && /copied cohort runner is byte-identical/.test(acceptanceSource) && /tempCohort = clone\(control\)/.test(acceptanceSource),
   cohortIsolation: acceptancePassed && cohortSemanticEqual && /withProductionCaseSlot/.test(cohortSource) && /evidenceGitCwd/.test(cohortSource) && /controlRestored/.test(cohortSource),
@@ -241,10 +249,10 @@ const proof = {
 };
 
 const conditions = {
-  'CHK-001': [proof.auditableReports && proof.memberReport && proof.explicitLongTailMarkers, proof.threeRuns && proof.memberReport, proof.inventory && proof.identityAndBudget, proof.terminal && proof.focusedBehavior.injectedFailures, proof.focusedRunner && proof.inventory && proof.memberReport, proof.identityAndBudget && proof.focusedBehavior.outputBoundary],
+  'CHK-001': [proof.auditableReports && proof.memberReport && proof.explicitLongTailMarkers, proof.threeRuns && proof.memberReport, proof.inventory && proof.identityAndBudget, proof.terminal && proof.focusedBehavior.injectedFailures, proof.focusedRunner && proof.inventory && proof.memberReport && proof.buildBinding, proof.identityAndBudget && proof.focusedBehavior.outputBoundary && proof.buildBinding],
   'CHK-002': [schedulerProof.overlap, schedulerProof.protectedPairs && proof.focusedBehavior.lockWait, schedulerProof.lifecycle && proof.processTree, schedulerProof.aliases, schedulerProof.failClosed && proof.strictArguments, schedulerProof.progress, schedulerProof.mutations, schedulerProof.lifecycle && proof.focusedBehavior.crossPlatformCleanup, schedulerProof.lifecycle && proof.focusedBehavior.outputBoundary],
   'CHK-003': [proof.cohortIntegrity, proof.cohortIsolation, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation, proof.cohortEquivalent, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation],
-  'CHK-004': [proof.incrementalMap && proof.stress20 && stressReceipt.schedule.length === 3, proof.incrementalMap && proof.serialEquivalent && stressReceipt.shards.enabled === false && stressReceipt.shards.observedSequentialCases, proof.incrementalMap && proof.stress20 && stressReceipt.iterations.length === 20, proof.stress20 && stressReceipt.replay.sameGuardClassOutcome, proof.stress20 && stressReceipt.aba.observedDurationMs > 0 && stressReceipt.cutoff.observedDurationMs > 0 && stressReceipt.restoration.completedCases === 20, proof.focusedBehavior.injectedFailures && schedulerProof.lifecycle, proof.incrementalMap && Object.values(stressReceipt.mutationKillMap).every(value => value.detected), proof.stress20 && stressReceipt.deterministicSeed === 'fixed-mask-v1', proof.stress20 && Object.values(stressReceipt.mutationKillMap).every(value => value.detected)],
+  'CHK-004': [proof.incrementalMap && proof.stress20 && stressReceipt.scheduleMutation.detected, proof.incrementalMap && proof.serialEquivalent && stressReceipt.shards.enabled && stressReceipt.shards.deterministic, proof.incrementalMap && proof.stress20 && stressReceipt.iterations.length === 20, proof.stress20 && stressReceipt.replay.sameGuardClassOutcome, proof.stress20 && stressReceipt.aba.observedDurationMs > 0 && stressReceipt.cutoff.observedDurationMs > 0 && stressReceipt.restoration.completedCases === 20, proof.stress20 && stressReceipt.shards.timeoutIsolated, proof.incrementalMap && Object.values(stressReceipt.mutationKillMap).every(value => value.executed && value.detected), proof.stress20 && stressReceipt.deterministicSeed === 'fixed-mask-v1', proof.stress20 && Object.values(stressReceipt.mutationKillMap).every(value => value.executed && value.detected)],
   'CHK-005': [proof.inventory, proof.serialEquivalent, proof.terminal, proof.strictArguments, proof.keyedResources, proof.processTree, proof.inventory, proof.terminal, proof.terminal],
   'CHK-006': [proof.threeRuns, proof.auditableReports && proof.memberReport, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.jobsEdge, proof.identityAndBudget, proof.processTree && schedulerProof.lifecycle && proof.terminal && proof.focusedBehavior.injectedFailures && fixedPortOsValid, proof.identityAndBudget && proof.focusedBehavior.cpuSpoof, schedulerProof.mutations && proof.doneRequired && proof.focusedBehavior.protectedClasses],
 };

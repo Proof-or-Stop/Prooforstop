@@ -421,6 +421,9 @@ export function identityChanged(start: { headHash: string; materialHash: string 
 
 async function main(): Promise<void> {
   const cwd = resolve(process.cwd());
+  // This is deliberately the first executable preflight: stale source/build
+  // material must fail before argument parsing, inventory reads, or spawning.
+  execFileSync(process.execPath, ['scripts/verify-full-suite-build-binding.mjs'], { cwd, stdio: 'pipe' });
   const args = parseRunnerArgs(process.argv.slice(2));
   const pkg = JSON.parse(readFileSync(resolve(cwd, 'package.json'), 'utf8')) as { scripts: Record<string, string> };
   const serialReference = [pkg.scripts['test:serial-reference-prefix'], pkg.scripts['test:serial-reference']].filter(Boolean).join(' && ');
