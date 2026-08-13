@@ -434,6 +434,24 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "_hash": "e7161807110b9dcfeb77b739a0c929fa04992b119f86ed8aed44e0259303c743"
+    },
+    {
+      "id": "B-META-framework-audit:F-024",
+      "desc": "A verificationIntent receipt selector pinned to a MONOTONICALLY-GROWING COUNTER becomes unsatisfiable on legitimate improvement, and because the pin is immutable from DEV onward the only exit is a waiver - so adding a test silently converts a real mechanical receipt into a waiver. Concrete instance: B-cdf6 CHK-004:edge:0 pinned selector='29/29' against `node scripts/verify-lattice-residue.mjs --self-test`. Line 553 renders `${n}/${n} detector unit tests` from the ACTUAL test count, so the token is a live counter; detector tests were added and it now reads 38/38. `git log -S\"29/29\" -- scripts/verify-lattice-residue.mjs` returns NO commit, i.e. 29/29 was never a durable property of the file - the pin captured one transient moment. Every legitimate repair route is closed by design: re-run -> [receipt_selector_absent]; supply a durable selector -> [receipt_selector_mismatch] ('the verification pin is immutable'); verificationIntent frozen from DEV; verification_intent_repair only back-fills MISSING lanes. The immutability is CORRECT (it prevents editing a pin to match whatever output appears) - the defect is on the authoring side, with no guard against pinning a volatile token in the first place. Perverse incentive worth naming: the cheapest way to restore the receipt is to DELETE 9 detector tests. NOTE this is the mirror image of B-META F-012/F-013: those were guards reporting a plausible substitute for what they observed; this is a guard reporting accurately ([receipt_selector_absent] is literally true) while the underlying check PASSES, so the honest report still routes a green check into a waiver.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T05:24:38.051Z",
+      "reviewRound": "",
+      "gapFingerprint": "b3dea23a1d9849ce7778a0f7998b59f5054c31a8a6d308a64386b5c85ee241b5",
+      "files": [
+        "scripts/verify-lattice-residue.mjs:553",
+        ".lattice/story/actives/B-cdf6/checklist.json#CHK-004:edge:0",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "9a25bab4bf6c78cc823ca1cc1a6b9303cd7e82d89218fea1f0ab2b9ba2fb6b84"
     }
   ]
 }
