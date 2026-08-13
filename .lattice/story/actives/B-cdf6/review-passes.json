@@ -247,6 +247,34 @@
         "scanEscalationReason": null
       },
       "_hash": "63b17019b1803d24801e2c3a06127bb9ac6a2005bc977624a9dec4640e48ff43"
+    },
+    {
+      "id": "B-cdf6:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-026 SPLIT resolution and accept both halves; see readManifest for exact files checked. Claim 1 (CHK-006 zero verificationIntent/evidence) confirmed via checklist_get + phase_transition timestamps + live verification_intent_repair dry-run reproducing no-repair-possible + F-005/B-META F-016 cross-check. Minor correction noted: verificationIntent window is INIT-or-PLAN not INIT-only per checklist.ts, does not change conclusion since CHK-006 postdates PLAN->DEV. Claim 2 (LATTICE_* survivors are compat contract not defect) confirmed via broader-than-claimed grep across all packages/*/src (zero unrouted reads), brand-env.ts read in full as genuine read-both resolver, and concept-gate precedent (F-011/F-014/F-020). Also confirmed 0 open findings, tsc clean, both red-b2aa7 receipts pass, full validate progressing clean at verdict time. No new blocker.",
+      "createdAt": "2026-08-13T04:18:57.495Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-021",
+      "envelopeId": "f21b0c71bddf4cd213147f7f41438f2f31e5857ac526276e7d4ffdfd3ca20ed9",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/process-events.jsonl",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40aa3269a4cd1ab2399d6fab7fba71a71a4113675601258e03115e52b56ddb2a"
     }
   ]
 }
