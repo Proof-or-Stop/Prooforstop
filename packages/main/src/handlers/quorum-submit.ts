@@ -60,6 +60,13 @@ export interface QuorumSubmitTestHooks {
   metadataCommit?: ImmutableMetadataCommitTestHooks;
   beforeCaptureOwnedVerdict?: (args: { verdictId: string; emittedCount: number; projectRoot: string }) => void;
   afterVerdictWrite?: (args: { verdictId: string; emittedCount: number; projectRoot: string }) => void;
+  /**
+   * B-3144 F-028: invoked after the FIRST (pre-baseline) duplicate guard and before the clean
+   * baseline check + transaction capture. Exists so a test can script the exact concurrent
+   * interleaving the guard must survive: a competing invocation that commits its own quorum inside
+   * this window, i.e. after we observed "no standing quorum" but before we captured HEAD.
+   */
+  beforeTransactionCapture?: (args: { storyId: string; materialDigest: string }) => void;
 }
 
 function wantsJson(args: FormatArgs | undefined): boolean {
@@ -270,9 +277,17 @@ function quorumStoryRel(projectRoot: string, ctx: HandlerContext, storyId: strin
   return rel;
 }
 
-function committedHostVerdictEvents(gitCwd: string, storyRel: string): Array<Record<string, unknown>> {
+function committedHostVerdictEvents(
+  gitCwd: string,
+  storyRel: string,
+  // B-3144 F-028: the duplicate guard must be able to read the log at an EXACT commit, not just at
+  // whatever HEAD happens to be when the call is made. The post-capture re-check binds itself to
+  // the SHA the transaction froze, so a competing quorum that landed between the two checks is
+  // read from the same commit the transaction is about to build on.
+  ref = 'HEAD',
+): Array<Record<string, unknown>> {
   try {
-    const content = execFileSync('git', ['show', `HEAD:${storyRel}/process-events.jsonl`], {
+    const content = execFileSync('git', ['show', `${ref}:${storyRel}/process-events.jsonl`], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -492,40 +507,61 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       // the floor, THIS guard MUST be updated in the same story to keep producer/consumer
       // parity; otherwise the guard would over-block resubmissions the floor would no longer
       // drift-accept. review_escalation_status reveals any such mismatch.
+      //
+      // B-3144 F-029: the same-material branch compares the NORMALIZED material on both sides,
+      // exactly as the consumer does (core/host-independence.ts normalizes event.materialDigest
+      // before comparing it to the current material hash). A raw comparison left a hole between the
+      // two branches: a committed verdict whose materialDigest carries surrounding whitespace still
+      // COUNTS at the floor (the consumer trims it), yet raw equality was false here, and the drift
+      // branch — which already normalized — saw current material and was false too. Both producer
+      // branches missed it, so a re-submit could still poison that run.
+      //
+      // B-3144 F-028: this check is TIME-OF-CHECK only. It reads the log at the HEAD of this
+      // moment, while the transaction that decides what gets appended captures HEAD later, so two
+      // concurrent invocations could both observe "no standing quorum" and the second would append
+      // a second identical quorum onto the same runIds. It is therefore run TWICE: once here (so a
+      // redundant call refuses before doing any work) and once again immediately after the capture,
+      // bound to the SHA the transaction froze. Both runs use the same predicates and the same two
+      // refusal messages.
       const storyRel = quorumStoryRel(gitCwd, ctx, storyId);
       const plannedRunIds = new Set<string>();
       for (let round = 1; round <= rounds; round += 1) plannedRunIds.add(`${storyId}-q-r${round}`);
-      const committedForGuard = committedHostVerdictEvents(gitCwd, storyRel)
-        .filter(event => event.type === 'host_verdict' && plannedRunIds.has(normalizeString(event.runId)));
-      const sameMaterialRunIds = [...new Set(
-        committedForGuard
-          .filter(event => event.materialDigest === materialDigest)
-          .map(event => normalizeString(event.runId)),
-      )].sort();
-      if (sameMaterialRunIds.length > 0) {
-        throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
-      }
-      const driftAcceptEvents = committedForGuard.filter((event) => {
-        const eventMaterial = normalizeString(event.materialDigest);
-        const eventStoryFilesHash = normalizeString(event.storyFilesHash);
-        return eventMaterial !== ''
-          && eventMaterial !== materialDigest
-          && eventStoryFilesHash !== ''
-          && eventStoryFilesHash === storyFilesHash;
-      });
-      if (driftAcceptEvents.length > 0) {
-        const driftRunIds = [...new Set(driftAcceptEvents.map(event => normalizeString(event.runId)))].sort();
-        const standingMaterials = [...new Set(driftAcceptEvents.map(event => normalizeString(event.materialDigest)))].sort();
-        throw new Error(
-          `quorum_submit refuses: the standing quorum on runId(s) ${driftRunIds.join(', ')} at the older material(s) `
-          + `${standingMaterials.join(', ')} still drift-accepts because storyFilesHash is unchanged `
-          + `(${storyFilesHash}); the review-escalation floor rewrites those verdicts to the current material, so `
-          + `nothing needs resubmitting. A re-submit would poison the rounds as duplicate host/session/key identity. `
-          + `Check review_escalation_status to confirm the standing quorum, and note that a fresh quorum becomes `
-          + `possible only when the story-owned files change (storyFilesHash moves), not merely the whole-tree material.`,
-        );
-      }
+      const normalizedMaterialDigest = normalizeString(materialDigest);
+      const assertNoStandingQuorum = (ref: string): void => {
+        const committedForGuard = committedHostVerdictEvents(gitCwd, storyRel, ref)
+          .filter(event => event.type === 'host_verdict' && plannedRunIds.has(normalizeString(event.runId)));
+        const sameMaterialRunIds = [...new Set(
+          committedForGuard
+            .filter(event => normalizeString(event.materialDigest) === normalizedMaterialDigest)
+            .map(event => normalizeString(event.runId)),
+        )].sort();
+        if (sameMaterialRunIds.length > 0) {
+          throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
+        }
+        const driftAcceptEvents = committedForGuard.filter((event) => {
+          const eventMaterial = normalizeString(event.materialDigest);
+          const eventStoryFilesHash = normalizeString(event.storyFilesHash);
+          return eventMaterial !== ''
+            && eventMaterial !== normalizedMaterialDigest
+            && eventStoryFilesHash !== ''
+            && eventStoryFilesHash === storyFilesHash;
+        });
+        if (driftAcceptEvents.length > 0) {
+          const driftRunIds = [...new Set(driftAcceptEvents.map(event => normalizeString(event.runId)))].sort();
+          const standingMaterials = [...new Set(driftAcceptEvents.map(event => normalizeString(event.materialDigest)))].sort();
+          throw new Error(
+            `quorum_submit refuses: the standing quorum on runId(s) ${driftRunIds.join(', ')} at the older material(s) `
+            + `${standingMaterials.join(', ')} still drift-accepts because storyFilesHash is unchanged `
+            + `(${storyFilesHash}); the review-escalation floor rewrites those verdicts to the current material, so `
+            + `nothing needs resubmitting. A re-submit would poison the rounds as duplicate host/session/key identity. `
+            + `Check review_escalation_status to confirm the standing quorum, and note that a fresh quorum becomes `
+            + `possible only when the story-owned files change (storyFilesHash moves), not merely the whole-tree material.`,
+          );
+        }
+      };
+      assertNoStandingQuorum('HEAD');
 
+      testHooks.beforeTransactionCapture?.({ storyId, materialDigest });
       assertCleanQuorumBaseline(gitCwd);
       const transaction = captureLifecycleMetadataTransaction({
         root: gitCwd,
@@ -534,6 +570,13 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         storyRel,
         kind: 'quorum-submit',
       });
+      // F-028: re-check bound to the captured HEAD. Everything this call is about to append is
+      // built on transaction.headHash, so the question "does a standing quorum already exist" must
+      // be answered against THAT commit. A competitor that committed its quorum between the first
+      // check and this capture is now visible, and we refuse instead of appending a second
+      // identical quorum onto the same runIds. Nothing has been written yet, so the refusal needs
+      // no rollback and leaves the same clean state the first check does.
+      assertNoStandingQuorum(transaction.headHash);
       const emitted = [];
       const runIds: string[] = [];
       const ownedEventRecords: OwnedQuorumEventRecord[] = [];
