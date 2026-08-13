@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, win32 } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
@@ -317,7 +317,8 @@ async function main(): Promise<void> {
     const ownedPaths = [join(ownedRoot, 'owned-fixed'), join(ownedRoot, 'owned-runtime'), join(lockRoot, 'owned-main')];
     const sibling = join(ownedRoot, 'sibling'); writeFileSync(sibling, 'keep\n');
     const ready = join(root, 'owned-ready');
-    writeFileSync(join(root, 'run'), `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`);
+    const ownedFixture = `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);const t=p+'/.owner-'+process.pid+'.tmp';fs.writeFileSync(t,process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n',{flag:'wx'});fs.renameSync(t,p+'/owner')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`;
+    writeFileSync(join(root, 'run'), ownedFixture);
     const ownedEntry = canonicalizeEntries([{ ...entry('test:owned-cleanup'), resources: [
       { class: 'fixed-path', key: '.lattice/runtime/owned-fixed', access: 'exclusive', ownership: 'runner-cleanable' },
       { class: 'runtime-lock', key: '.lattice/runtime/owned-runtime', access: 'exclusive', ownership: 'runner-cleanable' },
@@ -329,7 +330,7 @@ async function main(): Promise<void> {
     const passResidue = await runEntry(passResidueEntry, root, process.execPath);
     assert(passResidue.status === 'FAIL' && passResidue.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(passResiduePath), 'PASS member residue fails closed and is retained for diagnosis');
     rmSync(passResiduePath, { recursive: true, force: true });
-    writeFileSync(join(root, 'run'), `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`);
+    writeFileSync(join(root, 'run'), ownedFixture);
     const ownedPromise = runEntry({ ...ownedEntry, timeoutMs: 10_000 }, root, process.execPath);
     for (let index = 0; index < 100 && !existsSync(ready); index++) await new Promise(done => setTimeout(done, 10));
     interruptForTest('SIGTERM'); const ownedInterrupted = await ownedPromise; resetInterruptForTest();
@@ -341,16 +342,44 @@ async function main(): Promise<void> {
     assert(outsideDenied, 'runner-cleanable target outside approved runtime roots is denied');
     const symlinkTarget = join(ownedRoot, 'owned-link'); symlinkSync(sibling, symlinkTarget);
     const symlinkEntry = { ...entry('test:symlink-owned'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-link', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${symlinkTarget}` } as ResourceClaim] };
-    let symlinkDenied = false; try { cleanupManifestForEntry(symlinkEntry, root); } catch { symlinkDenied = true; }
-    assert(symlinkDenied, 'runner-cleanable symlink target is denied'); rmSync(symlinkTarget);
+    let symlinkLaunches = 0; let symlinkDenied = false; try { await runEntry(symlinkEntry, root, process.execPath, () => { symlinkLaunches++; }); } catch { symlinkDenied = true; }
+    assert(symlinkDenied && symlinkLaunches === 0 && lstatSync(symlinkTarget).isSymbolicLink(), 'pre-existing runner-cleanable symlink is rejected before spawn and retained'); rmSync(symlinkTarget);
     const symlinkAncestorTarget = join(root, 'owned-real-ancestor'); mkdirSync(symlinkAncestorTarget);
     const symlinkAncestor = join(ownedRoot, 'owned-alias-ancestor'); symlinkSync(symlinkAncestorTarget, symlinkAncestor, 'dir');
     let symlinkAncestorDenied = false;
     try { canonicalizeEntries([{ ...entry('test:symlink-ancestor'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-alias-ancestor/child', access: 'exclusive', ownership: 'runner-cleanable' }] }], root); } catch { symlinkAncestorDenied = true; }
     assert(symlinkAncestorDenied, 'runner-cleanable target with symlinked ancestor is denied'); rmSync(symlinkAncestor);
     const foreign = join(ownedRoot, 'foreign'); mkdirSync(foreign); writeFileSync(join(foreign, 'foreign-data'), 'do not delete\n');
-    const foreignOutcome = cleanupOwnedTargets([foreign], 'owned-token')[0]!;
+    const foreignOutcome = cleanupOwnedTargets([{ path: foreign, existedBefore: false, type: 'absent', ownerMarker: null }], 'owned-token')[0]!;
     assert(foreignOutcome.outcome === 'residue' && existsSync(join(foreign, 'foreign-data')), 'nonempty foreign ownership is reported and never recursively deleted');
+    const preexistingEmpty = join(ownedRoot, 'preexisting-empty'); mkdirSync(preexistingEmpty);
+    const preexistingEntry = canonicalizeEntries([{ ...entry('test:preexisting-owned'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/preexisting-empty', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const observedPreexisting = cleanupManifestForEntry(preexistingEntry, root);
+    let preexistingLaunches = 0; let preexistingDenied = false;
+    try { await runEntry(preexistingEntry, root, process.execPath, () => { preexistingLaunches++; }); } catch (error) { preexistingDenied = (error as Error).message.includes('existedBefore'); }
+    assert(observedPreexisting[0]?.existedBefore === true && observedPreexisting[0]?.type === 'directory' && observedPreexisting[0]?.ownerMarker === null, 'pre-spawn manifest records pre-existing target type and absent owner marker');
+    assert(preexistingDenied && preexistingLaunches === 0 && existsSync(preexistingEmpty), 'pre-existing empty owned path fails before spawn and is never deleted');
+    const preexistingFile = join(ownedRoot, 'preexisting-file'); writeFileSync(preexistingFile, 'foreign-file-token\n');
+    const preexistingFileEntry = canonicalizeEntries([{ ...entry('test:preexisting-file'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/preexisting-file', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const observedFile = cleanupManifestForEntry(preexistingFileEntry, root)[0]!;
+    let fileLaunches = 0; let fileDenied = false; try { await runEntry(preexistingFileEntry, root, process.execPath, () => { fileLaunches++; }); } catch { fileDenied = true; }
+    assert(observedFile.existedBefore && observedFile.type === 'file' && observedFile.ownerMarker === 'foreign-file-token\n' && fileDenied && fileLaunches === 0 && existsSync(preexistingFile), 'pre-existing file and owner content are recorded, rejected before spawn, and retained');
+    const missingMarker = join(ownedRoot, 'missing-marker'); mkdirSync(missingMarker);
+    const missingMarkerOutcome = cleanupOwnedTargets([{ path: missingMarker, existedBefore: false, type: 'absent', ownerMarker: null }], 'owned-token')[0]!;
+    assert(missingMarkerOutcome.outcome === 'residue' && existsSync(missingMarker), 'post-spawn empty directory without launch marker is retained and fails cleanup');
+    const tamperedMarker = join(ownedRoot, 'tampered-marker'); mkdirSync(tamperedMarker); writeFileSync(join(tamperedMarker, 'owner'), 'foreign-token\n');
+    const tamperedOutcome = cleanupOwnedTargets([{ path: tamperedMarker, existedBefore: false, type: 'absent', ownerMarker: null }], 'owned-token')[0]!;
+    assert(tamperedOutcome.outcome === 'residue' && existsSync(tamperedMarker), 'post-spawn tampered ownership marker is retained and fails cleanup');
+    const removedByMember = join(ownedRoot, 'member-removed-marker');
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(removedByMember)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');fs.unlinkSync(p+'/owner');process.exitCode=1;\n`);
+    const removedMarkerEntry = canonicalizeEntries([{ ...entry('test:removed-marker'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/member-removed-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const removedMarkerResult = await runEntry(removedMarkerEntry, root, process.execPath);
+    assert(removedMarkerResult.status === 'FAIL' && removedMarkerResult.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(removedByMember), 'member-removed ownership marker is retained and reported as terminal FAIL');
+    const tamperedByMember = join(ownedRoot, 'member-tampered-marker');
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(tamperedByMember)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner','foreign-token\\n');process.exitCode=1;\n`);
+    const tamperedMarkerEntry = canonicalizeEntries([{ ...entry('test:tampered-marker'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/member-tampered-marker', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const tamperedMarkerResult = await runEntry(tamperedMarkerEntry, root, process.execPath);
+    assert(tamperedMarkerResult.status === 'FAIL' && tamperedMarkerResult.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(tamperedByMember), 'member-tampered ownership marker is retained and reported as terminal FAIL');
   } finally { rmSync(root, { recursive: true, force: true }); }
 
   const interruptRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-'));

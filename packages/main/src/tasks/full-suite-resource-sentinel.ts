@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:net';
 
@@ -11,6 +11,13 @@ const runtimeLock = join(root, '.lattice', 'runtime', 'full-suite-runtime-sentin
 const mainWriteLock = join(root, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock');
 const fixedPath = join(root, '.lattice', 'runtime', 'full-suite-fixed-sentinel');
 const acquired: string[] = [];
+function acquireOwnedDirectory(path: string, token: string): void {
+  mkdirSync(path, { recursive: false });
+  acquired.push(path);
+  const temporary = join(path, `.owner-${process.pid}.tmp`);
+  writeFileSync(temporary, `${token}\n`, { flag: 'wx' });
+  renameSync(temporary, join(path, 'owner'));
+}
 async function probeFixedPort(): Promise<'bound' | 'unsupported'> {
   const server = createServer();
   return await new Promise((resolveProbe, reject) => {
@@ -27,8 +34,8 @@ try {
   execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, stdio: 'ignore' });
   mkdirSync(join(root, '.lattice', 'runtime'), { recursive: true });
   mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
-  for (const path of [runtimeLock, mainWriteLock, fixedPath]) { mkdirSync(path, { recursive: false }); acquired.push(path); }
-  writeFileSync(join(fixedPath, 'owner'), `${process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? process.pid}\n`);
+  const ownershipToken = process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
+  for (const path of [runtimeLock, mainWriteLock, fixedPath]) acquireOwnedDirectory(path, ownershipToken);
   const fixedPortCapability = await probeFixedPort();
   const assertions = ['git-common-dir-read', 'fixed-path-owned', 'runtime-lock-owned', 'main-write-lock-owned'];
   if (fixedPortCapability === 'bound') assertions.push('fixed-port-os-bind:43127');

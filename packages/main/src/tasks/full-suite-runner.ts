@@ -13,6 +13,12 @@ export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'ru
 export type ResourceAccess = 'shared' | 'exclusive';
 export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string; ownership?: 'runner-cleanable' }
 export interface FullSuiteEntry { name: string; resources: ResourceClaim[]; timeoutMs?: number; priority?: number; tempOwnership?: 'runner-owned-unique' }
+export interface OwnedTargetPreflight {
+  path: string;
+  existedBefore: boolean;
+  type: 'absent' | 'file' | 'directory' | 'symlink' | 'other';
+  ownerMarker: string | null;
+}
 export interface FullSuiteResult {
   name: string;
   status: 'PASS' | 'FAIL' | 'TIMEOUT' | 'INTERRUPTED';
@@ -31,7 +37,7 @@ export interface FullSuiteResult {
   inventorySource?: 'explicit-marker+output-signature' | 'output-signature' | 'runner-terminal';
   canonicalMemberAssertionId?: string;
   detailedAssertions?: string[] | null;
-  cleanupManifest?: string[];
+  cleanupManifest?: OwnedTargetPreflight[];
   cleanupOutcomes?: Array<{ path: string; outcome: 'absent' | 'removed' | 'residue'; detail?: string }>;
 }
 
@@ -163,20 +169,33 @@ function validateResourceClaims(claims: ResourceClaim[], owner: string): void {
   }
 }
 
-export function cleanupManifestForEntry(entry: FullSuiteEntry, cwd: string): string[] {
+function observeOwnedTarget(path: string): OwnedTargetPreflight {
+  if (!existsSync(path)) return { path, existedBefore: false, type: 'absent', ownerMarker: null };
+  const stat = lstatSync(path);
+  const type = stat.isSymbolicLink() ? 'symlink' : stat.isFile() ? 'file' : stat.isDirectory() ? 'directory' : 'other';
+  let ownerMarker: string | null = null;
+  try {
+    if (type === 'file') ownerMarker = readFileSync(path, 'utf8');
+    else if (type === 'directory' && existsSync(join(path, 'owner'))) ownerMarker = readFileSync(join(path, 'owner'), 'utf8');
+  } catch { ownerMarker = null; }
+  return { path, existedBefore: true, type, ownerMarker };
+}
+
+export function cleanupManifestForEntry(entry: FullSuiteEntry, cwd: string): OwnedTargetPreflight[] {
   const root = realpathSync(cwd);
   const approvedRoots = [join(root, '.lattice', 'runtime'), join(root, '.lattice', 'locks')].map(path => canonicalFilesystemPath(cwd, path));
   return entry.resources.filter(claim => claim.ownership === 'runner-cleanable').map(claim => {
     if (!claim.canonicalKey) throw new Error(`runner-cleanable resource is not canonicalized for ${entry.name}`);
     const target = claim.canonicalKey.slice(claim.canonicalKey.indexOf(':') + 1);
     if (approvedRoots.some(approved => target === approved) || !approvedRoots.some(approved => pathIsContained(approved, target))) throw new Error(`runner-cleanable target is outside an approved owned root: ${claim.key}`);
-    if (existsSync(target) && lstatSync(target).isSymbolicLink()) throw new Error(`runner-cleanable target may not be a symlink: ${claim.key}`);
-    return target;
+    return observeOwnedTarget(target);
   });
 }
 
-export function cleanupOwnedTargets(paths: string[], ownershipToken: string): Array<{ path: string; outcome: 'absent' | 'removed' | 'residue'; detail?: string }> {
-  return paths.map(path => {
+export function cleanupOwnedTargets(manifest: OwnedTargetPreflight[], ownershipToken: string): Array<{ path: string; outcome: 'absent' | 'removed' | 'residue'; detail?: string }> {
+  return manifest.map(preflight => {
+    const { path } = preflight;
+    if (preflight.existedBefore) return { path, outcome: 'residue' as const, detail: `target pre-existed launch (${preflight.type}); cleanup refused` };
     if (!existsSync(path)) return { path, outcome: 'absent' as const };
     try {
       const stat = lstatSync(path);
@@ -187,8 +206,9 @@ export function cleanupOwnedTargets(paths: string[], ownershipToken: string): Ar
       }
       if (!stat.isDirectory()) throw new Error('unsupported owned target type');
       const entries = readdirSync(path);
-      if (entries.length === 1 && entries[0] === 'owner' && readFileSync(join(path, 'owner'), 'utf8') === `${ownershipToken}\n`) unlinkSync(join(path, 'owner'));
-      else if (entries.length) throw new Error(`nonempty foreign ownership: ${entries.join(',')}`);
+      if (entries.length !== 1 || entries[0] !== 'owner') throw new Error(entries.length ? `nonempty foreign ownership: ${entries.join(',')}` : 'missing ownership marker');
+      if (readFileSync(join(path, 'owner'), 'utf8') !== `${ownershipToken}\n`) throw new Error('foreign directory ownership');
+      unlinkSync(join(path, 'owner'));
       rmdirSync(path); return { path, outcome: 'removed' as const };
     } catch (error) { return { path, outcome: 'residue' as const, detail: (error as Error).message }; }
   });
@@ -342,6 +362,11 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
+  const preexisting = cleanupManifest.filter(target => target.existedBefore);
+  if (preexisting.length) {
+    rmSync(tempRoot, { recursive: true, force: true });
+    throw new Error(`runner-cleanable target pre-existed before spawn: ${JSON.stringify(preexisting)}`);
+  }
   const ownershipToken = `full-suite-${process.pid}-${Date.now()}-${createHash('sha256').update(tempRoot).digest('hex').slice(0, 12)}`;
   return await new Promise((finish) => {
     const usePosixTime = process.platform !== 'win32' && existsSync('/usr/bin/time') && npmCommand === 'npm';
@@ -366,7 +391,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
         ...result,
       };
       const cleanupOutcomes = result.status === 'PASS'
-        ? cleanupManifest.map(path => existsSync(path) ? { path, outcome: 'residue' as const, detail: 'member reported PASS with owned resource residue' } : { path, outcome: 'absent' as const })
+        ? cleanupManifest.map(target => existsSync(target.path) ? { path: target.path, outcome: 'residue' as const, detail: 'member reported PASS with owned resource residue' } : { path: target.path, outcome: 'absent' as const })
         : cleanupOwnedTargets(cleanupManifest, ownershipToken);
       if (cleanupOutcomes.some(outcome => outcome.outcome === 'residue')) result = { ...result, status: 'FAIL', reason: `owned resource cleanup failed: ${cleanupOutcomes.filter(outcome => outcome.outcome === 'residue').map(outcome => `${outcome.path}: ${outcome.detail}`).join('; ')}` };
       try { rmSync(tempRoot, { recursive: true }); }
