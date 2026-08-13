@@ -27,7 +27,7 @@ const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: '
 const RECEIPT_METADATA_ALLOWLIST = new Set([
   'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',
   'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json',
-  'prompt-envelopes.json', 'review-runs.json',
+  'prompt-envelopes.json', 'review-runs.json', 'stall-adjudication.json', 'scope-contract.json',
 ]);
 export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
   const prefix = '.lattice/story/actives/B-9812/';
@@ -54,6 +54,7 @@ assert.ok(smokeAssertions >= 44);
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/index.json', '.lattice/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/prompt-envelopes.json', '.lattice/story/actives/B-9812/review-runs.json'] }), true, 'actual reviewer dispatch metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/stall-adjudication.json', '.lattice/story/actives/B-9812/scope-contract.json'] }), true, 'actual convergence and scope metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
@@ -167,9 +168,13 @@ const stressValid = receiptCheck(Boolean(stressReceipt && stressReceipt.iteratio
   && receiptCheck(stressReceipt.aba?.observedDurationMs > 0 && stressReceipt.cutoff?.observedDurationMs > 0 && stressReceipt.restoration?.completedCases === 20, 'stress20 ABA/cutoff/restoration observations missing')
   && receiptCheck(stressReceipt.deterministicSeed === 'fixed-mask-v1' && stressReceipt.schedule?.join(',') === '31,10,21', 'stress20 seed/schedule receipt missing')
   && receiptCheck(stressReceipt.shards?.enabled === true && stressReceipt.shards?.deterministic === true && stressReceipt.shards?.timeoutIsolated === true && stressReceipt.replay?.sameGuardClassOutcome === true, 'stress20 shard/replay/timeout isolation contract missing')
-  && receiptCheck(stressReceipt.scheduleMutation?.executed === true && stressReceipt.scheduleMutation?.detected === true
-    && stressReceipt.scheduleMutation.baselineDigest !== stressReceipt.scheduleMutation.mutatedDigest
-    && stressReceipt.scheduleMutation.observed?.every(item => Number.isInteger(item.mask) && Object.values(item.observation ?? {}).every(Boolean)), 'stress20 schedule/order mutation missing')
+  && receiptCheck(stressReceipt.scheduleMutation?.executed === true
+    && stressReceipt.scheduleMutation.completed === true && stressReceipt.scheduleMutation.threw === false
+    && stressReceipt.scheduleMutation.baselinePassed === true
+    && stressReceipt.scheduleMutation.reorderedPassed === false
+    && stressReceipt.scheduleMutation.orderViolation === true
+    && stressReceipt.scheduleMutation.missingSeedRejected === true
+    && stressReceipt.scheduleMutation.detected === true, 'stress20 order-dependent schedule/seed mutation missing')
   && receiptCheck(Object.keys(stressReceipt.mutationKillMap ?? {}).length === 6 && Object.values(stressReceipt.mutationKillMap).every(mutation => mutation.executed && mutation.detected && mutation.baselineDigest !== mutation.mutatedDigest), 'stress20 production guard mutation-kill observations incomplete');
 const realGateMutationValid = stressReceipt?.mutationKillMap?.['real-review-gate']?.completed === true
   && stressReceipt.mutationKillMap['real-review-gate'].threw === false

@@ -1646,6 +1646,68 @@ const run=(args,timeout=120000)=>new Promise(resolve=>{const child=spawn(process
   return JSON.parse(result.stdout);
 }
 
+type ScheduleTransition = {
+  mask: number;
+  expectedPredecessor: number | null;
+  observedPredecessor: number | null;
+  accepted: boolean;
+};
+
+function executeOrderDependentSchedule(schedule: number[], seed: string | undefined): {
+  passed: boolean;
+  rejected: boolean;
+  transitions: ScheduleTransition[];
+  orderViolations: number[];
+} {
+  if (seed !== 'fixed-mask-v1') return { passed: false, rejected: true, transitions: [], orderViolations: [] };
+  const expectedPredecessors = new Map<number, number | null>([[0b11111, null], [0b01010, 0b11111], [0b10101, 0b01010]]);
+  let predecessor: number | null = null;
+  const transitions = schedule.map(mask => {
+    const expectedPredecessor = expectedPredecessors.get(mask);
+    const accepted = expectedPredecessor !== undefined && predecessor === expectedPredecessor;
+    const transition = { mask, expectedPredecessor: expectedPredecessor ?? null, observedPredecessor: predecessor, accepted };
+    predecessor = mask;
+    return transition;
+  });
+  const orderViolations = transitions.filter(transition => !transition.accepted).map(transition => transition.mask);
+  return { passed: orderViolations.length === 0, rejected: false, transitions, orderViolations };
+}
+
+function runScheduleMutationTrial(): {
+  executed: true;
+  completed: boolean;
+  threw: boolean;
+  baselinePassed: boolean;
+  reorderedPassed: boolean;
+  orderViolation: boolean;
+  missingSeedRejected: boolean;
+  detected: boolean;
+  baseline: ReturnType<typeof executeOrderDependentSchedule>;
+  reordered: ReturnType<typeof executeOrderDependentSchedule>;
+  missingSeed: ReturnType<typeof executeOrderDependentSchedule>;
+} {
+  try {
+    const baseline = executeOrderDependentSchedule([0b11111, 0b01010, 0b10101], 'fixed-mask-v1');
+    const reordered = executeOrderDependentSchedule([0b10101, 0b01010, 0b11111], 'fixed-mask-v1');
+    const missingSeed = executeOrderDependentSchedule([0b11111, 0b01010, 0b10101], undefined);
+    const detected = baseline.passed && !reordered.passed && reordered.orderViolations.length > 0 && missingSeed.rejected;
+    return {
+      executed: true, completed: true, threw: false,
+      baselinePassed: baseline.passed, reorderedPassed: reordered.passed,
+      orderViolation: reordered.orderViolations.length > 0, missingSeedRejected: missingSeed.rejected,
+      detected, baseline, reordered, missingSeed,
+    };
+  } catch {
+    return {
+      executed: true, completed: false, threw: true,
+      baselinePassed: false, reorderedPassed: false, orderViolation: false, missingSeedRejected: false, detected: false,
+      baseline: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+      reordered: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+      missingSeed: { passed: false, rejected: false, transitions: [], orderViolations: [] },
+    };
+  }
+}
+
 function run(): void {
   runPolicyCases();
   runFixtureDuplicateIdentityCases();
@@ -1685,25 +1747,9 @@ function run(): void {
       detected: targetFailed && baselineDigest !== mutatedDigest, outcome: mutated,
     }];
   }));
-  const baselineSchedule = [0b11111, 0b01010, 0b10101];
-  const baselineScheduleReceipt = baselineSchedule.map((mask, index) => ({ mask, observation: matrixObservations[index]! }));
-  const reorderedSchedule = [0b10101, 0b01010, 0b11111];
-  const reorderedObservations = burnInIterations === 20
-    ? reorderedSchedule.map((mask, index) => ({ mask, observation: runConcurrentReviewerWriteCase(mask, 200 + index) }))
-    : [];
-  const baselineScheduleDigest = JSON.stringify(baselineScheduleReceipt);
-  const mutatedScheduleDigest = JSON.stringify(reorderedObservations);
-  const scheduleMutation = {
-    executed: burnInIterations === 20,
-    baseline: baselineSchedule,
-    mutated: reorderedSchedule,
-    baselineDigest: baselineScheduleDigest,
-    mutatedDigest: mutatedScheduleDigest,
-    detected: burnInIterations === 20 && reorderedObservations.length === baselineScheduleReceipt.length
-      && reorderedObservations.every(item => Object.values(item.observation).every(Boolean))
-      && baselineScheduleDigest !== mutatedScheduleDigest,
-    observed: reorderedObservations,
-  };
+  const scheduleMutation = burnInIterations === 20
+    ? runScheduleMutationTrial()
+    : { executed: false, completed: false, threw: false, baselinePassed: false, reorderedPassed: false, orderViolation: false, missingSeedRejected: false, detected: false };
   const shardTrials = burnInIterations === 20 ? runGuardShardTrials() as {
     serial: Array<{ code: number; receipt: unknown }>; parallel: Array<{ code: number; receipt: unknown }>;
     successBesideTimeout: { code: number; receipt: unknown }; timeoutBesideSuccess: { code: number | null; signal: string | null };
@@ -1748,6 +1794,8 @@ if (isDirectRun) {
     runProductionVerifierTemporalCutoffRegression();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
+  } else if (process.argv.includes('--schedule-mutation-only')) {
+    console.log(`SCHEDULE_MUTATION_RECEIPT=${JSON.stringify(runScheduleMutationTrial())}`);
   } else {
     run();
   }

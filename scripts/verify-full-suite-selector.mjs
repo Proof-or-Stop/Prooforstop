@@ -3,7 +3,9 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const root = process.cwd();
 execFileSync(process.execPath, ['scripts/verify-full-suite-build-binding.mjs'], { cwd: root, stdio: 'pipe' });
@@ -32,11 +34,11 @@ const identity = () => ({
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
 const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
-const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json']);
-const captureHeadIsAdmissible = (receiptHead, currentHead) => {
-  try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd: root, stdio: 'ignore' }); }
+const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json', 'stall-adjudication.json', 'scope-contract.json']);
+export const captureHeadIsAdmissible = (receiptHead, currentHead, cwd = root) => {
+  try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd, stdio: 'ignore' }); }
   catch { return false; }
-  const changed = execFileSync('git', ['diff', '--name-only', `${receiptHead}..${currentHead}`], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  const changed = execFileSync('git', ['diff', '--name-only', `${receiptHead}..${currentHead}`], { cwd, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   return changed.every(path => path.startsWith(METADATA_PREFIX) && METADATA_ALLOWLIST.has(path.slice(METADATA_PREFIX.length)));
 };
 export function validateSelectorReceipt(receipt, selector, current, currentFileDigests, headAdmissible = captureHeadIsAdmissible) {
@@ -117,6 +119,31 @@ if (args.length === 1 && args[0] === '--capture') {
   try { validateSelectorReceipt(valid, selector, metadataDescendant, files, () => false); } catch { sourceDriftRejected = true; }
   assert.equal(sourceDriftRejected, true, 'non-metadata descendant must fail closed');
   assert.equal(METADATA_ALLOWLIST.has('prompt-envelopes.json') && METADATA_ALLOWLIST.has('review-runs.json'), true, 'normal REVIEW dispatch metadata is allowlisted');
+  assert.equal(METADATA_ALLOWLIST.has('stall-adjudication.json') && METADATA_ALLOWLIST.has('scope-contract.json'), true, 'normal convergence and scope metadata is allowlisted');
+  assert.equal(METADATA_ALLOWLIST.has('unknown-review-metadata.json'), false, 'unknown REVIEW metadata remains denied');
+  const fixture = mkdtempSync(join(tmpdir(), 'b9812-selector-metadata-'));
+  try {
+    execFileSync('git', ['init', '-q'], { cwd: fixture });
+    execFileSync('git', ['config', 'user.email', 'selector@example.test'], { cwd: fixture });
+    execFileSync('git', ['config', 'user.name', 'Selector Fixture'], { cwd: fixture });
+    writeFileSync(join(fixture, 'base.txt'), 'base\n');
+    execFileSync('git', ['add', '.'], { cwd: fixture });
+    execFileSync('git', ['commit', '-qm', 'base'], { cwd: fixture });
+    const fixtureBase = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: fixture, encoding: 'utf8' }).trim();
+    const metadataRoot = join(fixture, METADATA_PREFIX);
+    mkdirSync(metadataRoot, { recursive: true });
+    writeFileSync(join(metadataRoot, 'stall-adjudication.json'), '{}\n');
+    writeFileSync(join(metadataRoot, 'scope-contract.json'), '{}\n');
+    execFileSync('git', ['add', '.'], { cwd: fixture });
+    execFileSync('git', ['commit', '-qm', 'normal lifecycle descendant'], { cwd: fixture });
+    const lifecycleHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: fixture, encoding: 'utf8' }).trim();
+    assert.equal(captureHeadIsAdmissible(fixtureBase, lifecycleHead, fixture), true, 'actual lifecycle metadata descendant is admissible');
+    writeFileSync(join(metadataRoot, 'unknown-review-metadata.json'), '{}\n');
+    execFileSync('git', ['add', '.'], { cwd: fixture });
+    execFileSync('git', ['commit', '-qm', 'unknown metadata descendant'], { cwd: fixture });
+    const unknownHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: fixture, encoding: 'utf8' }).trim();
+    assert.equal(captureHeadIsAdmissible(fixtureBase, unknownHead, fixture), false, 'actual unknown metadata descendant is denied');
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
   process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=11\n');
 } else {
   throw new Error('usage: verify-full-suite-selector.mjs --capture | --all | --selector CHK-nnn:lane:index | --self-test');
