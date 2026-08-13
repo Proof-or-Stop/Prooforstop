@@ -506,6 +506,20 @@
       "_hash": "e73921c49b7f0eb495134dd056cee46062f94dc27430c29a6882b29b8dace01c",
       "signatureTag": "adversarial|unknown|host-codex-reported",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-028",
+      "desc": "HOST-B codex reported: the quorum_submit duplicate guard is TOCTOU-racy across concurrent submissions. packages/main/src/handlers/quorum-submit.ts:498 performs the committed-event check BEFORE the clean-baseline check and transaction capture. Two reviewer-write invocations can both observe no quorum; if one commits before the other captures its baseline, the second captures the first quorum and successfully appends another identical quorum - recreating exactly the poisoning this story exists to prevent. Fix: a per-story command lock, or re-check duplicates bound to the captured HEAD.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T20:52:01.241Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "_hash": "1b60f0c06029e311d5774c27a4a58816c358f3f0da5d4462fac3c4aa8740f059",
+      "signatureTag": "adversarial|unknown|host-codex-reported",
+      "signatureTagSource": "auto"
     }
   ]
 }
