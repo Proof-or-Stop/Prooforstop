@@ -58,7 +58,51 @@
       "context": "Literal values MUST be stored trimmed (leading/trailing whitespace rejects) with byte length in 1..policy.maxMatcherLen; stream and polarity are closed enums, polarity being {present-in-red, absent-in-green, present-in-green}. Byte length, not code-unit length.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Literal-line value Error: ENOENT: no such file (trimmed, 28 bytes, valid stream combined, polarity present-in-red) accepted; WHY: normal schema path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Value with leading space rejected R1-3; WHY: stored-trimmed means whitespace rejects at schema time",
+            "type": "cli"
+          },
+          {
+            "desc": "Value with trailing newline character rejected R1-3; WHY: trailing whitespace violates trim requirement",
+            "type": "cli"
+          },
+          {
+            "desc": "Value at exactly maxMatcherLen=512 bytes accepted; WHY: boundary-inclusive upper limit",
+            "type": "cli"
+          },
+          {
+            "desc": "Value at maxMatcherLen+1=513 bytes rejected R1-3; WHY: byte length ceiling enforced",
+            "type": "cli"
+          },
+          {
+            "desc": "Value containing 4-byte UTF-8 char (emoji) where Buffer.byteLength > string.length triggers byte-length measurement not code-unit length; WHY: differential between byte and code-unit measurement",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stream value Combined (capital C) rejected R1-3; WHY: closed enum is case-sensitive",
+            "type": "cli"
+          },
+          {
+            "desc": "Polarity value absent-in-red rejected R1-3; WHY: not a member of the closed polarity enum {present-in-red, absent-in-green, present-in-green}",
+            "type": "cli"
+          },
+          {
+            "desc": "Empty string value rejected R1-3; WHY: byte length >= 1 required",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
