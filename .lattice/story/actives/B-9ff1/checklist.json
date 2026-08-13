@@ -6,7 +6,51 @@
       "context": "packages/main/src/core/red-evidence/envelope.ts declares the section 1.1 envelope: matcher ids unique within the envelope; kind restricted to the closed set {literal-line, class}; NO pattern/regex dialect exists anywhere in the type or the validator (section 1.11 rule 1 pins literal-line as a whole-line trimmed string comparison, nothing compiled).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Envelope with two matchers having unique ids and kinds literal-line + class passes schema validation with no rejections; WHY: validates the schema declaration accepts legal envelopes",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope with 1..maxMatchers matchers all with unique ids accepted; WHY: array count within policy bounds",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Envelope with duplicate matcher id rejected R1-3; WHY: uniqueness constraint is enforceable",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope with kind anchored-regex rejected R1-3; WHY: pattern language removed in rev 6, closed enum",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope with 0 matchers rejected R1-3; WHY: at least one matcher required",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope with maxMatchers+1 matchers rejected R1-3; WHY: policy upper bound enforced",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Envelope with kind Literal-Line (case variation) rejected R1-3; WHY: enum is case-sensitive, no normalization",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope with kind regex rejected R1-3; WHY: no pattern language exists even under alias names",
+            "type": "cli"
+          },
+          {
+            "desc": "Class matcher with value naming no registry entry rejected R1-3; WHY: class value must be exact case-sensitive registry name",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
