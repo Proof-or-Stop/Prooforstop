@@ -175,6 +175,36 @@
         "scanEscalationReason": null
       },
       "_hash": "d1fa81c04ce4f2bf1073b2a138b4043e12ba49c2879b303e56e5d81b78b8b4f4"
+    },
+    {
+      "id": "B-f00c:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Fresh re-attestation at current material (head adc4bb4) after stale_closeout_review reopen; no code changed since prior RP-003 pass, only story metadata advanced through the merge/rebuild. Re-verified quality of the diff vs main: (1) validation-lineage.ts is the single shared classifyMergeLineage/netDiffChangedPaths helper — net git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> with 1GiB maxBuffer, -z NUL split, empty-net-diff classifies trusted-descendant, ancestry check (merge-base --is-ancestor) and diff computation are in separate try/catch so a diff failure surfaces kind:diff-failed distinct from not-ancestor. (2) Both validation-evidence-reuse.ts::classifyTrustedValidationLineage and validation-evidence-admissibility.ts::validationHeadLineage now import classifyMergeLineage from the same ./validation-lineage.js and route all 5 classification kinds through exhaustive switches with a `const _exhaustive: never` compile-time guard against silent divergence; no leftover per-commit -m/rev-list logic in either consumer. (3) No dead code/unused imports: removed execFileSync/isStoryMetadataPath imports from both consumers are gone, evidence-freshness re-exports still used elsewhere; `as never` casts appear only in the new smoke test fixture construction, matching the pre-existing idiom used in 50+ other smoke tasks in this repo, not a new type-safety regression. (4) done-required-validation-smoke.ts modify-then-revert assertion correctly flipped to reusable=true (byte-identical endpoint), matching the intentional semantic change; scripts/verify-process-fact-contract.mjs token list correctly updated to check validation-lineage.ts instead of the old inline reuse-file tokens. (5) I/O isolation: git subprocess calls are confined to validation-lineage.ts (single call site), no shell/bridge concerns apply to this backend module. Independently rebuilt (npm run build in packages/main, tsc clean) and re-ran fresh: node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js (pass — covers RED mutation-resistance, negative genuine-change refusal, empty-net-diff-trusted, large-diff maxBuffer, not-ancestor fail-closed, diff-failed split-catch), node packages/main/dist/tasks/done-required-validation-smoke.js (pass), node scripts/verify-process-fact-contract.mjs (pass). No proof/receipt/provider/run metadata surfaces touched by this diff (out of scope for the narrow dual-location proof-metadata rule). No blocker.",
+      "createdAt": "2026-08-13T16:39:28.825Z",
+      "reviewRound": "2026-08-13T16:36:56.172Z",
+      "reviewRunId": "B-f00c:RR-015",
+      "envelopeId": "4ef67898a0335927c68ecafe81ae50f4417e6b488610965a8b34fb6939333031",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d2a24e744248b24c57ec91f79558729af2dcd6b33c8c567d16f789490a642de"
     }
   ]
 }
