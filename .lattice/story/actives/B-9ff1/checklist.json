@@ -452,9 +452,9 @@
       "id": "CHK-011",
       "title": "Validate the assertion against the committed target binding and recompute targetBindingDigest, returning tagged R1-1, R1-2, R1-3 and R1-6 rejections",
       "context": "Section 1.1.3: the assertion's adapterId and testCaseRef MUST equal the committed binding for its acceptanceTargetRef (read via the W2b committed-tree reader), and targetBindingDigest MUST recompute over the createdAt-stripped three-field subobject. Rejections carry the section 1.6 tags, mapped correctly: R1-1 = missing target-exercised proof; R1-2 = below-threshold or class-only matcher set (the minimum-specificity failure); R1-3 = matcher and path BOUNDS (a schema-bounds tag that explicitly covers path validation, NOT a specificity tag); R1-6 = unregistered or mismatched target binding. An implementer must not collapse R1-2 and R1-3 into one 'specificity' bucket.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:53.666Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:54.407Z",
       "verificationIntent": {
         "happy": [
           {
