@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c648",
+  "sourceText": "把这个按照规则写一个markdown文档吧，同时这个方案需要Claude CLI 和 agy CLI 进行审计一下",
+  "normalizedOutcome": "仓库中新增一份完整的 pre-story Mechanism Placement Proof 架构决策 Markdown，并记录 Claude CLI 与 Antigravity CLI 的独立审计、修订和最终判定。",
+  "acceptanceClaim": "目标 Markdown 文件存在且完整定义 Story ID 分配前的 fail-closed 机制；Claude CLI 与 agy CLI 均对完整草案给出可追溯审计，所有 blocker/high finding 已解决或明确阻塞交付。",
+  "keyRequirementIds": [
+    "REQ-001-MECHANISM-DOC",
+    "REQ-002-CLAUDE-AUDIT",
+    "REQ-003-AGY-AUDIT"
+  ],
+  "requestHash": "sha256:b763149261815e5ff0400d94d26b341d6e451a6c766fcaed23232b27cf7c0cbe",
+  "createdAt": "2026-08-14T03:30:46.588Z",
+  "updatedAt": "2026-08-14T03:30:46.588Z"
+}

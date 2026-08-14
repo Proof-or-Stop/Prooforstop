@@ -1,0 +1,20 @@
+{
+  "storyId": "B-9812",
+  "expected": "The terminal prints a machine-readable baseline naming every canonical member, its status and duration, and confirms the frozen inventory is complete with no duplicates or skips.",
+  "actual": {
+    "command": "node scripts/verify-full-suite-contract.mjs",
+    "exitCode": 0,
+    "stdout": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-13T11:55:17.521Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9417fd384329ad8d6f8464aaeaa5f0d3121563df",
+  "materialHash": "6619407d5841b1948872cdde1a8c788b9e7fc5db0580f73277d48d8ef2533cb7"
+}

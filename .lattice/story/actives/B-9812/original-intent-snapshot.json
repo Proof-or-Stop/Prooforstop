@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9812",
+  "sourceText": "Start implementing the framework-compliant Story that safely parallelizes the complete test suite and reduces total runtime below five minutes.",
+  "normalizedOutcome": "The canonical full root test suite executes safely in parallel and reports every required member passing in less than five minutes on three reproducible clean-clone runs.",
+  "acceptanceClaim": "Three consecutive same-material clean-clone npm test runs each complete below 300000 ms with complete membership, terminal first failures, isolated resources, and unchanged deterministic assertion and mutation coverage.",
+  "keyRequirementIds": [
+    "REQ-COVERAGE-EQUIVALENCE",
+    "REQ-FIRST-FAIL-TERMINAL",
+    "REQ-PERF-300S",
+    "REQ-SAFE-PARALLEL"
+  ],
+  "requestHash": "sha256:e8b00628a5238e7f1f4e07fe9b84494ab1ccf1f49df6689e001269af614630b5",
+  "createdAt": "2026-08-12T12:39:12.882Z",
+  "updatedAt": "2026-08-12T12:39:12.882Z"
+}

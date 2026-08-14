@@ -1,0 +1,1748 @@
+{
+  "command": "lattice validate --story=B-c648 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=cc93f19f10ec6df9616f777cefba99b990cacd94f7550c7f2e3eb4dfd55cedf5\",\"commandExecutions=0\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Inspect pre-story Mechanism Placement Proof architecture document -> contract, lifecycle placement, artifact schemas, gate definitions, freshness rules, stop behavior, rollout steps, test definitions, and B-3783 worked example are fully documented; WHY: Ensures complete pre-story proof specification.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Check boundary handling between pre-story intake proof vs PLAN verificationIntent and REVIEW/TEST/DONE phase evidence -> intake proof artifact remains strictly separated from post-allocation phase verification evidence; WHY: Prevents lifecycle stage confusion and evidence leakage.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Simulate missing or unverified pre-story proof artifact during story allocation attempt -> story allocation fails closed with explicit stop behavior; WHY: Guarantees Proof-or-Stop enforcement when mandatory proof is missing or invalid.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Execute independent Claude CLI and agy CLI architecture audits against draft document -> both CLI audits evaluate duplication, authority boundaries, bypasses, fail-closed behavior, freshness, process-fact registration, rollout safety, and test completeness; WHY: Verifies multi-agent architectural review.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Reconcile conflicting audit findings between Claude CLI and agy CLI -> all accepted findings are incorporated into the document with clear disposition records for rejected findings; WHY: Ensures complete reconciliation and audit trail integrity.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via docs_check (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Attempt to finalize architecture document with un-reconciled CLI audit findings or missing disposition records -> document verification fails validation; WHY: Prevents bypassing independent audit reconciliation controls.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test verdict=success (.lattice/usage/llm-usage.jsonl) — Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both host_run final recordIds in execution-plan section 21 -> the document cites two distinct canonical host_run final recordIds (llmuse_ prefix), one for the Claude CLI audit and one for the agy CLI audit; the Claude receipt additionally cites its provider-reported numeric usage fields since Claude's host_run final exposes a numeric usage surface, while the agy receipt honestly cites recorded=unavailable plus its exact unavailableReason (agy print mode exposes no numeric usage surface per docs/host-run-usage.md) instead of a fabricated count, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries, without demanding numeric usage from a host whose print mode structurally exposes none.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test verdict=success (.lattice/usage/llm-usage.jsonl) — Any provider-reported host_run final is recorded=unavailable (e.g. agy's structurally-absent usage surface, or a Claude run with a truncated/unavailable usage line) -> the document does not fabricate a token count for that record; it cites the receipt's actual unavailable state and its exact unavailableReason, and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely unavailable rather than inventing numbers to fill the gap.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md) — Either the Claude or the agy host_run final recordId is absent, the document's cited receipt state does not match the actual ledger state, or a numeric token count is invented for a record whose usage is recorded=unavailable -> receipt capture fails closed: the missing/mismatched/fabricated evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by a missing host record, a document/ledger mismatch, or a fabricated token count standing in for agy's structurally unavailable usage surface.\"],\"warnings\":[],\"timestamp\":\"2026-08-14T05:37:56.612Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Inspect pre-story Mechanism Placement Proof architecture document -> contract, lifecycle placement, artifact schemas, gate definitions, freshness rules, stop behavior, rollout steps, test definitions, and B-3783 worked example are fully documented; WHY: Ensures complete pre-story proof specification.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md bWVjaGFuaXNtUmV2aWV3QXJ0aWZhY3RJZA== CHK001_HAPPY_PASS\",\"result\":\"pass\",\"note\":\"The document includes the explicit pre-allocation artifact input and the surrounding normative architecture, rollout, touchpoints, tests, and worked example.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"a54577df7cbe4574ed6e559ed276a8a736ad268ac7771410aad2b0ed4d10e027\",\"outputTail\":\"CHK001_HAPPY_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.125Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Check boundary handling between pre-story intake proof vs PLAN verificationIntent and REVIEW/TEST/DONE phase evidence -> intake proof artifact remains strictly separated from post-allocation phase verification evidence; WHY: Prevents lifecycle stage confusion and evidence leakage.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md ZXZpZGVuY2UtY2FuZGlkYXRl CHK001_EDGE_PASS\",\"result\":\"pass\",\"note\":\"The audited proposal explicitly keeps intake proof candidate-only and separates it from PLAN and delivery evidence.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ac3585a52c68d1ab49329dd07597d387632fed831cc96cbc6f3392092c2fb65b\",\"outputTail\":\"CHK001_EDGE_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.255Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Simulate missing or unverified pre-story proof artifact during story allocation attempt -> story allocation fails closed with explicit stop behavior; WHY: Guarantees Proof-or-Stop enforcement when mandatory proof is missing or invalid.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md c3RvcnlJZEFsbG9jYXRlZDogZmFsc2U= CHK001_ADV_PASS\",\"result\":\"pass\",\"note\":\"The gate result and test matrix require fail-closed no-ID behavior rather than error-text-only checking.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"d138ddc12f480076a498cda8feefbc2e82313462613c5ee4237e79138fe2231d\",\"outputTail\":\"CHK001_ADV_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.386Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Execute independent Claude CLI and agy CLI architecture audits against draft document -> both CLI audits evaluate duplication, authority boundaries, bypasses, fail-closed behavior, freshness, process-fact registration, rollout safety, and test completeness; WHY: Verifies multi-agent architectural review.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md Q2xhdWRlIENMSSAvIENsYXVkZSBDb2RlIGAyLjEuMjIwYA== CHK002_HAPPY_PASS\",\"result\":\"pass\",\"note\":\"The document records completed independent Claude CLI and agy audits with verified versions.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"389d40fce314756b2e87f7b6ae7134df848894e3ead5f2f258836bf3040df0ed\",\"outputTail\":\"CHK002_HAPPY_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.515Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Reconcile conflicting audit findings between Claude CLI and agy CLI -> all accepted findings are incorporated into the document with clear disposition records for rejected findings; WHY: Ensures complete reconciliation and audit trail integrity.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md IyMjIDIxLjQgRmluZGluZyBkaXNwb3NpdGlvbnMgYW5kIGZpbmFsIHN0YXR1cw== CHK002_EDGE_PASS\",\"result\":\"pass\",\"note\":\"The audit section contains a single reconciliation table covering every Claude and agy finding and accepted correction.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"87d63f21e6ce08c2d1f6c4a5056fa69a25c807758ce56a41c7a57f2289f262bb\",\"outputTail\":\"CHK002_EDGE_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.646Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Attempt to finalize architecture document with un-reconciled CLI audit findings or missing disposition records -> document verification fails validation; WHY: Prevents bypassing independent audit reconciliation controls.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\\\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md RmluYWwgYXVkaXRlZCBzdGF0dXM6ICoqbm8gdW5yZXNvbHZlZCBCTE9DS0VSIG9yIEhJR0ggYXJjaGl0ZWN0dXJlIGZpbmRpbmcqKi4= CHK002_ADV_PASS\",\"result\":\"pass\",\"note\":\"Both focused confirmation audits returned CONFIRMED_PASS; the final audit status refuses acceptance when any blocker/high remains.\",\"headHash\":\"5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"c3039550896b725dc791feca366cb000be94bea7e3ae4827feaa12969807f9a5\",\"outputTail\":\"CHK002_ADV_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:05:30.776Z\"},\"timestamp\":\"2026-08-14T05:05:30.785Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both host_run final recordIds in execution-plan section 21 -> the document cites two distinct canonical host_run final recordIds (llmuse_ prefix), one for the Claude CLI audit and one for the agy CLI audit; the Claude receipt additionally cites its provider-reported numeric usage fields since Claude's host_run final exposes a numeric usage surface, while the agy receipt honestly cites recorded=unavailable plus its exact unavailableReason (agy print mode exposes no numeric usage surface per docs/host-run-usage.md) instead of a fabricated count, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries, without demanding numeric usage from a host whose print mode structurally exposes none.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\".lattice/usage/llm-usage.jsonl\",\"command\":\"node -e \\\"const fs=require(\\\\\\\"fs\\\\\\\");const rows=fs.readFileSync(\\\\\\\".lattice/usage/llm-usage.jsonl\\\\\\\",\\\\\\\"utf8\\\\\\\").trim().split(/\\\\\\\\n/).map(JSON.parse);const ids=[\\\\\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\\\\\",\\\\\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\\\\\"];const found=ids.map(id=>rows.find(r=>r.recordId===id));if(found.some(r=>!r))throw Error(\\\\\\\"missing final\\\\\\\");if(new Set(found.map(r=>r.ledgerCallId)).size!==2)throw Error(\\\\\\\"calls not distinct\\\\\\\");if(found.some(r=>r.storyId!==\\\\\\\"B-c648\\\\\\\"||r.phase!==\\\\\\\"DEV\\\\\\\"||r.agentType!==\\\\\\\"lattice-audit-mechanism-placement\\\\\\\"||r.sequence!==2||!r.supersedesRecordIds.length))throw Error(\\\\\\\"binding mismatch\\\\\\\");console.log(\\\\\\\"CHK003_HAPPY_PASS\\\\\\\")\\\"\",\"result\":\"pass\",\"note\":\"Canonical ledger contains two distinct final host_run records exactly bound to B-c648/DEV/lattice-audit-mechanism-placement.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"76726b1c3c1cc5e4aca9c89dcb431d05c901672815f74ffd404fa675d50318fc\",\"outputTail\":\"CHK003_HAPPY_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:04:43.137Z\"},\"headHash\":\"0734c0539c4780968fc5ea7f970b7d1062ffba70\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"timestamp\":\"2026-08-14T05:04:43.249Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Any provider-reported host_run final is recorded=unavailable (e.g. agy's structurally-absent usage surface, or a Claude run with a truncated/unavailable usage line) -> the document does not fabricate a token count for that record; it cites the receipt's actual unavailable state and its exact unavailableReason, and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely unavailable rather than inventing numbers to fill the gap.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\".lattice/usage/llm-usage.jsonl\",\"command\":\"node -e \\\"const fs=require(\\\\\\\"fs\\\\\\\");const rows=fs.readFileSync(\\\\\\\".lattice/usage/llm-usage.jsonl\\\\\\\",\\\\\\\"utf8\\\\\\\").trim().split(/\\\\\\\\n/).map(JSON.parse);const c=rows.find(r=>r.recordId===\\\\\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\\\\\");const a=rows.find(r=>r.recordId===\\\\\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\\\\\");if(c.usage.source!==\\\\\\\"provider-reported\\\\\\\"||![6,1655,47054,160377].every((n,i)=>n===[c.usage.inputTokens,c.usage.outputTokens,c.usage.cacheCreationInputTokens,c.usage.cacheReadInputTokens][i]))throw Error(\\\\\\\"Claude usage mismatch\\\\\\\");if(a.usage.source!==\\\\\\\"unavailable\\\\\\\"||a.usage.unavailableReason!==\\\\\\\"agy_print_mode_reports_no_usage\\\\\\\"||a.usage.inputTokens!==null||a.usage.outputTokens!==null)throw Error(\\\\\\\"agy unavailable state lost\\\\\\\");console.log(\\\\\\\"CHK003_EDGE_PASS\\\\\\\")\\\"\",\"result\":\"pass\",\"note\":\"Claude provider-reported numeric fields and agy explicit unavailable state/reason are preserved without invented usage.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5f2390a19af2d3d817655246f622c2f239fb53ebde3e5e2dc633115f30896f49\",\"outputTail\":\"CHK003_EDGE_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:04:44.292Z\"},\"headHash\":\"2136177c6297a04642f6f1ec1b65501c3b1b4aa6\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"timestamp\":\"2026-08-14T05:04:44.398Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Either the Claude or the agy host_run final recordId is absent, the document's cited receipt state does not match the actual ledger state, or a numeric token count is invented for a record whose usage is recorded=unavailable -> receipt capture fails closed: the missing/mismatched/fabricated evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by a missing host record, a document/ledger mismatch, or a fabricated token count standing in for agy's structurally unavailable usage surface.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\",\"command\":\"node -e \\\"const fs=require(\\\\\\\"fs\\\\\\\");const d=fs.readFileSync(\\\\\\\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\\\\\\\",\\\\\\\"utf8\\\\\\\");const rows=fs.readFileSync(\\\\\\\".lattice/usage/llm-usage.jsonl\\\\\\\",\\\\\\\"utf8\\\\\\\").trim().split(/\\\\\\\\n/).map(JSON.parse);const finalIds=[\\\\\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\\\\\",\\\\\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\\\\\"];if(finalIds.some(id=>!d.includes(id)||!rows.some(r=>r.recordId===id&&r.sequence===2)))throw Error(\\\\\\\"document ledger mismatch\\\\\\\");const failed=rows.find(r=>r.recordId===\\\\\\\"llmuse_d68b8791-13dc-4be8-b5d6-cfec9c57a1dc\\\\\\\");if(!failed||failed.sequence!==1||rows.some(r=>r.supersedesRecordIds?.includes(failed.recordId)))throw Error(\\\\\\\"failed agy attempt misclassified\\\\\\\");if(!d.includes(\\\\\\\"unavailableReason=agy_print_mode_reports_no_usage\\\\\\\")||/agy[^\\\\\\\\n]{0,80}(input|output)[^\\\\\\\\n]{0,30}[1-9][0-9]*/i.test(d.split(\\\\\\\"### 21.5\\\\\\\")[1].split(\\\\\\\"Delivery verification\\\\\\\")[0]))throw Error(\\\\\\\"fabricated agy count\\\\\\\");console.log(\\\\\\\"CHK003_ADV_PASS\\\\\\\")\\\"\",\"result\":\"pass\",\"note\":\"Exact document-to-ledger IDs are required; the failed agy preflight cannot count as final and agy numeric usage must not be fabricated.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"6537b25194811c7c161fb144c5868581159162f1a6c9beddb66c7f22e224de79\",\"outputTail\":\"CHK003_ADV_PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T05:04:45.422Z\"},\"headHash\":\"85b80f3a84e4c098ed2af4a758169e52caa7433c\",\"materialHash\":\"1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030\",\"storyFilesHash\":\"c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0\",\"timestamp\":\"2026-08-14T05:04:45.529Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"cc93f19f10ec6df9616f777cefba99b990cacd94f7550c7f2e3eb4dfd55cedf5\"}}",
+  "result": "PASS",
+  "timestamp": "2026-08-14T05:37:56.819Z",
+  "headHash": "6ce9026c0fc49c88f12015b98e0f3984e49322e5",
+  "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+  "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Inspect pre-story Mechanism Placement Proof architecture document -> contract, lifecycle placement, artifact schemas, gate definitions, freshness rules, stop behavior, rollout steps, test definitions, and B-3783 worked example are fully documented; WHY: Ensures complete pre-story proof specification.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md bWVjaGFuaXNtUmV2aWV3QXJ0aWZhY3RJZA== CHK001_HAPPY_PASS",
+          "result": "pass",
+          "note": "The document includes the explicit pre-allocation artifact input and the surrounding normative architecture, rollout, touchpoints, tests, and worked example.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a54577df7cbe4574ed6e559ed276a8a736ad268ac7771410aad2b0ed4d10e027",
+            "outputTail": "CHK001_HAPPY_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.125Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Check boundary handling between pre-story intake proof vs PLAN verificationIntent and REVIEW/TEST/DONE phase evidence -> intake proof artifact remains strictly separated from post-allocation phase verification evidence; WHY: Prevents lifecycle stage confusion and evidence leakage.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md ZXZpZGVuY2UtY2FuZGlkYXRl CHK001_EDGE_PASS",
+          "result": "pass",
+          "note": "The audited proposal explicitly keeps intake proof candidate-only and separates it from PLAN and delivery evidence.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ac3585a52c68d1ab49329dd07597d387632fed831cc96cbc6f3392092c2fb65b",
+            "outputTail": "CHK001_EDGE_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.255Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Simulate missing or unverified pre-story proof artifact during story allocation attempt -> story allocation fails closed with explicit stop behavior; WHY: Guarantees Proof-or-Stop enforcement when mandatory proof is missing or invalid.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md c3RvcnlJZEFsbG9jYXRlZDogZmFsc2U= CHK001_ADV_PASS",
+          "result": "pass",
+          "note": "The gate result and test matrix require fail-closed no-ID behavior rather than error-text-only checking.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d138ddc12f480076a498cda8feefbc2e82313462613c5ee4237e79138fe2231d",
+            "outputTail": "CHK001_ADV_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.386Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Execute independent Claude CLI and agy CLI architecture audits against draft document -> both CLI audits evaluate duplication, authority boundaries, bypasses, fail-closed behavior, freshness, process-fact registration, rollout safety, and test completeness; WHY: Verifies multi-agent architectural review.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md Q2xhdWRlIENMSSAvIENsYXVkZSBDb2RlIGAyLjEuMjIwYA== CHK002_HAPPY_PASS",
+          "result": "pass",
+          "note": "The document records completed independent Claude CLI and agy audits with verified versions.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "389d40fce314756b2e87f7b6ae7134df848894e3ead5f2f258836bf3040df0ed",
+            "outputTail": "CHK002_HAPPY_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.515Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Reconcile conflicting audit findings between Claude CLI and agy CLI -> all accepted findings are incorporated into the document with clear disposition records for rejected findings; WHY: Ensures complete reconciliation and audit trail integrity.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md IyMjIDIxLjQgRmluZGluZyBkaXNwb3NpdGlvbnMgYW5kIGZpbmFsIHN0YXR1cw== CHK002_EDGE_PASS",
+          "result": "pass",
+          "note": "The audit section contains a single reconciliation table covering every Claude and agy finding and accepted correction.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "87d63f21e6ce08c2d1f6c4a5056fa69a25c807758ce56a41c7a57f2289f262bb",
+            "outputTail": "CHK002_EDGE_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.646Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Attempt to finalize architecture document with un-reconciled CLI audit findings or missing disposition records -> document verification fails validation; WHY: Prevents bypassing independent audit reconciliation controls.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md RmluYWwgYXVkaXRlZCBzdGF0dXM6ICoqbm8gdW5yZXNvbHZlZCBCTE9DS0VSIG9yIEhJR0ggYXJjaGl0ZWN0dXJlIGZpbmRpbmcqKi4= CHK002_ADV_PASS",
+          "result": "pass",
+          "note": "Both focused confirmation audits returned CONFIRMED_PASS; the final audit status refuses acceptance when any blocker/high remains.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c3039550896b725dc791feca366cb000be94bea7e3ae4827feaa12969807f9a5",
+            "outputTail": "CHK002_ADV_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:05:30.776Z"
+          },
+          "timestamp": "2026-08-14T05:05:30.785Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both host_run final recordIds in execution-plan section 21 -> the document cites two distinct canonical host_run final recordIds (llmuse_ prefix), one for the Claude CLI audit and one for the agy CLI audit; the Claude receipt additionally cites its provider-reported numeric usage fields since Claude's host_run final exposes a numeric usage surface, while the agy receipt honestly cites recorded=unavailable plus its exact unavailableReason (agy print mode exposes no numeric usage surface per docs/host-run-usage.md) instead of a fabricated count, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries, without demanding numeric usage from a host whose print mode structurally exposes none.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": ".lattice/usage/llm-usage.jsonl",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const ids=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];const found=ids.map(id=>rows.find(r=>r.recordId===id));if(found.some(r=>!r))throw Error(\\\"missing final\\\");if(new Set(found.map(r=>r.ledgerCallId)).size!==2)throw Error(\\\"calls not distinct\\\");if(found.some(r=>r.storyId!==\\\"B-c648\\\"||r.phase!==\\\"DEV\\\"||r.agentType!==\\\"lattice-audit-mechanism-placement\\\"||r.sequence!==2||!r.supersedesRecordIds.length))throw Error(\\\"binding mismatch\\\");console.log(\\\"CHK003_HAPPY_PASS\\\")\"",
+          "result": "pass",
+          "note": "Canonical ledger contains two distinct final host_run records exactly bound to B-c648/DEV/lattice-audit-mechanism-placement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "76726b1c3c1cc5e4aca9c89dcb431d05c901672815f74ffd404fa675d50318fc",
+            "outputTail": "CHK003_HAPPY_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:43.137Z"
+          },
+          "headHash": "0734c0539c4780968fc5ea7f970b7d1062ffba70",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:43.249Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Any provider-reported host_run final is recorded=unavailable (e.g. agy's structurally-absent usage surface, or a Claude run with a truncated/unavailable usage line) -> the document does not fabricate a token count for that record; it cites the receipt's actual unavailable state and its exact unavailableReason, and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely unavailable rather than inventing numbers to fill the gap.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": ".lattice/usage/llm-usage.jsonl",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const c=rows.find(r=>r.recordId===\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\");const a=rows.find(r=>r.recordId===\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\");if(c.usage.source!==\\\"provider-reported\\\"||![6,1655,47054,160377].every((n,i)=>n===[c.usage.inputTokens,c.usage.outputTokens,c.usage.cacheCreationInputTokens,c.usage.cacheReadInputTokens][i]))throw Error(\\\"Claude usage mismatch\\\");if(a.usage.source!==\\\"unavailable\\\"||a.usage.unavailableReason!==\\\"agy_print_mode_reports_no_usage\\\"||a.usage.inputTokens!==null||a.usage.outputTokens!==null)throw Error(\\\"agy unavailable state lost\\\");console.log(\\\"CHK003_EDGE_PASS\\\")\"",
+          "result": "pass",
+          "note": "Claude provider-reported numeric fields and agy explicit unavailable state/reason are preserved without invented usage.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5f2390a19af2d3d817655246f622c2f239fb53ebde3e5e2dc633115f30896f49",
+            "outputTail": "CHK003_EDGE_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:44.292Z"
+          },
+          "headHash": "2136177c6297a04642f6f1ec1b65501c3b1b4aa6",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:44.398Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Either the Claude or the agy host_run final recordId is absent, the document's cited receipt state does not match the actual ledger state, or a numeric token count is invented for a record whose usage is recorded=unavailable -> receipt capture fails closed: the missing/mismatched/fabricated evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by a missing host record, a document/ledger mismatch, or a fabricated token count standing in for agy's structurally unavailable usage surface.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const d=fs.readFileSync(\\\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\\\",\\\"utf8\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const finalIds=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];if(finalIds.some(id=>!d.includes(id)||!rows.some(r=>r.recordId===id&&r.sequence===2)))throw Error(\\\"document ledger mismatch\\\");const failed=rows.find(r=>r.recordId===\\\"llmuse_d68b8791-13dc-4be8-b5d6-cfec9c57a1dc\\\");if(!failed||failed.sequence!==1||rows.some(r=>r.supersedesRecordIds?.includes(failed.recordId)))throw Error(\\\"failed agy attempt misclassified\\\");if(!d.includes(\\\"unavailableReason=agy_print_mode_reports_no_usage\\\")||/agy[^\\\\n]{0,80}(input|output)[^\\\\n]{0,30}[1-9][0-9]*/i.test(d.split(\\\"### 21.5\\\")[1].split(\\\"Delivery verification\\\")[0]))throw Error(\\\"fabricated agy count\\\");console.log(\\\"CHK003_ADV_PASS\\\")\"",
+          "result": "pass",
+          "note": "Exact document-to-ledger IDs are required; the failed agy preflight cannot count as final and agy numeric usage must not be fabricated.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6537b25194811c7c161fb144c5868581159162f1a6c9beddb66c7f22e224de79",
+            "outputTail": "CHK003_ADV_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:45.422Z"
+          },
+          "headHash": "85b80f3a84e4c098ed2af4a758169e52caa7433c",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:45.529Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 94,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "c5e57514c5e34a440a98593462facac08e68167476039559169bdfc9bd162d9e",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c648",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "3a63d05990bb74510cd0a5a4379360f79acbc7f8d082fcd49727673db6826189",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "balanced"
+    },
+    "verificationPolicyDigest": "0abd62a83f3f61d1ed49b29a3202e554c72727eadb7b8610532fe37d1be99a5c",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "cc93f19f10ec6df9616f777cefba99b990cacd94f7550c7f2e3eb4dfd55cedf5"
+  }
+}

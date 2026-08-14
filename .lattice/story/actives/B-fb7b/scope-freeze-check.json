@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fb7b",
+  "checkedAt": "2026-08-14T02:59:16.149Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "8397886215c8c639dc7feeefe717dd54e293356ecdf4fd8740acadb41b54c548",
+  "executionBoundaryHash": "f1d5ca716f86babd28f186743db0863c84a02e037b4e46ae9b6e4e6457022d6c",
+  "freshnessHash": "efa6bdcae5ec09645b05e511c759d49375b754fc972cc28210a537b97cd158bc",
+  "effectiveExcludedKeywords": [
+    "Any product or CLI behavior beyond test-suite build bootstrapping",
+    "Authority",
+    "bin/bootstrap-runner.js — do NOT add auto-build magic here; keep the human recovery hint",
+    "customerKeyRef",
+    "Layer4",
+    "packages/main/src/handlers/worktree.ts — no changes to worktree-creation bootstrapping (out of scope)",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any product or CLI behavior beyond test-suite build bootstrapping",
+      "source": "scopeBoundary.excluded",
+      "text": "Any product or CLI behavior beyond test-suite build bootstrapping",
+      "excluded": true
+    },
+    {
+      "keyword": "bin/bootstrap-runner.js — do NOT add auto-build magic here; keep the human recovery hint",
+      "source": "scopeBoundary.excluded",
+      "text": "bin/bootstrap-runner.js — do NOT add auto-build magic here; keep the human recovery hint",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/worktree.ts — no changes to worktree-creation bootstrapping (out of scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/worktree.ts — no changes to worktree-creation bootstrapping (out of scope)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "069f6b798d8bba2c22dc47ead241c4ffad6e9860365427a71bf136808e3f86aa"
+}

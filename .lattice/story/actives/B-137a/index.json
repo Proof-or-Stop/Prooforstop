@@ -1,0 +1,43 @@
+{
+  "storyId": "B-137a",
+  "name": "durable-managed-cross-provider-runs",
+  "title": "Durable managed cross-provider CLI runs and receipt-bound review evidence",
+  "description": "Implement the approved ManagedHostRun boundary for CLI-launched cross-provider agents: durable detached/foreground execution, bounded status and cancellation, absolute deadlines, process-group cleanup, honest orphan/replacement safety, ledger-independent shared admission, and exact managed-run receipt binding for formal reviewer evidence. This supersedes heuristic time-window provenance matching such as the inactive B-1be5 proposal; it does not manage native host subagents and must preserve legacy configured provider timeout ceilings.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-08-13T15:40:42.059Z",
+  "startedAt": "2026-08-13T15:40:42.059Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-13T15:40:42.625Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-13T15:42:57.856Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-137a",
+    "branch": "story/B-137a",
+    "createdAt": "2026-08-13T15:42:55.158Z"
+  }
+}

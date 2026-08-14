@@ -52,6 +52,7 @@ import {
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 
 /**
  * process metrics write.
@@ -272,7 +273,8 @@ export function buildNextSteps(
       let base = `→ ${activeLine}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
-→ reviewer liveness: each reviewer should first output REVIEW_START after starting; if no output for 4 minutes ask for status, if no result for 10 minutes/600s treat as stalled, restart that reviewer and note the previous stall in the retry prompt
+→ reviewer liveness: each reviewer should first output REVIEW_START after starting
+${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, lattice finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
 → Need code changes: story_advance(${storyId}, DEV) to return to DEV

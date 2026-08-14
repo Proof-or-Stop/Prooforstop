@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-74af",
+  "id": "IC-20260812094728",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Host-native agent tasks are monitored by authoritative task state: running/background and unknown remain monitor-only; only failed, cancelled, missing/dead, or explicit operator cancellation can authorize one replacement. Explicit provider and cross-host subprocess deadlines remain unchanged.",
+  "acceptedInterpretationHash": "sha256:7f83e28bfe11b93fba20de3f94463eff5ce5f1fc441617e235c21fccf39c5e81",
+  "notes": "Re-confirmed after candidate milestone ledger creation so the accepted interpretation binds M1-M3.",
+  "ledgerHashBeforeDecision": "sha256:e00f46868b5d64e787f37cf12e62b5044bbd60f58460bd4b11983a6cf778307e",
+  "confirmedLedgerHash": "sha256:e00f46868b5d64e787f37cf12e62b5044bbd60f58460bd4b11983a6cf778307e",
+  "createdAt": "2026-08-12T09:47:28.378Z",
+  "updatedAt": "2026-08-12T09:48:07.508Z"
+}

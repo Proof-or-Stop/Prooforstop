@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-74af",
+  "phase": "TEST",
+  "generatedAt": "2026-08-12T15:10:32.636Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "f505b7b014be7183832e741b1a9d0ae4c9cd3c358562e4e6641f7f11c30f5d96",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:e00f46868b5d64e787f37cf12e62b5044bbd60f58460bd4b11983a6cf778307e"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "2e8d145ce82edb97a32b53071e4d09d8ac60cb00",
+    "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+    "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "One canonical status-first liveness policy governs host-native dispatched agents.",
+      "acceptance": "Running/background and unknown tasks keep the same identity under monitoring; only authoritative terminal or missing/dead state can authorize one replacement.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=State matrix keeps >600s foreground/running on the original identity with zero replacement.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Unknown and unavailable observations remain monitor-only without duplicate dispatch.",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Only authoritative terminal states authorize one replacement; repeat terminal observations are held."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Every active INIT, PLAN, DEV, and REVIEW guidance surface uses the canonical policy.",
+      "acceptance": "Effective prompt smokes cover all registered roles and special recovery/transition surfaces with no elapsed-only restart wording.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Every registered canonical role, alias, target kind, and allowed phase renders canonical guidance.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Product, topology, cluster, scope, aliases, and special dispatch builders carry identical required fragments.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Active src and generated dist scans reject residual elapsed-only restart guidance."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Regression coverage rejects elapsed-only restarts and preserves explicit subprocess deadlines.",
+      "acceptance": "Focused mutation-sensitive smokes and build pass while protected timeout files remain unchanged.",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Foreground/background >600s matrix monitors the same task and consumes completion once.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Repeated unknown/unavailable observations preserve identity with zero duplicate launch.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js note=Action assertions catch both premature restart and failure-to-recover mutations."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
