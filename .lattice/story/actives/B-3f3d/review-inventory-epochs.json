@@ -6,9 +6,9 @@
       "epochId": "B-3f3d:RI-001",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-14T15:02:11.470Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-14T15:02:30.811Z",
-      "updatedAt": "2026-08-14T15:02:30.811Z",
+      "updatedAt": "2026-08-14T15:21:01.019Z",
       "cutoff": {
         "headHash": "b3ff7b46df1c346918cfc33daf1964ac2a6c745b",
         "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
@@ -23,7 +23,9 @@
       ],
       "maxWaves": 3,
       "waves": [],
-      "_hash": "1eab2aa0435e121b9856e01465969210e137d2c837337cb716c1fddf8707c4b2"
+      "_hash": "e285aab88d369773d77ef4eb753087ebc625e613180975766897018fa625a045",
+      "cancelledAt": "2026-08-14T15:21:01.019Z",
+      "cancelReason": "Human-authorized bootstrap recovery: the newly introduced topology critic cannot sign terminal evidence because its role is missing from Prompt Envelope modular allowlists, so RI-001 cannot finalize and the mandatory REVIEW-to-DEV receipt gate deadlocks. Preserve RI-001, RR-001..RR-006, F-001..F-008 and the rejected topology receipt as historical evidence; no authority is granted by this cancellation."
     }
   ],
   "receipts": [],
