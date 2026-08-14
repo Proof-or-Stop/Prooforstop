@@ -62,7 +62,7 @@
             "priority": "must"
           },
           {
-            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Present aged leases owned by a live matching process, an unknown or mismatched active holder, and a proven-dead stale holder; assert live and unknown holders are not stolen and only the proven-dead stale holder is reclaimed before callback entry. WHY: time alone must not authorize takeover.",
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Exercise the capacity-specific classifier with four lease states: age-only expired but still live matching owner; unknown or malformed identity; mechanically proven local-dead owner; and holder/heartbeat identity mismatch. Assert age-only and unknown/malformed leases are never reclaimed, while only the mechanically proven local-dead and identity-mismatch leases are reclaimed before callback entry. WHY: capacity takeover requires mechanical identity proof and must not inherit a permissive age-only rule.",
             "type": "logic",
             "priority": "must"
           },

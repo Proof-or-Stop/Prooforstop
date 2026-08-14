@@ -1,25 +1,30 @@
 {
-  "task": "Prevent all official validations in one git workspace from running simultaneously and invalidating wall-clock proof gates.",
-  "outcome": "When a second lattice validate or done_required_validate starts, its terminal prints \"waiting for workspace validation capacity\" with holder and heartbeat details; after the first finishes it starts automatically, and both commands produce their own normal result or evidence.",
+  "task": "Prevent every lattice validate mode and done_required_validate in one git workspace from running simultaneously and invalidating wall-clock proof gates.",
+  "outcome": "When a second official validation starts, its terminal prints \"waiting for workspace validation capacity\" with holder and heartbeat details; after the first finishes it starts automatically, and both commands produce their own normal result or evidence.",
   "facts": [
     "Existing validationExecutionLockPath is canonical across linked worktrees but ends in <storyId>.lock, so only same-story execution is serialized.",
-    "Verifier has three story-aware wrapper call sites and done_required_validate already uses withValidationExecutionLock, but no-story lattice validate bypasses that lock entirely.",
-    "An observed competing official node bin/lattice.js validate process had no story argument, so a story-only outer wrapper would leave the real contention path unfixed.",
-    "The existing per-story lock is fail-fast, has 2-second heartbeat, 120-second stale classification, pid/process-start checks, stale reclaim, and AsyncLocalStorage reentrancy.",
+    "Verifier has no-validator, configured/fallback, validate-file, and early --channel/--concept/--lint return paths; no-story and selective modes currently bypass the story lock.",
+    "An observed competing official node bin/lattice.js validate process had no story argument, so a story-only wrapper leaves the real contention path unfixed.",
+    "The current per-story classifier marks any lock older than staleMs stale before inspecting owner liveness, and legacy smoke expects an aged ownerless directory to be reclaimed.",
+    "Workspace capacity requires stricter semantics than the legacy story lock: only a mechanically proven dead or identity-mismatched holder is reclaimable; unknown ownership remains blocked.",
+    "The existing per-story lock has 2-second heartbeat, 120-second stale policy, pid/process-start checks, ownership-checked release, and AsyncLocalStorage reentrancy that must remain compatible.",
     "B-a7c5 and B-9ff1 validations ran simultaneously for 20-30 minutes; system load exceeded 40 and unrelated members timed out at unchanged 120/180/300-second gates.",
-    "Bottom-level acquireMkdirLock supports holder metadata, stale classifiers, ownership-checked release, and deadlines, but its synchronous wait would block same-process heartbeat timers.",
-    "Product review requires asynchronous wait-and-run with periodic holder/heartbeat diagnostics, not fail-fast contention.",
-    "Bare npm test bypasses official Lattice handlers and is explicitly outside this Story."
+    "acquireMkdirLock synchronous waiting would block same-process heartbeat timers, so capacity acquisition must use asynchronous fail-fast probes plus awaited delay.",
+    "Product review requires asynchronous wait-and-run with periodic holder/heartbeat diagnostics.",
+    "Bare npm test bypasses official Lattice handlers and is explicitly outside this Story.",
+    "The runtime artifact registry already excludes the entire .lattice/locks directory, so no registry, doctor, or process-fact change is needed."
   ],
   "constraints": [
     "Keep the existing per-story evidence lock and acquire workspace capacity before it in fixed global→story order.",
     "Use git-common-dir shared root so main and linked worktrees contend on one workspace lease.",
-    "Wrap lattice validate regardless of whether a story ID is supplied.",
-    "Wait asynchronously so heartbeat and abort timers remain live; do not use synchronous polling that blocks the holder context.",
+    "Wrap all lattice validate modes, including no-story and --channel/--concept/--lint early-return paths.",
+    "Use a capacity-specific strict classifier; do not change legacy per-story stale behavior in this Story.",
+    "Never reclaim workspace capacity from age alone or unknown holder data; require provable dead/mismatched ownership.",
+    "Wait asynchronously so heartbeat and abort timers remain live.",
     "Honor abort/deadline inputs and never start validation callbacks before capacity acquisition.",
-    "Do not change validation command inventories, timeouts, root full-suite budgets, evidence bindings, or read-only commands.",
+    "Do not change validation command inventories, timeouts, root full-suite budgets, evidence bindings, or unrelated read-only commands.",
     "Display bounded progress with holder story/command, pid/host where available, and heartbeat age.",
-    "Release safely after success or throw and reclaim only provably stale/dead holders.",
+    "Release safely after success or throw.",
     "Document that bare npm test is outside the lease and must not run concurrently with official validation."
   ],
   "unknowns": [],
@@ -33,5 +38,5 @@
     "docs/requirements/decisions/testing-infra.md",
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
   ],
-  "timestamp": "2026-08-14T15:16:58.165Z"
+  "timestamp": "2026-08-14T15:26:28.011Z"
 }
