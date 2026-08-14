@@ -32,7 +32,11 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "excludes": [
+        "packages/main/src/core/validation-executor.ts is read-only for this story: runSingleAllowlistedCommand already accepts options.timeoutMs, and resolveCommandTimeoutMs/executeValidationPlan/runValidationCommand are explicitly out of scope per scope-boundary.json - no modification, only imported (parseAllowlistedCommand) and invoked (runSingleAllowlistedCommand) as-is.",
+        "packages/main/src/handlers/verifier.ts is read-only for this story: configuredValidationCommands is reused exactly as-is via a new import from checklist.ts; no modification to verifier.ts."
+      ]
     },
     {
       "id": "CHK-003",

@@ -8,7 +8,10 @@
     "configuredValidationCommands (handlers/verifier.ts:224-258) already normalizes both validate.commands[] config shapes (bare string vs {command,args,timeoutMs,...}) into ValidationCommand[] with .command/.args/.timeoutMs resolved",
     "lattice.config.json:85 configures quorum-submit-smoke.js at timeoutMs: 1200000; commit c15e6dc864 documents a measured 617s runtime under load that justified the raise",
     "validate-command-timeout-smoke.ts already covers resolveCommandTimeoutMs and the lattice validate path in depth but never references runSingleAllowlistedCommand, so this gap has zero regression coverage today",
-    "INIT review (lattice-review-story-init) flagged that verifier.ts already imports 5 exports from validation-executor.ts, so validation-executor.ts importing configuredValidationCommands back from verifier.ts would create a two-way circular import; checklist.ts already imports both and is imported by neither"
+    "checklist.ts already imports runSingleAllowlistedCommand from validation-executor.ts one-way, and currently imports nothing from verifier.ts; verifier.ts imports nothing from checklist.ts either - so checklist.ts importing configuredValidationCommands from verifier.ts adds a clean one-way edge with no cycle",
+    "RESOLVED (decision_set): module home is handlers/checklist.ts, not core/validation-executor.ts - avoids the circular import validation-executor.ts would create by importing verifier.ts back",
+    "RESOLVED (decision_set): matching key is strict {command,args} array equality, not label - label is cosmetic text, args-equality is what CHK-003 already tests for disambiguation",
+    "RESOLVED (decision_set): configuredValidationCommands(root) is called fresh inside the shared helper per invocation, no caching - the file read is negligible next to the pinned command's own execution time"
   ],
   "constraints": [
     "Must not modify resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - out of scope per scope-boundary.json",
@@ -18,16 +21,12 @@
     "A pinned command with no matching validate.commands[] entry must keep today's 270s default unchanged (no regression for the common case)",
     "Must not introduce a circular import between core/validation-executor.ts and handlers/verifier.ts"
   ],
-  "unknowns": [
-    "Exact module home for the new matching/lookup logic given the circular-import constraint: checklist.ts (imports both, imported by neither) vs a lazy/dynamic import inside validation-executor.ts vs a new shared module",
-    "Matching key: strict {command,args} array equality only, or also allow label-based matching (background.md flags this as an open design decision)",
-    "Whether configuredValidationCommands(root) should be invoked once per runSingleAllowlistedCommand call or reused from a value the caller already loaded elsewhere in checklist.ts"
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "packages/main/src/core/validation-executor.ts (runSingleAllowlistedCommand, lines 584-606)",
-    "packages/main/src/handlers/checklist.ts (4 call sites: 1557, 1648, 1779, 1858)",
-    "packages/main/src/handlers/verifier.ts (configuredValidationCommands, line 224)",
-    "packages/main/src/tasks/validate-command-timeout-smoke.ts (regression coverage)"
+    "packages/main/src/handlers/checklist.ts (new shared timeoutMs-lookup helper + rewiring all 4 existing runSingleAllowlistedCommand call sites: 1557, 1648, 1779, 1858)",
+    "packages/main/src/handlers/verifier.ts (configuredValidationCommands, line 224 - read-only reuse, not modified)",
+    "packages/main/src/core/validation-executor.ts (runSingleAllowlistedCommand, lines 584-606 - not modified, options.timeoutMs already accepted)",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts (regression coverage for CHK-001/CHK-003)"
   ],
-  "timestamp": "2026-08-14T11:27:38.620Z"
+  "timestamp": "2026-08-14T11:29:23.007Z"
 }
