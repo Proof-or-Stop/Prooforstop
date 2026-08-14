@@ -19,51 +19,95 @@
         "happy": [
           {
             "desc": "npm --prefix packages/main run build exits 0 — TypeScript compiles cleanly with the new case added to validate-command-timeout-smoke.ts.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "A new case (section 6) exists in validate-command-timeout-smoke.ts that writes a temp lattice.config.json to a fresh tmpdir projectRoot containing a validate.commands[] entry with a timeoutMs override (~700ms) pinning a Node command whose real runtime is ~1.5s, calls runSingleAllowlistedCommand with the matching command STRING and no options.timeoutMs, and asserts result.timedOut === true and result.code === 124.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "Running node packages/main/dist/tasks/validate-command-timeout-smoke.js on current main exits 1 with a FAIL message from the new case — the RED repro is genuinely red because runSingleAllowlistedCommand ignores the configured timeoutMs and uses the 270s default, so the ~1.5s command completes normally (timedOut=false).",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The commanded process runtime (~1.5s) is strictly above the configured timeoutMs (~700ms) but far below 270_000ms, so the test completes fast in BOTH the red state (command finishes in ~1.5s, well under 270s default) and the future green state (killed at ~700ms). No test path ever waits anywhere near 270 seconds.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The test is hermetic: it writes lattice.config.json to a fresh os.tmpdir()-based projectRoot; no real project config or git-status side effects leak in or out.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "Pre-existing sections 1-5 all still pass when the smoke is run on current main — only the new section 6 fails. The failure exit prevents the final assertion-count summary from printing, but sections 1-5 do not throw.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The lattice.config.json written to the tmpdir is syntactically valid JSON and structurally correct for configuredValidationCommands to parse (object-form entry with command, args, and timeoutMs fields) — the config is real, not malformed; the bug is that runSingleAllowlistedCommand never consults it.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "The new case does NOT pass options.timeoutMs (or timeoutMs in any options object) to runSingleAllowlistedCommand. If it did, the configured-override bug would be bypassed and the test would be meaninglessly green on main — a false-green RED test.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The new case calls runSingleAllowlistedCommand specifically — NOT runValidationCommand or executeValidationPlan (those paths already honor timeoutMs and are covered by sections 3-5). The test must exercise the exact function the evidence tools use.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The FAIL message on current main indicates the assertion that failed is the timedOut === true check (or equivalent), confirming the failure is the actual bug symptom (270s default used, command completes normally in ~1.5s) and NOT an unrelated error such as a config parse failure, allowlist rejection, import error, or missing temp file.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The command string passed to runSingleAllowlistedCommand uses a bare allowlisted executable (e.g. node) as its first token so it passes parseAllowlistedCommand allowlist check — the test must not fail at the allowlist gate.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "No new entry is added to the project-root lattice.config.json (the smoke is already registered there per its docstring); the temp config is written only to the ephemeral tmpdir projectRoot.",
@@ -77,7 +121,230 @@
         "headHash": "7a0b4c9426bb2613face6e9af95d05eef34b02eb",
         "attestedAt": "2026-08-14T11:51:23.984Z",
         "materialHash": "2e1e79885ca7f0023cdf868aa5499d46f1e3de8ce20d99a446c9226700eb9e3a"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "npm --prefix packages/main run build exits 0 — TypeScript compiles cleanly with the new case added to validate-command-timeout-smoke.ts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:16:18.484Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "A new case (section 6) exists in validate-command-timeout-smoke.ts that writes a temp lattice.config.json to a fresh tmpdir projectRoot containing a validate.commands[] entry with a timeoutMs override (~700ms) pinning a Node command whose real runtime is ~1.5s, calls runSingleAllowlistedCommand with",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:16:26.952Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Running node packages/main/dist/tasks/validate-command-timeout-smoke.js on current main exits 1 with a FAIL message from the new case — the RED repro is genuinely red because runSingleAllowlistedCommand ignores the configured timeoutMs and uses the 270s default, so the ~1.5s command completes normal",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:16:35.053Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The commanded process runtime (~1.5s) is strictly above the configured timeoutMs (~700ms) but far below 270_000ms, so the test completes fast in BOTH the red state (command finishes in ~1.5s, well under 270s default) and the future green state (killed at ~700ms). No test path ever waits anywhere nea",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:16:43.052Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The test is hermetic: it writes lattice.config.json to a fresh os.tmpdir()-based projectRoot; no real project config or git-status side effects leak in or out.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:16:51.575Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Pre-existing sections 1-5 all still pass when the smoke is run on current main — only the new section 6 fails. The failure exit prevents the final assertion-count summary from printing, but sections 1-5 do not throw.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:02.266Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The lattice.config.json written to the tmpdir is syntactically valid JSON and structurally correct for configuredValidationCommands to parse (object-form entry with command, args, and timeoutMs fields) — the config is real, not malformed; the bug is that runSingleAllowlistedCommand never consults it",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:13.451Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The new case does NOT pass options.timeoutMs (or timeoutMs in any options object) to runSingleAllowlistedCommand. If it did, the configured-override bug would be bypassed and the test would be meaninglessly green on main — a false-green RED test.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:24.868Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The new case calls runSingleAllowlistedCommand specifically — NOT runValidationCommand or executeValidationPlan (those paths already honor timeoutMs and are covered by sections 3-5). The test must exercise the exact function the evidence tools use.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:34.791Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The FAIL message on current main indicates the assertion that failed is the timedOut === true check (or equivalent), confirming the failure is the actual bug symptom (270s default used, command completes normally in ~1.5s) and NOT an unrelated error such as a config parse failure, allowlist rejectio",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:43.105Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The command string passed to runSingleAllowlistedCommand uses a bare allowlisted executable (e.g. node) as its first token so it passes parseAllowlistedCommand allowlist check — the test must not fail at the allowlist gate.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:17:52.117Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "docs_check",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "No new entry is added to the project-root lattice.config.json (the smoke is already registered there per its docstring); the temp config is written only to the ephemeral tmpdir projectRoot.",
+          "mechanical": false,
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -107,71 +374,123 @@
           {
             "id": "H-001",
             "desc": "Configured timeoutMs flows to runSingleAllowlistedCommand: build succeeds (npm --prefix packages/main run build) and CHK-001 RED case now passes (node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0). The 700ms-configured command that sleeps ~1.5s yields timedOut===true and code===124, proving the config override was threaded through all the way to the spawn.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "H-002",
             "desc": "All 4 call sites route through the single shared resolvePinnedCommandTimeoutMs helper. Diff of checklist.ts shows exactly 4 call sites (~lines 1557, 1648, 1779, 1858) changed from (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }) to include timeoutMs: resolvePinnedCommandTimeoutMs(root, command). No duplicated matching logic exists outside the one helper.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "H-003",
             "desc": "validation-executor.ts and verifier.ts are byte-for-byte unmodified: git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output. resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, and configuredValidationCommands are all reused read-only.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "H-004",
             "desc": "Unmatched commands preserve the 270s default. resolvePinnedCommandTimeoutMs returns match?.timeoutMs. When no configuredValidationCommands entry matches by exact {command,args}, match is undefined so the return is undefined. This feeds into runSingleAllowlistedCommand options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) at line 595, preserving today s behavior for unconfigured commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "edge": [
           {
             "id": "E-001",
             "desc": "Bare-string config entries (no args/timeoutMs object) do not inject a spurious timeout. configuredValidationCommands handles bare strings via commandFromString which never sets timeoutMs. resolvePinnedCommandTimeoutMs finds a match but match.timeoutMs is undefined, so it returns undefined and runSingleAllowlistedCommand falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. No behavioral change for bare-string configured commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "E-002",
             "desc": "Parsing parity between tokenizeCommandString (used by parseAllowlistedCommand on the pinned command) and splitShellWords (used by commandFromString on bare-string config entries). For allowlist-legal commands (no shell metacharacters — blocked by VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and SHELL_META_RE), both tokenizers produce identical {executable, args}. Verify no divergence for quoting or whitespace in allowlist-legal commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "E-003",
             "desc": "Shell-style config entries (shell:true) cannot false-positive-match pinned commands. configuredValidationCommands sets shell:true and stores the entire raw string in .command with empty .args for entries containing shell metacharacters. parseAllowlistedCommand rejects shell metacharacters via the allowlist. Therefore no pinned command can ever have an executable matching a shell-style entry. The strict {command,args} match correctly returns undefined.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "E-004",
             "desc": "Config entry with timeoutMs:0 or negative value. configuredValidationCommands passes through typeof entry.timeoutMs === number entries verbatim. resolvePinnedCommandTimeoutMs returns that value. runSingleAllowlistedCommand sets options.timeoutMs to 0 (not nullish). But resolveCommandTimeoutMs (line 76) rejects non-positive values and falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The existing safety net handles this — no new vulnerability introduced.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "E-005",
             "desc": "Import does not create a circular dependency. tsc build succeeds (npm --prefix packages/main run build). Import graph is one-way: checklist.ts imports from verifier.ts (new edge for configuredValidationCommands) and from validation-executor.ts (existing edge, now also parseAllowlistedCommand). Neither verifier.ts nor validation-executor.ts imports from checklist.ts.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "adversarial": [
           {
             "id": "A-001",
             "desc": "Attacker crafts a pinned command with extra whitespace or quoting to evade timeout matching. parseAllowlistedCommand normalizes via tokenizeCommandString (strips quotes, collapses whitespace). configuredValidationCommands normalizes via splitShellWords (identical behavior for allowlist-legal inputs). Both produce the same canonical {executable, args} for equivalent commands. Extra whitespace or redundant quoting is stripped during tokenization — an attacker cannot use formatting tricks to dodge a configured timeout because matching operates on parsed tokens, not raw strings.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "A-002",
             "desc": "Attacker pins a command sharing only the executable (same node binary, different args) to steal a high-timeout config entry budget. resolvePinnedCommandTimeoutMs matches by strict equality on BOTH c.command === executable AND full args array (length + element-wise ===). A command sharing only the executable but differing in any single arg returns no match, falling back to the 270s default. CHK-003 adds explicit regression coverage for this disambiguation case.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "A-003",
             "desc": "Attacker modifies lattice.config.json to inject a very large timeoutMs hoping to hang evidence collection indefinitely. Not a new attack surface — lattice.config.json is already trusted project configuration (same trust boundary as validate.commands used by lattice validate). resolveCommandTimeoutMs already clamps to MAX_NODE_TIMER_DELAY_MS. The fix reuses the identical code path (runValidationCommand -> resolveCommandTimeoutMs) that already enforces this ceiling. No new unbounded timeout vector.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "id": "A-004",
             "desc": "TOCTOU: config changes on disk between resolvePinnedCommandTimeoutMs read and runSingleAllowlistedCommand execution. Both calls happen in the same synchronous-then-await sequence. configuredValidationCommands reads lattice.config.json synchronously (loadConfig). The resolved timeoutMs is captured in a local variable before the async spawn. This is identical to the existing race window in the lattice-validate path. No new TOCTOU risk introduced beyond what already exists.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ]
       },
@@ -181,7 +500,256 @@
         "headHash": "70bf57c98be547cc35f9bd56926e4183983223fc",
         "attestedAt": "2026-08-14T12:06:27.381Z",
         "materialHash": "ac7d8abc07df9b55f9b27f47b6f80630f918a78837f8ec6192ff4576368976fe"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "H-001",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Configured timeoutMs flows to runSingleAllowlistedCommand: build succeeds (npm --prefix packages/main run build) and CHK-001 RED case now passes (node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0). The 700ms-configured command that sleeps ~1.5s yields timedOut===true and code==",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:01.822Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "H-002",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "All 4 call sites route through the single shared resolvePinnedCommandTimeoutMs helper. Diff of checklist.ts shows exactly 4 call sites (~lines 1557, 1648, 1779, 1858) changed from (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }) to include timeoutMs: resolvePinnedCommandTimeoutM",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:10.567Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "H-003",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "validation-executor.ts and verifier.ts are byte-for-byte unmodified: git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output. resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, and configuredValidationCommands are",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:19.480Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "H-004",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Unmatched commands preserve the 270s default. resolvePinnedCommandTimeoutMs returns match?.timeoutMs. When no configuredValidationCommands entry matches by exact {command,args}, match is undefined so the return is undefined. This feeds into runSingleAllowlistedCommand options.timeoutMs ?? DEFAULT_VA",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:27.966Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "E-001",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Bare-string config entries (no args/timeoutMs object) do not inject a spurious timeout. configuredValidationCommands handles bare strings via commandFromString which never sets timeoutMs. resolvePinnedCommandTimeoutMs finds a match but match.timeoutMs is undefined, so it returns undefined and runSin",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:35.575Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "E-002",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Parsing parity between tokenizeCommandString (used by parseAllowlistedCommand on the pinned command) and splitShellWords (used by commandFromString on bare-string config entries). For allowlist-legal commands (no shell metacharacters — blocked by VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and SHELL_M",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:44.145Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "E-003",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Shell-style config entries (shell:true) cannot false-positive-match pinned commands. configuredValidationCommands sets shell:true and stores the entire raw string in .command with empty .args for entries containing shell metacharacters. parseAllowlistedCommand rejects shell metacharacters via the al",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:18:52.886Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "E-004",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Config entry with timeoutMs:0 or negative value. configuredValidationCommands passes through typeof entry.timeoutMs === number entries verbatim. resolvePinnedCommandTimeoutMs returns that value. runSingleAllowlistedCommand sets options.timeoutMs to 0 (not nullish). But resolveCommandTimeoutMs (line",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:01.410Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "E-005",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Import does not create a circular dependency. tsc build succeeds (npm --prefix packages/main run build). Import graph is one-way: checklist.ts imports from verifier.ts (new edge for configuredValidationCommands) and from validation-executor.ts (existing edge, now also parseAllowlistedCommand). Neith",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:09.715Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "A-001",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Attacker crafts a pinned command with extra whitespace or quoting to evade timeout matching. parseAllowlistedCommand normalizes via tokenizeCommandString (strips quotes, collapses whitespace). configuredValidationCommands normalizes via splitShellWords (identical behavior for allowlist-legal inputs)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:17.843Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "A-002",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Attacker pins a command sharing only the executable (same node binary, different args) to steal a high-timeout config entry budget. resolvePinnedCommandTimeoutMs matches by strict equality on BOTH c.command === executable AND full args array (length + element-wise ===). A command sharing only the ex",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:26.495Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "A-003",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Attacker modifies lattice.config.json to inject a very large timeoutMs hoping to hang evidence collection indefinitely. Not a new attack surface — lattice.config.json is already trusted project configuration (same trust boundary as validate.commands used by lattice validate). resolveCommandTimeoutMs",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:34.698Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "A-004",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "TOCTOU: config changes on disk between resolvePinnedCommandTimeoutMs read and runSingleAllowlistedCommand execution. Both calls happen in the same synchronous-then-await sequence. configuredValidationCommands reads lattice.config.json synchronously (loadConfig). The resolved timeoutMs is captured in",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:42.788Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -202,39 +770,71 @@
         "happy": [
           {
             "desc": "Write a temp lattice.config.json to a fresh tmpdir projectRoot with two validate.commands[] entries sharing the same executable (node) but with different args arrays and different timeoutMs values (e.g. 700 and 5000). For each entry, call resolvePinnedCommandTimeoutMs(root, pinnedCommandString) where pinnedCommandString parses to the exact same {executable, args} as that config entry. Assert each call returns that entry's own exact timeoutMs value, not the other's. WHY: proves the matching logic compares the full {command, args} tuple and returns the correct per-entry budget.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "The full smoke suite (sections 1-5 from prior CHK items plus CHK-001's section 6) still passes after adding the new CHK-003 assertions — the total assertion count logged on the final 'passed: N assertions' line increases but no pre-existing assertion regresses. WHY: ensures CHK-003's additions are purely additive and do not break earlier coverage.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "All new assertions are pure synchronous calls to resolvePinnedCommandTimeoutMs against a temp lattice.config.json — no real timed subprocess waits — so the test completes in sub-second time regardless of the timeoutMs values declared in config. WHY: CHK-003's intent is unit-level coverage of the matching logic; adding wall-clock waits would make the smoke slow and fragile.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Unmatched-default: the temp config has one or more configured validate.commands[] entries, but the pinned command string parses to an {executable, args} pair that matches NONE of them (different args or entirely different executable). Assert resolvePinnedCommandTimeoutMs returns undefined — not zero, not the first entry's timeoutMs, not DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The undefined return is the signal for the caller to fall through to the 270s default via the existing options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS path. WHY: the common case (a pinned command with no config override) must remain unchanged.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "Args-length mismatch: config entry has args [a, b] with timeoutMs X; pinned command has the same executable but only args [a] (a strict prefix of the config entry's args). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: must not partial-match on a prefix of the args array — the args.length guard fires before element comparison.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "Args-content mismatch: config entry has args [-e, foo] with timeoutMs X; pinned command has the same executable and same args length but different content ([-e, bar]). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: element-wise string equality is required, not just length equality; proves the every() comparator fires.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Cross-match by executable alone: temp config has TWO entries with the same executable (node) but distinct args arrays and distinct timeoutMs values. For each of the two corresponding pinned command strings, assert resolvePinnedCommandTimeoutMs returns that specific entry's own timeoutMs — never the other entry's value. A naive implementation that matches by executable alone (or returns the first match regardless of args) would return the wrong budget for one of the two commands. WHY: this is the exact cross-match-by-executable-alone defect the plan's title warns about.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           },
           {
             "desc": "No silent wrong match: when the pinned command's executable matches a config entry's command field but the args differ, the helper must return undefined rather than returning the wrong entry's timeoutMs. Assert that for a pinned command whose executable exists in config but whose args match no entry, the return value is strictly undefined (=== undefined). This distinguishes a clean 'no match' (caller safely falls through to 270s) from a silent 'wrong match' (caller unknowingly applies another command's budget — a latent timeout bug that could either truncate a legitimate long-running receipt or over-extend a budget for a command that should be killed sooner). WHY: undefined is the only safe sentinel; any numeric return from an unmatched lookup is a potential misattribution.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed: 27 assertions"
+            }
           }
         ]
       },
@@ -244,7 +844,161 @@
         "headHash": "35b4ec0ab00d898a7b42090c944f1d49c5fe56ea",
         "attestedAt": "2026-08-14T12:08:40.591Z",
         "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Write a temp lattice.config.json to a fresh tmpdir projectRoot with two validate.commands[] entries sharing the same executable (node) but with different args arrays and different timeoutMs values (e.g. 700 and 5000). For each entry, call resolvePinnedCommandTimeoutMs(root, pinnedCommandString) wher",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:50.637Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The full smoke suite (sections 1-5 from prior CHK items plus CHK-001's section 6) still passes after adding the new CHK-003 assertions — the total assertion count logged on the final 'passed: N assertions' line increases but no pre-existing assertion regresses. WHY: ensures CHK-003's additions are p",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:19:57.636Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "All new assertions are pure synchronous calls to resolvePinnedCommandTimeoutMs against a temp lattice.config.json — no real timed subprocess waits — so the test completes in sub-second time regardless of the timeoutMs values declared in config. WHY: CHK-003's intent is unit-level coverage of the mat",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:04.661Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Unmatched-default: the temp config has one or more configured validate.commands[] entries, but the pinned command string parses to an {executable, args} pair that matches NONE of them (different args or entirely different executable). Assert resolvePinnedCommandTimeoutMs returns undefined — not zero",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:11.601Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Args-length mismatch: config entry has args [a, b] with timeoutMs X; pinned command has the same executable but only args [a] (a strict prefix of the config entry's args). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: must not partial-match on a prefix of the args array — the args.len",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:18.594Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Args-content mismatch: config entry has args [-e, foo] with timeoutMs X; pinned command has the same executable and same args length but different content ([-e, bar]). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: element-wise string equality is required, not just length equality; pro",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:25.775Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Cross-match by executable alone: temp config has TWO entries with the same executable (node) but distinct args arrays and distinct timeoutMs values. For each of the two corresponding pinned command strings, assert resolvePinnedCommandTimeoutMs returns that specific entry's own timeoutMs — never the",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:33.456Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "No silent wrong match: when the pinned command's executable matches a config entry's command field but the args differ, the helper must return undefined rather than returning the wrong entry's timeoutMs. Assert that for a pinned command whose executable exists in config but whose args match no entry",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a",
+            "outputTail": "validate-command-timeout smoke passed: 27 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T12:20:41.577Z"
+          },
+          "headHash": "0b6492bb36fc9a09226dd832c1251c109ecec211",
+          "materialHash": "4bbfeb58d0918feb8689997c3e0c9de2717a0ee5def588f620b7e22ea8919fb9",
+          "storyFilesHash": "2ebf32739a37bf563ef394ca0a000454864c1a4192317573449bd7b1fc88603a",
+          "timestamp": "2026-08-14T12:20:42.123Z"
+        }
+      ]
     }
   ]
 }
