@@ -955,7 +955,7 @@
       "desc": "Durable-record defect: commit 56da8b5e4bb35888b3fbbaf798340b321d32151b (fix(F-037): global-agents-init-smoke now passes -- derived counts + canonical bin), part of this stories own commit history, has an 831-line commit message body that contains TWO full accidental copies of stale lattice-branded CLI --help output pasted in verbatim (Entrypoint: lattice, Usage: lattice <command> --key=value, lattice <command> --help, lattice help --full, dozens of lattice_config_doctor/lattice-prefixed usage lines etc), apparently captured via an unintended command-substitution while composing the commit -m heredoc. Verified this is genuinely committed (not a terminal artifact) via git cat-file -p 56da8b5e4bb35888b3fbbaf798340b321d32151b | grep -c \"Entrypoint: lattice\" returning 2, and git log -1 --format=%B on that sha returning 831 lines vs 20-26 lines for the sibling commits 155e787d0c/c4042848df/fccced8f3b in the same fix series. This is exactly the class of defect this story exists to eliminate (stale lattice-branded command examples), now permanently baked into a durable audit-trail git object as an artifact OF the rename story itself. Commit messages are immutable once pushed/merged to shared history; flagging so it is at minimum acknowledged as a known blemish in the delivered record rather than silently normalized, per the story requirement that commit messages carrying measured figures be accurate durable records.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T09:23:35.922Z",
@@ -966,7 +966,11 @@
         ".git (commit 56da8b5e4bb35888b3fbbaf798340b321d32151b commit message)"
       ],
       "signatureTag": "missing|.git (commit 56da8b5e4bb35888b3fbbaf798340b321d32151b commit message)|durable-record-defect",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED, and mitigated by a durable correction rather than a history rewrite. You are right on the facts: commit 56da8b5e4b has an 831-line message containing two pasted copies of stale lattice-branded --help output, against 20-26 lines for its siblings.\n\nCAUSE, which I can state precisely because I saw it happen and misjudged it: the message was passed through an UNQUOTED shell heredoc containing backticks, so the shell executed the backticked text and spliced its stdout into the message. I noticed the shell emit 'command not found: 16' at the time, checked that the message's substantive lines were intact, and dismissed the rest as harmless noise. It was not harmless - it injected command output into a permanent audit record, and the injected text carries exactly the brand residue this story exists to remove.\n\nWHY I AM NOT REWRITING IT: that commit is 20 commits back. Every reviewer run, review pass and evidence receipt since is bound to headHash values a rebase would invalidate, which would destroy the audit chain to tidy a message - a strictly worse defect. Instead I attached a git note to 56da8b5e4b stating the cause, marking the spill as non-evidence, and pointing to where the real message ends. The note travels with the commit for anyone reading the history.\n\nRecorded as accepted_risk, not fixed: the polluted message is still in the history and I am not pretending otherwise.",
+      "resolvedAt": "2026-08-14T11:49:11.827Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
