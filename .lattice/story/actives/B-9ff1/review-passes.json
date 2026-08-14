@@ -109,6 +109,38 @@
         "scanEscalationReason": null
       },
       "_hash": "972e705d87f43c2dc6f5cc6ca4c35803aac26d600e4b42cda970143603dd9c78"
+    },
+    {
+      "id": "B-9ff1:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Confirmation round: verified F-001 (two-policy differential proves policy-resolved maxMatchers not hard-coded 8, red-w2d-rejection-matrix.mjs L209-236), F-004 (closed-enum/identity checks re-run against kind:class L277-307), F-003 (CHK-013:happy:0 resolves via configuredValidationCommands and executes via runValidationCommand, red-w2d-command-readonly.mjs L361-383, exit 0), F-002 (positive child-process recorder + negative control + read-only git allowlist + ref-verify/blob-read pairing L62-352; snapshot claim narrowed). All 6 red-w2d/smoke harnesses green. Spot-checked mutation-verified claim on 3 fixes (F-011 supplementaryArtifact:null, F-009 count/specificity independence, F-007 greenExempt presence-not-truth) by reverting each in compiled dist: all 3 reversions fail both harnesses non-zero; restored cleanly, git status clean after. Read both permanent waivers CHK-012:edge:1 and CHK-013:adversarial:0: underlying behaviour IS exercised (invalid-JSON parse-throw + 8-invocation snapshot equality; full R1-1/R1-2/R1-3/R1-5/R1-6 tag coverage with matrix.length dynamically 33). Pinned selector literals verified genuinely stale by inspection (RED commit ae64051417 already had 8 check() calls but logged 7 from day one; fixture count grew 25->33 as F-004/F-008/F-009/F-010 fixtures were added). checklist.ts receipt_selector_mismatch (immutable pin) and verification_intent_repair (missing-only backfill) confirm no sanctioned correction path. Both waivers honest, not coverage-papering. All 108 intent rows have exactly one evidence row, no gaps/orphans, no result:fail. Note: mid-review a concurrent process was observed transiently mutating envelope.ts in this shared worktree (self-restored, git status clean now) -- environment hazard, not a story defect.",
+      "createdAt": "2026-08-14T02:21:17.655Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-005",
+      "envelopeId": "bd9f24e593275094dd82bfffa4a5985b8c493de48fede3142e47f5bb2adfcaf0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27d9489df003d7f3001b01609601daea244e5a6919cbb394d4ed3d86f302348f"
     }
   ]
 }
