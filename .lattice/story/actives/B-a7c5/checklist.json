@@ -1119,7 +1119,11 @@
         "happy": [
           {
             "desc": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md M8 section now describes dev_memory_finish_decision as a blocking DONE-gate requirement (contains words like \"blocking\" or \"required\" in the context of DONE/canFinishGuard), not purely advisory; WHY: confirms the primary update was made -- the M8 section must reflect the actually-delivered escalation",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"a required, BLOCKING check\\\") ? \\\"BLOCKING_DONE_GATE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "BLOCKING_DONE_GATE_CONFIRMED"
+            }
           },
           {
             "desc": "The updated M8 section preserves the original advisory-only text as historical rationale (via a \"Delivered differently\" callout, \"Historical note\" block, or equivalent clearly-marked subsection), not deleted or overwritten; WHY: confirms the B-3144 \"Delivered differently\" pattern was followed as required by the plan",
@@ -1182,6 +1186,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:19:53.834Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"a required, BLOCKING check\\\") ? \\\"BLOCKING_DONE_GATE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The M8 Delivered-differently annotation states dev_memory_finish_decision was escalated to 'a required, BLOCKING check' inside the same paragraph naming core/machine.ts canFinishGuard (the DONE gate), directly matching the primary happy-path claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9aab5005e67412eaab6fdb1df6b267bc9bebb4f1236ea7890e68a1dc817f5447",
+            "outputTail": "BLOCKING_DONE_GATE_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:11.739Z"
+          },
+          "headHash": "5b898d1ddf3447fc7a8f4c3955e71b357ef4555a",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:11.859Z"
         }
       ]
     },
