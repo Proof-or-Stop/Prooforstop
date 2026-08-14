@@ -315,7 +315,7 @@
       "desc": "Re-verified F-011 on current HEAD 8ad0cfbf8c (code fix commit eab8a74651 'shared main+utils build lock closes cross-package rebuild race'): the F-011 ENOTEMPTY race is closed. build-main-with-binding.mjs:13-23 now wraps the whole rm(dist)+tsc+writeBuildBinding critical section inside withBuildLock(projectRoot, ...) from the new scripts/build-lock.mjs -- a per-repo mkdirSync mutex (300s stale-lock steal, 900s wait timeout) -- so no second process's rmSync/tsc can interleave with this one's dist rewrite, removing the root cause of the intermittent rmdir-not-empty crash. Live-verified on current material: node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS. Also observed a genuinely concurrent 5-way `npm run pretest` stress round against this exact shared worktree during this review session (launched independently by a sibling reviewer lane, logged at scratchpad/pretest_1..5.log, finish timestamps 13:11-13:14 confirming queued/serialized rather than racing execution): 5/5 exit 0, zero ENOTEMPTY, zero TS2307. git status --porcelain clean after all runs (dist remains gitignored, rebuilds do not dirty the tree). git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, confirming no code drift since the checklist evidence was captured.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "disproven",
       "disprovenEvidence": {
         "summary": "F-011 (rmSync ENOTEMPTY under concurrent pretest invocation) is fixed by commit eab8a74651: the entire packages/main rm+tsc+binding critical section in scripts/build-main-with-binding.mjs now runs inside withBuildLock(projectRoot, fn) from the new scripts/build-lock.mjs, a per-repo filesystem mutex, so concurrent invocations serialize instead of racing on dist. Re-ran the story's own guards (RED, guard-bite, compiled structural smoke) on current HEAD, all pass, and observed a live 5-way concurrent npm run pretest round in the shared worktree during this review complete 5/5 clean with zero ENOTEMPTY.",
@@ -338,7 +338,11 @@
         "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
       ],
       "signatureTag": "missing|mjs|verified-current-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adversarially disproven counter-finding: the concurrency hazard it probed is fully handled by the shared main+utils build mutex (scripts/build-lock.mjs). Retained as audit trail; superseded at the frozen final tree.",
+      "resolvedAt": "2026-08-14T12:51:28.249Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fb7b:F-017",
