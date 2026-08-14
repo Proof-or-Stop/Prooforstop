@@ -3412,7 +3412,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   }
 
   // Test 9 (prefix vocabulary parity with story-advance precedent — CHK-003
-  // adversarial: byte-equal prefix `\n✓ lattice metadata auto-committed:`).
+  // adversarial: byte-equal prefix `\n✓ proof-or-stop metadata auto-committed:`).
   {
     const { root, storyId } = setupAutoCommitFixture();
     try {

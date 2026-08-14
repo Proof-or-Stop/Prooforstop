@@ -22,7 +22,7 @@
  *     an empty staged set and returns ''.
  *
  * Vocabulary (preMortem #3 anchor):
- *   - User-visible prefix is the literal `\n✓ lattice metadata auto-committed:`,
+ *   - User-visible prefix is the literal `\n✓ proof-or-stop metadata auto-committed:`,
  *     re-exported as AUTO_COMMIT_METADATA_PREFIX so callers and tests can pin it.
  *   - Coexisting non-metadata dirt is announced with the anchor word
  *     `untouched` — never `handled` / `committed` / `all clean`.
