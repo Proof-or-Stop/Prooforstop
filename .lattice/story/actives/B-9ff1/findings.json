@@ -637,7 +637,7 @@
       "desc": "[codex host-B D1] REGRESSION caused by our own repair commit 0954bda0c8, empirically confirmed by the main agent: running all 108 pinned selectors against real command output showed exactly one failure. CHK-012:adversarial:0 pins the immutable selector 'a byte-identical .lattice tree with no gate verdict change' against red-evidence-envelope-smoke and was bound as a real logic_test receipt, not a waiver. Rewording that transcript line removed the substring, so the receipt could no longer be reproduced. Fixed by restoring the pinned phrase verbatim and qualifying it in place rather than requesting a third waiver.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:03:07.090Z",
@@ -645,7 +645,11 @@
       "reviewRunId": "B-9ff1:RR-025",
       "_hash": "cd00195bad5f5252aaebe084f62822bf3c9ff6833ab6d0d7ce218aa9deda022e",
       "signatureTag": "missing|unknown|codex-host-regression",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The pinned phrase is restored verbatim in the smoke's closing transcript and qualified in place immediately after, so the receipt reproduces AND the honesty the previous repair added is kept. A third permanent waiver was available and was deliberately not taken: waiving would have traded a working mechanical receipt for prose. Fixed in commit 8c1ec91805f36d7ea5024f9c00f983b8d96c88f1 (text only, five files). Acceptance was mechanical, not asserted: a checker runs all 108 pinned verification selectors against real command output and reports 106 checked, 2 permanently waived, zero mismatches. That checker was written in response to this round and is the instrument that both proved the regression and bounded it to a single selector.",
+      "resolvedAt": "2026-08-14T10:03:43.354Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-031",
