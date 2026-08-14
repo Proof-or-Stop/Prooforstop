@@ -199,7 +199,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The operator sees whether discovery is still finding new verified issues, which lanes or critic remain, and why finalization is blocked; budget exhaustion produces a visible replan or human-adjudication action rather than a manufactured PASS.",
+      "userSees": "Status prints \"Wave: n/max\", \"New verified findings: n\", every lane as \"pending|complete|blocked\", \"Completeness critic: pending|complete\", blocker codes, and either one exact dispatch command or \"Next: lattice review_inventory_finalize --storyId=<id>\".",
       "verificationIntent": {
         "happy": [
           {
@@ -260,6 +260,18 @@
             "type": "cli",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/adversarial-review.ts",
+          "packages/main/src/core/adversarial-review-round.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
         ]
       }
     },
