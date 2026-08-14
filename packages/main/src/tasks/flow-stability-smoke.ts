@@ -3366,7 +3366,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       writeFakeMetadata(root, storyId);
       writeFileSync(join(root, '.git', 'index.lock'), 'locked');
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
-      assert.match(out, /lattice metadata auto-commit failed/, 'real git failures still return the user-visible warning');
+      assert.match(out, /proof-or-stop metadata auto-commit failed/, 'real git failures still return the user-visible warning');
+      assert.doesNotMatch(out, /\blattice metadata auto-commit failed/, 'failure warning must not teach the deprecated brand');
       const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
       assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
       assert.equal(issues[0].context.storyId, storyId);
@@ -3416,7 +3417,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(
         out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
         AUTO_COMMIT_METADATA_PREFIX,
-        'user-visible prefix must be byte-equal `\\n✓ lattice metadata auto-committed:`',
+        'user-visible prefix must be byte-equal `\\n✓ proof-or-stop metadata auto-committed:`',
       );
     } finally {
       rmSync(root, { recursive: true, force: true });

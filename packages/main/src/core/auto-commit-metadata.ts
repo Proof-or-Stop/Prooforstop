@@ -640,6 +640,6 @@ export function autoCommitStoryMetadata(
       reason,
       projectRoot,
     });
-    return `\n⚠ lattice metadata auto-commit failed: ${e?.message || e}`;
+    return `\n⚠ proof-or-stop metadata auto-commit failed: ${e?.message || e}`;
   }
 }

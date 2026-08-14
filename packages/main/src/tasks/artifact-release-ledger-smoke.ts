@@ -324,7 +324,7 @@ try {
     assert.equal(buildObservedVersion, '0.9.10');
     assert.equal(readSyncedVersion(recoveryRoot), '0.9.10');
     const log = git(recoveryRoot, ['log', '--oneline', '-n', '4']);
-    assert.match(log, /chore: bump lattice cli to 0\.9\.10/);
+    assert.match(log, /chore: bump proof-or-stop cli to 0\.9\.10/);
     assert.equal(git(recoveryRoot, ['status', '--short']), '');
     assert.equal(git(recoveryRoot, ['branch', '--list', `story/${storyId}`]), '');
   });
