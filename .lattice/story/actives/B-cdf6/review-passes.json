@@ -720,6 +720,37 @@
         "scanEscalationReason": null
       },
       "_hash": "7d0ee0b4d62e6343a460c54322041c670684da358e2f41c157ff7adb34fcbac5"
+    },
+    {
+      "id": "B-cdf6:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass, bound to RR-076 @ head 4533d128. Ledger quoted fresh at this exact head, twice independently (finding_list + review_incremental_context.unresolvedFindings): 54 findings, 0 open, 50 resolved earlier + F-052/F-053/F-054 resolved in fix commit 813874cfdf + 1 dismissed. Coverage mechanically re-derived from checklist_get: 36 must-priority verificationIntent entries across CHK-001..CHK-005 (CHK-006 has zero intents), all 36 accounted for as 34 non-waiver verificationEvidence with result=pass (zero fail/pending/skipped) + exactly 2 waivers (CHK-002:adversarial:1 type=deferred_gate_evidence citing pre-existing verified B-META-framework-audit:F-005; CHK-004:edge:0 type=permanent citing an unsatisfiable-by-construction monotonic-counter pin while the underlying check itself passes 38/38) -- both substantive and unrelated to the recent rename fixes. Verified F-049 fix diff (477520541c): straight rename plus one added assert.doesNotMatch negative guard plus one corrected assertion-failure message describing an already-correct constant -- no weakened assertion, worktree.ts:673 remains the sole legitimate read-both call site as claimed. Verified F-052/F-053/F-054 fix (813874cfdf) by reading the diff, rebuilding packages/main from clean tsc, and running flow-stability-smoke.js directly -- exit 0, including the new F-052 read-both proof block. I independently hit and was correctly rejected by the framework scope-binding gate mid-review (finding_add on stale RR-075 failed with diff_pack_changed) when the ledger I had just read went stale under me exactly as this story history describes -- re-bound via fresh review_run_start (RR-076) before concluding. Three previously-red smokes in one validate log were an artifact of a concurrent dist/ rebuild racing that run (MODULE_NOT_FOUND mid-run, reuse.reusable=false) not real regressions -- confirmed by rebuilding cleanly and re-running red-f88e-downgrade-non-regression.mjs directly (OK). One unrelated real failure found (retired-authority-vocabulary-guard-smoke.js on cli-engine.ts:814) traces to byte-identical pre-existing code on main this story never touches -- out of scope, not filed.",
+      "createdAt": "2026-08-14T13:57:04.877Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-076",
+      "envelopeId": "de352d913668fce12b773252258b2ed51f82f1d5beb4851a4a2841ed5ae6cc60",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "checklist.json",
+          "findings.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-cdf6/background.md",
+          "docs/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4459f312ea223794901e1559433c1313b4ddd9b53305cd0d5c4c377c7bae2b31"
     }
   ]
 }
