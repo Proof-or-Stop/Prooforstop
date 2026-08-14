@@ -171,6 +171,31 @@
       "_hash": "6133827c10e39370fb40cc04aab9247073ecb67809a7bf3fe516f2c8ad576810",
       "signatureTag": "edge|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-010",
+      "desc": "Re-verified F-006 on current HEAD 24e2c689bf (fix commit fd8054daa6, no material drift since): the --prefix packages/main|utils run build regexes are now anchored with the same (?![\\w:-]) negative lookahead as the bare-fallback regex, closing the namespaced-sibling loophole.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-006 fix confirmed sound on current material. packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:50-51 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:44-45 now define buildsMain = /--prefix\\s+packages\\/main\\s+run\\s+build(?![\\w:-])/.test(pretest) || runsExactRootBuild and the parallel buildsUtils with the utils prefix -- the same negative lookahead already used for the bare npm-run-build fallback is now applied to both --prefix forms. Independently re-derived and ran the regex logic outside the guard-bite fixture harness (node -e with the literal pattern text copied from the current source): --prefix packages/main run build:fast / build:lab / build-x (and the parallel utils forms) all compute buildsMain=false / buildsUtils=false (guard correctly FAILS), while the real two-package pretest (npm --prefix packages/main run build && npm --prefix packages/utils run build) and the exact npm run build both still compute true/true (guard correctly PASSES). Live-ran on a freshly, sequentially rebuilt dist (npm --prefix packages/main run build then npm --prefix packages/utils run build, both exit 0): node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0; node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS, exit 0; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 11 selectors printed incl. the new GB-ADVFAST-BIT (--prefix + build:fast namespaced-sibling fixture), ending GB-ALL-PASS, exit 0. git diff --stat fd8054daa6..HEAD -- . \":(exclude).lattice\" is empty, confirming no non-bookkeeping material changed since the fix commit. git status --porcelain after all rebuilds shows only .lattice bookkeeping churn (dist is gitignored, rebuilds do not dirty the tree). Note for the record: running the guard-bite/RED/smoke scripts concurrently against the shared live dist tree races (the RED and pretest both rmSync+rebuild packages/main/dist), producing transient spurious MODULE_NOT_FOUND failures unrelated to the regex fix -- re-running them sequentially (as the real validate.commands pipeline does) confirms all PASS deterministically. No blocking defect found in this area.",
+        "sourceRefs": [
+          "B-fb7b:F-006",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-58",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:38-52",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:15-16,124"
+        ],
+        "reproCommand": "npm --prefix packages/main run build && npm --prefix packages/utils run build && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs && node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:41:55.698Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-014",
+      "_hash": "129bddac2893944f4e15e0ced45060a510fc833cf4c205c862ee452951b479ea",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
