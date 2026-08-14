@@ -59,6 +59,31 @@
       "_hash": "a5b2de4c67cd77ceaebee7e6b4932c689fc50e665af71eed09baf9241c3714eb",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-005",
+      "desc": "Re-verified F-003 on current HEAD bae253f (material unchanged since fix commits 84e8bf2d/8bdc42ffa8): both loopholes are closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-003 fix confirmed sound on current material. (1) Anchored fallback regex runsExactRootBuild = /\\bnpm\\s+run\\s+build(?![\\w:-])/ in both packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:40 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:29 now rejects namespaced siblings: unit-tested build:lab, build-x, buildx, build_foo, and the exact F-003 repro pretest \"npm --prefix packages/main run build && npm run build:post\" all correctly compute buildsUtils=false (assertion fails), while the true root build script \"npm run build\" and the real two-package pretest still pass. Live-ran the compiled dist smoke (packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js, byte-identical logic to source, no diff vs source) and confirmed exit 0 on the real pretest, and confirmed guard-bite's new GB-ADVLAB-BIT case (fixture pretest='npm run build:lab', a real root script that only builds packages/lab) makes the structural smoke fail as required. (2) The RED behavioral step (red-fb7b-pretest-builds-utils.mjs lines ~62-70) now captures startedAtMs=Date.now() before execFileSync('npm',['run','pretest']) and asserts statSync(utilsIndex).mtimeMs >= startedAtMs - 2000, plus a parallel existsSync check on packages/main/dist/index.js. Reproduced the freshness guard directly: a fixture with a 10-minute-stale packages/utils/dist/index.js and a no-op pretest computes fresh=false, i.e. a stale pre-existing artifact cannot pass. packages/utils uses plain tsc (no --incremental, no tsbuildinfo cache) so every real pretest run rewrites dist/index.js and updates its mtime, so the 2s tolerance is only clock-skew slack, not a stale-artifact loophole. Live-ran both node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS, ~12.5s) and node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 9 selectors incl. GB-ADVLAB-BIT and GB-ADV2-BIT print, GB-ALL-PASS, exit 0) on current HEAD; git diff between the evidence-recorded commit 8bdc42ffa8 and current HEAD bae253f touches only .lattice bookkeeping files, confirming the material implementing the fix is unchanged since the evidence was captured. git status --porcelain clean after all runs (dist rebuilds do not dirty the tree). Code-quality check on the new lines: guard-bite fixtures (makeFixture/runRedIn/runSmokeIn and the two ad-hoc temp-dir blocks) all wrap cleanup in try/finally with rmSync(root,{recursive:true,force:true}); verified no residue left after a live run (the only stray tmpdir found was from my own manual repro command, not story code, and was cleaned up separately). No blocking defect found in this area.",
+        "sourceRefs": [
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:40-46",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:29-35",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:62-70",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:120-123"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T04:19:37.054Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-009",
+      "_hash": "0060f228db607d731fb04cede15881b2c1adf192a69fb5c51582ac6bf4c47f0d",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
