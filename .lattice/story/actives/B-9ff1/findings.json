@@ -76,7 +76,7 @@
       "desc": "CHK-002 closed-enum rejections (stream, polarity, greenExempt legality) and CHK-001 identity/kind rejections are exercised only against kind:literal-line matchers across red-w2d-rejection-matrix.mjs and the smoke; no fixture asserts an invalid stream, invalid polarity, or illegal greenExempt on a kind:class matcher. In envelope.ts these checks (validateAssertionEnvelope lines ~317-337) run unconditionally before the kind-specific branch, so the current implementation is not actually kind-differentiated, but the committed matrix does not prove that: a future change that moved these checks inside the literal-line-only branch (mirroring how value-byte-length checks are correctly literal-line-only) would silently stop rejecting a malformed class matcher stream/polarity/greenExempt, and no committed test would catch it.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T17:59:09.844Z",
@@ -89,7 +89,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "edge|mjs|closed-enum-rejections",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the full closed-enum table (5 streams, 4 polarities, greenExempt x3, duplicate id across kinds) is re-run against kind:'class' matchers, each rejection asserted by code.",
+      "resolvedAt": "2026-08-14T02:12:17.121Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-005",
