@@ -6,7 +6,17 @@
       "context": "Mirrors the existing scope_boundary_set/execution_boundary_set/scope_freeze_check INIT_CHECK-gating pattern. New command (e.g. dev_memory_preflight_ack) writes a JSON artifact under .lattice/story/actives/<id>/ recording that dev_memory_preflight was run and its topHitIds were seen; the DEV-entry gate refuses to advance without this artifact present and bound to the current story's material.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",
