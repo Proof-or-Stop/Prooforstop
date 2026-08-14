@@ -561,7 +561,7 @@
       "desc": "[codex host-B C3] Verified by main agent. The handler's top docstring says an inadmissible verdict is surfaced by throwing 'rather than recording the verdict anywhere'. False: the handler throws the complete rendered rejection report, the CLI catch path passes e.message into writeLog, and writeLog stores it in the activity row's error field. Under either activity-log bypass the full tagged verdict is recorded in .lattice/activity.jsonl. Same defect applies to core/command-policy.ts's 'surfaced by a non-zero exit, not by a write'.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T04:13:56.982Z",
@@ -569,7 +569,11 @@
       "reviewRunId": "B-9ff1:RR-020",
       "_hash": "b72947e39cfc8da87b23ddb5fa35836be1f9a68a378081f7fd35110fe276ccd7",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "'rather than recording the verdict anywhere' was false: the handler throws the rendered rejection report, the CLI catch path passes e.message into writeLog, and writeLog stores it in the activity row's error field, so the full tagged verdict is recorded under either bypass. Corrected in the handler top docstring and in core/command-policy.ts, whose 'surfaced by a non-zero exit, not by a write' had the same defect - and which other files had been citing as their source of truth, so the error was inherited rather than isolated. Fixed in commit 0954bda0c8ec19977016d273adb9360435799bb8 (text only: comments, docstrings, assertion messages, thrown-error strings, catalog/config/registry descriptions and console output across ten files; no logic, matcher rule, tag routing, digest, registration-set membership or config value changed). Found by the cross-vendor codex host-B reviewer and independently verified against source by the main agent before any action was taken. The corrected picture now stated consistently: UNCONDITIONALLY the command writes no RED-evidence record, no chain record and no story or evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook; NOT GUARANTEED are the onError hook (its call site has no isReadOnlyCommand predicate and the inadmissible path throws by design, so it is the primary failure route) and a row in .lattice/activity.jsonl, which core/runtime-artifact-registry.ts registers as the runtime-activity-log artifact, appended either under LATTICE_ACTIVITY_RECORD_READONLY=1 or an uncooled stale warning, and carrying the thrown rejection report in its error field. Two further occurrences live in frozen story artifacts that cannot be edited at this phase (scope-contract.json justification prose and checklist.json CHK-012:edge:0 WHY clause) and are disclosed as superseded in the TEST summary instead of being silently left to read as current.",
+      "resolvedAt": "2026-08-14T09:38:51.965Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-027",
