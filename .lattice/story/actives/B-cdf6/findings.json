@@ -971,6 +971,21 @@
       "resolvedAt": "2026-08-14T11:49:11.827Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-046",
+      "desc": "concept-cleanup: bare deprecated-bin literal residue survives in two user-facing runtime strings in packages/main/src/handlers/lattice-cli.ts, missed by the F-041 sweep of this exact file/defect-class: (1) line 174, the ambiguous-gitRoot diagnostic note field says 'Pick one explicitly: lattice config repair --set-git-root=<dir> --confirm.' instead of using the already-fixed configRepairCommandFor()/canonical proof-or-stop form; (2) line 345, the thrown Error when --set-git-root is omitted says 'Run `lattice config doctor` first' instead of proof-or-stop. Both are live output paths (lattice_config_doctor / lattice_config_repair are real commands reachable via proof-or-stop too), directly contradicting CHK-002 adversarial intent CHK-002:adversarial:0 (no help/usage line prints the old bin name) which this story marks done. Additionally lattice-cli.ts:205 detail string 'packages/main package.json exposes only the lattice bin' and the mirroring assertion/message in packages/main/src/tasks/lattice-cli-migration-smoke.ts:253/256 are now factually false: package.json bin now lists BOTH proof-or-stop (primary) and lattice (alias), not only lattice. None of these four sites are caught by scripts/verify-lattice-residue.mjs because its brand-prose/brand-exec bare-invocation checks scan only DOC_SCAN_ROOTS and EXECUTABLE_SCAN_ROOTS, not general packages/main/src handler string literals (only the koala-token check scans packages/*/src) -- a real gate scope gap for this defect class, not just a one-off miss.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T11:54:11.102Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-055",
+      "_hash": "adbc01c31d909d717491f9fa6f1fb6421bcbe7b770ac0981c76bfff1904f0772",
+      "signatureTag": "missing|unknown|concept-cleanup-bare",
+      "signatureTagSource": "auto"
     }
   ]
 }
