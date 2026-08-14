@@ -933,6 +933,24 @@
       ],
       "signatureTag": "missing|ts|lattice-review-concept",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-045",
+      "desc": "Durable-record defect: commit 56da8b5e4bb35888b3fbbaf798340b321d32151b (fix(F-037): global-agents-init-smoke now passes -- derived counts + canonical bin), part of this stories own commit history, has an 831-line commit message body that contains TWO full accidental copies of stale lattice-branded CLI --help output pasted in verbatim (Entrypoint: lattice, Usage: lattice <command> --key=value, lattice <command> --help, lattice help --full, dozens of lattice_config_doctor/lattice-prefixed usage lines etc), apparently captured via an unintended command-substitution while composing the commit -m heredoc. Verified this is genuinely committed (not a terminal artifact) via git cat-file -p 56da8b5e4bb35888b3fbbaf798340b321d32151b | grep -c \"Entrypoint: lattice\" returning 2, and git log -1 --format=%B on that sha returning 831 lines vs 20-26 lines for the sibling commits 155e787d0c/c4042848df/fccced8f3b in the same fix series. This is exactly the class of defect this story exists to eliminate (stale lattice-branded command examples), now permanently baked into a durable audit-trail git object as an artifact OF the rename story itself. Commit messages are immutable once pushed/merged to shared history; flagging so it is at minimum acknowledged as a known blemish in the delivered record rather than silently normalized, per the story requirement that commit messages carrying measured figures be accurate durable records.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T09:23:35.922Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-054",
+      "_hash": "6bf6331f3691ac16b0e5505583a1b7225496ec4a1e791ce63b117e29fc0424ee",
+      "files": [
+        ".git (commit 56da8b5e4bb35888b3fbbaf798340b321d32151b commit message)"
+      ],
+      "signatureTag": "missing|.git (commit 56da8b5e4bb35888b3fbbaf798340b321d32151b commit message)|durable-record-defect",
+      "signatureTagSource": "auto"
     }
   ]
 }
