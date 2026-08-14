@@ -26,19 +26,23 @@
         "CHK-001:happy:0",
         "CHK-001:happy:1",
         "CHK-001:happy:2",
+        "CHK-001:happy:3",
         "CHK-001:edge:0",
         "CHK-001:edge:1",
         "CHK-001:edge:2",
+        "CHK-001:edge:3",
         "CHK-001:adversarial:0",
         "CHK-001:adversarial:1",
-        "CHK-001:adversarial:2"
+        "CHK-001:adversarial:2",
+        "CHK-001:adversarial:3",
+        "CHK-001:adversarial:4"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "A root pretest script builds packages/main then packages/utils before the full suite, so npm test self-bootstraps packages/utils/dist and the full suite (including bin/lattice.js sub-tests) starts without the missing-utils bootstrap failure.",
-      "note": "Verified by repro-first RED node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (structural + invariant + behavioral) and a fast structural smoke wired into validate.commands."
+      "acceptanceClaim": "A root pretest script builds packages/main then packages/utils before the full suite, so npm test self-bootstraps packages/utils/dist and the full suite (including bin/lattice.js sub-tests) starts without the missing-utils bootstrap failure; a fast structural smoke wired into validate.commands is the permanent regression guard.",
+      "note": "Verified by repro-first RED (packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) and the fast structural smoke (packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts) wired into validate.commands."
     }
   ],
   "diagnosticGaps": [],
   "createdAt": "2026-08-14T03:12:16.545Z",
-  "updatedAt": "2026-08-14T03:16:20.145Z"
+  "updatedAt": "2026-08-14T03:23:04.198Z"
 }
