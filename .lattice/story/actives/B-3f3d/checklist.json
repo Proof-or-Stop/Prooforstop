@@ -1598,22 +1598,30 @@
           "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-08-14T16:16:00.976Z",
+      "endTime": "2026-08-14T16:41:48.062Z",
       "verificationIntent": {
         "happy": [
           {
             "id": "B3F3D-006-H1",
             "desc": "For a repair whose changed files and canonical dependency closure prove a narrow impact, final-review selection contains exactly the impacted active reviewer lanes, excludes only demonstrably unrelated lanes, records the closure inputs and reason, and preserves the same required host count and host-diversity policy.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           },
           {
             "id": "B3F3D-006-H2",
             "desc": "Operator status deterministically prints `Final-review lanes: <ordered lane list>` and `Selection: dependency-closure (<machine-derived reason>)` for a proven narrow repair, plus one exact next command; the displayed lanes equal the gate-consumed selection.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           },
           {
             "id": "B3F3D-006-H3",
@@ -1627,19 +1635,31 @@
             "id": "B3F3D-006-E1",
             "desc": "If changed scope, policy impact, dependency closure, source inventory, or material lineage is missing, unsupported, ambiguous or stale, selection fails closed to the complete active required-lane set, keeps required host assurance unchanged, and status prints `Selection: full-set` with the specific unknown-impact reason.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           },
           {
             "id": "B3F3D-006-E2",
             "desc": "Canonical closure is deterministic across ordering and duplicate inputs, follows transitive and shared-dependency impacts, never emits inactive or duplicate lanes, and cannot select an empty set for a material remediation unless a separately authoritative policy explicitly proves that outcome.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           },
           {
             "id": "B3F3D-006-E3",
             "desc": "A post-remediation regression, newly discovered dependency, or scope expansion invalidates the prior narrow selection, broadens or recomputes required lanes on current material, reopens the finding/remediation path, and updates status without accepting stale passes.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -1647,21 +1667,215 @@
             "id": "B3F3D-006-A1",
             "desc": "A forged, unsigned, cross-story, cross-round, wrong-head, wrong-material, wrong-storyFilesHash or otherwise stale impact-closure artifact cannot narrow final review; every consumer rejects it or falls back to the full required-lane set.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           },
           {
             "id": "B3F3D-006-A2",
             "desc": "The historical round-2-plus `any one current receipt` shortcut cannot reappear: REVIEW remains blocked when any selected impacted lane, required host verdict, escalation result or current-material binding is missing, even if one valid pass exists.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-006-A3",
             "desc": "Path aliases, renames, symlinks, ignored or untracked files, fabricated RR/Finding labels, abbreviated or nonexistent commits, and links outside the tracked repository cannot be used either to hide an impacted lane or to satisfy the decision-document provenance check.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
           }
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-006-H1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Signed narrow repair selects the exact impacted lanes and preserves host assurance.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:40:53.111Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Status and gate consume the same ordered selection with one next action.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:01.061Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-H3",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Tracked decision provenance resolves full RR and Finding identifiers and the exact commit; excluded analysis link is absent.",
+          "mechanical": false,
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Unknown, dirty, untracked, rename, ignored, or opaque impact falls back to the full lane set.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:09.182Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Dependency closure is deterministic, transitive, unique, active-only, and nonempty.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:17.096Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Dependency or scope expansion invalidates and recomputes the current-material selection.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:24.881Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Unsigned, cross-story, wrong-round, wrong-head, wrong-material, and stale selections are rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:33.677Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Replay preserves lanes 3 to 3 and hosts 2 to 2 with no round-two any-one shortcut.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:34.044Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Traversal, symlink, rename, ignored, untracked, and false provenance inputs fail closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f72364bbfad107e5015c7fba2e5dbb0928b0a6820d3f4448fdbf5a8e544b1ce5",
+            "outputTail": "review inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:41:42.418Z"
+          },
+          "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+          "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+          "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+          "timestamp": "2026-08-14T16:41:42.556Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "b44e1fcf35e06b4315648920ae32e5944d9e07c8213db528e0ba8e4465348210",
+        "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+        "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+        "attestedAt": "2026-08-14T16:41:48.237Z",
+        "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1"
       }
     }
   ],
@@ -1776,6 +1990,24 @@
       "reason": "Round-4 scope review found one unimplemented CHK-004 promise and one broken tracked evidence link; add an explicit remediation slice before returning to DEV.",
       "addedTitle": "Implement canonical post-remediation impact closure and repair the broken evidence provenance link",
       "addedContext": "The current remediation made every later review round require all active lanes and removed the old targeted guidance. That preserves assurance but violates CHK-004 H2/E1 and the Story time-saving promise. Compute impacted final-review lanes from repaired material and canonical dependency closure, fail closed to all required lanes when closure, scope, or policy impact is unknown, never reduce required host assurance, and expose selected lanes and reason in operator status. Replace the decision document link to an excluded untracked B-cdf6 analysis file with tracked authoritative RR, Finding, and commit provenance."
+    },
+    {
+      "timestamp": "2026-08-14T16:16:00.976Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Dispatched lattice-implementer is implementing the approved canonical impacted-lane closure and tracked provenance repair."
+    },
+    {
+      "timestamp": "2026-08-14T16:41:48.062Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All nine CHK-006 verification intents have current tool-executed or docs evidence on 38c711311f."
     }
   ]
 }
