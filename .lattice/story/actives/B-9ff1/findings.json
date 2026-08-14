@@ -592,6 +592,21 @@
       "_hash": "d3545c25dd0facc5e2161971b78d9929273cfa8e822f203ba4667378bf43825f",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-029",
+      "desc": "[codex host-B C6] Verified by main agent. Two further sites authored by this story still carry the false absolute, both missed by all four Claude lanes: core/process-fact-registry.ts REQUIRED_SEMANTICS_BY_COMMAND says 'it writes nothing', and core/command-policy.ts's red_evidence_envelope_check entry says the failure is 'surfaced by a non-zero exit, not by a write'. Two additional occurrences live in frozen story artifacts that cannot be edited at this phase - scope-contract.json's justification prose ('appends no hook, no activity log and no process event') and checklist.json CHK-012:edge:0's WHY clause ('read-only command never mutates state') - and must instead be disclosed as superseded in the TEST summary.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:59.961Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "1d0535248725056e1250519a1308d33e06af6298cb36c8e1bb2048bc1f86a8e4",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
