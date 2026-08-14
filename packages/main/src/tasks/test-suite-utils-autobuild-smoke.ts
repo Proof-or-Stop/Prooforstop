@@ -43,11 +43,12 @@ assert.ok(
 
 // 2) The pretest runs a real build for BOTH packages, packages/main BEFORE packages/utils.
 // The fallback matches ONLY the exact root `build` script (which builds both packages), not a
-// namespaced sibling like `build:lab` / `build-x` — the negative lookahead rejects a trailing
-// word char, colon, or hyphen after `build` so partial builds cannot pass the guard (F-003/F-004).
+// namespaced sibling like `build:lab` / `build:fast` / `build-x` — the negative lookahead `(?![\w:-])`
+// rejects a trailing word char, colon, or hyphen after `build`, so a partial build cannot pass the guard.
+// The SAME anchor is applied to the `--prefix` forms, not just the bare `npm run build` fallback (F-003/F-004/F-006).
 const runsExactRootBuild = /\bnpm\s+run\s+build(?![\w:-])/.test(pretest);
-const buildsMain = /--prefix\s+packages\/main\s+run\s+build/.test(pretest) || runsExactRootBuild;
-const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build/.test(pretest) || runsExactRootBuild;
+const buildsMain = /--prefix\s+packages\/main\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
+const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
 assert.ok(buildsUtils, `pretest does not build packages/utils: ${pretest}`);
 assert.ok(buildsMain, `pretest does not build packages/main: ${pretest}`);
 const mainIdx = pretest.indexOf('packages/main');

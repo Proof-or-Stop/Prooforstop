@@ -38,10 +38,11 @@ assert.ok(
 
 // 2) The pretest must actually run a real build for BOTH packages, packages/main BEFORE packages/utils.
 // The fallback matches ONLY the exact root `build` script (builds both packages), not a namespaced
-// sibling like `build:lab` — the negative lookahead rejects a trailing word char/colon/hyphen (F-003/F-004).
+// sibling like `build:lab` / `build:fast` — the negative lookahead `(?![\w:-])` rejects a trailing
+// word char/colon/hyphen, applied to the `--prefix` forms too, not just the bare fallback (F-003/F-004/F-006).
 const runsExactRootBuild = /\bnpm\s+run\s+build(?![\w:-])/.test(pretest);
-const buildsMain = /--prefix\s+packages\/main\s+run\s+build/.test(pretest) || runsExactRootBuild;
-const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build/.test(pretest) || runsExactRootBuild;
+const buildsMain = /--prefix\s+packages\/main\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
+const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
 assert.ok(buildsUtils, `RED: pretest does not build packages/utils: ${pretest}`);
 assert.ok(buildsMain, `RED: pretest does not build packages/main: ${pretest}`);
 const mainIdx = pretest.indexOf('packages/main');

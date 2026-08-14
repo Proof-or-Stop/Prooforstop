@@ -13,6 +13,7 @@
  *   GB-ADV0-BIT         adversarial:0  echo-ok pretest -> structural smoke FAILS
  *   GB-ADV1-BIT         adversarial:1  main-only pretest -> structural smoke FAILS
  *   GB-ADVLAB-BIT       adversarial:1  `npm run build:lab` namespaced-sibling loophole -> structural smoke FAILS
+ *   GB-ADVFAST-BIT      adversarial:1  `--prefix ... run build:fast` (--prefix + namespaced sibling) -> structural smoke FAILS
  *   GB-ADV4-BIT         adversarial:4  no pretest -> structural smoke FAILS (independent of the RED)
  *   GB-ADV2-BIT     adversarial:2  no pretest -> the repro-first RED (a distinct artifact) FAILS at its first assertion
  *   GB-ADV3-ABSENT      adversarial:3  removing the validate.commands entry -> not dispatched
@@ -120,6 +121,7 @@ const goodPretest = 'npm --prefix packages/main run build && npm --prefix packag
 biteCase('adversarial:0 (echo-ok pretest)', { pretest: 'echo ok', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV0-BIT');
 biteCase('adversarial:1 (main-only pretest, omits utils)', { pretest: 'npm --prefix packages/main run build', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV1-BIT');
 biteCase('adversarial:1 (build:lab loophole — a namespaced sibling build that touches neither main nor utils)', { pretest: 'npm run build:lab', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVLAB-BIT');
+biteCase('adversarial:1 (--prefix + namespaced sibling — `--prefix packages/... run build:fast` is not the real build script)', { pretest: 'npm --prefix packages/main run build:fast && npm --prefix packages/utils run build:fast', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVFAST-BIT');
 biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED)', { test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV4-BIT');
 
 // --- adversarial:2 / GB-ADV2-BIT: the REPRO-FIRST RED (a distinct artifact from the smoke) fails at
