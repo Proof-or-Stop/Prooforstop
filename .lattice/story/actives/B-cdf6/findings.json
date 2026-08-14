@@ -881,6 +881,21 @@
       "_hash": "a632e963c4fcf29ee36be99e61e3f4640bc80f1e0769a0b9d96859464e0db531",
       "signatureTag": "missing|unknown|quality-verify-independently",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-042",
+      "desc": "process-integrity: the tree moved materially during this review (HEAD 80fb4d92d0 my binding -> 7f25b68e -> 36501da2, at least 2 concurrent finding_add auto-commits from other lanes landed mid-review, mirroring the F-040 pattern with RR-044/RR-051). This time it MECHANICALLY INVALIDATED my first review run: my initial review_run_start (B-cdf6:RR-054, bound to 80fb4d92d0) disappeared from review-runs.json entirely after the concurrent writes (finding_add against it failed with unknown reviewRunId), forcing a restart as RR-053. Reported per the standing instruction that any HEAD move during this review is a defect on your side to state plainly, not paper over. Separately: review-runs.json / findings.json appear to be read-modify-written non-atomically across concurrent lane processes (one diff showed a 20020-line bulk insert into review-runs.json, and my RR-054 record was lost outright rather than merged) - that data-loss-under-concurrency is itself worth a framework-level look, distinct from the review-round freeze discipline already under discussion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T09:20:50.840Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-053",
+      "_hash": "d948e0722bdfa31292d5ece6007b0525401fa65bcf9ddcca351e5db242d67d96",
+      "signatureTag": "missing|unknown|process-integrity-tree",
+      "signatureTagSource": "auto"
     }
   ]
 }
