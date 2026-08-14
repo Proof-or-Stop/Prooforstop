@@ -547,6 +547,21 @@
       "_hash": "2e6ec3b6834eb2b8be401f040562ec752f8c31436a2cbf6c010d7d97c94b77b6",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-026",
+      "desc": "[codex host-B C3] Verified by main agent. The handler's top docstring says an inadmissible verdict is surfaced by throwing 'rather than recording the verdict anywhere'. False: the handler throws the complete rendered rejection report, the CLI catch path passes e.message into writeLog, and writeLog stores it in the activity row's error field. Under either activity-log bypass the full tagged verdict is recorded in .lattice/activity.jsonl. Same defect applies to core/command-policy.ts's 'surfaced by a non-zero exit, not by a write'.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:56.982Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "b72947e39cfc8da87b23ddb5fa35836be1f9a68a378081f7fd35110fe276ccd7",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
