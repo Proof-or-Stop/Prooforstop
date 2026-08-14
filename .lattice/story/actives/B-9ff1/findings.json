@@ -631,6 +631,21 @@
       "resolvedAt": "2026-08-14T09:38:54.196Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-030",
+      "desc": "[codex host-B D1] REGRESSION caused by our own repair commit 0954bda0c8, empirically confirmed by the main agent: running all 108 pinned selectors against real command output showed exactly one failure. CHK-012:adversarial:0 pins the immutable selector 'a byte-identical .lattice tree with no gate verdict change' against red-evidence-envelope-smoke and was bound as a real logic_test receipt, not a waiver. Rewording that transcript line removed the substring, so the receipt could no longer be reproduced. Fixed by restoring the pinned phrase verbatim and qualifying it in place rather than requesting a third waiver.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T10:03:07.090Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-025",
+      "_hash": "cd00195bad5f5252aaebe084f62822bf3c9ff6833ab6d0d7ce218aa9deda022e",
+      "signatureTag": "missing|unknown|codex-host-regression",
+      "signatureTagSource": "auto"
     }
   ]
 }
