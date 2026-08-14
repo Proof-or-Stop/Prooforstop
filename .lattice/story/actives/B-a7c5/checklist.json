@@ -1424,7 +1424,11 @@
           },
           {
             "desc": "The doc change is actually committed to the branch -- git log --oneline --diff-filter=M -- docs/requirements/decisions/dev-memory.md shows at least one commit on the branch touching this file, and git diff HEAD -- docs/requirements/decisions/dev-memory.md shows no unstaged changes to the file; WHY: user explicitly flagged doc-change-not-actually-committed as an adversarial failure mode",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git log --oneline --diff-filter=M -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+              "selector": "9aa65cf0b9"
+            }
           }
         ]
       },
@@ -1561,6 +1565,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:26.067Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git log --oneline --diff-filter=M -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+          "result": "pass",
+          "note": "git log --diff-filter=M for dev-memory.md lists commit 9aa65cf0b9 (feat(B-a7c5): dev-memory lifecycle gates) as a modifying commit on this branch; separately verified git diff HEAD -- dev-memory.md returns empty (no unstaged changes), confirming the change is fully committed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "45e4e22504d88807ce2d0a3ce89da3e9ce6c1425a64f974e2222fc8d45e9dcb1",
+            "outputTail": "9aa65cf0b9 feat(B-a7c5): dev-memory lifecycle gates (CHK-001..007)\n64d12ae294 dev-memory supersedes legacy Koala terminology\n73f0f9a69b B-2f1a CHK-001: rebrand prose Lattice->Proofbound in README + docs (keep lattice cmds, .lattice/ paths, @lattice refs, schema-ids, salts)\n22486fd097 docs(brand): scrub koala→lattice to literal-zero across docs/ + experiments/\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:27.022Z"
+          },
+          "headHash": "ea4d962f3d417f844d77a1f69cad6c4dddd806bb",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:27.140Z"
         }
       ]
     },
