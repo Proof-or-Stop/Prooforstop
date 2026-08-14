@@ -173,7 +173,7 @@
       "desc": "checklist.json:130,140,150,493,534 (verificationEvidence waiver notes for CHK-001:happy:0, CHK-001:happy:1, CHK-001:happy:2, CHK-002:E-005, CHK-002:A-004) are each truncated at exactly 899-900 characters, cutting off mid-word/mid-sentence with no terminating punctuation (e.g. happy:1 ends \"...replaced by the actually-implemented 6a/6b split (commit 63ec\"; A-004 ends \"...both the new resolv\"). All 27 other waiver notes on this story end with a complete sentence and are well under 900 chars (518-876), confirming this is a hard ~900-char cap the DEV agent hit for these 5 rather than an intentional stop. The substantive claim in each is independently verifiable as true (confirmed by direct code/build/red-evidence inspection), so this is not a functional defect, but a waiver note that cuts off before finishing its own citation/justification is an incomplete explanation under review rule 2 (\"waiver must have a clear note explaining why\"), which is squarely this story's own theme (accurate evidence-completeness claims, per the F-008 finding this round already addressed for 4 other intentRefs). Fix: shorten/tighten these 5 notes so they conclude with a complete sentence within the same budget.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T13:35:34.146Z",
@@ -184,7 +184,11 @@
         ".lattice/story/actives/B-16df/checklist.json"
       ],
       "signatureTag": "missing|json|checklist-json-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the 5 waiver notes truncated at a hard note[:900] slice in the main agents evidence-submission script (CHK-001:happy:0/1/2, CHK-002:E-005/A-004) were resubmitted with complete, non-truncated text (391-574 chars, all ending with proper terminal punctuation). Independently re-verified by lattice-review-test-coverage in REVIEW round 4, including a programmatic scan of all 32 waiver notes confirming no remaining truncation signature.",
+      "resolvedAt": "2026-08-14T13:38:46.384Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
