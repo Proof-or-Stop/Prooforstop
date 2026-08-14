@@ -13,7 +13,7 @@
  * `npm run pretest`, which is an idempotent rebuild, and asserts packages/utils/dist/index.js exists.
  */
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,8 +37,11 @@ assert.ok(
 );
 
 // 2) The pretest must actually run a real build for BOTH packages, packages/main BEFORE packages/utils.
-const buildsMain = /--prefix\s+packages\/main\s+run\s+build/.test(pretest) || /\bnpm\s+run\s+build\b/.test(pretest);
-const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build/.test(pretest) || /\bnpm\s+run\s+build\b/.test(pretest);
+// The fallback matches ONLY the exact root `build` script (builds both packages), not a namespaced
+// sibling like `build:lab` — the negative lookahead rejects a trailing word char/colon/hyphen (F-003/F-004).
+const runsExactRootBuild = /\bnpm\s+run\s+build(?![\w:-])/.test(pretest);
+const buildsMain = /--prefix\s+packages\/main\s+run\s+build/.test(pretest) || runsExactRootBuild;
+const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build/.test(pretest) || runsExactRootBuild;
 assert.ok(buildsUtils, `RED: pretest does not build packages/utils: ${pretest}`);
 assert.ok(buildsMain, `RED: pretest does not build packages/main: ${pretest}`);
 const mainIdx = pretest.indexOf('packages/main');
@@ -58,11 +61,18 @@ assert.ok(
   'invariant: root "test" must invoke the full-suite runner (which spawns bin/lattice.js needing utils/dist)',
 );
 
-// 4) Behavioral: the real `npm run pretest` executes and produces packages/utils/dist. Un-gameable.
+// 4) Behavioral: the real `npm run pretest` executes and FRESHLY BUILDS both dist trees. Un-gameable —
+// a freshness check (mtime >= run start) rejects a stale pre-existing packages/utils/dist/index.js, so
+// "exists after" cannot pass trivially just because dist was already present in this worktree (F-002/F-003).
+const utilsIndex = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');
+const mainIndex = join(repoRoot, 'packages', 'main', 'dist', 'index.js');
+const startedAtMs = Date.now();
 execFileSync('npm', ['run', 'pretest'], { cwd: repoRoot, stdio: 'pipe', timeout: 290000 });
+assert.ok(existsSync(utilsIndex), 'behavioral: after `npm run pretest`, packages/utils/dist/index.js must exist');
+assert.ok(existsSync(mainIndex), 'behavioral: after `npm run pretest`, packages/main/dist/index.js must also exist (main build not regressed)');
 assert.ok(
-  existsSync(join(repoRoot, 'packages', 'utils', 'dist', 'index.js')),
-  'behavioral: after `npm run pretest`, packages/utils/dist/index.js must exist',
+  statSync(utilsIndex).mtimeMs >= startedAtMs - 2000,
+  'behavioral: packages/utils/dist/index.js must be FRESHLY written by this pretest run (not a stale pre-existing artifact)',
 );
 
 console.log('PASS red-fb7b-pretest-builds-utils: root npm test self-bootstraps packages/utils via pretest');
