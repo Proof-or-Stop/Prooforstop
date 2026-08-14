@@ -732,7 +732,7 @@
       "desc": "[codex host-B D6] Verified by main agent, and it overturns a judgement I had made. The ADMISSIBLE transcript line said the check 'executed nothing'. The handler does execute read-only git child processes - its own spawn recorder counts 32 - so the statement is false. A Claude lane had flagged the same line for a weaker reason and I accepted its non-blocking verdict; codex gave the stronger, correct argument and the line is now fixed.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:03:11.388Z",
@@ -740,7 +740,11 @@
       "reviewRunId": "B-9ff1:RR-025",
       "_hash": "2f20c48911bfd5039f0a424bc4e093e5b21378488a9bc0c380e6a7ff6d978d83",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The line now says the check executed no envelope and no RED run, and states that it does spawn read-only git reads to resolve the workspace and read the committed binding. Worth recording that a Claude lane flagged this same line on weaker grounds and I accepted its non-blocking verdict; the cross-vendor host supplied the stronger argument - the spawn recorder counts 32 git calls - and overturned my judgement. Fixed in commit 8c1ec91805f36d7ea5024f9c00f983b8d96c88f1 (text only, five files). Acceptance was mechanical, not asserted: a checker runs all 108 pinned verification selectors against real command output and reports 106 checked, 2 permanently waived, zero mismatches. That checker was written in response to this round and is the instrument that both proved the regression and bounded it to a single selector.",
+      "resolvedAt": "2026-08-14T10:03:47.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-036",
