@@ -1,0 +1,33 @@
+{
+  "task": "Root npm test (the full suite, run by done_required) fails when packages/utils/dist is absent because full-suite sub-tests spawn bin/lattice.js, which bootstrap-runner.js refuses to start without packages/utils/dist; nothing auto-builds utils.",
+  "outcome": "Operator runs `npm test` in a fresh worktree where packages/utils/dist does not exist. AFTER this story they see the npm pretest lifecycle fire first:\n  > pretest\n  > npm --prefix packages/main run build && npm --prefix packages/utils run build\n  (packages/main built) (packages/utils built -> dist/index.js now present)\n  > test\n  > node packages/main/dist/tasks/full-suite-runner.js\n  ... full suite runs; bin/lattice.js sub-tests start normally; suite reports PASS ...\nBEFORE this story the same command aborted mid-suite with:\n  lattice local bootstrap is not ready.\n  Missing build artifacts:\n    - .../packages/utils/dist/index.js\nSo the observable change is: npm test self-bootstraps both dist trees and no longer dies on a missing packages/utils/dist.",
+  "facts": [
+    "Root package.json test script = node packages/main/dist/tasks/full-suite-runner.js; there is NO pretest key today (verified + confirmed by both INIT reviewers).",
+    "Root package.json build script already builds both: npm --prefix packages/main run build && npm --prefix packages/utils run build && node scripts/verify-full-suite-build-binding.mjs.",
+    "lattice.config.json doneRequiredCommands runs the full suite via {command:npm,args:[test]} — a bare npm lifecycle invocation, so a pretest script fires automatically before it.",
+    "None of the 94 validate.commands entries build or reference packages/utils; they all run node packages/main/dist/... directly and need only packages/main.",
+    "bin/bootstrap-runner.js exits 1 with Missing build artifacts unless BOTH packages/main/dist/cli-engine.js AND packages/utils/dist/index.js exist.",
+    "packages/*/dist is gitignored (.gitignore line dist), so building dist during bootstrap does not dirty the working tree.",
+    "This gap bit B-3783 at DONE time and recurs as the worktree-needs-utils-build pitfall."
+  ],
+  "constraints": [
+    "Must NOT modify packages/main/src/handlers/worktree.ts (worktree bootstrapping is out of scope per scope boundary).",
+    "Must NOT add auto-build magic to bin/bootstrap-runner.js (keep the human recovery hint).",
+    "Fix must be deterministic and idempotent (rebuilding dist yields identical bytes; dist is gitignored).",
+    "pretest must build main BEFORE utils (utils tooling/imports assume packages/main/dist exists).",
+    "Regression guard must be un-gameable enough to catch removal of the utils build step."
+  ],
+  "unknowns": [
+    "RESOLVED (decision_set): RED shape = a fast structural invariant smoke wired into validate.commands (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest actually builds both packages, main before utils) PLUS a behavioral repro-first RED that runs npm run pretest and asserts packages/utils/dist is produced; both are non-destructive (no dist removal).",
+    "RESOLVED (decision_set): the always-on pretest main build is additive and reproduces identical dist bytes, so it does not conflict with the packages-main-build proof receipt or materialHash freshness.",
+    "RESOLVED (decision_set): register the fast structural smoke in validate.commands as the permanent guard; keep the heavier behavioral RED as tests/red evidence only (not in validate.commands, to avoid a build on every validate)."
+  ],
+  "touchpoints": [
+    "package.json (root) — add scripts.pretest building packages/main then packages/utils",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts — fast structural invariant smoke, wired into validate.commands",
+    "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs — behavioral repro-first RED (runs npm run pretest, asserts utils/dist produced)",
+    "lattice.config.json — register the structural smoke in validate.commands",
+    "CHANGELOG.md — log entry"
+  ],
+  "timestamp": "2026-08-14T03:04:23.815Z"
+}

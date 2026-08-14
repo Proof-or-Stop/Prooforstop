@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-fb7b",
+  "records": [
+    {
+      "id": "RED-20260814031115",
+      "trigger": "Bug: root npm test (full suite, run by done_required) fails when packages/utils/dist is absent because full-suite sub-tests spawn bin/lattice.js and bootstrap-runner.js refuses to start without packages/utils/dist; nothing auto-builds utils.",
+      "acceptanceTargetRef": "sha256:a3cef3c49e581d54bea582071f0a59ca710be49a0b6a0a53b023eb64bce1d77e",
+      "baselineHeadHash": "f459c419d2ac8527ee2f1fe5e5517c9bc4066191",
+      "baselineMaterialHash": "3326f121106fd22ac367b2f23031c2e9d77a25b27ae9de306e79e8e858a3f710",
+      "observedFailure": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs exits 1 with: AssertionError: RED: root package.json has no \"pretest\" script — nothing auto-builds packages/utils before npm test, so a worktree without packages/utils/dist runs the full suite with utils absent and bin/lattice.js sub-tests die at bootstrap-runner.",
+      "failingCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:a3cef3c49e581d54bea582071f0a59ca710be49a0b6a0a53b023eb64bce1d77e",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "note": "RED asserts a root pretest builds packages/main then packages/utils, plus the invariant links (bootstrap-runner requires utils/dist; test invokes full-suite-runner) and a behavioral npm run pretest that produces packages/utils/dist. Baseline fails on the missing pretest; the fix makes it green.",
+      "createdAt": "2026-08-14T03:11:15.984Z"
+    }
+  ],
+  "createdAt": "2026-08-14T03:11:15.984Z",
+  "updatedAt": "2026-08-14T03:11:15.984Z"
+}

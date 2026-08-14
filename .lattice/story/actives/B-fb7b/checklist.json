@@ -6,7 +6,60 @@
       "context": "Add a root pretest that builds both packages/main and packages/utils before full-suite-runner. Prove with a repro-first RED that a bin/lattice.js-dependent path fails via bootstrap-runner when packages/utils/dist is missing, and that the pretest wiring rebuilds utils so it recovers. dist is gitignored so the rebuild will not dirty the tree.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `npm run pretest` from repo root -> exits 0, packages/utils/dist/index.js exists afterward; WHY: proves the pretest actually builds utils",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the RED test `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> prints PASS, exits 0; WHY: the repro-first guard itself validates structural, invariant-link, and behavioral correctness in one shot",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspect the pretest script string: packages/main build appears before packages/utils build -> ordering assertion passes; WHY: utils tooling may assume main dist exists, so main-before-utils ordering is load-bearing",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run `npm run pretest` twice consecutively, then `git diff --stat` and `git status --porcelain` -> no dirty tree (no untracked or modified files); WHY: dist is gitignored, so idempotent rebuilds must not produce tree dirt that blocks done_required git-clean checks",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Temporarily replace pretest with `echo ok` (no-op) -> RED test must FAIL at the structural or behavioral assertion (pretest does not actually build utils); WHY: guard must catch a pretest that exists syntactically but does not perform the real build",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Temporarily replace pretest with a command that builds only packages/main (omits utils) -> RED test must FAIL at the utils-build assertion; WHY: guard must catch partial builds that leave the utils gap open",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Temporarily delete the pretest key from root package.json -> RED test must FAIL at the first structural assertion (no pretest script); WHY: removal of the fix must be detected, preventing silent regression",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

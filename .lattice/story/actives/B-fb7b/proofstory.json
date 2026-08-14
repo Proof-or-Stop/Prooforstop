@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-fb7b",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:a3cef3c49e581d54bea582071f0a59ca710be49a0b6a0a53b023eb64bce1d77e",
+  "acceptanceBindings": [
+    {
+      "id": "AB-fb7b-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "acceptanceClaim": "A root pretest script builds packages/main then packages/utils before the full suite, so npm test self-bootstraps packages/utils/dist and the full suite (including bin/lattice.js sub-tests) starts without the missing-utils bootstrap failure.",
+      "note": "Verified by the repro-first RED (node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) and a fast structural smoke wired into validate.commands. verificationIntentRefs added after the test-intent subagent runs."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-fb7b-001 has no verificationIntentRefs."
+    }
+  ],
+  "createdAt": "2026-08-14T03:12:16.545Z",
+  "updatedAt": "2026-08-14T03:12:16.545Z"
+}
