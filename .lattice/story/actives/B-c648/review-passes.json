@@ -45,6 +45,35 @@
         "scanEscalationReason": null
       },
       "_hash": "7eb936ab13cc0cdeb3f47f1b5d05603eec85552a7a35f1e51ee3c8400b37f9bd"
+    },
+    {
+      "id": "B-c648:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step1 symbol extraction over git diff main...HEAD returned 0 exported symbols (pure docs/story-metadata diff) -> Fallback 1 applied: full-text scan of the new decision doc against current repo state, cross-checking ~15 factual/architectural claims (build/bootstrap chain, nextStoryId call sites, existing mechanisms, touchpoint file paths, cross-referenced decisions docs existence). No doc-code drift or promise-undelivered findings.",
+      "createdAt": "2026-08-14T04:07:21.839Z",
+      "reviewRound": "2026-08-14T04:04:28.505Z",
+      "reviewRunId": "B-c648:RR-006",
+      "envelopeId": "a250c7ccdbeb9fb15286b663c843e75aa54087a7f04e61426126b54cda33f1d5",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "053d38bfa94fc9a3074a5bd885c3199fec3c8303f34da92d2e87bf2f444a6eea"
     }
   ]
 }
