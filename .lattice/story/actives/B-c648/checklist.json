@@ -272,21 +272,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both usage-ledger receipts in execution-plan section 21 -> the document cites two distinct host_run receipts (recordId with llmuse_ prefix, host, and reported output token count), one for the Claude CLI audit and one for the agy CLI audit, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries.",
+            "desc": "Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both host_run final recordIds in execution-plan section 21 -> the document cites two distinct canonical host_run final recordIds (llmuse_ prefix), one for the Claude CLI audit and one for the agy CLI audit; the Claude receipt additionally cites its provider-reported numeric usage fields since Claude's host_run final exposes a numeric usage surface, while the agy receipt honestly cites recorded=unavailable plus its exact unavailableReason (agy print mode exposes no numeric usage surface per docs/host-run-usage.md) instead of a fabricated count, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries, without demanding numeric usage from a host whose print mode structurally exposes none.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "One host_run receipt reports usage as recorded=unavailable (e.g. a truncated usage line) even though the audit itself completed -> the document does not fabricate an output token count for that host; it cites the receipt's actual unavailable/reason state and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely incomplete rather than simply absent.",
+            "desc": "Any provider-reported host_run final is recorded=unavailable (e.g. agy's structurally-absent usage surface, or a Claude run with a truncated/unavailable usage line) -> the document does not fabricate a token count for that record; it cites the receipt's actual unavailable state and its exact unavailableReason, and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely unavailable rather than inventing numbers to fill the gap.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Either the Claude or the agy host_run record is missing (no recordId) or its output token field is absent when CHK-003 evidence is recorded -> receipt capture fails closed: the missing-host evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by one real host_run receipt plus one self-authored claim.",
+            "desc": "Either the Claude or the agy host_run final recordId is absent, the document's cited receipt state does not match the actual ledger state, or a numeric token count is invented for a record whose usage is recorded=unavailable -> receipt capture fails closed: the missing/mismatched/fabricated evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by a missing host record, a document/ledger mismatch, or a fabricated token count standing in for agy's structurally unavailable usage surface.",
             "type": "logic",
             "priority": "must"
           }
