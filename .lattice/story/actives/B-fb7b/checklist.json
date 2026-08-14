@@ -30,7 +30,11 @@
           {
             "desc": "Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+              "selector": "GB-LIFECYCLE-FIRES"
+            }
           },
           {
             "desc": "Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`",
@@ -359,13 +363,22 @@
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "Bare 'npm test' is the full ~2h suite (timeoutMs 7200000) that done_required runs at DONE; it cannot be run inside DEV. The pretest lifecycle firing is proven behaviorally by happy:0/happy:1 (the RED runs it) and the end-to-end self-bootstrap is exercised by the done_required full-suite step. Deferred gate evidence, verified at the done_required/DONE full-suite run.",
-          "headHash": "c06d899bd2759f892e9a66f6cf7e2519d2cf653e",
-          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
-          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
-          "timestamp": "2026-08-14T03:42:06.638Z"
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite proves a bare npm test auto-fires the pretest via the npm lifecycle hook in an isolated fixture (marker written by pretest, checked by test)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed99ddbd0c4360262b20f983f8debba22e43997ebe84b90fe53dfafa9e04ed71",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADV4-BIT\nGB-ADV2-RED-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T04:11:48.470Z"
+          },
+          "headHash": "04a298333883c4b3960c54ecbb4d65488d6741d1",
+          "materialHash": "bfb8c143ff97dd162322f2c8947291558fc568107fa86e84d363085301a98890",
+          "storyFilesHash": "4a01f5cf09d46a787c04737d7659a3755f51961a00e6a69e43ea3c60dc722b95",
+          "timestamp": "2026-08-14T04:11:48.603Z"
         }
       ]
     }
