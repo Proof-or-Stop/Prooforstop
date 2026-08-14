@@ -392,6 +392,24 @@
       ],
       "signatureTag": "doc-code-drift|mjs|command-readonly-section",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-019",
+      "desc": "The red_evidence_envelope_check handler docstring in packages/main/src/handlers/red-evidence.ts (block starting 'READ-ONLY, mechanically:') states unconditionally: \"cli/activity-policy lists it in READ_ONLY_COMMANDS, which suppresses the CLI's own hook / activity-log / process-event write surfaces.\" This is the same overclaim just corrected in activity-policy.ts by commit b63dcad96b (F-014): READ_ONLY_COMMANDS membership makes shouldWriteActivityLog() return false, but cli-engine.ts's writeLog call sites (lines ~1416, ~1488) gate on shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0 -- an independent OR-path that appends a generic session row for ANY command, including this one, whenever an uncooled stale warning exists (STALE_WARNING_COOLDOWN_MS = 30min, core/stale-detector.ts). 22 such rows for red_evidence_envelope_check currently exist in .lattice/activity.jsonl. Two further user-facing strings in the same handler repeat the unconditional claim: the thrown message 'Nothing was written; this check is read-only.' (readCommittedBindingForTarget, ~line 235) and the NOT-ADMISSIBLE transcript's closing line 'Nothing was written and no gate verdict changed; fix the envelope before spending a run.' (~line 452). All three should be corrected the same way F-014 corrected activity-policy.ts: scope the claim to the four RED-evidence categories (artifact/process event/chain record/gate verdict) and stop implying activity.jsonl silence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T03:41:39.926Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-018",
+      "_hash": "022546581b9419929cae05c4217b6bc30937541d3cf4b00267f32f7ba84836d1",
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|evidence-envelope-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
