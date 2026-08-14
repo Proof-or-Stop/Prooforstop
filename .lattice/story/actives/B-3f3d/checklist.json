@@ -330,9 +330,9 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T14:58:57.282Z",
-      "endTime": null,
+      "endTime": "2026-08-14T14:59:00.427Z",
       "userSees": "A blocked change prints \"OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\", \"Epoch: <id>\", \"Changed lineage: <old> -> <new>\" and one \"Recovery:\" command; bypassed drift changes status to the exact state \"INVALIDATED\".",
       "verificationIntent": {
         "happy": [
@@ -632,7 +632,14 @@
           "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
           "timestamp": "2026-08-14T14:58:34.927Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6dd44b82f74464667cbb4a20bf7f5b84d504a2c284abf6d856d422dfe456326a",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "e1e7d5d68916c07de04b10f534b84a746ada87a6",
+        "attestedAt": "2026-08-14T14:59:00.650Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-003",
@@ -1586,6 +1593,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:59:00.427Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
       "agent": "lattice-implementer"
     }
   ]
