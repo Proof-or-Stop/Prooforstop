@@ -50,10 +50,28 @@
       "phase": "DEV",
       "headHash": "11410e4c1e149aae3075b74555d9678036bba1f2",
       "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Docs-lane reviewer (F-030) correctly found these two spec docs described the pre-merge design proposal rather than the actually-delivered assertNoStandingQuorum implementation; fixing the doc-code drift the finding identified necessarily touches these two spec files, which sit outside the original code-change scope.",
+      "timestamp": "2026-08-14T04:56:37.031Z",
+      "paths": [
+        "docs/evidence-integrity-program-spec.md",
+        "docs/evidence-write-guard-spec.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/evidence-integrity-program-spec.md",
+        "docs/evidence-write-guard-spec.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e2018b01c7c73bca090b6452fc3760ae5202e2bf",
+      "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437"
     }
   ],
   "createdAt": "2026-07-24T20:12:00.926Z",
-  "updatedAt": "2026-07-25T23:08:42.245Z",
+  "updatedAt": "2026-08-14T04:56:37.031Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -65,6 +83,8 @@
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/handlers/quorum-prune.ts": "packages/main/src/handlers/quorum-prune.ts",
     "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
-    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "docs/evidence-integrity-program-spec.md": "docs/evidence-integrity-program-spec.md",
+    "docs/evidence-write-guard-spec.md": "docs/evidence-write-guard-spec.md"
   }
 }
