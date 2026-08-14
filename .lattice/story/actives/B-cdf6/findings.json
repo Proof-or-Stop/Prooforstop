@@ -910,7 +910,7 @@
       "desc": "quality-cleanup: de-duplication is not fully finished — packages/main/src/core/global-agents.ts:244-246 is a pre-existing (not touched by this story's logic, only comments/prose edited) fifth site independently branching isModularReviewerRoleId(name) ? renderReviewerRunBootstrap(...) : renderAgentShim(...) rather than delegating to the consolidated renderPromptEntryForHost helper that the F-036 fix (commit 155e787d0c) unified the other four sites around. It is legitimately a different artifact (the always-thin GLOBAL ~/.claude/agents shim vs renderPromptEntryForHost's mode-selected PROJECT-LOCAL .claude/agents / .lattice-codex/agents mirror), so it is not a literal behavioral bug today, but it re-derives the same reviewer-vs-ordinary-role classification independently rather than through the one helper, which is exactly the shape that produced 4 prior divergences (per F-036's own commit message: 3 consolidated, a 4th found after declaring done). packages/main/src/tasks/global-agents-unit-smoke.ts:122-128 additionally hand-rolls the same branch a sixth time in test code (hardcoding role===\"lattice-review-concept\" as its reviewer sentinel instead of calling the real isModularReviewerRoleId), though this one is contained to a synthetic in-memory fixture and cannot diverge from real registry content the way F-036 did. Recommend: either have global-agents.ts:244 delegate through a shared classifier call (even if the render itself differs), or add an explicit cross-check test asserting global-agents.ts and renderPromptEntryForHost agree on which role IDs are reviewer roles, so a future change to MODULAR_REVIEWER role membership cannot silently diverge between the two independent branch sites.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T09:21:30.221Z",
@@ -918,7 +918,11 @@
       "reviewRunId": "B-cdf6:RR-053",
       "_hash": "42afc931b1e90eb54812ff3b3eafb025bcc6f4cf4bfb4a3a62e0298d19af719e",
       "signatureTag": "missing|unknown|quality-cleanup-duplication",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED AS RISK, deliberately NOT 'fixed', and I want to be explicit that I am declining the recommended refactor rather than quietly skipping it.\n\ncore/global-agents.ts:244-246 does re-derive the isModularReviewerRoleId branch, and you are right that this is the same classification-duplication SHAPE that produced four real divergences (F-005, F-034, F-036, and the fourth copy). But it renders a genuinely DIFFERENT artifact: a global thin-shim (frontmatter plus a pointer line, deliberately body-free) rather than the project-local mirror body that renderPromptEntryForHost produces. Routing it through that helper would emit the full role body into a file whose entire purpose is to NOT contain one - a wrong abstraction that would break the B-097f thin-shim design. Your own finding says it is 'not a live bug today' and I agree.\n\nThe global-agents-unit-smoke.ts:122-128 sixth site is test-side and now covered differently: F-041 fixed the assertion in that same file to match rebranded production, and it exits 0.\n\nRecording as accepted_risk so the shape stays visible for whoever consolidates the shim renderers, rather than closing it as fixed when I have not consolidated anything.",
+      "resolvedAt": "2026-08-14T11:49:09.921Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-044",
