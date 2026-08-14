@@ -49,14 +49,11 @@ import {
 } from './runtime-artifact-registry.js';
 import {
   listManagedAgentBasenames,
-  renderReviewerRunBootstrapForTemplate,
   resolveAgentTemplateDir,
 } from './global-agents.js';
 import {
-  isModularReviewerRoleId,
-  isModularComplexRoleId,
-  restoreLegacyPromptTemplate,
   readPromptRegistry,
+  renderPromptEntryForHost,
 } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
@@ -866,29 +863,24 @@ export function listManagedAssetDefinitions(
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
-      // B-META-framework-audit:F-005 — must mirror cli-init.ts exactly. A MODULAR
-      // COMPLEX role is materialized as its digest-pinned legacy-full-context
-      // reconstruction, not the raw modular template, so the managed-asset
-      // expectation has to be built the same way or every freshly-init-ed project
-      // reports STALE_SAFE for those 5 files. Both sides now derive from
-      // restoreLegacyPromptTemplate, which validates against
-      // LEGACY_COMPLEX_TEMPLATE_SHA256 and therefore cannot drift silently.
-      const complexEntries = readPromptRegistry(templates).agents;
+      // B-META-framework-audit:F-005 — a MODULAR COMPLEX role is materialized as its
+      // digest-pinned legacy-full-context reconstruction, not the raw modular
+      // template, or every freshly-init-ed project reports STALE_SAFE for those 5
+      // files. Delegated to renderPromptEntryForHost rather than re-deriving the rule
+      // here: that helper IS the rule, it is what verify_codex compares against, and
+      // hand-rolling it in parallel places is exactly how F-034 (a third divergent
+      // copy) happened. Verified byte-identical to the previous hand-rolled output
+      // for all 17 roles.
+      const registryEntries = readPromptRegistry(templates).agents;
       for (const file of files) {
         const roleId = file.replace(/\.md$/, '');
-        const complexEntry = isModularComplexRoleId(roleId)
-          ? complexEntries.find(entry => entry.agentId === roleId)
-          : undefined;
-        const content = complexEntry
-          ? restoreLegacyPromptTemplate(complexEntry)
-          : readFileSync(join(templates, file), 'utf-8');
-        const codexContent = renderCodexAgentContent(content);
+        const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `.lattice-codex/agents:${file}`,
           `.lattice-codex/agents/${file}`,
-          isModularReviewerRoleId(roleId)
-            ? renderReviewerRunBootstrapForTemplate(codexContent, file)
-            : codexContent,
+          entry
+            ? renderPromptEntryForHost(entry, 'codex')
+            : renderCodexAgentContent(readFileSync(join(templates, file), 'utf-8')),
           actual => isManagedPrompt(actual, file),
         ));
       }
@@ -908,29 +900,26 @@ export function listManagedAssetDefinitions(
     );
     if (templates) {
       const expected = new Set(listAgentPromptFiles(templates));
-      // B-cdf6:F-034 — the THIRD copy of the F-005 root cause, and the one that
-      // proves hand-synchronising this rule does not work: the codex mirror a few
-      // lines above and cli-init.ts were both fixed while this sibling block kept
-      // the raw template, so a seeded `.claude/agents` reported STALE_SAFE for
-      // exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Complex roles must be materialized
-      // as their digest-pinned legacy-full-context reconstruction here too;
-      // restoreLegacyPromptTemplate validates against LEGACY_COMPLEX_TEMPLATE_SHA256
-      // and throws rather than emitting a mismatched mirror.
+      // B-cdf6:F-034 — this was the THIRD hand-rolled copy of the same rule
+      // (complex role -> digest-pinned legacy reconstruction -> host render ->
+      // reviewer bootstrap). cli-init.ts and the codex mirror above were fixed by
+      // hand while this sibling block a dozen lines below kept the raw template, so
+      // a seeded `.claude/agents` reported STALE_SAFE for exactly the 5
+      // MODULAR_COMPLEX_ROLE_IDS. Hand-synchronising three copies demonstrably does
+      // not hold, so all three now call the single helper the rest of the codebase
+      // already uses — renderPromptEntryForHost — which encapsulates the whole rule
+      // and is the same function verify_codex compares against. Verified
+      // byte-identical to the hand-rolled output for all 17 roles on both hosts.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of expected) {
         const roleId = file.replace(/\.md$/, '');
-        const complexEntry = isModularComplexRoleId(roleId)
-          ? registryEntries.find(entry => entry.agentId === roleId)
-          : undefined;
-        const content = complexEntry
-          ? restoreLegacyPromptTemplate(complexEntry)
-          : readFileSync(join(templates, file), 'utf-8');
+        const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `.claude/agents:${file}`,
           `.claude/agents/${file}`,
-          isModularReviewerRoleId(roleId)
-            ? renderReviewerRunBootstrapForTemplate(content, file)
-            : content,
+          entry
+            ? renderPromptEntryForHost(entry, 'claude')
+            : readFileSync(join(templates, file), 'utf-8'),
           actual => isManagedPrompt(actual, file),
         ));
       }

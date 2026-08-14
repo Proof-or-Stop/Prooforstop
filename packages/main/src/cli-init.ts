@@ -40,15 +40,12 @@ import {
   scanProjectLocalManagedAgents,
 } from './core/managed-assets.js';
 import {
-  renderReviewerRunBootstrapForTemplate,
   resolveAgentTemplateDir,
   syncGlobalAgents,
 } from './core/global-agents.js';
 import {
-  isModularReviewerRoleId,
-  isModularComplexRoleId,
-  restoreLegacyPromptTemplate,
   readPromptRegistry,
+  renderPromptEntryForHost,
 } from './core/prompt-registry.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
@@ -987,16 +984,11 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
     // LEGACY_COMPLEX_TEMPLATE_SHA256 digest, so this cannot silently drift: a
     // template edit that changes the reconstruction throws instead of writing a
     // mismatched mirror.
-    const complexEntry = isModularComplexRoleId(roleId)
-      ? readPromptRegistry(agentTemplateDir).agents.find(entry => entry.agentId === roleId)
-      : undefined;
-    const sourceTemplate = complexEntry
-      ? restoreLegacyPromptTemplate(complexEntry)
-      : readFileSync(src, 'utf-8');
-    const packageContent = renderCodexAgentContent(sourceTemplate);
-    const content = isModularReviewerRoleId(roleId)
-      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
-      : packageContent;
+    const registryEntry = readPromptRegistry(agentTemplateDir).agents
+      .find(entry => entry.agentId === roleId);
+    const content = registryEntry
+      ? renderPromptEntryForHost(registryEntry, 'codex')
+      : renderCodexAgentContent(readFileSync(src, 'utf-8'));
     if (existsSync(dst)) {
       try {
         const stat = lstatSync(dst);
