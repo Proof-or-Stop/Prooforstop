@@ -1030,6 +1030,35 @@
         "scanEscalationReason": "docs surface for B-fb7b is the CHANGELOG Unreleased/Fixed entry; no decisions-directory doc paragraphs reference the changed build-script symbols, so no full decisions-dir escalation required."
       },
       "_hash": "b2b13297728ebf4a97595d33870f21a2a2569922559224f29b4908b8309e6629"
+    },
+    {
+      "id": "B-fb7b:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality PASS at frozen tree. Reviewed the 3 build scripts + smoke guard for dead code, type safety and I/O isolation: withBuildLock has try/finally lock release, no dead branches; build-*-with-lock wrappers are single-purpose; the smoke guard is pure structural regex on file contents (no side effects). No blocker.",
+      "createdAt": "2026-08-14T12:53:46.075Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-067",
+      "envelopeId": "60e390175c184693b31f4313735680ecfcccfa618a28322db4c26f8a3dc66788",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface is 3 build scripts + 1 structural smoke; fully read, no escalation needed."
+      },
+      "_hash": "f513da67cd0835c0104330fd3ec720c596122fcc7ae1da70e41fd60386370188"
     }
   ]
 }
