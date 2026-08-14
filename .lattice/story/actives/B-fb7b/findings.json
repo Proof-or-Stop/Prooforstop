@@ -377,6 +377,31 @@
       "_hash": "417ae916339eb2432147deac9c07216255af144af81340945235fd25f9a29db8",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-019",
+      "desc": "Re-verified F-012 on current HEAD (material unchanged since fix commit eab8a74651 -- git diff eab8a74651..HEAD touches only .lattice bookkeeping). F-012 described the root pretest (package.json, npm --prefix packages/main run build && npm --prefix packages/utils run build) crashing with ENOTEMPTY under concurrent shared-worktree invocation because the main dist rm-rf/tsc rebuild had no lock. Commit eab8a74651 (scripts/build-lock.mjs, an atomic-mkdir per-repo mutex keyed by projectRoot with a 300s stale-holder steal and 900s wait timeout) is now taken by BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (wired as packages/utils package.json build script), so overlapping main-build and utils-build invocations serialize instead of racing. Verified live: (1) node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0. (2) node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS, exit 0. (3) node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0. (4) Ran 5 concurrent npm run pretest invocations against this same live worktree (which itself had other reviewer-lane build/lattice activity concurrently in-flight at the time -- the exact shared-worktree condition F-012 describes): 5/5 exit 0, grep for ENOTEMPTY/TS2307/Error across all 5 captured logs found nothing. (5) git status --porcelain clean after the run (dist rebuilds do not dirty the tree); packages/main/dist/index.js and packages/utils/dist/index.js both present and current. F-012 is resolved.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "Shared per-repo build lock (scripts/build-lock.mjs, commit eab8a74651) taken by both the main build and the new locked utils build serializes overlapping pretest/build invocations. 5/5 concurrent npm run pretest runs against a live, actively-contended shared worktree all exit 0 with no ENOTEMPTY/TS2307; smoke, RED, and guard-bite all PASS; tree stays clean.",
+        "sourceRefs": [
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-main-with-binding.mjs:1-20",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "packages/utils/package.json:9-11"
+        ],
+        "reproCommand": "for i in 1 2 3 4 5; do ( npm run pretest --silent >/tmp/pretest_c$i.log 2>&1; echo EXIT_$i=$? >>/tmp/pretest_c$i.log ) & done; wait; grep EXIT_ /tmp/pretest_c*.log"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T12:26:28.330Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "_hash": "b800b1aa7d049ce50e75053d2eecc002185b78a087a944db8fa051860fb49cee",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
