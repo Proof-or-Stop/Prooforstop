@@ -622,7 +622,7 @@
       "desc": "checklist.json verificationEvidence[*].note (e.g. CHK-001:happy:0 at checklist.json:77, CHK-002:edge:0 at checklist.json:319-320, CHK-003:happy:2 at checklist.json:607) cite code-location line numbers for quorum-submit-smoke.ts that are ALL systematically off by a uniform +17 lines from the real file, verified two ways: (1) against the current worktree HEAD and (2) against the exact headHash pinned on each receipt (0b9c8f6f5617...) via `git show <headHash>:packages/main/src/tasks/quorum-submit-smoke.ts | grep -n` -> identical actual (higher) line numbers both times, ruling out file drift. Examples: happy:0 note says the check is at line 1776 (actually check(...) is at smoke.ts:1793); CHK-002:edge:0 note says line 1873 for the CHK-002:edge:0 (OQ-1) comment (actually smoke.ts:1891); CHK-003:happy:2 note says line 2300 for CHK-003:happy:2 (F-004) (actually smoke.ts:2318). The SAME +17 offset holds for every one of the 24 mechanical receipts I sampled across CHK-001/002 (the 7-way shared check at smoke.ts:1793) and all 11 of CHK-003s dedicated checks -- consistent with the notes having been drafted before the 17-line B-3144 --grep/GREP_FILTER rationale comment block (smoke.ts:635-651) was inserted, and never re-derived afterward. WHY (severity=medium, category=adversarial): rule 3 requires evidence to concretely correspond to an intent so a reviewer can verify it without redoing the analysis; as recorded, following any note lands 17 lines into the WRONG code, so the citations cannot be trusted at face value -- exactly the class of ungrounded-provenance risk this lane exists to catch, even though I independently re-derived the correct locations and confirmed the underlying assertions genuinely exist, are distinct per intent, and would flip pass/fail if their specific behavior regressed (the receipts/selectorMatched themselves are real and not fabricated). Fix: regenerate the note text against the actual current file (or cite the stable CHK-xxx comment-anchor string only, never a raw line number, to avoid future drift).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T04:44:52.789Z",
@@ -630,7 +630,11 @@
       "reviewRunId": "B-3144:RR-032",
       "_hash": "119a89d4cadc96b24350d142e670202f12da9f0f813697343971fdb399794695",
       "signatureTag": "adversarial|unknown|checklist-json-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: stripped the brittle absolute line-number citations ('(line NNNN)', 'lines NNNN-NNNN') from all 24 mechanical evidence notes in checklist.json; the substantive description of what each note proves is unchanged, only the drift-prone line references were removed. The underlying command+selector+receipt binding (the mechanically-verified part) was never affected -- only the human-readable prose was stale. Commit ffe7e5d697.",
+      "resolvedAt": "2026-08-14T04:55:16.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
