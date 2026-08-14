@@ -1167,7 +1167,11 @@
         "adversarial": [
           {
             "desc": "The original M8 section advisory-only text is NOT deleted or overwritten -- diff the file against main branch to confirm the pre-existing advisory text (e.g. \"missing decision is visible in runbook/advisory output\") still appears in the file, possibly inside a historical-rationale block; WHY: user explicitly flagged losing/deleting the original rationale as an adversarial failure mode",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\", {encoding:\\\"utf8\\\"}))\"",
+              "selector": "missing decision is visible in runbook/advisory output"
+            }
           },
           {
             "desc": "The doc update does NOT describe the DONE gate as advisory-only when the code makes it blocking, or describe it as blocking in contexts where it is actually advisory -- the doc description of blocking vs advisory behavior must match the actual canFinishGuard code path; WHY: user explicitly flagged contradicting the shipped code as an adversarial failure mode",
@@ -1297,6 +1301,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:16.174Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\", {encoding:\\\"utf8\\\"}))\"",
+          "result": "pass",
+          "note": "git diff main...HEAD for this file shows a single hunk touching the M8 section: the phrase is quoted inside the newly-added annotation, and critically the diff contains no removed (-) line for the original M8 bullet itself -- the pre-existing bullet is untouched context, only additions surround it, confirming the original text was not deleted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "89d1bff36e832cf5d6d1999fdd846c6b0bace1c99d92cb889c589f65f3e91f1d",
+            "outputTail": "diff --git a/docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md b/docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\nindex 8c40285b6f..9b5ddfec14 100644\n--- a/docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\n+++ b/docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\n@@ -134,9 +134,23 @@ type RuntimeConsumer =\n   | 'story_advance'\n   | 'done_prepare'\n   | 'done_closure'\n-  | 'final_response_check';\n+  | 'final_response_check'\n+  | 'finding_resolve';\n ```\n \n+> **Delivered differently (B-a7c5):** `finding_resolve` is the 9th\n+> `RuntimeConsumer`, appended (not inserted alphabetically) to match the code\n+> union's actual order in `core/playbook-runtime-memory.ts`. It is a\n+> non-blocking, non-escalatable advisory suffix on `finding_resolve` output —\n+> deliberately absent from both `REGISTERED_CRITICAL_RUNTIME_CONSUMERS` and\n+> `ADVISORY_ONLY_RUNTIME_CONSUMERS`, so it can never become `warn`/`blocking`\n+> regardless of rollout mode. Doc-wide sweep performed for B-a7c5: no other\n+> place in this document asserts a RuntimeConsumer count, lists a specific\n+> consumer as blocking/critical in a way `finding_resolve` would contradict,\n+> or otherwise goes stale from CHK-001 (dev-memory preflight-ack DEV-entry\n+> gate) / CHK-002 (this consumer) / CHK-003 (see M8 below) — none found beyond\n+> this union and the M8 section.\n+\n The runtime must use an allowlist: `status === 'active'` is the only playbook\n status that may surface. `proposed`, `candidate`, `stale`, and `archived` are\n always inert.\n@@ -474,6 +488,34 @@ Tests:\n - no-op decision is accepted with reason;\n - captured candidate remains non-authoritative.\n \n+> **Delivered differently (B-a7c5):** the DONE-gate consumer of\n+> `dev_memory_finish_decision` was deliberately escalated from purely\n+> advisory (\"missing decision is visible in runbook/advisory output\", the\n+> original test above) to a required, BLOCKING check. `core/machine.ts`'s\n+> `canFinishGuard` (the actual DONE gate, TEST→DONE) now calls the shared\n+> `readDevMemoryFinishDecision` (moved into `core/playbook-runtime-memory.ts`\n+> alongside `finishDecisionPath` so `core/machine.ts` never imports from\n+> `handlers/`) and refuses DONE when no record exists for the story. All\n+> three decision values (`captured` / `no-reusable-lesson` /\n+> `defer-with-reason`) still satisfy the gate — an honest negative answer\n+> remains a complete answer, matching this section's own no-op-accepted-with-\n+> reason test above and avoiding any incentive to pad/fabricate captures.\n+> This is the first concrete instance of section 4.3's\n+> registered-blocking-consumer-with-operator-visible-bypass-path pattern\n+> being exercised for a dev-memory (not playbook) consumer: the \"bypass\" is\n+> the pre-existing `decision=no-reusable-lesson`/`defer-with-reason` reason\n+> requirement itself (already `>=5` chars per the command's existing schema)\n+> — no new bypass mechanism was needed. `dev_memory_finish_decision`'s\n+> `authority:'non_authoritative'`/`gateEvidence:false` fields still describe\n+> LESSON CONTENT's non-authoritative status; the gate reads only whether a\n+> record exists, never the lesson text, so this stays inside the spirit of\n+> \"memory content cannot satisfy gates\" while closing the real gap (a purely\n+> advisory end-of-story reminder that a multi-round story could silently\n+> never act on). The rest of this section (deliverables, the original test\n+> list, and the underlying non-authoritative record shape) is preserved\n+> above as the original design rationale and remains accurate for what the\n+> record itself contains.\n+\n ### M9. Million-Record Baseline Generator\n \n Goal: generate and validate 1,000,000 deterministic records.\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:17.147Z"
+          },
+          "headHash": "f55b481f4c036dcbadac3e0ccfdfb4dcdb36b1c8",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:17.267Z"
         }
       ]
     },
