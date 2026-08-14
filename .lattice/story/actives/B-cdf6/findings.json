@@ -1182,6 +1182,21 @@
       "resolvedAt": "2026-08-14T13:58:35.083Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-056",
+      "desc": "packages/main/src/core/auto-commit-metadata.ts:92-94 matchesRuntimeCommitSubject() is NOT read-both despite the docblock and the F-052/F-053 resolution text claiming it is: it only tests subject === `${COMMIT_SUBJECT_PREFIX} ${body}` and never references the adjacent exported DEPRECATED_COMMIT_SUBJECT_PREFIX (=lattice:) at all. Reproduced minimally against dist: matchesRuntimeCommitSubject(`proof-or-stop: story B-readboth init`, `story B-readboth init`) -> true; matchesRuntimeCommitSubject(`lattice: story B-readboth init`, `story B-readboth init`) -> false. This is the exact scenario the CHK-006 compatibility mandate protects (\"accept BOTH the old and new name on read\"). Concrete consumer proven broken: handlers/worktree.ts:678 calls matchesRuntimeCommitSubject(subject, `story ${storyId} init`) as its primary safeSubject check for classifying a pre-rename `lattice: story <id> init` metadata commit as a clean, revertable init commit; with this bug a legacy init-commit subject fails safeSubject and falls through to the weaker subject.includes(storyId) fallback only. Also falsifies the story STATE claim: `npm run test:flow-stability-smoke` (== `node dist/tasks/flow-stability-smoke.js`, the actual DONE-blocking invocation per package.json test script, not `npx tsx` on source) currently throws AssertionError at the exact assertion F-052 added: \"read-both must STILL accept the deprecated lattice: subject\" (false !== true), so this story is NOT green at HEAD 2001b46106 despite the resolvedReason on F-052/F-053 stating tsc clean + flow-stability-smoke passing. Root cause: the read-both branch was written into the TEST (flow-stability-smoke.ts:5158-5178) and into a SEPARATE independent implementation (validate-channel.ts isMetadataOnlyLatticeCommit, which correctly regexes both prefixes) but never into matchesRuntimeCommitSubject itself, which is the one worktree.ts actually calls. Fix: matchesRuntimeCommitSubject must accept subject === `${COMMIT_SUBJECT_PREFIX} ${body}` OR subject === `${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T15:15:39.903Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-078",
+      "_hash": "2f7da357a79a2c363e1e3cad712825a7e2c53b56e2c837b6c9313c2a2d9b182d",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
