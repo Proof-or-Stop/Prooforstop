@@ -30,7 +30,11 @@
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate --story=B-cap-a in one linked worktree, start lattice validate --story=B-cap-b in another, and assert B callback entry count stays zero while A holds; B stderr reports waiting for workspace validation capacity with holder story/command and heartbeat age; after A releases, both processes exit 0 automatically and persist distinct PASS evidence. WHY: proves the requested user-visible wait-and-run contract instead of fail-fast contention.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold a no-story lattice validate --json, then start story-scoped validate and done_required_validate probes one at a time; assert each waits on the same git-common-dir capacity path and enters only after its predecessor releases. WHY: no-story official validation must not remain a concurrency bypass.",
@@ -84,7 +88,28 @@
         "headHash": "a073b4633560b1f73667331f4577aed92800fc0e",
         "attestedAt": "2026-08-14T15:58:17.317Z",
         "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+          "result": "pass",
+          "note": "Tool-executed capacity contract proves cross-story wait-and-run with separate PASS evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T15:59:45.104Z"
+          },
+          "headHash": "4d0ca63182a60bf8376222c07d7ec352047a38a3",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T15:59:45.244Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
