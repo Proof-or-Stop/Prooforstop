@@ -779,6 +779,33 @@
         "scanEscalationReason": "Repo-wide grep for the stale and new fingerprint values, and for every PINNED_EXECUTABLE_SOURCE_FINGERPRINTS-style map, to confirm no third out-of-sync reference exists anywhere in the tree."
       },
       "_hash": "a90d6449ed2606d73936095b892e11770b50a57fa4a94e889fc5c31030bbe442"
+    },
+    {
+      "id": "B-3144:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verification after the sole intervening commit, bd2b6c8e03 (1-line stale pinned-fingerprint literal in scripts/verify-process-fact-contract.mjs, unrelated to story logic). Confirmed via checklist.json: all 25 verificationIntent entries across CHK-001 (6: 2 happy/2 edge/2 adversarial), CHK-002 (8: 2/3/3), CHK-003 (11: 3/4/4) map 1:1 by intentRef to a verificationEvidence entry with result=pass, no gaps and no orphan refs. Every evidence entry carries the identical headHash f12144730a / materialHash ffb7ca1801... / storyFilesHash b22a5b40... triple, and f12144730a is one commit AFTER bd2b6c8e03 (git merge-base --is-ancestor confirms bd2b6c8e03 is an ancestor of the evidence headHash), so the recorded evidence already reflects the post-fix state -- not stale. Independently re-ran the full compiled suite fresh at current material (node packages/main/dist/tasks/quorum-submit-smoke.js, no --grep filter): 71/71 checks pass, covering RED repro (CHK-001), the widened drift-accept guard incl. F-035 EMPTY_STORY_FILES_HASH edge case (CHK-002), and quorum_prune dry-run/apply/backup/CLI-wiring/keep-selector/runIds-filter/dirty-tree-refusal/nothing-to-prune/triple-duplicate/interleaved-preservation/backup-never-overwrite (CHK-003). Also ran scripts/verify-process-fact-contract.mjs directly: exits clean (\"Process fact contract verified\"), confirming the mechanical fix actually resolved the fingerprint mismatch it targeted. No coverage gap found; no finding written.",
+      "createdAt": "2026-08-14T06:56:56.079Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-056",
+      "envelopeId": "6e40aee2f6d68f8fcd3fa272580b5f5d0d9467007fc36bc15c7e4053582d1571",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": "Ran full untargeted quorum-submit-smoke.js suite (no --grep) plus verify-process-fact-contract.mjs directly against current HEAD to independently confirm the 25/25 evidence-to-intent mapping derived from checklist.json, rather than trusting the JSON alone."
+      },
+      "_hash": "1483694aa28ddce793047d9d485d9ac30e7fb851f67f7af6f4353aa13f83ad63"
     }
   ]
 }
