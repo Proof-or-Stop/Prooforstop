@@ -173,7 +173,7 @@
       "id": "CHK-003",
       "title": "Regression coverage: unmatched commands keep the 270s default, and matching does not cross-match by executable alone",
       "context": "Add coverage that (a) a pinned command with NO matching entry in validate.commands[] still gets the 270s default (no behavior change for the common case), and (b) two distinct configured commands that share an executable but differ in args do not cross-match each other's timeoutMs (matching must compare the full parsed args array, not just the executable).",
-      "userSees": "validate-command-timeout-smoke demonstrates both the unmatched-default case and the args-based disambiguation case pass after the fix.",
+      "userSees": "Running `node packages/main/dist/tasks/validate-command-timeout-smoke.js` prints `validate-command-timeout smoke passed: N assertions` with N increased by the new unmatched-default and args-disambiguation checks, and exits 0 - no FAIL lines for either new case.",
       "files": {
         "modify": [],
         "create": [],
