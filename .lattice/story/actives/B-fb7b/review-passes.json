@@ -360,6 +360,36 @@
         "scanEscalationReason": null
       },
       "_hash": "ae56347e28f32a0d424251ac6909d999a087ba0f4c6348169b2d198d0cf2b73c"
+    },
+    {
+      "id": "B-fb7b:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 re-review of the single 6bc5d2e824 delta since the round-3 pass (24e2c689bf): a 10-line addition to REGISTRATION_EXCLUSIONS in red-b49d4-harness-registration.mjs, registering red-fb7b-pretest-builds-utils.mjs and red-fb7b-guard-bite.mjs as on-demand verification-evidence tests excluded from validate.commands. Confirmed: (1) git diff 24e2c689bf..HEAD touches only that one file outside .lattice metadata -- smoke/RED/guard-bite source is byte-identical to round 3; (2) both exclusion keys exactly match the real on-disk population paths (packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs, .../red-fb7b-guard-bite.mjs), each reason is >40 chars and factually accurate (pretest-builds-utils.mjs really execFileSyncs npm run pretest and rebuilds shared dist trees; guard-bite.mjs really uses isolated mkdtempSync fixtures plus a real npm test lifecycle run, matching the stated reasons); (3) neither excluded file is also registered in validate.commands (no wronglyRegistered conflict) and only test-suite-utils-autobuild-smoke stays registered; (4) ran red-b49d4-harness-registration.mjs directly -> OK, 39/39 population entries accounted for (34 registered + 5 excluded); (5) ran the structural smoke, the RED, and guard-bite individually (not full lattice validate, per concurrency-race guidance) -> all PASS/exit 0 (guard-bite prints all GB-* bite markers including GB-ALL-PASS); (6) git status --porcelain after all three runs shows only .lattice review-metadata dirt, no source-tree dirt from the pretest rebuilds. No functional or test-behavior change from round 3; CHK-001 userSees/behavior claims still match the diff; no new boundary-condition gap introduced by this bookkeeping-only change. No blocker found.",
+      "createdAt": "2026-08-14T05:27:31.308Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-017",
+      "envelopeId": "c87cce2abe36bd515a697c556840d52b76216abfe47561cf5d0af110c7f5e5b8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2768c425759f31d003761d256b7dc8156a2a6fd724db8e62354bbeb0a1ad9ad9"
     }
   ]
 }
