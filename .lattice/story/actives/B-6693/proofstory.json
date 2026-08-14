@@ -175,6 +175,14 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment"
           }
         ]
       }
@@ -183,5 +191,5 @@
   "diagnosticGaps": [],
   "note": "B-6693 ProofStory acceptance binding with a verifier-owned planned producer-to-consumer path and canonical pre-review proof references.",
   "createdAt": "2026-08-14T15:29:47.703Z",
-  "updatedAt": "2026-08-14T16:25:20.225Z"
+  "updatedAt": "2026-08-14T16:25:37.494Z"
 }
