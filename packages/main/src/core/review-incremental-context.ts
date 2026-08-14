@@ -47,6 +47,7 @@ import {
   domainSeparatedDigest,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
+  type PromptFindingProjection,
 } from './prompt-contracts.js';
 import {
   PROMPT_DISPATCH_PROTOCOL_VERSION,
@@ -61,6 +62,7 @@ import { promptRoleContract } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
 import {
   reviewInventoryDigest,
+  reviewInventoryAcceptanceSubjectDigest,
   verifyReviewInventoryEpoch,
   verifyReviewInventoryReceipt,
 } from './review-inventory-epoch.js';
@@ -258,10 +260,7 @@ export function verifyCurrentPostRemediationReviewSelection(
   if (!verifyPostRemediationReviewSelection(selection) || selection.storyId !== storyId) return false;
   const story = store.readStory(storyId);
   const checklist = store.readChecklist(storyId);
-  const scopeDigest = reviewInventoryDigest({
-    scopeContract: store.readScopeContract(storyId),
-    checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
-  });
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigest(store.readScopeContract(storyId), checklist);
   const bindingMatches = story.currentReviewRound === selection.reviewRound
     && currentGitHead(projectRoot) === selection.headHash
     && currentMaterialHash(projectRoot, 'HEAD', projectRoot) === selection.materialHash
@@ -306,10 +305,7 @@ export function postRemediationReviewSelection(
   const reviewRound = story.currentReviewRound ?? '<unavailable>';
   const activeLanes = active.map(row => `lattice-review-${row.name}`);
   const checklist = store.readChecklist(storyId);
-  const scopeDigest = reviewInventoryDigest({
-    scopeContract: store.readScopeContract(storyId),
-    checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
-  });
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigest(store.readScopeContract(storyId), checklist);
   const data = store.readReviewInventoryEpochs(storyId);
   const receipt = [...data.receipts].reverse().find(row => Boolean(row.consumedAt));
   const fallback = (
@@ -703,7 +699,13 @@ export function reviewIncrementalContext(
   projectRoot: string,
   storyId: string,
   role: string,
-  options: { excludedReviewRunId?: string; findingsCutoffAt?: string; passesCutoffAt?: string } = {},
+  options: {
+    excludedReviewRunId?: string;
+    findingsCutoffAt?: string;
+    passesCutoffAt?: string;
+    /** Signed run-start projection; prevents later finding disposition rewrites. */
+    findingProjection?: PromptFindingProjection[];
+  } = {},
 ): ReviewIncrementalContext {
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
@@ -780,7 +782,8 @@ export function reviewIncrementalContext(
     if (args.prior) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
       const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
-      const basisFindings = findings.filter(finding => {
+      const findingSource = options.findingProjection ?? findings;
+      const basisFindings = findingSource.filter(finding => {
         const created = Date.parse(finding.createdAt ?? '');
         return !Number.isFinite(cutoff) || (Number.isFinite(created) && created <= cutoff);
       });

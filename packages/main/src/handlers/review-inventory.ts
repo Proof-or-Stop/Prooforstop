@@ -11,6 +11,7 @@ import {
   evaluateReviewInventoryWave,
   finalizedUnconsumedReviewInventory,
   reviewInventoryDigest,
+  reviewInventoryAcceptanceSubjectDigest,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
   maxReviewRunSequence,
@@ -24,6 +25,7 @@ import {
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
+import { verifyCandidateSpecSet } from '../core/candidate-spec-routing.js';
 
 function signedRoot(ctx: HandlerContext, storyId: string): { root: string; metadataRoot: string } {
   const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
@@ -54,6 +56,8 @@ function capture(ctx: HandlerContext, storyId: string) {
 export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string): {
   scopeDigest: string;
   requiredLanes: string[];
+  candidateSpecSetDigest?: string;
+  corpusDigest?: string;
 } {
   const story = ctx.store.readStory(storyId);
   const checklist = ctx.store.readChecklist(storyId);
@@ -61,13 +65,16 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   try { decision = ctx.store.readDecision(storyId); } catch { decision = null; }
   const understanding = ctx.store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
+  const candidate = ctx.store.readCandidateSpecSet(storyId);
+  const validCandidate = candidate && verifyCandidateSpecSet(candidate) ? candidate : null;
   return {
     requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
       .map(row => `lattice-review-${row.name}`),
-    scopeDigest: reviewInventoryDigest({
-      scopeContract: ctx.store.readScopeContract(storyId),
-      checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
-    }),
+    scopeDigest: reviewInventoryAcceptanceSubjectDigest(ctx.store.readScopeContract(storyId), checklist),
+    ...(validCandidate ? {
+      candidateSpecSetDigest: validCandidate.artifactDigest,
+      corpusDigest: validCandidate.corpusDigest,
+    } : {}),
   };
 }
 
@@ -78,7 +85,9 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
     || (current.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '');
   const scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest
     || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes);
-  if (!materialChanged && !scopeChanged) return epoch;
+  const candidateChanged = (currentScope.candidateSpecSetDigest ?? '') !== (epoch.candidateSpecSetDigest ?? '')
+    || (currentScope.corpusDigest ?? '') !== (epoch.corpusDigest ?? '');
+  if (!materialChanged && !scopeChanged && !candidateChanged) return epoch;
   const now = new Date().toISOString();
   const next = signEpoch({
     ...epoch,
@@ -90,12 +99,22 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
       currentMaterialHash: current.materialHash,
       ...(epoch.cutoff.storyFilesHash ? { oldStoryFilesHash: epoch.cutoff.storyFilesHash } : {}),
       ...(current.storyFilesHash ? { currentStoryFilesHash: current.storyFilesHash } : {}),
-      blockerCode: scopeChanged ? 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION' : 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
+      blockerCode: candidateChanged
+        ? 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+        : scopeChanged
+          ? 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
+          : 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
       ...(scopeChanged ? {
         oldScopeDigest: epoch.scopeDigest,
         currentScopeDigest: currentScope.scopeDigest,
         oldRequiredLanes: epoch.requiredLanes,
         currentRequiredLanes: currentScope.requiredLanes,
+      } : {}),
+      ...(candidateChanged ? {
+        oldCandidateSpecSetDigest: epoch.candidateSpecSetDigest,
+        currentCandidateSpecSetDigest: currentScope.candidateSpecSetDigest,
+        oldCorpusDigest: epoch.corpusDigest,
+        currentCorpusDigest: currentScope.corpusDigest,
       } : {}),
     },
     terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(epoch.storyId).runs),
@@ -112,6 +131,12 @@ export function assertReviewInventoryContextFreshLocked(ctx: HandlerContext, sto
   if (!epoch) return;
   const refreshed = persistInvalidationIfDrifted(ctx, epoch);
   if (refreshed.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, refreshed));
+}
+
+/** Recompute and persist invalidation while the caller owns the shared lock. */
+export function refreshReviewInventoryContextLocked(ctx: HandlerContext, storyId: string): ReviewInventoryEpoch | null {
+  const epoch = currentOpenReviewInventory(ctx.store, storyId);
+  return epoch ? persistInvalidationIfDrifted(ctx, epoch) : null;
 }
 
 export interface ReviewInventoryStatusProjection {
@@ -188,6 +213,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
     ...(epoch.invalidation?.oldScopeDigest ? [`Changed scope: ${epoch.invalidation.oldScopeDigest} -> ${epoch.invalidation.currentScopeDigest}`] : []),
+    ...(epoch.invalidation?.blockerCode === 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+      ? [`Changed candidate routing: ${epoch.invalidation.oldCandidateSpecSetDigest ?? 'none'} -> ${epoch.invalidation.currentCandidateSpecSetDigest ?? 'none'}; corpus ${epoch.invalidation.oldCorpusDigest ?? 'none'} -> ${epoch.invalidation.currentCorpusDigest ?? 'none'}`]
+      : []),
     ...(epoch.state === 'FINALIZED' && !epoch.consumedAt
       ? [`Recovery for genuine late evidence: lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
       : []),
@@ -304,7 +332,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             `Next: lattice story_advance --storyId=${args.storyId} --phase=DEV`,
           );
         }
-        const { requiredLanes, scopeDigest } = captureReviewInventoryScope(ctx, args.storyId);
+        const { requiredLanes, scopeDigest, candidateSpecSetDigest, corpusDigest } = captureReviewInventoryScope(ctx, args.storyId);
         const cutoff = capture(ctx, args.storyId);
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         const epochNum = data.epochs.reduce((max, row) => {
@@ -322,6 +350,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           updatedAt: now,
           cutoff,
           scopeDigest,
+          ...(candidateSpecSetDigest ? { candidateSpecSetDigest } : {}),
+          ...(corpusDigest ? { corpusDigest } : {}),
           requiredLanes,
           initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           maxWaves: args.maxWaves ?? 3,

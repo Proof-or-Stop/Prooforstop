@@ -1698,7 +1698,11 @@ export interface ReviewInventoryEpoch {
   begunAt: string;
   updatedAt: string;
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  /** Frozen REVIEW acceptance subject (scope contract + complete checklist semantics). */
   scopeDigest: string;
+  /** Frozen signed candidate-routing universe, when routing exists at epoch begin. */
+  candidateSpecSetDigest?: string;
+  corpusDigest?: string;
   requiredLanes: string[];
   /** Highest numeric ReviewRun id existing at begin; current-wave runs must be strictly newer. */
   initialRunSequenceBoundary?: number;
@@ -1712,11 +1716,18 @@ export interface ReviewInventoryEpoch {
     currentMaterialHash: string;
     oldStoryFilesHash?: string;
     currentStoryFilesHash?: string;
-    blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION' | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION';
+    blockerCode:
+      | 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION';
     oldScopeDigest?: string;
     currentScopeDigest?: string;
     oldRequiredLanes?: string[];
     currentRequiredLanes?: string[];
+    oldCandidateSpecSetDigest?: string;
+    currentCandidateSpecSetDigest?: string;
+    oldCorpusDigest?: string;
+    currentCorpusDigest?: string;
   };
   cancelledAt?: string;
   cancelReason?: string;

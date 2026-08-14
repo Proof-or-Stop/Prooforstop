@@ -4290,6 +4290,37 @@ function assertReviewInventoryRemediationContract() {
     /captureReviewInventoryScope[\s\S]*scopeDigest[\s\S]*requiredLanes[\s\S]*OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/.test(inventoryHandlerText),
     `${inventoryHandlerPath}: inventory consumers must recompute frozen scope and active lanes`,
   );
+  const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
+  assert(
+    /withChecklistLock[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(checklistHandlerText),
+    'packages/main/src/handlers/checklist.ts: every checklist acceptance writer must use inventory -> checklist lock order',
+  );
+  assert(
+    /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
+    `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,
+  );
+  const candidateHandlerText = read('packages/main/src/handlers/candidate-spec-routing.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*writeCandidateSpecSet[\s\S]*refreshReviewInventoryContextLocked/.test(candidateHandlerText),
+    'packages/main/src/handlers/candidate-spec-routing.ts: candidate reroute must atomically invalidate an OPEN epoch',
+  );
+  assert(
+    /candidateSpecSetDigest[\s\S]*corpusDigest[\s\S]*OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: epoch consumers must recompute the signed candidate universe`,
+  );
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryContextFreshLocked[\s\S]*withReviewMetadataTransactionLock[\s\S]*writeReviewRuns/.test(reviewRunHandlerText),
+    'packages/main/src/handlers/review-run.ts: inventory precheck and durable RR publication must be one outer critical section',
+  );
+  const promptContractsText = read('packages/main/src/core/prompt-contracts.ts');
+  const promptEnvelopeText = read('packages/main/src/core/prompt-envelope.ts');
+  assert(
+    /findingProjection[\s\S]*findingProjectionDigest/.test(promptContractsText)
+      && /prompt-finding-projection\.v1/.test(promptEnvelopeText)
+      && /findingProjection:\s*envelope\.findingProjection/.test(reviewRunText),
+    'Prompt Envelope: historical eligibility must consume an envelope-signed run-start finding projection',
+  );
   const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
   assert(
     /classifyDefaultHolder[\s\S]*process\.kill\(holder\.pid, 0\)[\s\S]*observedProcessStartTimeMs[\s\S]*return 'active'/.test(mkdirLockText),

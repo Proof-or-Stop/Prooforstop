@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { StoryStore } from './store.js';
 import type {
+  ChecklistData,
   Finding,
   ReviewInventoryEpoch,
   ReviewInventoryCriticReceipt,
@@ -44,6 +45,26 @@ function canonical(value: unknown): string {
 
 export function reviewInventoryDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+/** Canonical acceptance/review subject shared by epoch writers and consumers. */
+export function reviewInventoryAcceptanceSubjectDigest(scopeContract: unknown, checklist: ChecklistData): string {
+  return reviewInventoryDigest({
+    scopeContract,
+    checklist: checklist.items.map(row => ({
+      id: row.id,
+      title: row.title,
+      context: row.context,
+      status: row.status,
+      relatedDocs: row.relatedDocs,
+      userSees: row.userSees,
+      excludes: row.excludes,
+      files: row.files,
+      verificationIntent: row.verificationIntent,
+      verificationEvidence: row.verificationEvidence,
+      userSeesSnapshot: row.userSeesSnapshot,
+    })),
+  });
 }
 
 export function reviewRunSequence(run: Pick<ReviewRun, 'reviewRunId'>): number | null {

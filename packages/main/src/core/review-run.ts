@@ -738,6 +738,7 @@ export function verifyReviewRunPromptEnvelope(
           // doing so made every valid pass stale at DONE after review_pass_set
           // appended its own metadata commit.
           passesCutoffAt: run.startedAt,
+          findingProjection: envelope.findingProjection,
         },
       );
     } catch (error) {

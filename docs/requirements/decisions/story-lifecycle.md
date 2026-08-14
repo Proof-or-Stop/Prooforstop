@@ -279,6 +279,13 @@ are required. Reviewer evidence is never writable from DEV.
 Scope digest and active required lanes are recomputed under the same inventory
 lock at scope acknowledgement, evidence, status, critic, wave, finalize, and
 consume boundaries; drift invalidates the epoch and requires a fresh begin.
+The digest covers the complete checklist acceptance subject, so REVIEW-time
+verification-intent repair or verification-evidence mutation cannot reuse older
+lane evidence. The epoch separately binds the signed candidate-set and corpus
+digests; a reroute invalidates it atomically. `review_run_start` holds the same
+lock through snapshot, RR allocation, Prompt Envelope, and durable run write,
+and the envelope carries an immutable run-start finding projection so later
+finding disposition metadata does not rewrite historical eligibility.
 
 `lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `lattice` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
 

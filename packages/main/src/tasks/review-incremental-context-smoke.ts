@@ -492,6 +492,18 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     }, role);
     const passA = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runA.reviewRunId)!;
 
+    const mutableFinding = signedFinding(
+      storyId,
+      `${storyId}:F-MUTABLE`,
+      role,
+      'medium',
+      runA.startedAt,
+      'resolved',
+      round,
+      runA.reviewRunId,
+    );
+    store.writeFindings(storyId, { findings: [mutableFinding] });
+
     runCli('review_run_start', { storyId, agent: role }, role);
     const runB = store.readReviewRuns(storyId).runs.at(-1)!;
     const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
@@ -503,6 +515,20 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       verifyReviewRunPromptEnvelope(store, runB),
       { ok: true },
       'production verifier accepts B before a later pass is appended',
+    );
+    assert.ok(envelopeB.findingProjection?.some(row => row.id === mutableFinding.id && row.status === 'resolved'));
+    const findingData = store.readFindings(storyId);
+    const laterDisposition = findingData.findings.find(row => row.id === mutableFinding.id)!;
+    laterDisposition.status = 'dismissed';
+    laterDisposition.severity = 'low';
+    laterDisposition.category = 'happy';
+    laterDisposition.desc = 'Later mutable metadata must not rewrite an already-started run.';
+    laterDisposition.resolvedAt = new Date().toISOString();
+    store.writeFindings(storyId, findingData);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'F040: post-start finding disposition/severity/category/desc mutation cannot invalidate the signed run-start projection',
     );
     runCli('review_pass_set', {
       storyId,

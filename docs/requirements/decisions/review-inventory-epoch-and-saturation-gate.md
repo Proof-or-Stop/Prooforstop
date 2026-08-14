@@ -177,6 +177,32 @@ scope write cannot interleave between validation and evidence/finalization/
 consumption; any scope or lane drift atomically changes the epoch to
 `INVALIDATED` with `OPEN_REVIEW_INVENTORY_SCOPE_MUTATION`. A direct edit or
 unsupported-hook bypass is therefore detected by the next authoritative consumer.
+The scope digest is the complete acceptance subject, not a title/files summary:
+it includes checklist context, status, related docs, user-visible claims,
+exclusions, file routing, verification intents/evidence, and the frozen claim
+snapshot. Every checklist writer (including `verification_intent_repair` and
+verification-evidence writers) takes the inventory lock before its checklist
+lock. A supported REVIEW mutation is therefore serialized, and the next status,
+evidence, critic, wave, finalize, or consume boundary persists
+`OPEN_REVIEW_INVENTORY_SCOPE_MUTATION` before accepting old reviewer evidence.
+
+The epoch also signs the current valid `candidateSpecSetDigest` and
+`corpusDigest`. `candidate_spec_route` performs its durable replacement inside
+the inventory lock and immediately invalidates an OPEN epoch whose routing
+universe changed. Lanes from pre-reroute and post-reroute candidate sets can
+never form one wave.
+
+`review_run_start` holds the inventory lock from its run-start snapshot and
+cutoff/subject precheck through monotonic RR allocation, Prompt Envelope write,
+and durable ReviewRun publication, nesting the metadata transaction in one
+fixed lock order. A wave/cancel/begin boundary therefore linearizes wholly
+before or after the run; it cannot checkpoint between precheck and publication.
+
+Each new review-run Prompt Envelope signs an immutable as-of-run projection of
+finding identity, creation time, status, severity, category, and description.
+Historical eligibility recomputation consumes that signed projection. Later
+resolve/dismiss/cluster metadata cannot rewrite or invalidate a run that was
+valid when it started.
 Story/runtime metadata excluded by the canonical material hash does not
 invalidate the epoch.
 

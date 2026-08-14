@@ -14,6 +14,7 @@ import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
@@ -117,7 +118,10 @@ export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<
  */
 function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'checklist', 'checklist');
-  return withMkdirLock(lockDir, fn, { label: 'checklist metadata' });
+  // REVIEW acceptance semantics and review-inventory evidence share one outer
+  // lock. The stable order is inventory -> checklist for every checklist writer.
+  return withReviewInventoryMutationLock(ctx.store, storyId, () =>
+    withMkdirLock(lockDir, fn, { label: 'checklist metadata', heartbeatMs: 1_000 }));
 }
 
 /**

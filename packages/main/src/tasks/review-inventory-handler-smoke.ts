@@ -70,6 +70,7 @@ function setup() {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
+  mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
   }));
@@ -77,6 +78,7 @@ function setup() {
   writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
   writeFileSync(join(root, 'packages/main/src/consumer-b.ts'), "export { subject } from './consumer-a.js';\n");
   writeFileSync(join(root, 'packages/main/tests/isolated.test.ts'), 'export const isolatedTest = 1;\n');
+  writeFileSync(join(root, 'docs/requirements/decisions/inventory.md'), '# Review inventory\n');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
   git(root, ['config', 'user.name', 'lattice-implementer']);
@@ -625,6 +627,76 @@ assert.throws(
   () => cli(scopeDrift.root, 'review_inventory_finalize', { storyId }),
   /no OPEN epoch/,
   'F035: begin -> scope acknowledgement invalidates old lanes and rejects finalize',
+);
+
+const acceptanceDrift = setup();
+const acceptanceChecklist = acceptanceDrift.store.readChecklist(storyId);
+acceptanceChecklist.items[0].verificationEvidence = [{
+  kind: 'logic_test',
+  intentRef: 'CHK-001:happy:0',
+  result: 'pass',
+  note: 'Existing passing evidence used by the audited legacy repair path.',
+}] as never;
+acceptanceDrift.store.writeChecklist(storyId, acceptanceChecklist);
+cli(acceptanceDrift.root, 'review_inventory_begin', { storyId });
+cli(acceptanceDrift.root, 'verification_intent_repair', {
+  storyId,
+  mode: 'fromEvidence',
+  legacyRepair: true,
+  reason: 'Deterministically exercise a supported REVIEW acceptance-semantic writer.',
+});
+const acceptanceDriftStatus = cli(acceptanceDrift.root, 'review_inventory_status', { storyId });
+assert.match(acceptanceDriftStatus, /State: INVALIDATED/);
+assert.match(acceptanceDriftStatus, /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
+assert.throws(
+  () => cli(acceptanceDrift.root, 'review_inventory_finalize', { storyId }),
+  /no OPEN epoch/,
+  'F037: begin -> verification_intent_repair changes the frozen acceptance subject and rejects finalize',
+);
+
+const candidateDrift = setup();
+cli(candidateDrift.root, 'review_inventory_begin', { storyId });
+cli(candidateDrift.root, 'candidate_spec_route', { storyId, hosts: false });
+const candidateDriftStatus = cli(candidateDrift.root, 'review_inventory_status', { storyId });
+assert.match(candidateDriftStatus, /State: INVALIDATED/);
+assert.match(candidateDriftStatus, /OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/);
+assert.throws(
+  () => cli(candidateDrift.root, 'review_inventory_finalize', { storyId }),
+  /no OPEN epoch/,
+  'F039: lane universe cannot survive a candidate routing replacement',
+);
+
+const publicationRace = setup();
+cli(publicationRace.root, 'review_inventory_begin', { storyId });
+const publicationLane = 'lattice-review-concept';
+const publicationSession = 'sess-review-run-publication-race';
+cli(publicationRace.root, 'dispatch', { storyId, agentType: publicationLane }, {
+  LATTICE_AGENT: publicationLane, LATTICE_SESSION_ID: publicationSession,
+});
+const publicationReady = join(publicationRace.root, 'review-run-publication.ready');
+const runPublication = cliAsync(publicationRace.root, 'review_run_start', { storyId, agent: publicationLane }, {
+  LATTICE_AGENT: publicationLane,
+  LATTICE_SESSION_ID: publicationSession,
+  NODE_ENV: 'test',
+  LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS: '1000',
+  LATTICE_INTERNAL_REVIEW_RUN_READY_FILE: publicationReady,
+});
+waitForFile(publicationReady);
+const cancelPublication = cliAsync(publicationRace.root, 'review_inventory_cancel', {
+  storyId, reason: 'Cancel concurrently with a ReviewRun publication linearization test.',
+});
+const [publishedRun, publishedCancel] = await Promise.all([runPublication, cancelPublication]);
+assert.equal(publishedRun.ok, true, publishedRun.output);
+assert.equal(publishedCancel.ok, true, publishedCancel.output);
+const publishedRunId = publishedRun.output.match(/Review run (\S+) started/)?.[1];
+assert.ok(publishedRunId, publishedRun.output);
+assert.throws(
+  () => cli(publicationRace.root, 'review_pass_set', {
+    storyId, agent: publicationLane, reviewRunId: publishedRunId,
+    note: 'A run published before cancel must remain sealed by cancel.', readManifest, readEvents,
+  }, { LATTICE_AGENT: publicationLane, LATTICE_SESSION_ID: publicationSession }),
+  /REVIEW_INVENTORY_EVIDENCE_SEALED/,
+  'F038: cancel cannot fall between inventory precheck and RR durable publication',
 );
 
 const longHolder = setup();
