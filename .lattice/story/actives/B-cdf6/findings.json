@@ -1220,6 +1220,25 @@
       ],
       "signatureTag": "missing|ts|honesty-boundary-retired",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-058",
+      "desc": "Confirms F-057 (open, high, RR-080): retired-authority-vocabulary-guard-smoke.ts genuinely FAILS on this story HEAD 2001b46106 and PASSES cleanly on pristine main (abe666af4f / cec229a1aa) — independently reproduced in an isolated detached worktree with its own npm install (node dist/tasks/retired-authority-vocabulary-guard-smoke.js: PASS on main, ERR_ASSERTION on story HEAD at cli-engine.ts:814 unapproved non-literal dynamic module load, actual=[{file:cli-engine.ts,line:814,...}], expected=[]). Not one of the three legitimately identical-to-main red smokes (prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke — all three independently confirmed byte-identical failure/assertion on both main and HEAD). This is test-coverage-relevant because it means a mechanical regression test this story depends on for closeout-trust of its own dynamic-import allowlist is silently red, not silently pre-existing; it must be repinned (or the AST-fingerprint drift explained) before any claim of npm test / lattice validate all-green can be trusted for CHK-005:happy:0. Verification intent coverage itself (36 must-intents, waivers at CHK-002:adversarial:1 deferred_gate_evidence and CHK-004:edge:0 permanent) remains correct and unaffected — filing this to keep the open-finding ledger and this lanes verdict consistent with F-057 rather than passing over a known-open high-severity gap in this lanes scope.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T15:28:28.807Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-081",
+      "_hash": "75e0207ccbf3313c7dc39a8fc7f6c6960e45f67cbfaff0de6c0a85db8c10d695",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/core/cli-engine.ts"
+      ],
+      "signatureTag": "missing|ts|confirms-open-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
