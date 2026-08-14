@@ -363,24 +363,40 @@
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold one owner while three independent waiters queue; assert sampled max concurrent callback count is exactly one, every non-aborted waiter eventually runs after successive releases, and progress output is rate-bounded rather than emitted per poll. WHY: serialization must not trade races for starvation or log flooding.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Delay story A after validation command exit but before evidence persistence and start story B; assert B cannot enter capacity until A persistence finishes and A evidence cannot overwrite B evidence afterward. WHY: the capacity lease must cover the complete official evidence critical section, not only child execution.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Run a same-story nested validation from the owning AsyncLocal context and a same-story independent process concurrently; assert only the true nested call is reentrant, the independent process queues, and the existing per-story evidence lock is still acquired inside capacity. WHY: preserving the inner lock must not permit sibling-context bypass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Seed capacity leases with malformed metadata, unknown identity, and age-only expiry and assert none is deleted and callback entry remains zero; then seed a mechanically proven local-dead holder and a holder/heartbeat identity mismatch and assert each is reclaimed. In the same smoke, rerun the existing story-scoped stale-lock assertions unchanged. WHY: proves the new strict classifier is capacity-specific and does not silently alter legacy story-lock classification.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           }
         ]
       },
@@ -460,6 +476,82 @@
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
           "timestamp": "2026-08-14T16:10:33.392Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:edge:2: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:11:17.606Z"
+          },
+          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:13:10.928Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:0: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:11:55.251Z"
+          },
+          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:13:10.928Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:1: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:12:33.010Z"
+          },
+          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:13:10.928Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:2: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:13:10.787Z"
+          },
+          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:13:10.928Z"
         }
       ]
     },
