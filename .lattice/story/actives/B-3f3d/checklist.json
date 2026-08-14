@@ -288,7 +288,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The operator gets one deliberate remediation transition containing the complete frozen finding set, then sees which fresh final-review lanes are required on the repaired material and an actionable reason whenever a transition is rejected.",
+      "userSees": "The accepted rollback prints \"Remediation authorized once by epoch <id>\", the aggregate finding count/digest, and \"This receipt does not authorize TEST\"; final review prints \"Impacted required lanes:\" followed by the exact lanes and corrective command on rejection.",
       "verificationIntent": {
         "happy": [
           {
@@ -349,6 +349,19 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
         ]
       }
     },
