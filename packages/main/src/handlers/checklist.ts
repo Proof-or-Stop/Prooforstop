@@ -454,11 +454,11 @@ function carryForwardOnDiskProvenance(
 /**
  * B-ec67 F-007: guard for checklist_update's bulk `verificationEvidence` setter — the
  * THIRD evidence write path, which does NOT run the pinned command. For an EXECUTABLE
- * intent (logic|cli|browser) it refuses any incoming row that is not already a valid
+ * intent (logic|cli|browser, or any type carrying a verifier pin) it refuses any incoming row that is not already a valid
  * mechanical receipt (mechanical:true + receipt) or an audited non-mechanical attestation
  * (mechanical:false + nonMechanicalReason ≥ N), so a raw fabricated result:pass row can
  * never be laundered as covered through this path. Rows that cannot launder executable
- * coverage are left alone: non-executable (manual|docs) intents, waivers, explicit fails,
+ * coverage are left alone: unpinned non-executable (manual|docs) intents, waivers, explicit fails,
  * and refs that do not resolve to an intent on this item. Callers with real executable
  * evidence are directed to verification_evidence_add / verification_evidence_batch_add,
  * which are the single enforcement boundary that actually executes the command.
@@ -474,8 +474,9 @@ function carryForwardOnDiskProvenance(
 function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: VerificationEvidenceInput): void {
   const resolved = resolveIntentForRef(item, ev.intentRef);
   // A ref that does not resolve to an intent on this item covers nothing at the gate,
-  // and manual|docs intents are attestation-only — neither can launder executable coverage.
-  if (!resolved || !isExecutableIntentType(resolved.intent.type)) return;
+  // and only UNPINNED manual|docs intents are attestation-only. Once either has
+  // an immutable verifier pin, this bulk path must protect its real receipt too.
+  if (!resolved || (!isExecutableIntentType(resolved.intent.type) && !resolved.intent.verification)) return;
   if (normalizeEvidenceKind(ev.kind) === 'waiver') return; // explicit exemption, tracked separately
   if (ev.result === 'fail') return;                        // an explicit failure never launders coverage
   if (ev.mechanical === true) {
@@ -516,7 +517,8 @@ type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleComma
  * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
  * by both single and batch handlers. Behavior:
  *   a. Resolve the intent; refuse if intentRef does not map to an intent on the item.
- *   b. Determine executable: logic|cli|browser vs attestation-only manual|docs.
+ *   b. Determine executable: logic|cli|browser, plus any intent (including
+ *      docs/manual) that carries or is being given an explicit verifier pin.
  *   c. Executable + (selector provided OR intent already pinned) → mechanical path:
  *        PIN (immutable): first write sets verification from command+selector (both
  *        required); a later write's command must equal the pinned command (else
@@ -530,7 +532,10 @@ type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleComma
  *        executable write can never mint mechanical:undefined here (which the gate would
  *        grandfather as covered). The caller must supply a selector or a nonMechanicalReason.
  *        Pre-mechanism legacy rows keep 'covered' at the GATE only (loaded from disk).
- *   f. manual|docs intents → attestation-only, mechanical:false, no execution, no refuse.
+ *   f. unpinned manual|docs intents → attestation-only, mechanical:false. A
+ *      command+selector deliberately upgrades either type to the same immutable
+ *      executable receipt path, so mechanically checked documentation is not
+ *      forced to masquerade as a CLI requirement.
  *   g. waiver kind → explicit exemption, no execution.
  */
 async function enforceAndStampEvidence(
@@ -554,8 +559,14 @@ async function enforceAndStampEvidence(
     return { evidencePatch: {} };
   }
 
-  // attestation-only intent types
-  if (!isExecutableIntentType(intent.type)) {
+  // Unpinned manual/docs intents are attestations. An explicit immutable pin is
+  // the authority to execute even when the subject of the check is documentation.
+  // `callerSelector` only selects this path; the branch below still requires BOTH
+  // command+selector and records the pin before any receipt can be trusted.
+  const hasExecutableVerifier = isExecutableIntentType(intent.type)
+    || Boolean(intent.verification)
+    || Boolean(callerSelector);
+  if (!hasExecutableVerifier) {
     return {
       evidencePatch: {
         mechanical: false,
@@ -728,8 +739,8 @@ function mapEvidenceKindToIntentType(kind: VerificationEvidence['kind']): Verifi
 
 /**
  * B-1507: inverse of mapEvidenceKindToIntentType — pick the closest evidence kind for an
- * intent type. verification_run only executes pinned (executable) intents, so in practice
- * only logic|cli|browser are reachable; manual|docs are mapped for completeness.
+ * intent type. verification_run executes any pinned verifier; manual/docs remain
+ * attestation-only unless an earlier evidence write deliberately pinned them.
  */
 function intentTypeToEvidenceKind(type: VerificationIntentType): VerificationEvidence['kind'] {
   switch (type) {

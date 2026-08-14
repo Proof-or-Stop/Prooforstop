@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   assertReviewInventoryCutoff,
   buildWave,
@@ -160,9 +163,14 @@ function criticEvidence(
 
 function memoryStore(initialData: ReviewInventoryEpochData) {
   let data = structuredClone(initialData);
+  const lockRoot = mkdtempSync(join(tmpdir(), 'review-inventory-epoch-locks-'));
   return {
     readReviewInventoryEpochs: () => structuredClone(data),
     writeReviewInventoryEpochs: (_storyId: string, next: ReviewInventoryEpochData) => { data = structuredClone(next); },
+    readReviewRuns: () => ({ runs: [...firstRuns, ...secondRuns, firstCritic.run, secondCritic.run] }),
+    readReviewPasses: () => ({ passes: [...firstPasses, ...secondPasses, firstCritic.pass, secondCritic.pass] }),
+    readFindings: () => ({ findings: [historical] }),
+    runtimeLockDirPath: (_storyId: string, ...segments: string[]) => join(lockRoot, ...segments),
     snapshot: () => structuredClone(data),
   };
 }
@@ -398,7 +406,8 @@ const unsignedReceipt: Omit<ReviewInventoryReceipt, '_hash'> = {
   requiredLanes,
   waveCount: 2,
   findingSetDigest: firstWave.verifiedFindingSetDigest!,
-  coverageDigest: saturated.criticDigest,
+  coverageDigest: reviewInventoryDigest([firstWave, buildWave(secondEpoch, saturated, issuedAt)]
+    .flatMap(row => row.lanes.map(lane => lane.coverageDigest))),
   saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS',
   authority: 'inventory-completeness-only',
   authorizesTest: false,

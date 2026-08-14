@@ -256,8 +256,11 @@ The CLI layer filters the available commands by the current story phase. When th
 
 For an aggregated remediation, first open a frozen inventory with
 `review_inventory_begin`, let every required lane terminate on the same cutoff,
-and call `review_inventory_finalize` until a complete wave adds zero new verified
-finding families. Only the resulting signed, single-use receipt authorizes
+record the independent critic dispositions, and follow `review_inventory_status`:
+call `review_inventory_wave_advance` after each complete wave that adds verified
+finding families, then repeat the required lanes on the unchanged cutoff; call
+`review_inventory_finalize` only when a complete wave adds zero new verified
+finding families. Only that final signed, single-use receipt authorizes
 REVIEW→DEV. It proves inventory completeness only (`authorizesTest=false`). Any
 OPEN material drift becomes `INVALIDATED`; after remediation, the final REVIEW
 requires exactly the signed current-material dependency-closure impacted active

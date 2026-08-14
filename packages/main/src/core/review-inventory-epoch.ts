@@ -13,10 +13,23 @@ import type {
 } from './types.js';
 import { verifyReviewRun } from './review-run.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { withMkdirLock } from './mkdir-lock.js';
 
 const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
 const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
 const CRITIC_RECEIPT_DOMAIN = 'proofbound.review-inventory-critic-receipt.v1';
+
+/**
+ * One serialization boundary for inventory snapshots and reviewer terminal
+ * evidence. Finalize/consume and finding/pass writers must all hold this lock:
+ * otherwise a terminal can be appended just after FINALIZED and remain absent
+ * from the immutable remediation receipt.
+ */
+export function withReviewInventoryMutationLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
+  return withMkdirLock(store.runtimeLockDirPath(storyId, 'review-inventory', 'epochs'), fn, {
+    label: `review inventory ${storyId}`,
+  });
+}
 
 function canonical(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -339,6 +352,71 @@ export function finalizedUnconsumedReviewInventory(store: StoryStore, storyId: s
   return { epoch, receipt };
 }
 
+/** Fail closed while an immutable remediation receipt is awaiting consumption. */
+export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId: string): void {
+  const latest = store.readReviewInventoryEpochs(storyId).epochs.at(-1);
+  if (latest?.state === 'FINALIZED' && !latest.consumedAt) {
+    throw new Error(
+      `REVIEW_INVENTORY_EVIDENCE_SEALED: ${latest.epochId} has a pending FINALIZED receipt; ` +
+      'reviewer finding/pass evidence cannot be appended until that receipt is consumed or the epoch is cancelled',
+    );
+  }
+}
+
+function finalizedLiveAggregateError(store: StoryStore, pair: {
+  epoch: ReviewInventoryEpoch;
+  receipt: ReviewInventoryReceipt;
+}): string | undefined {
+  const { epoch, receipt } = pair;
+  const finalWave = epoch.waves.at(-1);
+  if (!finalWave || !finalWave.completedAt || !finalWave.saturated || finalWave.newVerifiedFindingCount !== 0) {
+    return 'final saturated wave is missing or invalid';
+  }
+  const replayEpoch: ReviewInventoryEpoch = {
+    ...epoch,
+    state: 'OPEN',
+    waves: epoch.waves.slice(0, -1),
+  };
+  const data = store.readReviewInventoryEpochs(epoch.storyId);
+  const evaluation = evaluateReviewInventoryWave({
+    epoch: replayEpoch,
+    runs: store.readReviewRuns(epoch.storyId).runs,
+    passes: store.readReviewPasses(epoch.storyId).passes,
+    findings: store.readFindings(epoch.storyId).findings,
+    findingDispositions: data.criticReceipts.find(row =>
+      row.epochId === epoch.epochId && row.wave === epoch.waves.length,
+    )?.findingDispositions,
+  });
+  if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0
+    || evaluation.unresolvedFindingIds.length > 0 || evaluation.invalidDispositionIds.length > 0) {
+    return 'live terminal lanes or finding dispositions differ from the finalized wave';
+  }
+  const critic = validateReviewInventoryCriticReceipt({
+    receipt: data.criticReceipts.find(row =>
+      row.epochId === epoch.epochId && row.wave === epoch.waves.length,
+    ),
+    epoch: replayEpoch,
+    evaluation,
+    runs: store.readReviewRuns(epoch.storyId).runs,
+    passes: store.readReviewPasses(epoch.storyId).passes,
+    findings: store.readFindings(epoch.storyId).findings,
+  });
+  if (!critic.ok) return `live critic binding changed: ${critic.reason}`;
+  const rebuilt = buildWave(replayEpoch, evaluation, finalWave.completedAt);
+  if (reviewInventoryDigest(rebuilt.lanes) !== reviewInventoryDigest(finalWave.lanes)
+    || rebuilt.verifiedFindingSetDigest !== finalWave.verifiedFindingSetDigest
+    || rebuilt.criticDigest !== finalWave.criticDigest
+    || rebuilt.newVerifiedFindingCount !== 0
+    || !rebuilt.saturated) {
+    return 'live terminal/finding aggregate digest differs from the finalized wave';
+  }
+  if (receipt.findingSetDigest !== reviewInventoryDigest(rebuilt.verifiedFindingFamilies)
+    || receipt.coverageDigest !== reviewInventoryDigest(epoch.waves.flatMap(row => row.lanes.map(lane => lane.coverageDigest)))) {
+    return 'receipt aggregate digest differs from the live finalized wave';
+  }
+  return undefined;
+}
+
 export function reviewInventoryRemediationGate(store: StoryStore, storyId: string, reviewRound?: string): {
   required: boolean;
   ok: boolean;
@@ -383,29 +461,35 @@ export function consumeReviewInventoryReceipt(
   reviewRound: string,
   currentCutoff: { materialHash: string; storyFilesHash?: string },
 ): string | null {
-  const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
-  if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
-  const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
-  if (pair.receipt.cutoff.materialHash !== currentCutoff.materialHash
-    || (pair.receipt.cutoff.storyFilesHash ?? '') !== (currentCutoff.storyFilesHash ?? '')) {
-    throw new Error('REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff');
-  }
-  const now = new Date().toISOString();
-  const data = store.readReviewInventoryEpochs(storyId);
-  data.epochs = data.epochs.map(row => {
-    if (row.epochId !== pair.epoch.epochId) return row;
-    const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
-    return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
+  return withReviewInventoryMutationLock(store, storyId, () => {
+    const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
+    if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
+    const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
+    if (pair.receipt.cutoff.materialHash !== currentCutoff.materialHash
+      || (pair.receipt.cutoff.storyFilesHash ?? '') !== (currentCutoff.storyFilesHash ?? '')) {
+      throw new Error('REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff');
+    }
+    const liveAggregateError = finalizedLiveAggregateError(store, pair);
+    if (liveAggregateError) {
+      throw new Error(`REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: ${liveAggregateError}; begin a fresh inventory epoch`);
+    }
+    const now = new Date().toISOString();
+    const data = store.readReviewInventoryEpochs(storyId);
+    data.epochs = data.epochs.map(row => {
+      if (row.epochId !== pair.epoch.epochId) return row;
+      const { _hash, ...unsigned } = row;
+      const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
+      return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
+    });
+    data.receipts = data.receipts.map(row => {
+      if (row.receiptId !== pair.receipt.receiptId) return row;
+      const { _hash, ...unsigned } = row;
+      const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
+      return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
+    });
+    store.writeReviewInventoryEpochs(storyId, data);
+    return pair.receipt.receiptId;
   });
-  data.receipts = data.receipts.map(row => {
-    if (row.receiptId !== pair.receipt.receiptId) return row;
-    const { _hash, ...unsigned } = row;
-    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
-    return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
-  });
-  store.writeReviewInventoryEpochs(storyId, data);
-  return pair.receipt.receiptId;
 }
 
 export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string): ReviewInventoryWave {

@@ -259,8 +259,8 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_finalize: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt and signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt', producerCommand: 'review_inventory_finalize',
-    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt and signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt under withReviewInventoryMutationLock', producerCommand: 'review_inventory_finalize',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate with live terminal/finding aggregate replay before consume',
   },
   review_inventory_cancel: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,

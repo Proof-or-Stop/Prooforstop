@@ -7,8 +7,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
-import { consumeReviewInventoryReceipt, finalizedUnconsumedReviewInventory } from '../core/review-inventory-epoch.js';
-import type { StoryInfo } from '../core/types.js';
+import {
+  consumeReviewInventoryReceipt,
+  finalizedUnconsumedReviewInventory,
+  signReviewInventoryEpoch,
+} from '../core/review-inventory-epoch.js';
+import { signFinding } from '../core/finding-verify.js';
+import type { Finding, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import {
   computeCanonicalDependencyClosure,
@@ -97,6 +102,13 @@ assert.match(cli(first.root, 'review_inventory_status', { storyId }), /REVIEW_IN
 const reloaded = new StoryStore(first.root);
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs.length, 1, 'begin persists across store reload');
 const epoch = reloaded.readReviewInventoryEpochs(storyId).epochs[0];
+const beforeIncompleteAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
+assert.throws(
+  () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
+  /REVIEW_INVENTORY_LANES_INCOMPLETE/,
+  'real wave_advance rejects incomplete lanes',
+);
+assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeIncompleteAdvance, 'incomplete wave rejection is side-effect free');
 const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
 const readEvents = [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: 8 }];
 let realFindingId = '';
@@ -132,6 +144,13 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
     }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   }
 }
+const beforeCriticAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
+assert.throws(
+  () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
+  /REVIEW_INVENTORY_CRITIC_INCOMPLETE/,
+  'real wave_advance rejects a complete lane set without critic authority',
+);
+assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeCriticAdvance, 'critic-incomplete rejection is side-effect free');
 cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
   LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
 });
@@ -172,14 +191,37 @@ assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length,
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);
+// Force the already-persisted positive wave to be the configured budget edge,
+// then prove the real CLI refuses before writing another checkpoint.
+let budgetData = reloaded.readReviewInventoryEpochs(storyId);
+const budgetEpoch = budgetData.epochs[0];
+const { _hash: _budgetHash, ...budgetUnsigned } = budgetEpoch;
+const exhaustedUnsigned = { ...budgetUnsigned, maxWaves: 1 };
+budgetData.epochs[0] = { ...exhaustedUnsigned, _hash: signReviewInventoryEpoch(exhaustedUnsigned) };
+reloaded.writeReviewInventoryEpochs(storyId, budgetData);
+const beforeBudgetAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
+assert.throws(
+  () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
+  /REVIEW_INVENTORY_BUDGET_EXHAUSTED/,
+  'real wave_advance rejects exhaustion instead of manufacturing progress',
+);
+assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeBudgetAdvance, 'budget rejection is side-effect free');
+budgetData = reloaded.readReviewInventoryEpochs(storyId);
+const exhaustedEpoch = budgetData.epochs[0];
+const { _hash: _exhaustedHash, ...exhaustedBase } = exhaustedEpoch;
+const restoredBudgetUnsigned = { ...exhaustedBase, maxWaves: 2 };
+budgetData.epochs[0] = { ...restoredBudgetUnsigned, _hash: signReviewInventoryEpoch(restoredBudgetUnsigned) };
+reloaded.writeReviewInventoryEpochs(storyId, budgetData);
 const firstWaveCompletedAt = reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves[0].completedAt;
 while (Date.now() <= Date.parse(firstWaveCompletedAt!)) { /* preserve strict wave ordering */ }
+const secondWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of epoch.requiredLanes) {
   const sessionId = `sess-inventory-wave2-${lane}`;
   cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `second-wave review_run_start must return a signed run for ${lane}: ${started}`);
+  secondWaveRuns.set(lane, { reviewRunId, sessionId });
   cli(first.root, 'review_pass_set', {
     storyId, agent: lane, reviewRunId,
     note: `Second complete unchanged-material wave found no new family for ${lane}.`,
@@ -202,12 +244,71 @@ cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
   agent: 'lattice-review-topology-critic', findingDispositions: [],
 }, { LATTICE_AGENT: 'lattice-review-topology-critic' });
+const beforeZeroNewAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
+assert.throws(
+  () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
+  /REVIEW_INVENTORY_ZERO_NEW_READY_TO_FINALIZE/,
+  'real wave_advance refuses the zero-new state reserved for finalize',
+);
+assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeZeroNewAdvance, 'zero-new rejection is side-effect free');
 const finalized = cli(first.root, 'review_inventory_finalize', { storyId });
 assert.match(finalized, /State: FINALIZED/);
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
 const receipt = finalizedData.receipts[0];
+const sealedLane = epoch.requiredLanes[0];
+const sealedRun = secondWaveRuns.get(sealedLane)!;
+assert.throws(
+  () => cli(first.root, 'review_pass_set', {
+    storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
+    note: 'Late pass must not mutate a finalized review inventory.', readManifest, readEvents,
+  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  /REVIEW_INVENTORY_EVIDENCE_SEALED/,
+  'review_pass_set cannot append after FINALIZED',
+);
+assert.throws(
+  () => cli(first.root, 'finding_add', {
+    storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
+    desc: 'Late verified finding must not escape the finalized aggregate.',
+    severity: 'medium', category: 'adversarial', evidenceState: 'verified',
+    files: ['packages/main/src/subject.ts'], readManifest, readEvents,
+  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  /REVIEW_INVENTORY_EVIDENCE_SEALED/,
+  'finding_add cannot append after FINALIZED',
+);
+assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0]._hash, receipt._hash, 'sealed writer refusals preserve the receipt');
+
+// Simulate an out-of-band/crash-era writer that bypassed the shared lock. The
+// consumer must still recompute the live aggregate and reject the old receipt.
+const findingsBeforeTamper = reloaded.readFindings(storyId);
+const sourceFinding = findingsBeforeTamper.findings.find(row => row.id === realFindingId)!;
+const lateId = `${storyId}:F-999`;
+const lateCreatedAt = new Date(Date.parse(receipt.issuedAt) + 1).toISOString();
+const lateDesc = 'Out-of-band late verified finding omitted from the finalized receipt.';
+const lateFinding: Finding = {
+  ...sourceFinding,
+  id: lateId,
+  desc: lateDesc,
+  agent: sealedLane,
+  createdAt: lateCreatedAt,
+  reviewRunId: sealedRun.reviewRunId,
+  reviewRound,
+  _hash: signFinding(
+    storyId, lateId, lateDesc, sourceFinding.severity, lateCreatedAt, reviewRound,
+    sealedRun.reviewRunId, sourceFinding.readManifest, sourceFinding.readLog, sourceFinding.readDiagnostics,
+  ),
+};
+findingsBeforeTamper.findings.push(lateFinding);
+reloaded.writeFindings(storyId, findingsBeforeTamper);
+assert.throws(
+  () => consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff),
+  /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED/,
+  'consumer re-verifies live terminals/finding families instead of trusting a stale frozen aggregate',
+);
+const restoredFindings = reloaded.readFindings(storyId);
+restoredFindings.findings = restoredFindings.findings.filter(row => row.id !== lateId);
+reloaded.writeFindings(storyId, restoredFindings);
 writeFileSync(join(first.root, 'packages/main/src/subject.ts'), 'export const subject = 99;\n');
 assert.throws(
   () => cli(first.root, 'story_advance', { storyId, phase: 'DEV' }),
@@ -366,11 +467,19 @@ assert.match(cli(cancelled.root, 'review_inventory_cancel', { storyId, reason: '
 assert.match(cli(cancelled.root, 'review_inventory_begin', { storyId }), /State: OPEN/, 'cancelled epoch permits a fresh persisted epoch');
 
 const drifted = setup();
-drifted.handlers.review_inventory_begin({ storyId });
+cli(drifted.root, 'review_inventory_begin', { storyId });
 writeFileSync(join(drifted.root, 'packages/main/src/subject.ts'), 'export const subject = 2;\n');
 git(drifted.root, ['add', 'packages/main/src/subject.ts']);
 git(drifted.root, ['commit', '-m', 'mutate frozen review material']);
-assert.match(drifted.handlers.review_inventory_status({ storyId }), /State: INVALIDATED/);
+assert.throws(
+  () => cli(drifted.root, 'review_inventory_wave_advance', { storyId }),
+  /OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION|State: INVALIDATED/,
+  'real wave_advance detects frozen-cutoff drift before admission',
+);
+const driftedData = drifted.store.readReviewInventoryEpochs(storyId);
+assert.equal(driftedData.epochs[0].state, 'INVALIDATED', 'drift persists only the intentional invalidation');
+assert.equal(driftedData.epochs[0].waves.length, 0, 'drift rejection never persists a wave');
+assert.equal(driftedData.receipts.length, 0, 'drift rejection never mints a receipt');
 assert.throws(() => drifted.handlers.review_inventory_finalize({ storyId }), /no OPEN epoch/);
 
 const unsupported = setup();

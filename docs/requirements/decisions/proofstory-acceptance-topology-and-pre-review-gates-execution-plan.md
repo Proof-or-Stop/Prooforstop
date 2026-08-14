@@ -1597,6 +1597,10 @@ Implemented contract:
   `acceptance_rollout_report_read` and `acceptance_rollout_check` are read-only.
   DEV→REVIEW consumes the same evaluator. Observe, warn, and enforce keep the
   same status and ordered diagnostics; only enforce blocks.
+- This repository opts into that blocking boundary with
+  `proofStory.acceptanceRolloutGateMode=enforce`; therefore its current signed,
+  promotable full-3×2 report is lifecycle authority rather than diagnostic-only
+  review evidence.
 - Rollback changes only `proofStory.acceptanceRolloutGateMode` to `warn` or
   `observe`. It never deletes or rewrites a report, receipt, failed attempt, or
   prior evidence.

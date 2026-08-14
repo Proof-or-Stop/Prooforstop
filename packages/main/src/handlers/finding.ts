@@ -39,7 +39,11 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { currentOpenReviewInventory } from '../core/review-inventory-epoch.js';
+import {
+  assertReviewInventoryEvidenceWritable,
+  currentOpenReviewInventory,
+  withReviewInventoryMutationLock,
+} from '../core/review-inventory-epoch.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -354,7 +358,8 @@ function recordReviewPass(
   readEvidenceInput: ReadEvidenceInput = {},
   command = 'review_pass_set',
 ): string {
-  return withReviewPassLock(ctx, storyId, () => {
+  return withReviewInventoryMutationLock(ctx.store, storyId, () => withReviewPassLock(ctx, storyId, () => {
+    assertReviewInventoryEvidenceWritable(ctx.store, storyId);
     const story = ctx.store.readStory(storyId);
     const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
     const data = ctx.store.readReviewPasses(storyId);
@@ -470,7 +475,7 @@ function recordReviewPass(
       ? `\n⚠ provenanceFlag=${provenance.provenanceFlag}: writer session ${provenance.writerSessionId} (source=${provenance.sessionSource}) equals story owner lease session ${ownerLease?.sessionId} — subagent-or-self, not mechanically distinguishable (EXP-001); audit-only, no gate consumes it`
       : '';
     return `Review pass ${id} recorded by ${agent}${provenanceHint}${commitHint}`;
-  });
+  }));
 }
 
 export function createFindingHandlers(ctx: HandlerContext) {
@@ -553,7 +558,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
       // The readFindings → push → writeFindings critical section uses the
       // unified main lock for B-META and a per-story lock for normal stories.
-      const id = withMetaFindingLock(ctx, args.storyId, () => {
+      const writeFinding = () => withMetaFindingLock(ctx, args.storyId, () => {
         const data = store.readFindings(args.storyId);
         const nextNum = data.findings.length + 1;
         const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
@@ -599,6 +604,12 @@ export function createFindingHandlers(ctx: HandlerContext) {
         store.writeFindings(args.storyId, data);
         return fid;
       });
+      const id = reviewerLane
+        ? withReviewInventoryMutationLock(store, args.storyId, () => {
+            assertReviewInventoryEvidenceWritable(store, args.storyId);
+            return writeFinding();
+          })
+        : writeFinding();
 
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;

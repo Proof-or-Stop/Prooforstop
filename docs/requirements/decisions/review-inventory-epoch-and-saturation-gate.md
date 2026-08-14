@@ -202,6 +202,14 @@ semantics and REVIEW-to-DEV consumer are checked by
 `scripts/verify-process-fact-contract.mjs`. Prompt wording can guide the host,
 but only these CLI/handler/gate facts grant authority.
 
+Finalization also seals reviewer terminal evidence at the write boundary:
+`review_inventory_finalize`, reviewer `finding_add` / `review_pass_set`, and
+receipt consumption serialize on the same story lock. Once a valid FINALIZED
+receipt is pending, late reviewer evidence is rejected. Consumption additionally
+replays the current signed runs, terminals, finding dispositions, critic binding,
+family digest, and coverage digest; an out-of-band or crash-era late append fails
+with `REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED` and cannot publish DEV.
+
 ## Wave 4 authority boundary for this Story
 
 This repository configures executable pre-review in `observe` mode. Its signed
@@ -210,6 +218,9 @@ PASS or used as lifecycle authority. The mandatory Wave 4 acceptance authority
 for B-3f3d is the current signed `acceptance-rollout-report.json`: the registered
 producer executes the frozen matched cohort, and the read/check consumers
 verify current HEAD/material/story-files bindings plus genuine full-3x2 quorum.
+The repository sets `proofStory.acceptanceRolloutGateMode=enforce`, so DEV→REVIEW
+mechanically rejects a missing, stale, tampered, non-promotable, or degraded
+report; this authority is not supplied by this prose.
 Enforce-mode projects may additionally require a passing pre-review artifact;
 that separate configuration does not let this observe-mode Story claim
 pre-review authority.

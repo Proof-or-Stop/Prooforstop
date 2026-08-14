@@ -140,6 +140,35 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
+// ── 1b. A docs intent may carry a real verifier pin. Its subject remains docs,
+//         but command+selector earns the same mechanical receipt as any other
+//         executable verifier (B-3f3d F-025). ─────────────────────────────────
+{
+  const env = makeEnv([{ ref: 'INT-DOCS-PIN', type: 'docs' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOCS-PIN', kind: 'docs_check',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'mechanically verify documentation provenance',
+    });
+    let cl = env.store.readChecklist(env.storyId);
+    let ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DOCS-PIN');
+    assert.equal(ev?.mechanical, true, 'selector-bearing docs check is mechanical');
+    assert.equal(ev?.receipt?.selectorMatched, true, 'docs verifier selector matched real output');
+    assert.equal(cl.items[0].verificationIntent?.happy[0].type, 'docs', 'docs subject type is preserved');
+    assert.deepEqual(cl.items[0].verificationIntent?.happy[0].verification, {
+      command: PASS_CMD, selector: SELECTOR,
+    }, 'docs verifier is immutably pinned');
+
+    await env.handlers.verification_run({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOCS-PIN', note: 're-run pinned docs verifier',
+    });
+    cl = env.store.readChecklist(env.storyId);
+    ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DOCS-PIN');
+    assert.equal(ev?.mechanical, true, 'verification_run preserves mechanical docs authority');
+    assert.equal(ev?.kind, 'docs_check', 'receipt remains classified as documentation evidence');
+  } finally { cleanup(env); }
+}
+
 // ── 2. POSITIVE through verification_evidence_batch_add (parity). ───────────────
 {
   const env = makeEnv([{ ref: 'INT-B', type: 'cli' }]);

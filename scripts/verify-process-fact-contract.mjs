@@ -4249,6 +4249,27 @@ function assertReviewInventoryRemediationContract() {
     /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
     `${inventoryHandlerPath}: finalize must fail closed on new finding families instead of checkpointing implicitly`,
   );
+  assert(
+    /withReviewInventoryMutationLock/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize and wave persistence must use the shared reviewer-evidence lock`,
+  );
+
+  const findingHandlerPath = 'packages/main/src/handlers/finding.ts';
+  const findingHandlerText = read(findingHandlerPath);
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
+    `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and reject pending FINALIZED receipts`,
+  );
+  assert(
+    /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED[\s\S]*begin a fresh inventory epoch/.test(epochText),
+    `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
+  );
+
+  const projectConfig = read('lattice.config.json');
+  assert(
+    /"acceptanceRolloutGateMode"\s*:\s*"enforce"/.test(projectConfig),
+    'lattice.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
+  );
 }
 
 function extractExportedObjectBody(text, exportName, relPath) {
@@ -7775,7 +7796,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/checklist.ts',
-        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes'],
+        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes', 'hasExecutableVerifier', 'Boolean(intent.verification)', 'Boolean(callerSelector)'],
+      },
+      {
+        relPath: 'packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts',
+        patterns: ['INT-DOCS-PIN', 'selector-bearing docs check is mechanical', 'verification_run preserves mechanical docs authority'],
       },
       {
         relPath: 'packages/main/src/core/verification.ts',

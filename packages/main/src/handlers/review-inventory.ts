@@ -3,7 +3,6 @@ import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
 import {
   buildWave,
@@ -18,6 +17,7 @@ import {
   signReviewInventoryReceipt,
   validateReviewInventoryCriticReceipt,
   verifyReviewInventoryEpoch,
+  withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
@@ -35,9 +35,7 @@ function signEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'> | ReviewInventoryE
 }
 
 function inventoryLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  return withMkdirLock(ctx.store.runtimeLockDirPath(storyId, 'review-inventory', 'epochs'), fn, {
-    label: `review inventory ${storyId}`,
-  });
+  return withReviewInventoryMutationLock(ctx.store, storyId, fn);
 }
 
 function capture(ctx: HandlerContext, storyId: string) {
