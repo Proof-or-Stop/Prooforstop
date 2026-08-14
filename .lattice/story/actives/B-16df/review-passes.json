@@ -72,6 +72,30 @@
         "scanEscalationReason": null
       },
       "_hash": "14ab8d39077ad456faf2a59436d384cba20f05238e646d4c0015f1ba001d54ca"
+    },
+    {
+      "id": "B-16df:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 3: full diff since round-2 pass, following the post-97b03047c0 rework that closed F-001/F-006/F-007/F-008 (temp-dir cleanup, broken try/catch swallowing a real assertion, brittle exact-string check, fixtures not exercising the claimed code path); smoke now 45 assertions. checklist.ts diff unchanged from prior rounds (already reviewed clean): purely additive new export resolvePinnedCommandTimeoutMs plus a timeoutMs option threaded into 4 pre-existing runSingleAllowlistedCommand call sites - no identifier/concept renamed or removed. validate-command-timeout-smoke.ts vs round-2 state: only the 3 removed lines are pure docstring rewording of the same pre-existing concepts (process-group kill, hermetic tmp-dir isolation, lattice.config.json validate.commands registration), immediately re-expressed with more detail in the same docstring block; all other changes are additive (rmSync-in-try/finally cleanup, unguarded diff-content assertion moved outside the environment-only try/catch, regex-tolerant call-site count check, real dynamic-import fixture wiring). No concept deletion/replacement in this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-14T13:30:01.613Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-010",
+      "envelopeId": "e2fd72b844f910827143d393a322c6025807ad7837e48594e61166e0d4651633",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b17a6af7e93cd38550b066e9172f00730047b5a9cc2072e1e97bb542034bb05"
     }
   ]
 }
