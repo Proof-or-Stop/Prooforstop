@@ -1,0 +1,14 @@
+{
+  "story_advance/faa7c4c673df": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter INIT_CHECK: scope-freeze-check.json is stale relative to current scope/checklist/proposal inputs. [scope_freeze_check_stale]\n→ To see all INIT_CHECK prerequisites, run `lattice init_preflight --storyId=B-3f3d`.\n→ Rerun scope_freeze_check before creating the worktree.\n\nINIT_CHECK aborted: Story B-3f3d stays at INIT (phase not advanced; no worktree created).",
+    "lastAt": "2026-08-14T13:48:10.242Z"
+  },
+  "story_advance/4c61a614299c": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "INIT_CHECK aborted: Unable to create scoped story bootstrap commit for story/B-3f3d: error: unable to create temporary file: Operation not permitted\nerror: .lattice/story/actives/B-3f3d/background.md: failed to insert into database\nerror: unable to index file '.lattice/story/actives/B-3f3d/background.md'\nfatal: adding files failed. Please confirm the current repo has at least one commit and .lattice/story/actives/B-3f3d can be git added.\nStory B-3f3d stays at INIT (phase not advanced; no worktre",
+    "lastAt": "2026-08-14T13:48:21.598Z"
+  }
+}
