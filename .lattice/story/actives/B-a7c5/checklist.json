@@ -1135,7 +1135,11 @@
           },
           {
             "desc": "The doc documents section 4.3 registered-blocking-consumer-with-bypass-path pattern being exercised for the first time by a dev-memory consumer, satisfied via the existing reason-required decision values (captured/no-reusable-lesson/defer-with-reason) with no new bypass mechanism introduced; WHY: confirms the 4.3 precedent documentation was added as the plan requires",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"no new bypass mechanism was needed\\\") ? \\\"BYPASS_PRECEDENT_DOCUMENTED_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "BYPASS_PRECEDENT_DOCUMENTED_CONFIRMED"
+            }
           }
         ],
         "edge": [
@@ -1228,6 +1232,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:12.913Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"no new bypass mechanism was needed\\\") ? \\\"BYPASS_PRECEDENT_DOCUMENTED_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The same M8 annotation explicitly names this as the first concrete instance of section 4.3's registered-blocking-consumer-with-bypass-path pattern, satisfied via the existing reason-required decision values with no new bypass mechanism needed -- exactly this intent's claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7906ad69185e3c791fdda6fc2261afb266204b149e335459803e5afaea1dbe4d",
+            "outputTail": "BYPASS_PRECEDENT_DOCUMENTED_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:13.853Z"
+          },
+          "headHash": "e200b42cd2f6fefed1a095fe03000b10155f52f3",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:13.975Z"
         }
       ]
     },
