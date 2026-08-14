@@ -1,0 +1,9 @@
+{
+  "storyId": "B-3f3d",
+  "action": "escalate_root_cause",
+  "reason": "RI-006 bounded saturation isolated four architecture-level causes, especially the 10-second stale lock reclaim that overwrote durable reviewer evidence. Commit a270f209 replaces timestamp-only ordering with signed monotonic sequences, aggregates all eligible same-wave findings, serializes frozen scope revalidation, and uses token-bound heartbeat plus PID/process-start ownership. 54/54 pinned evidence and enforce full-3x2 rollout were re-executed on the repaired material; one final independent review round is now justified.",
+  "reviewRound": "2026-08-14T19:48:54.316Z",
+  "approvedBy": "lattice-owner",
+  "recordedAt": "2026-08-14T21:08:15.700Z",
+  "_hash": "c5d262517410c1d1da675567bc6c8aed9180d91acdc5e749c346a929f44fd3be"
+}
