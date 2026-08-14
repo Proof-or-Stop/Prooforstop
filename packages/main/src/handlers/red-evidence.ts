@@ -385,15 +385,20 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      a hook is not bounded by anything above: `spawnHook` in
      *      `core/hooks.ts` executes it through `/bin/sh -c` in the project root,
      *      so it can write RED or story evidence, append a process event, or
-     *      invoke a gate-mutating command. AND IT RUNS FIRST: in `cli-engine.ts`
-     *      the `await runHooks('onError', ...)` precedes the
-     *      `process.stderr.write('Error: ' + e.message)` that displays this
-     *      command's rejection report, so the operator reads the scope sentence
-     *      only AFTER the hook has already run. That ordering is why the
-     *      rejection text below states the scope and then discloses the hook,
-     *      rather than asserting an unqualified "nothing was written". Do not
-     *      "fix" this by adding a guard here: the onError call site is
-     *      class-wide and belongs to a separate change.
+     *      invoke a gate-mutating command. AND THE REPORT STRADDLES IT, because
+     *      the catch block in `cli-engine.ts` prints the report TWICE: it OPENS
+     *      with a `log(...)` failure diagnostic carrying `e.message`, which is
+     *      emitted BEFORE `await runHooks('onError', ...)`, and CLOSES with the
+     *      `process.stderr.write('Error: ' + e.message)` that follows the same
+     *      await. So the first copy predates the hook and the second postdates
+     *      it, and nothing in the text distinguishes them — a reader cannot tell
+     *      which copy is in front of them. That is why the rejection text below
+     *      states the scope and then discloses BOTH prints, rather than
+     *      asserting an unqualified "nothing was written" or a single ordering.
+     *      Do not "fix" this by adding a guard here, and do not move or drop
+     *      either print site to make a tidier claim true: the onError call site
+     *      and its surrounding diagnostics are class-wide and belong to a
+     *      separate change.
      *   2. ONE ACTIVITY ROW MAY BE APPENDED. The shared CLI entrypoint still
      *      appends one generic session row to `.lattice/activity.jsonl` when
      *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
@@ -414,8 +419,12 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      `owner-session-token-store` artifact.
      *   4. THE HEALTH LOG. When activity or hook persistence FAILS,
      *      `reportHealthIssue` (`core/health.ts`) appends one JSONL row to the
-     *      health log — `~/.lattice/health.jsonl` by default, overridable via
-     *      `LATTICE_HEALTH_PATH` — outside the project tree.
+     *      health log — `~/.lattice/health.jsonl` by default, which is outside
+     *      the project tree. Only the DEFAULT is: `getHealthPath` returns
+     *      `LATTICE_HEALTH_PATH` verbatim when set, with no containment check,
+     *      so an override can name a path inside the story directory. The note
+     *      in `cli/activity-policy.ts` states what that does and does not do to
+     *      the scope sentence.
      *
      * IT DOES SPAWN, and the set is enumerated here because a claim nobody can
      * check is worth nothing (the committed regression
@@ -507,7 +516,8 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
           `Matched binding: adapterId=${result.binding?.adapterId ?? '<none>'} testCaseRef=${result.binding?.testCaseRef ?? '<none>'} (committed tree, HEAD)`,
           `assertionDigest: ${result.assertionDigest}`,
           `policyDigest: ${policyResult.policyDigest}`,
-          'This check is read-only: it validated the envelope and executed no envelope and no RED run. It does spawn read-only git reads to resolve the workspace and read the committed binding. Running the RED evidence is a separate step.',
+          'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness.',
+          'It validated the envelope and executed no envelope and no RED run. It does spawn read-only git reads to resolve the workspace and read the committed binding. Running the RED evidence is a separate step.',
         ].join('\n');
       }
 
@@ -521,7 +531,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
         'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Fix the envelope before spending a run.',
-        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts AWAITS any configured onError hook BEFORE printing it. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
+        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts prints it TWICE on this path — once as a failure diagnostic BEFORE any configured onError hook runs, and once again AFTER that hook has been awaited — so the copy in front of you may or may not postdate the hook. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },

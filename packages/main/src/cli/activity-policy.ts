@@ -71,7 +71,17 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      the activity path can cause.
   //   D. THE HEALTH LOG. When activity or hook persistence FAILS, reportHealthIssue
   //      (core/health.ts) appends one JSONL row to the health log — ~/.lattice/health.jsonl
-  //      by default, overridable via LATTICE_HEALTH_PATH — outside the project tree.
+  //      by default, which is outside the project tree. THE DEFAULT IS THE ONLY
+  //      THING THAT IS OUTSIDE IT: getHealthPath in core/health.ts returns
+  //      LATTICE_HEALTH_PATH VERBATIM when set, with no project-tree containment
+  //      check and no suffix or shape constraint, and reportHealthIssue then
+  //      mkdirs the parent and appends there. So an override may name a path
+  //      INSIDE .lattice/story/actives/<id>/ — including an existing gate or
+  //      evidence artifact — and a matching onError hook that exits non-zero is
+  //      one route that reaches reportHealthIssue. The remedy is not a claim
+  //      here: describing this surface does not constrain it, and adding a
+  //      containment check would be a behaviour change belonging to its own
+  //      story.
   // What holds without qualification is the narrower contract in
   // core/command-policy.ts. THIS IS THE CANONICAL SCOPE SENTENCE, and it is
   // repeated word for word everywhere the guarantee is stated:
@@ -79,17 +89,42 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //   it writes no RED-evidence record, chain record or story/evidence artifact,
   //   emits no process event, changes no gate verdict, and runs no preCommand or
   //   postCommand hook.
+  // THOSE COPIES ARE HAND-MAINTAINED, so the set is DECLARED here: this file;
+  // cli/command-catalog.ts (command description); core/command-policy.ts (policy
+  // reason); core/config.ts; core/process-fact-levels.ts (level rationale);
+  // core/process-fact-registry.ts; registry.ts; handlers/red-evidence.ts (handler
+  // docblock, ADMISSIBLE report footer, rejection report footer);
+  // tasks/red-evidence-envelope-smoke.ts; tests/red/red-w2d-command-readonly.mjs
+  // (file header, ownershipClass assertion message) — thirteen statements in ten
+  // files when this was written. A SINGLE EXPORTED CONSTANT WAS CONSIDERED AND
+  // NOT TAKEN: most of those statements are comments, which no constant can
+  // deduplicate, and the rest are literals in registration tables whose readers
+  // need the guarantee legible at the entry rather than behind an import. What
+  // keeps them in step is this declared set, the pointer back to this note that
+  // each copy carries, and the committed assertion in
+  // tests/red/red-w2d-command-readonly.mjs. None of that catches a NEW site that
+  // restates the guarantee in ITS OWN words; only a scanner would, and none is
+  // built.
   // Read "the CLI story-evidence writers" as exactly what the name says: the
   // writers that put story records, chain records, evidence artifacts and story
-  // process events under the story directory. That subject is decidable against
-  // this repository rather than against the prose around it, and A-D above fall
-  // outside it BY CONSTRUCTION, not by being re-listed as exceptions: the
-  // onError hook is arbitrary shell that the CLI only invokes, while the
-  // activity log, the owner-session token store and the health log are
-  // registered as RUNTIME artifacts (core/runtime-artifact-registry.ts) or live
-  // outside the project tree entirely. Nothing outside that scope is covered,
-  // and this note is the authoritative one: A-D are the surfaces known when it
-  // was written and are not a proof of exhaustiveness.
+  // process events under the story directory. That subject is a NOMINAL PROSE
+  // CATEGORY — a named set of writers — and NOT a destination-decidable one:
+  // you cannot settle membership by looking at where the bytes land. A-D fall
+  // outside it because of WHAT WRITES THEM, not because of WHERE THEY WRITE:
+  // the onError hook is arbitrary shell that the CLI only invokes, and the
+  // activity log, the owner-session token store and the health log are written
+  // by runtime writers, the first two registered as RUNTIME artifacts in
+  // core/runtime-artifact-registry.ts. The destination argument is what breaks,
+  // and D is where it breaks: the health log is outside the project tree ONLY
+  // under its default path, LATTICE_HEALTH_PATH is unconstrained, and under
+  // such an override the built-in health writer can land a row on a story
+  // artifact. That override does not make the health writer a story-evidence
+  // writer, so the canonical sentence still holds as stated; it does mean the
+  // scope must be read as WHO WRITES, and that no reader should infer from it
+  // that nothing outside the named writers can ever touch the story directory.
+  // Nothing outside that scope is covered, and this note is the authoritative
+  // one: A-D are the surfaces known when it was written and are not a proof of
+  // exhaustiveness.
   'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
