@@ -1394,7 +1394,11 @@
           },
           {
             "desc": "The annotation does NOT introduce new Non-Goals, remove existing Non-Goals, or modify the other four Non-Goal bullet points (lines 160-162, 164) -- only the gate-checks bullet (line 163) gains the annotation; WHY: the change is scoped to one specific Non-Goal line, not a general Non-Goals rewrite",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+              "selector": "Dev-memory does NOT replace `docs/requirements/decisions/` for architectural decisions."
+            }
           },
           {
             "desc": "The annotation does NOT claim or imply that DevMemoryEntry rows themselves can satisfy any gate (delivery_check_set, verification_evidence_add, review_pass_set, etc.) -- the existing Non-Goal and the Purpose section non-negotiable list remain intact and un-weakened; WHY: the annotation must clarify a distinction, not accidentally weaken the fundamental non-authoritative guarantee",
@@ -1492,6 +1496,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:22.709Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+          "result": "pass",
+          "note": "This other Non-Goal bullet appears as unchanged context in the diff (no +/- around it), and the diff's single hunk only adds lines after the gate-checks bullet -- proving the other three Non-Goal bullets were not modified, only the one line gained an annotation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ec4d61aedea25b92de7ce06a80f18a58f9578027600660131ccb31c048416474",
+            "outputTail": "diff --git a/docs/requirements/decisions/dev-memory.md b/docs/requirements/decisions/dev-memory.md\nindex 6f2e20e5d7..03ff160a14 100644\n--- a/docs/requirements/decisions/dev-memory.md\n+++ b/docs/requirements/decisions/dev-memory.md\n@@ -161,4 +161,29 @@ These fields are a reminder baked into every entry. A consumer that tries to int\n - Dev-memory does NOT replace `docs/requirements/decisions/` for architectural decisions.\n - Dev-memory does NOT generate signed artifacts of any kind.\n - Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.\n+\n+  > **Delivered differently (B-a7c5):** this bullet is still true, verbatim,\n+  > for `DevMemoryEntry` JSONL rows (the entries this doc otherwise\n+  > describes) — no entry's `gateEvidence`/`authority` fields are ever read\n+  > by a gate, and no lesson CONTENT is ever surfaced as gate evidence.\n+  > B-a7c5 introduces two structurally SEPARATE artifact types that ARE\n+  > gate-checked: `dev-memory-preflight-ack.json` (one per story, written by\n+  > `dev_memory_preflight_ack`, checked by `evaluateDevMemoryPreflightGate`\n+  > at every DEV-entry door) and the `dev_memory_finish_decision` record\n+  > under `.lattice/dev-memory/finish-decisions/` (checked by\n+  > `canFinishGuard`, the DONE gate). Neither is a `DevMemoryEntry`. The\n+  > preflight-ack record carries no `gateEvidence`/`authority` fields at all\n+  > (it never claimed non-authoritative status over lesson content in the\n+  > first place); the finish-decision record still carries its pre-existing\n+  > `gateEvidence:false`/`authority:non_authoritative` fields describing\n+  > LESSON CONTENT's status (unchanged by B-a7c5), but neither gate reads\n+  > those fields — both gates check only whether a reflection record\n+  > EXISTS at all (\"did the ritual of consulting/reflecting happen\"),\n+  > structurally identical in kind to `summary_set` (also a required\n+  > attestation, not itself code-correctness evidence) — never the lesson\n+  > text inside it, and never the record's own self-declared authority\n+  > fields. This bullet's guarantee about entry CONTENT is unweakened: no\n+  > gate anywhere reads a `DevMemoryEntry`'s `lesson`/`summary`/`trigger`\n+  > fields, and no gate is satisfied by what a captured lesson says.\n+\n - Dev-memory is NOT a replacement for proper test coverage or REVIEW reviewer findings.\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:23.739Z"
+          },
+          "headHash": "23f430eff1bc1d5923040249876b08938a2a475d",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:23.866Z"
         }
       ]
     },
