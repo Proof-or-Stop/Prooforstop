@@ -638,6 +638,59 @@
         "scanEscalationReason": null
       },
       "_hash": "4e662779456581b3236b632b79d0cd61cbe4d2ed60df673da5409bb883160551"
+    },
+    {
+      "id": "B-9ff1:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "F-037 repair verified. (1) Canonical scope sentence present verbatim in all 10 files: wrote a whitespace/comment-marker-normalizing script (open full file, strip leading //, /*, */, * per line, collapse runs of comments and join with a single space) then substring-matched the exact canonical text; hit in all 10 files (red-evidence.ts has 2 sites: doc comment + the actual thrown rejection string), avoiding the line-wrap trap that bit me last round. Pointer sentence to activity-policy.ts present at 9/10 sites (activity-policy.ts is the authoritative source and correctly omits pointing at itself). (2) Boundary judged against source, not prose: onError -> core/hooks.ts spawnHook runs cmd via /bin/sh -c as arbitrary shell (confirmed); the activity-log and owner-session-token-store are both entries in core/runtime-artifact-registry.ts (RUNTIME_ARTIFACT_REGISTRY ids runtime-activity-log / owner-session-token-store, confirmed); the health log defaults to homedir()/.lattice/health.jsonl outside the project tree (core/health.ts, confirmed). A-D fall outside 'the command handler itself and the CLI story-evidence writers' by construction; the boundary is decidable and the objection from prior rounds is discharged. (3) Ordering: cli-engine.ts line ~1523 'await runHooks(onError, ...)' precedes line ~1526 'process.stderr.write(Error: + e.message)' verbatim, matching the rejection footer's 'AWAITS any configured onError hook BEFORE printing it' and 'by the time you read this line it may already have been overtaken' -- footer conveys tense, not just scope; F-038 is discharged. (4) Frozen-artifact disclosure list confirmed complete: swept all 26 files under .lattice/story/actives/B-9ff1/ for boundary/scope language (hook, activity, surfaces, guarantees, persistence path, choke point); only scope-contract.json ('appends no hook, no activity log and no process event') and checklist.json CHK-012:edge:0 ('read-only command never mutates state') plus, per F-040, plan.md/understanding.json/proofstory.json (older 'changes no gate verdict...no chain record' scoping) carry it -- exactly the 5 named. Ledger files (findings.json, review-passes.json, review-runs.json, process-events.jsonl, prompt-envelopes.json) appropriately retain the old text verbatim as audit trail. Process/administrative files (background.md, decision.json, execution-boundary.json, review.json, scope-boundary.json, scope-check.json, scope-freeze-check.json, acceptance-basis.json, intent-collision.json, original-intent-snapshot.json, init-check.json, init-self-check.json, index.json) carry zero boundary-scope claims. No 6th file. (5) node packages/main/dist/tasks/red-evidence-envelope-smoke.js -> OK, exit 0. check-selectors.py (repaired: models exit-code+timeout+12000-char cap+ANSI strip) -> 108 pins, 106 checked (2 permanently waived), all 7 distinct commands exit 0 with selector present, none truncated (max 89.0% of cap) -> OK, exit 0. Commit 8aa435b confirmed text-only via diff-line inspection: every changed line across all 10 files is a comment, docstring, or string-literal field (description/reason/assert-message/thrown-report text); no control flow, signature, or export changed. No blockers.",
+      "createdAt": "2026-08-14T10:41:34.113Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-036",
+      "envelopeId": "9f137aa2e90102c238601772e40cdb7c0759050404399863796f630dcdb6acca",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/plan.md",
+          ".lattice/story/actives/B-9ff1/proofstory.json",
+          ".lattice/story/actives/B-9ff1/scope-contract.json",
+          ".lattice/story/actives/B-9ff1/understanding.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/acceptance-basis.json",
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/decision.json",
+          ".lattice/story/actives/B-9ff1/execution-boundary.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/index.json",
+          ".lattice/story/actives/B-9ff1/init-check.json",
+          ".lattice/story/actives/B-9ff1/init-self-check.json",
+          ".lattice/story/actives/B-9ff1/intent-collision.json",
+          ".lattice/story/actives/B-9ff1/original-intent-snapshot.json",
+          ".lattice/story/actives/B-9ff1/review.json",
+          ".lattice/story/actives/B-9ff1/scope-boundary.json",
+          ".lattice/story/actives/B-9ff1/scope-check.json",
+          ".lattice/story/actives/B-9ff1/scope-freeze-check.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/health.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8db5e28360a3909d597f311e6a021738c345a285692b8db8683a6226a52cee03"
     }
   ]
 }
