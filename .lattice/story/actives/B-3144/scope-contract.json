@@ -68,10 +68,26 @@
       "phase": "DEV",
       "headHash": "e2018b01c7c73bca090b6452fc3760ae5202e2bf",
       "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-3144's cli-engine.ts changes (quorum_prune CLI wiring) shifted the file's whole-file structural fingerprint that retired-authority-vocabulary-guard-smoke.ts pins to approve the benign runCli dynamic import. Repinned to the current fingerprint (same B-1507 precedent pattern already in that file) so the guard smoke stops false-flagging an unchanged call site; this necessarily touches this one file, outside the original code-change scope.",
+      "timestamp": "2026-08-14T05:37:26.925Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a284292584ea11db9ced85b581772601647c90f9",
+      "materialHash": "e8687f64fbd12474643ec3a3781804809166e2e32bd11d1deb83ac4e90a0c33f"
     }
   ],
   "createdAt": "2026-07-24T20:12:00.926Z",
-  "updatedAt": "2026-08-14T04:56:37.031Z",
+  "updatedAt": "2026-08-14T05:37:26.925Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -85,6 +101,7 @@
     "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "docs/evidence-integrity-program-spec.md": "docs/evidence-integrity-program-spec.md",
-    "docs/evidence-write-guard-spec.md": "docs/evidence-write-guard-spec.md"
+    "docs/evidence-write-guard-spec.md": "docs/evidence-write-guard-spec.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
