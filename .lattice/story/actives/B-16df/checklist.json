@@ -448,21 +448,23 @@
           "intentRef": "E-001",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 9, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch (see other 31 waivers on this story for full context). CORRECTED per REVIEW finding B-16df:F-008: section 9 originally used a fixture that accidentally took the shell-style code path (same as section 10/E-003), not the plain bare-string path. Fixed in commit 97b03047c0 - the fixture is now node --version (no shell metacharacters), genuinely exercising the non-shell branch and confirmed via a new structural check. Passes as part of the 45-assertion suite.",
+          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:25:57.604Z"
         },
         {
           "intentRef": "E-002",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b (parsing parity exercised throughout), part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: this claim (tokenizeCommandString/splitShellWords parsing parity) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 15: a bare-string config entry with irregular whitespace/quoting is matched against the canonical pinned command form, proving both tokenizers normalize equivalently for allowlist-legal input. Passes as part of the 45-assertion suite.",
+          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:25:57.604Z"
         },
         {
           "intentRef": "E-003",
@@ -498,11 +500,12 @@
           "intentRef": "A-001",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b (matching logic exercised throughout), part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: this claim (whitespace/quoting evasion resistance) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 15 (same case as E-002): extra whitespace/quoting around an otherwise-plain command still resolves to the correct timeoutMs, proving formatting tricks cannot evade matching. Passes as part of the 45-assertion suite.",
+          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:25:57.604Z"
         },
         {
           "intentRef": "A-002",
@@ -675,11 +678,12 @@
           "intentRef": "CHK-003:edge:1",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: args-length strict-prefix mismatch (distinct from edge:2's equal-length content mismatch) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 16: a pinned command using only a strict prefix of a configured entry's args correctly resolves to undefined, not a partial match. Passes as part of the 45-assertion suite.",
+          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:25:57.604Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
