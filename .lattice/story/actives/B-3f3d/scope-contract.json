@@ -124,10 +124,30 @@
         "review_inventory_critic_set",
         "canReenterDevGuard"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The shared signed ReviewRun evidence validator is the authoritative persistence boundary used by both review_pass_set and finding_add. Calling assertReviewInventoryCutoff here is required so an OPEN epoch detects live material drift immediately before either form of reviewer evidence can be accepted.",
+      "timestamp": "2026-08-14T15:00:50.892Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "281009ed51524ab7126f4089e1159bde281d446e",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "assertCurrentReviewRunForEvidence",
+        "assertReviewInventoryCutoff"
+      ]
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T14:51:10.203Z",
+  "updatedAt": "2026-08-14T15:00:50.892Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -171,6 +191,7 @@
     "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
-    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts"
   }
 }
