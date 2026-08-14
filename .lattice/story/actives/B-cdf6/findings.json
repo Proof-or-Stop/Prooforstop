@@ -1160,6 +1160,24 @@
       "resolvedAt": "2026-08-14T13:50:47.901Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-055",
+      "desc": "doc-code-drift: packages/main/src/core/auto-commit-metadata.ts:25 docblock (preMortem #3 anchor, Vocabulary section) still reads \"User-visible prefix is the literal `\\n\\u2713 lattice metadata auto-committed:`\", but the exported constant it describes three lines below (line 67, AUTO_COMMIT_METADATA_PREFIX) has already been renamed to `\\n\\u2713 proof-or-stop metadata auto-committed:` by this story's own F-047 fix (commit 8f42f1113e). The comment explicitly claims to state the literal value (\"is the literal\"), so it is now a stale docs-vs-code claim inside the same file, in the exact vocabulary-pinning block this story's own preMortem says exists to keep callers/tests aligned on the real string.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T13:56:22.667Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-077",
+      "_hash": "6d6cc6d958e7d901ceaeb009093511b4515be911c8a39fafc9ecb1d99ebe9f2c",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
