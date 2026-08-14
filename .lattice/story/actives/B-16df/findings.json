@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-16df:F-001",
+      "desc": "packages/main/src/tasks/validate-command-timeout-smoke.ts:119,158,177 — new sections 6/7/8 create 3 fresh temp project roots via mkdtempSync(...) (each holding a written lattice.config.json) but never clean them up (no rmSync import/call anywhere in the file), unlike ~95% of comparable smoke tasks in packages/main/src/tasks/ (213/223 files using mkdtempSync also call rmSync, e.g. audit-esm-smoke.ts:7,37 which does `rmSync(root, { recursive: true, force: true })`). Because this file is registered in lattice.config.json validate.commands (line 59, focus: fast) and therefore runs on every `lattice validate` invocation going forward, this leaks 3 stray tmpdir directories per run indefinitely — a real, compounding resource-hygiene regression, not a one-off test artifact.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T12:29:44.791Z",
+      "reviewRound": "2026-08-14T12:21:00.555Z",
+      "reviewRunId": "B-16df:RR-002",
+      "_hash": "8bbaccc8db709b00c265f9abd06694cccf6b0abbd9c9511af4f4b8909630eac4",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
