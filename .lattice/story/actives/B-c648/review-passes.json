@@ -114,6 +114,37 @@
         "scanEscalationReason": null
       },
       "_hash": "2f136274809601057470b6af5b6e46357d5914c98284e0d255b41635c6f5db24"
+    },
+    {
+      "id": "B-c648:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Diff is additive-only (new decision doc + Lattice story metadata); no concept word was deleted or replaced en masse, so no residual-reference grep applies. Verified referenced handlers/scripts/artifact-kind names (story-evidence-binding, verifyAcceptanceBasisReceipt, evidence-candidate scope, story-create/story-draft/draft-check/planner/repro-intake handlers) exist in repo, and re-ran all CHK-001/002/003 happy/edge/adversarial mechanical selector checks plus the llm-usage.jsonl ledger bindings, all pass. No acceptance-rollout-gate touchpoints in this diff.",
+      "createdAt": "2026-08-14T05:09:01.325Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-011",
+      "envelopeId": "efda32bcd7479e6da4ad63ceeac88811f30bf126436ba19cc56ffbc03ba10069",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6f047b76e34d410e88ee3f9ed71203c8ada381cfe1c27dc31bdfaac618fab18e"
     }
   ]
 }
