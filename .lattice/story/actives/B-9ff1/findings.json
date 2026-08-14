@@ -532,6 +532,21 @@
       "_hash": "bd0cf2092f41acf930d51a019acae1f560c0259bae6d55ab6c971181d28e9792",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-025",
+      "desc": "[codex host-B C2] Verified by main agent. Blanket 'runs no hook' is false: only preCommand (cli-engine.ts runHooks preCommand) and postCommand are gated on !isReadOnlyCommand. The onError call site has no such predicate - its only guard is config0?.hooks?.onError - so a configured onError hook DOES run whenever the command throws. The inadmissible-envelope path throws by design, so this is the command's PRIMARY failure route, not an edge case. Four Claude lanes each verified the two gated call sites and generalised from them; none found the third. Affected: handlers/red-evidence.ts docstring, tasks/red-evidence-envelope-smoke.ts registration assertion, tests/red/red-w2d-command-readonly.mjs header and assertion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:56.046Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "2e6ec3b6834eb2b8be401f040562ec752f8c31436a2cbf6c010d7d97c94b77b6",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
