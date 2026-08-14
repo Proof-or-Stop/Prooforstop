@@ -262,11 +262,12 @@
       "q": "Does CHK-003's hard-blocking DONE gate for dev_memory_finish_decision conflict with the pre-existing playbook-runtime-memory-consumption-execution-plan.md M8 design, which specifies the same capture-or-noop decision as an ADVISORY reminder, and with that plan's Non-Goal 'Do not make every advisory reminder a hard blocker'? B-a7c5's decision.json explicitly overrides the dev-memory entry's own generic gateEvidence:false/authority:non_authoritative framing, but does not cite or reconcile with this specific pre-existing M8 milestone text or its Non-Goals/Acceptance-Table rows.",
       "evidence": "M8 tests: 'missing decision is visible in runbook/advisory output; no-op decision is accepted with reason'. Non-Goals: 'Do not make every advisory reminder a hard blocker.' Acceptance table: 'No evidence confusion | All packs remain gateEvidence:false and authority:non_authoritative.' B-a7c5 decision.json: 'This is a deliberate, explicit override of the artifact's own self-declared authority: non_authoritative / gateEvidence: false fields ... record this override explicitly in code comments so it isn't mistaken for a bug later.'",
       "sourcePointers": [
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md:459-476 (M8 Capture-Or-Noop Decision)",
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md:51 (Non-Goals)",
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md:662-676 (Acceptance Table)",
-        ".lattice/story/actives/B-a7c5/decision.json:103-110"
-      ]
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "plan.md",
+        "decision.json"
+      ],
+      "resolution": "Deliberate, recorded escalation, not an accidental conflict. playbook-runtime-memory-consumption-execution-plan.md M8 shipped the dev_memory_finish_decision MECHANISM (command + record shape) as advisory-only, but never wired any CONSUMER to treat its absence as blocking -- that gap is exactly what this story closes. The escalation is scoped narrowly (this ONE command's presence, for THIS ONE consumer, the DONE gate) and stays inside Non-Goal #4's actual boundary ('do not let dev-memory or playbooks satisfy... DONE... evidence gates') because the gate requires a RECORD OF REFLECTION having happened, not that any LESSON's content be treated as proof of correctness -- structurally identical to summary_set, an existing required attestation that is not itself code-correctness evidence. plan.md's Reconciliation section documents this in full, and the spec doc itself will be updated (CHK-003 sub-task 6) to describe the delivered, escalated behavior rather than leaving the original advisory-only M8 text as a misleading stale description.",
+      "resolvedAt": "2026-08-14T10:40:22.235Z"
     },
     {
       "id": "OQ-2",

@@ -1,5 +1,58 @@
 # Plan: dev-memory lifecycle gates (B-a7c5)
 
+## Reconciliation with the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec (OQ-1, OQ-2)
+
+The PLAN scope reviewer found `docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`
+(specifically M8 "Capture-Or-Noop Decision" and section 4.3 "Active Playbook
+Runtime"). This is real prior architecture and must be reconciled, not
+overridden silently:
+
+- M8's own acceptance tests describe `dev_memory_finish_decision` as advisory
+  ("missing decision is visible in runbook/advisory output"), and the doc's
+  Non-Goals list includes "Do not make every advisory reminder a hard
+  blocker." CHK-003 deliberately escalates ONE specific, narrow use of that
+  same command (the end-of-story finish-decision) from advisory to blocking.
+  This is a knowing, recorded escalation of M8's original scope, not an
+  accidental conflict -- it exists because M8 shipped the *mechanism*
+  (the command + record shape) but never wired any *consumer* to treat its
+  absence as blocking, which is exactly the gap the user's requirement (a
+  genuine backstop, not just a visible-but-ignorable reminder) needs closed.
+- Section 4.3 independently establishes the CORRECT shape for introducing
+  blocking behavior around memory-adjacent systems: blocking must come from "a
+  committed, reviewable consumer policy row," never from memory content
+  itself, and "registered blocking consumers must expose an operator-visible
+  bypass or downgrade path with a reason." CHK-003 already satisfies this
+  exactly: `decision=defer-with-reason` (or `no-reusable-lesson`, itself a
+  reasoned downgrade) IS the bypass path, gated on a required ≥5-char reason
+  field per the existing dev_memory_finish_decision schema. No new bypass
+  mechanism is needed for CHK-003; it already conforms to 4.3's pattern.
+- CHK-001 did NOT originally have an equivalent bypass path -- if the
+  underlying preflight-pack build itself fails (corrupt experience.jsonl,
+  filesystem error), a purely mechanical "artifact missing" check would block
+  DEV entry with no recourse. Per section 4.3's own bypass-path requirement,
+  add one: `dev_memory_preflight_ack` accepts an optional `--reason` (≥5
+  chars) that, when the mechanical preflight pack build throws, still writes
+  the ack artifact with `packDigest: null`/`topHitIds: []` and the given
+  reason recorded -- an explicit, reasoned downgrade, not a silent skip. The
+  DEV-entry gate accepts either a normal ack OR a reasoned-failure ack.
+- This story's own decision.json's stated override ("a deliberate, explicit
+  override of the artifact's own self-declared authority:non_authoritative /
+  gateEvidence:false fields") stands, refined by the above: those fields
+  describe dev-memory CONTENT's non-authoritative status (Non-Goal: "do not
+  let dev-memory or playbooks satisfy... DONE... evidence gates" -- i.e. you
+  cannot cite a LESSON as proof something was verified). CHK-003 does not do
+  that -- it requires a RECORD OF REFLECTION having happened, structurally
+  identical in kind to summary_set (also a required attestation, not itself
+  code-correctness evidence). This distinction is what keeps CHK-003 inside
+  the spirit of the Non-Goal while still closing the real gap.
+- Because this constitutes a genuine, deliberate widening of M8's originally
+  advisory-only scope, `docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`
+  itself must be updated (not just this story's own artifacts) to describe
+  the actually-delivered, escalated behavior -- otherwise the next reader of
+  that spec is misled the same way B-3144's F-030 finding showed a stale
+  pre-merge design doc can mislead. Added as an explicit sub-task under
+  CHK-003 below.
+
 ## Architecture decision: shared core module, no core→handlers inversion
 
 `dev_memory_finish_decision`'s path-builder (`finishDecisionPath`) and record shape
@@ -48,7 +101,18 @@ core/machine.ts:286-378).
    (1188-1293), same slot as the existing `proofStoryDevGateFailure` check
    (1236-1237): `Cannot enter DEV: dev-memory preflight has not been acknowledged
    for this story. [missing_dev_memory_preflight_ack] → Run \`lattice
-   dev_memory_preflight_ack --storyId=<id>\` first.`
+   dev_memory_preflight_ack --storyId=<id>\` first (or, if the preflight pack
+   build itself is failing, --reason="<why>" to record a reasoned downgrade).`
+7. **Bypass path (section 4.3 compliance)**: `dev_memory_preflight_ack` accepts
+   an optional `--reason` (≥5 chars). Normal path: build the pack, write
+   `packDigest`/`topHitIds` from a real successful build. Reasoned-downgrade
+   path: if the pack build throws AND `--reason` is provided, write the ack
+   with `packDigest: null`, `topHitIds: []`, `downgradeReason: <reason>` --
+   still satisfies the gate, but visibly and honestly, not silently. If the
+   pack build throws and NO `--reason` is provided, the command still fails
+   (does not silently ack) -- the reason is mandatory for the downgrade path,
+   exactly mirroring `dev_memory_finish_decision`'s existing requirement that
+   `no-reusable-lesson`/`defer-with-reason` need a reason.
 
 ## CHK-002 — non-blocking advisory reminder on finding_resolve
 
@@ -108,6 +172,16 @@ precedent to mirror.
    ever consume presence-of-a-record as a completeness signal) -- record this
    override explicitly in code comments at the new gate-check site so it isn't
    mistaken for a bug later.
+6. **Spec doc update (required, see Reconciliation section above)**: update
+   `docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`'s
+   M8 section to describe the actually-delivered behavior (finish_decision
+   presence is now a required, blocking DONE-gate check, not purely advisory
+   runbook output as originally scoped), and note in section 4.3's context
+   that this is the first concrete instance of that section's
+   registered-blocking-consumer-with-bypass pattern being exercised for a
+   dev-memory (not playbook) consumer. Preserve the original M8/4.3 text as
+   historical design rationale (mirror the "Delivered differently" callout
+   pattern used in B-3144's own doc fix, docs/evidence-write-guard-spec.md).
 
 ## Testing strategy
 
