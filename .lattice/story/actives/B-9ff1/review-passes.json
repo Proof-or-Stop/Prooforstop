@@ -962,6 +962,43 @@
         "scanEscalationReason": null
       },
       "_hash": "137d1f6be3b2f8f6a0ad438aa2dce5474e77918f6840d5e7c9c6761269453e29"
+    },
+    {
+      "id": "B-9ff1:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 confirmed. Diff (82abb47b, 4 files, comments/strings only) is inert: verified line-by-line, no control-flow or structural change. tsc --noEmit -p packages/main clean; verify-process-fact-contract.mjs verified; smoke exit 0; all five red-w2d-*.mjs PASS exit 0. Declared set is fourteen statements in ten files as claimed. Verified via AST constant-folding (TypeScript compiler API, resolving template-literal/string-concat expressions to their runtime value) plus direct reads for comment-only sites: the canonical scope sentence is byte-identical, verbatim, in all fourteen. The pointer sentence is present in thirteen of fourteen; the fourteenth is the sentences origin in cli/activity-policy.ts itself, which cannot meaningfully carry a pointer back to itself — not a defect, the note is read as every copy AWAY from the origin, consistent with how F-049 fixed a missing pointer at a genuine copy (the rejection footer), not at the origin. Two sites (core/config.ts comment, red-w2d-command-readonly.mjs ownershipClass assertion) end the pointer clause without the trailing period the others carry; cosmetic only, does not touch the canonical sentence (which is the only piece the note promises verbatim), not raised as a finding. Instrument adjudication: the cross-vendor thirdgap claim is real, reproduced directly (Buffer#toString per chunk: splitting the 3-byte euro sign 1|2 across a chunk yields 3 replacement units for 1 correct one, net +2, matching the 12000->12002 claim exactly; splitting the 2-byte section sign 1|1 yields net +1). Spawning the actual 7 pinned commands and counting real stdout data events shows they already arrive in many small chunks (5 to 33 per run, boundary position non-deterministic run to run) - not a rare 64KB-alignment coincidence as framed; ordinary multi-chunk delivery already happens today. It is nonetheless inert today, on a headroom argument rather than an improbability argument: the closest pin to the cap (red-w2d-rejection-matrix.mjs, 89.0% / 10680 of 12000 units, confirmed by direct run) carries about 1300 spare units and its only non-ASCII content is four 2-byte section-sign characters, so even a worst-case simultaneous split of all four adds only about 4 units - nowhere near enough to reach the cap. That is a materially different justification than gaps 1 and 2 (which are structurally, statically true of the current pins - bare node invocations, deterministic output - and cannot be invalidated by an unrelated future edit); gap 3s inertness is a numeric margin that shrinks if a near-cap pins output grows or gains more non-ASCII content, and should be re-checked then, not treated as permanent. This is not a checker-fidelity issue at all in the usual sense: it exposes a real, currently-harmless non-determinism in validation-executor.ts (child.stdout.on(data) calling Buffer#toString() per arriving chunk instead of accumulating raw bytes for one decode, or using a proper streaming decoder), which no improvement to the Python checkers own decode strategy could close, since the checker structurally cannot replicate Node internal chunk timing. Recommend, not applied here (no code edits per scope): the checkers header become three gaps, with gap 3 stated as headroom-based-inert-today rather than alignment-rare, and a plain note that this reflects a real executor-side decode non-determinism that is out of this storys scope and belongs to its own bug if a permanent fix (stream_decoder or byte-buffer-then-decode-once) is wanted. Net: does not demote the instrument to advisory; it is a documented, currently-inert third gap of the same practical class as the first two, with a different (headroom, not structural) basis that needs periodic re-verification. Nine rounds, forty-nine findings, none manufactured this round: converged, PASS.",
+      "createdAt": "2026-08-14T11:56:48.590Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-042",
+      "envelopeId": "f1a2beeaf4d4319a0e2a4457798fefc06d08b4c83f394c1ee1ccf753d2ff0d21",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5965942e286a21a1b449f44b161b57c9d6ec5e50a91248d1077bebc16f37aa09"
     }
   ]
 }
