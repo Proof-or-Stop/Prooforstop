@@ -507,7 +507,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
       throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
     }
-    return { prompt: [
+    const lines = [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
       '',
@@ -519,7 +519,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
       `Finish with lattice topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
       `Then run lattice topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
-    ].join('\n') };
+    ];
+    if (story.phase === 'REVIEW') {
+      lines.push('',
+        'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
+        `Start a fresh critic run with lattice review_run_start '{"storyId":"${args.storyId}","agent":"lattice-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with lattice review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>"}'.`,
+      );
+    }
+    return { prompt: lines.join('\n') };
   }
 
   function buildStoryReviewPrompt(args: {

@@ -129,6 +129,7 @@ const requiredProcessFactSemantics = {
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
@@ -228,7 +229,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
-  { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt/ },
+  { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
@@ -509,7 +510,7 @@ const processFactCommandNamePatterns = [
   /^story_advance$/,
   /^story_review$/,
   /^review_run_start$/,
-  /^review_inventory_(begin|status|finalize|cancel)$/,
+  /^review_inventory_(begin|status|critic_set|finalize|cancel)$/,
   /^review_pass_set$/,
   /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
@@ -2824,6 +2825,9 @@ function assertPhaseTransitionReopenAuditContract() {
   assert(persistWrites.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep EXACTLY ONE store.writeStory (the single atomic rename the reopen recovery record rides); found ${persistWrites.length}`);
   const phaseWrite = persistWrites[0];
   assert(phaseWrite && phaseWrite.arguments.length === 2 && ts.isIdentifier(phaseWrite.arguments[1]) && phaseWrite.arguments[1].text === 'story', `${orchestratorPath}: the phase write must persist the same \`story\` object the reopen recovery record is attached to`);
+  const inventoryConsumes = transitionFn?.body ? collectCallExpressionsByName(transitionFn.body, 'consumeReviewInventoryReceipt') : [];
+  assert(inventoryConsumes.length === 1 && phaseWrite && inventoryConsumes[0].end < phaseWrite.end,
+    `${orchestratorPath}: REVIEW inventory receipt must be consumed exactly once BEFORE store.writeStory publishes phase=DEV`);
   const reopenRecordBranch = transitionFn?.body
     ? findIfStatement(transitionFn.body, (n) => isIdentifierEqualsStringLiteral(n.expression, 'eventType', 'REOPEN')
         && Boolean(findMemberAssignment(n.thenStatement, 'story', 'pendingReopenAudit')))

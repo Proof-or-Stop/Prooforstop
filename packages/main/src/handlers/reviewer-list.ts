@@ -64,7 +64,7 @@ function reviewerLaneShortName(lane: string): string {
 
 function supportedForceReviewerNames(): string {
   return REVIEW_RUN_LANES
-    .filter(isPromptRoleEligibleForReviewEvidence)
+    .filter(lane => lane !== 'lattice-review-topology-critic' && isPromptRoleEligibleForReviewEvidence(lane))
     .map((lane) => `${reviewerLaneShortName(lane)} (${lane})`)
     .join(', ');
 }
@@ -72,6 +72,9 @@ function supportedForceReviewerNames(): string {
 export function normalizeForceReviewerName(value: string): string {
   const raw = String(value).trim();
   if (!raw) return '';
+  if (raw === 'lattice-review-topology-critic' || raw === 'topology-critic') {
+    throw new Error('reviewer_list: topology-critic is independent critic authority, not a required inventory lane');
+  }
   if (isReviewRunLane(raw) && isPromptRoleEligibleForReviewEvidence(raw)) return reviewerLaneShortName(raw);
   const lane = `lattice-review-${raw}`;
   if (isReviewRunLane(lane) && isPromptRoleEligibleForReviewEvidence(lane)) return raw;

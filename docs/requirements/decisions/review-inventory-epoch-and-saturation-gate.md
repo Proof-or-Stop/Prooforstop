@@ -26,6 +26,9 @@ During REVIEW:
 ```bash
 lattice review_inventory_begin --storyId=B-xxxx
 lattice review_inventory_status --storyId=B-xxxx
+lattice review_run_start --storyId=B-xxxx --agent=lattice-review-topology-critic
+# submit the critic's terminal finding_add or review_pass_set with read evidence
+lattice review_inventory_critic_set --storyId=B-xxxx --epochId=<epoch> --reviewRunId=<critic-run>
 lattice review_inventory_finalize --storyId=B-xxxx
 ```
 
@@ -62,6 +65,13 @@ The gate is mandatory for REVIEW→DEV. Absence of the artifact is not a legacy
 PASS and instructs the operator to begin an epoch; otherwise hosts could bypass
 the optimization and assurance simply by never calling `begin`.
 
+The transition consumes the receipt and rechecks the live material/story-files
+cutoff before publishing `phase=DEV`. Consumption failure therefore leaves the
+story in REVIEW. If the later atomic story write fails, the already-consumed
+receipt cannot be replayed; status directs the operator to begin a new epoch on
+the still-authoritative REVIEW state. This is integrity-safe recovery, not a
+multi-file transaction claim.
+
 This is not PRE_CERT and it does not claim the repaired material is correct.
 
 ## Saturation rule
@@ -73,11 +83,17 @@ facts. A wave can complete only when:
    signed pass or finding on the frozen cutoff;
 2. every run binds the same review round, material and story-files lineage;
 3. coverage/read evidence and lane-specific prompt identity are folded into the
-   critic digest;
+   lane coverage digest;
 4. duplicate lane identities cannot increase coverage;
-5. the deterministic completeness critic observes the aggregate verified
-   finding-family set; and
+5. a separately dispatched `lattice-review-topology-critic` starts a fresh
+   ReviewRun only after all required lanes terminate, submits signed terminal
+   pass/finding plus read evidence, and signs a critic receipt bound to the exact
+   epoch, wave, cutoff, aggregate finding set and lane coverage; and
 6. the current complete wave adds zero new verified families.
+
+Finalization rejects a missing, forged, superseded, pre-terminal, stale-cutoff
+or old-wave critic receipt. `status` exposes `Completeness critic: pending` or
+`complete`; `criticDigest` alone has no authority.
 
 `signatureTag` is audit-only and is intentionally excluded from the family
 key. The canonical family digest uses only description and severity, which are
@@ -112,8 +128,9 @@ prove the affected set. Round number alone is never impact evidence.
 
 ## Deterministic efficiency and quality acceptance
 
-`review-inventory-epoch-smoke.ts` encodes the B-cdf6 counterfactual and must be
-deterministic across repeated runs:
+`review-inventory-epoch-smoke.ts` encodes the B-cdf6 counterfactual as operations
+and emitted events; counters are derived by filtering that replay, never returned
+as expected constants. It must be deterministic across repeated runs:
 
 | Counter | Historical baseline | Frozen epoch |
 |---|---:|---:|
@@ -126,13 +143,17 @@ deterministic across repeated runs:
 
 Quality invariants are non-negotiable: required lane count is unchanged;
 critical/high escapes, stale acceptance and budget-manufactured PASS counters
-must each equal zero. If any baseline event is missing or attribution is
+must each equal zero. The replay mechanically injects tampering, lane timeout,
+cancel, duplicate identity, wave-budget exhaustion, stale lineage, receipt
+replay, phase-write failure, and final-review regression. It also demonstrates
+that the two-host assurance floor remains `2 -> 2`. If any baseline event is missing or attribution is
 ambiguous, the comparison is inconclusive rather than PASS.
 
 ## Process-fact contract
 
 `review-inventory-epochs.json` is an L4 signed artifact registered in
-`process-fact-registry.ts`. The four commands, artifact signatures, freshness
+`process-fact-registry.ts`. The five epoch commands (including the independent
+critic command), artifact signatures, freshness
 semantics and REVIEW-to-DEV consumer are checked by
 `scripts/verify-process-fact-contract.mjs`. Prompt wording can guide the host,
 but only these CLI/handler/gate facts grant authority.

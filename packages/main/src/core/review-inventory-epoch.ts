@@ -3,6 +3,7 @@ import type { StoryStore } from './store.js';
 import type {
   Finding,
   ReviewInventoryEpoch,
+  ReviewInventoryCriticReceipt,
   ReviewInventoryLaneTerminal,
   ReviewInventoryReceipt,
   ReviewInventoryWave,
@@ -14,6 +15,7 @@ import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 
 const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
 const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
+const CRITIC_RECEIPT_DOMAIN = 'proofbound.review-inventory-critic-receipt.v1';
 
 function canonical(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -50,6 +52,87 @@ export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): b
     && receipt.authority === 'inventory-completeness-only'
     && receipt.authorizesTest === false
     && receipt.saturationResult === 'ZERO_NEW_VERIFIED_FINDINGS';
+}
+
+export function signReviewInventoryCriticReceipt(receipt: Omit<ReviewInventoryCriticReceipt, '_hash'>): string {
+  return reviewInventoryDigest({ domain: CRITIC_RECEIPT_DOMAIN, ...receipt });
+}
+
+export function verifyReviewInventoryCriticReceipt(receipt: ReviewInventoryCriticReceipt): boolean {
+  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_critic_receipt.v1') return false;
+  const { _hash, ...unsigned } = receipt;
+  return _hash === signReviewInventoryCriticReceipt(unsigned)
+    && receipt.criticLane === 'lattice-review-topology-critic'
+    && receipt.terminalEvidenceIds.length > 0
+    && Boolean(receipt.readEvidenceDigest);
+}
+
+export function reviewInventoryAggregateFamilies(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation): string[] {
+  return [...new Set([
+    ...epoch.waves.flatMap(wave => wave.verifiedFindingFamilies),
+    ...evaluation.families,
+  ])].sort();
+}
+
+export function reviewInventoryLaneCoverageDigest(evaluation: ReviewInventoryEvaluation): string {
+  return reviewInventoryDigest(evaluation.lanes
+    .map(lane => ({ lane: lane.lane, reviewRunId: lane.reviewRunId, coverageDigest: lane.coverageDigest }))
+    .sort((a, b) => a.lane.localeCompare(b.lane)));
+}
+
+export function validateReviewInventoryCriticReceipt(args: {
+  receipt: ReviewInventoryCriticReceipt | undefined;
+  epoch: ReviewInventoryEpoch;
+  evaluation: ReviewInventoryEvaluation;
+  runs: ReviewRun[];
+  passes: ReviewPass[];
+  findings: Finding[];
+}): { ok: boolean; reason?: string } {
+  const { receipt, epoch, evaluation } = args;
+  if (!receipt) return { ok: false, reason: 'critic receipt missing' };
+  if (!verifyReviewInventoryCriticReceipt(receipt)) return { ok: false, reason: 'critic receipt signature invalid' };
+  if (receipt.storyId !== epoch.storyId || receipt.epochId !== epoch.epochId
+    || receipt.reviewRound !== epoch.reviewRound || receipt.wave !== epoch.waves.length + 1) {
+    return { ok: false, reason: 'critic receipt epoch/round/wave binding mismatch' };
+  }
+  if (canonical(receipt.cutoff) !== canonical(epoch.cutoff)) return { ok: false, reason: 'critic receipt cutoff mismatch' };
+  const aggregateDigest = reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, evaluation));
+  if (receipt.aggregateFindingSetDigest !== aggregateDigest) return { ok: false, reason: 'critic aggregate finding-set digest mismatch' };
+  if (receipt.requiredLaneCoverageDigest !== reviewInventoryLaneCoverageDigest(evaluation)) {
+    return { ok: false, reason: 'critic required-lane coverage digest mismatch' };
+  }
+  const run = args.runs.find(row => row.reviewRunId === receipt.reviewRunId);
+  if (!run || !verifyReviewRun(run) || run.lane !== receipt.criticLane
+    || run.reviewRound !== epoch.reviewRound || run.materialHash !== epoch.cutoff.materialHash
+    || (run.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '')) {
+    return { ok: false, reason: 'critic ReviewRun missing, stale, or invalid' };
+  }
+  const latestCriticRun = args.runs
+    .filter(row => verifyReviewRun(row) && row.lane === receipt.criticLane
+      && row.reviewRound === epoch.reviewRound && row.materialHash === epoch.cutoff.materialHash
+      && (row.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''))
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
+  if (latestCriticRun?.reviewRunId !== run.reviewRunId) return { ok: false, reason: 'critic ReviewRun was superseded' };
+  const passes = args.passes.filter(row => row.reviewRunId === run.reviewRunId && verifyReviewPass(epoch.storyId, row));
+  const findings = args.findings.filter(row => row.reviewRunId === run.reviewRunId && verifyFinding(epoch.storyId, row));
+  const terminal = [...passes, ...findings];
+  const ids = terminal.map(row => row.id).sort();
+  if (canonical(ids) !== canonical([...receipt.terminalEvidenceIds].sort())) return { ok: false, reason: 'critic terminal evidence mismatch' };
+  const readEvidence = terminal.map(row => ({ id: row.id, readManifest: row.readManifest ?? null, readLog: row.readLog?.digest ?? null }));
+  if (readEvidence.some(row => row.readManifest === null)) return { ok: false, reason: 'critic terminal evidence missing read manifest' };
+  if (receipt.readEvidenceDigest !== reviewInventoryDigest(readEvidence)) return { ok: false, reason: 'critic read evidence digest mismatch' };
+  const latestTerminalAt = Math.max(...terminal.map(row => Date.parse(row.createdAt ?? '')).filter(Number.isFinite));
+  if (!Number.isFinite(latestTerminalAt) || Date.parse(receipt.createdAt) < latestTerminalAt) {
+    return { ok: false, reason: 'critic receipt predates terminal evidence' };
+  }
+  const latestLaneEvidenceAt = Math.max(...evaluation.lanes.flatMap(lane => lane.evidenceIds.map(id => {
+    const evidence = [...args.passes, ...args.findings].find(row => row.id === id);
+    return Date.parse(evidence?.createdAt ?? '');
+  })).filter(Number.isFinite));
+  if (!Number.isFinite(latestLaneEvidenceAt) || Date.parse(run.startedAt) <= latestLaneEvidenceAt) {
+    return { ok: false, reason: 'critic ReviewRun started before required lanes reached terminal state' };
+  }
+  return { ok: true };
 }
 
 export function findingFamily(finding: Finding): string {
@@ -188,6 +271,7 @@ export function assertReviewInventoryCutoff(store: StoryStore, storyId: string, 
   };
   const invalidated: ReviewInventoryEpoch = { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
   const data = store.readReviewInventoryEpochs(storyId);
+  data.criticReceipts ??= [];
   data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? invalidated : row);
   store.writeReviewInventoryEpochs(storyId, data);
   throw new Error(
@@ -241,10 +325,19 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
   return { required: true, ok: true };
 }
 
-export function consumeReviewInventoryReceipt(store: StoryStore, storyId: string, reviewRound: string): string | null {
+export function consumeReviewInventoryReceipt(
+  store: StoryStore,
+  storyId: string,
+  reviewRound: string,
+  currentCutoff: { materialHash: string; storyFilesHash?: string },
+): string | null {
   const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
   if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
   const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
+  if (pair.receipt.cutoff.materialHash !== currentCutoff.materialHash
+    || (pair.receipt.cutoff.storyFilesHash ?? '') !== (currentCutoff.storyFilesHash ?? '')) {
+    throw new Error('REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff');
+  }
   const now = new Date().toISOString();
   const data = store.readReviewInventoryEpochs(storyId);
   data.epochs = data.epochs.map(row => {

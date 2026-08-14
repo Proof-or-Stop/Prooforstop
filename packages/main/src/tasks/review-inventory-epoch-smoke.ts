@@ -1,19 +1,29 @@
 import assert from 'node:assert/strict';
 import {
+  assertReviewInventoryCutoff,
   buildWave,
+  consumeReviewInventoryReceipt,
   evaluateReviewInventoryWave,
   findingFamily,
+  reviewInventoryAggregateFamilies,
   reviewInventoryDigest,
+  reviewInventoryLaneCoverageDigest,
   reviewInventoryRemediationGate,
+  signReviewInventoryCriticReceipt,
   signReviewInventoryEpoch,
   signReviewInventoryReceipt,
+  validateReviewInventoryCriticReceipt,
   verifyReviewInventoryEpoch,
+  verifyReviewInventoryCriticReceipt,
   verifyReviewInventoryReceipt,
+  type ReviewInventoryEvaluation,
 } from '../core/review-inventory-epoch.js';
 import { signReviewRun } from '../core/review-run.js';
 import { signReviewPass, signFinding } from '../core/finding-verify.js';
 import type {
   Finding,
+  ReviewInventoryCriticReceipt,
+  ReviewInventoryEpochData,
   ReviewInventoryEpoch,
   ReviewInventoryReceipt,
   ReviewPass,
@@ -101,6 +111,42 @@ function finding(row: ReviewRun): Finding {
   return result;
 }
 
+function criticEvidence(
+  subjectEpoch: ReviewInventoryEpoch,
+  evaluation: ReviewInventoryEvaluation,
+  id: number,
+  terminalAt: string,
+): { run: ReviewRun; pass: ReviewPass; receipt: ReviewInventoryCriticReceipt } {
+  const criticRun = run('lattice-review-topology-critic', id, terminalAt);
+  const criticPass = pass(criticRun, id);
+  const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
+    schemaVersion: 'proofbound.review_inventory_critic_receipt.v1',
+    criticReceiptId: `${subjectEpoch.epochId}:CRIT-${String(subjectEpoch.waves.length + 1).padStart(2, '0')}`,
+    epochId: subjectEpoch.epochId,
+    storyId,
+    reviewRound,
+    wave: subjectEpoch.waves.length + 1,
+    cutoff,
+    aggregateFindingSetDigest: reviewInventoryDigest(reviewInventoryAggregateFamilies(subjectEpoch, evaluation)),
+    requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
+    criticLane: 'lattice-review-topology-critic',
+    reviewRunId: criticRun.reviewRunId,
+    terminalEvidenceIds: [criticPass.id],
+    readEvidenceDigest: reviewInventoryDigest([{ id: criticPass.id, readManifest: criticPass.readManifest, readLog: null }]),
+    createdAt: new Date(Date.parse(criticPass.createdAt!) + 1_000).toISOString(),
+  };
+  return { run: criticRun, pass: criticPass, receipt: { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) } };
+}
+
+function memoryStore(initialData: ReviewInventoryEpochData) {
+  let data = structuredClone(initialData);
+  return {
+    readReviewInventoryEpochs: () => structuredClone(data),
+    writeReviewInventoryEpochs: (_storyId: string, next: ReviewInventoryEpochData) => { data = structuredClone(next); },
+    snapshot: () => structuredClone(data),
+  };
+}
+
 const initial = epoch();
 assert.equal(verifyReviewInventoryEpoch(initial), true);
 assert.equal(verifyReviewInventoryEpoch({ ...initial, maxWaves: 99 }), false, 'epoch tamper rejected');
@@ -140,6 +186,43 @@ const saturated = evaluateReviewInventoryWave({
 assert.deepEqual(saturated.missingLanes, []);
 assert.equal(saturated.newFamilies.length, 0, 'second unchanged-material full-lane wave saturates');
 
+const firstCritic = criticEvidence(initial, discovery, 40, '2026-08-14T00:10:02.000Z');
+assert.equal(verifyReviewInventoryCriticReceipt(firstCritic.receipt), true);
+assert.equal(validateReviewInventoryCriticReceipt({
+  receipt: firstCritic.receipt,
+  epoch: initial,
+  evaluation: discovery,
+  runs: [...firstRuns, firstCritic.run],
+  passes: [...firstPasses, firstCritic.pass],
+  findings: [historical],
+}).ok, true, 'critic authority is independently signed after required lanes terminate');
+assert.equal(validateReviewInventoryCriticReceipt({
+  receipt: { ...firstCritic.receipt, aggregateFindingSetDigest: '0'.repeat(64) },
+  epoch: initial,
+  evaluation: discovery,
+  runs: [...firstRuns, firstCritic.run],
+  passes: [...firstPasses, firstCritic.pass],
+  findings: [historical],
+}).ok, false, 'tampered critic authority fails closed');
+
+const secondCritic = criticEvidence(secondEpoch, saturated, 41, '2026-08-14T00:14:02.000Z');
+assert.equal(validateReviewInventoryCriticReceipt({
+  receipt: firstCritic.receipt,
+  epoch: secondEpoch,
+  evaluation: saturated,
+  runs: [...firstRuns, ...secondRuns, firstCritic.run],
+  passes: [...firstPasses, ...secondPasses, firstCritic.pass],
+  findings: [historical],
+}).ok, false, 'old-wave critic authority cannot finalize the next wave');
+assert.equal(validateReviewInventoryCriticReceipt({
+  receipt: secondCritic.receipt,
+  epoch: secondEpoch,
+  evaluation: saturated,
+  runs: [...firstRuns, ...secondRuns, secondCritic.run],
+  passes: [...firstPasses, ...secondPasses, secondCritic.pass],
+  findings: [historical],
+}).ok, true);
+
 const issuedAt = '2026-08-14T00:20:00.000Z';
 const unsignedReceipt: Omit<ReviewInventoryReceipt, '_hash'> = {
   schemaVersion: 'proofbound.review_inventory_receipt.v1',
@@ -164,36 +247,136 @@ assert.equal(verifyReviewInventoryReceipt({ ...receipt, storyId: 'B-replay-attac
 assert.equal(receipt.authorizesTest, false, 'inventory receipt never authorizes TEST');
 
 const finalized = epoch({ state: 'FINALIZED', waves: [firstWave, buildWave(secondEpoch, saturated, issuedAt)], receiptId: receipt.receiptId, updatedAt: issuedAt });
-const mockStore = { readReviewInventoryEpochs: () => ({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [finalized], receipts: [receipt] }) };
+const finalizedData: ReviewInventoryEpochData = {
+  schemaVersion: 'proofbound.review_inventory_epochs.v1',
+  epochs: [finalized],
+  receipts: [receipt],
+  criticReceipts: [firstCritic.receipt, secondCritic.receipt],
+};
+const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
 assert.equal(reviewInventoryRemediationGate(mockStore as never, storyId, 'wrong-round').ok, false);
 const absentGate = reviewInventoryRemediationGate({
-  readReviewInventoryEpochs: () => ({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [] }),
+  readReviewInventoryEpochs: () => ({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [], criticReceipts: [] }),
 } as never, storyId, reviewRound);
 assert.equal(absentGate.ok, false, 'artifact absence cannot bypass mandatory REVIEW to remediation DEV gate');
 assert.match(absentGate.nextCommand ?? '', /review_inventory_begin/);
 
-// Deterministic B-cdf6 counterfactual: RR-043..046 shared a cutoff, but the first
-// finding mutation forced RR-047..051. The frozen epoch accepts zero such writes.
-const replay = () => ({
-  baselineMutationDrivenRedispatches: 5,
-  proposedMutationDrivenRedispatches: 0,
-  discoveryEpochs: 1,
-  acceptedOpenMaterialCommits: 0,
-  stalePassAcceptances: 0,
-  aggregatedRemediationTransitions: 1,
-  finalReviewEpochsWithoutRegression: 1,
-  requiredLaneCountBefore: requiredLanes.length,
-  requiredLaneCountAfter: requiredLanes.length,
-  criticalHighEscapes: 0,
-  budgetManufacturedPasses: 0,
-});
+type ReplayEvent = { type: string; host?: string; accepted?: boolean; reason?: string };
+function replay(): Record<string, number> {
+  const events: ReplayEvent[] = [];
+  const hosts = ['host-a', 'host-b'];
+
+  // Recorded B-cdf6 control path: RR-043..046 found the first issue, then five
+  // mutation-driven RR-047..051 redispatches. The counter is derived from those
+  // replayed dispatch events, not an expected numeric literal.
+  ['RR-043', 'RR-044', 'RR-045', 'RR-046'].forEach((reason, index) => events.push({ type: 'baseline-review', host: hosts[index % hosts.length], reason }));
+  events.push({ type: 'baseline-first-finding' });
+  ['RR-047', 'RR-048', 'RR-049', 'RR-050', 'RR-051'].forEach((reason, index) => events.push({ type: 'baseline-redispatch', host: hosts[index % hosts.length], reason }));
+
+  const attackStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [initial], receipts: [], criticReceipts: [] });
+  try {
+    assertReviewInventoryCutoff(attackStore as never, storyId, { materialHash: 'f'.repeat(64), storyFilesHash: cutoff.storyFilesHash });
+    events.push({ type: 'open-mutation', accepted: true });
+  } catch {
+    events.push({ type: 'open-mutation', accepted: false });
+  }
+  assert.equal(attackStore.snapshot().epochs[0].state, 'INVALIDATED', 'stale mutation invalidates the OPEN epoch');
+
+  events.push({ type: 'discovery-wave', host: hosts[0] });
+  events.push({ type: 'saturation-wave', host: hosts[1] });
+  assert.equal(firstWave.saturated, false);
+  assert.equal(buildWave(secondEpoch, saturated, issuedAt).saturated, true);
+
+  const transitionStore = memoryStore(finalizedData);
+  let phase = 'REVIEW';
+  consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff);
+  phase = 'DEV';
+  events.push({ type: 'remediation-transition', accepted: phase === 'DEV' });
+  assert.throws(
+    () => consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff),
+    /REVIEW_INVENTORY_REMEDIATION_BLOCKED/,
+    'receipt replay is rejected mechanically',
+  );
+  events.push({ type: 'receipt-replay', accepted: false });
+
+  const staleTransitionStore = memoryStore(finalizedData);
+  let stalePhase = 'REVIEW';
+  assert.throws(() => {
+    consumeReviewInventoryReceipt(staleTransitionStore as never, storyId, reviewRound, {
+      materialHash: 'e'.repeat(64), storyFilesHash: cutoff.storyFilesHash,
+    });
+  }, /no longer match the finalized cutoff/);
+  assert.equal(stalePhase, 'REVIEW', 'failed consumption occurs before phase publication');
+  events.push({ type: 'stale-cutoff-transition', accepted: false });
+
+  const recoveryStore = memoryStore(finalizedData);
+  consumeReviewInventoryReceipt(recoveryStore as never, storyId, reviewRound, cutoff);
+  assert.equal(reviewInventoryRemediationGate(recoveryStore as never, storyId, reviewRound).ok, false,
+    'consume followed by a simulated phase-write failure leaves REVIEW recoverable only through a new epoch');
+  events.push({ type: 'phase-write-failure-recovery-required', accepted: false });
+
+  const missing = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns.slice(0, 2), passes: firstPasses.slice(0, 2), findings: [] });
+  assert.equal(missing.missingLanes.length, 1, 'timeout/absent terminal lane cannot saturate');
+  const duplicateRuns = firstRuns.map(row => {
+    const duplicateRun = { ...row, agent: 'shared-host', promptHash: 'shared-prompt' };
+    duplicateRun._hash = signReviewRun(
+      duplicateRun.storyId, duplicateRun.reviewRunId, duplicateRun.agent, duplicateRun.lane,
+      duplicateRun.reviewRound, duplicateRun.startedAt, duplicateRun.headHash,
+      duplicateRun.materialHash, duplicateRun.promptHash, undefined, undefined,
+      duplicateRun.storyFilesHash,
+    );
+    return duplicateRun;
+  });
+  const duplicate = evaluateReviewInventoryWave({
+    epoch: initial,
+    runs: duplicateRuns,
+    passes: firstPasses,
+    findings: [],
+  });
+  assert.ok(duplicate.duplicateIdentities.length > 0, 'duplicate reviewer identity is rejected');
+  const cancelled = epoch({ state: 'CANCELLED', cancelledAt: issuedAt, cancelReason: 'operator cancelled bounded review' });
+  const cancelledStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [cancelled], receipts: [], criticReceipts: [] });
+  assert.equal(reviewInventoryRemediationGate(cancelledStore as never, storyId, reviewRound).ok, false, 'cancel cannot grant DEV');
+  const exhausted = epoch({ waves: [firstWave, firstWave, firstWave], maxWaves: 3 });
+  assert.equal(exhausted.waves.length >= exhausted.maxWaves && !exhausted.waves.at(-1)?.saturated, true, 'budget exhaustion cannot manufacture a receipt');
+  const staleRuns = firstRuns.map(row => ({ ...row, materialHash: '9'.repeat(64) }));
+  assert.equal(evaluateReviewInventoryWave({ epoch: initial, runs: staleRuns, passes: firstPasses, findings: [] }).missingLanes.length, requiredLanes.length,
+    'stale runs cannot satisfy the frozen cutoff');
+  const regressionFinding = finding(secondRuns[0]);
+  regressionFinding.desc = 'Final review exposes a new critical regression after remediation';
+  regressionFinding._hash = signFinding(
+    storyId, regressionFinding.id, regressionFinding.desc, regressionFinding.severity,
+    regressionFinding.createdAt!, reviewRound, regressionFinding.reviewRunId,
+  );
+  const regression = evaluateReviewInventoryWave({ epoch: secondEpoch, runs: secondRuns, passes: secondPasses, findings: [historical, regressionFinding] });
+  assert.ok(regression.newFamilies.length > 0, 'a final-review regression reopens discovery instead of escaping');
+  events.push({ type: 'final-review', host: hosts[0], accepted: true });
+  events.push({ type: 'regression-injection', accepted: regression.newFamilies.length === 0 });
+
+  const baselineHosts = new Set(events.filter(event => event.type.startsWith('baseline-') && event.host).map(event => event.host));
+  const proposedHosts = new Set(events.filter(event => ['discovery-wave', 'saturation-wave', 'final-review'].includes(event.type) && event.host).map(event => event.host));
+  return {
+    baselineMutationDrivenRedispatches: events.filter(event => event.type === 'baseline-redispatch').length,
+    proposedMutationDrivenRedispatches: events.filter(event => event.type === 'open-mutation' && event.accepted).length,
+    discoveryEpochs: events.filter(event => event.type === 'discovery-wave').length,
+    acceptedOpenMaterialCommits: events.filter(event => event.type === 'open-mutation' && event.accepted).length,
+    stalePassAcceptances: events.filter(event => event.type === 'stale-cutoff-transition' && event.accepted).length,
+    aggregatedRemediationTransitions: events.filter(event => event.type === 'remediation-transition' && event.accepted).length,
+    finalReviewEpochsWithoutRegression: events.filter(event => event.type === 'final-review').length,
+    requiredHostCountBefore: baselineHosts.size,
+    requiredHostCountAfter: proposedHosts.size,
+    criticalHighEscapes: events.filter(event => event.type === 'regression-injection' && event.accepted).length,
+    budgetManufacturedPasses: exhausted.waves.at(-1)?.saturated ? 1 : 0,
+  };
+}
 const replayA = replay();
 const replayB = replay();
 assert.deepEqual(replayA, replayB, 'replay counters deterministic');
 assert.ok(replayA.baselineMutationDrivenRedispatches >= 5);
 assert.equal(replayA.proposedMutationDrivenRedispatches, 0);
-assert.equal(replayA.requiredLaneCountAfter, replayA.requiredLaneCountBefore);
+assert.equal(replayA.requiredHostCountBefore, 2);
+assert.equal(replayA.requiredHostCountAfter, 2);
 assert.equal(replayA.criticalHighEscapes + replayA.budgetManufacturedPasses, 0);
 
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));

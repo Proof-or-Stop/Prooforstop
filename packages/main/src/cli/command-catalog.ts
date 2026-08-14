@@ -627,6 +627,7 @@ Behavior:
       'lattice-review-behavior',
       'lattice-review-docs',
       'lattice-review-channel',
+      'lattice-review-topology-critic',
     ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
@@ -637,6 +638,12 @@ Behavior:
   }},
   { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    epochId: z.string().min(1).describe('Current OPEN inventory epoch ID.'),
+    reviewRunId: z.string().min(1).describe('Fresh lattice-review-topology-critic ReviewRun with terminal read evidence.'),
+    agent: z.literal('lattice-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched LATTICE_AGENT authority.'),
   }},
   { name: 'review_inventory_finalize', description: 'Evaluate one unchanged-material wave and mint a receipt only at zero-new verified finding saturation', schema: {
     storyId: z.string().min(1).describe('Story ID.'),

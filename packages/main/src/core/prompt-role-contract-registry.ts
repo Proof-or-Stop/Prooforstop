@@ -295,8 +295,8 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Independently challenge acceptance topology, discovery, closure, and exclusions.',
-    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check'],
-    requiredOutputIds: ['topology-critic-receipt'],
+    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
+    requiredOutputIds: ['topology-critic-receipt', 'review-finding-or-pass'],
   },
   'lattice-review-story-init': {
     ...commonPolicy,

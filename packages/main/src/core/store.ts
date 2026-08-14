@@ -478,9 +478,10 @@ export class StoryStore {
 
   readReviewInventoryEpochs(storyId: string): ReviewInventoryEpochData {
     try {
-      return this.readJson<ReviewInventoryEpochData>(storyId, 'review-inventory-epochs.json');
+      const data = this.readJson<ReviewInventoryEpochData>(storyId, 'review-inventory-epochs.json');
+      return { ...data, criticReceipts: data.criticReceipts ?? [] };
     } catch {
-      return { schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [] };
+      return { schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [], criticReceipts: [] };
     }
   }
 

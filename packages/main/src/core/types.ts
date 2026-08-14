@@ -81,6 +81,7 @@ export type AgentDispatchMutationCommand =
   | 'review_run_start'
   | 'finding_add'
   | 'review_pass_set'
+  | 'review_inventory_critic_set'
   | 'delivery_check_set'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
@@ -111,6 +112,7 @@ export type AgentDispatchEvidenceOwnership =
   | 'scope-check'
   | 'topology-exclusion-approval'
   | 'topology-critic-receipt'
+  | 'review-inventory-critic-receipt'
   | 'review-run'
   | 'finding'
   | 'review-pass'
@@ -1734,10 +1736,29 @@ export interface ReviewInventoryReceipt {
   _hash: string;
 }
 
+export interface ReviewInventoryCriticReceipt {
+  schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
+  criticReceiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  wave: number;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  aggregateFindingSetDigest: string;
+  requiredLaneCoverageDigest: string;
+  criticLane: 'lattice-review-topology-critic';
+  reviewRunId: string;
+  terminalEvidenceIds: string[];
+  readEvidenceDigest: string;
+  createdAt: string;
+  _hash: string;
+}
+
 export interface ReviewInventoryEpochData {
   schemaVersion: 'proofbound.review_inventory_epochs.v1';
   epochs: ReviewInventoryEpoch[];
   receipts: ReviewInventoryReceipt[];
+  criticReceipts: ReviewInventoryCriticReceipt[];
 }
 
 /** Evaluator scoring evidence (consumed by browser project DONE gate) */

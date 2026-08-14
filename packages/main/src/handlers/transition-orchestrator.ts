@@ -93,6 +93,7 @@ import {
   renderRelatedDocsHint,
   buildNextSteps,
 } from './transition-effects.js';
+
 import {
   autoSyncMain,
   detectDoneStoryWorktreeContext,
@@ -1300,6 +1301,21 @@ async function runStoryTransitionInner(
       };
       story.pendingReopenAudit = reopenAudit;
     }
+    let remediationCutoff: { materialHash: string; storyFilesHash?: string } | undefined;
+    if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
+      if (!transitionGitCwd) {
+        transitionGitCwd = resolveGitCwd({
+          store,
+          storyId: args.storyId,
+          metadataRoot: ctx.root,
+          projectRoot: ctx.root,
+        });
+      }
+      remediationCutoff = {
+        materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      };
+    }
     // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
     //
     // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
@@ -1420,10 +1436,12 @@ async function runStoryTransitionInner(
         }
         if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
       }
-      store.writeStory(args.storyId, story);
       if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
-        consumeReviewInventoryReceipt(store, args.storyId, story.currentReviewRound ?? '');
+        // Consume authority before publishing phase=DEV. A consume failure cannot
+        // leave unauthorized DEV; a later write failure requires a new epoch.
+        consumeReviewInventoryReceipt(store, args.storyId, story.currentReviewRound ?? '', remediationCutoff!);
       }
+      store.writeStory(args.storyId, story);
     } finally {
       // Release only across the re-read→write critical section (milliseconds).
       persistClaim.release();

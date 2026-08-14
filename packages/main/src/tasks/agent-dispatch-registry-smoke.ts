@@ -596,6 +596,11 @@ try {
     /not a registered REVIEW reviewer/,
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
   );
+  assert.equal(
+    resolveReviewRunLane('lattice-review-topology-critic'),
+    'lattice-review-topology-critic',
+    'independent topology critic must mint its own REVIEW ReviewRun before critic authority',
+  );
   const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
   assert.throws(
     () => findingHandlers.finding_add({
@@ -733,6 +738,9 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
     /story-only; omit itemId/,
   );
+  const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;
+  assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
+    'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
 
   const promptPatterns: Record<string, RegExp> = {
     'implementer-dispatch': /git commit --author=.*lattice-implementer/,

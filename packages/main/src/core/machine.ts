@@ -722,19 +722,29 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
  * do not re-demand a clean final review, but REVIEW→DEV now requires the signed
  * frozen-inventory saturation receipt that authorizes one aggregated remediation. Both doors
  * ARE doors into DEV, so they also enforce the SAME ProofStory DEV admission gate and parallel
- * hard-block used by PLAN/INIT_CHECK DEV entry.
+ * hard-block used by PLAN/INIT_CHECK DEV entry. Inventory authority is the
+ * exception to the legacy rollback fail-open rule: unreadable/invalid inventory
+ * evidence fails closed before entering the legacy rollback gates.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
  * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
  * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  let inventoryStory: StoryInfo | undefined;
   try {
-    const config = loadConfig(context.projectRoot);
-    const story = context.store.readStory(context.storyId);
-    if (story.phase === 'REVIEW') {
-      const inventory = reviewInventoryRemediationGate(context.store, context.storyId, story.currentReviewRound);
+    inventoryStory = context.store.readStory(context.storyId);
+    if (inventoryStory.phase === 'REVIEW') {
+      const inventory = reviewInventoryRemediationGate(
+        context.store, context.storyId, inventoryStory.currentReviewRound,
+      );
       if (!inventory.ok) return false;
     }
+  } catch {
+    if (inventoryStory?.phase === 'REVIEW') return false;
+  }
+  try {
+    const config = loadConfig(context.projectRoot);
+    const story = inventoryStory ?? context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
@@ -1201,10 +1211,15 @@ export function getGuardFailureReason(
     // block must be skipped for those phases too, leaving the parallel reason to render below.
     const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
     if (story.phase === 'REVIEW') {
-      const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
-      if (!inventory.ok) {
-        return `Cannot enter remediation DEV: ${inventory.reason}. ` +
-          `Next: ${inventory.nextCommand ?? `lattice review_inventory_status --storyId=${storyId}`}`;
+      try {
+        const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
+        if (!inventory.ok) {
+          return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+            `Next: ${inventory.nextCommand ?? `lattice review_inventory_status --storyId=${storyId}`}`;
+        }
+      } catch (error) {
+        return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +
+          `Next: lattice review_inventory_status --storyId=${storyId}`;
       }
     }
     let tookExpressChannel = false;
