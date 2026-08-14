@@ -99,6 +99,31 @@
       "_hash": "6e19f5a90e6aeb3ae14b5057a9335b87ed515b7c7a44c2355475501802d27f66",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-007",
+      "desc": "Re-verified F-004 on current HEAD (commits 84e8bf2d14 + 8bdc42ffa8): the fallback regex is now anchored at the script-name boundary and no longer false-passes namespaced siblings.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "fixed by anchored regex: packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:48 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:42 now define runsExactRootBuild = /\\bnpm\\s+run\\s+build(?![\\w:-])/, whose negative lookahead rejects a trailing word char, colon, or hyphen. Re-ran F-004s exact repro live: a fixture pretest of npm run build:lab (F-004s literal reproduction case) now makes the compiled structural smoke FAIL (AssertionError: pretest does not build packages/utils: npm run build:lab, exit 1), same for npm run build-x and npm run buildx. The exact root npm run build script and the explicit --prefix packages/main run build && --prefix packages/utils run build forms still PASS. Also confirmed via the committed guard-bite fixture: node packages/main/tests/red/red-fb7b-guard-bite.mjs prints GB-ADVLAB-BIT (a dedicated build:lab-loophole adversarial case added by the fix commit) among all 9 selectors, ending GB-ALL-PASS, exit 0. Ran the real (non-fixture) smoke and RED on current material: node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS; node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS.",
+        "sourceRefs": [
+          "B-fb7b:F-004",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-53",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:39-51",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:122"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:24:03.456Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-006",
+      "_hash": "e24090f9caa081c60111958170fb37b9f12b607ea36b5682cc4dbd5e522ec301",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
