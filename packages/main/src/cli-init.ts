@@ -975,8 +975,11 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
     // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
     // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
     // straight off disk emitted the modular body instead (marker
-    // proofbound:modular-role-body:v1, e.g. 3945 bytes for lattice-evaluator vs the
-    // 8998 the checker expects), so a freshly `init`-ed full-mode project failed its
+    // proofbound:modular-role-body:v1 — for lattice-evaluator the modular template is
+    // 3945 bytes / 3939 UTF-16 units against the expected 9008 bytes / 8998 UTF-16
+    // units; both units are given because the template contains 3 non-ASCII
+    // characters, so byte and string lengths differ and quoting one as the other
+    // silently compares different measures), so a freshly `init`-ed project failed its
     // own verify_codex for exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Reproduced on the
     // pristine main checkout, so this predates the proof-or-stop rename.
     //
