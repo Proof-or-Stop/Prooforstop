@@ -533,6 +533,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c79b8e1b4d52536f22059aadd9530844bdeb1e639a1e8b28d340e75c7e99ecf4"
+    },
+    {
+      "id": "B-9ff1:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Inertness confirmed: git show 0954bda0c8 --stat (10 files, +210/-102) and full diff read line-by-line; every changed token is a comment (activity-policy.ts, config.ts, process-fact-registry.ts, registry.ts), a JSDoc block (red-evidence.ts), a thrown Error/report string (red-evidence.ts x3), a description/reason/rationale string field (command-catalog.ts, command-policy.ts, process-fact-levels.ts), or an assert-message/console.log string (red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs). No import, executable branch, registration-set membership (READ_ONLY_COMMANDS, PROCESS_FACT_REQUIRED_SEMANTICS array value unchanged) or config value changed. npx tsc --noEmit -p packages/main: clean, exit 0, no output. Durability: grepped/read cli-engine.ts and confirmed runHooks( has exactly 3 call sites (preCommand L1352, postCommand L1458, onError L1523) and onError's only guard is config0?.hooks?.onError with no isReadOnlyCommand predicate (preCommand/postCommand are each wrapped in !isReadOnlyCommand); writeCodexProcessEvent has the class-wide isReadOnlyCommand early return; runtime-artifact-registry.ts registers .lattice/activity.jsonl as id 'runtime-activity-log'; STALE_WARNING_COOLDOWN_MS = 30*60_000 in stale-detector.ts; GLOBAL_CODEX_FALLBACK_COMMAND embeds LATTICE_ACTIVITY_RECORD_READONLY=1 in codex-adapter-checks.ts; writeLog's catch-path call passes error: e.message into the activity record's error field. No line-number citations in the added text. The four unconditional guarantees (no RED-evidence record / no chain record / no story-evidence artifact / no process event / no gate verdict change -- the pre-existing four-category contract) still read as flatly unconditional; only the new onError/activity-log caveats and the preCommand/postCommand-hook guarantee were added, no over-hedging. Swept all red_evidence_envelope_check text across all 10 changed files for leftover absolutes ('no artifact', 'runs no hook', 'writes nothing') -- none remain unqualified for this command; other commands' pre-existing unrelated 'writes nothing' claims (milestone_closeout, admissibility_waterline, etc.) are out of scope and untouched by this commit. Tooling-bug claim verified: read extractBalancedBlock/readStringProperty in scripts/verify-process-fact-contract.mjs -- confirmed naive char scanner treats double-quote, single-quote, and backtick identically as string delimiters and never special-cases line or block comments. Reproduced the failure mode standalone: a single unescaped apostrophe inside a comment inside a scanned block desyncs extractBalancedBlock, which does not throw but calls the local fail() collector and returns empty string; since parseCommandPolicyEntries/parseProcessFactRequiredSemanticsFromSource key discovery re-scans the (now-empty) body, this yields zero parsed entries and cascades into one missing-entry failure per command name checked downstream elsewhere in the roughly 8000-line script -- matches the reported 80-plus misleading-errors-naming-unrelated-commands shape. Checked which of the 10 changed files are actually block-scanned by extractBalancedBlock on raw non-comment-stripped text: only command-policy.ts (COMMAND_POLICIES, via parseCommandPolicyEntries) and process-fact-registry.ts (PROCESS_FACT_REQUIRED_SEMANTICS, via parseProcessFactRequiredSemanticsFromSource) qualify; config.ts's DEFAULT_PHASE_TOOLS block-parse runs stripTsComments first (comment-safe); command-catalog.ts descriptions are read only via a name-key regex plus includes substring checks (apostrophe-insensitive); activity-policy.ts, red-evidence.ts, red-evidence-envelope-smoke.ts and red-w2d-command-readonly.mjs are either read only via includes or never referenced by the script at all -- their added stray apostrophes are inert. For the two files that ARE block-scanned, wrote a Python re-implementation of the exact scanner and confirmed both the COMMAND_POLICIES and PROCESS_FACT_REQUIRED_SEMANTICS blocks close at their true final brace with the repaired text in place -- the new comment in process-fact-registry.ts pairs its quote and backtick characters on the same line, not via distant cross-block pairing, so it will not desync on an unrelated future edit elsewhere in the file. Ran node scripts/verify-process-fact-contract.mjs directly: exit 0, Process fact contract verified, zero fail/error/warn lines -- contract currently passes. Ran the required tests: node packages/main/dist/tasks/red-evidence-envelope-smoke.js (OK, exit 0) and all five packages/main/tests/red/red-w2d-*.mjs (all PASS, exit 0). git status clean. Nothing blocks.",
+      "createdAt": "2026-08-14T09:48:26.448Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-026",
+      "envelopeId": "2295fd3844520bfb10d0d1c468b86b61f4c5ca38036acfcc58d31af1aecafa1a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "08f4447448e9ece8c3899bea8aa75869237c471dc4e37d4648bc0494b0614fe2"
     }
   ]
 }
