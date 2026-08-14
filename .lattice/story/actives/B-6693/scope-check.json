@@ -1,0 +1,102 @@
+{
+  "storyId": "B-6693",
+  "checkedAt": "2026-08-14T15:25:03.299Z",
+  "features": [
+    {
+      "feature": "Canonical workspace capacity path shared by linked worktrees but isolated across independent repositories",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts:167-207; plan CHK-001 steps 1-2; CHK-002 independent-repo/linked-worktree proof"
+    },
+    {
+      "feature": "No-story and story-scoped full routine validate acquire the same outer capacity lease",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/verifier.ts:1066-1068,1205-1212,1283-1290,1473-1480; plan CHK-001 steps 5-6"
+    },
+    {
+      "feature": "Selective validate modes --channel/--concept/--lint are inside the declared official validate boundary",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/verifier.ts:1079-1139 returns before every current lock wrapper, while plan Invariants says lattice validate is protected but CHK-001 step 6 names only no-validator/configured/fallback/validate-file branches. Add an explicit include-or-exclude decision and proof; --lint can consume material capacity."
+    },
+    {
+      "feature": "Fixed workspace-capacity then story-evidence lock order with same-context reentrancy and no sibling bypass",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts:301-350; plan CHK-001 step 5; CHK-002 steps 7 and 9"
+    },
+    {
+      "feature": "Asynchronous wait-and-run preserves heartbeat, reports bounded holder progress on stderr, and honors abort/deadline before callback entry",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "plan CHK-001 steps 3-4 and CHK-002 steps 4-5,8; packages/main/src/handlers/done-required-validation.ts:69-76 already exposes abort/deadline inputs"
+    },
+    {
+      "feature": "Only provably dead stale capacity holders are reclaimed; live and unknown holders are never stolen by age alone",
+      "covered_by": "none",
+      "status": "gap",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts:144-163 returns stale immediately when ageMs > staleMs before reading holder/heartbeat, and packages/main/src/tasks/validate-execution-lock-smoke.ts:547-566 currently requires an ownerless aged directory to be reclaimed. This contradicts plan Invariants and verificationIntent that time alone is insufficient. Plan must explicitly tighten classifier semantics and replace the contradictory legacy assertion."
+    },
+    {
+      "feature": "Bare npm test/full-suite is explicitly outside the lease and official help/docs disclose the boundary",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "CHK-003 excludes and verificationIntent; packages/main/src/cli/command-catalog.ts:1197-1201,2004-2017 and the three declared docs are the help/documentation touchpoints"
+    },
+    {
+      "feature": "Direct bare npm test is mechanically intercepted or wrapped by this Story",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "CHK-001 and CHK-003 explicit excludes; decision option D rejected",
+      "source": "Protected product boundary is lattice validate plus lattice done_required_validate only."
+    },
+    {
+      "feature": "Runtime artifact, doctor, runtime-fact registry, and process-fact registry changes",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "Existing runtime prefix covers the lock; scheduling adds no gate artifact semantics or environment fact; operator boundary is documented in help/docs",
+      "source": "packages/main/src/core/runtime-artifact-registry.ts:132-140 classifies .lattice/locks/ as volatile materialHash-excluded runtime; testing-infra already registers validate/done-required evidence facts."
+    },
+    {
+      "feature": "Focused smoke proves real handler wiring, wait-then-run, no-story contention, ordering, stale/dead behavior, JSON integrity, independent repositories, and unchanged budgets",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/tasks/validate-execution-lock-smoke.ts:1-24,523-545,547-687; all three checklist verificationIntent blocks and plan CHK-002 steps 1-10"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "packages/main/src/core/validation-execution-lock.ts",
+      "packages/main/src/handlers/done-required-validation.ts"
+    ],
+    "filesTriagedByName": [
+      "docs/CLI.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 10,
+    "covered": 6,
+    "excluded": 2,
+    "gaps": 2,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "93052cb4fe35cc8897de943da9b5f3afd31d69e067868c180d61b6fe6f9738d7",
+  "openQuestions": []
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-6693",
+  "id": "IC-20260814152112",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Solve TEST contention by serializing the two official Lattice validation entrypoints at workspace scope with observable async wait-and-run, not by raising timeouts, pruning tests, or attempting parallel full suites. Keep bare npm test explicitly outside the lease.",
+  "acceptedInterpretationHash": "sha256:799620dbe1d731e0cda09db087aee0bfe47e6f17fb2e9fa9a1fef6c14f5bd7ef",
+  "notes": "This preserves the user goal of reliable TEST completion while resolving the apparent parallelism ambiguity: more concurrent TEST is the cause of wall-clock gate failure on one machine, so the accepted mechanism is queued capacity with unchanged proof ceilings.",
+  "createdAt": "2026-08-14T15:21:12.822Z",
+  "updatedAt": "2026-08-14T15:21:12.822Z"
+}
