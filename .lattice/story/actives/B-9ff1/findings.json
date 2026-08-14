@@ -1039,7 +1039,7 @@
       "desc": "[codex host-B H3] Verified by main agent. The authoritative note claimed each copy carries a pointer back to it; the rejection footer did not. This is the third consecutive round in which the anti-drift mitigation itself was found inaccurate, which is the substance of the finding: the declared-site-set convention was adopted in place of a shared constant and failed to prevent drift in the very next review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T11:39:01.820Z",
@@ -1047,7 +1047,11 @@
       "reviewRunId": "B-9ff1:RR-037",
       "_hash": "61dfbe0e5e0ad4e63d03707ca5fe9e66d1928ecfdb8fabca1e60891777d920be",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 82abb47b150c232286c63b6171d5531755e39c77 by adding the pointer rather than by weakening the note's claim; the budget was checked first and none of the seven pinned commands prints the footer, so the 12000-unit cap was untouched. The note's mitigation claim is now stated without flattery: the declared set is a convention maintained by hand, three rounds found already-drifted text and the round immediately after the set was declared found three more, declaring it makes drift findable by reading one comment but not detectable, nothing re-checks the statements at edit time, and the count describes the last audit rather than a live index. The implementer also declined to write that mechanical enforcement is filed as separate work, because it could find no Lattice story or bug for it and writing filed would have been false - the scanner exists only as a session task chip, which is not verifiable from repository state. That refusal is correct and is the same trap this programme hit before.",
+      "resolvedAt": "2026-08-14T11:39:04.244Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
