@@ -64,18 +64,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md bWVjaGFuaXNtUmV2aWV3QXJ0aWZhY3RJZA== CHK001_HAPPY_PASS",
           "result": "pass",
           "note": "The document includes the explicit pre-allocation artifact input and the surrounding normative architecture, rollout, touchpoints, tests, and worked example.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a54577df7cbe4574ed6e559ed276a8a736ad268ac7771410aad2b0ed4d10e027",
             "outputTail": "CHK001_HAPPY_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:14.547Z"
+            "executedAt": "2026-08-14T05:05:30.125Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -84,18 +84,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md ZXZpZGVuY2UtY2FuZGlkYXRl CHK001_EDGE_PASS",
           "result": "pass",
           "note": "The audited proposal explicitly keeps intake proof candidate-only and separates it from PLAN and delivery evidence.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ac3585a52c68d1ab49329dd07597d387632fed831cc96cbc6f3392092c2fb65b",
             "outputTail": "CHK001_EDGE_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:14.703Z"
+            "executedAt": "2026-08-14T05:05:30.255Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -104,18 +104,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md c3RvcnlJZEFsbG9jYXRlZDogZmFsc2U= CHK001_ADV_PASS",
           "result": "pass",
           "note": "The gate result and test matrix require fail-closed no-ID behavior rather than error-text-only checking.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d138ddc12f480076a498cda8feefbc2e82313462613c5ee4237e79138fe2231d",
             "outputTail": "CHK001_ADV_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:14.862Z"
+            "executedAt": "2026-08-14T05:05:30.386Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         }
       ],
       "userSeesSnapshot": {
@@ -188,18 +188,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md Q2xhdWRlIENMSSAvIENsYXVkZSBDb2RlIGAyLjEuMjIwYA== CHK002_HAPPY_PASS",
           "result": "pass",
           "note": "The document records completed independent Claude CLI and agy audits with verified versions.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "389d40fce314756b2e87f7b6ae7134df848894e3ead5f2f258836bf3040df0ed",
             "outputTail": "CHK002_HAPPY_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:15.016Z"
+            "executedAt": "2026-08-14T05:05:30.515Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -208,18 +208,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md IyMjIDIxLjQgRmluZGluZyBkaXNwb3NpdGlvbnMgYW5kIGZpbmFsIHN0YXR1cw== CHK002_EDGE_PASS",
           "result": "pass",
           "note": "The audit section contains a single reconciliation table covering every Claude and agy finding and accepted correction.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "87d63f21e6ce08c2d1f6c4a5056fa69a25c807758ce56a41c7a57f2289f262bb",
             "outputTail": "CHK002_EDGE_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:15.170Z"
+            "executedAt": "2026-08-14T05:05:30.646Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -228,18 +228,18 @@
           "command": "node -e \"const f=require('fs').readFileSync(process.argv[1],'utf8');const n=Buffer.from(process.argv[2],'base64').toString('utf8');if(!f.includes(n))process.exit(1);console.log(process.argv[3])\" docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md RmluYWwgYXVkaXRlZCBzdGF0dXM6ICoqbm8gdW5yZXNvbHZlZCBCTE9DS0VSIG9yIEhJR0ggYXJjaGl0ZWN0dXJlIGZpbmRpbmcqKi4= CHK002_ADV_PASS",
           "result": "pass",
           "note": "Both focused confirmation audits returned CONFIRMED_PASS; the final audit status refuses acceptance when any blocker/high remains.",
+          "headHash": "5d8e89ecd5cc0bdd8335c417a7b1852ccc5af14e",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c3039550896b725dc791feca366cb000be94bea7e3ae4827feaa12969807f9a5",
             "outputTail": "CHK002_ADV_PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:03:15.319Z"
+            "executedAt": "2026-08-14T05:05:30.776Z"
           },
-          "headHash": "a9595ed151258f72bbdf056ae0aa1f22c8de4871",
-          "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-          "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-          "timestamp": "2026-08-14T04:03:15.455Z"
+          "timestamp": "2026-08-14T05:05:30.785Z"
         }
       ],
       "userSeesSnapshot": {
