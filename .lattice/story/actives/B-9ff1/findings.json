@@ -618,7 +618,7 @@
       "desc": "[codex host-B C6] Verified by main agent. Two further sites authored by this story still carry the false absolute, both missed by all four Claude lanes: core/process-fact-registry.ts REQUIRED_SEMANTICS_BY_COMMAND says 'it writes nothing', and core/command-policy.ts's red_evidence_envelope_check entry says the failure is 'surfaced by a non-zero exit, not by a write'. Two additional occurrences live in frozen story artifacts that cannot be edited at this phase - scope-contract.json's justification prose ('appends no hook, no activity log and no process event') and checklist.json CHK-012:edge:0's WHY clause ('read-only command never mutates state') - and must instead be disclosed as superseded in the TEST summary.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T04:13:59.961Z",
@@ -626,7 +626,11 @@
       "reviewRunId": "B-9ff1:RR-020",
       "_hash": "1d0535248725056e1250519a1308d33e06af6298cb36c8e1bb2048bc1f86a8e4",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "core/process-fact-registry.ts said 'it writes nothing'; core/command-policy.ts said 'not by a write'. Both were authored by this story's own GREEN commit, so there was no prior-correct-contract to fall back on. Both corrected; a repo-wide sweep now finds zero remaining 'not by a write' and zero 'writes nothing' or 'no artifact' asserted about this command. Fixed in commit 0954bda0c8ec19977016d273adb9360435799bb8 (text only: comments, docstrings, assertion messages, thrown-error strings, catalog/config/registry descriptions and console output across ten files; no logic, matcher rule, tag routing, digest, registration-set membership or config value changed). Found by the cross-vendor codex host-B reviewer and independently verified against source by the main agent before any action was taken. The corrected picture now stated consistently: UNCONDITIONALLY the command writes no RED-evidence record, no chain record and no story or evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook; NOT GUARANTEED are the onError hook (its call site has no isReadOnlyCommand predicate and the inadmissible path throws by design, so it is the primary failure route) and a row in .lattice/activity.jsonl, which core/runtime-artifact-registry.ts registers as the runtime-activity-log artifact, appended either under LATTICE_ACTIVITY_RECORD_READONLY=1 or an uncooled stale warning, and carrying the thrown rejection report in its error field. Two further occurrences live in frozen story artifacts that cannot be edited at this phase (scope-contract.json justification prose and checklist.json CHK-012:edge:0 WHY clause) and are disclosed as superseded in the TEST summary instead of being silently left to read as current.",
+      "resolvedAt": "2026-08-14T09:38:54.196Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
