@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-f00c",
+  "id": "IC-20260726031725",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Replace the per-commit diff-tree -m union with a hardened net endpoint diff in ONE shared classifier (new core/validation-lineage.ts) used by both classifyTrustedValidationLineage and validationHeadLineage; -z + maxBuffer + empty-net-diff-means-trusted + split ancestry/diff catch; keep all other reuse factors and refresh_stale untouched.",
+  "acceptedInterpretationHash": "sha256:3d04da2ef725168a657f6ea4e7cdd3e3cce0add99e90725e6c465255ca1f8112",
+  "notes": "Single-deliverable bug fix per audited rev-2 proposal; no milestone ledger.",
+  "createdAt": "2026-07-26T03:17:25.650Z",
+  "updatedAt": "2026-07-26T03:17:25.650Z"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f00c",
+  "sourceText": "Fix the ~17 min redundant DONE-validation re-run (and the autopilot_review_submit --deriveBindings hard-throw) that B-3783 hit: a main-merge makes the merge-lineage classifier flag the story's own content-unchanged files as untrusted-lineage-path. The user required a cross-host (Claude CLI + Agy CLI) audit of the written proposal before development; both returned SOUND-WITH-CHANGES and the audit expanded scope to both classifier copies plus -z/maxBuffer/empty-trust/split-catch.",
+  "normalizedOutcome": "Across a main-merge with content unchanged, DONE validation reuse is granted (existingEvidenceBasis fresh) and autopilot_review_submit --deriveBindings succeeds, on BOTH the reuse and admissibility copies; a genuinely content-changed non-metadata file still refuses reuse.",
+  "acceptanceClaim": "classifyTrustedValidationLineage and the admissibility path return trusted (reuse allowed) when a merge re-introduces content-unchanged story files, and return rejected untrusted-lineage-path when a non-metadata file's content genuinely differs between evidenceHead and currentHead.",
+  "keyRequirementIds": [
+    "REQ-merge-lineage-netdiff"
+  ],
+  "requestHash": "sha256:9fa61777cb6a600183fd313ae63c6a0bd601e36057ee3f6331348dfb4bc813e8",
+  "createdAt": "2026-07-26T03:16:40.641Z",
+  "updatedAt": "2026-07-26T03:16:40.641Z"
+}
