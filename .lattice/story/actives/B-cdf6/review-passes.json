@@ -611,6 +611,40 @@
         "scanEscalationReason": null
       },
       "_hash": "1ffbf439d9c4fae3c555b16aba0f5dc37d270ef72578002072e37ee466d92dcd"
+    },
+    {
+      "id": "B-cdf6:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS. Originally reviewed at head a06ab64 (RR-057) but HEAD moved to 7724ab9 mid-review (another lane landed F-046, same class of residual lattice-string fix, e.g. handlers/lattice-cli.ts note/detail/error strings + lattice-cli-migration-smoke.ts assertion message, coordinated prod+test pairs, no weakening); re-verified checklist/findings unaffected by that delta and re-bound to fresh RR-060 at current HEAD before recording. Verified all 5 flagged questions independently: (1) no verificationEvidence row references acceptance_matrix commands, so the isLatticeWrapper/isAcceptanceMatrixDerivedEvidence F-042 fix cannot have altered coverage for this story; (2) mechanically parsed checklist.json: CHK-002:adversarial:1=deferred_gate_evidence, CHK-004:edge:0=permanent (unchanged, not relabeled to pass), coverage recomputed as 36 must-intents = 34 non-waiver evidence + 2 waivers, 0 missing/failed; (3) built and ran the pre-fix commit (9f6fb6ecc4^) directly in an isolated worktree, confirmed global-agents-unit-smoke was genuinely RED there (AssertionError on the exact claimed lattice/proof-or-stop mismatch) and is genuinely GREEN at HEAD, with a paired doesNotMatch guard added; the one assertion rename lacking an explicit paired negative guard is backed by a stronger self-updating assert.equal(content, expectedShim(file)) one line above that structurally cannot mask a stale string; broader diff scan of 120 removed/236 added assertions across the story shows coordinated rename pairs (prod string + test assertion updated together), not deletions or loosening; (4) built pristine main in an isolated worktree and independently reproduced both remaining red smokes (prompt-token-cost-smoke, proofstory-acceptance-topology-smoke) failing at the identical assertion function and line number on both branch and main -- confirmed not a regression, refuting my own earlier exit-code-only comparison the same way test-coverage refuted it for F-042; (5) confirmed the CHK-002 waiver is typed deferred_gate_evidence (not permanent, no fabricated result:pass) and correctly cites B-META-framework-audit:F-005 as the real blocker, consistent with F-027 flakiness being honestly reported rather than papered over with a lucky re-roll. Ledger mechanically verified via direct findings.json parse at both heads: 45 then 46 findings, 0 open, no duplicate ids both times -- matches claimed state. Independently reconstructed the F-042 destruction from git history (35c0773ad4->b8d0d0170e->36501da2de->4201ce6681 non-monotonic count sequence) confirming my original isLatticeWrapper finding (RR-056) was overwritten by a differently-timestamped lattice-review-quality finding reusing the same id; content survives as F-041 (resolved) -- matches B-META-framework-audit:F-029 exactly. tsc clean, all 3 lattice-residue checks pass (plain scan, --self-test, npm run test:lattice-residue), flow-stability/rollout-check/decision-doc-promotion/both red-b2aa7 receipts (chk006, f005) all exit 0, and the in-progress 94-command validate run reached 60/94 all-green with zero failures before HEAD moved.",
+      "createdAt": "2026-08-14T12:09:07.848Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-060",
+      "envelopeId": "2be14ccafe18a095046e228370589d8754739d80cc0731b6fe00caec1b3ad3c1",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c7ba6f0c162aecd3439ddc07c52d2d680f791d048fdb99409bc4fbdc89c4d76"
     }
   ]
 }
