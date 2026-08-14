@@ -167,7 +167,69 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The operator sees whether discovery is still finding new verified issues, which lanes or critic remain, and why finalization is blocked; budget exhaustion produces a visible replan or human-adjudication action rather than a manufactured PASS."
+      "userSees": "The operator sees whether discovery is still finding new verified issues, which lanes or critic remain, and why finalization is blocked; budget exhaustion produces a visible replan or human-adjudication action rather than a manufactured PASS.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-003-H1",
+            "desc": "On one unchanged cutoff, every scope/risk-selected required lane completes with a valid signed terminal receipt, mechanical coverage or bounded read evidence is complete, the completeness critic evaluates the verified finding set, and a zero-new-verified-finding wave alone permits finalization.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-H2",
+            "desc": "When a wave adds one or more independently verified findings, the immutable aggregate finding-set digest grows, finalization remains blocked, and status provides the exact next-wave dispatch command while keeping all waves on the same material cutoff.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-H3",
+            "desc": "At every step, status exposes current wave and bounded budget, per-lane progress or terminal outcome, coverage/read-evidence completeness, raw versus verified and newly verified counts, critic state, blocker codes and the single actionable dispatch or finalize command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-003-E1",
+            "desc": "Missing output, timeout, cancellation, unsupported host, unavailable reviewer or prose-only PASS remains a visible nonterminal blocker and cannot count as lane coverage, clean saturation or permission to finalize.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-E2",
+            "desc": "Semantically duplicate raw findings are counted only after an independent canonical finding-family disposition verifies identity and evidence; an unresolved duplicate neither inflates the new count nor disappears from blockers.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-E3",
+            "desc": "If the configured wave budget is reached with new verified findings or incomplete lanes/critic, status enters a bounded-exhaustion blocker and offers replan, decomposition, root-cause escalation or human adjudication; no receipt or PASS is emitted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-003-A1",
+            "desc": "Repeating the same reviewer, host identity, prompt identity, lane receipt or wave result under a different label cannot satisfy a missing required lane, two-host assurance or the zero-new saturation requirement.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-A2",
+            "desc": "A forged duplicate disposition, suppressed raw finding, omitted required file or evidence segment, missing critic, or fabricated coverage/read claim causes finalization to fail closed under canonical validation.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-003-A3",
+            "desc": "Changing severity, marking verified findings advisory, exhausting retries, or manually setting a clean counter cannot manufacture a zero-new wave or bypass required-lane, evidence and critic predicates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
