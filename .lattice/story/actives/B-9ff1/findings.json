@@ -995,6 +995,21 @@
       "resolvedAt": "2026-08-14T11:00:51.011Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-047",
+      "desc": "[codex host-B H1] Verified by main agent. cli/command-catalog.ts's user-facing description still carried the ordering claim corrected in the footer one round earlier - that the CLI runs the onError hook before the report reaches the reader - when in fact the report is printed twice, once before the hook and once after. The fix reached the footer and not the catalog description, which is surfaced through help.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T11:39:00.042Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-037",
+      "_hash": "d9aa6a2ba14b9995f030c54a4b9292e8b2b229e362de01bd05c429335040fd4d",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
