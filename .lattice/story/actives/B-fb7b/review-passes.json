@@ -480,6 +480,37 @@
         "scanEscalationReason": null
       },
       "_hash": "732fe998dd2a71774a27f58bb7431be666ccca4f4ee5650573305ea4ec223d26"
+    },
+    {
+      "id": "B-fb7b:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 CHK-001 verificationIntent refs (4 happy, 4 edge, 5 adversarial) have fresh pass verificationEvidence bound to current material 249c271f; guard-bite RED covers all GB-* adversarial/edge cases plus GB-ALL-PASS, structural smoke and pretest-builds-utils RED both PASS; no blocker.",
+      "createdAt": "2026-08-14T09:40:39.929Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-022",
+      "envelopeId": "c87b8a72a7b40e4aab263516ca6e1a5fc57b2bfed9eed4d32d3e772439155790",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/review.json",
+          ".lattice/story/actives/B-fb7b/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72fe0cff195856f87ebfb3eaf521fd38132c16f773ec371f9eda5b3977fb73e4"
     }
   ]
 }
