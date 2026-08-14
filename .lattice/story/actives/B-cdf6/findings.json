@@ -1115,6 +1115,24 @@
       "_hash": "21600081058a6f9d388b4d3c92aff7cb77ea57370e7d7fa7f28df879f4cc4830",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-053",
+      "desc": "concept-cleanup: packages/main/src/handlers/validate-channel.ts:176-180 isMetadataOnlyLatticeCommit still matches ONLY the deprecated commit-subject prefix (/^\\s*lattice:/), never the canonical proof-or-stop: prefix minted by the F-047/F-049 rename. This is the exact read-both hazard the story flags for worktree.ts:673 (matchesRuntimeCommitSubject), except inverted and unfixed: verified live against a fresh rebuild (packages/main/dist/handlers/validate-channel.js) that isMetadataOnlyLatticeCommit({subject:\"lattice: record B-x finding_add metadata\",...}) -> true but isMetadataOnlyLatticeCommit({subject:\"proof-or-stop: record B-x finding_add metadata\",...}) -> false. isAcceptableCommit (line 183-187) and thus the validate --channel REVIEW->TEST gate (line 475 offenders filter) consume this directly. Effect: for any normal-channel story missing dispatch/subagent_result structured evidence, a real, legitimate metadata-only auto-commit written under the NEW canonical proof-or-stop: prefix (auto-commit-metadata.ts COMMIT_SUBJECT_PREFIX, live in this very story git log e.g. e2f457f621 \"proof-or-stop: record B-cdf6 validate metadata\") is now misclassified as a channel offender instead of being recognized as legacy-fallback-acceptable metadata. Fix: isMetadataOnlyLatticeCommit should read-both via the shared matchesRuntimeCommitSubject-style prefix set (COMMIT_SUBJECT_PREFIX plus DEPRECATED_COMMIT_SUBJECT_PREFIX from core/auto-commit-metadata.ts) instead of its own hardcoded /^\\s*lattice:/ regex.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T13:44:29.488Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-071",
+      "_hash": "a42a5578036b1611f37ee767d4f5586fedbd38e28a6b542955166e35a528b7e1",
+      "files": [
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
