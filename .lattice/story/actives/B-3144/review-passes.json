@@ -748,6 +748,37 @@
         "scanEscalationReason": null
       },
       "_hash": "fd90021bafd914e1836cf11228a4920232e13bb406ef3790bb8702a8bf6efbee"
+    },
+    {
+      "id": "B-3144:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Delta since last clean quality pass (RR-049, which already reviewed the full substantive diff: quorum-submit.ts, quorum-prune.ts, 5-point wiring, smoke, docs) is exactly commit bd2b6c8e03, a 1-line fix in scripts/verify-process-fact-contract.mjs updating its independent expected-vocabulary copy of the cli-engine.ts pinned fingerprint (a2468c...bdbc0 -> ef1c4e...f050f) to match the F-030-adjacent repin already in retired-authority-vocabulary-guard-smoke.ts's PINNED_EXECUTABLE_SOURCE_FINGERPRINTS map. Verified the fix is correct, not just cosmetically matching: independently recomputed canonicalAstFingerprint(cli-engine.ts) via ts.createPrinter with removeComments true plus sha256 against the current file and got ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f exactly, matching both the guard map and the now-fixed vocabulary-check literal. Ran both previously-failing checks fresh: scripts/red-evidence-target-binding-smoke.js (compiled at packages/main/dist/tasks) and packages/main/tests/red/red-w2b-wiring-contract.mjs, both exit 0. Also reran retired-authority-vocabulary-guard-smoke.js (PASS) and the full quorum-submit-smoke.js suite (71/71 checks pass, matching RR-049's baseline, confirming the unrelated mechanical fix did not regress the story's own tests). Confirmed compiled dist/tasks/retired-authority-vocabulary-guard-smoke.js contains the new hash and zero occurrences of the old one, so validate exercises the fixed code. Final check requested: repo-wide grep for the stale value a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0 across the whole tree excluding .git returns zero hits anywhere, no other landmine. Repo-wide search for every PINNED_EXECUTABLE_SOURCE_FINGERPRINTS / PINNED-FINGERPRINT-style map confirms only two live source files reference this fingerprint at all (retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs); both now hold the identical repinned value, so there is no third out-of-sync copy waiting to surprise a future validate run. Both files are properly recorded as acknowledged scope expansions in scope-contract.json with accurate reasons (F-030-adjacent repin necessity; second-location vocabulary mirror). No dead code, type issues, or promised-but-undelivered surface introduced by the 1-line diff. No blocker.",
+      "createdAt": "2026-08-14T06:54:31.547Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-055",
+      "envelopeId": "d410fbc3b386ad46b08b72b5bf07831bcb6fcfb8132da7ff0da18db714ca358f",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": "Repo-wide grep for the stale and new fingerprint values, and for every PINNED_EXECUTABLE_SOURCE_FINGERPRINTS-style map, to confirm no third out-of-sync reference exists anywhere in the tree."
+      },
+      "_hash": "a90d6449ed2606d73936095b892e11770b50a57fa4a94e889fc5c31030bbe442"
     }
   ]
 }
