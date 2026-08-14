@@ -32,6 +32,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5c30048b9b0d4e043e5e539a2932f2a0f7f621c2eba81e917209552b53c1555e"
+    },
+    {
+      "id": "B-fb7b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review on current material (head 847854a). Confirmed via git log main..HEAD that round-2 fix commits (84e8bf2d14, 8bdc42ffa8) touched only 3 test/guard files -- no CHANGELOG.md or package.json changes since round 1. Step1 diff-symbol extraction yielded 26 code symbols, none referenced in README*.md/CLAUDE.md/docs/**/*.md (Fallback 2: no module-level README exists under packages/main/src/tasks/ or packages/main/tests/red/). Manually re-verified the B-fb7b CHANGELOG.md entry against current HEAD: pretest script text matches, main-before-utils order preserved, test-suite-utils-autobuild-smoke.js still registered in lattice.config.json validate.commands, both red-fb7b-*.mjs files still exist at named paths, bin/bootstrap-runner.js and worktree handler remain untouched across the whole story. No doc-code drift introduced by round-2 hardening. Zero blockers.",
+      "createdAt": "2026-08-14T04:18:29.350Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-008",
+      "envelopeId": "4718568baf6294beeec3392a0a24e77a527e77f07e5c9f8488a29cdc65c9e287",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbf786db7ea70a6ad397b54898e4b902b4322962f43cfa275d2dac7161a74d35"
     }
   ]
 }
