@@ -693,6 +693,25 @@
       "resolvedAt": "2026-08-13T12:24:55.273Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-033",
+      "desc": "doc-code-drift: packages/main/src/cli-init.ts (comment above the F-005 fix, ~line 978) and the identical comment in packages/main/src/core/managed-assets.ts state 'e.g. 3945 bytes for lattice-evaluator vs the 8998 the checker expects', presenting both numbers as byte counts. Verified: 3945 IS the correct UTF-8 byte length of the raw modular template (packages/main/templates/agents/lattice-evaluator.md). But 8998 is NOT a byte count -- it is the JS string .length (UTF-16 code unit count) of restoreLegacyPromptTemplate(entry)/renderPromptEntryForHost(entry,'codex'). The actual byte length of the expected/restored content is 9008 (confirmed both via Buffer.byteLength in-process and by materializing a real .lattice-codex/agents/lattice-evaluator.md via a fresh `node bin/proof-or-stop.js init --profile=all --asset-mode=full`, which produced a 9008-byte file). The 10-byte/10-char delta traces to 3 non-ASCII characters in the template. This is a factual inaccuracy in a code comment explaining its own mechanism -- exactly the doc-drift class this lane exists to catch. All other claims checked (renderPromptEntryForHost default + prompt-registry.ts:415-417 line reference, restoreLegacyPromptTemplate throwing against LEGACY_COMPLEX_TEMPLATE_SHA256, verify-entrypoints.mjs:1010 vs the earlier fix at :526, the commit's STALE_SAFE 5->0 / OK 30->35 figures, and the still-failing verify-entrypoints.mjs:551 honesty-boundary claim) were independently reproduced and are accurate.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T04:10:23.777Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-039",
+      "_hash": "c25608f9b82c08d9c696847b5883b63cd6aa07bd0cdda43c5484ca406d137834",
+      "files": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
