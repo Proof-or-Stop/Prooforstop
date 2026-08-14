@@ -1001,6 +1001,35 @@
         "scanEscalationReason": null
       },
       "_hash": "4dba5314414a0c4dd819e911e5bd78ded09555e14e60177cfda5bf178cbe2193"
+    },
+    {
+      "id": "B-fb7b:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency PASS at frozen tree (HEAD 906a4df307). Step 1 extracted 4 changed build/config symbols (root pretest script, scripts/build-lock.mjs withBuildLock, build-utils-with-lock.mjs, packages/utils build script). Step 2 compared the single CHANGELOG Unreleased/Fixed B-fb7b paragraph against those symbols — it accurately states the pretest builds main then utils and the shared build mutex serializes concurrent builds; no over- or under-claim. No blocker: documentation matches delivered code.",
+      "createdAt": "2026-08-14T12:52:29.698Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-066",
+      "envelopeId": "91d959b41572ce899170a0a8edb3ea21ba7de831629aaecf940bdf07ee3aad03",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "README.md"
+        ],
+        "scanEscalationReason": "docs surface for B-fb7b is the CHANGELOG Unreleased/Fixed entry; no decisions-directory doc paragraphs reference the changed build-script symbols, so no full decisions-dir escalation required."
+      },
+      "_hash": "b2b13297728ebf4a97595d33870f21a2a2569922559224f29b4908b8309e6629"
     }
   ]
 }
