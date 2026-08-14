@@ -1627,7 +1627,11 @@
         "edge": [
           {
             "desc": "The doc union list uses the exact pipe-delimited TypeScript union syntax matching the code (e.g. | finding_resolve on its own line or in the same pipe chain), not a prose bullet list or markdown table that could diverge in format from the code; WHY: byte-match requirement means format matters, not just member names",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(String.fromCharCode(10)+\\\"  | \\x27finding_resolve\\x27;\\\") ? \\\"PIPE_SYNTAX_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "PIPE_SYNTAX_CONFIRMED"
+            }
           },
           {
             "desc": "No other section of the doc (outside section 4.3 and the M8 section covered by CHK-005) asserts a specific count of RuntimeConsumer members (e.g. 8 consumers) that is now wrong after the 9th member was added; WHY: a stale count assertion elsewhere would be a missed audit finding",
@@ -1714,6 +1718,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:30.457Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(String.fromCharCode(10)+\\\"  | \\x27finding_resolve\\x27;\\\") ? \\\"PIPE_SYNTAX_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "Checks the doc uses the literal TypeScript pipe-union line format (newline, two-space indent, pipe, single-quoted member, semicolon on the last member) rather than a markdown bullet or table, matching the code's own union declaration format exactly.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b85d4266803d8b16334ecfb22766d7e4dac1aa19ee6919bf9dd9177fa30aacfd",
+            "outputTail": "PIPE_SYNTAX_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:31.478Z"
+          },
+          "headHash": "61eef73ca3ca92cb7d78fe6fad796876344a8222",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:31.605Z"
         }
       ]
     }
