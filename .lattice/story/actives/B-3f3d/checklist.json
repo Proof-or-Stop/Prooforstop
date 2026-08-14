@@ -13,7 +13,69 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The operator can start an inventory epoch and inspect one consolidated status view showing the frozen cutoff, lane and wave progress, blocker codes and the exact next command; the finalized signed receipt is recognizable and cannot be confused with final implementation approval."
+      "userSees": "The operator can start an inventory epoch and inspect one consolidated status view showing the frozen cutoff, lane and wave progress, blocker codes and the exact next command; the finalized signed receipt is recognizable and cannot be confused with final implementation approval.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-001-H1",
+            "desc": "Starting inventory on a REVIEW candidate creates exactly one unique epoch bound to the current story, review round, headHash, materialHash, storyFilesHash, scope digest, required lanes, wave identity, host identity and prompt identity; the returned signed artifact verifies through the canonical gate verifier.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-H2",
+            "desc": "Inventory status for an OPEN epoch deterministically shows epochId, frozen cutoff hashes, state, required lanes, current wave, every lane progress or terminal state, verified and newly verified finding counts, blocker codes, and exactly one executable next command.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-H3",
+            "desc": "After complete clean saturation, finalization emits a signed ReviewInventoryReceipt whose finding-set and coverage digests match the recorded epoch and which the transition gate recognizes only as inventory-completeness authority, never as approval of remediated code or authorization for TEST.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-001-E1",
+            "desc": "Begin or finalize fails closed with an actionable blocker when cutoff identity, scope digest, required lane set, host or prompt identity, coverage evidence, wave terminal state, or bounded-budget adjudication is missing or internally inconsistent.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-E2",
+            "desc": "Repeated begin and status calls across process reloads preserve one authoritative epoch and stable identities without creating duplicate OPEN epochs or changing the frozen cutoff; terminal FINALIZED, INVALIDATED and CANCELLED projections remain distinguishable.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-E3",
+            "desc": "Explicit cancellation records an auditable CANCELLED terminal state, retains incomplete verdicts only as advisory history, cannot be finalized later, and status provides the exact command to begin a fresh epoch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-001-A1",
+            "desc": "Tampering with any signature, story or round binding, cutoff hash, scope digest, lane or wave identity, host or prompt identity, finding-set digest, or coverage digest causes canonical verification and every gate consumer to reject the artifact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-A2",
+            "desc": "A valid receipt replayed across another story, review round, epoch, material lineage, or after terminal consumption is rejected; duplicate epoch IDs, duplicate lane identities and duplicate receipt submissions cannot increase coverage or satisfy saturation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-001-A3",
+            "desc": "An audit-only signatureTag, prose PASS, raw finding claim, or forged duplicate or finding-family disposition cannot be promoted into gate authority without the separately validated canonical signed contract.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
