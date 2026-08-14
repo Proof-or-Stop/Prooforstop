@@ -892,9 +892,9 @@
         "create": [],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T16:38:15.028Z",
-      "endTime": null,
+      "endTime": "2026-08-14T16:50:02.080Z",
       "verificationIntent": {
         "happy": [
           {
@@ -988,7 +988,14 @@
           "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
           "timestamp": "2026-08-14T16:49:56.502Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9aa2953931b5ef3d096752f67fc3da68e8606918112e23eb8c0f7e1bbe351d4a",
+        "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+        "headHash": "a0d14539f55fd0f462b4db1444e201e00ecb66a6",
+        "attestedAt": "2026-08-14T16:50:02.251Z",
+        "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008"
+      }
     }
   ],
   "auditLog": [
@@ -1051,6 +1058,15 @@
       "to": "done",
       "reason": "9/9 gate-invariance, documentation, protected-budget, and official-handler evidence recorded",
       "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:50:02.080Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 907e77c239 strictly synchronizes the canonical terminal contract to 58; build, focused terminal contract, canonical live proof, and all 3 mechanical intent receipts pass."
     }
   ]
 }
