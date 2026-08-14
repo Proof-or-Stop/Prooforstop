@@ -568,6 +568,25 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "_hash": "85b3d88ebda6be08bd1363a87890c931c829e1f3a12363f7ddff69a0a9799a66"
+    },
+    {
+      "id": "B-META-framework-audit:F-031",
+      "desc": "SUPERSEDES THE HIT-COUNT IN B-META-framework-audit:F-030. Anyone reading F-030 must use the reproduction command below instead of the '~108 candidate hits' figure in its desc, which is wrong AND unfixable in place (findings are append-only; there is no finding_update command).\n\nTWO SEPARATE DEFECTS, both found by the docs lane (B-cdf6:F-048 then B-cdf6:F-051):\n\n(1) THE NUMBER WAS WRONG. F-030 says ~108. I had produced that from my own approximating regex, not from the gate's detector, while writing 'measured first'. Correct method: import isBrandProseResidue from scripts/verify-lattice-residue.mjs and apply it line-by-line over `git ls-files packages/main/src`.\n\n(2) THE CORRECTION NEVER LANDED WHERE IT MATTERS. I recorded the fix in the resolvedReason of a DIFFERENT story's finding (B-cdf6:F-048). F-030's own desc still reads '~108 candidate hits' and 'nothing tracks the 108 or ratchets it downward'. A reader of F-030 - the durable record a future implementer sizes the work from - sees only the wrong number. A resolution note on another story's finding is not consumed by any gate and is not where that reader looks. This is the same shape as the original error: recording a correction somewhere plausible rather than where the claim actually lives.\n\n(3) THE COUNT IS A MOVING TARGET, which is the decisive reason to stop quoting numbers at all. Measured with the same method at three heads during a single review round: 161/84 at one head, 159/83 at 0c630092fe (the docs lane's independent isolated-worktree run), and 153/80 at dabc2b5140. It drifts on every commit touching packages/main/src. So ANY frozen figure is stale on arrival, and seeding F-030's proposed count-based ratchet with one would make its first run report a spurious increase and fail - reproducing in miniature the exact failure F-048 was filed to prevent. The docs lane's recommendation is adopted: replace the number with the command.\n\nF-030's qualitative conclusions are all unaffected and remain correct: packages/main/src is outside both DOC_SCAN_ROOTS and EXECUTABLE_SCAN_ROOTS, the tree is scanned only for the older koala token, the gate therefore reported 3/3 PASS while nine user-facing leaks were live, adding the root outright fails closed on a large majority of legitimate hits, and the two-stage counted-then-gated ratchet the file's own comments describe is still the right fix. A larger true count strengthens that case rather than weakening it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T13:43:24.811Z",
+      "reviewRound": "",
+      "gapFingerprint": "f078503cc6a56710295fa3bd2322a461ec0743a06eb099c40b6ea6fdd93f6cf5",
+      "files": [
+        "B-META-framework-audit:F-030",
+        "scripts/verify-lattice-residue.mjs:110",
+        "B-cdf6:F-051",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "a9bbac4c6498d39c0fb3b8f940b9dea5ae56f88984258f0f6d750f2cef8a0453"
     }
   ]
 }
