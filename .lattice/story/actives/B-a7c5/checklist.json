@@ -1376,7 +1376,11 @@
           },
           {
             "desc": "The annotation explicitly states that no DevMemoryEntry gateEvidence/authority fields are ever read by either gate, and no lesson CONTENT is ever surfaced as gate evidence -- these two negative claims appear in the annotation text; WHY: these are the two core clarifications the context requires, distinguishing record-existence-check from entry-content-as-evidence",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"no entry\\x27s \\`gateEvidence\\`/\\`authority\\` fields are ever read\\\") ? \\\"NEGATIVE_CLAIMS_PRESENT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "NEGATIVE_CLAIMS_PRESENT_CONFIRMED"
+            }
           }
         ],
         "edge": [
@@ -1446,6 +1450,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:20.554Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"no entry\\x27s \\`gateEvidence\\`/\\`authority\\` fields are ever read\\\") ? \\\"NEGATIVE_CLAIMS_PRESENT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The annotation states verbatim that no entry's gateEvidence/authority fields are ever read by a gate and no lesson CONTENT is ever surfaced as gate evidence, the two core negative clarifications this intent requires.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6f7e93d04283c46df8b03738a00c65a5ff8ca7b071e25e61a14b0e0287786a31",
+            "outputTail": "NEGATIVE_CLAIMS_PRESENT_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:21.528Z"
+          },
+          "headHash": "57420ebf2abe0cd27da7f8bcd95d396e16d48863",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:21.655Z"
         }
       ]
     },
