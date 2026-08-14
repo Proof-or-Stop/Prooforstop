@@ -1020,7 +1020,7 @@
       "desc": "[codex host-B H2] Verified by main agent against resolveHookCommands in core/hooks.ts, which resolves an exact stage-map key plus the * wildcard and nothing else. The operator-facing string said a CONFIGURED onError hook does run; a configured map carrying neither an exact red_evidence_envelope_check key nor a * key runs no command at all. The handler's own docblock said CONFIGURED and MATCHING correctly, so the operator-facing copy had dropped the qualifier the doc comment kept. That string was also an undeclared FOURTEENTH guarantee-bearing statement where the note declared thirteen. The implementer proved the correction behaviourally with four cases: a configured but non-matching map fires nothing even though the CLI still prints its running onError hooks notice, a * map fires, an exact-key map fires, and returning to the non-matching map fires nothing again.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T11:39:00.949Z",
@@ -1028,7 +1028,11 @@
       "reviewRunId": "B-9ff1:RR-037",
       "_hash": "fa46a0cf2a27ae8b91efc2075c6f2ecd47e04481a4d8ffe81d17f948b2c22b5c",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 82abb47b150c232286c63b6171d5531755e39c77. The operator-facing string now carries the canonical sentence plus the pointer, then says a CONFIGURED and MATCHING onError hook does run and defines MATCHING inline. The implementer's own sweep of the surrounding prose found three MORE instances of the same vocabulary slip - the file header, the rejection footer, and the core/command-policy.ts reason - all corrected in the same commit, and the four already-correct sites were left alone. The declared set is now fourteen statements in ten files, all verified to carry both the canonical sentence and the pointer.",
+      "resolvedAt": "2026-08-14T11:39:03.461Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-049",
