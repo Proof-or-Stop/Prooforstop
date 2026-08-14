@@ -350,6 +350,24 @@
       "_hash": "852e29620ecb2d463ca4feb06dd5e9cafcd7e1a01f2827a937cd40bfb1ae8e64",
       "signatureTag": "doc-code-drift|unknown|category-probe-please",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-017",
+      "desc": "handlers/red-evidence.ts lines 347-353 (the red_evidence_envelope_check docstring, UNTOUCHED by the F-014 repair commit b63dcad96b) still claims that READ_ONLY_COMMANDS membership suppresses the CLI's own hook / activity-log / process-event write surfaces, stated as an unconditional fact. This is the SAME false-guarantee defect class b63dcad96b was written this round to fix in activity-policy.ts, left unfixed in the handler docstring in the same file that owns the command. Verified false: cli-engine.ts gates writeLog on shouldWriteActivityLog(cmd, parsed) OR staleWarnings.length greater than 0 (lines 1416, 1488) -- an independent path that appends an activity row for a READ_ONLY_COMMANDS member whenever an uncooled stale warning exists, regardless of membership; shouldWriteActivityLog itself also returns true for a read-only command when LATTICE_ACTIVITY_RECORD_READONLY=1, a real documented env var baked into GLOBAL_CODEX_FALLBACK_COMMAND in core/codex-adapter-checks.ts and documented in docs/CLI.md and docs/host-run-usage.md. Empirically this worktree own .lattice/activity.jsonl already contains 21 red_evidence_envelope_check rows despite the command READ_ONLY_COMMANDS membership. The hook and process-event portions of the claim are accurate (runHooks and the sole appendProcessEvent call site in writeCodexProcessEvent are both gated purely on isReadOnlyCommand with no OR-bypass), so only the activity-log clause is false, but it is stated with the same absolutism that caused this review round to exist. Fix: qualify or remove the activity-log clause the same way b63dcad96b qualified it in activity-policy.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T03:40:59.534Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-016",
+      "_hash": "daf648f2bb3943a379f77c991d4cd580facea7a8996912c4c0f1aa1791b47bc1",
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|handlers-evidence-lines",
+      "signatureTagSource": "auto"
     }
   ]
 }
