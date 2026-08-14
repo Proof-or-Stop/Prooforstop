@@ -13,7 +13,18 @@
     "packages/main/src/cli/command-catalog.ts",
     "lattice.config.json",
     "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
-    "docs/requirements/decisions/dev-memory.md"
+    "docs/requirements/decisions/dev-memory.md",
+    "bin/lattice.js",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/handlers/dev-memory.ts",
@@ -22,14 +33,17 @@
   "allowedTest": [
     "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
     "packages/main/src/**/*.test.ts",
-    "packages/main/src/**/*.spec.ts"
+    "packages/main/src/**/*.spec.ts",
+    "packages/main/tests/**/*.test.mjs",
+    "packages/main/tests/red/*.mjs",
+    "packages/main/src/tasks/*-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Populated from understanding.json's 10 touchpoints (checklist items are in legacy no-files mode, so scope_contract_init_from_plan produced an empty contract) plus the two decisions/ docs CHK-005/006/007 commit to editing.",
+  "scopeChangeReason": "Widened after DEV implementation surfaced real, necessary collateral: (1) core/lifecycle-registry.ts + core/process-fact-levels.ts registration entries the new dev_memory_preflight_ack/dev_memory_finish_decision commands require (discovered by the implementer via the repo's own consistency checks, not originally in plan.md's touchpoint list); (2) 8 pre-existing test fixtures across packages/main/src/tasks and packages/main/tests that construct DEV/DONE-door stories without a dev-memory artifact, which the new CHK-001/CHK-003 gates now correctly refuse -- each fixture needed exactly one satisfying write added, verified individually and via the full 95-command validate suite; (3) bin/lattice.js is a zero-diff rebuild artifact.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T11:04:45.930Z",
-  "updatedAt": "2026-08-14T11:05:10.781Z",
+  "updatedAt": "2026-08-14T13:40:53.181Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -48,6 +62,20 @@
     "packages/main/src/handlers/dev-memory.ts": "packages/main/src/handlers/dev-memory.ts",
     "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
     "packages/main/src/**/*.test.ts": "packages/main/src/**/*.test.ts",
-    "packages/main/src/**/*.spec.ts": "packages/main/src/**/*.spec.ts"
+    "packages/main/src/**/*.spec.ts": "packages/main/src/**/*.spec.ts",
+    "bin/lattice.js": "bin/lattice.js",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+    "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts": "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+    "packages/main/tests/milestone-status.test.mjs": "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs": "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+    "packages/main/tests/**/*.test.mjs": "packages/main/tests/**/*.test.mjs",
+    "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
+    "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts"
   }
 }
