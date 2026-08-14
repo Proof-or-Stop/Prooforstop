@@ -1360,7 +1360,11 @@
         "happy": [
           {
             "desc": "docs/requirements/decisions/dev-memory.md Non-Goals section now contains a Delivered-differently style annotation (callout, blockquote, or clearly-marked subsection) clarifying that CHK-001 preflight-ack and CHK-003 finish-decision records are a structurally separate artifact type from DevMemoryEntry JSONL rows, and that only the existence of a reflection record is gate-checked -- not entry content; WHY: confirms the primary update was made, the entries-vs-records distinction is stated, and the gate-checks-existence-only property is documented",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"structurally SEPARATE artifact types\\\") ? \\\"STRUCTURALLY_SEPARATE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "STRUCTURALLY_SEPARATE_CONFIRMED"
+            }
           },
           {
             "desc": "The original Non-Goal line (Dev-memory entries are NOT surfaced in lattice validate output or gate checks) is still present in the file, preserved as historical/still-true-for-entry-content context within or adjacent to the annotation -- grep for that exact phrase returns a match; WHY: plan and context explicitly require preserving the original line, not deleting or rewriting it",
@@ -1399,7 +1403,28 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"structurally SEPARATE artifact types\\\") ? \\\"STRUCTURALLY_SEPARATE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The Non-Goals Delivered-differently annotation explicitly states B-a7c5 introduces two structurally SEPARATE artifact types (preflight-ack, finish-decision) from DevMemoryEntry rows, and that only reflection-record existence is gate-checked, matching the primary claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61a611b0d946d631467ec3035b0b68ba2cf96caccc0017487603449f93cf382b",
+            "outputTail": "STRUCTURALLY_SEPARATE_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:19.265Z"
+          },
+          "headHash": "4ab0d38de7362a0945fa7d0e98ab8b51b6000ca0",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:19.390Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
