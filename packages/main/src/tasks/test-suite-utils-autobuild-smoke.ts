@@ -41,21 +41,33 @@ assert.ok(
     'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/lattice.js sub-tests die at bootstrap-runner',
 );
 
-// 2) The pretest runs a real build for BOTH packages, packages/main BEFORE packages/utils.
-// The fallback matches ONLY the exact root `build` script (which builds both packages), not a
-// namespaced sibling like `build:lab` / `build:fast` / `build-x` — the negative lookahead `(?![\w:-])`
-// rejects a trailing word char, colon, or hyphen after `build`, so a partial build cannot pass the guard.
-// The SAME anchor is applied to the `--prefix` forms, not just the bare `npm run build` fallback (F-003/F-004/F-006).
-const runsExactRootBuild = /\bnpm\s+run\s+build(?![\w:-])/.test(pretest);
-const buildsMain = /--prefix\s+packages\/main\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
-const buildsUtils = /--prefix\s+packages\/utils\s+run\s+build(?![\w:-])/.test(pretest) || runsExactRootBuild;
-assert.ok(buildsUtils, `pretest does not build packages/utils: ${pretest}`);
-assert.ok(buildsMain, `pretest does not build packages/main: ${pretest}`);
-const mainIdx = pretest.indexOf('packages/main');
-const utilsIdx = pretest.indexOf('packages/utils');
-if (mainIdx >= 0 && utilsIdx >= 0) {
-  assert.ok(mainIdx < utilsIdx, `pretest must build packages/main before packages/utils: ${pretest}`);
+// 2) The pretest runs the IDEMPOTENT (`--ensure`) build for BOTH packages, main BEFORE utils.
+// `--ensure` is the skip-if-current mode (Codex MAJOR-2): a repeated `npm test` over a current
+// dist must NOT rm+rebuild it, or it races a concurrent invocation's suite still reading dist.
+// The negative lookahead `(?![\w:-])` pins the exact `--ensure` flag (rejects `--ensure-x` etc.),
+// so a plain always-rebuild pretest (`--prefix ... run build`, or the scripts without `--ensure`)
+// cannot satisfy this guard.
+const buildsMain = /build-main-with-binding(?:\.mjs)?\s+--ensure(?![\w:-])/.test(pretest);
+const buildsUtils = /build-utils-with-lock(?:\.mjs)?\s+--ensure(?![\w:-])/.test(pretest);
+assert.ok(buildsUtils, `pretest does not idempotently (--ensure) build packages/utils: ${pretest}`);
+assert.ok(buildsMain, `pretest does not idempotently (--ensure) build packages/main: ${pretest}`);
+const mainIdx = pretest.indexOf('build-main-with-binding');
+const utilsIdx = pretest.indexOf('build-utils-with-lock');
+assert.ok(
+  mainIdx >= 0 && utilsIdx >= 0 && mainIdx < utilsIdx,
+  `pretest must build packages/main before packages/utils (utils tsc links against main dist): ${pretest}`,
+);
+// The referenced idempotent build scripts must actually exist on disk (not a dangling name).
+for (const rel of ['scripts/build-main-with-binding.mjs', 'scripts/build-utils-with-lock.mjs', 'scripts/build-lock.mjs']) {
+  assert.ok(existsSync(join(repoRoot, rel)), `pretest references ${rel} but it does not exist`);
 }
+// build-lock.mjs must reclaim a stale lock by holder liveness, not purely by age — the age-only
+// steal recreated the dist corruption the mutex prevents (Codex MAJOR-1).
+const buildLock = readFileSync(join(repoRoot, 'scripts/build-lock.mjs'), 'utf8');
+assert.ok(
+  /process\.kill\(/.test(buildLock) && /nonce/.test(buildLock),
+  'scripts/build-lock.mjs must reclaim a lock by holder PID-liveness and release by ownership nonce (Codex MAJOR-1), not by age alone',
+);
 
 // 3) The consumer link: root "test" invokes the full-suite runner (which spawns bin/lattice.js).
 assert.ok(

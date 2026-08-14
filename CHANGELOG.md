@@ -22,10 +22,10 @@
   tracks the git-command tokens in the shared module.
 
 - **Root `npm test` now self-bootstraps `packages/utils` (B-fb7b).** Added a root
-  `pretest` script that builds `packages/main` then `packages/utils` before the
-  full suite runs. Previously `validate.commands` auto-built only `packages/main`,
-  so a worktree without `packages/utils/dist` ran the full suite (via
-  done_required's `npm test`) with utils absent, and any sub-test that spawns
+  `pretest` script that ensures `packages/main` then `packages/utils` `dist` exist
+  before the full suite runs. Previously `validate.commands` auto-built only
+  `packages/main`, so a worktree without `packages/utils/dist` ran the full suite
+  (via done_required's `npm test`) with utils absent, and any sub-test that spawns
   `bin/lattice.js` aborted in `bootstrap-runner.js` with
   `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires
   through the npm lifecycle, closing the gap at the exact point utils is needed;
@@ -36,6 +36,26 @@
   (`packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs`) keep the pretest
   from regressing. The worktree handler and `bootstrap-runner.js` are intentionally
   left untouched (their human recovery hint stays).
+
+  Because that pretest runs on every `npm test` in a review pipeline that fires many
+  builds in one shared worktree, the build scripts (`scripts/build-main-with-binding.mjs`,
+  `scripts/build-utils-with-lock.mjs`) take a shared per-repo build mutex
+  (`scripts/build-lock.mjs`) so concurrent `rm -rf dist` + `tsc` runs serialize instead
+  of racing into `ENOTEMPTY`/`TS2307` corruption. Two follow-on hardenings, from an
+  independent cross-host (Codex) review:
+    - **Idempotent `--ensure` pretest (skip-if-current).** The pretest now builds each
+      `dist` only when it is missing or older than its sources, so a repeated `npm test`
+      over a current `dist` does NOT `rm -rf dist`+rebuild — removing the reader-writer
+      race where one invocation's pretest destroys a `dist` another invocation's full
+      suite is still spawning tasks out of. The full rebuild+binding purity proof stays
+      the default (no `--ensure`) build path.
+    - **Liveness-based mutex reclaim + ownership-checked release.** The lock is reclaimed
+      only from a holder whose PID is provably gone — never age-stolen from a live
+      long-running build — and a holder releases the lock only while its own nonce still
+      owns it, so a reclaimed-then-re-acquired lock can never be deleted out from under a
+      successor. Behavioral RED `red-fb7b-build-lock-liveness.mjs` (wired into
+      `validate.commands`) and an extended `red-fb7b-guard-bite.mjs` (a non-`--ensure`
+      pretest now bites) lock in both fixes.
 
 ## Proofbound 0.3.251 - 2026-07-31
 
