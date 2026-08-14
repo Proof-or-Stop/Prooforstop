@@ -1,0 +1,40 @@
+{
+  "storyId": "B-c648",
+  "checkedAt": "2026-08-14T04:27:53.453Z",
+  "headHash": "dd698b1672f38bb4c01b11494e80d58fa53ce2c2",
+  "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
+  "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
+  "reviewRound": "2026-08-14T04:04:28.505Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md#1-21",
+      "promise": "Document defines the Mechanism Placement Proof mechanism, contract, artifact schemas, gates, freshness, verdict semantics, rollout, touchpoints, tests, and a B-3783/B-fb7b worked example (CHK-001).",
+      "status": "verified",
+      "verifiedBy": "docs_check",
+      "evidence": "Sections 1-20 present in docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md (1121 lines); CHK-001 verificationEvidence recorded 3/3 passing mechanical docs_check receipts (exitCode 0) confirming required marker strings for the mechanism artifact field, candidate-evidence separation, and no-ID stop assertion. Content read and spot-checked directly (sections 5 lifecycle placement, 8 candidate evidence model, 10 draft binding, 11 central allocation gate, 17 verification matrix) and matches the promised structure."
+    },
+    {
+      "docPath": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md#21-independent-cli-audit-record",
+      "promise": "Independent Claude CLI (2.1.220) and Antigravity CLI agy (1.1.13) architecture audits were actually run against the full draft, including a claimed agy 5-minute timeout followed by a 10-minute retry, producing real findings that were reconciled and re-confirmed (CHK-002).",
+      "status": "unverified"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "3/3 verificationEvidence entries are mechanical docs_check commands with recorded receipts (exitCode 0, outputTail matching expected selector, headHash/materialHash/storyFilesHash stamped). These are real executed node -e commands grepping the actual delivered document for required content markers, genuine mechanical evidence for a docs-only story."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "REVIEWER FINDING (delivery-blocking): 3/3 verificationEvidence entries are mechanical docs_check commands with recorded receipts (exitCode 0), but these commands only assert that specific strings (the audit tool version string, a section heading) are present in the document; they mechanically prove the prose was written, not that the underlying claimed event occurred. No corroborating artifact exists anywhere in the story process record for an actual external claude/agy CLI invocation: process-events.jsonl has no dispatch/tool-invocation entry naming agy or Claude CLI as a separate host, and grep across all .lattice/story/actives/B-c648/*.json (prompt-envelopes.json, pre-review-check.json, review-runs.json, review.json, test-evidence.json, decision.json, understanding.json) finds zero occurrences of agy, Antigravity, Claude CLI, 2.1.220, or 1.1.13 outside the target document and the checklist description text itself. Process timeline is dispositive: CHK-002 dispatch=2026-08-14T04:00:47.655Z, subagent_result=2026-08-14T04:03:23.857Z, a 2m36s window for the entire checklist item. The document's Section 21 narrates an agy first invocation timing out at 5 minutes followed by a second run under a 10-minute limit, plus a separate Claude CLI audit, a finding-reconciliation revision pass, and two independent confirmation re-audits; that sequence could not have physically completed inside 2m36s. execution-boundary.json does list `agy *` and `claude *` as allowed commands, so invocation was permitted, but no evidence shows it happened; the specific versions, finding counts/severities, and retry narrative in Section 21 read as a plausible but unverifiable transcript, not a real one. CHK-002 explicitly required real independent multi-host audit reconciliation and the process record cannot support that this took place."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "Documentation-only story (no runtime code changed, consistent with plan.md exclusions) delivers a well-structured 1121-line decision document with strong internal coverage (lifecycle placement, verdict semantics, freshness, rollout, tests, worked B-3783/B-fb7b example) for CHK-001. CHK-002 is delivery-blocking: the document Section 21 independent Claude CLI / agy CLI audit record cannot be corroborated by any process evidence and is timeline-implausible (whole item took 2m36s versus a narrated 15+ minute multi-host audit and retry sequence), so the audit-reconciliation promise is unverified rather than delivered."
+  },
+  "_hash": "ade17a68206f1b087e34524451462421ab49a26f2e733948e59da3f898ea70d7"
+}
