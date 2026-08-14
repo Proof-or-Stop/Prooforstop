@@ -1,0 +1,21 @@
+{
+  "storyId": "B-6693",
+  "expected": "A second official validation prints \"waiting for workspace validation capacity\" with the active holder story/command and heartbeat age, then starts automatically after the first validation releases the lease.",
+  "actual": {
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "node:internal/modules/run_main:122\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: focused rollout enforce+rollback control did not pass: LATTICE_FULL_SUITE_SUMMARY={\"assertions\":[\"acceptance-rollout:58\"],\"mutations\":[\"reviewer-host-removal\",\"quorum-forgery\",\"review-round-forgery\",\"transcript-removal\",\"waiver-forgery\",\"restoration-tamper\"]}\nProofStory acceptance rollout smoke: PASS (58 assertions)\n\n\nfalse !== true\n\n    at file:///Users/jek/Documents/Work/proofbound/.worktrees/B-6693/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:954:20\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: 'strictEqual'\n}\n\nNode.js v22.13.0\nnode:internal/errors:983\n  const err = new Error(message);\n              ^\n\nError: Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node /Users/jek/Documents/Work/proofbound/.worktrees/B-6693/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\nnode:internal/modules/run_main:122\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: focused rollout enforce+rollback control did not pass: LATTICE_FULL_SUITE_SUMMARY={\"assertions\":[\"acceptance-rollout:58\"],\"mutations\":[\"reviewer-host-removal\",\"quorum-forgery\",\"review-round-forgery\",\"transcript-removal\",\"waiver-forgery\",\"restoration-tamper\"]}\nProofStory acceptance rollout smoke: PASS (58 assertions)\n\n\nfalse !== true\n\n    at file:///Users/jek/Documents/Work/proofbound/.worktrees/B-6693/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:954:20\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\n    at async asyncRunEntryPointWith\n...[truncated 4864 chars]"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-14T16:34:03.777Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "489b9c02041bb94839ec4198a9443a2e601bcab5",
+  "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+}
