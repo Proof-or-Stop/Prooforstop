@@ -285,7 +285,11 @@
           {
             "desc": "Any provider-reported host_run final is recorded=unavailable (e.g. agy's structurally-absent usage surface, or a Claude run with a truncated/unavailable usage line) -> the document does not fabricate a token count for that record; it cites the receipt's actual unavailable state and its exact unavailableReason, and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely unavailable rather than inventing numbers to fill the gap.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const c=rows.find(r=>r.recordId===\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\");const a=rows.find(r=>r.recordId===\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\");if(c.usage.source!==\\\"provider-reported\\\"||![6,1655,47054,160377].every((n,i)=>n===[c.usage.inputTokens,c.usage.outputTokens,c.usage.cacheCreationInputTokens,c.usage.cacheReadInputTokens][i]))throw Error(\\\"Claude usage mismatch\\\");if(a.usage.source!==\\\"unavailable\\\"||a.usage.unavailableReason!==\\\"agy_print_mode_reports_no_usage\\\"||a.usage.inputTokens!==null||a.usage.outputTokens!==null)throw Error(\\\"agy unavailable state lost\\\");console.log(\\\"CHK003_EDGE_PASS\\\")\"",
+              "selector": "CHK003_EDGE_PASS"
+            }
           }
         ],
         "adversarial": [
@@ -317,6 +321,27 @@
           "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
           "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "timestamp": "2026-08-14T05:04:43.249Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": ".lattice/usage/llm-usage.jsonl",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const c=rows.find(r=>r.recordId===\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\");const a=rows.find(r=>r.recordId===\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\");if(c.usage.source!==\\\"provider-reported\\\"||![6,1655,47054,160377].every((n,i)=>n===[c.usage.inputTokens,c.usage.outputTokens,c.usage.cacheCreationInputTokens,c.usage.cacheReadInputTokens][i]))throw Error(\\\"Claude usage mismatch\\\");if(a.usage.source!==\\\"unavailable\\\"||a.usage.unavailableReason!==\\\"agy_print_mode_reports_no_usage\\\"||a.usage.inputTokens!==null||a.usage.outputTokens!==null)throw Error(\\\"agy unavailable state lost\\\");console.log(\\\"CHK003_EDGE_PASS\\\")\"",
+          "result": "pass",
+          "note": "Claude provider-reported numeric fields and agy explicit unavailable state/reason are preserved without invented usage.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5f2390a19af2d3d817655246f622c2f239fb53ebde3e5e2dc633115f30896f49",
+            "outputTail": "CHK003_EDGE_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:44.292Z"
+          },
+          "headHash": "2136177c6297a04642f6f1ec1b65501c3b1b4aa6",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:44.398Z"
         }
       ]
     }
