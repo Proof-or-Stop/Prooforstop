@@ -1,6 +1,6 @@
 {
   "storyId": "B-a7c5",
-  "checkedAt": "2026-08-14T10:57:26.239Z",
+  "checkedAt": "2026-08-14T11:02:32.053Z",
   "features": [
     {
       "feature": "dev_memory_preflight_ack command writes ack artifact (schemaVersion, storyId, packDigest, topHitIds, acknowledgedAt, acknowledgedBy) under .lattice/story/actives/<storyId>/dev-memory-preflight-ack.json",
@@ -136,9 +136,9 @@
       "source": "decisions:dev-memory.md"
     },
     {
-      "feature": "Section 4.3's documented `RuntimeConsumer` TypeScript type union ('session_brief' | 'dev_memory_start' | 'host_handoff' | 'story_create' | 'story_advance' | 'done_prepare' | 'done_closure' | 'final_response_check') currently matches the shipped code exactly (verified: core/playbook-runtime-memory.ts:44-52 has the identical 8 members). CHK-002 step 1 adds a 9th member, 'finding_resolve', to the shipped code union, but no checklist item (CHK-005 is scoped only to CHK-003's M8/4.3-blocking-consumer escalation; CHK-006 is scoped only to dev-memory.md's Non-Goal) updates section 4.3's documented type block to add 'finding_resolve', so the spec's literal TypeScript contract will silently go stale the same way M8/dev-memory.md were found stale in prior PLAN rounds",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Section 4.3's documented RuntimeConsumer TypeScript type union ('session_brief' | 'dev_memory_start' | 'host_handoff' | 'story_create' | 'story_advance' | 'done_prepare' | 'done_closure' | 'final_response_check') is stale relative to CHK-002's shipped code union, which adds a 9th member 'finding_resolve' -- the doc's literal type block must be updated to include it, and the doc swept for any other stale shape/behavior references beyond the M8/4.3-bypass items CHK-005 already covers",
+      "covered_by": "CHK-007",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
     }
@@ -277,19 +277,19 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": "High-risk lifecycle/gate change (story adds/extends 3 gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard); re-verified in this round (6-item checklist, OQ-3 resolved). candidate-spec-set.json's top-8 keyword routing (score 40-64) again did not surface dev-memory.md or playbook-runtime-memory-consumption-execution-plan.md in top rank despite direct relevance, so both were read in full independently this round. Independently re-ran full-corpus rg sweeps for RuntimeConsumer, finding_resolve, dev_memory_preflight_ack, dev_memory_finish_decision, canFinishGuard/canStartDevGuard/canSkipPlanGuard/canReenterDevGuard, dev-memory-preflight-ack, finish-decision across all 129 decisions/*.md files: RuntimeConsumer is defined only in playbook-runtime-memory-consumption-execution-plan.md (confirming the new RuntimeConsumer-union gap below is fully scoped to that one file, not spread across other docs); finding_resolve also appears in session-ownership-and-write-leases.md (write-lease command list, unrelated to advisory-hint text) and lattice-experience-layer-execution-plan.md (a distinct, not-yet-implemented B-1480 Experience Layer whose 'never automatically finding_resolve' constraint governs auto-invoking finding_resolve as an action, not this story's output-text splice) -- both ruled out as non-conflicting, consistent with the prior round's same conclusion. No further full-content reads beyond the two candidates were warranted this round.",
+    "scanEscalationReason": "High-risk lifecycle/gate change (story adds/extends 3 gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard) -- re-verified in this round 5 against the CURRENT 7-item checklist (CHK-007 newly added to close the round-4 RuntimeConsumer-union gap). Independently re-ran full-corpus rg sweeps this round for RuntimeConsumer, finding_resolve, dev_memory_preflight_ack/dev-memory-preflight-ack, dev_memory_finish_decision, and canFinishGuard/canStartDevGuard/canSkipPlanGuard/canReenterDevGuard across all 129 decisions/*.md files. Results: RuntimeConsumer is defined only in playbook-runtime-memory-consumption-execution-plan.md (confirms CHK-007's fix is fully scoped, no other doc needs the union update); finding_resolve appears only in session-ownership-and-write-leases.md (unrelated write-lease command list) and lattice-experience-layer-execution-plan.md (a distinct, not-yet-implemented subsystem's constraint against auto-invoking finding_resolve as an action, not this story's output-text splice); dev_memory_finish_decision appears only in the fully-read plan doc; the three guard-function names appear once more, in red-evidence-legacy-v1-record-validation-audit.md's unrelated store.readRedEvidence reach-audit table, where they are cited only as an existing reacher chain to a builder this story's new, orthogonal preflight-ack check does not touch or modify -- ruled out as non-conflicting. Both required candidate docs (dev-memory.md, playbook-runtime-memory-consumption-execution-plan.md) were re-read in full this round. Manually re-swept both full documents section-by-section (Non-Goals, Purpose non-negotiable list, Storage Locations/Commands tables, Section 4.3 rollout table, M4-M7/M11/Runbook sections) for any other type/list/command-name/behavior reference that CHK-001-003's code changes would make stale; found none beyond what CHK-005/CHK-006/CHK-007 already cover. Converges to zero gaps this round.",
     "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
     "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
   },
   "summary": {
     "total": 20,
-    "covered": 19,
+    "covered": 20,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "72e19850887a3e5894a31d0d7a3ea8f7a5a428a3ae032e8d4247856a04cc56ac",
+  "_hash": "a26a7c592755cf564d3b510341608069c8315b1684e54078bcb6d3b8663c4f4c",
   "openQuestions": []
 }
