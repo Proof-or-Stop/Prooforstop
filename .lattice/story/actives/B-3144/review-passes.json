@@ -603,6 +603,41 @@
         "scanEscalationReason": null
       },
       "_hash": "3b87b4f03b73398789c9237f692409c7d221fdb3022f7d5166580f0e8fae4919"
+    },
+    {
+      "id": "B-3144:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept-lane review, round 2 (post-F-035 fix, commit cfdf3df2a2). Diff main...HEAD --stat + full diff read for packages/main/src, docs/, and .lattice story metadata: this story is purely additive (new quorum_prune handler/CLI/policy/config/process-fact-level wiring across all 5 integration points) plus a predicate-widening fix to assertNoStandingQuorum in handlers/quorum-submit.ts (drift-accept branch + F-035 EMPTY_STORY_FILES_HASH exclusion) and a mechanical AST-fingerprint repin in retired-authority-vocabulary-guard-smoke.ts for the cli-engine.ts edit. No concept word was deleted or mass-replaced, so no residue grep applies. Independently re-derived: (1) the repinned canonical-AST fingerprint for cli-engine.ts via ts.createPrinter({removeComments:true}) + sha256 matches the pinned value exactly; (2) read eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948-984) side by side with the fixed assertNoStandingQuorum drift-accept branch -- the storyFilesHash===EMPTY_STORY_FILES_HASH early-return, the non-empty/non-current materialDigest check, and the non-empty/matching storyFilesHash check all match the floor predicate exactly; the floor's liveIdentities exclusion is provably unreachable from the guard's decision space since the same-material branch already refuses first for any current-material verdict on a planned runId. (3) Ran the built quorum-submit-smoke.js suite fresh: 71/71 checks pass, including the new regression check 'EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)'. No blocker found for this concept-lane scope.",
+      "createdAt": "2026-08-14T06:15:45.332Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-048",
+      "envelopeId": "92b93ad5ac8f88175acd33c75be83bfbf0cb530ea06b6966ecd926d8d8ab53bd",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "675f48ed228a8be723100a88e12b8a775224774c48b903c198746496abe232ce"
     }
   ]
 }
