@@ -343,6 +343,9 @@ export const LIFECYCLE_ARTIFACTS = [
   'candidate-spec-set.json',
   'delivery-check.json',
   'review-runs.json',
+  // B-3f3d: signed frozen-review epochs, critic receipts, and single-use
+  // remediation receipts written by StoryStore and consumed by REVIEW -> DEV.
+  'review-inventory-epochs.json',
   'prompt-envelopes.json',
   'findings.json',
   'gap-log-provenance.jsonl',

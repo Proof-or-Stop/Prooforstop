@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -11,6 +11,7 @@ import {
   consumeReviewInventoryReceipt,
   finalizedUnconsumedReviewInventory,
   signReviewInventoryEpoch,
+  signReviewInventoryReceipt,
 } from '../core/review-inventory-epoch.js';
 import { signFinding } from '../core/finding-verify.js';
 import type { Finding, StoryInfo } from '../core/types.js';
@@ -43,6 +44,18 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
       ...env,
     },
   }).trim();
+}
+
+function cliAsync(root: string, command: string, payload: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): Promise<{ ok: boolean; output: string }> {
+  return new Promise(resolve => execFile(process.execPath, [cliPath, '--root', root, command, JSON.stringify(payload)], {
+    cwd: root,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      ...env,
+    },
+  }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
 }
 
 function setup() {
@@ -112,12 +125,14 @@ assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), before
 const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
 const readEvents = [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: 8 }];
 let realFindingId = '';
+const firstWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const [index, lane] of epoch.requiredLanes.entries()) {
   const sessionId = `sess-inventory-${lane}`;
   cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `real review_run_start must return a signed run for ${lane}: ${started}`);
+  firstWaveRuns.set(lane, { reviewRunId, sessionId });
   if (index === 0) {
     const finding = cli(first.root, 'finding_add', {
       storyId,
@@ -191,6 +206,16 @@ assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length,
 const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);
+const oldWaveLane = epoch.requiredLanes[1];
+const oldWaveRun = firstWaveRuns.get(oldWaveLane)!;
+assert.throws(
+  () => cli(first.root, 'review_pass_set', {
+    storyId, agent: oldWaveLane, reviewRunId: oldWaveRun.reviewRunId,
+    note: 'A late terminal from the prior wave must be rejected.', readManifest, readEvents,
+  }, { LATTICE_AGENT: oldWaveLane, LATTICE_SESSION_ID: oldWaveRun.sessionId }),
+  /REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED/,
+  'F031: wave checkpoint seals every ReviewRun that started before the new wave boundary',
+);
 // Force the already-persisted positive wave to be the configured budget edge,
 // then prove the real CLI refuses before writing another checkpoint.
 let budgetData = reloaded.readReviewInventoryEpochs(storyId);
@@ -323,6 +348,16 @@ assert.match(remediationAdvance, /DEV/);
 assert.equal(reloaded.readStory(storyId).phase, 'DEV', 'real story_advance consumes the receipt before publishing DEV');
 assert.throws(() => consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff), /REVIEW_INVENTORY_REMEDIATION_BLOCKED/);
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0].receiptId, receipt.receiptId);
+assert.throws(
+  () => cli(first.root, 'finding_add', {
+    storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
+    desc: 'An old review run cannot append evidence after DEV phase publication.',
+    severity: 'medium', category: 'adversarial', evidenceState: 'verified',
+    files: ['packages/main/src/subject.ts'], readManifest, readEvents,
+  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  /REVIEW_EVIDENCE_PHASE_REQUIRED/,
+  'F030: reviewer evidence is phase-bound, so DEV cannot accept an old-run writer',
+);
 
 const postRemediationStory = reloaded.readStory(storyId);
 postRemediationStory.currentReviewRound = '2020-01-02T00:00:00.000Z';
@@ -465,6 +500,96 @@ const cancelled = setup();
 cli(cancelled.root, 'review_inventory_begin', { storyId });
 assert.match(cli(cancelled.root, 'review_inventory_cancel', { storyId, reason: 'operator cancels this real handler smoke epoch' }), /State: CANCELLED/);
 assert.match(cli(cancelled.root, 'review_inventory_begin', { storyId }), /State: OPEN/, 'cancelled epoch permits a fresh persisted epoch');
+
+const cancelRace = setup();
+cli(cancelRace.root, 'review_inventory_begin', { storyId });
+const raceLane = 'lattice-review-concept';
+const raceSession = 'sess-inventory-cancel-race';
+cli(cancelRace.root, 'dispatch', { storyId, agentType: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
+const raceStarted = cli(cancelRace.root, 'review_run_start', { storyId, agent: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
+const raceRunId = raceStarted.match(/Review run (\S+) started/)?.[1];
+assert.ok(raceRunId);
+const [cancelRaceResult, findingRaceResult] = await Promise.all([
+  cliAsync(cancelRace.root, 'review_inventory_cancel', { storyId, reason: 'concurrent late evidence recovery race' }),
+  cliAsync(cancelRace.root, 'finding_add', {
+    storyId, agent: raceLane, reviewRunId: raceRunId,
+    desc: 'Concurrent finding is either durably before cancel or rejected after its boundary.',
+    severity: 'high', category: 'adversarial', evidenceState: 'verified',
+    files: ['packages/main/src/subject.ts'], readManifest, readEvents,
+  }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession }),
+]);
+assert.equal(cancelRaceResult.ok, true, cancelRaceResult.output);
+if (!findingRaceResult.ok) assert.match(findingRaceResult.output, /REVIEW_INVENTORY_EVIDENCE_SEALED/);
+const racePersistedFindingIds = cancelRace.store.readFindings(storyId).findings.map(row => row.id).sort();
+while (Date.now() <= Date.parse(cancelRace.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.updatedAt)) { /* strict rebegin boundary */ }
+cli(cancelRace.root, 'review_inventory_begin', { storyId });
+assert.deepEqual(
+  cancelRace.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.baselineFindingIds,
+  racePersistedFindingIds,
+  'cancel-vs-finding lock order either rejects the late writer or carries its durable finding into the fresh epoch',
+);
+
+const finalizedRecovery = setup();
+const recoveryCutoff = finalizedRecovery.handlers.review_inventory_begin({ storyId });
+assert.match(recoveryCutoff, /State: OPEN/);
+let recoveryData = finalizedRecovery.store.readReviewInventoryEpochs(storyId);
+const recoveryEpoch = recoveryData.epochs[0];
+const recoveryIssuedAt = new Date().toISOString();
+const recoveryReceiptUnsigned = {
+  schemaVersion: 'proofbound.review_inventory_receipt.v1' as const,
+  receiptId: `${recoveryEpoch.epochId}:RCP-001`, epochId: recoveryEpoch.epochId, storyId,
+  reviewRound, cutoff: recoveryEpoch.cutoff, scopeDigest: recoveryEpoch.scopeDigest,
+  requiredLanes: recoveryEpoch.requiredLanes, waveCount: 1,
+  findingSetDigest: 'f'.repeat(64), coverageDigest: 'e'.repeat(64),
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS' as const,
+  authority: 'inventory-completeness-only' as const, authorizesTest: false as const,
+  issuedAt: recoveryIssuedAt,
+};
+const recoveryFinalizedUnsigned = {
+  ...recoveryEpoch, state: 'FINALIZED' as const, updatedAt: recoveryIssuedAt,
+  receiptId: recoveryReceiptUnsigned.receiptId,
+};
+delete (recoveryFinalizedUnsigned as Partial<typeof recoveryFinalizedUnsigned>)._hash;
+recoveryData.epochs[0] = { ...recoveryFinalizedUnsigned, _hash: signReviewInventoryEpoch(recoveryFinalizedUnsigned) };
+recoveryData.receipts.push({ ...recoveryReceiptUnsigned, _hash: signReviewInventoryReceipt(recoveryReceiptUnsigned) });
+finalizedRecovery.store.writeReviewInventoryEpochs(storyId, recoveryData);
+assert.match(
+  cli(finalizedRecovery.root, 'review_inventory_cancel', { storyId, reason: 'genuine late finding requires a fresh signed inventory' }),
+  /State: CANCELLED/,
+  'F029: operator can signed-invalidate an unconsumed FINALIZED receipt',
+);
+recoveryData = finalizedRecovery.store.readReviewInventoryEpochs(storyId);
+assert.ok(recoveryData.receipts[0].invalidatedAt);
+assert.equal(recoveryData.receipts[0].invalidationReason, 'genuine late finding requires a fresh signed inventory');
+assert.equal(finalizedUnconsumedReviewInventory(finalizedRecovery.store, storyId), null);
+assert.match(cli(finalizedRecovery.root, 'review_inventory_begin', { storyId }), /State: OPEN/);
+
+const carryForward = setup();
+const carryLane = 'lattice-review-concept';
+const carrySession = 'sess-inventory-carry-forward';
+cli(carryForward.root, 'dispatch', { storyId, agentType: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
+const carryStarted = cli(carryForward.root, 'review_run_start', { storyId, agent: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
+const carryRunId = carryStarted.match(/Review run (\S+) started/)?.[1];
+assert.ok(carryRunId);
+const carryFindingOutput = cli(carryForward.root, 'finding_add', {
+  storyId, agent: carryLane, reviewRunId: carryRunId,
+  desc: 'Pre-epoch verified finding must survive cancel and begin recovery.',
+  severity: 'high', category: 'adversarial', evidenceState: 'verified',
+  files: ['packages/main/src/subject.ts'], readManifest, readEvents,
+}, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
+const carryFindingId = carryFindingOutput.match(/(B-inventory-handler:F-\d+)/)?.[1];
+assert.ok(carryFindingId);
+const carryFindingCreatedAt = carryForward.store.readFindings(storyId).findings.find(row => row.id === carryFindingId)!.createdAt!;
+while (Date.now() <= Date.parse(carryFindingCreatedAt)) { /* force a strict signed baseline boundary */ }
+cli(carryForward.root, 'review_inventory_begin', { storyId });
+let carryEpoch = carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+assert.deepEqual(carryEpoch.baselineFindingIds, [carryFindingId], 'F032: begin signs the current-cutoff/current-round open verified baseline');
+assert.ok(carryForward.handlers.review_inventory_status({ storyId }).includes('REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE'));
+cli(carryForward.root, 'review_inventory_cancel', { storyId, reason: 'exercise cancellation without losing a verified finding' });
+while (Date.now() <= Date.parse(carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.updatedAt)) { /* strict rebegin boundary */ }
+cli(carryForward.root, 'review_inventory_begin', { storyId });
+carryEpoch = carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+assert.deepEqual(carryEpoch.baselineFindingIds, [carryFindingId], 'F032: cancellation/rebegin cannot erase an existing verified finding');
 
 const drifted = setup();
 cli(drifted.root, 'review_inventory_begin', { storyId });

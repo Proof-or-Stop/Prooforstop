@@ -359,9 +359,9 @@ function recordReviewPass(
   command = 'review_pass_set',
 ): string {
   return withReviewInventoryMutationLock(ctx.store, storyId, () => withReviewPassLock(ctx, storyId, () => {
-    assertReviewInventoryEvidenceWritable(ctx.store, storyId);
     const story = ctx.store.readStory(storyId);
     const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
+    assertReviewInventoryEvidenceWritable(ctx.store, storyId, reviewRun);
     const data = ctx.store.readReviewPasses(storyId);
     const nextNum = data.passes.reduce((max, pass) => {
       const m = pass.id.match(/:RP-(\d+)$/);
@@ -523,9 +523,6 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
       const story = store.readStory(args.storyId);
-      if (reviewerLane) {
-        assertCurrentReviewRunForEvidence(store, story, ctx.root, reviewerLane, args.reviewRunId);
-      }
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
         return recordReviewPass(
@@ -606,7 +603,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       });
       const id = reviewerLane
         ? withReviewInventoryMutationLock(store, args.storyId, () => {
-            assertReviewInventoryEvidenceWritable(store, args.storyId);
+            const lockedStory = store.readStory(args.storyId);
+            const lockedRun = assertCurrentReviewRunForEvidence(store, lockedStory, ctx.root, reviewerLane, args.reviewRunId);
+            assertReviewInventoryEvidenceWritable(store, args.storyId, lockedRun);
             return writeFinding();
           })
         : writeFinding();

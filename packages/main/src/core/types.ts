@@ -1698,6 +1698,8 @@ export interface ReviewInventoryEpoch {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   scopeDigest: string;
   requiredLanes: string[];
+  /** Signed snapshot of open verified findings from current-cutoff/current-round runs that predate begunAt. */
+  baselineFindingIds?: string[];
   maxWaves: number;
   waves: ReviewInventoryWave[];
   invalidation?: {
@@ -1733,6 +1735,9 @@ export interface ReviewInventoryReceipt {
   authorizesTest: false;
   issuedAt: string;
   consumedAt?: string;
+  /** Signed revocation of an unconsumed receipt; revoked receipts never grant remediation authority. */
+  invalidatedAt?: string;
+  invalidationReason?: string;
   _hash: string;
 }
 

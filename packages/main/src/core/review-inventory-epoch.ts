@@ -219,7 +219,32 @@ export interface ReviewInventoryEvaluation {
   rawFindingIds: string[];
   unresolvedFindingIds: string[];
   invalidDispositionIds: string[];
+  baselineMismatchIds: string[];
   criticDigest: string;
+}
+
+function isEligibleBaselineFinding(epoch: ReviewInventoryEpoch, finding: Finding, runs: ReviewRun[]): boolean {
+  if (finding.status !== 'open' || (finding.evidenceState !== 'verified' && finding.evidenceState !== undefined)) return false;
+  if (!verifyFinding(epoch.storyId, finding) || !finding.readManifest || !finding.readLog) return false;
+  if ((finding.createdAt ?? '') > epoch.begunAt) return false;
+  const run = runs.find(row => row.reviewRunId === finding.reviewRunId);
+  return Boolean(run && verifyReviewRun(run)
+    && run.storyId === epoch.storyId
+    && run.reviewRound === epoch.reviewRound
+    && run.materialHash === epoch.cutoff.materialHash
+    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
+    && run.startedAt < epoch.begunAt);
+}
+
+export function captureReviewInventoryBaselineFindingIds(args: {
+  epoch: ReviewInventoryEpoch;
+  runs: ReviewRun[];
+  findings: Finding[];
+}): string[] {
+  return args.findings
+    .filter(finding => isEligibleBaselineFinding(args.epoch, finding, args.runs))
+    .map(finding => finding.id)
+    .sort();
 }
 
 export function evaluateReviewInventoryWave(args: {
@@ -245,6 +270,20 @@ export function evaluateReviewInventoryWave(args: {
     if (!selected?.terminal) continue;
     lanes.push(selected.terminal);
     selected.findings.forEach(finding => rawFindings.set(finding.id, finding));
+  }
+  const signedBaselineIds = [...(args.epoch.baselineFindingIds ?? [])].sort();
+  const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ epoch: args.epoch, runs: args.runs, findings: args.findings });
+  const baselineMismatchIds = [...new Set([
+    ...signedBaselineIds.filter(id => !liveBaselineIds.includes(id)),
+    ...liveBaselineIds.filter(id => !signedBaselineIds.includes(id)),
+  ])].sort();
+  // A baseline is carried into the first wave exactly once. Subsequent waves
+  // inherit its family through the signed prior wave instead of rediscovering it.
+  if (args.epoch.waves.length === 0) {
+    for (const id of signedBaselineIds) {
+      const finding = args.findings.find(row => row.id === id);
+      if (finding && isEligibleBaselineFinding(args.epoch, finding, args.runs)) rawFindings.set(id, finding);
+    }
   }
   const identities = new Map<string, string[]>();
   for (const lane of lanes) {
@@ -284,6 +323,7 @@ export function evaluateReviewInventoryWave(args: {
     rawFindingIds,
     unresolvedFindingIds,
     invalidDispositionIds,
+    baselineMismatchIds,
     criticDigest: reviewInventoryDigest({
       epochId: args.epoch.epochId,
       wave: args.epoch.waves.length + 1,
@@ -347,18 +387,39 @@ export function finalizedUnconsumedReviewInventory(store: StoryStore, storyId: s
   if (epoch?.state !== 'FINALIZED' || epoch.consumedAt) return null;
   if (!epoch || !verifyReviewInventoryEpoch(epoch) || !epoch.receiptId) return null;
   const receipt = data.receipts.find(row => row.receiptId === epoch.receiptId);
-  if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.consumedAt) return null;
+  if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.consumedAt || receipt.invalidatedAt) return null;
   if (receipt.epochId !== epoch.epochId || receipt.storyId !== storyId || receipt.reviewRound !== epoch.reviewRound) return null;
   return { epoch, receipt };
 }
 
 /** Fail closed while an immutable remediation receipt is awaiting consumption. */
-export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId: string): void {
+export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId: string, run: ReviewRun): void {
   const latest = store.readReviewInventoryEpochs(storyId).epochs.at(-1);
-  if (latest?.state === 'FINALIZED' && !latest.consumedAt) {
+  if (!latest || latest.reviewRound !== run.reviewRound) return;
+  if (latest.state === 'FINALIZED') {
     throw new Error(
-      `REVIEW_INVENTORY_EVIDENCE_SEALED: ${latest.epochId} has a pending FINALIZED receipt; ` +
-      'reviewer finding/pass evidence cannot be appended until that receipt is consumed or the epoch is cancelled',
+      `REVIEW_INVENTORY_EVIDENCE_SEALED: ${latest.epochId} finalized reviewRound ${latest.reviewRound}; ` +
+      (latest.consumedAt
+        ? 'reviewer evidence for that round remains sealed after receipt consumption'
+        : `for genuine late evidence run lattice review_inventory_cancel --storyId=${storyId} --reason="late evidence invalidated finalized receipt", then begin a fresh epoch and fresh ReviewRun`),
+    );
+  }
+  if (latest.state === 'CANCELLED' || latest.state === 'INVALIDATED') {
+    const terminalBoundary = latest.cancelledAt ?? latest.invalidation?.detectedAt ?? latest.updatedAt;
+    if (run.startedAt < terminalBoundary) {
+      throw new Error(
+        `REVIEW_INVENTORY_EVIDENCE_SEALED: reviewRunId ${run.reviewRunId} predates terminal epoch boundary ${terminalBoundary}; ` +
+        'begin a fresh epoch and start a fresh ReviewRun',
+      );
+    }
+    return;
+  }
+  if (latest.state !== 'OPEN') return;
+  const waveStart = latest.waves.at(-1)?.completedAt ?? latest.begunAt;
+  if (run.startedAt < waveStart) {
+    throw new Error(
+      `REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED: reviewRunId ${run.reviewRunId} started at ${run.startedAt} before current wave ${latest.waves.length + 1} boundary ${waveStart}; ` +
+      'start a fresh ReviewRun for the current wave',
     );
   }
 }
@@ -388,7 +449,8 @@ function finalizedLiveAggregateError(store: StoryStore, pair: {
     )?.findingDispositions,
   });
   if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0
-    || evaluation.unresolvedFindingIds.length > 0 || evaluation.invalidDispositionIds.length > 0) {
+    || evaluation.unresolvedFindingIds.length > 0 || evaluation.invalidDispositionIds.length > 0
+    || evaluation.baselineMismatchIds.length > 0) {
     return 'live terminal lanes or finding dispositions differ from the finalized wave';
   }
   const critic = validateReviewInventoryCriticReceipt({

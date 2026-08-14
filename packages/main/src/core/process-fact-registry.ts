@@ -236,7 +236,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-inventory-epochs.json',
     path: 'review-inventory-epochs.json',
     signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch including baselineFindingIds and signReviewInventoryReceipt/verifyReviewInventoryReceipt',
     producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_wave_advance/review_inventory_finalize/review_inventory_cancel',
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
   },
@@ -253,8 +253,8 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_wave_advance: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families', producerCommand: 'review_inventory_wave_advance',
-    consumerGate: 'review_inventory_finalize zero-new saturation gate',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families; completedAt seals older ReviewRuns', producerCommand: 'review_inventory_wave_advance',
+    consumerGate: 'review_inventory_finalize zero-new saturation gate and reviewer terminal admission boundary',
     reviewerLane: 'lattice-review-topology-critic',
   },
   review_inventory_finalize: {
@@ -264,7 +264,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_cancel: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_cancel',
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and, for FINALIZED recovery, signReviewInventoryReceipt/verifyReviewInventoryReceipt with invalidatedAt/invalidationReason', producerCommand: 'review_inventory_cancel',
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory state gate',
   },
   agent_prompt: {

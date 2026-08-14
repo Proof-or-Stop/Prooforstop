@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   assertReviewInventoryCutoff,
+  assertReviewInventoryEvidenceWritable,
   buildWave,
   consumeReviewInventoryReceipt,
   evaluateReviewInventoryWave,
@@ -473,6 +474,11 @@ function replay(): Record<string, number> {
   const transitionStore = memoryStore(finalizedData);
   let phase = 'REVIEW';
   consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff);
+  assert.throws(
+    () => assertReviewInventoryEvidenceWritable(transitionStore as never, storyId, secondRuns[0]),
+    /REVIEW_INVENTORY_EVIDENCE_SEALED/,
+    'F030: consumed receipt keeps the old reviewRound sealed before phase publication',
+  );
   phase = 'DEV';
   events.push({ type: 'remediation-transition', accepted: phase === 'DEV' });
   const consumedStatus = renderReviewInventoryStatus(transitionStore.snapshot().epochs[0], { criticComplete: true });

@@ -60,7 +60,9 @@ when the wave added families, and only to finalize when the current wave added
 zero. Duplicate identity or budget
 exhaustion directs cancellation/replanning; invalidated, cancelled, or a
 consumed-without-phase-write epoch directs a fresh begin. `cancel` is the
-explicit recovery path:
+explicit recovery path. It accepts an OPEN epoch and also a FINALIZED receipt
+that has not been consumed; in the latter case it signs `invalidatedAt` and
+`invalidationReason` into the receipt before allowing a new epoch:
 
 ```bash
 lattice review_inventory_cancel --storyId=B-xxxx --reason="return to DEV and replace the frozen candidate"
@@ -96,6 +98,14 @@ story in REVIEW. If the later atomic story write fails, the already-consumed
 receipt cannot be replayed; status directs the operator to begin a new epoch on
 the still-authoritative REVIEW state. This is integrity-safe recovery, not a
 multi-file transaction claim.
+
+Temporal integrity is enforced at the reviewer-evidence write boundary under
+the same inventory lock. A FINALIZED epoch seals its review round permanently,
+including the interval after receipt consumption but before phase publication;
+DEV also rejects reviewer evidence even if an old signed ReviewRun is supplied.
+For genuinely late evidence before consumption, the operator cancels the
+FINALIZED epoch, which signed-invalidates the receipt, then begins a fresh epoch
+and fresh ReviewRun. No receipt is silently reopened or fabricated.
 
 This is not PRE_CERT and it does not claim the repaired material is correct.
 
@@ -133,9 +143,21 @@ immutable aggregate and require another full unchanged-material wave.
 `review_inventory_wave_advance` is the sole checkpoint for a complete
 nonzero-new wave. `review_inventory_finalize` rejects that state without
 persisting the wave; it is exclusively the zero-new receipt writer.
+The checkpoint's signed `completedAt` is also an admission boundary: every
+ReviewRun started before it is sealed, so a late terminal cannot land between
+waves and then disappear from the next wave's candidate set.
 Exhausting the bounded wave budget yields
 `REVIEW_INVENTORY_BUDGET_EXHAUSTED` and requires replan/decompose/escalation; it
 never yields PASS.
+
+At `begin`, the epoch signs `baselineFindingIds`: every open, signature-valid,
+verified finding with mechanical read evidence from a current-round/current-
+cutoff ReviewRun that predates the epoch. The first wave carries those findings
+into the critic disposition set even though their ReviewRuns began before
+`begunAt`. Consumers recompute the eligible baseline and fail closed with
+`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED` on any difference. Consequently
+cancel/rebegin cannot erase an unresolved verified finding merely by moving the
+epoch boundary.
 
 ## Freshness and mutation enforcement
 

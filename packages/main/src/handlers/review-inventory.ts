@@ -6,6 +6,7 @@ import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyRevi
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
 import {
   buildWave,
+  captureReviewInventoryBaselineFindingIds,
   currentOpenReviewInventory,
   evaluateReviewInventoryWave,
   finalizedUnconsumedReviewInventory,
@@ -17,6 +18,7 @@ import {
   signReviewInventoryReceipt,
   validateReviewInventoryCriticReceipt,
   verifyReviewInventoryEpoch,
+  verifyReviewInventoryReceipt,
   withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
@@ -94,6 +96,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   if (epoch.state === 'OPEN' && live?.duplicateIdentities.length) blockers.push('REVIEW_INVENTORY_DUPLICATE_IDENTITY');
   if (epoch.state === 'OPEN' && live?.unresolvedFindingIds.length) blockers.push('REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE');
   if (epoch.state === 'OPEN' && live?.invalidDispositionIds.length) blockers.push('REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID');
+  if (epoch.state === 'OPEN' && live?.baselineMismatchIds.length) blockers.push('REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED');
   if (epoch.state === 'OPEN' && live && live.missingLanes.length === 0
     && live.duplicateIdentities.length === 0 && !projection.criticComplete) blockers.push('REVIEW_INVENTORY_CRITIC_INCOMPLETE');
   if (epoch.state === 'OPEN' && projection.criticComplete && live?.newFamilies.length) {
@@ -103,6 +106,8 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   if (epoch.state === 'OPEN') {
     if (blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')) {
       next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="replan or decompose after wave budget exhaustion"`;
+    } else if (live?.baselineMismatchIds.length) {
+      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="baseline finding set changed; reopen a fresh signed epoch"`;
     } else if (live?.missingLanes.length) {
       next = `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"${live.missingLanes[0]}"}'`;
     } else if (live?.duplicateIdentities.length) {
@@ -142,6 +147,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     `Completeness critic: ${projection.criticComplete ? 'complete' : 'pending'}`,
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
+    ...(epoch.state === 'FINALIZED' && !epoch.consumedAt
+      ? [`Recovery for genuine late evidence: lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
+      : []),
     `Next: ${next}`,
   ].join('\n');
 }
@@ -273,7 +281,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           return match ? Math.max(max, Number(match[1])) : max;
         }, 0) + 1;
         const now = new Date().toISOString();
-        const unsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
+        const provisional: Omit<ReviewInventoryEpoch, '_hash'> = {
           schemaVersion: 'proofbound.review_inventory_epoch.v1',
           epochId: `${args.storyId}:RI-${String(epochNum).padStart(3, '0')}`,
           storyId: args.storyId,
@@ -287,6 +295,12 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           maxWaves: args.maxWaves ?? 3,
           waves: [],
         };
+        const baselineFindingIds = captureReviewInventoryBaselineFindingIds({
+          epoch: { ...provisional, _hash: '' },
+          runs: ctx.store.readReviewRuns(args.storyId).runs,
+          findings: ctx.store.readFindings(args.storyId).findings,
+        });
+        const unsigned: Omit<ReviewInventoryEpoch, '_hash'> = { ...provisional, baselineFindingIds };
         const epoch = signEpoch(unsigned);
         data.epochs.push(epoch);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
@@ -325,6 +339,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
         const rawEvaluation = evaluateCurrentWave(ctx, epoch, []);
+        if (rawEvaluation.baselineMismatchIds.length > 0) throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${rawEvaluation.baselineMismatchIds.join(', ')}`);
         if (rawEvaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${rawEvaluation.missingLanes.join(', ')}`);
         if (rawEvaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${rawEvaluation.duplicateIdentities.join(', ')}`);
         const findingDispositions = [...args.findingDispositions]
@@ -394,6 +409,9 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           throw new Error(`REVIEW_INVENTORY_BUDGET_EXHAUSTED: ${epoch.epochId}; replan/decompose/escalate, never manufacture PASS`);
         }
         const evaluation = evaluateCurrentWave(ctx, epoch);
+        if (evaluation.baselineMismatchIds.length > 0) {
+          throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${evaluation.baselineMismatchIds.join(', ')}; cancel and begin a fresh signed epoch`);
+        }
         if (evaluation.missingLanes.length > 0) {
           throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}; Next: lattice review_inventory_status --storyId=${args.storyId}`);
         }
@@ -462,6 +480,9 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           throw new Error(`REVIEW_INVENTORY_BUDGET_EXHAUSTED: ${epoch.epochId}; cancel and replan/decompose/escalate`);
         }
         const evaluation = evaluateCurrentWave(ctx, epoch);
+        if (evaluation.baselineMismatchIds.length > 0) {
+          throw new Error(`REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED: ${evaluation.baselineMismatchIds.join(', ')}; cancel and begin a fresh signed epoch`);
+        }
         if (evaluation.missingLanes.length > 0) {
           throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}`);
         }
@@ -492,8 +513,20 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
 
     review_inventory_cancel(args: { storyId: string; reason: string }): string {
       return inventoryLock(ctx, args.storyId, () => {
-        const epoch = currentOpenReviewInventory(ctx.store, args.storyId);
-        if (!epoch) throw new Error(`review_inventory_cancel: no OPEN epoch for ${args.storyId}`);
+        const data = ctx.store.readReviewInventoryEpochs(args.storyId);
+        const epoch = data.epochs.at(-1);
+        if (!epoch || !verifyReviewInventoryEpoch(epoch)
+          || (epoch.state !== 'OPEN' && !(epoch.state === 'FINALIZED' && !epoch.consumedAt))) {
+          throw new Error(`review_inventory_cancel: no OPEN or unconsumed FINALIZED epoch for ${args.storyId}`);
+        }
+        const finalizedReceipt = epoch.state === 'FINALIZED'
+          ? data.receipts.find(row => row.receiptId === epoch.receiptId)
+          : undefined;
+        if (epoch.state === 'FINALIZED' && (!finalizedReceipt
+          || !verifyReviewInventoryReceipt(finalizedReceipt)
+          || finalizedReceipt.consumedAt || finalizedReceipt.invalidatedAt)) {
+          throw new Error(`review_inventory_cancel: FINALIZED epoch ${epoch.epochId} has no valid unconsumed receipt to invalidate`);
+        }
         const now = new Date().toISOString();
         const cancelled = signEpoch({
           ...epoch,
@@ -502,8 +535,22 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           cancelledAt: now,
           cancelReason: args.reason.trim(),
         });
-        const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? cancelled : row);
+        if (epoch.state === 'FINALIZED' && epoch.receiptId) {
+          data.receipts = data.receipts.map(row => {
+            if (row.receiptId !== epoch.receiptId) return row;
+            if (!verifyReviewInventoryReceipt(row) || row.consumedAt || row.invalidatedAt) {
+              throw new Error(`review_inventory_cancel: receipt ${row.receiptId} is invalid or already consumed`);
+            }
+            const { _hash, ...unsigned } = row;
+            const invalidated: Omit<ReviewInventoryReceipt, '_hash'> = {
+              ...unsigned,
+              invalidatedAt: now,
+              invalidationReason: args.reason.trim(),
+            };
+            return { ...invalidated, _hash: signReviewInventoryReceipt(invalidated) };
+          });
+        }
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
         return renderReviewInventoryStatus(cancelled);
       });

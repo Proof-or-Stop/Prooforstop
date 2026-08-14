@@ -658,7 +658,7 @@ Behavior:
   { name: 'review_inventory_finalize', description: 'Mint a receipt only when the current complete unchanged-material wave adds zero verified finding families', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
   }},
-  { name: 'review_inventory_cancel', description: 'Cancel an OPEN inventory epoch without granting transition authority', schema: {
+  { name: 'review_inventory_cancel', description: 'Cancel an OPEN epoch or invalidate an unconsumed FINALIZED receipt without granting transition authority', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
     reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
   }},

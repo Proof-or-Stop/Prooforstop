@@ -4258,7 +4258,19 @@ function assertReviewInventoryRemediationContract() {
   const findingHandlerText = read(findingHandlerPath);
   assert(
     /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
-    `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and reject pending FINALIZED receipts`,
+    `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and enforce temporal evidence admission`,
+  );
+  assert(
+    /latest\.state === 'FINALIZED'[\s\S]*reviewer evidence for that round remains sealed after receipt consumption[\s\S]*REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED/.test(epochText),
+    `${epochPath}: finalized review rounds and old-wave ReviewRuns must remain sealed`,
+  );
+  assert(
+    /captureReviewInventoryBaselineFindingIds[\s\S]*baselineFindingIds[\s\S]*REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: begin must sign and consumers must fail-close the carried-forward verified finding baseline`,
+  );
+  assert(
+    /epoch\.state === 'FINALIZED'[\s\S]*invalidatedAt:[\s\S]*invalidationReason:[\s\S]*signReviewInventoryReceipt/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: an unconsumed FINALIZED receipt needs a signed late-evidence invalidation path`,
   );
   assert(
     /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED[\s\S]*begin a fresh inventory epoch/.test(epochText),

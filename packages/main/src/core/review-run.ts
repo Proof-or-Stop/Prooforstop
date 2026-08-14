@@ -1170,6 +1170,9 @@ export function assertCurrentReviewRunForEvidence(
   agent: string,
   reviewRunId: string | undefined,
 ): ReviewRun {
+  if (story.phase !== 'REVIEW') {
+    throw new Error(`REVIEW_EVIDENCE_PHASE_REQUIRED: story ${story.storyId} is ${story.phase}; reviewer evidence is writable only in REVIEW`);
+  }
   if (!story.currentReviewRound) {
     throw new Error(
       `review_run_start: story ${story.storyId} is marked REVIEW but missing currentReviewRound. ` +
