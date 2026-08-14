@@ -1,0 +1,742 @@
+{
+  "passes": [
+    {
+      "id": "B-9812:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS at f556bcb7f9/source 371ec93. Reproduced no-arg 52-selector verifier after real review_run_start; output root rejects project and ancestor authorization while permitting disjoint external roots; focused runner smoke PASS 78 including resource-only lockWait, Windows/POSIX cleanup, unique TMP roots, terminal aggregation and CPU isolation; unsandboxed prebind of 127.0.0.1:43127 makes canonical sentinel exit 1 EADDRINUSE and cleanup rebind succeeds; fixed-port OS receipt is detected/PASS; reports truthfully separate five explicit-marker members from 42 runner-terminal-only members with detailedAssertions=null rather than claiming detailed internal inventory. No correctness, safety, type, dead-code, or delivered-document blocker found.",
+      "createdAt": "2026-08-12T22:07:55.530Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-011",
+      "envelopeId": "3d0efea71a7bee4addcb6a1f5a7ef954c505202045fd49761b8038e004023431",
+      "writerSessionId": "sess-2d447fa04563eebd0e8ea3404480133e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f42b27e71febf7fed2b6b6f02ece861b9f012ee5e51b5a6c358003728848751"
+    },
+    {
+      "id": "B-9812:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept replacement is complete at HEAD f556bcb7f9: F-030 is fixed by documenting the resource-aware root runner and the combined prefix plus serial-reference authority; repository-wide scans found no remaining current 22-step/serial-root contract. The authority resolves to 47 unique scripted members, resource policy fails closed, the canonical sentinel consumes protected resources, focused runner smoke passed 78 assertions, all 52 bound selectors passed, three jobs=4 evidence runs are 47/47 under five minutes, and no sentinel/temp residue remains. No concept deletion residue or promised-but-undelivered blocker found.",
+      "createdAt": "2026-08-12T22:09:24.975Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-012",
+      "envelopeId": "493b72f7c7414648838fb44987d016bb4edaeb9e175cb6a80fded188bdec9959",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f5fec0d10765fec32d29ee955967abe2a6bfe3392c2266fe5f033ef7b03abc26"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ff1ed35a703bb5caf4bc1357681d7adfcd74858885fd9a978a24eb489a86460"
+    },
+    {
+      "id": "B-9812:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review at HEAD 739cd627/source f97d417 passes. F-030 is closed: current decision docs describe the 47-member generated parallel authority and the only 22-step reference is explicitly historical. F-041 is closed: the canonical runner and both verifier entrypoints enforce the generated build binding before argument parsing or spawning, with stale-source and tampered-dist launches0 smoke coverage. F-044 is closed: exact lifecycle metadata allowlists include stall-adjudication.json and scope-contract.json, while a real temporary Git fixture accepts those descendants and rejects unknown metadata. Fresh replays passed the selector self-test (11), contract (52 selectors), build binding, and runner smoke (121 assertions); the package authority contains 47 unique present members. Runner-cleanable ownership and cleanup semantics match the updated docs, and no declared sentinel, lock, cpu.time, or other reviewed resource residue remained.",
+      "createdAt": "2026-08-13T07:02:38.608Z",
+      "reviewRound": "2026-08-13T06:55:29.515Z",
+      "reviewRunId": "B-9812:RR-020",
+      "envelopeId": "a199685cc75e5dd6b2fd5321130edf8a4efb73e378f3bf87982e56727b4597fe",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2d8fee1241572534429f45f889cb1487f370eca3c56230450dd863a4bf0d52c"
+      },
+      "readDiagnostics": [],
+      "_hash": "91c67adcccad089ea9ea02fdfb15367f7567d5ea6c3824f93d06792b8cf51fdb"
+    },
+    {
+      "id": "B-9812:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current HEAD 739cd627/source f97d coverage independently re-audited. Current no-arg contract replay mechanically verifies all 52 selectors (52/52 must, no waivers/gaps). F044 is closed by exact-path lifecycle/contract allowlists plus unknown-artifact negatives; F045 is closed by actual 20x6 replay/mutation receipts including an order-dependent transition from baselinePassed=true to reorderedPassed=false and six production mutation trials; F046 is closed by the current observation-derived capture and fresh 52-predicate replay. SIGTERM smoke starts a real child, precomputes cleanup ownership before spawn, removes all three token-owned fixed-path/runtime-lock/main-write-lock resources, preserves siblings, records removed outcomes, and covers outside/symlink/symlink-ancestor/foreign-nonempty/PASS-residue negatives. Identity sidecars record exact runner commands for --jobs 1,3,5 and three --jobs 4 runs; detailedAssertions/mutations comparisons are exact and deletion negatives bite. Serial=491311.861ms (oracle); jobs3=169934.764ms; jobs5=227911.469ms; jobs4 runs=231715.313/138182.123/139261.183ms, all canonical parallel runs under 300000ms.",
+      "createdAt": "2026-08-13T07:03:10.232Z",
+      "reviewRound": "2026-08-13T06:55:29.515Z",
+      "reviewRunId": "B-9812:RR-021",
+      "envelopeId": "bb2af070d0c482b88b96a4b2a20d39e054c8e68e8618ef936699cdf435b6d104",
+      "writerSessionId": "sess-90bedaff8ce291739b7bed300c05d5c5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "B-9812 checklist verificationIntent and verificationEvidence inventory",
+          "B-9812 review findings F044-F046 and resolution evidence",
+          "fresh final capture plus serial/jobs3/jobs5/jobs4 identity and output artifacts",
+          "SIGTERM cleanup and adversarial negative smoke output"
+        ],
+        "scanEscalationReason": "No decisions-directory escalation was required for this scoped coverage re-review."
+      },
+      "_hash": "2fc27efd745e9bd0bd53e0481de04297cbe32a9a30ac36df8f75be384d67b5a3"
+    },
+    {
+      "id": "B-9812:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS at HEAD bff38b89f0/source 8129840e22. The obsolete root serial execution concept is completely replaced by the resource-aware canonical runner; test:serial-reference-prefix plus test:serial-reference remains intentionally as the independently checked 47-member membership oracle, with explicit comments and fail-closed bidirectional validation rather than residual execution semantics. Repository-wide scans found no current 22-step/serial-root contract residue. F048 is closed by the real production sentinel atomically fsyncing exact per-launch owner markers in all three runner-cleanable directories, publishing readiness only after all markers, and actual SIGSTOP/SIGKILL cleanup evidence; missing/tampered markers remain retained and terminal. F049-F051 are closed by the default /tmp/b9812-final-v3 capture bound to material 223acfad with 52 true predicates and 37 digested artifacts; the no-argument verifier passed all 52 after this signed review_run_start. Three jobs=4 runs pass 47/47 in 128223/128027/132765ms, jobs3/jobs5 pass, serial oracle passes, fixed-port collision is terminal EADDRINUSE with successful rebind, and no promised-but-undelivered concept blocker was found.",
+      "createdAt": "2026-08-13T10:16:01.537Z",
+      "reviewRound": "2026-08-13T10:12:04.834Z",
+      "reviewRunId": "B-9812:RR-025",
+      "envelopeId": "b690e660baf0ef24b8c8237b0932ce431ad61a5fa5de766df1458b640ea5fa76",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "143d160826d4404b43ef5a37ab591c460233d2629d0e1c51db9467627517758c"
+    },
+    {
+      "id": "B-9812:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed integrated main...HEAD quality and safety. Production sentinel atomically writes exact per-launch ownership markers for all three runner-cleanable directories before its explicit ready handshake; the real compiled sentinel interruption regression waits on that handshake, exercises runner SIGKILL cleanup, removes only exact-token owned empty directories, and retains missing/tampered marker residue as terminal FAIL. Independently reran full-suite-runner-smoke successfully. Verified digest-bound jobs=5 evidence is 47/47 PASS, jobs=5, launches=47, retries=0, identityDrift=false, 113779ms, and default contract replay passes all 52 selectors. Typecheck and diff check pass; no blocking dead code, unsafe cast, silent catch, I/O isolation, proof ownership, or undelivered documentation promise found.",
+      "createdAt": "2026-08-13T10:17:22.012Z",
+      "reviewRound": "2026-08-13T10:12:04.834Z",
+      "reviewRunId": "B-9812:RR-026",
+      "envelopeId": "ee5c6f63fabef00281c40fe4a206a9cf82b88cc02a2c7038f937564338f00796",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "d0801ad953dadfab56330c20fa7d7c0169baaf037fe0cf4b705edc65f89ce784",
+        "corpusDigest": "f55b70803c1a66094b718b4bf85b003e64d51658679e3cdd580a2e2dee24fc03"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 7,
+          "tokenCount": null
+        },
+        "digest": "1b1376b4ba718d9a04a752934ec6210ddc378a7186e09b910c6eda46d9bdb57b"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f96309d4d8c2408ad9f9b2fb315b57960ff21671d9a0b9f4079de77faf2b29f"
+    },
+    {
+      "id": "B-9812:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Final F052 concept review: the verifier remains deny-by-default and adds only the two observed lifecycle metadata basenames review-passes.json and test-evidence.json. Both receipt and selector paths enforce ancestor-only metadata descendants, unchanged material, exact story prefix, and reject unknown metadata/source drift. Independent replay returned PASS for all 52 selectors; selector self-test returned PASS (11 assertions). No concept deletion/replacement residue or blocker found.",
+      "createdAt": "2026-08-13T10:52:22.336Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-029",
+      "envelopeId": "8210816854e569ba827e045f02dd4236c2d6a940b2bdb7adadc7bed6805d32c3",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d418d3c9c1e239d193c1c4cbf380e53c4f61129be6c54e3e0ed9678dc0a713e8"
+    },
+    {
+      "id": "B-9812:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "No quality blocker: reviewed the integrated changed-file surface and final ownership cleanup fix; standard build passes, default no-env 52-selector replay passes, capture ancestry changes are limited to the strict lifecycle metadata allowlist, and self-tests reject unknown metadata, source/non-ancestor drift, missing/failed selectors, changed verifier bytes, and stale/tampered build output.",
+      "createdAt": "2026-08-13T10:54:50.284Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-028",
+      "envelopeId": "c1030a1f30cff066a3a2f57c8bbe777c670d13841bcfec55d52781e56f990bab",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "aeb2c77b19d12d2918490f79557a6784f150c7b6eb556ec53b96c45459801bd6"
+      },
+      "readDiagnostics": [],
+      "_hash": "db242f52a97ebdca8e7b1ce462c1a91c1c16b51f78579347b6769b73ccde3754"
+    },
+    {
+      "id": "B-9812:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed: 52/52 must intents have mechanical PASS receipts with zero gaps/waivers; default no-env verifier emits PASS selectors=52 at current HEAD. F-052 is fixed structurally: review-passes.json and test-evidence.json are bounded allowlisted lifecycle descendants, selector self-test commits both in a real temporary git repo and passes while unknown metadata remains denied. Current serial/jobs3/jobs5/jobs4x3 artifacts are 47/47 PASS, launches=47, retries=0, identityDrift=false; all three jobs4 runs are under 300000ms.",
+      "createdAt": "2026-08-13T10:58:11.195Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-030",
+      "envelopeId": "29304143226439ae45e7e148ddd2530b2389218f50e79a26550e673f88fb8457",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e1d96102ab1c66802081dbb67237405cce06e8fd1fa2f3e724e106ff1f1b19f"
+    },
+    {
+      "id": "B-9812:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Fresh incremental concept re-review after F052 resolution metadata commit: authoritative basis reports no material changed files, no affected contracts, no unresolved findings, and trusted prior run/pass bindings. Source remains unchanged; the prior deny-by-default allowlist and PASS52 concept conclusion remains valid. No concept deletion or residual blocker.",
+      "createdAt": "2026-08-13T10:59:44.856Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-031",
+      "envelopeId": "20c13298cdd038850855c281ca01c7b4ff79e2bf3ba567637947207620caff2d",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f428c004af491fdbfee1e1e292186bf6ede57c0f9af29164a34c161c49606b58"
+    },
+    {
+      "id": "B-9812:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh incremental quality re-review after F052 resolution: authoritative basis reports no material/source/claim/finding delta and trusted prior bindings to RR-028/RP-008. Git confirms only story metadata changed, and the default no-env contract replay still passes all 52 selectors. No new quality blocker.",
+      "createdAt": "2026-08-13T11:00:02.853Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-032",
+      "envelopeId": "de07f295718686ffddfc0104dc03c6321170264443fc93616e5324da7ba9ea72",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "aeb2c77b19d12d2918490f79557a6784f150c7b6eb556ec53b96c45459801bd6"
+      },
+      "readDiagnostics": [],
+      "_hash": "494a5602be5771c50aa48c4c54a7a52bda7f92554bc235a5d66fa5ba4307b671"
+    },
+    {
+      "id": "B-9812:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh post-F052-resolution coverage pass: at current unchanged-source HEAD 7cce021, default no-env verifier exits 0 with FULL_SUITE_CONTRACT=PASS selectors=52; selector self-test passes 11 assertions. All 52 must intents retain current mechanical PASS receipts with zero gaps and zero waivers; bounded lifecycle metadata descendants remain admissible and unknown metadata remains denied.",
+      "createdAt": "2026-08-13T11:01:16.155Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-033",
+      "envelopeId": "a08db228f9cde12121cdc7491abf6c474133c582accdbccd7c3360ed8d0e72fe",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be4883887fe9807a7d62aadc016eca29be47fe355055d11bc986f5c20fbbc3f8"
+    },
+    {
+      "id": "B-9812:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 current coverage review passed at HEAD bc782fef95: default no-argument verifier independently exits 0 with FULL_SUITE_CONTRACT=PASS selectors=52; selector self-test passes 11 assertions. Checklist readback has 52/52 must intents, 52 mechanical passing selector-matched receipts, zero gaps, and zero waivers, all bound to refreshed material c6dadf8b after the b094a delivery-check metadata allowlist fix.",
+      "createdAt": "2026-08-13T13:05:52.357Z",
+      "reviewRound": "2026-08-13T13:04:01.363Z",
+      "reviewRunId": "B-9812:RR-035",
+      "envelopeId": "8cd87c3cc2b09875add5d63afcbdedb33bf392adf1d3e846cca2a74f32f6b23c",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7f14282ce4e6702d790d0e2665536e8aa90f055560eb404a3377c9ec2954a78f"
+    },
+    {
+      "id": "B-9812:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "No incomplete concept deletion/replacement found. Reviewed main...HEAD changes, checked replacement of the serial root npm test chain by the resource-aware canonical runner, grepped repository residual terminology, and cross-checked newly documented runner, ownership-cleanup, fixed-port, stress-tier, acceptance cohort, and DONE-required behavior against implementation. Canonical verifier replay passed all 52 selectors; no blocker.",
+      "createdAt": "2026-08-13T13:07:16.094Z",
+      "reviewRound": "2026-08-13T13:04:01.363Z",
+      "reviewRunId": "B-9812:RR-036",
+      "envelopeId": "28e5b178911667c287e9de42139b47de485c21dcecebae099f713cedc7471ba1",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 7,
+          "tokenCount": null
+        },
+        "digest": "1b1376b4ba718d9a04a752934ec6210ddc378a7186e09b910c6eda46d9bdb57b"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4cc06d254b5694e3dfa20e97d35179abfbf3e7ff7a5003afa293a97fbbe158a"
+    },
+    {
+      "id": "B-9812:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 coverage review passed after F-053 fix: default no-argument contract verifier independently exits 0 with FULL_SUITE_CONTRACT=PASS selectors=52 and selector self-test passes 11 assertions. Checklist readback has 52/52 must intents, zero gaps/waivers, and all 52 evidence records are mechanical passing selector receipts on the same final material e836ff7f; evidence HEAD variation is bounded lifecycle evidence recording, not material drift.",
+      "createdAt": "2026-08-13T13:55:49.698Z",
+      "reviewRound": "2026-08-13T13:54:26.204Z",
+      "reviewRunId": "B-9812:RR-038",
+      "envelopeId": "d9d03d1f731c1667336596015a78d8b3f90c67cb2b5432e4de761ed16913f770",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a700e85d576f5981822295abbddab822b419c8c0e762c2f938a914af7effee1e"
+    },
+    {
+      "id": "B-9812:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS: inspected the integrated main...HEAD replacement of the serial root npm-test entrypoint, the focused F-053 normal-completion descendant-reaping patch at 3832e87d71, all checklist declarations from the signed review context, and repository-wide residual references. The retained test:serial-reference is explicitly the independent membership oracle, while historical/coverage-only run-all-smokes references remain intentionally distinct. No deleted/replaced concept residue or promised-but-undelivered concept was found. Default contract replay passed 52 selectors and selector self-test passed 11 assertions on the bound material.",
+      "createdAt": "2026-08-13T13:57:26.871Z",
+      "reviewRound": "2026-08-13T13:54:26.204Z",
+      "reviewRunId": "B-9812:RR-039",
+      "envelopeId": "b360ca54b8720c8c951d5448f30e1493e9473574cdbfd3db31782d975a6997a2",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "05f0e2f8fd29072e5c91b0f5b421b5139ccf44d155f451a954ca720f30c778b9"
+      },
+      "readDiagnostics": [],
+      "_hash": "f9dec2fe9d59559a1d2bd70f80dd3830f38ef4739b5185139aabb4e53b3a697b"
+    },
+    {
+      "id": "B-9812:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker on current material. Independently rebuilt dist; replayed the exact normal-parent-exit detached+unref grandchild case through compiled runEntry: PASS, heartbeat length remained 1 after 250ms, and PID 56906 was ESRCH after return. Full runner smoke passed 142 assertions including normalCompletionGrandchild=true; default no-arg contract verifier passed all 52 selectors. Reviewed completion cleanup fail-closed implementation and its smoke/verifier binding; no source edits.",
+      "createdAt": "2026-08-13T14:02:25.328Z",
+      "reviewRound": "2026-08-13T13:54:26.204Z",
+      "reviewRunId": "B-9812:RR-040",
+      "envelopeId": "bd94c2d7e3c67c9b380db20f7f1cbf2d26ce5e783137d9d8659f234077cf52a5",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c35bcac14187514b6c5df79262b7e3ffc3c4ceb528426eb779b3316376ee79f8"
+    }
+  ]
+}

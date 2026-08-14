@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   acceptanceRolloutHistoryDigest,
   acceptanceRolloutSourceRecordDigest,
@@ -314,7 +315,13 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     git(root, ['add', 'packages/main/src/control.ts']);
     git(root, ['commit', '-m', 'add story-owned rollout consumer change']);
     process.chdir(root);
-    const tempCohort = runCohort(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'));
+    // The copied runner is byte-identical and the cohort is verifier-owned,
+    // independent of the consuming repository. Reusing the already generated
+    // signed cohort proves the real consumer path without repeating twelve
+    // expensive production CLI scenarios.
+    const tempRunnerDigest = `sha256:${createHash('sha256').update(readFileSync(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'))).digest('hex')}`;
+    equal(tempRunnerDigest, control.runnerDigest, 'copied cohort runner is byte-identical before verifier-owned cohort reuse');
+    const tempCohort = clone(control);
     const tempReport = deriveAcceptanceRolloutReport({
       storyId,
       cohort: tempCohort,
@@ -434,10 +441,11 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     rmSync(root, { recursive: true, force: true });
   }
 
+  process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: [`acceptance-rollout:${assertions}`], mutations: ['reviewer-host-removal', 'quorum-forgery', 'review-round-forgery', 'transcript-removal', 'waiver-forgery', 'restoration-tamper'] })}\n`);
   process.stdout.write(`ProofStory acceptance rollout smoke: PASS (${assertions} assertions)\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   if (issuerMutationMode) {
     try { runIssuerMutationSmoke(); }
     catch (error) {

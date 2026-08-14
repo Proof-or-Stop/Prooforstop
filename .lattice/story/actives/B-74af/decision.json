@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Status evidence outranks elapsed time",
+    "Do not duplicate live or indeterminate work",
+    "Keep explicit subprocess deadlines distinct from host-native agent liveness"
+  ],
+  "drivers": [
+    "Observed Claude agents complete well after ten minutes",
+    "Duplicate reviewers can race on review evidence and waste provider budget",
+    "Guidance is duplicated across four production prompt entrypoints"
+  ],
+  "options": [
+    {
+      "name": "A: Status-first canonical guidance",
+      "pros": [
+        "Matches observed host behavior",
+        "Works across Claude and Codex host-native task APIs",
+        "Small scoped change with testable wording contract"
+      ],
+      "cons": [
+        "Guidance depends on each host exposing a status mechanism",
+        "Does not create a new scheduler"
+      ]
+    },
+    {
+      "name": "B: Increase the fixed timeout",
+      "pros": [
+        "Very small wording change",
+        "Reduces some premature restarts"
+      ],
+      "cons": [
+        "Any fixed duration still misclassifies legitimate longer work",
+        "Does not distinguish alive from dead",
+        "Still permits duplicate work"
+      ]
+    },
+    {
+      "name": "C: Build a new scheduler and task registry",
+      "pros": [
+        "Could mechanically supervise every agent"
+      ],
+      "cons": [
+        "Much larger architectural change",
+        "Duplicates host-native orchestration",
+        "Not necessary to correct the unsafe restart policy"
+      ]
+    }
+  ],
+  "chosen": "A: Status-first canonical guidance",
+  "rationale": "The defect is an invalid inference from elapsed time to task death. Status-first guidance removes that inference across existing host-native runtimes without weakening explicit subprocess safety deadlines or expanding into a new scheduler.",
+  "preMortem": [
+    {
+      "scenario": "A host reports a task as running indefinitely even though useful progress stopped",
+      "trigger": "Repeated authoritative status polls stay running with no completion or failure",
+      "consequence": "The controller monitors forever",
+      "mitigation": "Require periodic observable status reporting and allow escalation to the user/supervisor, but do not duplicate until a conclusive terminal or operator cancellation signal exists."
+    },
+    {
+      "scenario": "A host cannot query a previously launched task",
+      "trigger": "Task status lookup returns unknown or temporarily unavailable",
+      "consequence": "The controller might restart a still-live task",
+      "mitigation": "Treat unknown as non-authoritative and monitor-only; record uncertainty and ask the host/user for recovery rather than spawning a duplicate."
+    },
+    {
+      "scenario": "Prompt copies drift and one entrypoint retains the ten-minute rule",
+      "trigger": "A future edit changes only story-dispatch or transition effects",
+      "consequence": "Some phases still duplicate long-running agents",
+      "mitigation": "Centralize the policy string/helper and add regression assertions across INIT, item dispatch, and REVIEW next steps, plus a repository scan for forbidden elapsed-time restart wording."
+    },
+    {
+      "scenario": "The change accidentally disables real subprocess deadlines",
+      "trigger": "Shared timeout wording is edited too broadly",
+      "consequence": "codex exec or validation subprocesses can hang without bounds",
+      "mitigation": "Limit changes to host-native agent guidance and add explicit documentation/test language that subprocess timeout mechanisms remain unchanged."
+    }
+  ],
+  "timestamp": "2026-08-12T09:39:17.620Z"
+}

@@ -56,6 +56,7 @@ import {
   redEvidenceRepairGuidance,
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
+import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -223,6 +224,20 @@ function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | nu
 
 function initPreflightGuidance(storyId: string): string {
   return `→ To see all INIT_CHECK prerequisites, run \`lattice init_preflight --storyId=${storyId}\`.`;
+}
+
+function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
+  const dispatches = missingAgents.map(agentId => {
+    if (agentId === 'lattice-review-story-init') {
+      return `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })`;
+    }
+    if (agentId === 'product-reviewer') {
+      return `   Agent({ subagent_type: "product-reviewer", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
+    }
+    throw new Error(`unsupported required INIT reviewer: ${agentId}`);
+  });
+  return `→ Preferred: separately dispatch only the missing reviewer records:\n${dispatches.join('\n')}\n` +
+    `   Every dispatched reviewer must call init_check_set regardless of pass/fail.`;
 }
 
 function renderScopeFreezeIssue(storyId: string, issue: ScopeFreezeIssue): string {
@@ -1135,7 +1150,8 @@ export function getGuardFailureReason(
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
-        `   and have product-reviewer call init_check_set as well; if the reviewer produces no output for 4 minutes, re-dispatch and restart the reviewer.\n` +
+        `   and have product-reviewer call init_check_set as well.\n` +
+        `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
@@ -1147,7 +1163,8 @@ export function getGuardFailureReason(
     if (missingAgents.length > 0) {
       return `Cannot enter INIT_CHECK: init-check.json is missing required reviewer records: ${missingAgents.join(', ')}. [missing_init_check_agent]\n` +
         `${initPreflightGuidance(storyId)}\n` +
-        `→ Preferred: separately run lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' and product-reviewer; every reviewer must call init_check_set regardless of pass/fail.\n` +
+        `${renderMissingInitReviewerDispatches(storyId, missingAgents)}\n` +
+        `${renderAgentLivenessGuidance({ label: 'missing INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }

@@ -1,0 +1,113 @@
+{
+  "storyId": "B-9812",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "lattice.config.json",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/production-test-seam-guard.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/full-suite-*.ts",
+    "scripts/verify-full-suite-*.mjs",
+    "docs/dev/full-suite-performance.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/*smoke.ts",
+    "scripts/verify-*.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/done-required-validation.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/handlers/**",
+    "packages/main/src/mcp/**",
+    ".github/**",
+    ".githooks/**"
+  ],
+  "scopeChangeReason": "Remove the broad core exclusion that incorrectly overrides the previously approved exact runtime-environment-checks path; all other core files remain fail-closed because only that exact file is allowed.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required build-path helpers ensure standard root build cleans ignored dist and binds every main source input to emitted output before performance evidence.",
+      "timestamp": "2026-08-12T23:44:03.271Z",
+      "paths": [
+        "scripts/build-main-with-binding.mjs",
+        "scripts/full-suite-build-binding.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/build-main-with-binding.mjs",
+        "scripts/full-suite-build-binding.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "465c76ea4bb7edbed809383be45194d322ca2dd9",
+      "materialHash": "99c1fa2d6f5df62a37bca0c1105d1404568dfe0dd88ebc16784ad210e6ad27b6",
+      "anchors": [
+        "standard_root_build",
+        "same_material_benchmark",
+        "stale_dist_fail_closed"
+      ]
+    }
+  ],
+  "createdAt": "2026-08-12T12:39:13.990Z",
+  "updatedAt": "2026-08-13T04:39:25.346Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "package.json": "package.json",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/run-all-smokes.ts": "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts": "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/run-proofstory-acceptance-rollout-cohort.mjs": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "packages/main/src/tasks/full-suite-*.ts": "packages/main/src/tasks/full-suite-*.ts",
+    "scripts/verify-full-suite-*.mjs": "scripts/verify-full-suite-*.mjs",
+    "docs/dev/full-suite-performance.md": "docs/dev/full-suite-performance.md",
+    "packages/main/src/tasks/*smoke.ts": "packages/main/src/tasks/*smoke.ts",
+    "scripts/verify-*.mjs": "scripts/verify-*.mjs",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/**": "packages/main/src/core/**",
+    "packages/main/src/handlers/**": "packages/main/src/handlers/**",
+    "packages/main/src/mcp/**": "packages/main/src/mcp/**",
+    ".github/**": ".github/**",
+    ".githooks/**": ".githooks/**",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/tasks/production-test-seam-guard.ts": "packages/main/src/tasks/production-test-seam-guard.ts",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/full-suite-build-binding.mjs": "scripts/full-suite-build-binding.mjs",
+    "packages/main/src/core/runtime-environment-checks.ts": "packages/main/src/core/runtime-environment-checks.ts"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-74af",
+  "checkedAt": "2026-08-12T09:36:26.264Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "f45f8c7872ee52bb39c71dcc7a6ebcec14d5b6b67a826a73ca19c246e944b9d7",
+  "executionBoundaryHash": "8ce4f1317c566aee95ced3008d699c6d1ec5313eef2ecdc49e9e30c7b78031b2",
+  "freshnessHash": "f0eb60e95906945a934a10b6f7356e90a87b06e63087590160f8af55eada08ab",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing explicit subprocess timeout enforcement such as cross_host_review, host_run, validation, or shell command deadlines",
+    "customerKeyRef",
+    "Implementing a new cross-host scheduler or provider-specific status API",
+    "Layer4",
+    "Modifying unrelated active story B-cdf6 or the current untracked local artifacts",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing explicit subprocess timeout enforcement such as cross_host_review, host_run, validation, or shell command deadlines",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing explicit subprocess timeout enforcement such as cross_host_review, host_run, validation, or shell command deadlines",
+      "excluded": true
+    },
+    {
+      "keyword": "Implementing a new cross-host scheduler or provider-specific status API",
+      "source": "scopeBoundary.excluded",
+      "text": "Implementing a new cross-host scheduler or provider-specific status API",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying unrelated active story B-cdf6 or the current untracked local artifacts",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying unrelated active story B-cdf6 or the current untracked local artifacts",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e58b6973a501466fcea0e1695382a3d41740e66e23cc04e938762d579ac4f884"
+}
