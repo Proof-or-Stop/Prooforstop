@@ -1,6 +1,6 @@
 {
   "storyId": "B-c648",
-  "checkedAt": "2026-08-14T03:34:17.467Z",
+  "checkedAt": "2026-08-14T04:42:38.146Z",
   "features": [
     {
       "feature": "Create docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md defining the Mechanism Placement Proof normative contract, non-goals, intake sequence, applicability classifier, five mandatory research questions, immutable probe/review schemas, freshness hashes, draft binding, central no-ID gate",
@@ -85,28 +85,63 @@
       "status": "excluded",
       "excluded_by": "plan.md#Exclusions[2]; scope-boundary.json#excluded[1]; decision.json#rationale (option B rejected)",
       "source": "plan.md#Exclusions"
+    },
+    {
+      "feature": "CHK-003: capture real lattice host_run receipts (recordId, host, provenance) for the Claude and agy architecture audits, replacing the section-21 prose-only self-authored version claims, so a delivery reviewer can independently check the citation against the usage ledger",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-003 (title, context, userSees); docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md#21.2-21.3 (current prose-only Host lines)"
+    },
+    {
+      "feature": "CHK-003's host_run receipt capture is achievable through the already-allowed execution boundary (`node bin/lattice.js *`, `claude *`, `agy *`) and the pre-existing `host_run` choke point (CLI 0.3.253), so it requires no new runtime handler/schema/prompt/registry code and stays within the story's docs-only exclusion",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "execution-boundary.json#allowedCommands; docs/host-run-usage.md#`host_run` (pre-existing launcher); plan.md#Exclusions[0]"
+    },
+    {
+      "feature": "CHK-003 happy-path verificationIntent requires BOTH the Claude and the agy host_run receipt to report a numeric output token count before the document may cite them as receipt-backed",
+      "covered_by": "CHK-003",
+      "status": "drift",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-003.verificationIntent.happy[0] vs docs/host-run-usage.md#Per-host usage semantics (agy line: 'recorded as source=unavailable with provider antigravity and an explicit unavailableReason. agy print mode exposes no usage surface (verified 2026-07-10), so no counts can be reported.')"
+    },
+    {
+      "feature": "CHK-003 adversarial-path verificationIntent treats an absent output-token field on either host's receipt as a condition that must fail closed / be refused, and blocks the document from asserting both audits are receipt-backed",
+      "covered_by": "CHK-003",
+      "status": "drift",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-003.verificationIntent.adversarial[0] vs docs/host-run-usage.md#Per-host usage semantics (agy's output-token field is unconditionally absent by design, not an occasional failure), which directly contradicts CHK-003's own edge-path intent that treats the same unavailable state as legitimate, honestly-cited evidence"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      "docs/evidence/evidence-platform-architecture.md",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
-      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
-      "docs/requirements/decisions/story-lifecycle.md"
+      "docs/host-run-usage.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 12,
-    "covered": 9,
+    "total": 16,
+    "covered": 11,
     "excluded": 3,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 0
+    "drift": 2
   },
-  "reviewRound": "",
-  "_hash": "fe994e431c6bb895f0917c648d1783d78cf5fa11e7868f4ef6b15861daebf363",
-  "openQuestions": []
+  "reviewRound": "2026-08-14T04:04:28.505Z",
+  "_hash": "044c3d9a52973aa772834a52d5d59fe12abbc9123015a10778915c95566a3123",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-003's own verificationIntent is internally inconsistent about agy's host_run usage receipt, and that inconsistency is not a hypothetical edge case -- agy NEVER reports an output token count. Happy-path CHK-003:happy:0 requires the document to cite 'a reported output token count' for BOTH the Claude and the agy host_run receipt. Adversarial-path CHK-003:adversarial:0 requires receipt capture to 'fail closed' / be 'refused' whenever either host's 'output token field is absent'. But docs/host-run-usage.md states agy is unconditionally recorded as source=unavailable with no token count ever ('agy print mode exposes no usage surface (verified 2026-07-10), so no counts can be reported') -- which is exactly what CHK-003's own edge-path intent (CHK-003:edge:0) says is legitimate, honestly-cited evidence, not a failure. As worded, the agy leg of CHK-003 can never satisfy 'happy' and will always trip the literal 'adversarial' fail-closed trigger, while the edge intent says that same state is fine. Which reading should the DEV-phase implementer and the delivery/test-coverage reviewers use: (a) treat agy's guaranteed source=unavailable receipt (recordId + host + explicit unavailableReason, no token count) as satisfying CHK-003's happy path for the agy leg, with the adversarial trigger reserved for a genuinely missing recordId/no-run-at-all, or (b) reword CHK-003's happy/adversarial verificationIntent before DEV so the achievable-per-host outcome (numeric count for claude, honest unavailable for agy) is what 'happy' actually means?",
+      "evidence": "checklist.json CHK-003 happy[0].desc: 'the document cites two distinct host_run receipts (recordId with llmuse_ prefix, host, and reported output token count)...'; adversarial[0].desc: '...or its output token field is absent when CHK-003 evidence is recorded -> receipt capture fails closed...'; edge[0].desc: 'One host_run receipt reports usage as recorded=unavailable...even though the audit itself completed -> the document does not fabricate an output token count for that host; it cites the receipt's actual unavailable/reason state...'. docs/host-run-usage.md #Per-host usage semantics: 'agy -- recorded as source=unavailable with provider antigravity and an explicit unavailableReason. agy print mode exposes no usage surface (verified 2026-07-10), so no counts can be reported.'",
+      "sourcePointers": [
+        ".lattice/story/actives/B-c648/checklist.json#CHK-003.verificationIntent",
+        "docs/host-run-usage.md#Per-host usage semantics"
+      ]
+    }
+  ]
 }
