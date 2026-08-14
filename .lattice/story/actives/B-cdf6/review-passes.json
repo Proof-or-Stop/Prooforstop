@@ -751,6 +751,34 @@
         "scanEscalationReason": null
       },
       "_hash": "4459f312ea223794901e1559433c1313b4ddd9b53305cd0d5c4c377c7bae2b31"
+    },
+    {
+      "id": "B-cdf6:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-verified F-052/F-054/F-055 fixes and prior judgement calls rather than trusting the brief's narrative. F-052: deleted the deprecated-prefix branch of matchesRuntimeCommitSubject myself, rebuilt, confirmed flow-stability-smoke fails with exactly the claimed assertion message; restored and confirmed pass + clean git status. Not vacuous. F-053: confirmed the accept-both regex against real commit subjects present in this branch's own git log. F-054/F-055: grepped whole diff for stale lattice: record / lattice metadata auto-committed prose -- zero stray hits besides the intentional F-049 negative-guard literal at flow-stability-smoke.ts:3376. Judgement calls: F-043 ruling holds (global-agents.ts:244 uses a distinct minimal shim renderer, not one of the ~15 renderPromptEntryForHost call sites serving a different target); auto-commit-metadata.ts exports are not surface-for-tests-only (both constants have real internal/production consumers beyond the new test). Checked review-run.ts F-019 dead-code fix for the same substitute-reporting shape -- clean. Mechanically confirmed via finding_list --json: 55 findings, 0 open, all resolved/dismissed. Confirmed material diff between frozen HEAD 2001b46106 and current HEAD is story-metadata-only; review remains validly bound. Rebuilt and reran: tsc clean, flow-stability-smoke passes, all three lattice-residue checks pass. No new findings.",
+      "createdAt": "2026-08-14T15:18:18.852Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-079",
+      "envelopeId": "ff8c221533ed38698bef4ade852f758101bd675d869b11b6d2b99ea02a049506",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "df7b2eb613947cfd8db806ed1bb41f83c79407450b075c418cee63fc61eb0ee8"
     }
   ]
 }
