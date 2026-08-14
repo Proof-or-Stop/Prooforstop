@@ -865,6 +865,39 @@
         "scanEscalationReason": "Diffed full working tree between last-pass headHash (ef0a14f0) and current headHash (4d833d02) to confirm zero change to all 8 story-scoped files; rebuilt dist and re-executed 2 smoke checks directly against current HEAD rather than trusting the JSON receipts alone."
       },
       "_hash": "69011c197e76149d007ab54f7210e75fd3571424b94ba38031eec99576297bc6"
+    },
+    {
+      "id": "B-3144:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation only: diffed all previously-reviewed files (packages/main/src/handlers/quorum-submit.ts, quorum-prune.ts, verdict.ts, packages/main/src/tasks/quorum-submit-smoke.ts, docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md, CLAUDE.md, docs/CLI.md, docs/guide.md, README.md) between the RP-022 checkpoint commit (f1e13b1c67) and current HEAD (4d833d02ba): zero lines changed. Confirmed the intervening main-merge commit (6b5df0cd10) touched none of these files, and storyFilesHash/materialHash in the current dispatch context (4bcfedc796e6.../dcb49e1aa449...) match the values recorded at RP-022 exactly. Re-read background.md and plan.md (unchanged). No new symbols, no doc-code drift since RP-022s clean pass; carrying that verdict forward.",
+      "createdAt": "2026-08-14T07:24:29.881Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-061",
+      "envelopeId": "c1be4f3a5379910480fc4598fd87bc5e903b628887f3b6e9f2aff1e055b94a38",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "docs/guide.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "re-attestation round: zero-diff verified via git diff against RP-022 checkpoint commit, so prior full read stands unchanged"
+      },
+      "_hash": "b91895d98abdf6ebdef1c96d19cd7035fc9ff98e5b4a3e28d2d5af363e0805ca"
     }
   ]
 }
