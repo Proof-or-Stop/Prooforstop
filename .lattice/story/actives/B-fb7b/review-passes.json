@@ -831,6 +831,45 @@
         "scanEscalationReason": null
       },
       "_hash": "466e214fd07be16294ea9c305a76cb822071d54e09789c69f940e737b7104e78"
+    },
+    {
+      "id": "B-fb7b:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Story-level docs-code consistency re-review after commit eab8a74651 (shared main+utils build lock: scripts/build-lock.mjs new, scripts/build-utils-with-lock.mjs new, build-main-with-binding.mjs refactored to use withBuildLock, packages/utils/package.json build script rewired to the locked wrapper). Step 1 extracted 38 symbols from git diff main...HEAD, mostly local identifiers in scripts/build-lock.mjs, scripts/build-utils-with-lock.mjs, build-main-with-binding.mjs, test-suite-utils-autobuild-smoke.ts, and the two new RED tests. Step 2 grepped README star.md, CLAUDE.md, docs star star star.md for each symbol: 13 of 38 produced hits, but all 13 -- STALE_MS, bootstrap, code, here, ignored, pkg, pretest, projectRoot, registered, repoRoot, root, scripts, tsc -- are generic short identifiers; inspected every hit context and confirmed each is either an unrelated pre-existing doc paragraph (for example the STALE_MS hit in docs/host-run-usage.md refers to LATTICE_HOST_RUN_SLOT_STALE_MS and LATTICE_USAGE_LEDGER_LOCK_STALE_MS, unrelated env vars) or the CHANGELOG.md/CLAUDE.md pretest-build paragraphs, which I fully re-verified against current code in Step 3. None of the load-bearing new symbols withBuildLock, findRepoRoot, buildsMain, buildsUtils, runsExactRootBuild have any doc references; scripts/ and packages/main/ have no module-level README, so per Fallback 2 no finding is required, recorded as no-hits. Step 3: re-checked the CHANGELOG.md B-fb7b entry (pretest self-bootstraps packages/utils; dist gitignored; deterministic build does not dirty tree or conflict with the packages-main-build proof; structural guard test-suite-utils-autobuild-smoke wired into validate.commands; behavioral RED red-fb7b-pretest-builds-utils.mjs; worktree handler and bootstrap-runner.js left untouched) against current code: package.json pretest equals npm --prefix packages/main run build then npm --prefix packages/utils run build, main before utils confirmed; lattice.config.json validate.commands still contains the test-suite-utils-autobuild-smoke.js entry; git diff for bin/bootstrap-runner.js and the worktree handler is empty, confirmed untouched; the build-lock is implemented entirely inside scripts/ using an os.tmpdir lock directory, so it cannot dirty the git tree and does not alter writeBuildBinding's post-tsc call site or the packages-main-build materialHash mechanism. All CHANGELOG claims remain accurate, no drift found. The new build-lock mechanism, the F-011 through F-015 concurrency fix, is purely internal build-tooling robustness with no user-facing behavior change and is not described in any README/CLAUDE.md/docs paragraph, so it needs no CHANGELOG addition; docs/requirements/decisions/testing-infra.md and done-full-test-gate-execution-plan.md describe the packages-main-build proof at the command-invocation level, npm --prefix packages/main run build, which is unchanged by the lock refactor since it is still the same external command. Also checked CLAUDE.md's pre-push-hook section, an unrelated B-5a28/B-eab3 doc referencing packages/main build before packages/utils tsc for an unrelated reason, still accurate and untouched by this diff. Note: findings.json shows F-011 through F-015, concurrency-race findings raised by lattice-review-test-coverage, still open/verified as of this round including a fresh F-015 created 2026-08-14T11:16:01Z, before the eab8a74651 fix commit at 11:28:25Z, describing the pre-fix gap this commit targets; adjudicating whether the fix actually closes that race is outside the lattice-review-docs lane since no documentation makes a race-safety claim, so there is no doc-code drift to raise here, and it is left to the owning reviewer lane. 0 doc-code-drift findings registered this round.",
+      "createdAt": "2026-08-14T12:16:10.163Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-044",
+      "envelopeId": "eac6606f11b8d73d52c86c6945085a8d02f0be28594e4c68fd7965801469d97a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/index.json",
+          "docs/host-run-usage.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73dbc85e660944fe4d9535f42dedaba3f0849ea94cce07b7d549e6eb12cc67f0"
     }
   ]
 }
