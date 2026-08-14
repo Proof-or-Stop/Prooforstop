@@ -70,6 +70,26 @@
       ],
       "signatureTag": "missing|json|diff-checklist-shows",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-16df:F-005",
+      "desc": "CHK-001:happy:1 verificationIntent text (checklist.json) still describes plan.md CHK-001 original, pre-CORRECTION single-assertion design: \"calls runSingleAllowlistedCommand with the matching command STRING and no options.timeoutMs, and asserts result.timedOut === true and result.code === 124.\" plan.md line 12-22 explicitly states that design \"can NEVER turn green after CHK-002\" and documents the CORRECTED split into 6a (validate-command-timeout-smoke.ts:137-138: direct call, no options.timeoutMs, asserts timedOut===false — a permanent characterization, NOT the red->green case) and 6b (lines 147-152: calls resolvePinnedCommandTimeoutMs then runSingleAllowlistedCommand WITH an explicit {timeoutMs: resolved} option, asserting timedOut===true/code===124). No single call in the implemented file matches happy:1 literal wording (no-options.timeoutMs AND timedOut===true together) — 6a has no-timeoutMs+false, 6b has explicit-timeoutMs+true. The checklist intent text was never updated to reflect the plan CORRECTION even though verificationEvidence for CHK-001:happy:1 is stamped result:pass.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T12:30:43.766Z",
+      "reviewRound": "2026-08-14T12:21:00.555Z",
+      "reviewRunId": "B-16df:RR-001",
+      "_hash": "56e7fbd76cfb28a3081ed137342fe12b054c29c22b7eba3d3c45effab7451d62",
+      "files": [
+        "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/.lattice/story/actives/B-16df/checklist.json",
+        "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/.lattice/story/actives/B-16df/plan.md",
+        "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "signatureTag": "adversarial|json|happy-verificationintent-text",
+      "signatureTagSource": "auto"
     }
   ]
 }
