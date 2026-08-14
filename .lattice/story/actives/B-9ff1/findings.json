@@ -517,6 +517,21 @@
       "resolvedAt": "2026-08-14T03:54:51.629Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-024",
+      "desc": "[codex host-B C1] Verified by main agent. The four-category formulation adopted in the F-014..F-023 repair says the command 'writes no artifact', but packages/main/src/core/runtime-artifact-registry.ts registers .lattice/activity.jsonl as the runtime-activity-log artifact (id runtime-activity-log, exact match). Unqualified 'no artifact' therefore contradicts this repository's own artifact taxonomy. The phrase appears in cli/activity-policy.ts, the user-facing cli/command-catalog.ts description, core/config.ts and registry.ts. Narrow it to the specific artifact classes actually not written.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:55.124Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "bd0cf2092f41acf930d51a019acae1f560c0259bae6d55ab6c971181d28e9792",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
