@@ -106,7 +106,59 @@
       "context": "Add to canFinishGuard (core/machine.ts) or wherever the DONE checklist is assembled: require a dev_memory_finish_decision record for the story, accepting captured | no-reusable-lesson | defer-with-reason as satisfying answers. Mirrors how summary_set/delivery-check are already required DONE items.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Story with no finish-decision record -> canFinishGuard returns false and getGuardFailureReason emits missing_dev_memory_finish_decision tag with actionable run-command hint; WHY: confirms DONE gate blocks when record is absent",
+            "type": "cli"
+          },
+          {
+            "desc": "Call dev_memory_finish_decision with decision=captured -> canFinishGuard passes for this check; WHY: positive capture satisfies gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Call dev_memory_finish_decision with decision=no-reusable-lesson -> canFinishGuard passes for this check; WHY: honest negative is explicitly valid per design",
+            "type": "cli"
+          },
+          {
+            "desc": "Call dev_memory_finish_decision with decision=defer-with-reason -> canFinishGuard passes for this check; WHY: deferred-with-reason is explicitly valid per design",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "readDevMemoryFinishDecision lives in core/playbook-runtime-memory.ts and is imported by core/machine.ts as a core->core import (not core->handlers); WHY: architectural constraint from plan -- no new core->handlers inversions",
+            "type": "cli"
+          },
+          {
+            "desc": "handlers/playbook-runtime-memory.ts dev_memory_finish_decision writer imports finishDecisionPath from core module instead of defining it locally; WHY: single source of truth for the path, no duplicate definitions",
+            "type": "cli"
+          },
+          {
+            "desc": "canFinishGuard checks finish-decision AFTER existing test-evidence check (lines 877-882 pattern), so a story missing test evidence still fails on test-evidence first, not on finish-decision; WHY: guard ordering must not mask more fundamental blockers",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "finish-decision JSON file exists but contains invalid JSON (truncated, empty string, random bytes) -> readDevMemoryFinishDecision returns null -> canFinishGuard returns false (fail-closed); WHY: corrupt/hand-crafted artifact must not bypass the DONE gate",
+            "type": "cli"
+          },
+          {
+            "desc": "finish-decision JSON file exists but has wrong schema (e.g. missing decision field, decision=invented-value not in captured|no-reusable-lesson|defer-with-reason) -> gate treats as unsatisfied; WHY: prevents gaming with arbitrary file content",
+            "type": "cli"
+          },
+          {
+            "desc": "finish-decision file for a DIFFERENT storyId placed at the current story path -> readDevMemoryFinishDecision either rejects on storyId mismatch or the path-builder already namespaces by storyId making cross-story injection impossible; WHY: cross-story artifact reuse must not satisfy the gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Deleting finish-decision file after it was written and re-checking canFinishGuard -> gate blocks again (no caching); WHY: gate must re-read from disk each time, not cache a previous positive result",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
