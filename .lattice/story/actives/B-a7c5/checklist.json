@@ -1145,7 +1145,11 @@
         "edge": [
           {
             "desc": "The original M8 acceptance test text (\"missing decision is visible in runbook/advisory output\") is still present somewhere in the document as historical context, not replaced or deleted; WHY: plan explicitly requires preserving original text -- a reviewer grepping for that exact phrase must still find it",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"missing decision is visible in runbook/advisory output\\\") ? \\\"ORIGINAL_M8_TEST_TEXT_PRESERVED_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "ORIGINAL_M8_TEST_TEXT_PRESERVED_CONFIRMED"
+            }
           },
           {
             "desc": "The doc references the actual mechanism names matching shipped code: dev_memory_finish_decision, captured, no-reusable-lesson, defer-with-reason, canFinishGuard -- not placeholder/generic names; WHY: doc-code name divergence is a known high-severity finding pattern (B-3144 F-030 stale spec)",
@@ -1251,6 +1255,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:13.975Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"missing decision is visible in runbook/advisory output\\\") ? \\\"ORIGINAL_M8_TEST_TEXT_PRESERVED_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The exact original M8 acceptance-test phrase 'missing decision is visible in runbook/advisory output' is still present in the file (both at its original location and re-quoted inside the new annotation), proving it was preserved rather than deleted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "db8e2a729671a9634ff713f7fedfdaf6c5e6fa202d9d2f6224dd391808f7022b",
+            "outputTail": "ORIGINAL_M8_TEST_TEXT_PRESERVED_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:14.944Z"
+          },
+          "headHash": "9715cc76d80708cd57a5a318203a14d4e1065258",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:15.071Z"
         }
       ]
     },
