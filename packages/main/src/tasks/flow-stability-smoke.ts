@@ -31,7 +31,13 @@ import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { EMPTY_STORY_FILES_HASH, checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
-import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
+import {
+  autoCommitStoryMetadata,
+  AUTO_COMMIT_METADATA_PREFIX,
+  COMMIT_SUBJECT_PREFIX,
+  DEPRECATED_COMMIT_SUBJECT_PREFIX,
+  matchesRuntimeCommitSubject,
+} from '../core/auto-commit-metadata.js';
 import { readHealthIssues } from '../core/health.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
@@ -5139,5 +5145,37 @@ assertDoneOracleSameSource();
 await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
+
+// ── B-cdf6:F-052 — the read-both branch must be PROVEN, not just present ────────
+// The quality lane observed that every smoke exercising purgeSafeInitCommit only ever
+// hand-writes the CANONICAL subject, so the tests proved the writer emits the new form
+// while nothing proved the reader still accepts the OLD one. That is the compatibility
+// guarantee the whole read-both design exists for: a repository holding pre-rename
+// commits must keep classifying them correctly. Asserted directly against the matcher.
+{
+  const body = 'story B-readboth init';
+  assert.equal(
+    matchesRuntimeCommitSubject(`${COMMIT_SUBJECT_PREFIX} ${body}`, body),
+    true,
+    'read-both must accept the canonical proof-or-stop: subject',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`, body),
+    true,
+    'read-both must STILL accept the deprecated lattice: subject — pre-rename history depends on it',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`chore: ${body}`, body),
+    false,
+    'read-both must reject an unrelated prefix rather than matching on the body alone',
+  );
+  assert.equal(
+    matchesRuntimeCommitSubject(`${COMMIT_SUBJECT_PREFIX} something else`, body),
+    false,
+    'read-both must not match a canonical-prefixed subject with a different body',
+  );
+  assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
+  assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'lattice:', 'deprecated prefix is retained verbatim for compatibility');
+}
 
 console.log('✓ flow stability smoke passed');

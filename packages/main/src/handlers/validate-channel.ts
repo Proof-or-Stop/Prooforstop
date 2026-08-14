@@ -173,8 +173,16 @@ export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
 }
 
+// B-cdf6:F-053 — READ-BOTH, and this one gates a transition. This matched only the
+// DEPRECATED subject prefix, so once F-047/F-049 renamed the writers, a legitimate
+// metadata-only auto-commit written under the canonical prefix was misclassified as a
+// channel offender by the validate --channel REVIEW->TEST gate (via isAcceptableCommit
+// -> the offenders filter). Demonstrated on this repo's own log: the subject
+// "proof-or-stop: record B-cdf6 validate metadata" returned false while the old form
+// returned true. Both prefixes are accepted now — the deprecated one deliberately, so
+// pre-rename history keeps classifying correctly.
 export function isMetadataOnlyLatticeCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
-  return /^\s*lattice:/.test(c.subject)
+  return /^\s*(?:proof-or-stop|lattice):/.test(c.subject)
     && Array.isArray(c.files)
     && c.files.length > 0
     && c.files.every(isStoryMetadataPath);

@@ -1602,7 +1602,7 @@ export function collectReviewerEvidenceState(
     // Why the old `&& agentsWithCurrentValidEvidence.has(...)` conjunct was a
     // deadlock, not a safeguard: every remedy for staleness (finding_resolve,
     // review_pass_set, verification_evidence_refresh_stale, ...) writes its own
-    // `lattice: record ... metadata` commit, which advances HEAD and re-stales
+    // `proof-or-stop: record ... metadata` commit, which advances HEAD and re-stales
     // the bindings that very command just established. Once a whole lane goes
     // stale in one sweep, its passes never enter `valid`, so the lane held no
     // currently-valid evidence, so the forgiveness for its already RESOLVED
