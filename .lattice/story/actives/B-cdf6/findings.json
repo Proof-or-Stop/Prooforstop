@@ -788,6 +788,26 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-038",
+      "desc": "Story self-report claims 34 findings / 0 open, but finding_list mechanically shows 3 story-owned findings currently status=open: B-cdf6:F-034 (high), B-cdf6:F-035 (medium), B-cdf6:F-036 (medium) (a 4th, F-037 low, was independently added by lattice-review-docs during this review and is out of my lanes remit). Verified their underlying code defects ARE fixed at current HEAD (managed-assets.ts:882/921 delegate to renderPromptEntryForHost per commit fbb517121c fix(F-034); prompt-token-cost-smoke.ts:192/195 same per commit 155e787d0c fix(F-036); F-035s claim about F-026s mechanism is superseded by the F-028 retraction already logged in B-META-framework-audit/findings.json). No finding_resolve call or commit Resolves: trailer exists in process-events.jsonl or git log for F-034/F-035/F-036 even though each fix commit post-dates the findings createdAt timestamp -- the ledger was never closed out. This is an audit-integrity gap independent of the verificationIntent/waiver math, which I separately confirmed still holds (36 must-intents across 6 checklist items, 34 covered by non-waiver evidence + 2 correctly-typed waivers -- CHK-002:adversarial:1 deferred_gate_evidence, CHK-004:edge:0 permanent -- = 35/36 coverage). An open high-severity finding is a live REVIEW gate blocker under canPassReviewGuard regardless of whether the code fix already landed, and the 34-findings-0-open narrative given to this reviewer does not match the mechanical finding_list state. Fix: call finding_resolve on F-034/F-035/F-036 with evidence pointing at the commits that already closed each defect (fbb517121c, cd3260243b/155e787d0c, and the F-028 retraction respectively), or explain why they remain open.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T08:58:27.416Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-050",
+      "_hash": "3c371bc064ffd6c0662fefe3fea88adec0d16b89700413346d18f49ea4bea42c",
+      "files": [
+        ".lattice/story/actives/B-cdf6/findings.json",
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+      ],
+      "signatureTag": "missing|json|story-self-report",
+      "signatureTagSource": "auto"
     }
   ]
 }
