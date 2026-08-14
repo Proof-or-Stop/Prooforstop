@@ -83,7 +83,9 @@
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
         ]
       },
       "status": "pending",
