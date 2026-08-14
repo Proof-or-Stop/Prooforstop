@@ -159,6 +159,104 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a new smoke test covering all three dev-memory lifecycle gates, registered in validate.commands",
+      "context": "New file packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts, covering CHK-001's DEV-door refusal-then-pass across all four doors (including the reasoned-downgrade --reason path), CHK-002's advisory text presence/absence and fail-safe-under-throw behavior, and CHK-003's DONE-gate refusal-then-pass for all three decision values plus the fail-closed corrupt-record case. Register in lattice.config.json validate.commands.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-a7c5/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` -> exits 0 with all assertions passing; WHY: confirms the smoke test itself is a valid, complete, passing test that exercises real gate logic",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test contains refusal-then-pass assertions for CHK-001 DEV-door gating: all four doors (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard from REVIEW, canReenterDevGuard from TEST) return false when ack artifact is absent, then return true after dev_memory_preflight_ack writes the artifact; WHY: covers CHK-001 both-halves across all doors",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test contains assertions for CHK-002 advisory behavior: finding_resolve output includes dev_memory_capture advisory text after successful resolve, AND memory subsystem throw does not break finding_resolve (exit 0, advisory silently becomes empty string); WHY: covers CHK-002 happy + fail-safe",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test contains DONE-gate assertions for CHK-003: canFinishGuard returns false with no finish-decision record, then returns true for each of decision=captured, decision=no-reusable-lesson, decision=defer-with-reason, AND returns false for corrupt/invalid JSON finish-decision file; WHY: covers CHK-003 full decision matrix plus fail-closed corruption case",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke test is registered in lattice.config.json validate.commands with the exact compiled path `packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` matching the existing registration pattern; WHY: unregistered test is never run by validate and provides zero assurance",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test covers the section-4.3-compliant --reason bypass/downgrade path for CHK-001: when pack build throws AND --reason is provided, ack artifact is written with packDigest:null/topHitIds:[] and gate still passes; WHY: the reasoned-downgrade path is a plan-level requirement distinct from the normal preflight path",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test uses mkdtempSync + git init temp fixture pattern (matching codebase convention e.g. quorum-submit-smoke.ts makeFixture) and does not leak temp directories on success or assertion failure; WHY: shared CI environment accumulation / cross-test contamination",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke test contains genuine refusal-THEN-pass assertion pairs for EVERY gate (not just write-artifact-then-assert-passes): each gate is first asserted false/blocking without the artifact, then true/passing after the artifact is written -- grep source for the refusal assertion before the write call; WHY: a test that only checks the pass-after-write path would pass vacuously even if the gate function were a no-op returning true unconditionally",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test explicitly names and invokes all 4 DEV-entry doors (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard with previousPhase REVIEW, canReenterDevGuard with previousPhase TEST) -- grep source confirms all four; WHY: a test covering only PLAN->DEV leaves 3 doors untested, which is the exact gap CHK-001 adversarial-intent-3 is designed to catch",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test source file exists at packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts AND lattice.config.json validate.commands contains an entry pointing to the compiled dist/ path -- both must be present simultaneously; WHY: source without registration means the test never runs in validate (silently passing CI with zero coverage)",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke test CHK-002 fail-safe coverage includes a concrete throw-path test (e.g. corrupt experience.jsonl or missing .lattice/dev-memory dir causing pack builder to throw) where finding_resolve still completes without error -- not just testing that advisory text appears on the happy path; WHY: the fail-safe-under-throw property is the critical adversarial guarantee of CHK-002, and testing only the happy path would miss a try/catch that silently swallows the wrong exception or re-throws",
+            "type": "cli"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Update the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc to describe the delivered/escalated CHK-003 behavior",
+      "context": "M8 'Capture-Or-Noop Decision' currently describes dev_memory_finish_decision as advisory-only ('missing decision is visible in runbook/advisory output'). Update that section to describe the actually-delivered behavior: this story deliberately escalates ONE specific consumer (the DONE gate) to blocking, while preserving the original advisory text as historical rationale (mirrors B-3144's docs/evidence-write-guard-spec.md 'Delivered differently' pattern). Also document that this is the first concrete instance of section 4.3's registered-blocking-consumer-with-operator-visible-bypass-path pattern being exercised for a dev-memory consumer, satisfied via the existing reason-required decision/downgrade-ack values (no new bypass mechanism needed).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-a7c5/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-14T10:41:04.744Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "story_review flagged this as a scope gap: plan.md's Testing Strategy section names a concrete new file deliverable with no corresponding checklist item.",
+      "addedTitle": "Add a new smoke test covering all three dev-memory lifecycle gates, registered in validate.commands",
+      "addedContext": "New file packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts, covering CHK-001's DEV-door refusal-then-pass across all four doors (including the reasoned-downgrade --reason path), CHK-002's advisory text presence/absence and fail-safe-under-throw behavior, and CHK-003's DONE-gate refusal-then-pass for all three decision values plus the fail-closed corrupt-record case. Register in lattice.config.json validate.commands."
+    },
+    {
+      "timestamp": "2026-08-14T10:44:40.362Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "story_review flagged two scope gaps: plan.md's Reconciliation section states both the M8-advisory-to-blocking escalation and the section-4.3-bypass-path precedent as commitments with no corresponding checklist coverage.",
+      "addedTitle": "Update the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc to describe the delivered/escalated CHK-003 behavior",
+      "addedContext": "M8 'Capture-Or-Noop Decision' currently describes dev_memory_finish_decision as advisory-only ('missing decision is visible in runbook/advisory output'). Update that section to describe the actually-delivered behavior: this story deliberately escalates ONE specific consumer (the DONE gate) to blocking, while preserving the original advisory text as historical rationale (mirrors B-3144's docs/evidence-write-guard-spec.md 'Delivered differently' pattern). Also document that this is the first concrete instance of section 4.3's registered-blocking-consumer-with-operator-visible-bypass-path pattern being exercised for a dev-memory consumer, satisfied via the existing reason-required decision/downgrade-ack values (no new bypass mechanism needed)."
     }
   ]
 }
