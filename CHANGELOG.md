@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+**Fixed**
+
+- **Redundant DONE-validation re-runs after a main-merge (B-f00c).** Extracted a
+  shared merge-lineage classifier — `packages/main/src/core/validation-lineage.ts`
+  (`netDiffChangedPaths` + `classifyMergeLineage`) — now used by both
+  `classifyTrustedValidationLineage` (`validation-evidence-reuse.ts`) and
+  `validationHeadLineage` (`validation-evidence-admissibility.ts`), which were
+  previously byte-equivalent copies. It computes a net endpoint `git diff-tree`
+  (`-z`, 1 GiB `maxBuffer`) instead of a per-commit `-m` union, so a merge that
+  re-introduces content-unchanged story files no longer flags them as
+  `untrusted-lineage-path`. This eliminates a redundant full-suite re-validation
+  and the `autopilot_review_submit --deriveBindings` hard-throw during the
+  hot-main closeout window, while a genuine non-metadata content change still
+  refuses reuse and an empty net diff stays trusted. New
+  `validation-reuse-merge-lineage-smoke` covers both classifier paths plus the
+  negative, empty-diff, large-diff (`maxBuffer`) and diff-failed cases and is
+  wired into `validate.commands`; `scripts/verify-process-fact-contract.mjs` now
+  tracks the git-command tokens in the shared module.
+
 ## Proofbound 0.3.251 - 2026-07-31
 
 Dependency-security maintenance round: clears every high-severity advisory
