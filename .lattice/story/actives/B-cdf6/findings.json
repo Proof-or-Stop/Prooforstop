@@ -722,7 +722,7 @@
       "desc": "packages/main/src/core/managed-assets.ts:902-916 (Claude-host .claude/agents mirror inside listManagedAssetDefinitions) is a THIRD, unfixed copy of the exact F-005 bug: it branches on isModularReviewerRoleId but never isModularComplexRoleId, so it still emits the raw modular template (readFileSync(join(templates, file))) for the 5 MODULAR_COMPLEX_ROLE_IDS instead of the digest-pinned legacy reconstruction. Commit 8f18a193a1 only touched the .lattice-codex/agents mirror at managed-assets.ts:860-888 and cli-init.ts:968-996; this sibling Claude-host block a few lines below was never touched. REPRODUCED (real init + real check binaries, not simulated): fresh init --profile=all --asset-mode=full into a temp project, seed nothing extra, then check --json reports ok:false with status STALE_SAFE for exactly .claude/agents:lattice-evaluator.md, lattice-implementer.md, lattice-review-delivery.md, lattice-review-scope-plan.md, lattice-review-story-init.md -- the 5 MODULAR_COMPLEX_ROLE_IDS -- same shape as the pre-fix bug this story claims to have closed. This is also directly why scripts/verify-entrypoints.mjs:551 (assert(checkOk.ok === true, ...)) is red today: seedClaudeAgentMirror() at :519 populates .claude/agents with correctly-rendered files BEFORE the :550 check call (cleanupClaudeMirror() does not run until :620), so by the time check runs at :550 .claude/agents is NOT missing -- the failure at :551 is this live STALE_SAFE:5 defect, not a MISSING count (see companion finding on F-026 accuracy). This is the duplication risk (two hand-synced copies of one rule, already having drifted once) materializing for real: the isModularComplexRoleId branch is now copy-pasted in cli-init.ts and managed-assets.ts .lattice-codex block, and was simply forgotten in the third copy in the same file (managed-assets.ts .claude/agents block) a few lines below -- exactly the failure mode that produced F-005 in the first place, with no shared helper to prevent recurrence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T04:10:53.986Z",
@@ -735,7 +735,11 @@
         "scripts/verify-entrypoints.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in fbb517121c, and the reviewer's framing was exactly right: this was 'the trap staying armed, and it already bit'. managed-assets.ts:902-916 built the .claude/agents expectation from the raw template, branching on isModularReviewerRoleId but never isModularComplexRoleId - a third copy of the F-005 rule sitting a dozen lines below the codex mirror I had just fixed in the same file.\n\nMEASURED with the .claude/agents mirror seeded exactly as verify-entrypoints.mjs does it: before ok:false with STALE_SAFE:5 on precisely the 5 MODULAR_COMPLEX_ROLE_IDS; after ok:true, OK:52, MISSING:0, STALE_SAFE:0. That cleared verify-entrypoints.mjs:551 and moved the script 7/28 -> 12/28.\n\nThis finding is also what settled the duplication argument. I had judged the shared-helper refactor 'too invasive'; F-034 proved hand-synchronising the rule does not hold, so all sites now delegate to renderPromptEntryForHost (cd3260243b), verified byte-identical for 17 roles on both hosts before switching. F-036 then found a FOURTH copy in test code that my production-only sweep had excluded - further evidence the reviewer's position was correct and mine was not.",
+      "resolvedAt": "2026-08-14T09:03:39.641Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-035",
