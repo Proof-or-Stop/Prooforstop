@@ -315,6 +315,26 @@
       "resolvedAt": "2026-08-14T03:34:16.822Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-015",
+      "desc": "activity-policy.ts:23-33 (the F-014 repair, commit b63dcad96b) states as an unconditional fact that 'Membership here makes shouldWriteActivityLog (this file) return false' for red_evidence_envelope_check. That is only true when process.env.LATTICE_ACTIVITY_RECORD_READONLY !== '1' — shouldWriteActivityLog (same file, lines 151-159) returns, for any read-only command, exactly `process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1'`, i.e. false by default but TRUE when that var is set. LATTICE_ACTIVITY_RECORD_READONLY=1 is not an obscure test knob: it is this repo's own documented 'global-fallback' Codex entrypoint env (init-assets.ts:148-163 LATTICE_CODEX_ADAPTER_MANIFEST.recommendedEntrypoints, init-assets.ts:213-238 CODEX_README template, core/codex-adapter-checks.ts:57/502/607 GLOBAL_CODEX_FALLBACK_COMMAND), recommended precisely when a Codex session lacks the local wrapper. Under that real, documented, in-repo operating mode, red_evidence_envelope_check membership in READ_ONLY_COMMANDS does NOT make shouldWriteActivityLog return false — it makes it return true, and every invocation appends an activity.jsonl row. This is the same class of overclaim (a classification-driven guarantee stated as unconditional when a real code path flips it) that this very comment was rewritten this round to stop making about the staleWarnings bypass — the new text names that bypass explicitly but omits this second, equally real one on the very sentence introducing the primary claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T03:40:18.996Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-015",
+      "_hash": "ce1ae430bba354795fa8f48ee013f5c7e0b6903a5f2d33e15422f414ea71e354",
+      "files": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|activity-policy-repair",
+      "signatureTagSource": "auto"
     }
   ]
 }
