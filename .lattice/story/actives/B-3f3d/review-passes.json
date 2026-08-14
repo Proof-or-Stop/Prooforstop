@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-3f3d:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "RI-003 final quality review passed. Verified critic Next includes CLI-valid conservative findingDispositions; runtime and schema reject unknown dispositions; topology critic dispatch persists the current-round targetKind-specific binding consumed by review_run_start; critic/final inventory receipts are signed and bound to round, cutoff, lane terminals, read evidence, ordering and aggregate digests; stale/cross-story/replay attempts fail closed; REVIEW-to-DEV consumes authority before phase publication and a post-consume phase-write failure requires a fresh epoch; post-remediation lane narrowing recomputes a signed current impact closure and falls back to the full active set on unknown/dirty/unsupported scope. Focused handler/epoch/dispatch/incremental smokes, process-fact contract, and git diff check passed.",
+      "createdAt": "2026-08-14T17:58:18.496Z",
+      "reviewRound": "2026-08-14T17:53:23.106Z",
+      "reviewRunId": "B-3f3d:RR-013",
+      "envelopeId": "6696d2ac2546421562acf5e18d49216bb85dc7e1111f143c99a611b3dd010e05",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-graph-and-evidence-waterline.md",
+          "docs/requirements/decisions/cli-engine-semantics.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane.md",
+          "docs/requirements/decisions/lattice-authority-hardening-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-slice-implementation-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-assurance-floor.md",
+          "docs/requirements/decisions/workflow-convergence-and-review-efficiency.md"
+        ],
+        "scanEscalationReason": "Full quality audit of signed review-inventory authority, topology critic dispatch/run binding, dispositions, receipt consumption, replay boundaries, final-review impact closure, and focused executable smokes."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-graph-and-evidence-waterline.md",
+          "docs/requirements/decisions/cli-engine-semantics.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane.md",
+          "docs/requirements/decisions/lattice-authority-hardening-plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-slice-implementation-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-assurance-floor.md",
+          "docs/requirements/decisions/workflow-convergence-and-review-efficiency.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": 6
+        },
+        "digest": "2661e60290d86cfe8aabb6d840d58a0166714ae857e556f713b9917ea9d432bb"
+      },
+      "readDiagnostics": [],
+      "_hash": "1043bc38cf453309bfd5e9d32fd6cbaaa187f100505f9b0bfd7782eb369145fd"
+    },
+    {
+      "id": "B-3f3d:RP-002",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-003 completeness review found no additional raw finding beyond F-017 through F-020; all four required lanes are terminal on the frozen cutoff, each finding is independently verified as a distinct family, and the quality lane signed pass/read evidence is present. This is inventory completeness evidence, not implementation approval.",
+      "createdAt": "2026-08-14T18:05:31.995Z",
+      "reviewRound": "2026-08-14T17:53:23.106Z",
+      "reviewRunId": "B-3f3d:RR-016",
+      "envelopeId": "08cd63d21a54cc7889879449163bf08a006efcadf8140adc669011100481ccb5",
+      "writerSessionId": "sess-f1ed9b2259394f1c881ce217585b79dc",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/pre-review-check.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b4cfd102189442ba926f6ce92c6edaa1189b52e98c7e9f61ac69f48d31e10c53"
+      },
+      "readDiagnostics": [],
+      "_hash": "916e958ad81d2799d6be44a0f3667283be6549b651af529ea2343527c8a2683c"
+    }
+  ]
+}

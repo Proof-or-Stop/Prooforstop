@@ -52,8 +52,84 @@
       "cancelledAt": "2026-08-14T17:01:38.146Z",
       "cancelReason": "Mandatory topology critic cannot create a signed ReviewRun because dispatch emits topology-critic-review while the verifier accepts only story-review; cancel without transition authority and recover to DEV under the user-authorized audited deadlock procedure.",
       "_hash": "5dcbefb99212d47b33098da7b0a4501090d3e04844ff0d6043778e2f84e35b2a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-003",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-14T17:53:23.106Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-14T17:53:36.744Z",
+      "updatedAt": "2026-08-14T18:09:28.015Z",
+      "cutoff": {
+        "headHash": "7d4b3a183f023380bae49736897a7239bb78f8a0",
+        "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
+        "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6"
+      },
+      "scopeDigest": "8e4b7e47430e0bb20324de6fdf486e5efffcae2ea22fd6d4b8551c591b311e40",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "maxWaves": 3,
+      "waves": [],
+      "cancelledAt": "2026-08-14T18:09:28.015Z",
+      "cancelReason": "RI-003 produced four new verified families but status/finalize incorrectly offered finalization instead of a next unchanged-cutoff discovery wave; cancel without receipt authority and recover to DEV under the user-authorized audited bootstrap procedure.",
+      "_hash": "0ecfd2e5bf4313729359d2f1af93d9697b68a381f0eaf6d29f62f1ef972120cd"
     }
   ],
   "receipts": [],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-003:CRIT-01",
+      "epochId": "B-3f3d:RI-003",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-14T17:53:23.106Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "7d4b3a183f023380bae49736897a7239bb78f8a0",
+        "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
+        "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6"
+      },
+      "aggregateFindingSetDigest": "f30c59963eeffe6e0c9c827f7e4c1a30bc83dfc6cd8748b17e1d951e52301d57",
+      "requiredLaneCoverageDigest": "ae80e758144177bf51a401ce8597c80563a81094cc08ae709e5961f043f86032",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-016",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-002"
+      ],
+      "readEvidenceDigest": "94e190bcf0b78c8746f11322692c1959fb773844ab20b543e5274d0baf30e36a",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-017",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-pre-review-authority-inconclusive",
+          "reason": "Current pre_review_check_read is signed but status=inconclusive, authority=inadmissible, and carries PR_ARTIFACT_TAMPERED plus PR_CUTOFF_UNBOUND; rollout pass does not close that missing authority chain."
+        },
+        {
+          "findingId": "B-3f3d:F-018",
+          "disposition": "verified_family",
+          "familyKey": "verification-evidence-not-mechanically-current",
+          "reason": "CHK-006 B3F3D-006-H3 has mechanical=false and explicitly says its prior receipt was invalidated after material changed without re-running the pinned verifier."
+        },
+        {
+          "findingId": "B-3f3d:F-019",
+          "disposition": "verified_family",
+          "familyKey": "critic-operator-example-schema-omission",
+          "reason": "The current decision document Operator workflow omits mandatory findingDispositions, while command-catalog requires the array and the handler now renders a complete executable payload."
+        },
+        {
+          "findingId": "B-3f3d:F-020",
+          "disposition": "verified_family",
+          "familyKey": "lifecycle-readiness-review-rollback-matrix-drift",
+          "reason": "The readiness decision minimum smoke matrix still merges REVIEW and TEST direct rollback behavior, contradicting its updated requirement and live REVIEW inventory command selection."
+        }
+      ],
+      "createdAt": "2026-08-14T18:06:28.944Z",
+      "_hash": "829f76e8ce449e007b9dae3a258e4d3447bf4c030cdd3c70466a8302d73c8298"
+    }
+  ]
 }

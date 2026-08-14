@@ -154,6 +154,80 @@
       ],
       "severity": "critical",
       "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-010",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-017"
+      ],
+      "files": [
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T18:09:57.805Z"
+    },
+    {
+      "clusterId": "CL-011",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-018"
+      ],
+      "files": [
+        ".lattice/story/actives/B-3f3d/checklist.json",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T18:09:57.805Z"
+    },
+    {
+      "clusterId": "CL-012",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-019"
+      ],
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T18:09:57.805Z"
+    },
+    {
+      "clusterId": "CL-013",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-020"
+      ],
+      "files": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/anti-stall.ts",
+        "packages/main/src/handlers/session.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-14T18:09:57.805Z"
+    },
+    {
+      "clusterId": "CL-014",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-021"
+      ],
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T18:09:57.805Z"
     }
   ]
 }
