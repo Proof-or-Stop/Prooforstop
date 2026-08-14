@@ -411,24 +411,39 @@ export function renderScopeAntiExpansionSummary(
  * SIMPLE existence-check model (mirrors canFinishGuard's test-evidence check:
  * read → check truthy), NOT the hash/staleness model scope-freeze-check uses
  * — the ack just needs to exist once per story; it is never re-validated
- * against current material. Never throws: a missing artifact, a store read
- * error, and a corrupt/hand-crafted artifact (invalid JSON, wrong
- * schemaVersion, mismatched storyId) are all treated identically as ABSENT
- * (fail-closed), so a `{}` or truncated file can never satisfy the gate.
+ * against current material.
+ *
+ * A missing artifact (store.readDevMemoryPreflightAck returns null) and a
+ * corrupt/hand-crafted artifact (malformed JSON -- a SyntaxError from
+ * JSON.parse, or a well-formed-but-wrong-shape object) are both treated as
+ * ABSENT (return false, no throw) -- a `{}` or truncated file can never
+ * satisfy the gate. A genuine unexpected read fault (permission denied,
+ * EISDIR, disk error -- anything that is not a missing artifact or a JSON
+ * parse failure) is deliberately NOT swallowed here: it propagates to the
+ * caller. canStartDevGuard/canSkipPlanGuard's own outer catches are
+ * fail-CLOSED (infra error -> block, same net effect as before), but
+ * canReenterDevGuard's outer catch is fail-OPEN by design (F-006/spec
+ * §4.8: a rollback door must never be stranded by a gate/config error) --
+ * catching every error class here unconditionally would have silently
+ * broken that guarantee for this one check, which is exactly what the
+ * REVIEW quality lane caught (empirically, via a forced EISDIR on the ack
+ * path making canReenterDevGuard wrongly return false instead of true).
  */
 export function evaluateDevMemoryPreflightGate(storyId: string, store: StoryStore): boolean {
+  let ack;
   try {
-    const ack = store.readDevMemoryPreflightAck(storyId);
-    if (!ack) return false;
-    if (ack.schemaVersion !== 'lattice.dev_memory_preflight_ack.v1') return false;
-    if (typeof ack.storyId !== 'string' || ack.storyId !== storyId) return false;
-    if (!Array.isArray(ack.topHitIds)) return false;
-    if (typeof ack.acknowledgedAt !== 'string' || !ack.acknowledgedAt) return false;
-    if (typeof ack.acknowledgedBy !== 'string' || !ack.acknowledgedBy) return false;
-    return true;
-  } catch {
-    return false;
+    ack = store.readDevMemoryPreflightAck(storyId);
+  } catch (e) {
+    if (e instanceof SyntaxError) return false;
+    throw e;
   }
+  if (!ack) return false;
+  if (ack.schemaVersion !== 'lattice.dev_memory_preflight_ack.v1') return false;
+  if (typeof ack.storyId !== 'string' || ack.storyId !== storyId) return false;
+  if (!Array.isArray(ack.topHitIds)) return false;
+  if (typeof ack.acknowledgedAt !== 'string' || !ack.acknowledgedAt) return false;
+  if (typeof ack.acknowledgedBy !== 'string' || !ack.acknowledgedBy) return false;
+  return true;
 }
 
 export function checklistAllDoneGuard(context: StoryMachineContext): boolean {

@@ -229,6 +229,40 @@ function assertAckFailClosedOnCorruption(): void {
   }
 }
 
+/**
+ * CHK-001 adversarial: a genuine unexpected read fault on the ack artifact
+ * (not a missing/malformed file) must propagate to each door's OWN outer
+ * catch, not be swallowed as an ordinary "absent" case. canReenterDevGuard's
+ * outer catch is fail-OPEN by design (F-006/spec §4.8: a rollback must never
+ * be stranded by a gate/config error); canStartDevGuard's is fail-CLOSED.
+ * Regression coverage for a real finding: an earlier version of
+ * evaluateDevMemoryPreflightGate caught every error class unconditionally,
+ * silently defeating canReenterDevGuard's fail-open guarantee for this one
+ * check (found by REVIEW quality lane via exactly this EISDIR reproduction).
+ */
+function assertGenuineIoFaultPropagatesToDoorFailOpen(): void {
+  const storyId = 'B-devmem-iofault';
+  const { root, store } = buildDoorRepo(storyId, 'REVIEW');
+  try {
+    const ackPath = join(root, '.lattice', 'story', 'actives', storyId, 'dev-memory-preflight-ack.json');
+    // Force EISDIR: make the ack path a directory instead of a file, so
+    // readFileSync throws a genuine fs error, not ENOENT/SyntaxError.
+    mkdirSync(ackPath, { recursive: true });
+
+    const context: StoryMachineContext = { storyId, store, projectRoot: root, gitCwd: root };
+    check(
+      'CHK-001 adversarial: canReenterDevGuard fail-OPENs on a genuine I/O fault reading the ack (EISDIR), not silently blocked',
+      canReenterDevGuard(context) === true,
+    );
+    check(
+      'CHK-001 adversarial: canStartDevGuard still fail-CLOSEs on the same genuine I/O fault (unchanged safety for the primary DEV door)',
+      canStartDevGuard(context) === false,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 /** CHK-001 edge/adversarial: the section-4.3-compliant --reason downgrade bypass path. */
 function assertReasonedDowngradeBypass(): void {
   const storyId = 'B-devmem-downgrade';
@@ -497,6 +531,7 @@ function assertDoneGateFinishDecision(): void {
 assertAllFourDevDoorsGated();
 assertAckRoundTripAndExistenceOnly();
 assertAckFailClosedOnCorruption();
+assertGenuineIoFaultPropagatesToDoorFailOpen();
 assertReasonedDowngradeBypass();
 assertFindingResolveAdvisory();
 assertDoneGateFinishDecision();
