@@ -883,7 +883,7 @@
       "desc": "[codex host-B E4] DEFECT IN MY OWN ACCEPTANCE INSTRUMENT, reproduced by the main agent before acting. scratchpad/check-selectors.py judged a pin solely on selector containment and ignored the process exit status, while handlers/checklist.ts requires BOTH: exitOk = run.code === 0 && !run.timedOut, AND run.output.includes(pinSelector). A command printing the selector and exiting 7 was accepted by the checker and would be refused by the lifecycle. Self-test after the fix: echo PIN; exit 7 now evaluates FAIL where it previously evaluated PASS. The checker also did not model the 12000-char capture limit (MAX_OUTPUT_CHARS), ANSI stripping, or the 270s ceiling; all three are now modelled, and the two remaining fidelity gaps (shell invocation versus allowlisted argv, and one execution reused across pins sharing a command) are documented in the file header instead of being hidden. This matters beyond the instrument: rounds 5 and 6 were accepted partly on its say-so.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:20:25.044Z",
@@ -891,7 +891,11 @@
       "reviewRunId": "B-9ff1:RR-029",
       "_hash": "6b8b9d66242f568a7486451a479034e7c77f1880bb9e34b94a422a2346e4b4c1",
       "signatureTag": "missing|unknown|codex-host-defect",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the instrument itself, and this one is worth recording because it undermines how two earlier rounds were accepted. scratchpad/check-selectors.py judged a pin solely on selector containment while handlers/checklist.ts requires exitOk = run.code === 0 && !run.timedOut AND run.output.includes(pinSelector). A command printing the selector and exiting non-zero was accepted by the checker and would be refused by the lifecycle. Reproduced before acting: 'echo PIN; exit 7' evaluated PASS under the old logic and evaluates FAIL under the new one. The checker now also models the 12000-character capture limit, ANSI stripping and the 270-second ceiling, and reports each command's output as a percentage of the cap - red-w2d-rejection-matrix.mjs sits at 89 percent, so it now prints a warning. The two remaining fidelity gaps, shell invocation versus allowlisted argv and one execution reused across pins sharing a command, are documented in the file header rather than hidden.",
+      "resolvedAt": "2026-08-14T10:33:10.914Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
