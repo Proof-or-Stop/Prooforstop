@@ -881,6 +881,25 @@
       "_hash": "a93e33cf624a74822b576a79ec26d5840e41ee9de3065d0405c0505a6677bccc",
       "signatureTag": "missing|unknown|concept-cleanup-rename",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-042",
+      "desc": "packages/main/src/core/acceptance-topology.ts:140-145 isLatticeWrapper() only recognizes bin token lattice / bin/lattice.js as an acceptance_matrix producer-command wrapper; it was never updated to also recognize proof-or-stop / bin/proof-or-stop.js added by CHK-002/CHK-006. Reproduced mechanically: node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js fails at line 135 (assert.equal(isAcceptanceMatrixDerivedEvidence({command:\"proof-or-stop acceptance_matrix --storyId=...\"}), true) -> actual false), on this branch HEAD 80fb4d92d0. Confirmed NOT the known-not-fixed pre-existing failure: git diff main...HEAD -- packages/main/src/core/acceptance-topology.ts is EMPTY (isLatticeWrapper byte-identical to pristine main, so this is not touched/pre-existing drift), while the smoke test itself WAS edited by this story (git show shows the literal renamed from lattice acceptance_matrix to proof-or-stop acceptance_matrix at what is now line ~159, with the assertion message also updated to say Proof-or-Stop, but the corresponding production recognizer was left unchanged). Confirmed by running node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js on pristine main (built fresh there): it fails at a DIFFERENT assertion (line 333, checklist_update_executable_evidence_unenforced format mismatch), not this one -- so main and B-cdf6 HEAD fail at genuinely different assertions, contradicting the story claim that this smoke fails identically/untouched on pristine main. Product impact: a real user running the new canonical proof-or-stop acceptance_matrix --storyId=X command produces evidence whose producer-command provenance silently fails to be recognized by isAcceptanceMatrixDerivedEvidence, which is exactly backwards from CHK-002/CHK-006 read-both compatibility contract (new bin name should be canonical and fully working, old name kept as alias) -- the new canonical form is the one NOT recognized.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T09:17:25.166Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-056",
+      "_hash": "601b521b51cd6799e4329dbfd36ad53ca7104af166553344c3b9946c68fe1ec4",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
