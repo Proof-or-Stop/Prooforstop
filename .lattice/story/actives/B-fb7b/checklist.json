@@ -23,6 +23,11 @@
             "desc": "Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention",
             "type": "cli",
             "priority": "must"
+          },
+          {
+            "desc": "Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "edge": [
@@ -38,6 +43,11 @@
           },
           {
             "desc": "After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually",
             "type": "cli",
             "priority": "must"
           }
@@ -56,6 +66,16 @@
           {
             "desc": "Temporarily delete the pretest key from root package.json -> RED test must FAIL at the first structural assertion (no pretest script); WHY: removal of the fix must be detected, preventing silent regression",
             "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Temporarily remove the `test-suite-utils-autobuild-smoke` entry from lattice.config.json validate.commands, then run `lattice validate` -> the smoke does NOT execute (no PASS line from it); WHY: proves the validate.commands wiring is the sole dispatch mechanism -- if the entry is absent the guard is silently absent from everyday validation",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Temporarily delete the pretest key from root package.json, then run `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> the structural smoke FAILS (exits non-zero); WHY: the permanent guard must detect pretest removal independently of the RED test, since validate.commands runs the smoke not the RED",
+            "type": "cli",
             "priority": "must"
           }
         ]
