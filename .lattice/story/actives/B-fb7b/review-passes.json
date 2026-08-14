@@ -706,6 +706,35 @@
         "scanEscalationReason": null
       },
       "_hash": "5cc113de5cd5ca54adb7ae7c0d66ee161c81622df5a0fbec2a8b1be57f21f5d8"
+    },
+    {
+      "id": "B-fb7b:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality review, round RR-029. Reviewed full material diff (git diff main...HEAD): CHANGELOG.md, lattice.config.json, package.json, packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts (new), packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (new), packages/main/tests/red/red-fb7b-guard-bite.mjs (new), packages/main/tests/red/red-b49d4-harness-registration.mjs (registration-exclusion entries). No dead code, no unnecessary as-any, no empty-catch error swallowing. No bridge/shell I/O isolation concerns (n/a). No proof/receipt/job/run metadata semantics touched. CHANGELOG entry accurately describes the pretest wiring, matches package.json/lattice.config.json changes. Confirmed against prior review rounds: story code files are byte-identical to the last-passed round (only .lattice metadata/prompt-envelope changed via a 4-commit merge; version stayed 0.3.254); no new quality regression introduced. No doc-promise-undelivered gaps found. No blocking findings.",
+      "createdAt": "2026-08-14T10:23:34.221Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-029",
+      "envelopeId": "8728d5bdc7464b9a03907b3d9a64f86f8a516ccfc440f3d7fe55c505c381ae47",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "de418d77e60678af5169f30fb377a3bd85012d4cb6034f788bf546718a9586ba"
     }
   ]
 }
