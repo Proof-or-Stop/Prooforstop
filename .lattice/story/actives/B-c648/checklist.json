@@ -249,6 +249,49 @@
         "attestedAt": "2026-08-14T04:03:23.847Z",
         "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070"
       }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Capture Lattice host_run receipts for the Claude and agy architecture audits",
+      "context": "The independent audits were executed through external CLI processes but Story evidence only proved that their prose was recorded. Re-run both audits through the canonical host_run choke point, attach tool-executed receipts, and add the receipt provenance to the audit record so delivery does not rely on self-authored claims.",
+      "relatedDocs": [
+        "docs/host-run-usage.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "用户在方案文档中看到 Claude 与 agy 审计对应的 Lattice host_run receipt/provenance，并且 delivery reviewer 能从 Story 证据验证两次独立调用确实发生。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both usage-ledger receipts in execution-plan section 21 -> the document cites two distinct host_run receipts (recordId with llmuse_ prefix, host, and reported output token count), one for the Claude CLI audit and one for the agy CLI audit, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "One host_run receipt reports usage as recorded=unavailable (e.g. a truncated usage line) even though the audit itself completed -> the document does not fabricate an output token count for that host; it cites the receipt's actual unavailable/reason state and does not treat the missing token count as proof; WHY: stops the document from overclaiming mechanical proof when a usage-ledger receipt is genuinely incomplete rather than simply absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Either the Claude or the agy host_run record is missing (no recordId) or its output token field is absent when CHK-003 evidence is recorded -> receipt capture fails closed: the missing-host evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by one real host_run receipt plus one self-authored claim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
