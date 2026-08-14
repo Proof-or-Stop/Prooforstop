@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-16df",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add regression coverage in validate-command-timeout-smoke.ts for the matched-override, unmatched-default, and args-disambiguation cases",
+    "Fix runSingleAllowlistedCommand timeout resolution to honor validate.commands[].timeoutMs config override",
+    "Resolve module-placement to avoid the checklist.ts/validation-executor.ts/verifier.ts circular-import risk flagged by INIT review",
+    "Reuse/call configuredValidationCommands (or equivalent normalizer) to match the pinned command against configured entries"
+  ],
+  "excluded": [
+    "Any quorum/runId-scheme or other unrelated subsystem changes",
+    "Changing any configured timeoutMs value in lattice.config.json itself",
+    "Modifying resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - already correct, not touched",
+    "Raising DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS globally - rejected alternative recorded in background.md Solution Tradeoffs",
+    "Requiring every caller to pass timeoutMs explicitly per call site - rejected alternative recorded in background.md Solution Tradeoffs"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Scope restates what the user already approved when confirming story B-16df background.md/description content prior to story_create; no new decision introduced here.",
+  "createdAt": "2026-08-14T11:25:03.946Z",
+  "updatedAt": "2026-08-14T11:25:03.946Z",
+  "_hash": "d918e11b0dabeefafbf98cb0c372f2b14cf08aa062857234e3aa9dec1faacadf"
+}
