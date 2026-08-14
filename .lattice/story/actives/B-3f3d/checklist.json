@@ -377,8 +377,7 @@
       "title": "Prove the epoch reduces review churn without weakening escaped-defect assurance",
       "context": "Replay the deterministic B-cdf6 RR-043 through RR-046 failure shape, whose baseline accepted a material commit after the first lane and forced at least five later reviewer redispatches RR-047 through RR-051. Acceptance requires exactly one frozen discovery epoch before remediation, zero accepted material commits while OPEN, zero stale old-cutoff passes accepted, one aggregated remediation-DEV transition, and at most one final-review epoch when the injected remediation introduces no regression; redispatches caused by first-finding mutation must fall from at least five to zero. Required lane and host counts must not decrease, all historical critical/high cases must still be caught, and escaped critical/high findings, historical mutation survival, post-cert source commits, stale acceptance or budget-manufactured PASS must remain zero. Cover timeout, cancelled lane, duplicate identity, forged duplicate disposition, scope expansion, related drift, stale receipt, wave-budget exhaustion and post-remediation regression. Report before/after cycles, reviewer executions and wall-time projection. Round reduction is a metric, never a gate input.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
-        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
