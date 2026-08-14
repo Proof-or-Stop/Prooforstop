@@ -742,6 +742,31 @@
         "scanEscalationReason": null
       },
       "_hash": "d5642b99a9e58db90e17bfc11828516191b035276aed07461b14fe9ade4d9743"
+    },
+    {
+      "id": "B-9ff1:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8, converged, PASS. (1) checklist_get: 108 refs, 106 pass, 0 fail, 0 missing, 2 permanent waivers (CHK-012:edge:1, CHK-013:adversarial:0). CHK-012:adversarial:0 confirmed distinct and real: result=pass, kind=logic_test, from red-w2d-rejection-matrix.mjs -- not to be confused with the waived edge:1. All 5 red-w2d-*.mjs plus red-evidence-envelope-smoke.js and red-w2c-validate-registration.mjs re-executed directly: all exit 0, all expected output (142 rejection-matrix fixtures, 9/12 entropy-differential rows, 14 specificity-conjunction rows, etc.) reproduced verbatim. (2) check-selectors.py (post F-044/quality-lane/cross-vendor fixes: SGR-only ANSI stripping, UTF-16-unit cap math, byte-mode subprocess capture) run for real: 'pinned selectors: 108 checked: 106 permanently waived (skipped): 2 ... OK - every non-waived pin exits 0 and still contains its selector.' All 7 distinct commands executed cleanly; red-w2d-rejection-matrix.mjs sits at 89.0% of the 12000-char cap, closest to truncation risk, worth a watch note for future growth but not a finding today. I now consider this instrument fit to be MANDATORY, not advisory: it has been wrong three times, but each defect was itself found by adversarial probing (quality lane, cross-vendor host) and fixed with a reproduced counter-example, and it now models the exact lifecycle contract (exit 0 AND selector containment, SGR-only strip, UTF-16 cap, byte capture) with only two disclosed, non-live fidelity gaps (shell/argv/interleaving; per-command not per-pin caching). Demoting it to advisory would remove the one check that has caught real pin-rot at edit time; the fix is continued adversarial review of the instrument itself, not abandoning the gate. (3) The 46-finding defect family (F-042/043/046 this round: report printed twice not once-before-hook; health-log override lands inside the tree; ADMISSIBLE footer restated the guarantee outside the declared set) was never caught by any committed test in this lane across 8 rounds -- every catch was a reviewer reading source or probing runtime behavior (stderr arrival-order timestamping, an exit-3 onError hook pointed at a story-dir health path, literal site enumeration). Concretely testable subset: (a) sequencing/count claims about a print or write site are mechanically checkable by instrumenting the call and asserting order/count directly, e.g. a spy on process.stderr.write and log() asserting exact call count and relative order across the onError await, which would have caught F-042 as a straightforward regression test; (b) environment-variable-override claims about a path being outside a boundary are checkable by property-testing the override, e.g. asserting containment (or its negation) for LATTICE_HEALTH_PATH under both unset and a value pointed inside the story dir, which would have caught F-043; (c) 'set of N sites carries sentence S verbatim' claims are mechanically checkable today only against the declared, enumerated set (red-w2d-command-readonly.mjs already asserts this for ten sites) but CANNOT catch a new, undeclared site restating the guarantee in its own words (F-046) -- that requires a claim-scanner: grep/AST for sentences matching a semantic template (e.g. containing 'read-only' or 'writes no' near a command-name literal) not yet in the declared set, run as a repo-wide lint rather than a targeted unit test. (a) and (b) are ordinary regression tests my lane should have had and did not; (c) is a different instrument entirely (a linter over prose/claims, not a test of behavior) and the filed claim-scanner follow-up story is the right shape for it, not the wrong one -- but it should be scoped as CI lint over comments+strings matching the guarantee family, not as a general-purpose claim verifier, and it will not by itself catch new claims about NEW subject matter (only new claims about this already-known guarantee). Text has converged: no new finding filed this round.",
+      "createdAt": "2026-08-14T11:05:35.958Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-039",
+      "envelopeId": "b7995922896ff2e6f77486e5d5eb994a7b7236230a5cc2c7dcc85ca1eeaf8493",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "scratchpad/check-selectors.py"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fca4f6f7df69754f48c4570ffe108eb3c822e1c6634317c76af13562e0c2eb1"
     }
   ]
 }
