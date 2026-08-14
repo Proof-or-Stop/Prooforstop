@@ -287,7 +287,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/dev-memory.md Non-Goals section now contains a Delivered-differently style annotation (callout, blockquote, or clearly-marked subsection) clarifying that CHK-001 preflight-ack and CHK-003 finish-decision records are a structurally separate artifact type from DevMemoryEntry JSONL rows, and that only the existence of a reflection record is gate-checked -- not entry content; WHY: confirms the primary update was made, the entries-vs-records distinction is stated, and the gate-checks-existence-only property is documented",
+            "type": "cli"
+          },
+          {
+            "desc": "The original Non-Goal line (Dev-memory entries are NOT surfaced in lattice validate output or gate checks) is still present in the file, preserved as historical/still-true-for-entry-content context within or adjacent to the annotation -- grep for that exact phrase returns a match; WHY: plan and context explicitly require preserving the original line, not deleting or rewriting it",
+            "type": "cli"
+          },
+          {
+            "desc": "The annotation explicitly states that no DevMemoryEntry gateEvidence/authority fields are ever read by either gate, and no lesson CONTENT is ever surfaced as gate evidence -- these two negative claims appear in the annotation text; WHY: these are the two core clarifications the context requires, distinguishing record-existence-check from entry-content-as-evidence",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The annotation references the correct mechanism names matching shipped code: dev-memory-preflight-ack (or dev_memory_preflight_ack) for CHK-001 and dev_memory_finish_decision for CHK-003 -- not placeholder or generic names; WHY: doc-code name divergence is a known high-severity finding pattern (B-3144 F-030 stale spec), the annotation must name the actual artifacts",
+            "type": "cli"
+          },
+          {
+            "desc": "The annotation does NOT introduce new Non-Goals, remove existing Non-Goals, or modify the other four Non-Goal bullet points (lines 160-162, 164) -- only the gate-checks bullet (line 163) gains the annotation; WHY: the change is scoped to one specific Non-Goal line, not a general Non-Goals rewrite",
+            "type": "cli"
+          },
+          {
+            "desc": "The annotation does NOT claim or imply that DevMemoryEntry rows themselves can satisfy any gate (delivery_check_set, verification_evidence_add, review_pass_set, etc.) -- the existing Non-Goal and the Purpose section non-negotiable list remain intact and un-weakened; WHY: the annotation must clarify a distinction, not accidentally weaken the fundamental non-authoritative guarantee",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The original Non-Goal line is NOT deleted or overwritten -- diff dev-memory.md against main branch to confirm the pre-existing text (Dev-memory entries are NOT surfaced in lattice validate output or gate checks) still appears in the file, possibly inside a historical-rationale or Delivered-differently block; WHY: user explicitly flagged deleting-instead-of-preserving as an adversarial failure mode",
+            "type": "cli"
+          },
+          {
+            "desc": "The annotation does NOT contradict actual gate behavior -- specifically: the claim that no entry content is read by either gate must be verified against the actual evaluateDevMemoryPreflightGate and readDevMemoryFinishDecision code paths to confirm they read only separate artifact files (dev-memory-preflight-ack.json, dev-memory-finish-decision.json) and never import/parse experience.jsonl DevMemoryEntry rows or read their lesson/summary/trigger/gateEvidence/authority fields; WHY: user explicitly flagged annotation-contradicting-real-gate-behavior as an adversarial failure mode -- if the code actually reads entry content somewhere, the annotation would be a lie",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc change is actually committed to the branch -- git log --oneline --diff-filter=M -- docs/requirements/decisions/dev-memory.md shows at least one commit on the branch touching this file, and git diff HEAD -- docs/requirements/decisions/dev-memory.md shows no unstaged changes to the file; WHY: user explicitly flagged doc-change-not-actually-committed as an adversarial failure mode",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
