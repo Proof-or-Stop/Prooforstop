@@ -642,9 +642,15 @@ function runHeartbeat(
   displayCommand?: string,
   timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
 ): void {
+  // B-cdf6:F-039 — this fallback hardcoded the deprecated `bin/lattice-codex.js`,
+  // against the canonical-name-first convention the rest of this file follows. It is
+  // currently unreachable (every call site for this id supplies displayCommand), but
+  // an unreachable string that teaches the old bin name is still a trap for the next
+  // maintainer and for anyone grepping for remaining aliases. Derived from
+  // LOCAL_CODEX_WRAPPERS[0] so it tracks the canonical wrapper automatically.
   const retryCommand = displayCommand || (
     id === 'local-wrapper-heartbeat'
-      ? 'node bin/lattice-codex.js session_brief'
+      ? `node ${LOCAL_CODEX_WRAPPERS[0]} session_brief`
       : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`
   );
   const startedAt = Date.now();
