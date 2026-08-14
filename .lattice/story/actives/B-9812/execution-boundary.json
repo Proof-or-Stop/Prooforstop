@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9812",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git merge *",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npm test*",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-9812",
+    "docs/dev",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "curl *",
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "rm -rf*",
+    "ssh *"
+  ],
+  "excludedTools": [
+    "WebFetch",
+    "WebSearch"
+  ],
+  "excludedPaths": [
+    ".env",
+    ".git",
+    "docs/story",
+    "node_modules",
+    "packages/main/dist"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Implementation and verification are confined to the B-9812 worktree and unique temporary clones. No remote writes or network access. Generated dist may be produced by the approved build command but is not edited directly.",
+  "createdAt": "2026-08-12T12:33:20.497Z",
+  "updatedAt": "2026-08-12T12:33:20.497Z",
+  "_hash": "2014d735ef6b94a60de479c273e41514ae1729f094ecdecd18c95cc52cfbb130"
+}

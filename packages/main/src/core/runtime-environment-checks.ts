@@ -74,7 +74,8 @@ export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktre
 
 export type RuntimeEntrypointAuthorityReasonCode =
   | typeof STALE_GLOBAL_RUNTIME_REASON_CODE
-  | 'runtime_authority_unresolved_in_worktree';
+  | 'runtime_authority_unresolved_in_worktree'
+  | 'runtime_authority_probe_timeout_in_worktree';
 
 export interface RuntimeEntrypointAuthorityInput {
   command: string;
@@ -284,9 +285,10 @@ export function classifyRuntimeEntrypointAuthority(
     };
   }
 
-  const worktreeRoot = gitTopLevel(projectRoot);
-  const gitCommonDir = absoluteGitCommonDir(projectRoot);
-  const mainRoot = worktreeRoot ? findMainWorktreeRoot(worktreeRoot) : null;
+  const identityProbe = { deadline: performance.now() + 16_000, timedOut: false, env: input.env ?? process.env };
+  const worktreeRoot = gitTopLevel(projectRoot, identityProbe);
+  const gitCommonDir = absoluteGitCommonDir(projectRoot, identityProbe);
+  const mainRoot = worktreeRoot ? findMainWorktreeRoot(worktreeRoot, identityProbe) : null;
   const selfHostWorktree = !!worktreeRoot
     && !!gitCommonDir
     && !!mainRoot
@@ -295,14 +297,17 @@ export function classifyRuntimeEntrypointAuthority(
   // (or spoof argv/PATH) while importing main-checkout dist; process.argv[1]
   // alone cannot identify that runtime. Entrypoint git identity is only the
   // fallback for packaged/compatibility launchers without a package root.
-  const runtimeRoot = gitTopLevel(loadedCorePackageRoot)
-    ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null);
+  const loadedCoreRelation = worktreeRoot ? relative(worktreeRoot, loadedCorePackageRoot) : null;
+  const loadedCoreInsideWorktree = loadedCoreRelation !== null
+    && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${delimiter}`) && !isAbsolute(loadedCoreRelation);
+  const runtimeRoot = loadedCoreInsideWorktree ? worktreeRoot : gitTopLevel(loadedCorePackageRoot, identityProbe)
+    ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint), identityProbe) : null);
 
   if ((!worktreeRoot || !gitCommonDir || !mainRoot) && input.requiresAuthoritativeRuntime !== false) {
     const recoveryRoot = worktreeRoot ?? projectRoot;
     return {
       status: 'blocked',
-      reasonCode: 'runtime_authority_unresolved_in_worktree',
+      reasonCode: identityProbe.timedOut ? 'runtime_authority_probe_timeout_in_worktree' : 'runtime_authority_unresolved_in_worktree',
       selfHostWorktree: false,
       ...base,
       worktreeRoot,
@@ -310,7 +315,9 @@ export function classifyRuntimeEntrypointAuthority(
       gitCommonDir,
       runtimeRoot,
       recoveryCommand: renderLocalEntrypointRecoveryCommand(recoveryRoot, input.command, input.commandArgs),
-      detail: 'Self-host runtime authority could not resolve a complete git worktree/common-dir/main-worktree identity.',
+      detail: identityProbe.timedOut
+        ? 'Self-host runtime authority git identity probe exceeded its bounded retry budget.'
+        : 'Self-host runtime authority could not resolve a complete git worktree/common-dir/main-worktree identity.',
     };
   }
 
@@ -427,18 +434,26 @@ function shellQuote(value: string): string {
   return `'${value.replace(/'/g, `'"'"'`)}'`;
 }
 
-function gitTopLevel(cwd: string): string | null {
-  const top = runCommand('git', ['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd);
+type IdentityProbeBudget = { deadline: number; timedOut: boolean; env: NodeJS.ProcessEnv | Record<string, string | undefined> };
+
+function gitTopLevel(cwd: string, budget?: IdentityProbeBudget): string | null {
+  const top = budget
+    ? runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd, budget)
+    : runCommand('git', ['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd);
   return top ? safeRealpath(top) ?? resolve(top) : null;
 }
 
-function absoluteGitCommonDir(cwd: string): string | null {
-  const common = runCommand('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], cwd);
+function absoluteGitCommonDir(cwd: string, budget?: IdentityProbeBudget): string | null {
+  const common = budget
+    ? runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--git-common-dir'], cwd, budget)
+    : runCommand('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], cwd);
   return common ? safeRealpath(common) ?? resolve(common) : null;
 }
 
-function findMainWorktreeRoot(cwd: string): string | null {
-  const raw = runCommand('git', ['worktree', 'list', '--porcelain'], cwd);
+function findMainWorktreeRoot(cwd: string, budget?: IdentityProbeBudget): string | null {
+  const raw = budget
+    ? runAuthoritativeIdentityCommand(['worktree', 'list', '--porcelain'], cwd, budget)
+    : runCommand('git', ['worktree', 'list', '--porcelain'], cwd);
   if (!raw) return null;
   for (const record of raw.split(/\n\s*\n/)) {
     const lines = record.split(/\r?\n/);
@@ -906,6 +921,28 @@ function runCommand(command: string, args: string[], cwd: string, timeoutMs = 2_
     // PROBE: command discovery is best-effort for runtime diagnostics.
     return null;
   }
+}
+
+function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: IdentityProbeBudget): string | null {
+  let attempt = 0;
+  while (performance.now() < budget.deadline) {
+    const remaining = Math.max(1, Math.floor(budget.deadline - performance.now()));
+    const timeout = attempt === 0 ? Math.min(2_000, remaining) : remaining;
+    try {
+      return execFileSync('git', args, {
+        cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'], timeout,
+        env: budget.env as NodeJS.ProcessEnv,
+      }).trim();
+    } catch (error) {
+      const timedOut = (error as NodeJS.ErrnoException & { killed?: boolean }).code === 'ETIMEDOUT'
+        || (error as { killed?: boolean }).killed === true;
+      if (!timedOut) return null;
+      budget.timedOut = true;
+      attempt += 1;
+    }
+  }
+  budget.timedOut = true;
+  return null;
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-cdf6",
+  "checkedAt": "2026-08-10T18:14:35.058Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "1f78ce28d66cd8ec4b4222cb81118ce8a708ea533564c0e0c61c6448e077c7b7",
+  "executionBoundaryHash": "62ed9906c312788900c85441b0414041a7255f9fc857bb54e5fd534388a6d095",
+  "freshnessHash": "e41b4822dca8b775e583b378f959d0720b9fe97796f6ad7b041fc6ad11f0c229",
+  "effectiveExcludedKeywords": [
+    "FROZEN (breaks resolution): the 13 lattice-prefixed agent role IDs out of 17 registry roles - they are subagent_type values resolved against host shims and the registry manifest",
+    "FROZEN (breaks stored state): the .lattice/ state directory plus .lattice-serve.json and .lattice-codex/ - renaming orphans existing on-disk locks, activity, learning and evidence",
+    "FROZEN (breaks stored state): the 13 signature salt literals such as lattice-review-integrity-v1 - they are hashed into _hash fields already persisted on live artifacts, so renaming them invalidates every existing signature and gate-blocks all 32 active stories",
+    "FROZEN (external contract): the LATTICE_* env-var prefix, the '<!-- lattice:start -->' managed-block markers, and the lattice.remote-push-approval.v1 schema literal",
+    "FROZEN (only filename ever loaded): lattice.config.json",
+    "FROZEN (past record): CHANGELOG.md - 72 brand hits describing already-shipped releases; rewriting shipped release notes would falsify release history",
+    "FROZEN (past record): git commit messages and history - no rebase or message rewrite as part of this story",
+    "FROZEN (past record): the 391 historical story archives under .lattice/story/ - rewriting them would falsify the audit trail and CLAUDE.md rule 8 forbids direct writes",
+    "FROZEN (self-disarms a safety gate): the npm package names 'lattice' and '@lattice/core' - .githooks/pre-push:148 gates the recursive-tsc defense on PKG_NAME equal to @lattice/core and would SILENTLY pass if renamed",
+    "OUT OF SCOPE: removing the lattice alias - deferred so in-flight stories and hooks keep working; a future story may retire it",
+    "OUT OF SCOPE: the full identifier rename including salts, state dir and role IDs - requires its own signature-migration and state-migration design plus a flag day"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "FROZEN (breaks resolution): the 13 lattice-prefixed agent role IDs out of 17 registry roles - they are subagent_type values resolved against host shims and the registry manifest",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (breaks resolution): the 13 lattice-prefixed agent role IDs out of 17 registry roles - they are subagent_type values resolved against host shims and the registry manifest",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (breaks stored state): the .lattice/ state directory plus .lattice-serve.json and .lattice-codex/ - renaming orphans existing on-disk locks, activity, learning and evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (breaks stored state): the .lattice/ state directory plus .lattice-serve.json and .lattice-codex/ - renaming orphans existing on-disk locks, activity, learning and evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (breaks stored state): the 13 signature salt literals such as lattice-review-integrity-v1 - they are hashed into _hash fields already persisted on live artifacts, so renaming them invalidates every existing signature and gate-blocks all 32 active stories",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (breaks stored state): the 13 signature salt literals such as lattice-review-integrity-v1 - they are hashed into _hash fields already persisted on live artifacts, so renaming them invalidates every existing signature and gate-blocks all 32 active stories",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (external contract): the LATTICE_* env-var prefix, the '<!-- lattice:start -->' managed-block markers, and the lattice.remote-push-approval.v1 schema literal",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (external contract): the LATTICE_* env-var prefix, the '<!-- lattice:start -->' managed-block markers, and the lattice.remote-push-approval.v1 schema literal",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (only filename ever loaded): lattice.config.json",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (only filename ever loaded): lattice.config.json",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (past record): CHANGELOG.md - 72 brand hits describing already-shipped releases; rewriting shipped release notes would falsify release history",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (past record): CHANGELOG.md - 72 brand hits describing already-shipped releases; rewriting shipped release notes would falsify release history",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (past record): git commit messages and history - no rebase or message rewrite as part of this story",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (past record): git commit messages and history - no rebase or message rewrite as part of this story",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (past record): the 391 historical story archives under .lattice/story/ - rewriting them would falsify the audit trail and CLAUDE.md rule 8 forbids direct writes",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (past record): the 391 historical story archives under .lattice/story/ - rewriting them would falsify the audit trail and CLAUDE.md rule 8 forbids direct writes",
+      "excluded": true
+    },
+    {
+      "keyword": "FROZEN (self-disarms a safety gate): the npm package names 'lattice' and '@lattice/core' - .githooks/pre-push:148 gates the recursive-tsc defense on PKG_NAME equal to @lattice/core and would SILENTLY pass if renamed",
+      "source": "scopeBoundary.excluded",
+      "text": "FROZEN (self-disarms a safety gate): the npm package names 'lattice' and '@lattice/core' - .githooks/pre-push:148 gates the recursive-tsc defense on PKG_NAME equal to @lattice/core and would SILENTLY pass if renamed",
+      "excluded": true
+    },
+    {
+      "keyword": "OUT OF SCOPE: removing the lattice alias - deferred so in-flight stories and hooks keep working; a future story may retire it",
+      "source": "scopeBoundary.excluded",
+      "text": "OUT OF SCOPE: removing the lattice alias - deferred so in-flight stories and hooks keep working; a future story may retire it",
+      "excluded": true
+    },
+    {
+      "keyword": "OUT OF SCOPE: the full identifier rename including salts, state dir and role IDs - requires its own signature-migration and state-migration design plus a flag day",
+      "source": "scopeBoundary.excluded",
+      "text": "OUT OF SCOPE: the full identifier rename including salts, state dir and role IDs - requires its own signature-migration and state-migration design plus a flag day",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "de81423305f44b3a37b3abaf38e1ed60e6290c59f411d2c21317b3be1f62b726"
+}

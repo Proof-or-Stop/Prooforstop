@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cdf6",
+  "mode": "maintenance",
+  "allowed": [
+    "Add proof-or-stop as the user-facing CLI bin name, keeping lattice as a working deprecated alias (additive, no removal)",
+    "Bump the CLI patch version 0.3.251 to 0.3.252 across packages/main/package.json, the lockfile and LATTICE_CLI_VERSION, per CLAUDE.md version discipline",
+    "Normalize the stray brand spellings (Prooforstop, proof-stop, Proof-Or-Stop, proofstop, PROOFBOUND) to the approved canonical forms",
+    "Produce the CHK-001 mapping table enumerating every brand token shape with a RENAMED or FROZEN verdict, a reason per frozen row, and a user-visible-in-runtime-output column",
+    "Reconcile the brand-pinned mechanical gates so root npm test still passes: verify-process-fact-contract.mjs, verify-proof-or-stop-prompt-baseline.mjs (re-approve template hashes), verify-entrypoints.mjs header assertions, and the review-preflight.ts residue-script path coupling",
+    "Rename the CLI's own forward-looking output strings: help/usage text derived from LATTICE_PRIMARY_BIN, the '# lattice session brief' header, and hardcoded CLI error/hint strings",
+    "Replace brand prose in the roughly 183 ACTIVE documentation files: README.md, CLAUDE.md, AGENTS.md, docs/**, packages/main/templates/agents/*.md and the host prompt shims under .claude/agents plus .lattice-codex/agents (17 role templates total, 13 carrying the lattice- prefix)",
+    "Rewrite documented command examples from 'lattice <cmd>' to 'proof-or-stop <cmd>' since these instruct future invocations",
+    "Teach packages/main/src/core/audit-scan.ts to extract BOTH bin tokens so docs-drift keeps failing loudly instead of passing vacuously, with a regression test"
+  ],
+  "excluded": [
+    "FROZEN (breaks resolution): the 13 lattice-prefixed agent role IDs out of 17 registry roles - they are subagent_type values resolved against host shims and the registry manifest",
+    "FROZEN (breaks stored state): the .lattice/ state directory plus .lattice-serve.json and .lattice-codex/ - renaming orphans existing on-disk locks, activity, learning and evidence",
+    "FROZEN (breaks stored state): the 13 signature salt literals such as lattice-review-integrity-v1 - they are hashed into _hash fields already persisted on live artifacts, so renaming them invalidates every existing signature and gate-blocks all 32 active stories",
+    "FROZEN (external contract): the LATTICE_* env-var prefix, the '<!-- lattice:start -->' managed-block markers, and the lattice.remote-push-approval.v1 schema literal",
+    "FROZEN (only filename ever loaded): lattice.config.json",
+    "FROZEN (past record): CHANGELOG.md - 72 brand hits describing already-shipped releases; rewriting shipped release notes would falsify release history",
+    "FROZEN (past record): git commit messages and history - no rebase or message rewrite as part of this story",
+    "FROZEN (past record): the 391 historical story archives under .lattice/story/ - rewriting them would falsify the audit trail and CLAUDE.md rule 8 forbids direct writes",
+    "FROZEN (self-disarms a safety gate): the npm package names 'lattice' and '@lattice/core' - .githooks/pre-push:148 gates the recursive-tsc defense on PKG_NAME equal to @lattice/core and would SILENTLY pass if renamed",
+    "OUT OF SCOPE: removing the lattice alias - deferred so in-flight stories and hooks keep working; a future story may retire it",
+    "OUT OF SCOPE: the full identifier rename including salts, state dir and role IDs - requires its own signature-migration and state-migration design plus a flag day"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User decision 2026-08-11, verbatim: 'the rename should influence current state or future works, not past works or history, so I think it's the former'. Read as: adopt the deprecated-alias scope (rename the user-facing bin + active docs; keep lattice working as an alias) and do NOT rewrite historical or already-shipped records. The past-vs-future principle is the governing rule for every ambiguous row in the CHK-001 mapping table: if a surface records what already happened, it is FROZEN; if it tells a user what to run now or next, it is RENAMED.",
+  "createdAt": "2026-08-10T18:11:47.923Z",
+  "updatedAt": "2026-08-10T18:11:47.923Z",
+  "_hash": "1f78ce28d66cd8ec4b4222cb81118ce8a708ea533564c0e0c61c6448e077c7b7"
+}

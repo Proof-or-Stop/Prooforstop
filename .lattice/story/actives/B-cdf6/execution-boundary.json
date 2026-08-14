@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cdf6",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "grep*",
+    "lattice *",
+    "lattice validate*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npm test",
+    "npx tsc --noEmit -p *",
+    "proof-or-stop *",
+    "rg*"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".claude/agents",
+    ".githooks",
+    ".lattice-codex/agents",
+    "AGENTS.md",
+    "bin",
+    "CLAUDE.md",
+    "docs",
+    "package-lock.json",
+    "package.json",
+    "packages/lab/src",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/templates",
+    "packages/utils/src",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git commit --amend*",
+    "git filter-branch*",
+    "git push*",
+    "git rebase*",
+    "git reset --hard*",
+    "npm publish*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/dev-memory",
+    ".lattice/evidence",
+    ".lattice/learning",
+    ".lattice/locks",
+    ".lattice/story",
+    ".worktrees",
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "node_modules"
+  ],
+  "confirmedBy": "qipan",
+  "createdAt": "2026-08-10T18:06:34.044Z",
+  "updatedAt": "2026-08-10T18:06:34.044Z",
+  "_hash": "62ed9906c312788900c85441b0414041a7255f9fc857bb54e5fd534388a6d095"
+}

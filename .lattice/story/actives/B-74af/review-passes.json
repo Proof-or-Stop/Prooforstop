@@ -1,0 +1,426 @@
+{
+  "passes": [
+    {
+      "id": "B-74af:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review found no blocker: elapsed-time restart wording has zero active-source residue; exact missingAgents recovery now dispatches only the absent INIT lane in both directions; running/background/unknown, completed-once, and terminal-replace-once semantics remain coherent; all canonical prompt surfaces use the shared renderer; protected provider and cross-host timeout implementations are unchanged; focused registry and INIT smokes passed on the original long-running process.",
+      "createdAt": "2026-08-12T11:19:59.896Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-004",
+      "envelopeId": "e641b52d2756a9a3eede5c6f3e41b6fc17796ad367d82fdd1dacf4fba40ddb3c",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6b29577c4c660ad9abaf7bcf5936e24b54252c0a3b9112d3856fcebee8bcf58d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c9049144fd3936b6338241860679e11dbdd1a99b26f52c8432de122512a00459"
+    },
+    {
+      "id": "B-74af:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review found no blocker: partial missing INIT recovery dispatches only missingAgents in both directions; canonical status-first guidance is synchronized across source/dist entrypoints; long-running foreground/background/unknown remains monitor-only, terminal recovery is single-attempt, and protected explicit provider/cross-host/host-run timeout implementations are unchanged. Build and aggregate liveness suite passed on current HEAD.",
+      "createdAt": "2026-08-12T11:26:16.811Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-005",
+      "envelopeId": "954ce64c0be64c3e4cd6fc1d4e7f022ec9442db92b85847bc4a8b09c43008a62",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6b29577c4c660ad9abaf7bcf5936e24b54252c0a3b9112d3856fcebee8bcf58d"
+      },
+      "readDiagnostics": [],
+      "_hash": "ae1b0923ed9cbc04305a134e71e11d8ae360b16086e143b42e3ef2a5b4518305"
+    },
+    {
+      "id": "B-74af:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: independently verified all 19 must intents (18 mechanical receipts plus one docs_check attestation), the guarded aggregate liveness suite, registry/alias/phase coverage, three mutation bites, and unchanged provider/cross-host timeout contracts; no blocker or waiver remains.",
+      "createdAt": "2026-08-12T11:31:48.561Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-006",
+      "envelopeId": "8b6034a5be093ab6f37b4c0c7ef3e60cbcc2b40f903d5a4ca0659c03620d794c",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b4b421ef2e4d97ff6af1ae457ea61ff68ef1441fd886d8538e3dcbd123ed3ca4"
+    },
+    {
+      "id": "B-74af:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-attestation passed: SAFE_INCREMENTAL reported no changed source files, affected contracts, or intent refs. The sole stale-triggering checklist change makes CHK-002:adversarial:1 an explicit docs_check with result=pass and does not weaken status-first semantics. Canonical live/unknown monitoring, completed-result-once, terminal-only single replacement, exact missingAgents dispatch, and zero-diff protected timeout implementations remain intact. The declared flow-stability command was independently rerun on one monitored exec session and exited 0 with the full liveness suite PASS.",
+      "createdAt": "2026-08-12T11:35:13.959Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-007",
+      "envelopeId": "28512dbd2fe91d75fd9cfc86479262d1f01f1a7582cdae473d0bed058c05ae37",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0c195f78c777acffa9d550b10a53ee4dd464ba02ffaccb4724e70cc518e334f"
+    },
+    {
+      "id": "B-74af:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept review passed: the fresh SAFE_INCREMENTAL basis reports no source, contract, intent, or finding delta since RP-004; direct Git checks confirm production source and checklist are unchanged. Canonical foreground/running/background/unknown monitoring, completed-result-once, terminal-only single replacement, and exact missingAgents dispatch remain intact; no active elapsed-only restart residue exists; protected provider/cross-host timeout files remain zero-diff. The aggregate liveness suite was independently rerun and completed on the same monitored exec session with all registry, INIT, provider timeout, cross-host, and retry checks passing.",
+      "createdAt": "2026-08-12T11:41:25.952Z",
+      "reviewRound": "2026-08-12T11:39:03.767Z",
+      "reviewRunId": "B-74af:RR-008",
+      "envelopeId": "cb6a0eb8db02a2d9a1b3595fbc44106ed1376a03f6903d997d4e63c9ffd6d6ef",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6e6792f5a94a0f8fb1e90638bff7f03ef6f174699ff86fd033fc2aae1f7a0e4"
+    },
+    {
+      "id": "B-74af:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 closeout re-review found no blocker. Incremental basis proves no material/source/checklist change since RR-005/RP-002; current HEAD was independently rebuilt and the aggregate liveness suite passed. Prior partial missing-INIT fix remains exact, canonical status-first guidance has no elapsed-only restart residue, and protected explicit provider/cross-host/host-run timeout implementations remain unchanged.",
+      "createdAt": "2026-08-12T11:44:14.542Z",
+      "reviewRound": "2026-08-12T11:39:03.767Z",
+      "reviewRunId": "B-74af:RR-009",
+      "envelopeId": "68ee0c5c57ad8812365e30c93c8bf856538ba1e176233e4c077a1311e8aeeeb9",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6b29577c4c660ad9abaf7bcf5936e24b54252c0a3b9112d3856fcebee8bcf58d"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6da8c4abc0c6c7ee16b451d46ee053bc1cf66d8fdea1b6766c767cf2d24b5a0"
+    },
+    {
+      "id": "B-74af:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 test-coverage re-review passed: no production/checklist/evidence change since RP-003; independently revalidated all 19 must intents, 18 mechanical receipts plus one docs_check, aggregate suite, three mutation bites, and protected provider/cross-host timeout freshness with zero gaps or waivers.",
+      "createdAt": "2026-08-12T11:47:52.433Z",
+      "reviewRound": "2026-08-12T11:39:03.767Z",
+      "reviewRunId": "B-74af:RR-010",
+      "envelopeId": "59daef5d1eda42263f6ecf2871d5dce576e0f1a7062fc1f986e20e1c42e37388",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8225b2379310808eceb64994e3e29d0e00462a360ea39c36331d406e38c565c"
+    },
+    {
+      "id": "B-74af:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Final round-4 incremental concept review passed. RR-011 is SAFE_INCREMENTAL with no changed files, affected contracts, current claims, finding deltas, impacted files, impacted intents, or unresolved findings. Git independently confirms packages/main/src and the B-74af checklist are unchanged since the prior fresh concept pass; intervening changes are lifecycle/review/test metadata only. Canonical status-first semantics remain intact: running/background/silent/unknown/unavailable monitor the same task independent of elapsed time; completed results are consumed once; replacement is limited to authoritative failed/cancelled/missing/dead/operator-cancelled terminal states and is single-attempt/idempotent; partial INIT recovery dispatches exactly missingAgents. No active elapsed-only restart residue was found. Protected provider/cross-host explicit timeout implementations remain zero-diff from main. Current session_brief reports recent validation PASS and checklist evidence remains 19/19 passing with no waivers.",
+      "createdAt": "2026-08-12T12:44:55.613Z",
+      "reviewRound": "2026-08-12T12:42:52.898Z",
+      "reviewRunId": "B-74af:RR-011",
+      "envelopeId": "4f3ab4b553fa5ee036aad50df19d4ba7ee2e036ae9d2aa7ffdad62520c868807",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44b146f7809de444700ed3e9f8447d3e9bfb578025001e6e8687c0ea0d8704f0"
+    },
+    {
+      "id": "B-74af:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Final round-4 closeout review found no blocker. Incremental basis is SAFE_INCREMENTAL with changedFiles empty and trusted RR-009/RP-006 bindings; source/checklist are unchanged. Prior partial missing-INIT fix and both no-duplicate assertions remain synchronized in src/dist, elapsed-only restart residue scan is clean, protected explicit timeout files have zero diff, git diff check passes, and session_brief records the final validation PASS.",
+      "createdAt": "2026-08-12T12:46:54.367Z",
+      "reviewRound": "2026-08-12T12:42:52.898Z",
+      "reviewRunId": "B-74af:RR-012",
+      "envelopeId": "c94a915591bec7d3dddfe9f96455ed477d3bda189d8a013aeb7671d2984798d7",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6b29577c4c660ad9abaf7bcf5936e24b54252c0a3b9112d3856fcebee8bcf58d"
+      },
+      "readDiagnostics": [],
+      "_hash": "de110399d7b5031f55d1027ce5a5e675e69bc214e9d0154a785893b5c939e309"
+    },
+    {
+      "id": "B-74af:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final round-4 SAFE_INCREMENTAL test-coverage closeout passed: zero source/checklist/evidence drift from RP-007; 19/19 must intents remain covered by 18 valid mechanical receipts and one valid docs_check, with zero gaps/waivers; prior three mutation bites remain bound to unchanged story/material hashes; latest validation_terminal is 93-command PASS; protected provider/cross-host timeout sources remain unchanged.",
+      "createdAt": "2026-08-12T12:48:48.507Z",
+      "reviewRound": "2026-08-12T12:42:52.898Z",
+      "reviewRunId": "B-74af:RR-013",
+      "envelopeId": "b7779099c057dbabc61488ab580827b27e67b4085b9d47bdb263459ba4343b8d",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          ".lattice/story/actives/B-74af/test-evidence.json",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "deb335bd3ca0b4c5fd3141f444b8e01fdf313b4610cf41ba04a3f8cdecc95805"
+    }
+  ]
+}
