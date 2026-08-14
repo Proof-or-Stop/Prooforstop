@@ -866,6 +866,21 @@
       "resolvedAt": "2026-08-14T09:08:02.216Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-041",
+      "desc": "concept-cleanup: bin-rename residue in live paths (not test-only): (1) packages/main/src/tasks/global-agents-unit-smoke.ts:159 is a FIFTH hand-rolled recomputation of the shim-body content (buildShimBody unit block) still asserting the deprecated /lattice agent_prompt --role=lattice-implementer/ regex while production buildShimBody (core/global-agents.ts:161-166) emits proof-or-stop agent_prompt --role=...; reproduced failing standalone: node packages/main/dist/tasks/global-agents-unit-smoke.js throws AssertionError at this exact line, and this smoke is auto-discovered by run-all-smokes (test:all/test:legacy). Same file was already edited twice in this story diff (doc comment L11, assertion L183) for the identical rename but this third occurrence at L159 was missed. (2) packages/main/src/handlers/lattice-cli.ts:118-119 configRepairCommandFor() builds and PRINTS to the user (reproduced live via node bin/proof-or-stop.js lattice_config_repair --setGitRoot=<dir> without --confirm) the deprecated invocation \"lattice config repair --set-git-root=... --confirm\" in both the structured confirmCommand field and trailing prose, even though the same commands --help output correctly shows the proof-or-stop config repair alias. (3) packages/main/src/handlers/verifier.ts:471 and packages/main/src/handlers/story-review.ts:438 both build the string lattice + VERIFICATION_INTENT_REPAIR_COMMAND (literal lattice verification_intent_repair) as an actionable repair hint surfaced in validate details / review blocker messages; both files were actively rebranded elsewhere in this same story commit family (verifier.ts has about 10 sibling lattice-to-proof-or-stop edits in this diff) but these two sites were missed. (4) packages/main/src/core/autopilot-executor.ts:222-225 displayCommand() still hardcodes lattice-prefixed output for the Failing-command line shown inside claudeRepairPrompt(), even though sibling lines in the same function/file (228-231, edited by this story) were correctly rebranded to Proof-or-Stop. None of these are frozen per brand-rename-mapping.md (not salts, not .lattice/ paths, not LATTICE_* env, not lattice-* role IDs) - they are unrouted user-visible/agent-visible command examples using the deprecated bin form, matching the CHK-002 adversarial intent that no help/usage/hint line prints the old bin name.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T09:16:28.401Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-053",
+      "_hash": "a93e33cf624a74822b576a79ec26d5840e41ee9de3065d0405c0505a6677bccc",
+      "signatureTag": "missing|unknown|concept-cleanup-rename",
+      "signatureTagSource": "auto"
     }
   ]
 }
