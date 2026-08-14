@@ -546,14 +546,18 @@
       "desc": "HOST-B codex reported: exact-material parity still has a normalization hole. packages/main/src/handlers/quorum-submit.ts:502 compares the RAW event value while the consumer normalizes it at core/host-independence.ts:147. A committed verdict carrying materialDigest with surrounding whitespace counts at the floor, but misses BOTH producer branches: raw equality is false, and the normalized drift test sees current material so it is false too. Re-submission can therefore still poison that run. Fix: compare the normalized material in the same-material branch as well.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T20:52:02.571Z",
       "reviewRound": "2026-07-26T08:30:56.241Z",
       "_hash": "829822d7625fea2c17e485ae164ca30abe62d443a1226e067b3e526eaadc0b4b",
       "signatureTag": "adversarial|unknown|host-codex-reported",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the same-material guard now compares normalized digest values, closing the exact-material-parity normalization hole. Verified by dedicated passing regression check 'quorum_submit compares the same-material guard on the normalized digest (F-029)' in packages/main/src/tasks/quorum-submit-smoke.ts, confirmed passing in a full 70/70 smoke run.",
+      "resolvedAt": "2026-08-14T04:32:23.830Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
