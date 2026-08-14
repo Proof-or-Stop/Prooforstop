@@ -4,7 +4,7 @@
   "title": "Root npm test must build packages/utils before the full suite, not just packages/main",
   "description": "The root full test suite (node packages/main/dist/tasks/full-suite-runner.js, run automatically by done_required validation) fails when packages/utils/dist is absent, because sub-tests that spawn bin/lattice.js hit bootstrap-runner.js and exit with Missing build artifacts. validate.commands only auto-builds packages/main; nothing auto-builds packages/utils, so the utils build is silently required but never automated. This bit B-3783 at DONE time and recurs as the worktree-needs-utils-build pitfall. Fix: make npm test self-bootstrap by building both packages/main and packages/utils before the suite via a root pretest, closing the utils gap at the exact point utils is needed.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "build",
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T02:59:28.244Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-fb7b",
+    "branch": "story/B-fb7b",
+    "createdAt": "2026-08-14T02:59:24.185Z"
+  }
 }
