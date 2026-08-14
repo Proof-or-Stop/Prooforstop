@@ -14,7 +14,63 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build exits 0 — TypeScript compiles cleanly with the new case added to validate-command-timeout-smoke.ts.",
+            "type": "cli"
+          },
+          {
+            "desc": "A new case (section 6) exists in validate-command-timeout-smoke.ts that writes a temp lattice.config.json to a fresh tmpdir projectRoot containing a validate.commands[] entry with a timeoutMs override (~700ms) pinning a Node command whose real runtime is ~1.5s, calls runSingleAllowlistedCommand with the matching command STRING and no options.timeoutMs, and asserts result.timedOut === true and result.code === 124.",
+            "type": "logic"
+          },
+          {
+            "desc": "Running node packages/main/dist/tasks/validate-command-timeout-smoke.js on current main exits 1 with a FAIL message from the new case — the RED repro is genuinely red because runSingleAllowlistedCommand ignores the configured timeoutMs and uses the 270s default, so the ~1.5s command completes normally (timedOut=false).",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The commanded process runtime (~1.5s) is strictly above the configured timeoutMs (~700ms) but far below 270_000ms, so the test completes fast in BOTH the red state (command finishes in ~1.5s, well under 270s default) and the future green state (killed at ~700ms). No test path ever waits anywhere near 270 seconds.",
+            "type": "logic"
+          },
+          {
+            "desc": "The test is hermetic: it writes lattice.config.json to a fresh os.tmpdir()-based projectRoot; no real project config or git-status side effects leak in or out.",
+            "type": "logic"
+          },
+          {
+            "desc": "Pre-existing sections 1-5 all still pass when the smoke is run on current main — only the new section 6 fails. The failure exit prevents the final assertion-count summary from printing, but sections 1-5 do not throw.",
+            "type": "cli"
+          },
+          {
+            "desc": "The lattice.config.json written to the tmpdir is syntactically valid JSON and structurally correct for configuredValidationCommands to parse (object-form entry with command, args, and timeoutMs fields) — the config is real, not malformed; the bug is that runSingleAllowlistedCommand never consults it.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The new case does NOT pass options.timeoutMs (or timeoutMs in any options object) to runSingleAllowlistedCommand. If it did, the configured-override bug would be bypassed and the test would be meaninglessly green on main — a false-green RED test.",
+            "type": "logic"
+          },
+          {
+            "desc": "The new case calls runSingleAllowlistedCommand specifically — NOT runValidationCommand or executeValidationPlan (those paths already honor timeoutMs and are covered by sections 3-5). The test must exercise the exact function the evidence tools use.",
+            "type": "logic"
+          },
+          {
+            "desc": "The FAIL message on current main indicates the assertion that failed is the timedOut === true check (or equivalent), confirming the failure is the actual bug symptom (270s default used, command completes normally in ~1.5s) and NOT an unrelated error such as a config parse failure, allowlist rejection, import error, or missing temp file.",
+            "type": "cli"
+          },
+          {
+            "desc": "The command string passed to runSingleAllowlistedCommand uses a bare allowlisted executable (e.g. node) as its first token so it passes parseAllowlistedCommand allowlist check — the test must not fail at the allowlist gate.",
+            "type": "logic"
+          },
+          {
+            "desc": "No new entry is added to the project-root lattice.config.json (the smoke is already registered there per its docstring); the temp config is written only to the ephemeral tmpdir projectRoot.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
