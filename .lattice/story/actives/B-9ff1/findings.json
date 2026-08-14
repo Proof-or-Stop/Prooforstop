@@ -826,7 +826,7 @@
       "desc": "[codex host-B E1] Verified by main agent, and it independently confirms the concept lane's F-037 while finding one more site than that lane listed. The round-5 correction reached five of ten files; registry.ts, command-catalog.ts, config.ts, process-fact-levels.ts and process-fact-registry.ts still carry the older two-surface scoping. process-fact-registry.ts is the sharpest: it says literally 'the two surfaces owned by the shared CLI entrypoint', a definite count that is now wrong because the owner-session token store and the health log were added to the inventory. Uneven scoping across sites is precisely how this defect family propagated twice before.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:20:22.340Z",
@@ -834,7 +834,11 @@
       "reviewRunId": "B-9ff1:RR-029",
       "_hash": "89470321ea837f35d1a7581f99d0b1f62c9885bdf07543ca964847841f9a9474",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 8aa435b089c9503e7c3a8ef2fbdc58aee2cc3395, same change as F-037. The cross-vendor host found a fifth file the concept lane's inventory had missed - registry.ts - which is the third consecutive round in which an inventory built by one reviewer proved incomplete. That is the argument for the mechanical ten-file comparison now used in place of enumeration by hand.",
+      "resolvedAt": "2026-08-14T10:33:08.415Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-039",
