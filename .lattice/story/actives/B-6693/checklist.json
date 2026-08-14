@@ -628,7 +628,11 @@
           {
             "desc": "Command: git diff --exit-code main...HEAD -- lattice.config.json package.json packages/main/package.json packages/main/src/tasks/full-suite-runner.ts packages/main/src/tasks/full-suite-runner-smoke.ts. Expect no diff in validation inventory or full-suite budget sources for this Story, then run npm --prefix packages/main run build. WHY: the implementation must solve coordination without ad-hoc timeout overrides or test pruning.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "build-main-with-binding.mjs"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Invoke both official handlers through their real CLI dispatch and assert a test sentinel fails if either reaches its callback while another holder is active; require both handler cases to pass when capacity is enabled. WHY: a helper that exists but is wired to only one entrypoint is not a solution.",
@@ -654,6 +658,25 @@
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
           "timestamp": "2026-08-14T16:13:50.020Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Tool-executed clean build passed after an independent git diff --exit-code proved no Story diff in lattice.config.json, package manifests, or full-suite runner budget sources.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f11dff53bab5a474393955bef714e7fec1c2bc5750e847e0ac964346a5e97cd3",
+            "outputTail": "\n> @lattice/core@0.3.254 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:14:03.439Z"
+          },
+          "headHash": "77be2daf06eb29f3804f1ccde1722499627fb417",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:14:03.570Z"
         }
       ]
     }
