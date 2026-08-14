@@ -587,6 +587,25 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "_hash": "a9bbac4c6498d39c0fb3b8f940b9dea5ae56f88984258f0f6d750f2cef8a0453"
+    },
+    {
+      "id": "B-META-framework-audit:F-032",
+      "desc": "FREEZE DISCIPLINE COVERS SOURCE BUT NOT BUILD OUTPUT, so a host can invalidate live reviewers without any tracked change. Observed concretely: the concept lane filed B-cdf6:F-056 at CRITICAL claiming matchesRuntimeCommitSubject was not read-both, with an accurate reproduction against packages/main/dist. The committed source at the very head it reviewed DID contain the deprecated branch and `git diff --stat HEAD` was empty. The dist was genuinely broken at sample time because I had deliberately deleted that branch and rebuilt in order to prove a new test was not vacuous, then restored and rebuilt. The reviewer's evidence was correct about disk state and its reasoning was sound; it simply was not the committed state.\n\nWHY THE EXISTING PROTECTIONS DO NOT CATCH THIS. Reviewer bindings are validated against headHash / materialHash / storyFilesHash - all computed from GIT. dist/ is gitignored build output, so mutating it produces ZERO hash movement: no binding goes stale, no diff_pack_changed rejection, no clean-tree refusal. Every mechanism that correctly caught my mid-round SOURCE edits (quality's F-040, the CLI's own uncommitted-material refusal) is structurally blind to a mid-round BUILD mutation. Meanwhile reviewers are explicitly told to verify by execution, which means running dist - so the one artifact they are directed to trust is the one nothing protects.\n\nIMPACT IS NOT LIMITED TO WASTED WORK. A false CRITICAL costs a full review round (this one did). The symmetric case is worse: a host that rebuilds dist from PASSING code while a reviewer samples it could obtain a green verdict for source that does not produce that behaviour. Nothing in the evidence chain would record the discrepancy, because the pass is bound to git hashes that never moved.\n\nNOT HYPOTHETICAL AND NOT RARE: two separate lanes ran the same destructive delete-rebuild-restore experiment on shared dist during this single review round - I did it for F-052, and the quality lane independently repeated it to verify my claim (its RP-025 report says so explicitly). It is a natural thing for a careful reviewer to do, which is exactly why it needs a guard rather than a convention.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T15:20:02.734Z",
+      "reviewRound": "",
+      "gapFingerprint": "7e26fee1c79f021fd2efaf6b30cbae2a3d608ec1636577f8cf6c3ceb2b0dc04f",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/dist/core/auto-commit-metadata.js",
+        "B-cdf6:F-056",
+        "B-cdf6:F-040"
+      ],
+      "_hash": "5d5e3a2e63a881fccf0e00122e4c8038e7226b7f87e5bb8286375c2e2ba94d6b"
     }
   ]
 }
