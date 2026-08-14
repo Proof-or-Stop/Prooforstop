@@ -58,6 +58,7 @@ import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
+import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -1420,6 +1421,9 @@ async function runStoryTransitionInner(
         if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
       }
       store.writeStory(args.storyId, story);
+      if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
+        consumeReviewInventoryReceipt(store, args.storyId, story.currentReviewRound ?? '');
+      }
     } finally {
       // Release only across the re-read→write critical section (milliseconds).
       persistClaim.release();

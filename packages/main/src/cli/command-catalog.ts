@@ -631,6 +631,20 @@ Behavior:
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
+  { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
+    storyId: z.string().min(1).describe('Story ID in REVIEW.'),
+    maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
+  }},
+  { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_finalize', description: 'Evaluate one unchanged-material wave and mint a receipt only at zero-new verified finding saturation', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_cancel', description: 'Cancel an OPEN inventory epoch without granting transition authority', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
+  }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),

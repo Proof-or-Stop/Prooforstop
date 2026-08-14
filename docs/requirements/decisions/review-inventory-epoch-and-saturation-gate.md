@@ -1,0 +1,138 @@
+# Frozen Review Inventory Epoch and Saturation Gate
+
+Status: implemented by B-3f3d.
+
+## Problem and evidence
+
+The repeated REVIEW/DEV cost was not caused simply by “too many reviewers.” The
+B-cdf6 reconstruction shows four lanes started on the same candidate
+(`RR-043..RR-046`, HEAD `73f42d07d1`), but F-036 returned before docs and
+test-coverage terminated. Commit `155e787d0c` changed the candidate at
+08:47:17Z; the unfinished results were then necessarily stale and the workflow
+created `RR-047..RR-051` (and later runs). See the evidence timeline in
+`claude-session-b-cdf6-review-convergence-analysis-and-optimization.md`, lines
+155-179 in the source analysis. The findings were useful; the missing boundary
+was “finish the inventory on one immutable subject before remediation.”
+
+B-9812 supplies the second failure shape: 53 verified findings over 10 finding
+rounds. A fixed smaller round count would merely hide late findings. Therefore
+the optimization criterion is not number of rounds; it is a mechanically
+verified saturation wave on a frozen candidate.
+
+## Operator workflow
+
+During REVIEW:
+
+```bash
+lattice review_inventory_begin --storyId=B-xxxx
+lattice review_inventory_status --storyId=B-xxxx
+lattice review_inventory_finalize --storyId=B-xxxx
+```
+
+`begin` prints the epoch ID, `State: OPEN`, frozen material cutoff and exactly
+one status command. `status` prints every required lane, current wave, verified
+and newly verified finding counts, blocker codes and exactly one `Next:`
+command. `cancel` is the explicit recovery path:
+
+```bash
+lattice review_inventory_cancel --storyId=B-xxxx --reason="return to DEV and replace the frozen candidate"
+```
+
+## State and authority
+
+The signed epoch has four states:
+
+- `OPEN`: material, scope, review round and required lanes are frozen.
+- `FINALIZED`: all required lanes terminated on that cutoff and one complete
+  wave added zero new verified finding families.
+- `INVALIDATED`: a consumer observed changed material/story-file lineage.
+- `CANCELLED`: the operator explicitly abandoned the epoch.
+
+The signed receipt has deliberately narrow authority:
+
+- `authority=inventory-completeness-only`;
+- `authorizesTest=false`;
+- it authorizes one REVIEW-to-remediation-DEV transition only;
+- it is bound to story, round, epoch, cutoff, scope, lane set, finding-set
+  digest, coverage digest and wave count;
+- cancellation, invalidation, tampering, wrong-story/round replay and a second
+  consumption fail closed.
+
+The gate is mandatory for REVIEW→DEV. Absence of the artifact is not a legacy
+PASS and instructs the operator to begin an epoch; otherwise hosts could bypass
+the optimization and assurance simply by never calling `begin`.
+
+This is not PRE_CERT and it does not claim the repaired material is correct.
+
+## Saturation rule
+
+Each wave consumes existing signed `ReviewRun`, `ReviewPass` and `Finding`
+facts. A wave can complete only when:
+
+1. every lane returned by canonical `computeActiveReviewers` has a terminal
+   signed pass or finding on the frozen cutoff;
+2. every run binds the same review round, material and story-files lineage;
+3. coverage/read evidence and lane-specific prompt identity are folded into the
+   critic digest;
+4. duplicate lane identities cannot increase coverage;
+5. the deterministic completeness critic observes the aggregate verified
+   finding-family set; and
+6. the current complete wave adds zero new verified families.
+
+`signatureTag` is audit-only and is intentionally excluded from the family
+key. The canonical family digest uses only description and severity, which are
+authenticated by the current `signFinding` domain. Category, files,
+`evidenceState` and dispositions are not in that signature domain and therefore
+cannot suppress or split inventory families. Conservatively, every
+signature-valid reviewer finding enters the inventory; an unsigned downgrade
+cannot manufacture saturation. New families append to the immutable aggregate and require another
+full unchanged-material wave. Exhausting the bounded wave budget yields
+`REVIEW_INVENTORY_BUDGET_EXHAUSTED` and requires replan/decompose/escalation; it
+never yields PASS.
+
+## Freshness and mutation enforcement
+
+The preventative prewrite projection rejects material targets while an epoch
+is OPEN. Prevention is not the authority: `review_run_start`, the shared
+`assertCurrentReviewRunForEvidence` path used by `review_pass_set` and reviewer
+`finding_add`, finalization, status and transition consumption recompute
+lineage. A direct edit or unsupported-hook bypass is therefore detected by the
+next authoritative consumer and atomically changes the epoch to `INVALIDATED`.
+Story/runtime metadata excluded by the canonical material hash does not
+invalidate the epoch.
+
+## Final review after remediation
+
+After the receipt is consumed, remediation changes material and the receipt is
+historical. REVIEW-to-TEST never consumes it. The old “round 2+ has any one
+receipt” shortcut is removed: every final-review round requires the complete
+current active lane set. This is the conservative unknown-impact fallback;
+future narrowing is allowed only when a canonical dependency/impact closure can
+prove the affected set. Round number alone is never impact evidence.
+
+## Deterministic efficiency and quality acceptance
+
+`review-inventory-epoch-smoke.ts` encodes the B-cdf6 counterfactual and must be
+deterministic across repeated runs:
+
+| Counter | Historical baseline | Frozen epoch |
+|---|---:|---:|
+| mutation-driven redispatches after the first finding | at least 5 (`RR-047..RR-051`) | 0 |
+| discovery epochs | n/a | 1 |
+| accepted material commits while OPEN | 1 observed | 0 |
+| accepted stale old-cutoff passes | must not be accepted | 0 |
+| aggregated remediation transitions | fragmented | 1 |
+| clean final-review epochs when remediation has no regression | repeated | at most 1 |
+
+Quality invariants are non-negotiable: required lane count is unchanged;
+critical/high escapes, stale acceptance and budget-manufactured PASS counters
+must each equal zero. If any baseline event is missing or attribution is
+ambiguous, the comparison is inconclusive rather than PASS.
+
+## Process-fact contract
+
+`review-inventory-epochs.json` is an L4 signed artifact registered in
+`process-fact-registry.ts`. The four commands, artifact signatures, freshness
+semantics and REVIEW-to-DEV consumer are checked by
+`scripts/verify-process-fact-contract.mjs`. Prompt wording can guide the host,
+but only these CLI/handler/gate facts grant authority.

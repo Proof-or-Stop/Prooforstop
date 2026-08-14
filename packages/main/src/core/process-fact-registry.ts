@@ -98,6 +98,10 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   verification_evidence_refresh_stale: 'execution-status',
   verification_run: 'execution-status',
   review_run_start: 'review-run',
+  review_inventory_begin: 'gate-evidence',
+  review_inventory_status: 'gate-evidence',
+  review_inventory_finalize: 'gate-evidence',
+  review_inventory_cancel: 'gate-evidence',
   review_pass_set: 'review-pass',
   finding_add: 'finding',
   finding_resolve: 'finding',
@@ -126,6 +130,10 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
+  review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
+  review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -219,6 +227,29 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  review_inventory_begin: {
+    name: 'review-inventory-epochs.json',
+    path: 'review-inventory-epochs.json',
+    signed: true,
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt',
+    producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_finalize/review_inventory_cancel',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+  },
+  review_inventory_status: {
+    name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_status',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory freshness gate',
+  },
+  review_inventory_finalize: {
+    name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt', producerCommand: 'review_inventory_finalize',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+  },
+  review_inventory_cancel: {
+    name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch', producerCommand: 'review_inventory_cancel',
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory state gate',
+  },
   agent_prompt: {
     name: 'prompt-envelopes.json',
     path: 'prompt-envelopes.json',
@@ -1289,6 +1320,18 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
     rationale: 'Signed reviewer runs bind current REVIEW findings and passes to a fresh lane-specific boundary, including ReviewRun.storyFilesHash for unrelated main-drift freshness and, in full-envelope mode, the exact canonical assembledPrompt bytes delivered by review_run_start.',
+  },
+  {
+    name: 'artifact:review-inventory-epochs.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence'],
+    level: 'L4',
+    producer: 'handlers/review-inventory',
+    producerSourceRefs: ['packages/main/src/core/review-inventory-epoch.ts', 'packages/main/src/handlers/review-inventory.ts'],
+    consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
+    consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes; signed receipts prove only bounded zero-new verified-finding saturation and are single-use for aggregated remediation DEV, never TEST authority.',
   },
   {
     name: 'artifact:findings.json',

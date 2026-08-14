@@ -50,6 +50,7 @@ import {
   resolvePromptRoleBody,
 } from './prompt-role-contract-registry.js';
 import { reviewIncrementalContext } from './review-incremental-context.js';
+import { assertReviewInventoryCutoff } from './review-inventory-epoch.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -1237,6 +1238,12 @@ export function assertCurrentReviewRunForEvidence(
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is stale: ${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
+  const liveMaterialHash = currentMaterialHash(signedProjectRoot, 'HEAD', run.workspaceBinding?.metadataRoot ?? projectRoot);
+  if (!liveMaterialHash) throw new Error(`review inventory freshness: cannot compute current material hash for ${story.storyId}`);
+  assertReviewInventoryCutoff(store, story.storyId, {
+    materialHash: liveMaterialHash,
+    storyFilesHash: currentStoryFilesHash(signedProjectRoot, 'HEAD', run.workspaceBinding?.metadataRoot ?? projectRoot) ?? undefined,
+  });
   if (freshness.warnings?.length) {
     console.warn(`review evidence for ${agent} bound reviewRunId ${reviewRunId}: ${freshness.warnings.join('; ')}`);
   }

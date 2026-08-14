@@ -1660,6 +1660,86 @@ export interface ReviewRunData {
   runs: ReviewRun[];
 }
 
+export type ReviewInventoryEpochState = 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED';
+
+export interface ReviewInventoryLaneTerminal {
+  lane: string;
+  reviewRunId: string;
+  terminal: 'pass' | 'finding';
+  hostIdentity: string;
+  promptIdentity: string;
+  evidenceIds: string[];
+  coverageDigest: string;
+}
+
+export interface ReviewInventoryWave {
+  wave: number;
+  startedAt: string;
+  completedAt?: string;
+  lanes: ReviewInventoryLaneTerminal[];
+  verifiedFindingFamilies: string[];
+  verifiedFindingSetDigest?: string;
+  newVerifiedFindingCount?: number;
+  criticDigest?: string;
+  saturated?: boolean;
+}
+
+/** Signed frozen-candidate inventory fact. It never certifies remediated material. */
+export interface ReviewInventoryEpoch {
+  schemaVersion: 'proofbound.review_inventory_epoch.v1';
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  state: ReviewInventoryEpochState;
+  begunAt: string;
+  updatedAt: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  scopeDigest: string;
+  requiredLanes: string[];
+  maxWaves: number;
+  waves: ReviewInventoryWave[];
+  invalidation?: {
+    detectedAt: string;
+    oldMaterialHash: string;
+    currentMaterialHash: string;
+    oldStoryFilesHash?: string;
+    currentStoryFilesHash?: string;
+    blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION';
+  };
+  cancelledAt?: string;
+  cancelReason?: string;
+  receiptId?: string;
+  consumedAt?: string;
+  consumedByReviewRound?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryReceipt {
+  schemaVersion: 'proofbound.review_inventory_receipt.v1';
+  receiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  scopeDigest: string;
+  requiredLanes: string[];
+  waveCount: number;
+  findingSetDigest: string;
+  coverageDigest: string;
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS';
+  authority: 'inventory-completeness-only';
+  authorizesTest: false;
+  issuedAt: string;
+  consumedAt?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryEpochData {
+  schemaVersion: 'proofbound.review_inventory_epochs.v1';
+  epochs: ReviewInventoryEpoch[];
+  receipts: ReviewInventoryReceipt[];
+}
+
 /** Evaluator scoring evidence (consumed by browser project DONE gate) */
 export interface EvalEvidenceData {
   scores: { functionality: number; usability: number };

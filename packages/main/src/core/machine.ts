@@ -57,6 +57,7 @@ import {
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
+import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -718,8 +719,9 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
 
 /**
  * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
- * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
- * ARE doors into DEV, so they must enforce the SAME ProofStory DEV admission gate and parallel
+ * do not re-demand a clean final review, but REVIEW→DEV now requires the signed
+ * frozen-inventory saturation receipt that authorizes one aggregated remediation. Both doors
+ * ARE doors into DEV, so they also enforce the SAME ProofStory DEV admission gate and parallel
  * hard-block used by PLAN/INIT_CHECK DEV entry.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
  * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
@@ -729,6 +731,10 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
   try {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
+    if (story.phase === 'REVIEW') {
+      const inventory = reviewInventoryRemediationGate(context.store, context.storyId, story.currentReviewRound);
+      if (!inventory.ok) return false;
+    }
     const policy = resolveWorkflowPolicy(config, story);
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
@@ -798,9 +804,12 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     if (policy.review.requireReviewerFinding) {
       const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
-      const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-      if (roundCount <= 1) {
-        // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+      {
+        // Every final-review round requires the complete active lane set. The former
+        // round-2+ single-receipt shortcut could call one lane sufficient after a
+        // remediation changed material; unknown impact therefore fails closed to all
+        // canonical active lanes. A future mechanically proven impact closure may
+        // narrow this set, but round number alone never can.
         let checklist: { items: unknown[] } = { items: [] };
         try { checklist = context.store.readChecklist(context.storyId); } catch {}
         let decision = null;
@@ -838,11 +847,6 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         });
         if (!quorum.ok) {
           return { ok: false, code: 'review_quorum', message: quorum.blocking.join('; ') };
-        }
-      } else {
-        // Round 2+: require at least 1 reviewer finding or pass receipt
-        if (currentRoundReviewerEvidence.length === 0) {
-          return { ok: false, code: 'review_evidence_missing', message: `Round ${roundCount} has no current reviewer finding/pass` };
         }
       }
     }
@@ -1196,6 +1200,13 @@ export function getGuardFailureReason(
     // re-demand a clean review (canReenterDevGuard applies ONLY the parallel check), so the review
     // block must be skipped for those phases too, leaving the parallel reason to render below.
     const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
+    if (story.phase === 'REVIEW') {
+      const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
+      if (!inventory.ok) {
+        return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+          `Next: ${inventory.nextCommand ?? `lattice review_inventory_status --storyId=${storyId}`}`;
+      }
+    }
     let tookExpressChannel = false;
     if (story.phase === 'INIT_CHECK') {
       // Express channel failure reasons — read WorkflowPolicy

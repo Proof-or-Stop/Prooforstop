@@ -1,0 +1,279 @@
+import { createHash } from 'node:crypto';
+import type { StoryStore } from './store.js';
+import type {
+  Finding,
+  ReviewInventoryEpoch,
+  ReviewInventoryLaneTerminal,
+  ReviewInventoryReceipt,
+  ReviewInventoryWave,
+  ReviewPass,
+  ReviewRun,
+} from './types.js';
+import { verifyReviewRun } from './review-run.js';
+import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+
+const EPOCH_DOMAIN = 'proofbound.review-inventory-epoch.v1';
+const RECEIPT_DOMAIN = 'proofbound.review-inventory-receipt.v1';
+
+function canonical(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  return `{${Object.entries(value as Record<string, unknown>)
+    .filter(([, item]) => item !== undefined)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+    .join(',')}}`;
+}
+
+export function reviewInventoryDigest(value: unknown): string {
+  return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+export function signReviewInventoryEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'>): string {
+  return reviewInventoryDigest({ domain: EPOCH_DOMAIN, ...epoch });
+}
+
+export function verifyReviewInventoryEpoch(epoch: ReviewInventoryEpoch): boolean {
+  if (!epoch._hash || epoch.schemaVersion !== 'proofbound.review_inventory_epoch.v1') return false;
+  const { _hash, ...unsigned } = epoch;
+  return _hash === signReviewInventoryEpoch(unsigned);
+}
+
+export function signReviewInventoryReceipt(receipt: Omit<ReviewInventoryReceipt, '_hash'>): string {
+  return reviewInventoryDigest({ domain: RECEIPT_DOMAIN, ...receipt });
+}
+
+export function verifyReviewInventoryReceipt(receipt: ReviewInventoryReceipt): boolean {
+  if (!receipt._hash || receipt.schemaVersion !== 'proofbound.review_inventory_receipt.v1') return false;
+  const { _hash, ...unsigned } = receipt;
+  return _hash === signReviewInventoryReceipt(unsigned)
+    && receipt.authority === 'inventory-completeness-only'
+    && receipt.authorizesTest === false
+    && receipt.saturationResult === 'ZERO_NEW_VERIFIED_FINDINGS';
+}
+
+export function findingFamily(finding: Finding): string {
+  // signatureTag is deliberately audit-only and therefore excluded. The family
+  // is derived only from fields in signFinding's canonical domain. category,
+  // files, evidenceState and dispositions are intentionally excluded because
+  // their current Finding signature does not authenticate them.
+  return reviewInventoryDigest({
+    desc: finding.desc.trim().replace(/\s+/g, ' ').toLowerCase(),
+    severity: finding.severity,
+  });
+}
+
+function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[]): {
+  terminal: ReviewInventoryLaneTerminal | null;
+  families: string[];
+} {
+  if (!verifyReviewRun(run)) return { terminal: null, families: [] };
+  const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId && verifyReviewPass(run.storyId, pass));
+  const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId && verifyFinding(run.storyId, finding));
+  if (runPasses.length === 0 && runFindings.length === 0) return { terminal: null, families: [] };
+  const evidenceIds = [...runPasses.map(row => row.id), ...runFindings.map(row => row.id)].sort();
+  const coverageDigest = reviewInventoryDigest({
+    runId: run.reviewRunId,
+    envelopeId: run.envelopeId ?? null,
+    manifests: runPasses.map(row => row.readManifest ?? null),
+    readLogs: runPasses.map(row => row.readLog?.digest ?? null),
+    evidenceIds,
+  });
+  return {
+    terminal: {
+      lane: run.lane,
+      reviewRunId: run.reviewRunId,
+      terminal: runFindings.length > 0 ? 'finding' : 'pass',
+      hostIdentity: run.workspaceBinding?.bindingHash ?? run.agent,
+      promptIdentity: run.envelopeId ?? run.promptHash,
+      evidenceIds,
+      coverageDigest,
+    },
+    // Conservatively inventory every signature-valid reviewer finding. The
+    // existing evidenceState is gate-consumed elsewhere but is not in the
+    // Finding signature domain; letting that mutable field suppress a family
+    // here would allow a file edit to manufacture saturation.
+    families: runFindings.map(findingFamily),
+  };
+}
+
+export interface ReviewInventoryEvaluation {
+  lanes: ReviewInventoryLaneTerminal[];
+  missingLanes: string[];
+  duplicateIdentities: string[];
+  families: string[];
+  newFamilies: string[];
+  criticDigest: string;
+}
+
+export function evaluateReviewInventoryWave(args: {
+  epoch: ReviewInventoryEpoch;
+  runs: ReviewRun[];
+  passes: ReviewPass[];
+  findings: Finding[];
+}): ReviewInventoryEvaluation {
+  const waveStart = args.epoch.waves.at(-1)?.completedAt ?? args.epoch.begunAt;
+  const candidates = args.runs.filter(run =>
+    run.storyId === args.epoch.storyId
+    && run.reviewRound === args.epoch.reviewRound
+    && run.materialHash === args.epoch.cutoff.materialHash
+    && (run.storyFilesHash ?? '') === (args.epoch.cutoff.storyFilesHash ?? '')
+    && run.startedAt >= waveStart,
+  );
+  const lanes: ReviewInventoryLaneTerminal[] = [];
+  const families = new Set<string>();
+  for (const lane of args.epoch.requiredLanes) {
+    const laneRuns = candidates.filter(run => run.lane === lane).sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+    const selected = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings)).find(row => row.terminal);
+    if (!selected?.terminal) continue;
+    lanes.push(selected.terminal);
+    selected.families.forEach(family => families.add(family));
+  }
+  const identities = new Map<string, string[]>();
+  for (const lane of lanes) {
+    const key = `${lane.hostIdentity}:${lane.promptIdentity}`;
+    identities.set(key, [...(identities.get(key) ?? []), lane.lane]);
+  }
+  const duplicateIdentities = [...identities.values()].filter(group => group.length > 1).flat();
+  const priorFamilies = new Set(args.epoch.waves.flatMap(wave => wave.verifiedFindingFamilies));
+  const familyList = [...families].sort();
+  const newFamilies = familyList.filter(family => !priorFamilies.has(family));
+  return {
+    lanes,
+    missingLanes: args.epoch.requiredLanes.filter(lane => !lanes.some(row => row.lane === lane)),
+    duplicateIdentities,
+    families: familyList,
+    newFamilies,
+    criticDigest: reviewInventoryDigest({
+      epochId: args.epoch.epochId,
+      wave: args.epoch.waves.length + 1,
+      requiredLanes: args.epoch.requiredLanes,
+      lanes,
+      aggregateFamilies: [...new Set([...priorFamilies, ...familyList])].sort(),
+    }),
+  };
+}
+
+export function currentOpenReviewInventory(store: StoryStore, storyId: string): ReviewInventoryEpoch | null {
+  const epochs = store.readReviewInventoryEpochs(storyId).epochs;
+  const open = epochs.filter(epoch => epoch.state === 'OPEN').at(-1);
+  if (!open) return null;
+  if (!verifyReviewInventoryEpoch(open)) throw new Error(`review inventory epoch ${open.epochId} signature mismatch`);
+  return open;
+}
+
+/** Authoritative consumer-side freshness barrier. Call under the caller's story metadata lock. */
+export function assertReviewInventoryCutoff(store: StoryStore, storyId: string, current: {
+  materialHash: string;
+  storyFilesHash?: string;
+}): void {
+  const epoch = currentOpenReviewInventory(store, storyId);
+  if (!epoch) return;
+  if (current.materialHash === epoch.cutoff.materialHash
+    && (current.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')) return;
+  const now = new Date().toISOString();
+  const { _hash: _oldHash, ...old } = epoch;
+  const unsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
+    ...old,
+    state: 'INVALIDATED',
+    updatedAt: now,
+    invalidation: {
+      detectedAt: now,
+      oldMaterialHash: epoch.cutoff.materialHash,
+      currentMaterialHash: current.materialHash,
+      ...(epoch.cutoff.storyFilesHash ? { oldStoryFilesHash: epoch.cutoff.storyFilesHash } : {}),
+      ...(current.storyFilesHash ? { currentStoryFilesHash: current.storyFilesHash } : {}),
+      blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
+    },
+  };
+  const invalidated: ReviewInventoryEpoch = { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
+  const data = store.readReviewInventoryEpochs(storyId);
+  data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? invalidated : row);
+  store.writeReviewInventoryEpochs(storyId, data);
+  throw new Error(
+    `OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\nEpoch: ${epoch.epochId}\n` +
+    `Changed lineage: ${epoch.cutoff.materialHash} -> ${current.materialHash}\n` +
+    `Recovery: lattice review_inventory_begin --storyId=${storyId}`,
+  );
+}
+
+export function finalizedUnconsumedReviewInventory(store: StoryStore, storyId: string): {
+  epoch: ReviewInventoryEpoch;
+  receipt: ReviewInventoryReceipt;
+} | null {
+  const data = store.readReviewInventoryEpochs(storyId);
+  const epoch = data.epochs.filter(row => row.state === 'FINALIZED' && !row.consumedAt).at(-1);
+  if (!epoch || !verifyReviewInventoryEpoch(epoch) || !epoch.receiptId) return null;
+  const receipt = data.receipts.find(row => row.receiptId === epoch.receiptId);
+  if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.consumedAt) return null;
+  if (receipt.epochId !== epoch.epochId || receipt.storyId !== storyId || receipt.reviewRound !== epoch.reviewRound) return null;
+  return { epoch, receipt };
+}
+
+export function reviewInventoryRemediationGate(store: StoryStore, storyId: string, reviewRound?: string): {
+  required: boolean;
+  ok: boolean;
+  reason?: string;
+  nextCommand?: string;
+} {
+  const data = store.readReviewInventoryEpochs(storyId);
+  if (data.epochs.length === 0) return {
+    required: true,
+    ok: false,
+    reason: 'no frozen review inventory epoch exists for this remediation',
+    nextCommand: `lattice review_inventory_begin --storyId=${storyId}`,
+  };
+  const pair = finalizedUnconsumedReviewInventory(store, storyId);
+  if (!pair) return {
+    required: true,
+    ok: false,
+    reason: 'missing valid unconsumed FINALIZED review inventory receipt',
+    nextCommand: `lattice review_inventory_status --storyId=${storyId}`,
+  };
+  if (reviewRound && pair.epoch.reviewRound !== reviewRound) {
+    return {
+      required: true,
+      ok: false,
+      reason: `receipt reviewRound ${pair.epoch.reviewRound} != current ${reviewRound}`,
+      nextCommand: `lattice review_inventory_begin --storyId=${storyId}`,
+    };
+  }
+  return { required: true, ok: true };
+}
+
+export function consumeReviewInventoryReceipt(store: StoryStore, storyId: string, reviewRound: string): string | null {
+  const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
+  if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
+  const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
+  const now = new Date().toISOString();
+  const data = store.readReviewInventoryEpochs(storyId);
+  data.epochs = data.epochs.map(row => {
+    if (row.epochId !== pair.epoch.epochId) return row;
+    const { _hash, ...unsigned } = row;
+    const consumed: Omit<ReviewInventoryEpoch, '_hash'> = { ...unsigned, consumedAt: now, consumedByReviewRound: reviewRound, updatedAt: now };
+    return { ...consumed, _hash: signReviewInventoryEpoch(consumed) };
+  });
+  data.receipts = data.receipts.map(row => {
+    if (row.receiptId !== pair.receipt.receiptId) return row;
+    const { _hash, ...unsigned } = row;
+    const consumed: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, consumedAt: now };
+    return { ...consumed, _hash: signReviewInventoryReceipt(consumed) };
+  });
+  store.writeReviewInventoryEpochs(storyId, data);
+  return pair.receipt.receiptId;
+}
+
+export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string): ReviewInventoryWave {
+  const aggregate = [...new Set([...epoch.waves.flatMap(row => row.verifiedFindingFamilies), ...evaluation.families])].sort();
+  return {
+    wave: epoch.waves.length + 1,
+    startedAt: epoch.waves.at(-1)?.completedAt ?? epoch.begunAt,
+    completedAt: now,
+    lanes: evaluation.lanes,
+    verifiedFindingFamilies: aggregate,
+    verifiedFindingSetDigest: reviewInventoryDigest(aggregate),
+    newVerifiedFindingCount: evaluation.newFamilies.length,
+    criticDigest: evaluation.criticDigest,
+    saturated: evaluation.newFamilies.length === 0,
+  };
+}

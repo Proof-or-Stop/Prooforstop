@@ -254,6 +254,15 @@ The CLI layer filters the available commands by the current story phase. When th
 | `story_advance -> TEST` | Advance after blockers are resolved and preflight passes |
 | `story_advance -> DEV` | Return to implementation when there is a problem |
 
+For an aggregated remediation, first open a frozen inventory with
+`review_inventory_begin`, let every required lane terminate on the same cutoff,
+and call `review_inventory_finalize` until a complete wave adds zero new verified
+finding families. Only the resulting signed, single-use receipt authorizes
+REVIEW→DEV. It proves inventory completeness only (`authorizesTest=false`). Any
+OPEN material drift becomes `INVALIDATED`; after remediation, the final REVIEW
+again requires every current active lane. See
+`review-inventory-epoch-and-saturation-gate.md`.
+
 `lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `lattice` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
 
 ### TEST

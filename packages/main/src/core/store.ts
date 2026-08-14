@@ -16,6 +16,7 @@ import type {
   PreReviewCheckArtifactV1,
   AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
+  ReviewInventoryEpochData,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
 import {
@@ -473,6 +474,18 @@ export class StoryStore {
 
   writeReviewRuns(storyId: string, data: ReviewRunData): void {
     this.writeJson(storyId, 'review-runs.json', data);
+  }
+
+  readReviewInventoryEpochs(storyId: string): ReviewInventoryEpochData {
+    try {
+      return this.readJson<ReviewInventoryEpochData>(storyId, 'review-inventory-epochs.json');
+    } catch {
+      return { schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [], receipts: [] };
+    }
+  }
+
+  writeReviewInventoryEpochs(storyId: string, data: ReviewInventoryEpochData): void {
+    this.writeJson(storyId, 'review-inventory-epochs.json', data);
   }
 
   readPromptEnvelopes(storyId: string): PromptEnvelopeData {

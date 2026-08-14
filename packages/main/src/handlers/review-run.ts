@@ -35,6 +35,7 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import { assertReviewInventoryCutoff } from '../core/review-inventory-epoch.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
@@ -140,6 +141,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
         expectedWorktreeRoot: workspace.expectedWorktreeRoot,
       }, workspace.metadataRoot || ctx.root);
+      assertReviewInventoryCutoff(store, args.storyId, { materialHash, storyFilesHash });
       const workspaceBinding = buildReviewRunWorkspaceBinding({
         metadataRoot: workspace.metadataRoot || ctx.root,
         invocationCwd: workspace.cwd || process.cwd(),
