@@ -925,6 +925,43 @@
         "scanEscalationReason": null
       },
       "_hash": "f51dd13cd7394ad42982431d1a347e2a4da4bc3d0d04d314ebeb8a1810d4daf8"
+    },
+    {
+      "id": "B-9ff1:RP-030",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 confirmation, text-only commit 82abb47b (4 files: activity-policy.ts, command-catalog.ts, command-policy.ts, red-evidence.ts), all vocabulary-only per diff. (1) checklist_get: 108 refs, 106 pass, 2 permanent waivers (CHK-012:edge:1, CHK-013:adversarial:0), 0 missing, 0 failed -- matches expected. CHK-012:adversarial:0 re-checked: kind=logic_test, result=pass, exitCode=0, real outputTail from dist smoke run -- still a real receipt, not a waiver. (2) check-selectors.py (scratchpad) run for real: pinned=108 checked=106 waived=2, 7 distinct commands, all exit 0 with selector present, rejection-matrix at 89.0% of the 12000-unit cap (unchanged, confirming H3's claim that the new footer text is not printed by any pinned command). Verified the 3rd fidelity gap directly: validation-executor.ts decodes each child.stdout/stderr chunk independently via Buffer#toString(utf8) (lines 481-482), with no cross-chunk decoder state, while the checker decodes the complete captured buffer once -- and real pinned output does contain multi-byte UTF-8 (section-sign U+00A7, em-dash U+2014) at several points including inside the near-cap rejection-matrix output, so this is not merely theoretical, only currently unrealized because no chunk boundary has yet landed inside one of those sequences. Verdict on mandatory-vs-advisory: advisory, not mandatory. Three independently-discovered, real fidelity gaps in three rounds (shell/env/interleaving; per-command-not-per-pin caching; now chunked-vs-whole decode) is a pattern, not bad luck -- re-implementing spawn+decode+truncate semantics bit-for-bit is intrinsically hard, and each gap that is inert today depends on details (command shape, statefulness, byte-boundary timing) that can change under this reviewer's feet. It remains a fast, valuable diagnostic for catching pin/selector drift early and already caught one real bug historically (containment-without-exit-code), so keep running it -- but anything load-bearing (DONE-gate freshness, mandatory pass/fail) should go through the real runValidationCommand path (e.g. verification_evidence_refresh_stale), which is what the script's own docstring already says for freshness and what this reviewer now extends to fitness generally. (3) Hook-notice test gap: confirmed by reading cli-engine.ts lines 1518-1525 and core/hooks.ts resolveHookCommands (lines 96-116) directly -- the stderr notice print is gated only on config0.hooks.onError being truthy (any configured stage map, matching or not), while actual firing is gated separately inside runHooks by resolveHookCommands's exact-key-or-wildcard match, so a configured-but-non-matching map prints the notice and fires nothing. No committed test in this repo exercises this at the CLI level: grepped tests/ and src/ for onError/resolveHookCommands/runHooks/hooks.ts usage across the whole tree -- the only two places that state this precisely (red-w2d-command-readonly.mjs lines 59-70, and red-evidence-envelope-smoke.ts lines 494-497) do so in prose comments only and explicitly disclaim proving it (readonly.mjs's own text: WHAT THEY DO NOT PROVE (a): that NO hook runs). This is the hook subsystem's pre-existing coverage gap (core/hooks.ts + the cli-engine.ts onError call site), not one B-9ff1 introduced or was scoped to close -- B-9ff1's diff is a wording correction of existing, already-accurate runtime behavior, and its own tests are honest about the boundary rather than silently overclaiming it. Not filed as a blocker on this story. A precise test if someone wants it: drive the CLI (not a direct handler call) via runCli against a lattice.config.json with hooks.onError containing one non-matching, non-wildcard key, invoking a command engineered to throw; assert stderr contains the running onError hooks notice AND that the configured commands side effect (a marker file, or a child-process spawn recorder counting zero /bin/sh -c invocations for that stage) never occurred; pair it with a positive-control row using an exact-matching or star key on the same failing command asserting the side effect DOES occur, since only the pairing pins the print/fire divergence rather than each half independently. (4) Real transcripts, all exit 0: red-w2d-rejection-matrix.mjs, red-w2d-entropy-differential.mjs, red-w2d-specificity-conjunction.mjs, red-w2d-command-readonly.mjs, red-w2d-assertion-digest-scope.mjs, and dist/tasks/red-evidence-envelope-smoke.js -- captured to scratchpad, matched checklist receipt outputTails. No finding filed. Nine rounds, forty-nine findings, and from the test-coverage lens this round has converged: the commit is a correct, honestly-scoped wording fix with no coverage regression; the one real gap surfaced (hook-notice vs hook-fire) predates this story and does not implicate anything B-9ff1 claims.",
+      "createdAt": "2026-08-14T11:48:30.692Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-043",
+      "envelopeId": "5102a01b98c7f4fad7259e1baf899f55e98e8aab845318d4df4a65a9f466b280",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "137d1f6be3b2f8f6a0ad438aa2dce5474e77918f6840d5e7c9c6761269453e29"
     }
   ]
 }
