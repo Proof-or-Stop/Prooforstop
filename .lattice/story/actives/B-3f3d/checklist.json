@@ -244,7 +244,69 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The operator gets one deliberate remediation transition containing the complete frozen finding set, then sees which fresh final-review lanes are required on the repaired material and an actionable reason whenever a transition is rejected."
+      "userSees": "The operator gets one deliberate remediation transition containing the complete frozen finding set, then sees which fresh final-review lanes are required on the repaired material and an actionable reason whenever a transition is rejected.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-004-H1",
+            "desc": "A fresh FINALIZED ReviewInventoryReceipt authorizes exactly one REVIEW-to-remediation-DEV transition carrying the immutable complete verified finding set; the transition output identifies epoch, lineage and findings and explicitly states that the defective cutoff is not certified for TEST.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-H2",
+            "desc": "After remediation creates new material, the inventory receipt becomes historical, dependency closure computes and displays impacted required final-review lanes, and every such lane supplies current signed evidence on the repaired head before REVIEW can pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-H3",
+            "desc": "When remediation introduces no regression, one fresh final-review epoch with all impacted lane, host and escalation requirements satisfied can advance normally; each rejected transition reports a stable blocker and exact corrective command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-004-E1",
+            "desc": "A provably narrow repair uses the canonical dependency closure to select impacted lanes without reducing required host assurance; if scope, policy impact or closure is unknown, the system fails closed to the full required lane set.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-E2",
+            "desc": "Missing, stale, INVALIDATED, CANCELLED, wrong-round, wrong-story, wrong-lineage or already-consumed inventory receipts reject remediation DEV and show whether to finalize, begin a fresh inventory epoch, replan or return to REVIEW.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-E3",
+            "desc": "Explicit cancel or replan remains auditable, cannot be confused with remediation authorization, preserves prior evidence as historical only, and leaves lifecycle state with exactly one valid next action.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-004-A1",
+            "desc": "Replaying one valid inventory receipt for a second DEV transition, using it to enter TEST directly, or treating its defective-cutoff saturation as implementation approval is rejected at every transition consumer.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-A2",
+            "desc": "The historical round-2-plus single-receipt condition cannot claim sufficient final review when any impacted lane, required host, escalation verdict or repaired-material binding is absent or stale.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-004-A3",
+            "desc": "A post-remediation regression or scope expansion found by any final-review lane reopens the appropriate finding and remediation flow, invalidates clean-final-review claims, and cannot be hidden by old passes, narrow-closure claims or the inventory receipt.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
