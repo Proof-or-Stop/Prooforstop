@@ -124,6 +124,29 @@
         "scanEscalationReason": null
       },
       "_hash": "d21ef7144a116a3e9bb7b8c55fa1e0dd0e9d8bd103d8d5d035c221139a60030f"
+    },
+    {
+      "id": "B-16df:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 confirmation pass: re-read checklist.json and verified all 5 previously-truncated waiver notes (F-009: CHK-001:happy:0/1/2, CHK-002:E-005, CHK-002:A-004) are now complete, non-truncated sentences ending in proper punctuation (lengths 429/471/477/391/574, none near the 899-900 char cutoff). Scanned all 32 waiver notes in the checklist for any similar truncation pattern; none found. No code changed since round 3 (only .lattice metadata touched at head b885510). F-008 fix (sections 9/15/16) and remainder of coverage previously confirmed correct in rounds 2-3 stand unchanged. No blocker.",
+      "createdAt": "2026-08-14T13:37:45.348Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-011",
+      "envelopeId": "8cef5d46de59b9af6c5d16e2bb5364a88ab72f4bff6ad50d49d321ca4c088e66",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c8a3fc2662982250eeb9daae334d029a6013986a119ac045a503b447c25a842"
     }
   ]
 }
