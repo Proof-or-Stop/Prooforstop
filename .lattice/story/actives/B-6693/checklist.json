@@ -248,19 +248,19 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:adversarial:0.",
+          "note": "Fresh representative mutation receipt after the final CHK-004 source commit and acceptance-path closure.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:28:37.356Z"
+            "executedAt": "2026-08-14T16:53:37.153Z"
           },
-          "headHash": "1a5de2e39adc76b6efb17e0ff3ec7d645897b255",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:29:38.026Z"
+          "headHash": "0f364a25fcaabf48be74424a24096cd4e221170a",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-14T16:53:37.297Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
