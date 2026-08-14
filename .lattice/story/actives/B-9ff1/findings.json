@@ -770,7 +770,7 @@
       "desc": "Commit 8c1ec9180 fixed the exception-surface undercount (F-032: owner-session-token-store + health log, plus the runHooks-is-unconditional mechanism fix F-033, plus the not-exhaustive disclaimer) at only 5 of the ten tracked files (activity-policy.ts, command-policy.ts, red-evidence.ts, red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs). The other 4 files still carry the pre-fix, now-stale text with no update: process-fact-registry.ts:185-189 says literally 'What it does NOT suppress are the two surfaces owned by the shared CLI entrypoint: a configured onError hook runs..., and one row may be appended to activity.jsonl...' -- naming an exact count (two) that is now wrong given the same story has since documented and fixed 4 known surfaces (onError hook, activity row, owner-session-token-store under .lattice/runtime/owner-session-tokens/, and the health log via reportHealthIssue) at the other 5 sites. config.ts:355, process-fact-levels.ts:360 and command-catalog.ts:3277 each still enumerate only the same original 2 surfaces (onError hook + activity row) with no owner-session-token-store/health-log mention and no known-when-written/not-exhaustive disclaimer, unlike the corrected 5 sites which now read (e.g. command-policy.ts:445) 'In the handler and the built-in CLI persistence paths it writes no...' and go on to name all 4 surfaces plus the disclaimer. This is the exact propagation failure mode the dispatch flagged as having already recurred twice: a correction applied at some claim sites for a shared command but not at others, leaving the ten-file family internally inconsistent about how many exception surfaces exist. Not a mechanically pinned selector (no checklist.json pin matches 'the two surfaces'), so it did not trip the regression checker, but it is a real content gap: a reader of process-fact-registry.ts alone would believe there are exactly two exception surfaces, which this same story has since shown to be false.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T10:14:00.441Z",
@@ -815,7 +815,11 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "doc-code-drift|ts|commit-8c1ec9180-fixed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 8aa435b089c9503e7c3a8ef2fbdc58aee2cc3395. The round-5 correction had reached only five of ten files, leaving the others with older scoping and, in process-fact-registry.ts, a definite count - 'the two surfaces' - that was wrong once the inventory grew to four. All ten now carry ONE canonical sentence, and its identity across the files was verified mechanically rather than by eye: a normalizing comparison that strips only comment markers and string plumbing reports the 240-character sentence present and identical in all ten. The vague round-5 phrase 'the handler and the built-in CLI persistence paths' is gone from the repository entirely; the concept lane was right that it was not a checkable boundary, since taken literally it covered the very writers carved out as exceptions.",
+      "resolvedAt": "2026-08-14T10:33:07.532Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-038",
