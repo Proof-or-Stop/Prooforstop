@@ -6,7 +6,7 @@
       "context": "Add a root pretest that builds both packages/main and packages/utils before full-suite-runner. Prove with a repro-first RED that a bin/lattice.js-dependent path fails via bootstrap-runner when packages/utils/dist is missing, and that the pretest wiring rebuilds utils so it recovers. dist is gitignored so the rebuild will not dirty the tree.",
       "status": "done",
       "startTime": "2026-08-14T03:27:05.433Z",
-      "endTime": "2026-08-14T04:14:36.338Z",
+      "endTime": "2026-08-14T09:39:02.177Z",
       "verificationIntent": {
         "happy": [
           {
