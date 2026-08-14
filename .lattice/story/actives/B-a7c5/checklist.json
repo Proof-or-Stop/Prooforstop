@@ -469,6 +469,17 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:27:20.317Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "note": "No concurrency-specific test exists in dev-memory-lifecycle-gates-smoke.ts or anywhere else in the repo (confirmed via grep for 'concurrent'/'rapid succession'/'two findings' across the smoke test source -- zero matches). Attesting instead by code inspection: finding_resolve's memoryHint computation (handlers/finding.ts ~lines 799-813) reads only per-call local state (the finding being resolved, the story's experience.jsonl via buildMemoryFreshnessPack) and writes no shared mutable state; Node's single-threaded event loop means two finding_resolve calls in the same process cannot interleave mid-computation. This is a manual code-reading judgment, not a tool-executed concurrency test, and should be treated as weaker than the other CHK-002 evidence.",
+          "mechanical": false,
+          "nonMechanicalReason": "No concurrency test exists in the shipped smoke test or elsewhere in the repo; verified by manual code reading (handlers/finding.ts) that memoryHint computation is per-call local state with no shared mutable state, and Node's single-threaded execution model precludes true interleaving, but this was not exercised by an actual concurrent-call test.",
+          "headHash": "34f39873e34ea7e0f3d4f512f819e22b482dbea1",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:34:06.939Z"
         }
       ]
     },
