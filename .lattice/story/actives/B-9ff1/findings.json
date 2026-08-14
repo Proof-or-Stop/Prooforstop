@@ -182,7 +182,7 @@
       "desc": "packages/main/src/core/red-evidence/envelope.ts:274-434: the matcherSetEvaluable gate (line 385, requiring rawMatchers.length in [1,maxMatchers] AND bounded.length>0) suppresses the ENTIRE §1.3 block — per-matcher rule1/2 AND the rule-3 class-only-present-in-red check — whenever the matcher COUNT is out of bounds. This contradicts the modules own documented invariant at envelope.ts:236-237 (\"Every check runs — nothing short-circuits — so co-occurring faults are ALL reported and no tag suppresses another\"). Concrete failing input verified against dist: an envelope with 9 matchers (policy.maxMatchers=8) where the sole present-in-red matcher is a class matcher (stderr-nonempty) and the other 8 are valid present-in-green literals — this genuinely violates §1.3 rule 3 (a class matcher can never be the sole present-in-red evidence, spec:411-414, tag R1-2) in addition to the count-bound R1-3. validateAssertionEnvelope returns ONLY [{tag:R1-3,code:matcher-count-above-maximum}] — the R1-2 rule-3 violation is silently dropped, never surfaced to the operator. Verified by direct probe against packages/main/dist/core/red-evidence/envelope.js (matches src at HEAD). R1-1 is unaffected (computed independently, still fires alongside R1-3 when co-occurring — confirmed by a second probe), so this is specific to the R1-2 §1.3 block. None of the 3 committed regressions (red-w2d-rejection-matrix.mjs, red-w2d-specificity-conjunction.mjs, red-evidence-envelope-smoke.ts) construct an over/under-count fixture that ALSO carries a rule1/2/3 violation, so the gap is untested as well as unimplemented.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-13T18:02:25.009Z",
@@ -190,7 +190,11 @@
       "reviewRunId": "B-9ff1:RR-004",
       "_hash": "369668a0d09b8b0ca8414efa96f956d3663a0b4ae0a963b976320931d04d3f9e",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed - the finding no other reviewer or the orchestrator caught. matcherSetEvaluable was rawMatchers.length in [1,maxMatchers] AND bounded.length>0, so a count violation suppressed the ENTIRE section 1.3 block including rule 3. It is now bounded.length>0 only; the count bound is reported independently and unconditionally. Orchestrator verified empirically against dist: 9 matchers with the sole present-in-red being a class matcher now reports R1-3/matcher-count-above-maximum AND R1-2/present-in-red-not-admissible-literal together, where before only R1-3 appeared. Two guards added against over-correcting.",
+      "resolvedAt": "2026-08-14T02:12:24.566Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-010",
