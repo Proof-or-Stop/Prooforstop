@@ -161,7 +161,7 @@
       "desc": "[codex host-B #5, orchestrator-verified] testCaseRef is never matched against the adapter's registered testCaseRefPattern. Section 1.2 (argv resolution) states: match testCaseRef against testCaseRefPattern; no match rejects R1-5. This is envelope-decidable - the pattern lives in the resolved policy registry and the testCaseRef is in the envelope - so it belongs in the same R1-5 check that already validates adapter registration. Failing input: adapterId npm-script@1 with testCaseRef 'free-form:not-derived' currently returns ok:true.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T18:02:24.298Z",
@@ -171,7 +171,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: testCaseRef is now matched against the resolved adapter's testCaseRefPattern, no match rejecting R1-5 per section 1.2 argv resolution. Six pattern-mismatch fixtures plus a cross-adapter row where the same ref is rejected under node-test@1 and accepted under npm-script@1.",
+      "resolvedAt": "2026-08-14T02:12:23.136Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-009",
