@@ -92,7 +92,7 @@
       "desc": "CHK-001:happy:1 verificationIntent text (checklist.json) still describes plan.md CHK-001 original, pre-CORRECTION single-assertion design: \"calls runSingleAllowlistedCommand with the matching command STRING and no options.timeoutMs, and asserts result.timedOut === true and result.code === 124.\" plan.md line 12-22 explicitly states that design \"can NEVER turn green after CHK-002\" and documents the CORRECTED split into 6a (validate-command-timeout-smoke.ts:137-138: direct call, no options.timeoutMs, asserts timedOut===false — a permanent characterization, NOT the red->green case) and 6b (lines 147-152: calls resolvePinnedCommandTimeoutMs then runSingleAllowlistedCommand WITH an explicit {timeoutMs: resolved} option, asserting timedOut===true/code===124). No single call in the implemented file matches happy:1 literal wording (no-options.timeoutMs AND timedOut===true together) — 6a has no-timeoutMs+false, 6b has explicit-timeoutMs+true. The checklist intent text was never updated to reflect the plan CORRECTION even though verificationEvidence for CHK-001:happy:1 is stamped result:pass.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T12:30:43.766Z",
@@ -105,7 +105,11 @@
         "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/packages/main/src/tasks/validate-command-timeout-smoke.ts"
       ],
       "signatureTag": "adversarial|json|happy-verificationintent-text",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-001:happy:1 rebound via kind:waiver/deferred_gate_evidence with a note pointing to plan.mds CORRECTION note (## CHK-001) explaining the intent text describes the pre-correction design while the actually-implemented 6a/6b split (commit 63ecf79d5b) fulfills the same underlying goal. Independently confirmed accurate by lattice-review-test-coverage in REVIEW round 2.",
+      "resolvedAt": "2026-08-14T13:38:30.143Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-006",
