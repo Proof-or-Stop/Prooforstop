@@ -456,6 +456,35 @@
         "scanEscalationReason": null
       },
       "_hash": "b95e2ab7ba9ca19c37cfbab2215ec33f5e556a42747e22d721408d02093eb5d8"
+    },
+    {
+      "id": "B-3144:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed. Focused re-verification of the two most recent fixes: (1) F-031 appendDuplicatesForRunId now pins to real currentMaterialHash at both call sites (commit ffe7e5d697) - confirmed genuine via an instrumented before/after debug run: with the fix, collidingRunId is actually invalidated (duplicate host/session/key identity) immediately after appendDuplicatesForRunId and only becomes valid again after quorum_prune runs; with the old synthetic drift-material string, collidingRunId stays valid throughout (never poisoned), proving the pre-fix F-024/F-025 checks were vacuous and the fix is load-bearing. Full unfiltered smoke suite run confirms 70/70 checks pass including F-024 and F-025. (2) F-033 stripped absolute line-number citations from all 24 mechanical verificationEvidence notes in checklist.json - diffed commit ffe7e5d697 line-by-line and confirmed every one of the 24 note edits removed ONLY the line-citation substring, with zero loss of substantive claim text; spot-checked one citation against current source and confirmed it was indeed stale, validating the drift premise. The 25th (waiver, non-mechanical) note legitimately retains a line-citation to a different file, out of F-033's scope, and its own headHash/materialHash pin remains a valid ancestor commit. Minor non-blocking cosmetic observation: a handful of the 24 edited notes have a residual stray close-paren left over from removing a nested parenthetical; harmless, not a coverage gap. Verified overall checklist coverage: all 25 verificationIntent entries (CHK-001/002/003) across happy/edge/adversarial have matching verificationEvidence with result=pass or a justified waiver, all mechanical receipts pinned to current materialHash 56a9fe5e8385..., working tree clean, no code drift since the reviewed commit.",
+      "createdAt": "2026-08-14T05:14:53.227Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-042",
+      "envelopeId": "2505fb00fe78d39b7ef550f6f4da8f35be40d641d9a750bbc8ccbbaefe64faf8",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/process-events.jsonl",
+          ".lattice/story/actives/B-3144/review-runs.json",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68208da2b6ca1aca61f172afeb320c82066b61f6dcc722644b0173a14092032d"
     }
   ]
 }
