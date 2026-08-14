@@ -472,6 +472,26 @@
         "packages/main/src/tasks/run-all-smokes.ts"
       ],
       "_hash": "6d1b0ae68c264ef73c71884b1f5c6259e47a75331fe50999c2386297cbf71521"
+    },
+    {
+      "id": "B-META-framework-audit:F-026",
+      "desc": "scripts/verify-entrypoints.mjs:551 asserts `check --json` returns ok===true immediately after `init --profile=all --asset-mode=full`, but init deliberately does NOT write project-local .claude/agents/* under the B-097f runtime-owned-agent-assets design, so `check` reports MISSING:17 and ok:false. The assertion therefore cannot pass by design. MEASURED byte-identical on the PRISTINE main checkout (ac4b8e44f8): ok:False, {OK:35, MISSING:17, STALE_SAFE:0, INCOMPATIBLE:0} — the same result as on the B-cdf6 branch, so this predates and is independent of the proof-or-stop rename. The script seeds the mirror itself via seedClaudeAgentMirror() at :519 for the verify_codex assertion, but the :551 check assertion runs with no seed.\n\nWHY THIS MATTERS BEYOND ONE ASSERTION: verify-entrypoints.mjs is the pinned verifier for B-cdf6's CHK-002:adversarial:1 intent ('verify-entrypoints.mjs passes after its pinned header assertions are updated'). Because the script has never been green on main, that intent can only ever carry a deferred_gate_evidence waiver, which by design does not count toward acceptance coverage — so any story pinning this script is structurally unable to reach full coverage until the script itself is repaired. Same shape as F-025 (run-all-smokes red 66/334 on main yet outside doneRequiredCommands): a red-on-main asset silently becomes a permanent coverage hole for whoever references it.\n\nSCOPE NOTE: three OTHER F-005 defects in this chain were fixed under this story (cli-init.ts, managed-assets.ts, verify-entrypoints.mjs:1010) and verified — fresh-init verify_codex went 5-files-drift -> 9/9 pass, check STALE_SAFE 5 -> 0. This fourth one was deliberately NOT fixed: repairing it means either changing `check`'s MISSING semantics or relaxing the assertion so it stops requiring files the design says init must not write. Both are core B-097f design decisions owned by the agent-prompt consolidation plan, and relaxing another plan's check to let this story's gate pass is the same anti-pattern the reviewer blocked as F-024.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T03:56:39.285Z",
+      "reviewRound": "",
+      "gapFingerprint": "1d5732e118dfece012e9355a3178474a65de8e96415fff467118ba28de259a28",
+      "files": [
+        "scripts/verify-entrypoints.mjs:551",
+        "scripts/verify-entrypoints.mjs:519",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "af6280d1f5132345683ca5cb82533bec85fdd7541a792ecd45de5c21b2342962"
     }
   ]
 }
