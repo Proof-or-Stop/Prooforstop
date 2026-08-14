@@ -831,6 +831,21 @@
       "_hash": "89470321ea837f35d1a7581f99d0b1f62c9885bdf07543ca964847841f9a9474",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-039",
+      "desc": "[codex host-B E2] Verified by main agent. ORDERING defect in the operator-facing rejection text of handlers/red-evidence.ts: the message categorically states that no evidence, process event or gate change occurred, but cli-engine.ts awaits the arbitrary configured onError hook BEFORE printing that error. By the time the operator reads the sentence, the hook may already have done exactly what it denies. The following sentence does say the hook runs, but it neither scopes the guarantee nor discloses the hook's mutation power. This is a stronger version of the scoping problem because the falsifying event provably precedes the claim's display.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T10:20:23.272Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-029",
+      "_hash": "d81e3d5c63217da6a9f58adb33a4749ad70039680cafc515634ac42b5ae513e3",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
