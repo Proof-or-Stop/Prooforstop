@@ -353,6 +353,36 @@
         "scanEscalationReason": null
       },
       "_hash": "0e8941a1a46478ce05007c805b30434b2099cd9f5a75d2aeda2da60682abe6f6"
+    },
+    {
+      "id": "B-3144:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted ~250 changed symbols from git diff main...HEAD (quorum-prune.ts + quorum-submit.ts + smoke tasks). Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for symbol references; assertNoStandingQuorum/eventsWithStoryFilesHashDowngrade/autopilot_review_submit hit docs/evidence-integrity-program-spec.md and docs/evidence-write-guard-spec.md; quorum_prune/QuorumPrune* symbols had 0 doc hits anywhere (fallback-2: no packages/main README, and this repo does not maintain an exhaustive CLI command catalog in README/CLAUDE.md -- 34 prior review-lane findings on this story never flagged the absence as a gap). Step3 compared the two hit paragraphs against the shipped assertNoStandingQuorum in quorum-submit.ts:530-561 and writeVerdict in verdict.ts:187-251. Re-review after commit 397b6e4f51 fixed F-030: verified line-by-line that the corrected docs now match shipped code -- throws informative Error (quorum-submit.ts:538-560), reimplements drift-accept predicate as a hand-synced LOCKSTEP mirror (quorum-submit.ts:541-548,502-509) rather than calling eventsWithStoryFilesHashDowngrade directly, and autopilot_review_submit/verdict.ts writeVerdict (187-251, cited range matches) has no guard call, confirming the docs Known-gap claim. Both docs mark pre-fix material as historical/design-proposal via clearly-labeled Delivered differently blockquote notes. No new doc-code drift found; no other .md files touched by this story diff besides these two plus plan.md.",
+      "createdAt": "2026-08-14T05:03:34.748Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-039",
+      "envelopeId": "c69a9c381dfaad2f666d66ed80a6a3b27dfdc6f5263d4a3cbf1005edef2a3cb5",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1df2b94338807fa7370a6f6dd8ed65c2cfc83ea16d76e9b22c8ac0fd3d3e5a22"
     }
   ]
 }
