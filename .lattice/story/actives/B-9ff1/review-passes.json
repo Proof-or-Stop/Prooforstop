@@ -557,6 +557,40 @@
         "scanEscalationReason": null
       },
       "_hash": "08f4447448e9ece8c3899bea8aa75869237c471dc4e37d4648bc0494b0614fe2"
+    },
+    {
+      "id": "B-9ff1:RP-018",
+      "agent": "lattice-review-behavior",
+      "note": "Verified commit 8c1ec91805 is text-only (comments/JSDoc/assert+console strings, no logic changes) across activity-policy.ts, command-policy.ts, red-evidence.ts, red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs. The pinned CHK-012:adversarial:0 selector 'a byte-identical .lattice tree with no gate verdict change' is restored verbatim as a contiguous substring immediately followed by the em-dash qualification, in both the assert.equal message and the final console.log line, matching the checklist.json pin verbatim. Ran the selector checker myself: 108 pinned selectors, 106 checked (2 permanently waived: CHK-012:edge:1, CHK-013:adversarial:0, unrelated to this pin), 7 distinct commands executed, all non-waived selectors match -> OK. Traced every corrected claim against source: cli-engine.ts:1520-1523 confirms runHooks('onError',...) is unconditional and config0?.hooks?.onError (line 1520) guards only the stderr notice, exactly as now stated at all 4 corrected sites; hooks.ts spawnHook (line 141) runs via /bin/sh -c in cwd=root as claimed; owner-session-token-store.ts + runtime-artifact-registry.ts confirm the owner-session-token-store artifact and readOrCreateOwnerSessionToken path exist as newly named; health.ts reportHealthIssue exists as named. None of the scoping changes hedge a true claim into doubt -- the handler-scope assertions ('writes no RED-evidence record... emits no process event... changes no gate verdict... spawns no RED run') remain unqualified strong claims, only their boundary (handler + built-in CLI persistence paths, excluding a configured onError hook) is now stated precisely, which is more accurate, not weaker. Ran my own independent fixture (not copied from the repo test): patched child_process before importing dist, built a fresh fixture story+committed binding, called the ADMISSIBLE path directly. Observed exactly 8 spawns, all git, all read-only subcommands (rev-parse --show-toplevel, rev-parse --git-common-dir, worktree list, rev-parse --verify --quiet HEAD^{commit}, show HEAD:<path>) -- confirming executed no envelope and no RED run and does spawn read-only git reads are both true. Ran real transcripts per instructions: node packages/main/dist/tasks/red-evidence-envelope-smoke.js -> OK exit 0 (selector line printed verbatim); all 5 packages/main/tests/red/red-w2d-*.mjs -> PASS exit 0 each. No findings; nothing blocks.",
+      "createdAt": "2026-08-14T10:09:01.310Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-029",
+      "envelopeId": "e223dab85b9008b304c95803765f947d5388aba617c986f9c39f7a956612ce30",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/activity-log.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/health.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session-token-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f755ccdf3571418f9178536f21c2258140f01e4d3f6a43fc8296e41e1dbef2fa"
     }
   ]
 }
