@@ -2659,6 +2659,188 @@
       ],
       "signatureTag": "review-run-sequence-boundary-linearization-toctou",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-039",
+      "desc": "packages/main/src/handlers/candidate-spec-routing.ts:302-365, packages/main/src/core/command-policy.ts:498, packages/main/src/handlers/finding.ts:291-307, and packages/main/src/core/review-inventory-epoch.ts:190-225 — HIGH candidate-routing authority TOCTOU, distinct from F037 checklist-semantic drift and F038 ReviewRun publication ordering. candidate_spec_route is a supported mutating command in REVIEW and replaces candidate-spec-set.json without the review-inventory mutation lock. Reviewer evidence validates its readManifest against the candidate artifact only when finding_add/review_pass_set is written, while evidenceForRun and inventory critic/finalize later verify only ReviewRun/pass/finding signatures, cutoff hashes, and embedded manifests; the epoch does not bind or recompute candidateSpecSetDigest/corpusDigest. Therefore after one required lane terminates, the owner can reroute candidates on the unchanged frozen material through a different accepted host proposal or full-scan decision, let later lanes review the new set, and finalize one wave containing terminal evidence from incompatible old/new candidate universes. Existing old lane evidence is never invalidated even though candidate routing is an L4 REVIEW evidence contract. Bind the epoch and every wave to the current signed candidate artifact digest/corpus digest and invalidate or seal on routing change, or serialize candidate_spec_route under the inventory lock and explicitly require a fresh epoch; add a lane-pass -> reroute -> status/finalize rejection smoke.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T21:19:57.224Z",
+      "reviewRound": "2026-08-14T21:08:42.391Z",
+      "reviewRunId": "B-3f3d:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-007 concept wave escalated adjacent acceptance mutation surfaces to the signed candidate-spec routing artifact after separating F037 checklist semantics and F038 ReviewRun publication ordering.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        }
+      ],
+      "_hash": "6c9a67ed823e6e0cdb17a9091f58e494807606e9278dbf1bb5a1cd0b189a5082",
+      "files": [
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-040",
+      "desc": "packages/main/src/core/review-run.ts:725-764 and packages/main/src/core/review-incremental-context.ts:701-718,780-830 — HIGH Prompt Envelope temporal-instability family, distinct from F037 acceptance semantics, F038 ReviewRun/boundary publication, and F039 candidate routing. verifyReviewRunPromptEnvelope claims to recompute eligibility as of run.startedAt, but reviewIncrementalContext only filters findings by createdAt <= cutoff and then folds each selected finding live mutable status/severity/category/desc into reviewBasis and its digest. Later finding_resolve/finding_dismiss/cluster-sync metadata changes to any pre-cutoff finding therefore rewrite the authoritative recomputation without changing HEAD, materialHash, storyFilesHash, scope, candidate routing, or the signed run. The gate then rejects the formerly valid run/pass with `Prompt Envelope incremental eligibility fields do not match authoritative recomputation: eligibilityDigest, reviewBasisDigest`. This occurred mechanically in the current round: RR-057 could not submit its finding after concurrent metadata activity, and session_brief now reports RP-030/RP-031 invalid for the same mismatch on unchanged material. A frozen wave can consequently lose terminal lanes solely from post-start finding disposition, forcing fresh runs and defeating bounded convergence. Persist an immutable as-of-run finding snapshot/digest in the envelope or replay status transitions by event time rather than reading current mutable rows; add a run -> pre-cutoff finding disposition mutation -> evidence/gate revalidation test proving the original envelope remains valid.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T21:27:18.142Z",
+      "reviewRound": "2026-08-14T21:08:42.391Z",
+      "reviewRunId": "B-3f3d:RR-066",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-007 wave2 escalated cross-family temporal interactions after unchanged-material runs and passes mechanically failed incremental envelope recomputation.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        }
+      ],
+      "_hash": "e672ff47fb733ee2aa48d3b65975f24cdebf9ef9d5c20e5010c139c3b88a9374",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-041",
+      "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:186-216 — HIGH distinct test-authority regression adjacent to F039. Running `node packages/main/dist/tasks/candidate-spec-routing-smoke.js` twice on current HEAD deterministically fails at `handler consumes current collector-valid filesReadFully`. The fixture hand-constructs RR-001/pass RP-001 without the current Prompt Envelope/workspace binding and without mechanical readLog, then calls currentStoryRoutingInput and asserts that the pass is collector-valid. Production currentStoryRoutingInput delegates to collectReviewerEvidenceState and intentionally catches/rejects stale or unbound evidence, so protectedSources correctly lacks reviewer-full.ts and the smoke aborts before exercising the later candidate-routing assertions. This is not F039 candidate artifact hot-swap: F039 is a runtime epoch-binding escape, while this family is a stale test fixture that makes the candidate routing smoke red and removes executable assurance for that subsystem. Construct the fixture through current dispatch/review_run_start/review_pass_set semantics or fully sign the current workspace/envelope/readLog contract, retain a negative unbound-evidence case separately, and require the complete smoke to pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T21:27:30.741Z",
+      "reviewRound": "2026-08-14T21:08:42.391Z",
+      "reviewRunId": "B-3f3d:RR-067",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/verification-intent-repair-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b182e9ad8fa2187362fb7c48696ffd20fd3ba1e834ec4bbaec715587b710873f",
+      "files": [
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "candidate-routing-smoke-stale-reviewer-evidence-fixture",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
