@@ -929,7 +929,7 @@
       "desc": "F-041 (lattice-review-concept, status=open, verified) reports real currently-failing bin-rename residue that I independently reproduced: global-agents-unit-smoke.ts:159 asserts the deprecated /lattice agent_prompt --role=lattice-implementer/ against production buildShimBody (core/global-agents.ts:161-166) which emits proof-or-stop agent_prompt --role=...; reproduced via npx tsx packages/main/src/tasks/global-agents-unit-smoke.ts, which throws AssertionError at exactly that line. Also independently confirmed the other 3 sub-claims in F-041: lattice-cli.ts:118-119 configRepairCommandFor() still builds lattice config repair --set-git-root=... --confirm; verifier.ts:471 and story-review.ts:438 both interpolate literal lattice + VERIFICATION_INTENT_REPAIR_COMMAND into user/agent-facing repair hints; autopilot-executor.ts:222-225 displayCommand() still hardcodes lattice-prefixed output for the Failing-command line in claudeRepairPrompt (sibling lines 228-231 in the same function were correctly rebranded, showing this is a missed spot, not a frozen identifier). None of these are FROZEN per brand-rename-mapping.md. Because F-041 is still open at the bound review round 2026-08-13T05:25:24.496Z, the state I was told to trust (40 findings / 0 open) is stale/incorrect: the actual current count is 41 findings with 1 open, high severity, evidence-verified. Recording this so the docs-lane view is on record independently, since the CHK-002 adversarial claim (no help/usage/hint line prints the old bin name) cannot be asserted true while this remains open.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T09:22:58.808Z",
@@ -944,7 +944,11 @@
         "packages/main/src/core/autopilot-executor.ts"
       ],
       "signatureTag": "missing|ts|lattice-review-concept",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in 9f6fb6ecc4 - same fix as F-041, which this independently reproduced. Two lanes converging on the same five sites from different starting points is what made me stop treating it as a narrow miss and re-examine the method that produced it.\n\nYour reproduction added something F-041 did not have: you ran the actual buildShimBody assertion and captured the real AssertionError, confirming production emits proof-or-stop agent_prompt while the test demanded the deprecated form. That distinguished 'stale test' from 'broken production' immediately, which is the distinction I got wrong on the acceptance-topology smoke.\n\nAll five sites now assert or print the canonical form with doesNotMatch guards on the deprecated one. Verified: tsc clean, global-agents-unit-smoke and global-agents-init-smoke both exit 0, residue checks 3/3 pass.",
+      "resolvedAt": "2026-08-14T11:49:10.886Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-045",
