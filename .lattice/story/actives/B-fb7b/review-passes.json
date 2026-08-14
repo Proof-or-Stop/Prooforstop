@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-fb7b:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 23 local identifiers from git diff main...HEAD (test/smoke helper vars: findRepoRoot, buildsMain, buildsUtils, SMOKE_ABS, SMOKE_REL, biteCase, mainIdx, utilsIdx, etc.); only meaningful term was pretest. Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for all 23 terms -> only pretest hit, in docs/requirements/decisions/done-full-test-gate-execution-plan.md, which already anticipated a root pretest as an acceptable equivalent to the packages-main-build receipt for done-required npm test; not contradicted, confirms the design. Also manually verified the CHANGELOG.md B-fb7b entry (the diff's only doc change) line-by-line against the code diff: (1) validate.commands[0] builds only packages/main, confirmed in lattice.config.json; (2) new root package.json pretest = 'npm --prefix packages/main run build && npm --prefix packages/utils run build', main before utils, matches CHANGELOG; (3) bootstrap-runner.js Missing build artifacts / packages/utils/dist/index.js error and its Recovery hint (npm --prefix packages/main run build then packages/utils run build) is unchanged and matches the new pretest commands, confirming the CHANGELOG's no-conflict claim; (4) test-suite-utils-autobuild-smoke wired into lattice.config.json validate.commands, confirmed; (5) red-fb7b-pretest-builds-utils.mjs is the named behavioral RED, confirmed; (6) worktree.ts and bin/bootstrap-runner.js are absent from git diff main..HEAD --stat and git log --name-only, confirming the intentionally-untouched claim; (7) packages-main-build proof mechanism (done-required-validation.ts) is materialHash-receipt-based not mtime-based, supporting the CHANGELOG's 'materialHash is source-based' parenthetical, and is structurally independent of the new pretest hook. Narrow doc scan (docs/CLI.md manual recovery-hint paragraph referencing packages/utils/dist) still accurate post-fix since bootstrap-runner.js/worktree handler are unchanged. No doc-code drift found; CHANGELOG entry is accurate. No blockers.",
+      "createdAt": "2026-08-14T03:49:54.782Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-003",
+      "envelopeId": "cb7b5ec49a455ea61ff732535fe86d7cb9c733c271d4c5b0c0806e24aab34c90",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c30048b9b0d4e043e5e539a2932f2a0f7f621c2eba81e917209552b53c1555e"
+    }
+  ]
+}
