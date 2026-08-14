@@ -56,29 +56,49 @@
                 ],
                 "outputFactRef": "workspace-validation-capacity-lease"
               }
-            ]
+            ],
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold a no-story lattice validate --json, then start story-scoped validate and done_required_validate probes one at a time; assert each waits on the same git-common-dir capacity path and enters only after its predecessor releases. WHY: no-story official validation must not remain a concurrency bypass.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Keep the first lease alive across at least two heartbeat periods and assert an independent event-loop timer fires, holder heartbeat timestamps advance, and bounded wait progress is emitted without synchronous polling. WHY: an async waiter must not freeze the owner heartbeat and falsely manufacture staleness.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Abort one queued waiter and exhaust another queued wait deadline; assert each exits with the classified abort/deadline result, never enters its validation callback, never acquires the inner story lock, and leaves the active owner untouched. WHY: cancellation must stop before protected work starts.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Nest capacity acquisition in the same AsyncLocal context while a concurrent sibling competes; assert the nested call is reentrant, the sibling remains queued, and both finish after ordered release. WHY: reentrancy must not become process-wide bypass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+              "selector": "validate-execution-lock workspace capacity contract passed: 5 assertion groups"
+            }
           }
         ],
         "adversarial": [
@@ -117,95 +137,95 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-001:happy:0: wait-and-run, no-story/selective wiring, heartbeat/abort/reentrancy, strict stale classifier, repo scope, release race, and JSON progress separation.",
+          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:happy:0.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T15:58:57.871Z"
+            "executedAt": "2026-08-14T16:26:50.646Z"
           },
-          "headHash": "38a1df0bcdf62c06a502d09e1120d984d0b54807",
+          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:01:38.357Z"
+          "timestamp": "2026-08-14T16:28:11.353Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-001:happy:1: workspace wait, strict stale, async heartbeat/abort/reentrancy, repository scope, release race, and JSON separation.",
+          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:happy:1.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:00:14.431Z"
+            "executedAt": "2026-08-14T16:27:10.805Z"
           },
-          "headHash": "6888f66bb1caf86b869566f3a70fcf620d66dddf",
+          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:02:34.999Z"
+          "timestamp": "2026-08-14T16:28:11.353Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-001:edge:0: workspace wait, strict stale, async heartbeat/abort/reentrancy, repository scope, release race, and JSON separation.",
+          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:edge:0.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:00:34.518Z"
+            "executedAt": "2026-08-14T16:27:30.903Z"
           },
-          "headHash": "6888f66bb1caf86b869566f3a70fcf620d66dddf",
+          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:02:34.999Z"
+          "timestamp": "2026-08-14T16:28:11.353Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-001:edge:1: workspace wait, strict stale, async heartbeat/abort/reentrancy, repository scope, release race, and JSON separation.",
+          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:edge:1.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:00:54.595Z"
+            "executedAt": "2026-08-14T16:27:51.097Z"
           },
-          "headHash": "6888f66bb1caf86b869566f3a70fcf620d66dddf",
+          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:02:34.999Z"
+          "timestamp": "2026-08-14T16:28:11.353Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-001:edge:2: workspace wait, strict stale, async heartbeat/abort/reentrancy, repository scope, release race, and JSON separation.",
+          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:edge:2.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:01:14.656Z"
+            "executedAt": "2026-08-14T16:28:11.218Z"
           },
-          "headHash": "6888f66bb1caf86b869566f3a70fcf620d66dddf",
+          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:02:34.999Z"
+          "timestamp": "2026-08-14T16:28:11.353Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
