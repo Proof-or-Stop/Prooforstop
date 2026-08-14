@@ -287,10 +287,26 @@
       "phase": "DEV",
       "headHash": "de7ce70ee8680bedb051edc308bbc7651ebc52b5",
       "materialHash": "ee33359cccc0674273dcc70e6f9aacc62e8cc87579e97f855d0f304a3753a9ec"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-029 through F-032 require review-inventory-epochs.json to be classified by the canonical lifecycle artifact registry so temporal sealing and recovery cannot diverge across consumers.",
+      "timestamp": "2026-08-14T19:41:06.457Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f4428eb9351bcec1fa6490c05202f4037b2b8507",
+      "materialHash": "22d162f19daee36736fa26ea01605f60130279b62837969c20342a36bdb620c1"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T19:04:56.450Z",
+  "updatedAt": "2026-08-14T19:41:06.457Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -357,6 +373,7 @@
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
   }
 }

@@ -233,6 +233,32 @@
       "consumedAt": "2026-08-14T18:48:25.936Z",
       "consumedByReviewRound": "2026-08-14T18:32:53.785Z",
       "_hash": "a6b0e38acd9f336db85f27942bcbd07c188944227836fd979b561edce4b989cc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-005",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-14T19:12:05.342Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-14T19:19:45.592Z",
+      "updatedAt": "2026-08-14T19:25:22.523Z",
+      "cutoff": {
+        "headHash": "8cc364fd8ab41e6cc628f2ecc218df767758a531",
+        "materialHash": "ee33359cccc0674273dcc70e6f9aacc62e8cc87579e97f855d0f304a3753a9ec",
+        "storyFilesHash": "983a8af983c4bd1b32355a4aa7ee297e5a1efb0ff125c3a3261de46aadadece0"
+      },
+      "scopeDigest": "55ff47250bf2457d50a0a8f6bef5e062ecae32bc231038c724791da0c2dce54c",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "maxWaves": 3,
+      "waves": [],
+      "cancelledAt": "2026-08-14T19:25:22.523Z",
+      "cancelReason": "Human-authorized bootstrap recovery: RI-005 cannot carry pre-begin F029/F030 and can drop old-run late wave evidence F031; do not consume an incomplete receipt.",
+      "_hash": "7cbf4ebf44aae2a2dddc66408c5920f3e80d3bb5f6e46677dd61281880f05627"
     }
   ],
   "receipts": [

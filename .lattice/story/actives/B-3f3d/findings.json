@@ -1962,6 +1962,307 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-016",
       "resolvedBy": "CL-016@de7ce70"
+    },
+    {
+      "id": "B-3f3d:F-029",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:356-362, packages/main/src/handlers/review-inventory.ts:251-255 and 493-496 — FINALIZED receipt recovery is a dead end. The shared writer guard correctly rejects late finding/pass while a finalized receipt is pending and tells the operator to consume or cancel, but review_inventory_cancel only accepts an OPEN epoch and review_inventory_begin rejects the unconsumed FINALIZED receipt. Therefore a legitimately discovered late verified finding cannot be recorded through the supported writer and cannot invalidate or abandon the known-incomplete receipt; the only normal next action is to consume it into DEV. The live aggregate replay cannot detect evidence that the supported writer was forbidden to persist. Add a signed invalidate/cancel/reopen path for an unconsumed FINALIZED receipt (or atomically invalidate and open a fresh epoch when late evidence is attempted), and cover that recovery in the handler smoke test.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T19:15:20.383Z",
+      "reviewRound": "2026-08-14T19:12:05.342Z",
+      "reviewRunId": "B-3f3d:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "5495df4dfb4ff5f7fff327c6904e7c702ba2cc665f3918d607066e8b37d25587"
+      },
+      "readDiagnostics": [],
+      "_hash": "1932f1380fefd9f487a6a1ad68a7eaa2d265df1adf9aa4eb6eea65c34bb26eaa",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-029@f4428eb"
+    },
+    {
+      "id": "B-3f3d:F-030",
+      "desc": "F-026 remediation remains bypassable after receipt consumption: assertReviewInventoryEvidenceWritable seals only FINALIZED epochs with !consumedAt (review-inventory-epoch.ts:355-364). consumeReviewInventoryReceipt holds the shared lock only through setting consumedAt and returns (458-492), while REVIEW->DEV publishes story.phase afterward (transition-orchestrator.ts:1443-1448) and does not clear currentReviewRound (the round changes only on entry to REVIEW at 1246-1249). A waiting reviewer finding_add therefore acquires the lock after consumption, passes the now-unsealed predicate, and can append a signed verified finding bound to the still-current old ReviewRun; even after phase publication, finding_add is explicitly allowed in DEV (command-policy.ts:397). That finding is absent from the already-consumed immutable aggregate, and the live aggregate verifier cannot run again because receipt replay is rejected. Existing smoke covers pre-consumption sealing and live tamper before consumption, but not the consume-to-phase-write race or post-consumption reviewer finding. Keep the finalized epoch sealed for its reviewRound after consumption (while allowing a genuinely new reviewRound), or publish the phase/round boundary inside the same serialization fence; add real negative coverage for concurrent/post-consumption finding_add.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T19:17:11.281Z",
+      "reviewRound": "2026-08-14T19:12:05.342Z",
+      "reviewRunId": "B-3f3d:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Focused adversarial review escalated the F-026 shared-lock/consumption boundary and the REVIEW-to-DEV publication path; unchanged candidate remainder was triaged against the current diff and story checklist."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "89315a334ff27b1df7d28add3dc9335c18e71be98da8e3def1475b3fccd8c3e4",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "review-inventory-finalized-late-evidence-race",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-030@f4428eb"
+    },
+    {
+      "id": "B-3f3d:F-031",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:232-247 and packages/main/src/handlers/review-inventory.ts:455-489 — critical wave-boundary evidence loss distinct from F-029/F-030. review_inventory_wave_advance serializes and persists a completed wave, but the OPEN epoch remains writable afterward. assertCurrentReviewRunForEvidence deliberately accepts a non-latest current-round fresh ReviewRun (review-run.ts:1215-1222), so a run started before the checkpoint may submit a verified finding after wave_advance releases the lock. The next evaluation sets waveStart to the prior completedAt and filters candidates by run.startedAt >= waveStart; that old run and its late finding are therefore excluded from the new wave, while the already persisted prior wave cannot be amended. A later zero-new wave can finalize and consume a receipt whose immutable family set omits this signed verified finding. The normal REVIEW gate may still surface an open critical finding, but REVIEW-to-remediation-DEV consumes only reviewInventoryRemediationGate and can proceed with the incomplete aggregate (machine.ts:732-750). Seal completed-wave run IDs, classify evidence by evidence.createdAt with explicit cutoff semantics, or reject terminals for runs started before the current wave; add a real wave_advance-then-old-run-finding negative smoke.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T19:22:49.594Z",
+      "reviewRound": "2026-08-14T19:12:05.342Z",
+      "reviewRunId": "B-3f3d:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-005 adversarial concurrency review escalated the wave checkpoint, old-run terminal admission, and remediation gate consumers; unrelated candidate files were bounded by unchanged material and prior verified coverage.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5132a9110b0d36c4eeeca42860f1384a6fe2b5530804c7c0a8d263e6147f5ab0"
+      },
+      "readDiagnostics": [],
+      "_hash": "b1582eb840eb7c432c80e9d82bb1f7af337caff720878aaf5f5e12a9a9a284a2",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "review-inventory-wave-boundary-late-terminal",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-031@f4428eb"
+    },
+    {
+      "id": "B-3f3d:F-032",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:232-247 and 420-452 — the first wave excludes every current-round finding whose ReviewRun started before epoch.begunAt, while the remediation gate validates only the newly finalized receipt and never reconciles it with the Story existing open verified findings. This is occurring on RI-005 now: F-029 (19:15:20Z) and F-030 (19:17:11Z) predate RI-005 begunAt (19:19:45Z). If fresh lanes correctly avoid duplicating those canonical findings and report no distinct new family, the critic sees rawFindingIds=[], finalization can mint an empty findingSetDigest, and REVIEW->DEV can consume it despite both critical findings remaining open. Cancellation/rebegin has the same loss mode. Seed each epoch with all signature-valid current-round/current-cutoff verified findings (including pre-begin evidence), or add a signed carry-forward/disposition contract and make finalize/consume fail closed unless every open verified finding is represented in the aggregate; add a handler test for finding-before-begin and cancel/rebegin without duplicate re-registration.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T19:23:18.215Z",
+      "reviewRound": "2026-08-14T19:12:05.342Z",
+      "reviewRunId": "B-3f3d:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Focused recovery-state-machine scan was escalated across begin/evaluate/finalize/consume/cancel and REVIEW-to-DEV consumers to distinguish pre-existing finding omission from F029 and F030 late-evidence families.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "6966bd76f0a428d186404703ddb20e6acd99865c5367ee9817099f78f1a5d165"
+      },
+      "readDiagnostics": [],
+      "_hash": "8f8547b8320f9f71f9f5f7be4bf16b05f317f85bec61efe03cbf90a0e90fed6f",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "review-inventory-preexisting-finding-omission",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-032@f4428eb"
     }
   ]
 }
