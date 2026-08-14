@@ -464,6 +464,27 @@
       ],
       "signatureTag": "doc-code-drift|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-023",
+      "desc": "packages/main/tests/red/red-w2d-command-readonly.mjs:196-390 (the section-6a snapshot assertion at line 280-281, \"created, modified or removed NO file under .lattice/\") is proven only for a bare-handler call. Lines 185-194 obtain registeredCheck = registry.get(COMMAND) from createMainRegistry(...) and invoke it DIRECTLY (check = (args) => registeredCheck(args)); the test never calls runCli() (cli-engine.ts:723-1607) or spawns bin/lattice.js. The activity-log write this story mis-described (F-014, repaired at commit b63dcad96b86de010dfc3be10e48e14016cb2428) lives exclusively inside runCli local function run(): staleWarnings = detectStaleState(ctx) at cli-engine.ts:1037 and writeLog(...) guarded by shouldWriteActivityLog(cmd,parsed) || staleWarnings.length > 0 at cli-engine.ts:1416/1488. handlers/red-evidence.ts red_evidence_envelope_check itself never references stale-detection or writeLog. So this test structurally cannot observe the exact write path that produced the 20 real activity.jsonl rows in actual use -- not because of any cooldown timing or benign fixture data, but because the invocation path used in the test (registry.get() direct call) is a layer BELOW where the side effect occurs. Independently and additionally, even a runCli-level call would find staleWarnings unreachable in this fixture on a SECOND ground: detectActiveStoryId in core/stale-detector.ts:67-80 requires a git branch starting with story/, and the fixture repo at root (git init in a tmpdir, lines 130-158) never checks out such a branch, so detectStaleState short-circuits to [] regardless of story phase/age. The test docstring (lines 19-44) documents at length what section 6a cannot prove about child processes (added post F-002/F-012/F-013) but is silent on this CLI-dispatch bypass, and the section-1 comment (lines 110-114) frames sections 2 and 6 as behavioural evidence for the write-suppression claim -- overstating what a direct-handler call establishes. This is exactly the class of gap that let the now-repaired false absolute claim in cli/activity-policy.ts survive two clean review rounds: the only committed test for the read-only claim never exercises the code path where the counterexample lived. Fix: add coverage that actually drives the command through runCli (or a real bin/lattice.js subprocess) with staleWarnings forced non-empty and assert the current honest behavior (an activity row IS appended despite READ_ONLY_COMMANDS membership), OR narrow the assertion/comment wording at line 280-281 and the section-1 framing at 110-114 to state explicitly that they prove handler-level statelessness only, not full CLI-invocation read-only-ness.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T03:43:56.123Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-017",
+      "_hash": "3d9ca21e4da1cf2540b5f3bc4d6277b59e2c5d88ef76d9307199839d6600a7f9",
+      "files": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/stale-detector.ts",
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
