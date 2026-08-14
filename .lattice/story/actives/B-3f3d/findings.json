@@ -2502,7 +2502,7 @@
       "desc": "packages/main/src/handlers/review-inventory.ts:54-80, packages/main/src/handlers/checklist.ts:1898-1937, and packages/main/src/core/command-policy.ts:178 — HIGH, distinct checklist-semantic drift left by the F035 remediation. captureReviewInventoryScope signs only scopeContract plus checklist item id/title/files. The supported verification_intent_repair command remains writable in REVIEW and persists reconstructed verificationIntent rows, but it neither takes the review-inventory mutation lock nor changes any field included in scopeDigest. Therefore after review_inventory_begin an operator can run verification_intent_repair, changing the acceptance/review subject seen by the test-coverage lane, while status/critic/wave/finalize recomputation sees identical material, storyFilesHash, scopeDigest, and requiredLanes and can consume pre-repair lane evidence. The decision contract says supported or direct scope drift must invalidate at the next authoritative consumer. Include the complete checklist review-subject projection, at minimum verificationIntent and related requirement-routing fields, in the signed/recomputed scope digest or serialize and explicitly invalidate every REVIEW-phase checklist semantic writer; add begin -> verification_intent_repair -> status/finalize rejection coverage. Existing focused smokes pass but only exercise scope_contract_acknowledge and do not cover this path.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T21:15:37.999Z",
@@ -2606,14 +2606,15 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-037@6462632"
     },
     {
       "id": "B-3f3d:F-038",
       "desc": "packages/main/src/handlers/review-run.ts:145-183,311-313; packages/main/src/handlers/review-inventory.ts:505-541; packages/main/src/core/review-inventory-epoch.ts:271-281 — critical ReviewRun/boundary linearization TOCTOU, distinct from F033. review_run_start acquires the shared inventory lock only for context/cutoff validation, releases it at line 148, then does scope/prompt work and allocates/persists the RR under a different review-metadata lock. Concurrent wave_advance/cancel/begin can acquire the inventory lock in that gap and sign maxReviewRunSequence before the in-flight run is published. The in-flight command then allocates a numerically greater RR and persists it after the boundary, so evaluateReviewInventoryWave and assertReviewInventoryEvidenceWritable classify it as post-boundary even though its startedAt/snapshot/context were captured before the boundary. This violates the decision document claim of a linearized durable identity and can let pre-wave review context satisfy a later wave or escape a terminal boundary. The real >10s two-process review-pass stress passes, so F036 lock-reclaim/ID-loss is fixed; this is a separate cross-lock ordering family. Hold the shared inventory mutation lock across ReviewRun ID allocation and durable run publication with a consistent lock order against the review-metadata transaction, or allocate the monotonic sequence from an inventory-locked counter at publication and bind the run to the exact epoch/wave generation; add a deterministic barrier test interleaving precheck -> wave_advance/cancel -> run persist and require the run to remain sealed/old.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T21:16:57.604Z",
@@ -2658,14 +2659,15 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "review-run-sequence-boundary-linearization-toctou",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-038@6462632"
     },
     {
       "id": "B-3f3d:F-039",
       "desc": "packages/main/src/handlers/candidate-spec-routing.ts:302-365, packages/main/src/core/command-policy.ts:498, packages/main/src/handlers/finding.ts:291-307, and packages/main/src/core/review-inventory-epoch.ts:190-225 — HIGH candidate-routing authority TOCTOU, distinct from F037 checklist-semantic drift and F038 ReviewRun publication ordering. candidate_spec_route is a supported mutating command in REVIEW and replaces candidate-spec-set.json without the review-inventory mutation lock. Reviewer evidence validates its readManifest against the candidate artifact only when finding_add/review_pass_set is written, while evidenceForRun and inventory critic/finalize later verify only ReviewRun/pass/finding signatures, cutoff hashes, and embedded manifests; the epoch does not bind or recompute candidateSpecSetDigest/corpusDigest. Therefore after one required lane terminates, the owner can reroute candidates on the unchanged frozen material through a different accepted host proposal or full-scan decision, let later lanes review the new set, and finalize one wave containing terminal evidence from incompatible old/new candidate universes. Existing old lane evidence is never invalidated even though candidate routing is an L4 REVIEW evidence contract. Bind the epoch and every wave to the current signed candidate artifact digest/corpus digest and invalidate or seal on routing change, or serialize candidate_spec_route under the inventory lock and explicitly require a fresh epoch; add a lane-pass -> reroute -> status/finalize rejection smoke.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T21:19:57.224Z",
@@ -2724,14 +2726,15 @@
         "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-039@6462632"
     },
     {
       "id": "B-3f3d:F-040",
       "desc": "packages/main/src/core/review-run.ts:725-764 and packages/main/src/core/review-incremental-context.ts:701-718,780-830 — HIGH Prompt Envelope temporal-instability family, distinct from F037 acceptance semantics, F038 ReviewRun/boundary publication, and F039 candidate routing. verifyReviewRunPromptEnvelope claims to recompute eligibility as of run.startedAt, but reviewIncrementalContext only filters findings by createdAt <= cutoff and then folds each selected finding live mutable status/severity/category/desc into reviewBasis and its digest. Later finding_resolve/finding_dismiss/cluster-sync metadata changes to any pre-cutoff finding therefore rewrite the authoritative recomputation without changing HEAD, materialHash, storyFilesHash, scope, candidate routing, or the signed run. The gate then rejects the formerly valid run/pass with `Prompt Envelope incremental eligibility fields do not match authoritative recomputation: eligibilityDigest, reviewBasisDigest`. This occurred mechanically in the current round: RR-057 could not submit its finding after concurrent metadata activity, and session_brief now reports RP-030/RP-031 invalid for the same mismatch on unchanged material. A frozen wave can consequently lose terminal lanes solely from post-start finding disposition, forcing fresh runs and defeating bounded convergence. Persist an immutable as-of-run finding snapshot/digest in the envelope or replay status transitions by event time rather than reading current mutable rows; add a run -> pre-cutoff finding disposition mutation -> evidence/gate revalidation test proving the original envelope remains valid.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T21:27:18.142Z",
@@ -2787,14 +2790,15 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-040@6462632"
     },
     {
       "id": "B-3f3d:F-041",
       "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:186-216 — HIGH distinct test-authority regression adjacent to F039. Running `node packages/main/dist/tasks/candidate-spec-routing-smoke.js` twice on current HEAD deterministically fails at `handler consumes current collector-valid filesReadFully`. The fixture hand-constructs RR-001/pass RP-001 without the current Prompt Envelope/workspace binding and without mechanical readLog, then calls currentStoryRoutingInput and asserts that the pass is collector-valid. Production currentStoryRoutingInput delegates to collectReviewerEvidenceState and intentionally catches/rejects stale or unbound evidence, so protectedSources correctly lacks reviewer-full.ts and the smoke aborts before exercising the later candidate-routing assertions. This is not F039 candidate artifact hot-swap: F039 is a runtime epoch-binding escape, while this family is a stale test fixture that makes the candidate routing smoke red and removes executable assurance for that subsystem. Construct the fixture through current dispatch/review_run_start/review_pass_set semantics or fully sign the current workspace/envelope/readLog contract, retain a negative unbound-evidence case separately, and require the complete smoke to pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T21:27:30.741Z",
@@ -2840,6 +2844,162 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "candidate-routing-smoke-stale-reviewer-evidence-fixture",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-041@6462632"
+    },
+    {
+      "id": "B-3f3d:F-042",
+      "desc": "packages/main/src/handlers/proofstory.ts:1091-1220, packages/main/src/core/command-policy.ts:445, packages/main/src/handlers/review-inventory.ts:128-139,468-530, and packages/main/src/core/review-inventory-epoch.ts:572-590 — CRITICAL distinct acceptance-subject writer/finalized-receipt TOCTOU family, not F037 verification_intent_repair. scope_shrinkage_decision_set is deliberately allowed in REVIEW and TEST and is the sole writer that can withdraw checklist items and ProofStory acceptance bindings, but it takes only the checklist lock, not withReviewInventoryMutationLock. The frozen acceptance digest also omits the ProofStory contract/binding dispositions. Therefore it can race review_inventory_finalize after the final scope check, or run after FINALIZED, and change the reviewed acceptance subject while leaving the signed receipt usable. Receipt consumption calls assertReviewInventoryContextFreshLocked, which returns immediately when there is no OPEN epoch, then checks only material/storyFiles and live reviewer aggregate; it never recomputes the FINALIZED scope/acceptance subject. An old saturated receipt can consequently authorize remediation DEV after a human-confirmed scope withdrawal that no lane reviewed. Put every acceptance-semantic writer, including scope_shrinkage_decision_set and ProofStory binding dispositions, under the shared inventory lock; bind the complete acceptance contract into the epoch digest; and revalidate that digest at FINALIZED consumption. Add deterministic finalize-vs-shrink and FINALIZED-then-shrink-then-consume rejection smokes.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T22:24:33.015Z",
+      "reviewRound": "2026-08-14T22:19:29.429Z",
+      "reviewRunId": "B-3f3d:RR-076",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "e65397812a4d0c9d3be02a26c1d34e279c8a869c28e7fadb5da7f5f20a98bc7f",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-043",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, and packages/main/src/core/review-run.ts:1413-1428 define and implement the kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. This contradictory operator guidance can cause unnecessary fresh review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion if this workflow fact remains duplicated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T22:24:39.286Z",
+      "reviewRound": "2026-08-14T22:19:29.429Z",
+      "reviewRunId": "B-3f3d:RR-079",
+      "_hash": "f3cb744e28f104d2aee4dec4bec8a609445ac5fdd1093ac7e8095eb5020e6197",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-044",
+      "desc": "packages/main/src/handlers/proofstory.ts:1091-1203, packages/main/src/core/command-policy.ts:445, packages/main/src/core/review-inventory-epoch.ts:50-67, and packages/main/src/handlers/review-inventory.ts:56-90 — HIGH frozen-acceptance subject bypass left after F037 remediation, distinct from the repaired checklist writer path. scope_shrinkage_decision_set is intentionally allowed in REVIEW and is the sole writer for both checklist withdrawals and ProofStory acceptance-binding dispositions, but it takes only the checklist mkdir lock and writes scope-shrinkage-decision.json / proofstory.json directly. The new reviewInventoryAcceptanceSubjectDigest signs only scopeContract plus checklist fields; it does not include the ProofStory contract, bindingDispositions, or scope-shrinkage decision. Therefore an OPEN epoch can receive a confirmed user-approved withdrawnAcceptanceBindingRefs mutation with no withdrawnChecklistItemRefs: material/storyFiles hashes, checklist scopeDigest, required lanes, and candidate digests all remain unchanged, so status/evidence/critic/wave/finalize continue accepting pre-withdrawal lane evidence on a changed acceptance contract. This contradicts the documented complete acceptance subject and frozen-scope invariant. Put scope_shrinkage_decision_set under the inventory-first lock order and bind the effective ProofStory acceptance contract/shrinkage disposition into the recomputed subject digest (or immediately invalidate on any REVIEW mutation); add begin -> acceptance-binding-only withdrawal -> status/finalize rejection coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T22:25:38.753Z",
+      "reviewRound": "2026-08-14T22:19:29.429Z",
+      "reviewRunId": "B-3f3d:RR-077",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "F037-F041 closure review escalated from the repaired checklist writer to every REVIEW-phase acceptance-contract writer and found the distinct ProofStory binding-only mutation path.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "895f975ce11f3d4287e85ec795445ceddbfef643493bfe70b83cc854040a559e"
+      },
+      "readDiagnostics": [],
+      "_hash": "74110abeb4d6864e708a73ee7dbc13df58a58137f0e477bafa77a018bd6b5ace",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "review-inventory-proofstory-acceptance-subject-bypass",
       "signatureTagSource": "confirmed"
     }
   ]
