@@ -177,6 +177,56 @@
         "scanEscalationReason": null
       },
       "_hash": "4aa775078b65d941d337bd1364784b7ae985137cd5968d6684b935ee093556c9"
+    },
+    {
+      "id": "B-c648:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency review, fallback-1 (docs-only diff, empty exported-symbol set). Verified new decision doc docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md against live repo state: root npm run build/test scripts, bin/bootstrap-runner.js + bin/lattice.js chain, lattice.config.json validate ordering, existing symbols (verifyAcceptanceBasisReceipt, story-evidence-binding probeId/probeDigest/reviewId/reviewDigest fields, plannedPathDeclarations rejection message, _nextStoryId fixture helper, draft-check-hash.ts signature fields), all 16 implementation-touchpoint file paths, referenced stories B-8de3/B-fb7b/B-3783 (titles/phases match), AGENTS.md#流程事实双层契约 relatedDoc, and the CHK-003 host_run usage-ledger provenance rows in .lattice/usage/llm-usage.jsonl (record IDs, sequence, storyId/phase/agentType binding, Claude provider-reported usage numbers, agy unavailable+reason, aborted preflight row) which match the document's section 21.5 claims exactly. No doc-code drift or undelivered doc promise found; document explicitly scopes itself as a documentation-only proposal with no runtime implementation, so no CLAUDE.md/README command-promise check applies.",
+      "createdAt": "2026-08-14T05:10:23.798Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-012",
+      "envelopeId": "22203c9c073911f1ff8f859f9917bd059121ac3904f698ffd66c5d19fb630f38",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          ".lattice/story/actives/B-c648/understanding.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/usage/llm-usage.jsonl",
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "bin/lattice.js",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/draft-check-hash.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cd5c55705f5e8412d385d791058e61f6c23b2560f7d1ab3b22fa5a8551dd2e2a"
+      },
+      "readDiagnostics": [],
+      "_hash": "acab2b47ae24c8e8a9b2b9432b74ee2235158d15a20de42eda8f8dde102d6714"
     }
   ]
 }
