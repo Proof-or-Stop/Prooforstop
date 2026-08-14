@@ -87,7 +87,11 @@
           {
             "desc": "Temporarily remove the `test-suite-utils-autobuild-smoke` entry from lattice.config.json validate.commands, then run `lattice validate` -> the smoke does NOT execute (no PASS line from it); WHY: proves the validate.commands wiring is the sole dispatch mechanism -- if the entry is absent the guard is silently absent from everyday validation",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+              "selector": "GB-ADV3-ABSENT"
+            }
           },
           {
             "desc": "Temporarily delete the pretest key from root package.json, then run `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> the structural smoke FAILS (exits non-zero); WHY: the permanent guard must detect pretest removal independently of the RED test, since validate.commands runs the smoke not the RED",
@@ -172,6 +176,25 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:40:44.998Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: removing the validate.commands entry drops the smoke from dispatch",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5175e7998b6c842673036fbb4c4ea9b0392734d338af74e64ed405877a589f10",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADV2-BIT\nGB-ADV4-BIT\nGB-EDGE1-CLEAN\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:40:47.091Z"
+          },
+          "headHash": "d7380da3c7669e44297cad548dcaaf99e90927cd",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:40:47.330Z"
         }
       ]
     }
