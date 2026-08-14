@@ -88,8 +88,9 @@ facts. A wave can complete only when:
 1. every lane returned by canonical `computeActiveReviewers` has a terminal
    signed pass or finding on the frozen cutoff;
 2. every run binds the same review round, material and story-files lineage;
-3. coverage/read evidence and lane-specific prompt identity are folded into the
-   lane coverage digest;
+3. both pass and finding terminals carry signed `readManifest` **and**
+   `readLog`; all of those lane evidence records plus lane-specific prompt
+   identity are folded into the lane coverage digest;
 4. duplicate lane identities cannot increase coverage;
 5. a separately dispatched `lattice-review-topology-critic` starts a fresh
    ReviewRun only after all required lanes terminate, submits signed terminal
@@ -101,14 +102,16 @@ Finalization rejects a missing, forged, superseded, pre-terminal, stale-cutoff
 or old-wave critic receipt. `status` exposes `Completeness critic: pending` or
 `complete`; `criticDigest` alone has no authority.
 
-`signatureTag` is audit-only and is intentionally excluded from the family
-key. The canonical family digest uses only description and severity, which are
-authenticated by the current `signFinding` domain. Category, files,
-`evidenceState` and dispositions are not in that signature domain and therefore
-cannot suppress or split inventory families. Conservatively, every
-signature-valid reviewer finding enters the inventory; an unsigned downgrade
-cannot manufacture saturation. New families append to the immutable aggregate and require another
-full unchanged-material wave. Exhausting the bounded wave budget yields
+Raw findings do not classify themselves into families. The independent critic
+must submit a signed per-finding disposition bound into the critic receipt:
+`verified_family` with an explicit family key, `duplicate` with a real canonical
+verified finding, or `not_verified` with a reason. Missing, forged, unknown, or
+old-wave dispositions fail closed. Only signature-valid findings whose
+`evidenceState` is verified and whose critic disposition is
+`verified_family` contribute a family; a signed duplicate reuses the canonical
+family and `not_verified` contributes none. New verified families append to the
+immutable aggregate and require another full unchanged-material wave.
+Exhausting the bounded wave budget yields
 `REVIEW_INVENTORY_BUDGET_EXHAUSTED` and requires replan/decompose/escalation; it
 never yields PASS.
 

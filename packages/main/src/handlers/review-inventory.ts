@@ -4,11 +4,12 @@ import { computeActiveReviewers } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryReceipt } from '../core/types.js';
+import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
 import {
   buildWave,
   currentOpenReviewInventory,
   evaluateReviewInventoryWave,
+  finalizedUnconsumedReviewInventory,
   reviewInventoryDigest,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
@@ -28,8 +29,9 @@ function signedRoot(ctx: HandlerContext, storyId: string): { root: string; metad
   return { root, metadataRoot: workspace.metadataRoot || ctx.root };
 }
 
-function signEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'>): ReviewInventoryEpoch {
-  return { ...epoch, _hash: signReviewInventoryEpoch(epoch) };
+function signEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'> | ReviewInventoryEpoch): ReviewInventoryEpoch {
+  const { _hash, ...unsigned } = epoch as ReviewInventoryEpoch;
+  return { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
 }
 
 function inventoryLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
@@ -92,6 +94,8 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   if (epoch.state === 'OPEN' && epoch.waves.length >= epoch.maxWaves && !last?.saturated) blockers.push('REVIEW_INVENTORY_BUDGET_EXHAUSTED');
   if (epoch.state === 'OPEN' && live?.missingLanes.length) blockers.push('REVIEW_INVENTORY_LANES_INCOMPLETE');
   if (epoch.state === 'OPEN' && live?.duplicateIdentities.length) blockers.push('REVIEW_INVENTORY_DUPLICATE_IDENTITY');
+  if (epoch.state === 'OPEN' && live?.unresolvedFindingIds.length) blockers.push('REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE');
+  if (epoch.state === 'OPEN' && live?.invalidDispositionIds.length) blockers.push('REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID');
   if (epoch.state === 'OPEN' && live && live.missingLanes.length === 0
     && live.duplicateIdentities.length === 0 && !projection.criticComplete) blockers.push('REVIEW_INVENTORY_CRITIC_INCOMPLETE');
   let next: string;
@@ -133,12 +137,18 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   ].join('\n');
 }
 
-function evaluateCurrentWave(ctx: HandlerContext, epoch: ReviewInventoryEpoch) {
+function evaluateCurrentWave(
+  ctx: HandlerContext,
+  epoch: ReviewInventoryEpoch,
+  findingDispositions?: ReviewInventoryFindingDisposition[],
+) {
+  const dispositions = findingDispositions ?? criticReceiptForCurrentWave(ctx, epoch)?.findingDispositions;
   return evaluateReviewInventoryWave({
     epoch,
     runs: ctx.store.readReviewRuns(epoch.storyId).runs,
     passes: ctx.store.readReviewPasses(epoch.storyId).passes,
     findings: ctx.store.readFindings(epoch.storyId).findings,
+    findingDispositions: dispositions,
   });
 }
 
@@ -229,6 +239,13 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           const fresh = persistInvalidationIfDrifted(ctx, existing);
           if (fresh.state === 'OPEN') return renderProjectedStatus(ctx, fresh);
         }
+        const pendingReceipt = finalizedUnconsumedReviewInventory(ctx.store, args.storyId);
+        if (pendingReceipt) {
+          throw new Error(
+            `REVIEW_INVENTORY_RECEIPT_UNCONSUMED: ${pendingReceipt.receipt.receiptId}; ` +
+            `Next: lattice story_advance --storyId=${args.storyId} --phase=DEV`,
+          );
+        }
         const checklist = ctx.store.readChecklist(args.storyId);
         let decision = null;
         try { decision = ctx.store.readDecision(args.storyId); } catch { decision = null; }
@@ -279,7 +296,13 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
       });
     },
 
-    review_inventory_critic_set(args: { storyId: string; epochId: string; reviewRunId: string; agent?: string }): string {
+    review_inventory_critic_set(args: {
+      storyId: string;
+      epochId: string;
+      reviewRunId: string;
+      agent?: string;
+      findingDispositions: ReviewInventoryFindingDisposition[];
+    }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_inventory_critic_set',
         payloadActors: [args.agent],
@@ -292,9 +315,15 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (!epoch || epoch.epochId !== args.epochId) throw new Error(`review_inventory_critic_set: OPEN epoch ${args.epochId} not found`);
         epoch = persistInvalidationIfDrifted(ctx, epoch);
         if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
-        const evaluation = evaluateCurrentWave(ctx, epoch);
-        if (evaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}`);
-        if (evaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}`);
+        const rawEvaluation = evaluateCurrentWave(ctx, epoch, []);
+        if (rawEvaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${rawEvaluation.missingLanes.join(', ')}`);
+        if (rawEvaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${rawEvaluation.duplicateIdentities.join(', ')}`);
+        const findingDispositions = [...args.findingDispositions]
+          .map(row => ({ ...row, findingId: row.findingId.trim(), familyKey: row.familyKey?.trim(), canonicalFindingId: row.canonicalFindingId?.trim(), reason: row.reason.trim() }))
+          .sort((a, b) => a.findingId.localeCompare(b.findingId));
+        const evaluation = evaluateCurrentWave(ctx, epoch, findingDispositions);
+        if (evaluation.unresolvedFindingIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: ${evaluation.unresolvedFindingIds.join(', ')}`);
+        if (evaluation.invalidDispositionIds.length > 0) throw new Error(`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: ${evaluation.invalidDispositionIds.join(', ')}`);
         const story = ctx.store.readStory(args.storyId);
         const run = assertCurrentReviewRunForEvidence(
           ctx.store, story, ctx.root, 'lattice-review-topology-critic', args.reviewRunId,
@@ -323,6 +352,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           reviewRunId: run.reviewRunId,
           terminalEvidenceIds,
           readEvidenceDigest: reviewInventoryDigest(readEvidence),
+          findingDispositions,
           createdAt: now,
         };
         const receipt: ReviewInventoryCriticReceipt = { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) };

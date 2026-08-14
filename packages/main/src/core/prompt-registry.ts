@@ -27,6 +27,7 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'lattice-review-docs',
   'lattice-review-quality',
   'lattice-review-test-coverage',
+  'lattice-review-topology-critic',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
@@ -45,6 +46,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
   'lattice-review-docs': 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af',
   'lattice-review-quality': '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504',
   'lattice-review-test-coverage': '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88',
+  'lattice-review-topology-critic': '077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24',
 });
 
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({

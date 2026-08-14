@@ -244,7 +244,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_critic_set: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with fresh topology-critic ReviewRun and terminal read evidence', producerCommand: 'review_inventory_critic_set',
+    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with fresh topology-critic ReviewRun, terminal read evidence, and complete per-finding dispositions', producerCommand: 'review_inventory_critic_set',
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
     reviewerLane: 'lattice-review-topology-critic',
   },
@@ -1339,7 +1339,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
-    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes; signed receipts prove only bounded zero-new verified-finding saturation and are single-use for aggregated remediation DEV, never TEST authority.',
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts prove only bounded zero-new verified-finding saturation and are single-use for aggregated remediation DEV, never TEST authority.',
   },
   {
     name: 'artifact:findings.json',

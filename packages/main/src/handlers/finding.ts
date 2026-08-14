@@ -39,6 +39,7 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { currentOpenReviewInventory } from '../core/review-inventory-epoch.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -540,6 +541,12 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const readEvidence = reviewerLane && (args.readManifest !== undefined || hasMechanicalReadInput(args))
         ? prepareReviewerReadEvidence(ctx, args.storyId, 'finding_add', agent, args.readManifest, args)
         : undefined;
+      if (reviewerLane && currentOpenReviewInventory(store, args.storyId)
+        && (!readEvidence?.readManifest || !readEvidence.readLog)) {
+        throw new Error(
+          'finding_add: OPEN review inventory requires signed readManifest plus mechanical readEvents/readLog for every reviewer finding',
+        );
+      }
 
       // Auto-inject the current review round (reviewer does not need to pass it)
       const reviewRound = story.currentReviewRound || '';

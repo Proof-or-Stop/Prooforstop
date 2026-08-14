@@ -644,6 +644,13 @@ Behavior:
     epochId: z.string().min(1).describe('Current OPEN inventory epoch ID.'),
     reviewRunId: z.string().min(1).describe('Fresh lattice-review-topology-critic ReviewRun with terminal read evidence.'),
     agent: z.literal('lattice-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched LATTICE_AGENT authority.'),
+    findingDispositions: z.array(z.object({
+      findingId: z.string().min(1),
+      disposition: z.enum(['verified_family', 'duplicate', 'not_verified']),
+      familyKey: z.string().min(1).optional(),
+      canonicalFindingId: z.string().min(1).optional(),
+      reason: z.string().min(10),
+    }).strict()).describe('Independent signed disposition for every raw finding in this wave; unresolved findings block finalization.'),
   }},
   { name: 'review_inventory_finalize', description: 'Evaluate one unchanged-material wave and mint a receipt only at zero-new verified finding saturation', schema: {
     storyId: z.string().min(1).describe('Story ID.'),

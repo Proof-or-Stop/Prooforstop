@@ -49,6 +49,7 @@ const modularReviewerBootstrapFiles = new Set([
   'lattice-review-docs.md',
   'lattice-review-quality.md',
   'lattice-review-test-coverage.md',
+  'lattice-review-topology-critic.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -1585,8 +1586,8 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
-  const topologyCriticPromptPaths = [
-    'packages/main/templates/agents/lattice-review-topology-critic.md',
+  const topologyCriticTemplatePath = 'packages/main/templates/agents/lattice-review-topology-critic.md';
+  const topologyCriticBootstrapPaths = [
     '.claude/agents/lattice-review-topology-critic.md',
     '.lattice-codex/agents/lattice-review-topology-critic.md',
   ];
@@ -1614,7 +1615,12 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy?.status === 'supported'
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
-      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
+      && read(topologyCriticTemplatePath).startsWith('---\n')
+      && read(topologyCriticTemplatePath).includes('<!-- proofbound:modular-role-body:v1 -->')
+      && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
+      && topologyCriticBootstrapPaths.every(path => read(path).startsWith('---\n')
+        && read(path).includes('review_run_start')
+        && !read(path).includes('- A pass is forbidden when the basis')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');

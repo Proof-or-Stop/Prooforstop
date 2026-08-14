@@ -25,6 +25,7 @@ import type {
   ReviewInventoryCriticReceipt,
   ReviewInventoryEpochData,
   ReviewInventoryEpoch,
+  ReviewInventoryFindingDisposition,
   ReviewInventoryReceipt,
   ReviewPass,
   ReviewRun,
@@ -75,6 +76,13 @@ function run(lane: string, id: number, startedAt = `2026-08-14T00:0${id + 1}:00.
 
 function pass(row: ReviewRun, index: number): ReviewPass {
   const createdAt = new Date(Date.parse(row.startedAt) + 1_000).toISOString();
+  const readManifest = { filesReadFully: [`src/${index}.ts`], filesTriagedByName: [], scanEscalationReason: null };
+  const readLog = {
+    filesReadFully: [...readManifest.filesReadFully],
+    filesTriagedByName: [] as string[],
+    summary: { readCount: 1, tokenCount: 10 },
+    digest: reviewInventoryDigest({ files: readManifest.filesReadFully, index }),
+  };
   const result: ReviewPass = {
     id: `${storyId}:RP-${String(index).padStart(3, '0')}`,
     agent: row.lane,
@@ -82,17 +90,25 @@ function pass(row: ReviewRun, index: number): ReviewPass {
     createdAt,
     reviewRound,
     reviewRunId: row.reviewRunId,
-    readManifest: { filesReadFully: [`src/${index}.ts`], filesTriagedByName: [], scanEscalationReason: null },
+    readManifest,
+    readLog,
   };
   result._hash = signReviewPass(
     storyId, result.id, result.agent, result.note, createdAt, reviewRound, row.reviewRunId,
     result.readManifest,
+    result.readLog,
   );
   return result;
 }
 
 function finding(row: ReviewRun): Finding {
   const createdAt = new Date(Date.parse(row.startedAt) + 1_000).toISOString();
+  const readManifest = { filesReadFully: ['src/review.ts'], filesTriagedByName: [], scanEscalationReason: null };
+  const readLog = {
+    filesReadFully: ['src/review.ts'], filesTriagedByName: [],
+    summary: { readCount: 1, tokenCount: 10 },
+    digest: reviewInventoryDigest({ finding: row.reviewRunId }),
+  };
   const result: Finding = {
     id: `${storyId}:F-001`,
     desc: 'Material mutation began before every frozen lane terminated',
@@ -104,10 +120,12 @@ function finding(row: ReviewRun): Finding {
     createdAt,
     reviewRound,
     reviewRunId: row.reviewRunId,
+    readManifest,
+    readLog,
     files: ['src/review.ts'],
     signatureTag: 'audit-only-must-not-affect-family',
   };
-  result._hash = signFinding(storyId, result.id, result.desc, result.severity, createdAt, reviewRound, row.reviewRunId);
+  result._hash = signFinding(storyId, result.id, result.desc, result.severity, createdAt, reviewRound, row.reviewRunId, readManifest, readLog);
   return result;
 }
 
@@ -116,6 +134,7 @@ function criticEvidence(
   evaluation: ReviewInventoryEvaluation,
   id: number,
   terminalAt: string,
+  findingDispositions: ReviewInventoryFindingDisposition[] = [],
 ): { run: ReviewRun; pass: ReviewPass; receipt: ReviewInventoryCriticReceipt } {
   const criticRun = run('lattice-review-topology-critic', id, terminalAt);
   const criticPass = pass(criticRun, id);
@@ -132,7 +151,8 @@ function criticEvidence(
     criticLane: 'lattice-review-topology-critic',
     reviewRunId: criticRun.reviewRunId,
     terminalEvidenceIds: [criticPass.id],
-    readEvidenceDigest: reviewInventoryDigest([{ id: criticPass.id, readManifest: criticPass.readManifest, readLog: null }]),
+    readEvidenceDigest: reviewInventoryDigest([{ id: criticPass.id, readManifest: criticPass.readManifest, readLog: criticPass.readLog?.digest ?? null }]),
+    findingDispositions,
     createdAt: new Date(Date.parse(criticPass.createdAt!) + 1_000).toISOString(),
   };
   return { run: criticRun, pass: criticPass, receipt: { ...unsigned, _hash: signReviewInventoryCriticReceipt(unsigned) } };
@@ -172,14 +192,120 @@ assert.equal(buildWave(initial, clean, '2026-08-14T00:10:00.000Z').saturated, tr
 const historical = finding(firstRuns[0]);
 const familyBeforeAuditTagChange = findingFamily(historical);
 assert.equal(findingFamily({ ...historical, signatureTag: 'attacker-renamed-audit-tag' }), familyBeforeAuditTagChange);
-const discovery = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, passes: firstPasses, findings: [historical] });
+const rawDiscovery = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, passes: firstPasses, findings: [historical] });
+assert.deepEqual(rawDiscovery.unresolvedFindingIds, [historical.id], 'raw findings cannot become verified families without critic disposition');
+assert.notEqual(
+  rawDiscovery.lanes.find(row => row.lane === firstRuns[0].lane)?.coverageDigest,
+  clean.lanes.find(row => row.lane === firstRuns[0].lane)?.coverageDigest,
+  'finding manifest/read-log evidence participates in the lane coverage digest',
+);
+const missingFindingReadLog = { ...historical };
+delete missingFindingReadLog.readLog;
+missingFindingReadLog._hash = signFinding(
+  storyId, missingFindingReadLog.id, missingFindingReadLog.desc, missingFindingReadLog.severity,
+  missingFindingReadLog.createdAt!, reviewRound, missingFindingReadLog.reviewRunId,
+  missingFindingReadLog.readManifest, undefined,
+);
+const missingFindingReadEvidence = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses.slice(1),
+  findings: [missingFindingReadLog],
+});
+assert.ok(missingFindingReadEvidence.missingLanes.includes(firstRuns[0].lane), 'finding without mechanical readLog cannot terminate an inventory lane');
+const historicalDispositions: ReviewInventoryFindingDisposition[] = [{
+  findingId: historical.id,
+  disposition: 'verified_family',
+  familyKey: findingFamily(historical),
+  reason: 'independent critic verified this distinct finding family',
+}];
+const discovery = evaluateReviewInventoryWave({
+  epoch: initial, runs: firstRuns, passes: firstPasses, findings: [historical], findingDispositions: historicalDispositions,
+});
 assert.equal(discovery.newFamilies.length, 1);
-const lanesCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery });
+const duplicateFinding: Finding = {
+  ...historical,
+  id: `${storyId}:F-002`,
+  agent: firstRuns[1].lane,
+  reviewRunId: firstRuns[1].reviewRunId,
+  createdAt: new Date(Date.parse(firstRuns[1].startedAt) + 1_000).toISOString(),
+};
+duplicateFinding._hash = signFinding(
+  storyId, duplicateFinding.id, duplicateFinding.desc, duplicateFinding.severity,
+  duplicateFinding.createdAt!, reviewRound, duplicateFinding.reviewRunId,
+  duplicateFinding.readManifest, duplicateFinding.readLog,
+);
+const duplicateDisposition: ReviewInventoryFindingDisposition[] = [
+  historicalDispositions[0],
+  {
+    findingId: duplicateFinding.id,
+    disposition: 'duplicate',
+    familyKey: historicalDispositions[0].familyKey,
+    canonicalFindingId: historical.id,
+    reason: 'independent critic bound the second verified finding to the canonical family',
+  },
+];
+const deduplicated = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [historical, duplicateFinding],
+  findingDispositions: duplicateDisposition,
+});
+assert.deepEqual(deduplicated.unresolvedFindingIds, []);
+assert.deepEqual(deduplicated.invalidDispositionIds, []);
+assert.equal(deduplicated.families.length, 1, 'signed duplicate disposition cannot inflate the verified family count');
+const rejectedByCritic = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [historical],
+  findingDispositions: [{ findingId: historical.id, disposition: 'not_verified', reason: 'critic disproved the candidate family' }],
+});
+assert.equal(rejectedByCritic.families.length, 0, 'critic not_verified disposition cannot count as a verified family');
+const suspectedFinding: Finding = { ...historical, id: `${storyId}:F-suspected`, evidenceState: 'suspected', uncertaintyReason: 'candidate not reproduced' };
+suspectedFinding._hash = signFinding(
+  storyId, suspectedFinding.id, suspectedFinding.desc, suspectedFinding.severity,
+  suspectedFinding.createdAt!, reviewRound, suspectedFinding.reviewRunId,
+  suspectedFinding.readManifest, suspectedFinding.readLog,
+);
+const suspectedOnly = evaluateReviewInventoryWave({
+  epoch: initial, runs: firstRuns, passes: firstPasses, findings: [suspectedFinding], findingDispositions: [],
+});
+assert.deepEqual(suspectedOnly.rawFindingIds, [], 'suspected finding closes its lane but never enters verified-family accounting');
+assert.equal(suspectedOnly.families.length, 0);
+const forgedDuplicate = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [historical],
+  findingDispositions: [{
+    findingId: historical.id,
+    disposition: 'duplicate',
+    familyKey: findingFamily(historical),
+    canonicalFindingId: `${storyId}:F-missing`,
+    reason: 'forged canonical reference',
+  }],
+});
+assert.deepEqual(forgedDuplicate.invalidDispositionIds, [historical.id], 'duplicate disposition requires a real canonical verified family');
+const conflictingDisposition = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [historical],
+  findingDispositions: [
+    historicalDispositions[0],
+    { findingId: historical.id, disposition: 'not_verified', reason: 'conflicting second disposition' },
+  ],
+});
+assert.deepEqual(conflictingDisposition.invalidDispositionIds, [historical.id], 'one finding cannot carry competing critic dispositions');
+assert.equal(conflictingDisposition.families.length, 0);
+const lanesCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: rawDiscovery });
 assert.match(lanesCompleteStatus, /Lane lattice-review-concept: finding/);
 assert.match(lanesCompleteStatus, /Lane lattice-review-quality: pass/);
-assert.match(lanesCompleteStatus, /Verified findings: 1/);
-assert.match(lanesCompleteStatus, /New verified findings: 1/);
-assert.match(lanesCompleteStatus, /Blockers: REVIEW_INVENTORY_CRITIC_INCOMPLETE/);
+assert.match(lanesCompleteStatus, /Verified findings: 0/);
+assert.match(lanesCompleteStatus, /New verified findings: 0/);
+assert.match(lanesCompleteStatus, /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/);
 assert.match(lanesCompleteStatus, /Next: lattice dispatch .*lattice-review-topology-critic/);
 assert.equal((lanesCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
 const firstWave = buildWave(initial, discovery, '2026-08-14T00:10:00.000Z');
@@ -193,11 +319,12 @@ const saturated = evaluateReviewInventoryWave({
   runs: [...firstRuns, ...secondRuns],
   passes: [...firstPasses, ...secondPasses],
   findings: [historical],
+  findingDispositions: [],
 });
 assert.deepEqual(saturated.missingLanes, []);
 assert.equal(saturated.newFamilies.length, 0, 'second unchanged-material full-lane wave saturates');
 
-const firstCritic = criticEvidence(initial, discovery, 40, '2026-08-14T00:10:02.000Z');
+const firstCritic = criticEvidence(initial, discovery, 40, '2026-08-14T00:10:02.000Z', historicalDispositions);
 assert.equal(verifyReviewInventoryCriticReceipt(firstCritic.receipt), true);
 assert.equal(validateReviewInventoryCriticReceipt({
   receipt: firstCritic.receipt,
@@ -286,10 +413,14 @@ const absentGate = reviewInventoryRemediationGate({
 assert.equal(absentGate.ok, false, 'artifact absence cannot bypass mandatory REVIEW to remediation DEV gate');
 assert.match(absentGate.nextCommand ?? '', /review_inventory_begin/);
 
-type ReplayEvent = { type: string; host?: string; accepted?: boolean; reason?: string };
+type ReplayEvent = { type: string; host?: string; lane?: string; accepted?: boolean; reason?: string };
 function replay(): Record<string, number> {
   const events: ReplayEvent[] = [];
   const hosts = ['host-a', 'host-b'];
+  for (const lane of requiredLanes) {
+    events.push({ type: 'baseline-required-lane', lane });
+    events.push({ type: 'proposed-required-lane', lane });
+  }
 
   // Recorded B-cdf6 control path: RR-043..046 found the first issue, then five
   // mutation-driven RR-047..051 redispatches. The counter is derived from those
@@ -384,8 +515,20 @@ function replay(): Record<string, number> {
   regressionFinding._hash = signFinding(
     storyId, regressionFinding.id, regressionFinding.desc, regressionFinding.severity,
     regressionFinding.createdAt!, reviewRound, regressionFinding.reviewRunId,
+    regressionFinding.readManifest, regressionFinding.readLog,
   );
-  const regression = evaluateReviewInventoryWave({ epoch: secondEpoch, runs: secondRuns, passes: secondPasses, findings: [historical, regressionFinding] });
+  const regression = evaluateReviewInventoryWave({
+    epoch: secondEpoch,
+    runs: secondRuns,
+    passes: secondPasses,
+    findings: [historical, regressionFinding],
+    findingDispositions: [{
+      findingId: regressionFinding.id,
+      disposition: 'verified_family',
+      familyKey: findingFamily(regressionFinding),
+      reason: 'independent critic confirmed this is a new post-remediation regression family',
+    }],
+  });
   assert.ok(regression.newFamilies.length > 0, 'a final-review regression reopens discovery instead of escaping');
   events.push({ type: 'final-review', host: hosts[0], accepted: true });
   events.push({ type: 'regression-injection', accepted: regression.newFamilies.length === 0 });
@@ -402,6 +545,8 @@ function replay(): Record<string, number> {
     finalReviewEpochsWithoutRegression: events.filter(event => event.type === 'final-review').length,
     requiredHostCountBefore: baselineHosts.size,
     requiredHostCountAfter: proposedHosts.size,
+    requiredLaneCountBefore: new Set(events.filter(event => event.type === 'baseline-required-lane').map(event => event.lane)).size,
+    requiredLaneCountAfter: new Set(events.filter(event => event.type === 'proposed-required-lane').map(event => event.lane)).size,
     criticalHighEscapes: events.filter(event => event.type === 'regression-injection' && event.accepted).length,
     budgetManufacturedPasses: exhausted.waves.at(-1)?.saturated ? 1 : 0,
   };
@@ -413,6 +558,8 @@ assert.ok(replayA.baselineMutationDrivenRedispatches >= 5);
 assert.equal(replayA.proposedMutationDrivenRedispatches, 0);
 assert.equal(replayA.requiredHostCountBefore, 2);
 assert.equal(replayA.requiredHostCountAfter, 2);
+assert.equal(replayA.requiredLaneCountAfter, replayA.requiredLaneCountBefore);
+assert.equal(replayA.requiredLaneCountBefore, requiredLanes.length);
 assert.equal(replayA.criticalHighEscapes + replayA.budgetManufacturedPasses, 0);
 
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));

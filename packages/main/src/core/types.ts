@@ -1750,8 +1750,17 @@ export interface ReviewInventoryCriticReceipt {
   reviewRunId: string;
   terminalEvidenceIds: string[];
   readEvidenceDigest: string;
+  findingDispositions: ReviewInventoryFindingDisposition[];
   createdAt: string;
   _hash: string;
+}
+
+export interface ReviewInventoryFindingDisposition {
+  findingId: string;
+  disposition: 'verified_family' | 'duplicate' | 'not_verified';
+  familyKey?: string;
+  canonicalFindingId?: string;
+  reason: string;
 }
 
 export interface ReviewInventoryEpochData {

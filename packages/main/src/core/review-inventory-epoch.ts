@@ -4,6 +4,7 @@ import type {
   Finding,
   ReviewInventoryEpoch,
   ReviewInventoryCriticReceipt,
+  ReviewInventoryFindingDisposition,
   ReviewInventoryLaneTerminal,
   ReviewInventoryReceipt,
   ReviewInventoryWave,
@@ -64,6 +65,7 @@ export function verifyReviewInventoryCriticReceipt(receipt: ReviewInventoryCriti
   return _hash === signReviewInventoryCriticReceipt(unsigned)
     && receipt.criticLane === 'lattice-review-topology-critic'
     && receipt.terminalEvidenceIds.length > 0
+    && Array.isArray(receipt.findingDispositions)
     && Boolean(receipt.readEvidenceDigest);
 }
 
@@ -88,17 +90,30 @@ export function validateReviewInventoryCriticReceipt(args: {
   passes: ReviewPass[];
   findings: Finding[];
 }): { ok: boolean; reason?: string } {
-  const { receipt, epoch, evaluation } = args;
+  const { receipt, epoch } = args;
   if (!receipt) return { ok: false, reason: 'critic receipt missing' };
   if (!verifyReviewInventoryCriticReceipt(receipt)) return { ok: false, reason: 'critic receipt signature invalid' };
+  const dispositionEvaluation = evaluateReviewInventoryWave({
+    epoch,
+    runs: args.runs,
+    passes: args.passes,
+    findings: args.findings,
+    findingDispositions: receipt.findingDispositions,
+  });
+  if (dispositionEvaluation.unresolvedFindingIds.length > 0) {
+    return { ok: false, reason: `critic finding dispositions missing: ${dispositionEvaluation.unresolvedFindingIds.join(', ')}` };
+  }
+  if (dispositionEvaluation.invalidDispositionIds.length > 0) {
+    return { ok: false, reason: `critic finding dispositions invalid: ${dispositionEvaluation.invalidDispositionIds.join(', ')}` };
+  }
   if (receipt.storyId !== epoch.storyId || receipt.epochId !== epoch.epochId
     || receipt.reviewRound !== epoch.reviewRound || receipt.wave !== epoch.waves.length + 1) {
     return { ok: false, reason: 'critic receipt epoch/round/wave binding mismatch' };
   }
   if (canonical(receipt.cutoff) !== canonical(epoch.cutoff)) return { ok: false, reason: 'critic receipt cutoff mismatch' };
-  const aggregateDigest = reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, evaluation));
+  const aggregateDigest = reviewInventoryDigest(reviewInventoryAggregateFamilies(epoch, dispositionEvaluation));
   if (receipt.aggregateFindingSetDigest !== aggregateDigest) return { ok: false, reason: 'critic aggregate finding-set digest mismatch' };
-  if (receipt.requiredLaneCoverageDigest !== reviewInventoryLaneCoverageDigest(evaluation)) {
+  if (receipt.requiredLaneCoverageDigest !== reviewInventoryLaneCoverageDigest(dispositionEvaluation)) {
     return { ok: false, reason: 'critic required-lane coverage digest mismatch' };
   }
   const run = args.runs.find(row => row.reviewRunId === receipt.reviewRunId);
@@ -119,13 +134,15 @@ export function validateReviewInventoryCriticReceipt(args: {
   const ids = terminal.map(row => row.id).sort();
   if (canonical(ids) !== canonical([...receipt.terminalEvidenceIds].sort())) return { ok: false, reason: 'critic terminal evidence mismatch' };
   const readEvidence = terminal.map(row => ({ id: row.id, readManifest: row.readManifest ?? null, readLog: row.readLog?.digest ?? null }));
-  if (readEvidence.some(row => row.readManifest === null)) return { ok: false, reason: 'critic terminal evidence missing read manifest' };
+  if (readEvidence.some(row => row.readManifest === null || row.readLog === null)) {
+    return { ok: false, reason: 'critic terminal evidence missing read manifest or mechanical read log' };
+  }
   if (receipt.readEvidenceDigest !== reviewInventoryDigest(readEvidence)) return { ok: false, reason: 'critic read evidence digest mismatch' };
   const latestTerminalAt = Math.max(...terminal.map(row => Date.parse(row.createdAt ?? '')).filter(Number.isFinite));
   if (!Number.isFinite(latestTerminalAt) || Date.parse(receipt.createdAt) < latestTerminalAt) {
     return { ok: false, reason: 'critic receipt predates terminal evidence' };
   }
-  const latestLaneEvidenceAt = Math.max(...evaluation.lanes.flatMap(lane => lane.evidenceIds.map(id => {
+  const latestLaneEvidenceAt = Math.max(...dispositionEvaluation.lanes.flatMap(lane => lane.evidenceIds.map(id => {
     const evidence = [...args.passes, ...args.findings].find(row => row.id === id);
     return Date.parse(evidence?.createdAt ?? '');
   })).filter(Number.isFinite));
@@ -148,18 +165,19 @@ export function findingFamily(finding: Finding): string {
 
 function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[]): {
   terminal: ReviewInventoryLaneTerminal | null;
-  families: string[];
+  findings: Finding[];
 } {
-  if (!verifyReviewRun(run)) return { terminal: null, families: [] };
+  if (!verifyReviewRun(run)) return { terminal: null, findings: [] };
   const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId && verifyReviewPass(run.storyId, pass));
-  const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId && verifyFinding(run.storyId, finding));
-  if (runPasses.length === 0 && runFindings.length === 0) return { terminal: null, families: [] };
+  const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId
+    && verifyFinding(run.storyId, finding) && Boolean(finding.readManifest) && Boolean(finding.readLog));
+  if (runPasses.length === 0 && runFindings.length === 0) return { terminal: null, findings: [] };
   const evidenceIds = [...runPasses.map(row => row.id), ...runFindings.map(row => row.id)].sort();
   const coverageDigest = reviewInventoryDigest({
     runId: run.reviewRunId,
     envelopeId: run.envelopeId ?? null,
-    manifests: runPasses.map(row => row.readManifest ?? null),
-    readLogs: runPasses.map(row => row.readLog?.digest ?? null),
+    manifests: [...runPasses, ...runFindings].map(row => row.readManifest ?? null),
+    readLogs: [...runPasses, ...runFindings].map(row => row.readLog?.digest ?? null),
     evidenceIds,
   });
   return {
@@ -172,11 +190,10 @@ function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[
       evidenceIds,
       coverageDigest,
     },
-    // Conservatively inventory every signature-valid reviewer finding. The
-    // existing evidenceState is gate-consumed elsewhere but is not in the
-    // Finding signature domain; letting that mutable field suppress a family
-    // here would allow a file edit to manufacture saturation.
-    families: runFindings.map(findingFamily),
+    // A suspected/disproven terminal still closes its reviewer lane, but it
+    // cannot enter the critic's verified-family disposition set. Legacy rows
+    // without evidenceState retain the repository's verified compatibility.
+    findings: runFindings.filter(finding => finding.evidenceState === 'verified' || finding.evidenceState === undefined),
   };
 }
 
@@ -186,6 +203,9 @@ export interface ReviewInventoryEvaluation {
   duplicateIdentities: string[];
   families: string[];
   newFamilies: string[];
+  rawFindingIds: string[];
+  unresolvedFindingIds: string[];
+  invalidDispositionIds: string[];
   criticDigest: string;
 }
 
@@ -194,6 +214,7 @@ export function evaluateReviewInventoryWave(args: {
   runs: ReviewRun[];
   passes: ReviewPass[];
   findings: Finding[];
+  findingDispositions?: ReviewInventoryFindingDisposition[];
 }): ReviewInventoryEvaluation {
   const waveStart = args.epoch.waves.at(-1)?.completedAt ?? args.epoch.begunAt;
   const candidates = args.runs.filter(run =>
@@ -204,13 +225,13 @@ export function evaluateReviewInventoryWave(args: {
     && run.startedAt >= waveStart,
   );
   const lanes: ReviewInventoryLaneTerminal[] = [];
-  const families = new Set<string>();
+  const rawFindings = new Map<string, Finding>();
   for (const lane of args.epoch.requiredLanes) {
     const laneRuns = candidates.filter(run => run.lane === lane).sort((a, b) => b.startedAt.localeCompare(a.startedAt));
     const selected = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings)).find(row => row.terminal);
     if (!selected?.terminal) continue;
     lanes.push(selected.terminal);
-    selected.families.forEach(family => families.add(family));
+    selected.findings.forEach(finding => rawFindings.set(finding.id, finding));
   }
   const identities = new Map<string, string[]>();
   for (const lane of lanes) {
@@ -218,8 +239,27 @@ export function evaluateReviewInventoryWave(args: {
     identities.set(key, [...(identities.get(key) ?? []), lane.lane]);
   }
   const duplicateIdentities = [...identities.values()].filter(group => group.length > 1).flat();
+  const dispositions = args.findingDispositions ?? [];
+  const byFinding = new Map(dispositions.map(row => [row.findingId, row]));
+  const dispositionCounts = new Map<string, number>();
+  dispositions.forEach(row => dispositionCounts.set(row.findingId, (dispositionCounts.get(row.findingId) ?? 0) + 1));
+  const rawFindingIds = [...rawFindings.keys()].sort();
+  const unresolvedFindingIds = rawFindingIds.filter(id => !byFinding.has(id));
+  const invalidDispositionIds = dispositions.filter(row => {
+    if (dispositionCounts.get(row.findingId) !== 1 || !rawFindings.has(row.findingId) || !row.reason.trim()) return true;
+    if (row.disposition === 'verified_family') return !row.familyKey?.trim();
+    if (row.disposition === 'duplicate') {
+      const canonicalDisposition = row.canonicalFindingId ? byFinding.get(row.canonicalFindingId) : undefined;
+      return !row.familyKey?.trim() || !canonicalDisposition
+        || canonicalDisposition.disposition !== 'verified_family'
+        || canonicalDisposition.familyKey !== row.familyKey;
+    }
+    return row.familyKey !== undefined || row.canonicalFindingId !== undefined;
+  }).map(row => row.findingId).filter((id, index, rows) => rows.indexOf(id) === index).sort();
+  const familyList = [...new Set(dispositions
+    .filter(row => row.disposition === 'verified_family' && rawFindings.has(row.findingId) && !invalidDispositionIds.includes(row.findingId))
+    .map(row => row.familyKey!))].sort();
   const priorFamilies = new Set(args.epoch.waves.flatMap(wave => wave.verifiedFindingFamilies));
-  const familyList = [...families].sort();
   const newFamilies = familyList.filter(family => !priorFamilies.has(family));
   return {
     lanes,
@@ -227,6 +267,9 @@ export function evaluateReviewInventoryWave(args: {
     duplicateIdentities,
     families: familyList,
     newFamilies,
+    rawFindingIds,
+    unresolvedFindingIds,
+    invalidDispositionIds,
     criticDigest: reviewInventoryDigest({
       epochId: args.epoch.epochId,
       wave: args.epoch.waves.length + 1,
@@ -286,7 +329,8 @@ export function finalizedUnconsumedReviewInventory(store: StoryStore, storyId: s
   receipt: ReviewInventoryReceipt;
 } | null {
   const data = store.readReviewInventoryEpochs(storyId);
-  const epoch = data.epochs.filter(row => row.state === 'FINALIZED' && !row.consumedAt).at(-1);
+  const epoch = data.epochs.at(-1);
+  if (epoch?.state !== 'FINALIZED' || epoch.consumedAt) return null;
   if (!epoch || !verifyReviewInventoryEpoch(epoch) || !epoch.receiptId) return null;
   const receipt = data.receipts.find(row => row.receiptId === epoch.receiptId);
   if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.consumedAt) return null;
@@ -306,6 +350,13 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
     ok: false,
     reason: 'no frozen review inventory epoch exists for this remediation',
     nextCommand: `lattice review_inventory_begin --storyId=${storyId}`,
+  };
+  const latest = data.epochs.at(-1);
+  if (latest?.state === 'OPEN') return {
+    required: true,
+    ok: false,
+    reason: `latest review inventory ${latest.epochId} is still OPEN`,
+    nextCommand: `lattice review_inventory_status --storyId=${storyId}`,
   };
   const pair = finalizedUnconsumedReviewInventory(store, storyId);
   if (!pair) return {

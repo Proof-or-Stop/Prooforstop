@@ -425,8 +425,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       kind: record.kind,
       signatureValid: record.signatureValid,
     }));
-    if (roundCount <= 1) {
-      const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
+    const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
       const missing = activeReviewers.filter((reviewer) => !currentRoundReviewerEvidence.some(
         (evidence) => findingAgentMatchesReviewer(evidence.agent, reviewer.name),
       ));
@@ -501,31 +500,6 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
           blocking: false,
         }));
       }
-    } else if (currentRoundReviewerEvidence.length === 0) {
-      rows.push(row({
-        id: 'review.current_round_evidence',
-        status: 'blocked',
-        source: 'review',
-        sourceRef: 'findings.json + review-passes.json',
-        owner: 'reviewer',
-        category: 'missing',
-        code: 'missing_current_round_review_evidence',
-        reason: `Round ${roundCount} requires at least one valid current-round reviewer finding or review pass`,
-        nextCommand: `lattice reviewer_list '{"storyId":"${storyId}"}'`,
-      }));
-    } else {
-      rows.push(row({
-        id: 'review.current_round_evidence',
-        status: 'pass',
-        source: 'review',
-        sourceRef: 'findings.json + review-passes.json',
-        owner: 'reviewer',
-        category: 'advisory',
-        code: 'current_round_review_evidence_present',
-        reason: `Round ${roundCount} has ${currentRoundReviewerEvidence.length} valid reviewer evidence record(s)`,
-        blocking: false,
-      }));
-    }
   }
 
   const blockingFindings = evidenceState.valid

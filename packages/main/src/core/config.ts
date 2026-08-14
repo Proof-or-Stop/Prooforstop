@@ -157,6 +157,7 @@ export interface LatticeConfig {
       | 'lattice-review-docs'
       | 'lattice-review-quality'
       | 'lattice-review-test-coverage'
+      | 'lattice-review-topology-critic'
       | 'lattice-review-story-init'
       | 'lattice-review-scope-plan'
       | 'lattice-implementer'
