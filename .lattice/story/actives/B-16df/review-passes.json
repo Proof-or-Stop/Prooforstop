@@ -30,6 +30,48 @@
         "scanEscalationReason": null
       },
       "_hash": "83bb958fbdf40929f792a2a5f17dc240c8eb9b90c06b4718bad73b7201ec040f"
+    },
+    {
+      "id": "B-16df:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: full diff since round-1 pass. Only additive changes since then (sections 9-14 in validate-command-timeout-smoke.ts, now 40 assertions, closing coverage gaps from test-coverage reviewer). No concept word deleted/replaced en masse this round or cumulatively - resolvePinnedCommandTimeoutMs is a wholly new export (single declaration, exactly 4 call sites, verified via grep), no renames, no removed functions/fields. checklist.ts diff unchanged from round 1 (already reviewed clean). Doc-promise self-check: new JSDoc block in validate-command-timeout-smoke.ts (sections 12-14 claims re REPO_ROOT, byte-for-byte diff check, 4-call-site count, MAX_NODE_TIMER_DELAY_MS clamp) cross-checked against the actual new code - all delivered, nothing promised-but-missing. No README/CLAUDE.md/handler-schema/ENV changes in this diff. Wave-4 acceptance-topology chain not touched by this story diff (only checklist.ts + validate-command-timeout-smoke.ts + story metadata changed) so not applicable this round.",
+      "createdAt": "2026-08-14T13:02:19.602Z",
+      "reviewRound": "2026-08-14T12:59:33.229Z",
+      "reviewRunId": "B-16df:RR-004",
+      "envelopeId": "f33340d85e7e20fcef851a50a11ac12955b44b3c503ce5274d4bdb8c9068cc70",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/decision.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/intent-collision.json",
+          ".lattice/story/actives/B-16df/original-intent-snapshot.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/process-metrics.json",
+          ".lattice/story/actives/B-16df/prompt-envelopes.json",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/review.json",
+          ".lattice/story/actives/B-16df/scope-check.json",
+          ".lattice/story/actives/B-16df/scope-contract.json",
+          ".lattice/story/actives/B-16df/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14ab8d39077ad456faf2a59436d384cba20f05238e646d4c0015f1ba001d54ca"
     }
   ]
 }
