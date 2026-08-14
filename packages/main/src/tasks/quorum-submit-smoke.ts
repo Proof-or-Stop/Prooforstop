@@ -473,10 +473,26 @@ function wholeTreeDiffPaths(root: string, fromHead: string): string[] {
   return git(root, ['diff', '--name-only', fromHead, 'HEAD']).split('\n').filter(Boolean).sort();
 }
 
-// B-3144 CHK-003: reproduce the exact B-bf52 poisoned file shape. The producer guard now
-// REFUSES a redundant re-submit, so we cannot re-run quorum_submit to build duplicates; instead
-// we append duplicate host_verdict lines (new verdictId, drift materialDigest, unchanged
-// storyFilesHash) and commit, which is the same committed-clean poisoned log the incident had.
+// B-3144 CHK-003: reproduce an already-poisoned committed log — the shape `quorum_prune` exists
+// to repair (background.md: "incidents predating the guard fix remain unrecoverable without
+// manual jsonl surgery"). The producer guard now REFUSES a redundant re-submit, so we cannot
+// re-run quorum_submit to build duplicates; instead we append duplicate host_verdict lines
+// (new verdictId, unchanged storyFilesHash) and commit.
+//
+// F-0xx (post-B-f88e correction): the duplicates MUST carry the REAL current materialDigest, not
+// a synthetic drift string. B-f88e (core/review-escalation.ts eventsWithStoryFilesHashDowngrade)
+// now declines to downgrade a stale verdict onto a materialDigest that already has a NATIVE
+// verdict of the same (runId, hostId, sessionId, keyId) identity — it leaves the stale one at its
+// original material instead of colliding it. process-events.jsonl is excluded from
+// currentMaterialHash (it is story-metadata bookkeeping, not source), so appending to it and
+// committing does not change currentMaterialHash: the 6 baseline verdicts stay NATIVE at the
+// current material. A synthetic non-current drift string on the duplicates therefore makes them
+// "already superseded by a live verdict of the same identity" under B-f88e and they are left
+// un-downgraded at their fake material — never colliding, never poisoning the floor at all (this
+// is exactly B-f88e's fix working as intended for a genuine drift scenario). To still reproduce a
+// REAL poisoned-at-current-material log (duplicate identity rows already sitting in the SAME
+// material — the case `quorum_prune`'s own grouping, which keys on identity only, not material,
+// still has to repair), pin the duplicates to `currentMaterialHash` directly.
 function injectPoisonedDuplicates(
   fixture: ReturnType<typeof makeFixture>,
   opts: { copies?: number; interleaveLine?: string } = {},
@@ -501,14 +517,15 @@ function injectPoisonedDuplicates(
     parsed.push(event);
   }
   assert.equal(parsed.length, 6, 'baseline quorum wrote 6 host_verdict lines');
+  const nativeMaterial = currentMaterialHash(fixture.root, 'HEAD', fixture.root)!;
+  assert.ok(nativeMaterial, 'poison precondition: current material hash resolves');
   const appended: string[] = [];
   if (opts.interleaveLine) appended.push(opts.interleaveLine);
   const dupMaterials: string[] = [];
   for (let copy = 1; copy <= copies; copy += 1) {
-    const material = `B-3144-poison-drift-material-${copy}`;
-    dupMaterials.push(material);
+    dupMaterials.push(nativeMaterial);
     for (const event of parsed) {
-      appended.push(JSON.stringify({ ...event, verdictId: `${String(event.verdictId)}-dup${copy}`, materialDigest: material }));
+      appended.push(JSON.stringify({ ...event, verdictId: `${String(event.verdictId)}-dup${copy}`, materialDigest: nativeMaterial }));
     }
   }
   writeFileSync(eventsPath, `${raw}${appended.join('\n')}\n`, 'utf8');
