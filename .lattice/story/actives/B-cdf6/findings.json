@@ -872,7 +872,7 @@
       "desc": "quality-verify: independently reproduced F-042 against material content unchanged since headHash 80fb4d92d0 (confirmed same materialHash b3010660b2c3... across 80fb4d92d0 -> 7f25b68e -> 36501da2, all .lattice/-bookkeeping-only drift) — packages/main/src/tasks/proofstory-acceptance-topology-smoke.js:135 throws AssertionError (supported Proof-or-Stop invocation is derived: false!==true) because packages/main/src/core/acceptance-topology.ts isLatticeWrapper() is byte-identical to pristine main (git diff main...80fb4d92d0 for that file is zero-length) and only recognizes lattice/bin/lattice.js tokens, while this story edited the smoke to assert the new canonical proof-or-stop acceptance_matrix form succeeds. This contradicts the brief's known-not-fixed claim that this smoke fails identically on pristine main (pre-existing, untouched): pristine main fails at a DIFFERENT assertion (per independent build+run on main). This is a genuine CHK-002/CHK-006 rename regression, not the represented pre-existing defect. Product impact: the new canonical proof-or-stop acceptance_matrix invocation is the one form whose producer-command provenance silently fails isAcceptanceMatrixDerivedEvidence, backwards from the CHK-002/CHK-006 read-both compatibility contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T09:20:07.626Z",
@@ -880,7 +880,11 @@
       "reviewRunId": "B-cdf6:RR-053",
       "_hash": "a632e963c4fcf29ee36be99e61e3f4640bc80f1e0769a0b9d96859464e0db531",
       "signatureTag": "missing|unknown|quality-verify-independently",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in 9f6fb6ecc4. Independently reproduced all sites before fixing; the docs lane filed the same defect as F-044.\n\nFive sites printed the deprecated bin name to users or asserted it against already-rebranded production:\n  tasks/global-agents-unit-smoke.ts:159 asserted /lattice agent_prompt --role=/ while production\n    core/global-agents.ts:164 emits proof-or-stop agent_prompt -- so it failed BECAUSE the rename succeeded\n  handlers/lattice-cli.ts:119 printed 'lattice config repair --set-git-root=... --confirm' as the structured\n    confirmCommand AND in trailing prose, while that command's own --help already advertises the canonical alias\n  handlers/verifier.ts:471 and handlers/story-review.ts:438 both interpolated 'run `lattice\n    verification_intent_repair`' into user-facing repair hints\n  core/autopilot-executor.ts:224 hardcoded the 'Failing command:' line while sibling lines just below it had\n    already been rebranded\n\nEach canonical assertion is paired with a doesNotMatch guard on the deprecated form.\n\nWHAT THIS EXPOSED ABOUT MY METHOD, which is the part worth keeping: every one of these files already carried roughly ten sibling lattice->proof-or-stop edits from this story. The misses were not in untouched territory - they were individual lines skipped inside files I had already edited. That means my earlier passes were edit-what-I-see rather than complete enumeration, and my claim that the brand sweep was finished was unfounded. Two escaped even my post-report sweep because the interpolation used ESCAPED backticks inside a template literal, which my grep pattern did not match - I only found them by grepping the symbol name instead of the rendered string.\n\nVerified: tsc clean; global-agents-unit-smoke exits 0 (was failing); global-agents-init-smoke exits 0; flow-stability and all three lattice-residue checks exit 0.",
+      "resolvedAt": "2026-08-14T11:49:07.709Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-042",
