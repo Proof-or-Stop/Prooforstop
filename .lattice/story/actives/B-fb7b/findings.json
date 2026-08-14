@@ -351,6 +351,32 @@
       ],
       "signatureTag": "adversarial|mjs|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-018",
+      "desc": "Re-verified F-013 on current HEAD 8f03b57 (fix commit eab8a74651, shared per-repo build mutex): the maxRetries-budget-too-short concurrent-rebuild race F-013 identified is closed by a different mechanism (a lock, not a bigger retry budget).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-013 (retry-only approach cannot outlast a full concurrent compile) is superseded: commit eab8a74651 replaces reliance on rmSync maxRetries/retryDelay with a shared per-repo mutex (scripts/build-lock.mjs, exported withBuildLock). Both packages/main (scripts/build-main-with-binding.mjs, whole rm+tsc+writeBuildBinding critical section) and the new locked packages/utils build (scripts/build-utils-with-lock.mjs, wired via packages/utils/package.json build script) take the SAME lock keyed by sha256(projectRoot), so overlapping build invocations now WAIT/serialize instead of racing for filesystem access -- the retry budget no longer needs to survive a full concurrent compile because concurrent FS contention between builds no longer occurs; maxRetries:10/retryDelay:100 is now only a secondary guard against brief non-build touchers (Spotlight/mdworker), which is a materially different and much smaller contention window than F-013 measured. Code-quality check on the lock itself: atomic mkdirSync-as-mutex (correct on POSIX), EEXIST retry loop with 200ms sleepSync backoff, stale-lock reclaim gated on mtimeMs>300000ms (10x the ~21-30s measured single-build duration, so no false-steal against a live holder under normal contention), WAIT_TIMEOUT_MS=900000ms upper bound, lock always released via try/finally on both the fn() success and throw paths (no leak on build failure), no re-entrant/nested acquisition anywhere in the diff, lock keyed by project root so different worktrees never cross-serialize. No dead code, no `as any`, no empty-catch error swallowing (the two empty catches are intentional TOCTOU no-ops for a lock already released between check and read/remove). Live-verified in this review round: ran 5 concurrent `npm run pretest` in this live shared worktree while OTHER unrelated concurrent build processes from other agents in this same story review pipeline were simultaneously also rebuilding the same trees (confirmed via `lsof -p <pid>` cwd) -- 5/5 exit 0, zero ENOTEMPTY/TS2307, `git status --porcelain` clean afterward (dist is gitignored). Also ran a clean single-shot pretest + the structural smoke (test-suite-utils-autobuild-smoke.js) + guard-bite (red-fb7b-guard-bite.mjs, all 11 selectors incl. GB-ALL-PASS) + the RED (red-fb7b-pretest-builds-utils.mjs) during a quiet window, all PASS with a clean tree.",
+        "sourceRefs": [
+          "B-fb7b:F-013",
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "scripts/build-main-with-binding.mjs:1-23",
+          "packages/utils/package.json:12"
+        ],
+        "reproCommand": "npm run pretest && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js && node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T12:24:05.118Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-041",
+      "_hash": "417ae916339eb2432147deac9c07216255af144af81340945235fd25f9a29db8",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
