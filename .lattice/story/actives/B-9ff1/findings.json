@@ -410,6 +410,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|evidence-envelope-check",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-020",
+      "desc": "The F-014 repair comment itself (commit b63dcad96b, packages/main/src/cli/activity-policy.ts, the comment directly above red_evidence_envelope_check in READ_ONLY_COMMANDS) opens with an unqualified absolute claim of the same shape it exists to correct: Membership here makes shouldWriteActivityLog (this file) return false, stated with no caveat. This is not unconditionally true: shouldWriteActivityLog returns process.env.LATTICE_ACTIVITY_RECORD_READONLY equals 1 for a READ_ONLY_COMMANDS member (line 156 of the same file), so when that env var is set the function returns TRUE, not false, for this command. Verified empirically in this worktree: node -e requiring dist/cli/activity-policy.js and calling shouldWriteActivityLog(red_evidence_envelope_check, {}) returns true with LATTICE_ACTIVITY_RECORD_READONLY=1 set and false without it. LATTICE_ACTIVITY_RECORD_READONLY is not an obscure toggle -- it is baked into GLOBAL_CODEX_FALLBACK_COMMAND (core/codex-adapter-checks.ts) and documented in docs/CLI.md and docs/host-run-usage.md, so real invocations of this exact read-only command legitimately run with it set. The comment goes on to correctly name ONE bypass (the staleWarnings OR-path) as proof that membership is necessary but not sufficient, but its own opening sentence still asserts the false unconditional case and never names the LATTICE_ACTIVITY_RECORD_READONLY bypass at all. The closing sentence about the core/command-policy.ts formal contract remains true regardless (activity.jsonl is not one of the four contract categories), so this does not change the command's actual guarantees, but the comment purpose-built this round to replace a false absolute claim with an accurate one still contains an incomplete absolute claim in its own first sentence. Fix: hedge the opening sentence (e.g. by default / absent an override) or fold the env-var case into the necessary-but-not-sufficient paragraph alongside the stale-warning bypass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T03:41:51.716Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-016",
+      "_hash": "19fecb755fe248ff0e6f94e29be41595df7197d171bdf838492190d5042b9ce0",
+      "files": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|repair-comment-itself",
+      "signatureTagSource": "auto"
     }
   ]
 }
