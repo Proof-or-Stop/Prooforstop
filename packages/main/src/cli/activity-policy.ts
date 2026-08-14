@@ -93,18 +93,36 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   // cli/command-catalog.ts (command description); core/command-policy.ts (policy
   // reason); core/config.ts; core/process-fact-levels.ts (level rationale);
   // core/process-fact-registry.ts; registry.ts; handlers/red-evidence.ts (handler
-  // docblock, ADMISSIBLE report footer, rejection report footer);
-  // tasks/red-evidence-envelope-smoke.ts; tests/red/red-w2d-command-readonly.mjs
-  // (file header, ownershipClass assertion message) — thirteen statements in ten
-  // files when this was written. A SINGLE EXPORTED CONSTANT WAS CONSIDERED AND
-  // NOT TAKEN: most of those statements are comments, which no constant can
-  // deduplicate, and the rest are literals in registration tables whose readers
-  // need the guarantee legible at the entry rather than behind an import. What
-  // keeps them in step is this declared set, the pointer back to this note that
-  // each copy carries, and the committed assertion in
-  // tests/red/red-w2d-command-readonly.mjs. None of that catches a NEW site that
-  // restates the guarantee in ITS OWN words; only a scanner would, and none is
-  // built.
+  // docblock, ADMISSIBLE report footer, rejection report footer, and the
+  // COMMITTED-target-bindings read-failure error thrown from
+  // readCommittedBindingForTarget); tasks/red-evidence-envelope-smoke.ts;
+  // tests/red/red-w2d-command-readonly.mjs (file header, ownershipClass assertion
+  // message) — fourteen statements in ten files when the set was last counted.
+  // A SINGLE EXPORTED CONSTANT WAS CONSIDERED AND NOT TAKEN: seven of the
+  // fourteen are comments, which no constant can deduplicate; three are literals
+  // in registration tables whose readers need the guarantee legible at the entry
+  // rather than behind an import; the remaining four are operator- or
+  // reviewer-facing report and assertion text. Every copy in the list carries a
+  // pointer back to this note, and tests/red/red-w2d-command-readonly.mjs pins
+  // the CLASSIFICATION — not the prose — in a committed assertion.
+  // WHAT THE DECLARED SET IS WORTH, WITHOUT FLATTERY: less than the paragraph
+  // above reads like. It is a CONVENTION MAINTAINED BY HAND, and declaring it
+  // has not prevented drift. Three separate review rounds of B-9ff1 found
+  // guarantee-bearing text that had already drifted — blanket "runs no hook"
+  // claims, an ordering claim that did not match the cli-engine.ts catch block,
+  // and sites restating the guarantee in their own words — and the round
+  // IMMEDIATELY AFTER this set was first declared found three more: a stale
+  // ordering clause in the command description, a "configured" onError claim
+  // that had dropped the MATCHING condition, and a rejection footer that did not
+  // carry the pointer this note says every copy carries; that last round also
+  // surfaced the fourteenth statement above, which the set had not listed at
+  // all. So declaring the set converts drift from invisible into FINDABLE BY
+  // READING one comment. It does not make drift DETECTABLE: nothing re-checks
+  // these statements when one of them is edited, the count and roles above
+  // describe the LAST audit rather than a live index, and a NEW site that
+  // restates the guarantee in ITS OWN words is still caught by nothing.
+  // Mechanical enforcement — a scanner over the wording, not a shared constant —
+  // is not built here and belongs to its own change.
   // Read "the CLI story-evidence writers" as exactly what the name says: the
   // writers that put story records, chain records, evidence artifacts and story
   // process events under the story directory. That subject is a NOMINAL PROSE

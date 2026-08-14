@@ -19,9 +19,12 @@
  *     recording it as RED evidence. The throw is NOT verdict-free everywhere:
  *     the CLI catch path in cli-engine.ts passes `e.message` into `writeLog`,
  *     so under either activity-log bypass the full tagged report is stored in
- *     the `.lattice/activity.jsonl` row's `error` field, and a configured
- *     `onError` hook runs on that same path (that call site has no read-only
- *     predicate). See the fence note on the handler itself.
+ *     the `.lattice/activity.jsonl` row's `error` field, and a CONFIGURED and
+ *     MATCHING `onError` hook runs on that same path (that call site has no
+ *     read-only predicate; MATCHING because `resolveHookCommands` in
+ *     `core/hooks.ts` resolves an exact stage-map key plus `*` and nothing
+ *     else, so a hooks map carrying neither runs no command at all). See the
+ *     fence note on the handler itself.
  *
  * Authorization is layered exactly like every other mutating story command:
  *   1. The story-owner LEASE is enforced UPSTREAM at the single CLI choke point
@@ -237,9 +240,13 @@ function readCommittedBindingForTarget(
   } catch (error) {
     throw new Error(
       `red_evidence_envelope_check: could not read the COMMITTED target bindings at HEAD:${relPath} — ${(error as Error).message}. ` +
-        'This check wrote no RED-evidence record, no chain record and no story or evidence artifact, emitted no ' +
-        'process event, and changed no gate verdict. It is thrown, so a configured onError hook does run, and the ' +
-        'CLI may record this text in the error field of a .lattice/activity.jsonl row.',
+        'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, ' +
+        'chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no ' +
+        'preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check ' +
+        'note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of ' +
+        'exhaustiveness. It is thrown, so a CONFIGURED and MATCHING onError hook does run — MATCHING means the hooks ' +
+        'map carries an exact red_evidence_envelope_check key or a * key, and a map with neither runs no command at ' +
+        'all — and the CLI may record this text in the error field of a .lattice/activity.jsonl row.',
     );
   }
   if (!file) return null;
@@ -530,8 +537,8 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         ...result.rejections.map((rejection) => `  - [${rejection.tag}] ${rejection.code}: ${rejection.message}`),
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
-        'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Fix the envelope before spending a run.',
-        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts prints it TWICE on this path — once as a failure diagnostic BEFORE any configured onError hook runs, and once again AFTER that hook has been awaited — so the copy in front of you may or may not postdate the hook. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
+        'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was written and is not a proof of exhaustiveness. Fix the envelope before spending a run.',
+        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts prints it TWICE on this path — once as a failure diagnostic BEFORE any CONFIGURED and MATCHING onError hook runs, and once again AFTER those hooks have been awaited — so the copy in front of you may or may not postdate them. MATCHING means the hooks map carries an exact red_evidence_envelope_check key or a * key; a map with neither runs no command at all. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },
