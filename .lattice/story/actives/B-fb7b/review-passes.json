@@ -799,6 +799,38 @@
         "scanEscalationReason": null
       },
       "_hash": "e79aa7603b79471acdbcd2c6297c445c51a5c2c15ebdddde8156d76d3fd4baaa"
+    },
+    {
+      "id": "B-fb7b:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (re-review after commit 3979c2f718). Since last concept pass, only one code commit landed: 3979c2f718 fix(build): retry rmSync(dist) to survive concurrent rebuilds (F-011/F-012), touching scripts/build-main-with-binding.mjs (5 insertions, 1 deletion). Confirmed via git show 3979c2f718: the single deleted line is the prior rmSync(...) call, replaced by the same call with two added option keys (maxRetries:10, retryDelay:100) plus an explanatory comment; no concept, symbol, command, or config key was deleted or renamed. Re-ran the full concept-deletion scan for this round: git diff main...HEAD --stat/--numstat shows only 3 files with any removed lines (checklist.json -3, index.json -2, build-main-with-binding.mjs -1); the checklist.json/index.json removals are routine lifecycle bookkeeping (status/startTime/endTime/phase field updates), not concept text. package.json, lattice.config.json, and CHANGELOG.md diffs for this story are purely additive (new pretest script key, new validate.commands smoke entry, new changelog section) with zero removed concept references. Grep-based residue scan confirms zero dangling references to any deleted/renamed concept because none was deleted or renamed this round. Wave 4 concept-boundary chain (acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check) is untouched by this story diff. No blocker.",
+      "createdAt": "2026-08-14T10:45:06.836Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-038",
+      "envelopeId": "eabaeda2d66ae0c23141c3339129159d3385d26dc619a8cbfc970ea685fd1e1a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/index.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "466e214fd07be16294ea9c305a76cb822071d54e09789c69f940e737b7104e78"
     }
   ]
 }
