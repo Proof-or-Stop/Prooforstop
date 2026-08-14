@@ -305,6 +305,40 @@
         "scanEscalationReason": null
       },
       "_hash": "f6a6df5eef8bd6e68dceeab892ccf251116cd7d6f8d5e7ca13fc26ebb222b9c4"
+    },
+    {
+      "id": "B-9ff1:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Confirmation pass on the two F-015/F-017..F-023 repair commits (ee73b9f6, 63a9092d) across 7 files. INERTNESS: full diff f0500c0e2d..HEAD -- packages/main/ read line-by-line -- text-only in every hunk (comments, docstrings, one JSDoc line, thrown-Error strings, assert message strings, console.log strings). No executable token, import, or registration-set membership changed. Verified config.ts DEFAULT_PHASE_TOOLS and registry.ts registerBatch call are byte-identical apart from the adjacent comment. BUILD: npx tsc --noEmit -p packages/main exit 0; worktree had no packages/main/dist at all (fresh worktree) so ran npm --prefix packages/main run build -- dist now populated and newer (04:57) than the latest src edit (04:52). DURABILITY: zero line-number citations anywhere in the new text (anchors are file+symbol only). Independently verified every named symbol/constant exists exactly as claimed: shouldWriteActivityLog (cli/activity-policy.ts:162), isReadOnlyCommand (:140), writeLog call sites cli-engine.ts:1417/1489 gated by the literal disjunct shouldWriteActivityLog(cmd,parsed)||staleWarnings.length>0 at :1416/:1488, STALE_WARNING_COOLDOWN_MS = 30*60_000 in core/stale-detector.ts:38 (matches the stated 30 minutes), GLOBAL_CODEX_FALLBACK_COMMAND in core/codex-adapter-checks.ts:57 bakes in LATTICE_ACTIVITY_RECORD_READONLY=1, the generated wrapper renderCodexWrapperScript() in src/init-assets.ts:357 literally sets process.env.LATTICE_ACTIVITY_RECORD_READONLY='1', and the command-policy.ts:445 red_evidence_envelope_check contract. Confirmed the two claimed-unconditional suppressions really are unconditional and the text did not hedge them into uncertainty: cli-engine.ts hook execution gates purely on if(!isReadOnlyCommand(cmd,parsed)) at :1351/:1458 (no OR term), and writeCodexProcessEvent's suppression is the standalone if(isReadOnlyCommand(...))return; at :1216 with no second term -- matches the claim exactly, no under- or over-claim. Independently verified the commandCatalogDigest claim: that field exists ONLY as a type/schema declaration in core/authority-contracts.ts (AuthorityPolicyContract discovery-response shape + an optional self-report field) -- grepped the whole repo and found no function anywhere that computes it from local content and no literal/pinned digest value in src/tasks or tests that depends on the exact catalog description text; per docs/requirements/decisions/authority-client-role.md the CLI-side handshake that would ever populate it is explicitly Deferred. So editing the catalog description breaks no frozen digest -- claim holds. ABSOLUTE-CLAIM SCAN: grepped the 7 touched files plus all 17 files touched anywhere in this story's full diff (vs merge-base with main) for writes nothing / nothing was written / no side effect / wrote NOTHING etc. Zero hits tied to red_evidence_envelope_check remain; all surviving 'writes nothing' occurrences (config.ts, command-policy.ts, command-catalog.ts, process-fact-levels.ts, process-fact-registry.ts) belong to pre-existing, unrelated commands (learning_validate, usage_sweep, playbook_*, prewrite_guard_check, intent_coverage_check, etc.) never touched by this story. Remaining 'nothing' occurrences inside the touched test/task files are all correctly hedged (describing what would be the WRONG claim, or scoping what a specific assertion does/does not prove) -- read each in full context, none is a bare absolute. No blocking findings; all 23 story findings are resolved/dismissed, none open.",
+      "createdAt": "2026-08-14T04:01:31.120Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-021",
+      "envelopeId": "41cbe30e3132ba60f2d1d75a7782c07bfc79d32a282cc5e58e6a92eb612a5658",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-client-role.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "258b44a56a760640dce1d379b58c44eea88e2756f4be013e5fe1b3b868962e4d"
     }
   ]
 }
