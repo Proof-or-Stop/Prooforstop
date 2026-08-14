@@ -161,6 +161,11 @@ Examples:
 4. DONE must hold the main write lock from pre-merge final check through merge and worktree cleanup.
 5. B-META finding writes must hold the main write lock and perform idempotency checks inside the lock.
 6. Lock acquisition failure is blocking. Proofbound must not proceed optimistically.
+7. Mtime age alone cannot reclaim a same-host live holder. The mkdir lock records
+   a UUID ownership token plus PID and process-start identity; a matching live
+   process incarnation remains active beyond the stale interval, while ESRCH or
+   a mismatched process-start identity is reclaimable. Unknown/remote liveness
+   uses the bounded mtime fallback and is an explicit availability boundary.
 
 ## Storage
 

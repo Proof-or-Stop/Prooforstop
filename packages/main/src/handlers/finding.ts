@@ -2,7 +2,7 @@
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
-import { existsSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -44,6 +44,7 @@ import {
   currentOpenReviewInventory,
   withReviewInventoryMutationLock,
 } from '../core/review-inventory-epoch.js';
+import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -89,7 +90,16 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
   // shared `.lattice/locks/finding/<id>-review-passes.lock` — the exact lock whose
   // committed-then-deleted holder.json failed quorum-submit-smoke's clean-tree gate.
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'finding', 'review-passes');
-  return withMkdirLock(lockDir, fn, { label: 'review-passes metadata' });
+  return withMkdirLock(lockDir, fn, { label: 'review-passes metadata', heartbeatMs: 1_000 });
+}
+
+function holdReviewPassLockForDeterministicStress(): void {
+  if (process.env.NODE_ENV !== 'test') return;
+  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS ?? 0);
+  if (!Number.isFinite(holdMs) || holdMs <= 0) return;
+  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_PASS_READY_FILE;
+  if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
 
 /**
@@ -359,10 +369,14 @@ function recordReviewPass(
   command = 'review_pass_set',
 ): string {
   return withReviewInventoryMutationLock(ctx.store, storyId, () => withReviewPassLock(ctx, storyId, () => {
+    assertReviewInventoryContextFreshLocked(ctx, storyId);
     const story = ctx.store.readStory(storyId);
     const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
     assertReviewInventoryEvidenceWritable(ctx.store, storyId, reviewRun);
     const data = ctx.store.readReviewPasses(storyId);
+    // Test-only barrier deliberately holds the full read-modify-write section;
+    // a live-owner lock must survive beyond the historical 10s stale threshold.
+    holdReviewPassLockForDeterministicStress();
     const nextNum = data.passes.reduce((max, pass) => {
       const m = pass.id.match(/:RP-(\d+)$/);
       return m ? Math.max(max, Number(m[1])) : max;
@@ -603,6 +617,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       });
       const id = reviewerLane
         ? withReviewInventoryMutationLock(store, args.storyId, () => {
+            assertReviewInventoryContextFreshLocked(ctx, args.storyId);
             const lockedStory = store.readStory(args.storyId);
             const lockedRun = assertCurrentReviewRunForEvidence(store, lockedStory, ctx.root, reviewerLane, args.reviewRunId);
             assertReviewInventoryEvidenceWritable(store, args.storyId, lockedRun);

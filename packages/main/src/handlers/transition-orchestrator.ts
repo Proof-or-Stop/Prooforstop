@@ -59,6 +59,7 @@ import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-r
 import { captureEvidenceHashSnapshot, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -1443,7 +1444,13 @@ async function runStoryTransitionInner(
       if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
         // Consume authority before publishing phase=DEV. A consume failure cannot
         // leave unauthorized DEV; a later write failure requires a new epoch.
-        consumeReviewInventoryReceipt(store, args.storyId, story.currentReviewRound ?? '', remediationCutoff!);
+        consumeReviewInventoryReceipt(
+          store,
+          args.storyId,
+          story.currentReviewRound ?? '',
+          remediationCutoff!,
+          () => assertReviewInventoryContextFreshLocked(ctx, args.storyId),
+        );
       }
       store.writeStory(args.storyId, story);
     } finally {

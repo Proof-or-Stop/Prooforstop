@@ -1684,6 +1684,8 @@ export interface ReviewInventoryWave {
   newVerifiedFindingCount?: number;
   criticDigest?: string;
   saturated?: boolean;
+  /** Highest numeric ReviewRun id already existing when this checkpoint sealed the wave. */
+  nextRunSequenceBoundary?: number;
 }
 
 /** Signed frozen-candidate inventory fact. It never certifies remediated material. */
@@ -1698,6 +1700,8 @@ export interface ReviewInventoryEpoch {
   cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
   scopeDigest: string;
   requiredLanes: string[];
+  /** Highest numeric ReviewRun id existing at begin; current-wave runs must be strictly newer. */
+  initialRunSequenceBoundary?: number;
   /** Signed snapshot of open verified findings from current-cutoff/current-round runs that predate begunAt. */
   baselineFindingIds?: string[];
   maxWaves: number;
@@ -1708,10 +1712,16 @@ export interface ReviewInventoryEpoch {
     currentMaterialHash: string;
     oldStoryFilesHash?: string;
     currentStoryFilesHash?: string;
-    blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION';
+    blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION' | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION';
+    oldScopeDigest?: string;
+    currentScopeDigest?: string;
+    oldRequiredLanes?: string[];
+    currentRequiredLanes?: string[];
   };
   cancelledAt?: string;
   cancelReason?: string;
+  /** Highest ReviewRun sequence existing when CANCELLED/INVALIDATED became terminal. */
+  terminalRunSequenceBoundary?: number;
   receiptId?: string;
   consumedAt?: string;
   consumedByReviewRound?: string;

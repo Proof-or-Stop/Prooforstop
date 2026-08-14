@@ -268,13 +268,17 @@ lanes when that closure is proven, and otherwise fails closed to every current
 active lane. Host/quorum/escalation assurance is never reduced. See
 `review-inventory-epoch-and-saturation-gate.md`.
 
-Inventory time boundaries are authoritative: `begin` carries forward all open
+Inventory event boundaries are authoritative: `begin` carries forward all open
 verified current-round/current-cutoff findings that already exist; each
-`wave_advance` seals ReviewRuns started before its checkpoint; and FINALIZED
+`wave_advance` signs the highest durable numeric ReviewRun sequence and seals
+all lower/equal runs regardless of equal wall-clock timestamps; and FINALIZED
 seals that review round even after receipt consumption. If genuine late
 evidence appears before consumption, `review_inventory_cancel --reason=...`
 signed-invalidates the receipt, after which a fresh epoch and fresh ReviewRun
 are required. Reviewer evidence is never writable from DEV.
+Scope digest and active required lanes are recomputed under the same inventory
+lock at scope acknowledgement, evidence, status, critic, wave, finalize, and
+consume boundaries; drift invalidates the epoch and requires a fresh begin.
 
 `lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `lattice` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.
 

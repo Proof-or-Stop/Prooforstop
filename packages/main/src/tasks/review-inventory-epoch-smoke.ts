@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs';
+import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   assertReviewInventoryCutoff,
@@ -35,11 +35,29 @@ import type {
   ReviewRun,
 } from '../core/types.js';
 import { renderReviewInventoryBegin, renderReviewInventoryStatus } from '../handlers/review-inventory.js';
+import { acquireMkdirLock, MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 
 const storyId = 'B-cdf6-replay';
 const reviewRound = '2026-08-14T00:00:00.000Z';
 const cutoff = { headHash: 'a'.repeat(40), materialHash: 'b'.repeat(64), storyFilesHash: 'c'.repeat(64) };
 const requiredLanes = ['lattice-review-concept', 'lattice-review-quality', 'lattice-review-test-coverage'];
+
+const reusedPidRoot = mkdtempSync(join(tmpdir(), 'review-lock-reused-pid-'));
+const reusedPidLockDir = join(reusedPidRoot, 'metadata.lock');
+mkdirSync(reusedPidLockDir);
+writeFileSync(join(reusedPidLockDir, MKDIR_LOCK_HOLDER_FILE), JSON.stringify({
+  pid: process.pid,
+  hostname: hostname(),
+  command: 'stale prior process incarnation',
+  acquiredAt: '2000-01-01T00:00:00.000Z',
+  lockId: 'old-incarnation-token',
+  processStartTimeMs: 946684800000,
+}));
+const oldTime = new Date(Date.now() - 20_000);
+utimesSync(reusedPidLockDir, oldTime, oldTime);
+utimesSync(join(reusedPidLockDir, MKDIR_LOCK_HOLDER_FILE), oldTime, oldTime);
+const reusedPidLock = acquireMkdirLock(reusedPidLockDir, { staleMs: 10_000, deadlineMs: 2_000, pollMs: 5 });
+reusedPidLock.release();
 
 function epoch(unsignedOverrides: Partial<Omit<ReviewInventoryEpoch, '_hash'>> = {}): ReviewInventoryEpoch {
   const unsigned: Omit<ReviewInventoryEpoch, '_hash'> = {
@@ -197,6 +215,37 @@ const clean = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, pas
 assert.deepEqual(clean.missingLanes, []);
 assert.equal(clean.newFamilies.length, 0);
 assert.equal(buildWave(initial, clean, '2026-08-14T00:10:00.000Z').saturated, true);
+
+const equalTimestampEpoch = epoch({ initialRunSequenceBoundary: 3 });
+const equalOldRun = run(requiredLanes[0], 3, equalTimestampEpoch.begunAt);
+const equalFreshRun = run(requiredLanes[0], 4, equalTimestampEpoch.begunAt);
+assert.equal(
+  evaluateReviewInventoryWave({ epoch: equalTimestampEpoch, runs: [equalOldRun], passes: [pass(equalOldRun, 30)], findings: [] }).lanes.length,
+  0,
+  'F033: equal timestamp cannot bypass a signed sequence boundary',
+);
+assert.equal(
+  evaluateReviewInventoryWave({ epoch: equalTimestampEpoch, runs: [equalFreshRun], passes: [pass(equalFreshRun, 31)], findings: [] }).lanes.length,
+  1,
+  'F033: a genuinely post-boundary ReviewRun proves freshness by monotonic RR sequence without a busy-wait',
+);
+
+const multiRunEpoch = epoch({ initialRunSequenceBoundary: 10 });
+const olderFindingRun = run(requiredLanes[0], 11, '2026-08-14T00:02:00.000Z');
+const newerPassRun = run(requiredLanes[0], 12, '2026-08-14T00:03:00.000Z');
+const otherLaneRuns = [
+  run(requiredLanes[1], 13, '2026-08-14T00:04:00.000Z'),
+  run(requiredLanes[2], 14, '2026-08-14T00:05:00.000Z'),
+];
+const olderFinding = finding(olderFindingRun);
+const multiRunEvaluation = evaluateReviewInventoryWave({
+  epoch: multiRunEpoch,
+  runs: [olderFindingRun, newerPassRun, ...otherLaneRuns],
+  passes: [pass(newerPassRun, 32), ...otherLaneRuns.map((row, index) => pass(row, 33 + index))],
+  findings: [olderFinding],
+});
+assert.ok(multiRunEvaluation.rawFindingIds.includes(olderFinding.id),
+  'F034: a newer same-lane pass cannot hide an older eligible run verified finding');
 
 const historical = finding(firstRuns[0]);
 const familyBeforeAuditTagChange = findingFamily(historical);

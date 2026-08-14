@@ -4273,6 +4273,29 @@ function assertReviewInventoryRemediationContract() {
     `${inventoryHandlerPath}: an unconsumed FINALIZED receipt needs a signed late-evidence invalidation path`,
   );
   assert(
+    /initialRunSequenceBoundary[\s\S]*nextRunSequenceBoundary[\s\S]*reviewRunSequence\(run\)[\s\S]*sequence <= sequenceBoundary/.test(epochText),
+    `${epochPath}: inventory waves must use signed monotonic ReviewRun boundaries instead of millisecond ordering`,
+  );
+  assert(
+    /runEvidence\.forEach[\s\S]*row\.findings\.forEach/.test(epochText),
+    `${epochPath}: every eligible same-lane ReviewRun must contribute verified findings even when one newer terminal is selected`,
+  );
+  const scopeContractHandlerText = read('packages/main/src/handlers/scope-contract.ts');
+  assert(
+    /scope_contract_acknowledge[\s\S]*withReviewInventoryMutationLock/.test(scopeContractHandlerText)
+      || /withReviewInventoryMutationLock[\s\S]*scope_contract_acknowledge/.test(scopeContractHandlerText),
+    'packages/main/src/handlers/scope-contract.ts: scope acknowledgement must share the inventory mutation lock',
+  );
+  assert(
+    /captureReviewInventoryScope[\s\S]*scopeDigest[\s\S]*requiredLanes[\s\S]*OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: inventory consumers must recompute frozen scope and active lanes`,
+  );
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  assert(
+    /classifyDefaultHolder[\s\S]*process\.kill\(holder\.pid, 0\)[\s\S]*observedProcessStartTimeMs[\s\S]*return 'active'/.test(mkdirLockText),
+    'packages/main/src/core/mkdir-lock.ts: stale reclaim must preserve a live same-host process incarnation beyond mtime expiry',
+  );
+  assert(
     /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED[\s\S]*begin a fresh inventory epoch/.test(epochText),
     `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
   );

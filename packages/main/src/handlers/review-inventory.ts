@@ -13,6 +13,7 @@ import {
   reviewInventoryDigest,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
+  maxReviewRunSequence,
   signReviewInventoryEpoch,
   signReviewInventoryCriticReceipt,
   signReviewInventoryReceipt,
@@ -50,10 +51,34 @@ function capture(ctx: HandlerContext, storyId: string) {
   }, workspace.metadataRoot);
 }
 
+export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string): {
+  scopeDigest: string;
+  requiredLanes: string[];
+} {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  let decision = null;
+  try { decision = ctx.store.readDecision(storyId); } catch { decision = null; }
+  const understanding = ctx.store.readUnderstanding(storyId);
+  const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
+  return {
+    requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
+      .map(row => `lattice-review-${row.name}`),
+    scopeDigest: reviewInventoryDigest({
+      scopeContract: ctx.store.readScopeContract(storyId),
+      checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
+    }),
+  };
+}
+
 function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventoryEpoch): ReviewInventoryEpoch {
   const current = capture(ctx, epoch.storyId);
-  if (current.materialHash === epoch.cutoff.materialHash
-    && (current.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')) return epoch;
+  const currentScope = captureReviewInventoryScope(ctx, epoch.storyId);
+  const materialChanged = current.materialHash !== epoch.cutoff.materialHash
+    || (current.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '');
+  const scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest
+    || reviewInventoryDigest(currentScope.requiredLanes) !== reviewInventoryDigest(epoch.requiredLanes);
+  if (!materialChanged && !scopeChanged) return epoch;
   const now = new Date().toISOString();
   const next = signEpoch({
     ...epoch,
@@ -65,13 +90,28 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
       currentMaterialHash: current.materialHash,
       ...(epoch.cutoff.storyFilesHash ? { oldStoryFilesHash: epoch.cutoff.storyFilesHash } : {}),
       ...(current.storyFilesHash ? { currentStoryFilesHash: current.storyFilesHash } : {}),
-      blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
+      blockerCode: scopeChanged ? 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION' : 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
+      ...(scopeChanged ? {
+        oldScopeDigest: epoch.scopeDigest,
+        currentScopeDigest: currentScope.scopeDigest,
+        oldRequiredLanes: epoch.requiredLanes,
+        currentRequiredLanes: currentScope.requiredLanes,
+      } : {}),
     },
+    terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(epoch.storyId).runs),
   });
   const data = ctx.store.readReviewInventoryEpochs(epoch.storyId);
   data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? next : row);
   ctx.store.writeReviewInventoryEpochs(epoch.storyId, data);
   return next;
+}
+
+/** Must be called while the shared review-inventory mutation lock is held. */
+export function assertReviewInventoryContextFreshLocked(ctx: HandlerContext, storyId: string): void {
+  const epoch = currentOpenReviewInventory(ctx.store, storyId);
+  if (!epoch) return;
+  const refreshed = persistInvalidationIfDrifted(ctx, epoch);
+  if (refreshed.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, refreshed));
 }
 
 export interface ReviewInventoryStatusProjection {
@@ -89,7 +129,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     return `Lane ${lane}: ${terminal?.terminal ?? 'pending'}`;
   });
   const blockers: string[] = [];
-  if (epoch.state === 'INVALIDATED') blockers.push('OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION');
+  if (epoch.state === 'INVALIDATED') blockers.push(epoch.invalidation?.blockerCode ?? 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION');
   if (epoch.state === 'FINALIZED' && epoch.consumedAt) blockers.push('REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED');
   if (epoch.state === 'OPEN' && epoch.waves.length >= epoch.maxWaves && !last?.saturated) blockers.push('REVIEW_INVENTORY_BUDGET_EXHAUSTED');
   if (epoch.state === 'OPEN' && live?.missingLanes.length) blockers.push('REVIEW_INVENTORY_LANES_INCOMPLETE');
@@ -147,6 +187,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     `Completeness critic: ${projection.criticComplete ? 'complete' : 'pending'}`,
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
+    ...(epoch.invalidation?.oldScopeDigest ? [`Changed scope: ${epoch.invalidation.oldScopeDigest} -> ${epoch.invalidation.currentScopeDigest}`] : []),
     ...(epoch.state === 'FINALIZED' && !epoch.consumedAt
       ? [`Recovery for genuine late evidence: lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="late evidence invalidated finalized receipt"; then begin a fresh epoch and fresh ReviewRun`]
       : []),
@@ -263,18 +304,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
             `Next: lattice story_advance --storyId=${args.storyId} --phase=DEV`,
           );
         }
-        const checklist = ctx.store.readChecklist(args.storyId);
-        let decision = null;
-        try { decision = ctx.store.readDecision(args.storyId); } catch { decision = null; }
-        const understanding = ctx.store.readUnderstanding(args.storyId);
-        const touchpoints = understanding?.touchpoints ?? detectMdTouchpointsFromGit(ctx.root);
-        const requiredLanes = computeActiveReviewers(story, checklist, decision, touchpoints)
-          .map(row => `lattice-review-${row.name}`);
+        const { requiredLanes, scopeDigest } = captureReviewInventoryScope(ctx, args.storyId);
         const cutoff = capture(ctx, args.storyId);
-        const scopeDigest = reviewInventoryDigest({
-          scopeContract: ctx.store.readScopeContract(args.storyId),
-          checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
-        });
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         const epochNum = data.epochs.reduce((max, row) => {
           const match = row.epochId.match(/:RI-(\d+)$/);
@@ -292,6 +323,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           cutoff,
           scopeDigest,
           requiredLanes,
+          initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
         };
@@ -428,7 +460,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         });
         if (!critic.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}; run the independent topology critic for wave ${epoch.waves.length + 1}`);
         const now = new Date().toISOString();
-        const wave = buildWave(epoch, evaluation, now);
+        const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         if (!wave.saturated) {
           throw new Error(
@@ -502,7 +534,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           throw new Error(`REVIEW_INVENTORY_ZERO_NEW_READY_TO_FINALIZE: Next: lattice review_inventory_finalize --storyId=${args.storyId}`);
         }
         const now = new Date().toISOString();
-        const wave = buildWave(epoch, evaluation, now);
+        const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
         const next = signEpoch({ ...epoch, updatedAt: now, waves: [...epoch.waves, wave] });
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? next : row);
@@ -534,6 +566,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           updatedAt: now,
           cancelledAt: now,
           cancelReason: args.reason.trim(),
+          terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
         });
         data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? cancelled : row);
         if (epoch.state === 'FINALIZED' && epoch.receiptId) {

@@ -28,6 +28,7 @@ const CRITIC_RECEIPT_DOMAIN = 'proofbound.review-inventory-critic-receipt.v1';
 export function withReviewInventoryMutationLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   return withMkdirLock(store.runtimeLockDirPath(storyId, 'review-inventory', 'epochs'), fn, {
     label: `review inventory ${storyId}`,
+    heartbeatMs: 1_000,
   });
 }
 
@@ -43,6 +44,17 @@ function canonical(value: unknown): string {
 
 export function reviewInventoryDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+export function reviewRunSequence(run: Pick<ReviewRun, 'reviewRunId'>): number | null {
+  const match = run.reviewRunId.match(/:RR-(\d+)$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+export function maxReviewRunSequence(runs: ReviewRun[]): number {
+  return runs.reduce((max, run) => Math.max(max, reviewRunSequence(run) ?? -1), 0);
 }
 
 export function signReviewInventoryEpoch(epoch: Omit<ReviewInventoryEpoch, '_hash'>): string {
@@ -226,14 +238,16 @@ export interface ReviewInventoryEvaluation {
 function isEligibleBaselineFinding(epoch: ReviewInventoryEpoch, finding: Finding, runs: ReviewRun[]): boolean {
   if (finding.status !== 'open' || (finding.evidenceState !== 'verified' && finding.evidenceState !== undefined)) return false;
   if (!verifyFinding(epoch.storyId, finding) || !finding.readManifest || !finding.readLog) return false;
-  if ((finding.createdAt ?? '') > epoch.begunAt) return false;
   const run = runs.find(row => row.reviewRunId === finding.reviewRunId);
+  const sequence = run ? reviewRunSequence(run) : null;
   return Boolean(run && verifyReviewRun(run)
     && run.storyId === epoch.storyId
     && run.reviewRound === epoch.reviewRound
     && run.materialHash === epoch.cutoff.materialHash
     && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
-    && run.startedAt < epoch.begunAt);
+    && (epoch.initialRunSequenceBoundary !== undefined
+      ? sequence !== null && sequence <= epoch.initialRunSequenceBoundary
+      : run.startedAt <= epoch.begunAt));
 }
 
 export function captureReviewInventoryBaselineFindingIds(args: {
@@ -255,21 +269,28 @@ export function evaluateReviewInventoryWave(args: {
   findingDispositions?: ReviewInventoryFindingDisposition[];
 }): ReviewInventoryEvaluation {
   const waveStart = args.epoch.waves.at(-1)?.completedAt ?? args.epoch.begunAt;
+  const sequenceBoundary = args.epoch.waves.at(-1)?.nextRunSequenceBoundary
+    ?? args.epoch.initialRunSequenceBoundary;
   const candidates = args.runs.filter(run =>
     run.storyId === args.epoch.storyId
     && run.reviewRound === args.epoch.reviewRound
     && run.materialHash === args.epoch.cutoff.materialHash
     && (run.storyFilesHash ?? '') === (args.epoch.cutoff.storyFilesHash ?? '')
-    && run.startedAt >= waveStart,
+    && (sequenceBoundary !== undefined
+      ? (reviewRunSequence(run) ?? -1) > sequenceBoundary
+      : run.startedAt > waveStart),
   );
   const lanes: ReviewInventoryLaneTerminal[] = [];
   const rawFindings = new Map<string, Finding>();
   for (const lane of args.epoch.requiredLanes) {
     const laneRuns = candidates.filter(run => run.lane === lane).sort((a, b) => b.startedAt.localeCompare(a.startedAt));
-    const selected = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings)).find(row => row.terminal);
+    const runEvidence = laneRuns.map(run => evidenceForRun(run, args.passes, args.findings));
+    const selected = runEvidence.find(row => row.terminal);
     if (!selected?.terminal) continue;
     lanes.push(selected.terminal);
-    selected.findings.forEach(finding => rawFindings.set(finding.id, finding));
+    // Coverage has one canonical terminal per lane, but completeness aggregates
+    // every verified finding from every eligible same-wave run for that lane.
+    runEvidence.forEach(row => row.findings.forEach(finding => rawFindings.set(finding.id, finding)));
   }
   const signedBaselineIds = [...(args.epoch.baselineFindingIds ?? [])].sort();
   const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ epoch: args.epoch, runs: args.runs, findings: args.findings });
@@ -365,6 +386,7 @@ export function assertReviewInventoryCutoff(store: StoryStore, storyId: string, 
       ...(current.storyFilesHash ? { currentStoryFilesHash: current.storyFilesHash } : {}),
       blockerCode: 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
     },
+    terminalRunSequenceBoundary: maxReviewRunSequence(store.readReviewRuns(storyId).runs),
   };
   const invalidated: ReviewInventoryEpoch = { ...unsigned, _hash: signReviewInventoryEpoch(unsigned) };
   const data = store.readReviewInventoryEpochs(storyId);
@@ -406,7 +428,11 @@ export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId
   }
   if (latest.state === 'CANCELLED' || latest.state === 'INVALIDATED') {
     const terminalBoundary = latest.cancelledAt ?? latest.invalidation?.detectedAt ?? latest.updatedAt;
-    if (run.startedAt < terminalBoundary) {
+    const sequence = reviewRunSequence(run);
+    const predatesBoundary = latest.terminalRunSequenceBoundary !== undefined
+      ? sequence === null || sequence <= latest.terminalRunSequenceBoundary
+      : run.startedAt <= terminalBoundary;
+    if (predatesBoundary) {
       throw new Error(
         `REVIEW_INVENTORY_EVIDENCE_SEALED: reviewRunId ${run.reviewRunId} predates terminal epoch boundary ${terminalBoundary}; ` +
         'begin a fresh epoch and start a fresh ReviewRun',
@@ -416,7 +442,12 @@ export function assertReviewInventoryEvidenceWritable(store: StoryStore, storyId
   }
   if (latest.state !== 'OPEN') return;
   const waveStart = latest.waves.at(-1)?.completedAt ?? latest.begunAt;
-  if (run.startedAt < waveStart) {
+  const sequenceBoundary = latest.waves.at(-1)?.nextRunSequenceBoundary ?? latest.initialRunSequenceBoundary;
+  const sequence = reviewRunSequence(run);
+  const sealed = sequenceBoundary !== undefined
+    ? sequence === null || sequence <= sequenceBoundary
+    : run.startedAt <= waveStart;
+  if (sealed) {
     throw new Error(
       `REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED: reviewRunId ${run.reviewRunId} started at ${run.startedAt} before current wave ${latest.waves.length + 1} boundary ${waveStart}; ` +
       'start a fresh ReviewRun for the current wave',
@@ -522,8 +553,10 @@ export function consumeReviewInventoryReceipt(
   storyId: string,
   reviewRound: string,
   currentCutoff: { materialHash: string; storyFilesHash?: string },
+  validateInventoryContext?: () => void,
 ): string | null {
   return withReviewInventoryMutationLock(store, storyId, () => {
+    validateInventoryContext?.();
     const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
     if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
     const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
@@ -554,7 +587,7 @@ export function consumeReviewInventoryReceipt(
   });
 }
 
-export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string): ReviewInventoryWave {
+export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInventoryEvaluation, now: string, nextRunSequenceBoundary?: number): ReviewInventoryWave {
   const aggregate = [...new Set([...epoch.waves.flatMap(row => row.verifiedFindingFamilies), ...evaluation.families])].sort();
   return {
     wave: epoch.waves.length + 1,
@@ -566,5 +599,6 @@ export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInvento
     newVerifiedFindingCount: evaluation.newFamilies.length,
     criticDigest: evaluation.criticDigest,
     saturated: evaluation.newFamilies.length === 0,
+    ...(nextRunSequenceBoundary !== undefined ? { nextRunSequenceBoundary } : {}),
   };
 }

@@ -143,9 +143,15 @@ immutable aggregate and require another full unchanged-material wave.
 `review_inventory_wave_advance` is the sole checkpoint for a complete
 nonzero-new wave. `review_inventory_finalize` rejects that state without
 persisting the wave; it is exclusively the zero-new receipt writer.
-The checkpoint's signed `completedAt` is also an admission boundary: every
-ReviewRun started before it is sealed, so a late terminal cannot land between
-waves and then disappear from the next wave's candidate set.
+Wall-clock timestamps are audit context, not ordering authority. `begin` signs
+`initialRunSequenceBoundary`, and each checkpoint signs
+`nextRunSequenceBoundary`, derived from the monotonically allocated numeric
+`RR-...` identity. Only a strictly greater sequence is eligible for the new
+wave. Thus equal-millisecond runs are conservatively classified by their
+linearized durable identity without sleeps, and a truly post-boundary run has
+an unambiguous proof. A lane still projects one canonical terminal for coverage,
+but its raw finding set is the union of verified findings from every eligible
+same-wave run; a newer pass cannot hide an older concurrent run's finding.
 Exhausting the bounded wave budget yields
 `REVIEW_INVENTORY_BUDGET_EXHAUSTED` and requires replan/decompose/escalation; it
 never yields PASS.
@@ -154,7 +160,7 @@ At `begin`, the epoch signs `baselineFindingIds`: every open, signature-valid,
 verified finding with mechanical read evidence from a current-round/current-
 cutoff ReviewRun that predates the epoch. The first wave carries those findings
 into the critic disposition set even though their ReviewRuns began before
-`begunAt`. Consumers recompute the eligible baseline and fail closed with
+the signed initial run-sequence boundary. Consumers recompute the eligible baseline and fail closed with
 `REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED` on any difference. Consequently
 cancel/rebegin cannot erase an unresolved verified finding merely by moving the
 epoch boundary.
@@ -165,10 +171,22 @@ The preventative prewrite projection rejects material targets while an epoch
 is OPEN. Prevention is not the authority: `review_run_start`, the shared
 `assertCurrentReviewRunForEvidence` path used by `review_pass_set` and reviewer
 `finding_add`, finalization, status and transition consumption recompute
-lineage. A direct edit or unsupported-hook bypass is therefore detected by the
-next authoritative consumer and atomically changes the epoch to `INVALIDATED`.
+lineage. They also recompute the canonical scope digest and active required
+lanes. `scope_contract_acknowledge` uses the same inventory mutation lock, so a
+scope write cannot interleave between validation and evidence/finalization/
+consumption; any scope or lane drift atomically changes the epoch to
+`INVALIDATED` with `OPEN_REVIEW_INVENTORY_SCOPE_MUTATION`. A direct edit or
+unsupported-hook bypass is therefore detected by the next authoritative consumer.
 Story/runtime metadata excluded by the canonical material hash does not
 invalidate the epoch.
+
+The inventory and reviewer-pass read-modify-write sections use the shared
+mkdir lock's ownership token and same-host process-incarnation liveness check.
+A live holder is never reclaimed merely because it exceeds the historical
+10-second stale age. PID reuse is distinguished by the persisted process start
+time; UUID ownership still protects release from deleting a successor. If the
+host or process-start probe is unavailable, classification is explicitly
+unknown and retains the bounded mtime fallback rather than claiming liveness.
 
 ## Final review after remediation
 

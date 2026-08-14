@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -56,6 +56,14 @@ function cliAsync(root: string, command: string, payload: Record<string, unknown
       ...env,
     },
   }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
+}
+
+function waitForFile(path: string, timeoutMs = 5_000): void {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path)) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting for ${path}`);
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+  }
 }
 
 function setup() {
@@ -159,6 +167,18 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
     }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   }
 }
+const multiRunLane = epoch.requiredLanes[0];
+const multiRunSession = `sess-inventory-newer-pass-${multiRunLane}`;
+cli(first.root, 'dispatch', { storyId, agentType: multiRunLane }, { LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession });
+const newerSameLaneStarted = cli(first.root, 'review_run_start', { storyId, agent: multiRunLane }, {
+  LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession,
+});
+const newerSameLaneRunId = newerSameLaneStarted.match(/Review run (\S+) started/)?.[1];
+assert.ok(newerSameLaneRunId);
+cli(first.root, 'review_pass_set', {
+  storyId, agent: multiRunLane, reviewRunId: newerSameLaneRunId,
+  note: 'Newer same-lane pass must not hide the older run verified finding.', readManifest, readEvents,
+}, { LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession });
 const beforeCriticAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -237,8 +257,6 @@ const { _hash: _exhaustedHash, ...exhaustedBase } = exhaustedEpoch;
 const restoredBudgetUnsigned = { ...exhaustedBase, maxWaves: 2 };
 budgetData.epochs[0] = { ...restoredBudgetUnsigned, _hash: signReviewInventoryEpoch(restoredBudgetUnsigned) };
 reloaded.writeReviewInventoryEpochs(storyId, budgetData);
-const firstWaveCompletedAt = reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves[0].completedAt;
-while (Date.now() <= Date.parse(firstWaveCompletedAt!)) { /* preserve strict wave ordering */ }
 const secondWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of epoch.requiredLanes) {
   const sessionId = `sess-inventory-wave2-${lane}`;
@@ -521,7 +539,6 @@ const [cancelRaceResult, findingRaceResult] = await Promise.all([
 assert.equal(cancelRaceResult.ok, true, cancelRaceResult.output);
 if (!findingRaceResult.ok) assert.match(findingRaceResult.output, /REVIEW_INVENTORY_EVIDENCE_SEALED/);
 const racePersistedFindingIds = cancelRace.store.readFindings(storyId).findings.map(row => row.id).sort();
-while (Date.now() <= Date.parse(cancelRace.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.updatedAt)) { /* strict rebegin boundary */ }
 cli(cancelRace.root, 'review_inventory_begin', { storyId });
 assert.deepEqual(
   cancelRace.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.baselineFindingIds,
@@ -579,17 +596,71 @@ const carryFindingOutput = cli(carryForward.root, 'finding_add', {
 }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
 const carryFindingId = carryFindingOutput.match(/(B-inventory-handler:F-\d+)/)?.[1];
 assert.ok(carryFindingId);
-const carryFindingCreatedAt = carryForward.store.readFindings(storyId).findings.find(row => row.id === carryFindingId)!.createdAt!;
-while (Date.now() <= Date.parse(carryFindingCreatedAt)) { /* force a strict signed baseline boundary */ }
 cli(carryForward.root, 'review_inventory_begin', { storyId });
 let carryEpoch = carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
 assert.deepEqual(carryEpoch.baselineFindingIds, [carryFindingId], 'F032: begin signs the current-cutoff/current-round open verified baseline');
 assert.ok(carryForward.handlers.review_inventory_status({ storyId }).includes('REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE'));
 cli(carryForward.root, 'review_inventory_cancel', { storyId, reason: 'exercise cancellation without losing a verified finding' });
-while (Date.now() <= Date.parse(carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!.updatedAt)) { /* strict rebegin boundary */ }
 cli(carryForward.root, 'review_inventory_begin', { storyId });
 carryEpoch = carryForward.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
 assert.deepEqual(carryEpoch.baselineFindingIds, [carryFindingId], 'F032: cancellation/rebegin cannot erase an existing verified finding');
+
+const scopeDrift = setup();
+const scopeNow = new Date().toISOString();
+scopeDrift.store.writeScopeContract(storyId, {
+  storyId, mode: 'enforce',
+  allowedModify: ['packages/main/src/subject.ts'], allowedCreate: [],
+  allowedTest: ['packages/main/tests/isolated.test.ts'], protectedFiles: [], explicitExcludes: [],
+  acknowledgements: [], createdAt: scopeNow, updatedAt: scopeNow,
+});
+cli(scopeDrift.root, 'review_inventory_begin', { storyId });
+cli(scopeDrift.root, 'scope_contract_acknowledge', {
+  storyId, paths: ['packages/main/src/consumer-a.ts'],
+  reason: 'Expand the frozen review scope for deterministic drift coverage.',
+});
+const scopeDriftStatus = cli(scopeDrift.root, 'review_inventory_status', { storyId });
+assert.match(scopeDriftStatus, /State: INVALIDATED/);
+assert.match(scopeDriftStatus, /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
+assert.throws(
+  () => cli(scopeDrift.root, 'review_inventory_finalize', { storyId }),
+  /no OPEN epoch/,
+  'F035: begin -> scope acknowledgement invalidates old lanes and rejects finalize',
+);
+
+const longHolder = setup();
+const longLanes = ['lattice-review-concept', 'lattice-review-quality'];
+const longRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
+for (const lane of longLanes) {
+  const sessionId = `sess-long-holder-${lane}`;
+  cli(longHolder.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  const started = cli(longHolder.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  longRuns.set(lane, { reviewRunId: started.match(/Review run (\S+) started/)![1], sessionId });
+}
+const readyFile = join(longHolder.root, 'long-review-pass.ready');
+const firstLong = longRuns.get(longLanes[0])!;
+const secondLong = longRuns.get(longLanes[1])!;
+const longHolderStartedAt = Date.now();
+const firstLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
+  storyId, agent: longLanes[0], reviewRunId: firstLong.reviewRunId,
+  note: 'Long live-holder pass remains authoritative beyond ten seconds.', readManifest, readEvents,
+}, {
+  LATTICE_AGENT: longLanes[0], LATTICE_SESSION_ID: firstLong.sessionId, NODE_ENV: 'test',
+  LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS: '11000',
+  LATTICE_INTERNAL_REVIEW_PASS_READY_FILE: readyFile,
+});
+waitForFile(readyFile);
+const secondLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
+  storyId, agent: longLanes[1], reviewRunId: secondLong.reviewRunId,
+  note: 'Concurrent waiter must not reclaim a live review-pass lock.', readManifest, readEvents,
+}, { LATTICE_AGENT: longLanes[1], LATTICE_SESSION_ID: secondLong.sessionId, NODE_ENV: 'test' });
+const [firstLongResult, secondLongResult] = await Promise.all([firstLongPromise, secondLongPromise]);
+assert.equal(firstLongResult.ok, true, firstLongResult.output);
+assert.equal(secondLongResult.ok, true, secondLongResult.output);
+assert.ok(Date.now() - longHolderStartedAt >= 10_500, 'F036 stress must actually cross the historical 10s stale threshold');
+const durableLongPasses = longHolder.store.readReviewPasses(storyId).passes
+  .filter(row => longLanes.includes(row.agent));
+assert.equal(durableLongPasses.length, 2, 'F036: >10s live holder preserves both concurrent signed passes');
+assert.equal(new Set(durableLongPasses.map(row => row.id)).size, 2, 'F036: atomic RMW assigns unique durable pass IDs');
 
 const drifted = setup();
 cli(drifted.root, 'review_inventory_begin', { storyId });
