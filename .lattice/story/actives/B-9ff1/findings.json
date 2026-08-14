@@ -963,7 +963,7 @@
       "desc": "[codex host-B G3] Verified by main agent. My own resolution text for F-037 claimed the superseded phrase is 'gone from the repository entirely'. That is literally false: exact search still finds it three times in findings.json - twice as historical finding text and once inside that very assertion. The active source and test claim sites are clean, which is what I meant, but the sentence as written overclaims. Historical audit records are correctly not treated as a sixth frozen contract. Recorded here rather than silently, because overclaiming inside a finding resolution is the same defect class this story exists to fix.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:46:47.160Z",
@@ -971,7 +971,11 @@
       "reviewRunId": "B-9ff1:RR-033",
       "_hash": "4e8bd9dfdc279e641e5c9b38bd5417802e4e9131a6605efdd93fb0b6eb66d96f",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Not editable: finding resolutions are immutable once written, so the overclaiming sentence in F-037's resolution stands in the record. It is corrected here instead. What I wrote was that the superseded phrase is gone from the repository entirely; what is true is that it is gone from the ten active source and test claim sites, while three occurrences remain in findings.json - two as historical finding text and one inside that very assertion. Historical audit records are correctly not a sixth frozen contract. Recorded rather than left silent because an overclaim inside a finding resolution is the same defect class this story exists to fix, and it was mine.",
+      "resolvedAt": "2026-08-14T11:00:50.137Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-046",
