@@ -39,7 +39,7 @@
       "desc": "checklist.json CHK-006:happy:1, CHK-006:edge:1, and CHK-006:adversarial:0 (intentRefs) all bind to the same command `git diff main...HEAD -- docs/requirements/decisions/dev-memory.md` with selectors lacking a +/- diff-line prefix (happy:1 and adversarial:0 use the identical selector text). Same non-discriminating mechanism as the CHK-005 finding: packages/main/src/handlers/checklist.ts:645s `run.output.includes(pinSelector)` matches the phrase whether it sits on a preserved context line or a removed `-` line, so none of these three checks can mechanically prove not deleted vs deleted. Unlike CHK-005 (which has a companion CHK-005:edge:0 readFileSync-based final-content check for the same claim), none of CHK-006s 9 verificationEvidence entries independently re-verifies via final-file content (readFileSync(...).includes(...)) that the original Non-Goal bullet (Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.) still exists in the current dev-memory.md -- the only evidence for that specific not deleted claim is this weak diff-substring pattern, duplicated identically across happy:1 and adversarial:0.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T13:50:44.108Z",
@@ -47,7 +47,9 @@
       "reviewRunId": "B-a7c5:RR-003",
       "_hash": "ad07cbe330f1fe6aa324a8e2b544367e492914954052c98be17aea72a59a97ab",
       "signatureTag": "adversarial|unknown|checklist-json-happy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed the reviewer's diagnosis: CHK-006:happy:1/edge:1/adversarial:0 share the same non-discriminating git-diff-substring pattern, and unlike CHK-005 there is no sibling final-content-check intent already bound within CHK-006 to fall back on. Same tooling constraint as F-002: neither re-pinning the same intentRef nor adding a fresh custom intentRef is possible post-authoring (verification_evidence_add refuses both). Independently re-verified the underlying claim directly: node -e reading the live file confirms the original Non-Goal bullet 'Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.' IS still present verbatim in docs/requirements/decisions/dev-memory.md (DEVMEM_ORIGINAL_TEXT_PRESENT). Recording as a known limitation: this story's evidence-binding tooling has no mechanism to add a supplemental mechanical check to an already-authored, already-evidenced checklist item during REVIEW -- a future story hardening verification_evidence_add / checklist authoring to allow appending intent slots post-PLAN (with an explicit reason, similar to checklist_add's mid-PLAN reason requirement) would close this class of gap generally, not just for B-a7c5.",
+      "resolvedAt": "2026-08-14T13:53:20.186Z"
     },
     {
       "id": "B-a7c5:F-004",
