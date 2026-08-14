@@ -356,6 +356,16 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:42:04.824Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "waiver",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Bare 'npm test' is the full ~2h suite (timeoutMs 7200000) that done_required runs at DONE; it cannot be run inside DEV. The pretest lifecycle firing is proven behaviorally by happy:0/happy:1 (the RED runs it) and the end-to-end self-bootstrap is exercised by the done_required full-suite step. Deferred gate evidence, verified at the done_required/DONE full-suite run.",
+          "headHash": "c06d899bd2759f892e9a66f6cf7e2519d2cf653e",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:42:06.638Z"
         }
       ]
     }
