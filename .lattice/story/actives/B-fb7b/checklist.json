@@ -49,7 +49,11 @@
           {
             "desc": "Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+              "selector": "GB-EDGE3-REGISTERED"
+            }
           }
         ],
         "adversarial": [
@@ -79,7 +83,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite confirms the smoke entry is registered in validate.commands",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5175e7998b6c842673036fbb4c4ea9b0392734d338af74e64ed405877a589f10",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADV2-BIT\nGB-ADV4-BIT\nGB-EDGE1-CLEAN\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:40:37.737Z"
+          },
+          "headHash": "4bf90241fd79dd62faed8d12867da85895194b7c",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:40:37.974Z"
+        }
+      ]
     }
   ]
 }
