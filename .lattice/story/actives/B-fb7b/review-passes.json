@@ -96,6 +96,39 @@
         "scanEscalationReason": null
       },
       "_hash": "2991f1e83e33173f35d8165c2c2df21f9d534be11054d67fd7ff54fd4da40d36"
+    },
+    {
+      "id": "B-fb7b:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-deletion-completeness scan. git diff main...HEAD --stat (merge-base-relative) shows the material change is 2802 insertions(+), 5 deletions(-); every deletion is confined to .lattice/story/actives/B-fb7b bookkeeping lifecycle-status churn (checklist.json status pending->done + startTime/endTime fields, index.json phase field) -- not code/docs/concept content. Note: a naive two-dot `git diff main..HEAD` additionally surfaces an 8-file deletion of .lattice/story/actives/B-c648/* (background.md, checklist.json, execution-boundary.json, index.json, init-check.json, process-events.jsonl, scope-boundary.json, scope-freeze-check.json); verified this is unrelated main-drift noise, not part of this story: `git log main..HEAD` contains zero B-c648 commits, B-c648/index.json exists at `git show main:...` but not at the merge-base (`git merge-base main HEAD`), and `git diff <merge-base>..HEAD -- .lattice/story/actives/B-c648/` is empty. The actual story diff (package.json, lattice.config.json, CHANGELOG.md, new file packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, new file packages/main/tests/red/red-fb7b-guard-bite.mjs, new file packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) is purely additive (344 insertions, 0 deletions when .lattice/ excluded): package.json gains one new `pretest` script key (does not overwrite/replace any existing key), lattice.config.json gains one new validate.commands array entry, CHANGELOG.md gains one new dated section, and the three .ts/.mjs files are wholly new. No existing concept, symbol, command, export, script name, or config key is deleted, renamed, or replaced anywhere in the material diff, so there is no concept-word to grep for residue -- the deletion-completeness check is vacuously satisfied. Consistent with lattice-review-docs RP-001/RP-002 and lattice-review-quality RP-003 findings on the same round, which independently confirm bin/bootstrap-runner.js and the worktree handler are untouched and no doc/code drift was introduced.",
+      "createdAt": "2026-08-14T04:23:59.568Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-010",
+      "envelopeId": "6657a2ead889da115855a215b5b51570b852e547050f3934c17a9fb0098d3b62",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c648/index.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc5a94d2294c0bd0c9a8fe26c515ca5aed6ed79b0e60878634ad2ee945c23e1f"
     }
   ]
 }
