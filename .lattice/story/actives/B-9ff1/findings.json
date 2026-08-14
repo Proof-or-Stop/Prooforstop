@@ -1010,6 +1010,21 @@
       "_hash": "d9aa6a2ba14b9995f030c54a4b9292e8b2b229e362de01bd05c429335040fd4d",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-048",
+      "desc": "[codex host-B H2] Verified by main agent against resolveHookCommands in core/hooks.ts, which resolves an exact stage-map key plus the * wildcard and nothing else. The operator-facing string said a CONFIGURED onError hook does run; a configured map carrying neither an exact red_evidence_envelope_check key nor a * key runs no command at all. The handler's own docblock said CONFIGURED and MATCHING correctly, so the operator-facing copy had dropped the qualifier the doc comment kept. That string was also an undeclared FOURTEENTH guarantee-bearing statement where the note declared thirteen. The implementer proved the correction behaviourally with four cases: a configured but non-matching map fires nothing even though the CLI still prints its running onError hooks notice, a * map fires, an exact-key map fires, and returning to the non-matching map fires nothing again.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T11:39:00.949Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-037",
+      "_hash": "fa46a0cf2a27ae8b91efc2075c6f2ecd47e04481a4d8ffe81d17f948b2c22b5c",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
