@@ -591,6 +591,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f755ccdf3571418f9178536f21c2258140f01e4d3f6a43fc8296e41e1dbef2fa"
+    },
+    {
+      "id": "B-9ff1:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Regression verified fixed. Ran the dispatcher-supplied selector checker (scratchpad, outside repo tree): 108 pins, 106 checked, 2 permanently waived (CHK-012:edge:1, CHK-013:adversarial:0), 0 mismatches -> OK. checklist_get: 108 intent refs, 106 pass, 2 permanent waivers, 0 missing, 0 failed -- matches expected. CHK-012:adversarial:0 confirmed still kind=logic_test, result=pass, selectorMatched=true (NOT converted to waiver); commit 8c1ec91805 restored the exact substring 'a byte-identical .lattice tree with no gate verdict change' verbatim in packages/main/src/tasks/red-evidence-envelope-smoke.ts:623, with the em-dash qualification placed AFTER it so the pin stays contiguous, and the qualification covers all four required properties: NET-across-the-batch, aggregate not per-invocation (one snapshot before/after), manifest of paths+content-hashes only, CLI entrypoint not exercised. Ran live: node packages/main/dist/tasks/red-evidence-envelope-smoke.js exit 0 with the phrase present verbatim in real stdout; all 5 red-w2d-*.mjs transcripts pass exit 0. PROCESS FINDING (on the record, not blocking): the regression got through 4 review lanes including mine last round because nothing in the standard review flow recomputes selectorMatched against live output for evidence that already reads result=pass -- checklist.ts:645 computes selectorMatched=run.output.includes(pinSelector) correctly, but that only runs inside verification_run / verification_evidence_refresh_stale, which reviewers do not invoke by default for wording-only commits; the CHK-012:adversarial:0 receipt I passed last round was stamped BEFORE the wording-fix commit (evidence executedAt 2026-08-13T20:44Z, culprit commit ee73b9f66d at 2026-08-14T03:50Z UTC), so a stale result=pass sat unchallenged while the underlying string diverged and nobody re-executed the pinned command against the new output. What I would have needed: a mandatory, default reviewer step -- exactly what the checker script does -- run whenever a round's diff touches a file that is itself a pinned verification command, or edits a string literal inside such a file: extract every non-waived {command, selector} pin whose command touches a changed file, re-execute the command, and assert the selector is still a contiguous substring of fresh output. This is cheap (7 distinct commands, sub-second) and deterministic; there is no reason it should stay an ad hoc script instead of a required pre-pass-set check for any review lane touching printed/assertion/console text. Adding this to my own default checklist for every future round; flagging it as a durable process gap independent of this specific fix.",
+      "createdAt": "2026-08-14T10:09:26.134Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-031",
+      "envelopeId": "943cbebfa6349e8703cf6f326545ac064275ed5c9c3893d6bc1111badbf23d83",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "08ecafcad48529f500fe9afe4c98b49e827bfb0b726bb8f48984692b66375e29"
     }
   ]
 }
