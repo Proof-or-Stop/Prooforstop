@@ -944,7 +944,7 @@
       "desc": "[codex host-B G2] DEFECT IN MY OWN ACCEPTANCE INSTRUMENT, second round of them, all three reproduced by the main agent before acting. scratchpad/check-selectors.py could still report OK where the lifecycle refuses: (a) it stripped general CSI sequences while stripAnsi in core/validation-executor.ts strips only SGR, so raw 'A ESC[2K B' matched selector 'AB' here and not there - also found independently by the quality lane with the counter-example MARK ESC[2C ER_OK; (b) it compared the 12000-char cap in Python code points while JavaScript length and slice use UTF-16 code units, so 6000 emoji plus PIN measured 6003 here and 12003 there, retaining a selector the lifecycle truncates away; (c) subprocess text mode normalized CRLF while Node's buffer capture keeps it, so raw 'A CR LF B' matched selector 'A LF B' here and not there. All three are fixed and each counter-example now evaluates the same way the lifecycle would. This is the second consecutive round in which the instrument I was using as a gate was itself defective.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:46:45.174Z",
@@ -952,7 +952,11 @@
       "reviewRunId": "B-9ff1:RR-033",
       "_hash": "ad0e688e843353b69c28eb296d89010cf53eeadc77facdcc20db5ba8939825d3",
       "signatureTag": "missing|unknown|codex-host-defect",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the instrument. Three further false-OK cases, each reproduced by me before acting and each now evaluating as the lifecycle would: the ANSI stripper was a full-CSI-grammar regex where core/validation-executor.ts stripAnsi is SGR-only, so raw A ESC[2K B matched selector AB here and not there; the 12000-char cap was compared in Python code points where JavaScript length and slice use UTF-16 code units, so 6000 emoji plus PIN measured 6003 here and 12003 there and retained a selector the lifecycle truncates away; and subprocess text mode normalized CRLF where Node's buffer capture keeps it, so raw A CR LF B matched selector A LF B here and not there. Capture is now bytes decoded without newline translation, the cap is measured and sliced in UTF-16 units, and the ANSI pattern is the same narrow SGR-only one. The quality lane found the ANSI gap independently with its own counter-example. Two consecutive rounds have now found defects in the instrument I was using as an acceptance gate, which is the strongest argument in this story for adversarially reviewing your own tools rather than only your code.",
+      "resolvedAt": "2026-08-14T11:00:49.231Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-045",
