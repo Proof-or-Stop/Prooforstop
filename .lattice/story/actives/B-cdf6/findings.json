@@ -1100,6 +1100,21 @@
       "resolvedAt": "2026-08-14T13:43:53.232Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-052",
+      "desc": "packages/main/src/core/auto-commit-metadata.ts:92-95 matchesRuntimeCommitSubject() read-both compatibility branch (DEPRECATED_COMMIT_SUBJECT_PREFIX == lattice:) has zero direct test coverage of the deprecated-form input. Its single production consumer, packages/main/src/handlers/worktree.ts:678 (purgeSafeInitCommit), exists specifically to recognize pre-rename init commits, but every smoke that exercises purgeSafeInitCommit (review-pass-discard-smoke.ts:430,500,535) hand-writes only the canonical proof-or-stop: story <id> init subject -- never the deprecated lattice: story <id> init form the matcher was added to keep parsing. flow-stability-smoke.ts only imports AUTO_COMMIT_METADATA_PREFIX (the unrelated user-visible note prefix), not the matcher or DEPRECATED_COMMIT_SUBJECT_PREFIX. A future edit that narrows matchesRuntimeCommitSubject to only the canonical prefix would pass every existing test while silently breaking DONE cleanup for repositories holding pre-rename init commits -- the exact regression the function exists to prevent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T13:44:17.678Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-072",
+      "_hash": "21600081058a6f9d388b4d3c92aff7cb77ea57370e7d7fa7f28df879f4cc4830",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
