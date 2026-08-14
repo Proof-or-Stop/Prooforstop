@@ -38,7 +38,15 @@
 //      read-only command class, which suppresses the preCommand/postCommand
 //      hooks and the process event, but NOT the onError hook (that cli-engine.ts
 //      call site carries no read-only predicate, and this command throws its
-//      rejection report by design). What is NOT observed here: nothing in this
+//      rejection report by design). The canonical scope sentence, used verbatim
+//      at every site that states this guarantee: Scoped to the command handler
+//      itself and the CLI story-evidence writers, it writes no RED-evidence
+//      record, chain record or story/evidence artifact, emits no process event,
+//      changes no gate verdict, and runs no preCommand or postCommand hook.
+//      Nothing outside that scope is covered: see the red_evidence_envelope_check
+//      note in cli/activity-policy.ts, which lists the surfaces known when it was
+//      written and is not a proof of exhaustiveness.
+//      What is NOT observed here: nothing in this
 //      file goes through cli-engine.ts, so the generic session row written by
 //      the shared entrypoint to .lattice/activity.jsonl (the runtime-activity-log
 //      artifact per core/runtime-artifact-registry.ts, written under

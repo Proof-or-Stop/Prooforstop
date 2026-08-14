@@ -351,13 +351,17 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      * operator pre-flight over a candidate file that is not evidence yet, so it
      * sits OUTSIDE the §5.5 fence.
      *
-     * READ-ONLY, mechanically, AT THE HANDLER AND THE BUILT-IN CLI PERSISTENCE
-     * PATHS: the handler reads config, the story record, the candidate file, and
-     * the COMMITTED bindings blob; those paths write no RED-evidence record, no
-     * chain record and no story or evidence artifact under the story directory,
-     * emit no process event, change no gate verdict, spawn no RED run, and never
-     * call autoCommitStoryMetadata. That scope is deliberate: it excludes a
-     * configured `onError` hook, which is arbitrary shell (see 1 below).
+     * READ-ONLY, mechanically, in the canonical scope sentence used verbatim at
+     * every site that states this guarantee: Scoped to the command handler
+     * itself and the CLI story-evidence writers, it writes no RED-evidence
+     * record, chain record or story/evidence artifact, emits no process event,
+     * changes no gate verdict, and runs no preCommand or postCommand hook. The
+     * handler reads config, the story record, the candidate file, and the
+     * COMMITTED bindings blob; it additionally spawns no RED run and never calls
+     * autoCommitStoryMetadata. Nothing outside that scope is covered: see the
+     * red_evidence_envelope_check note in `cli/activity-policy.ts`, which lists
+     * the surfaces known when it was written and is not a proof of
+     * exhaustiveness — the same set repeated as 1-4 below.
      * `command-policy` classifies the command `readOnly`/`destructiveRisk: none`
      * and `cli/activity-policy` lists it in READ_ONLY_COMMANDS, which suppresses
      * exactly TWO of the CLI's own write surfaces — the `preCommand` and
@@ -381,9 +385,15 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      a hook is not bounded by anything above: `spawnHook` in
      *      `core/hooks.ts` executes it through `/bin/sh -c` in the project root,
      *      so it can write RED or story evidence, append a process event, or
-     *      invoke a gate-mutating command. Do not "fix" this by adding a guard
-     *      here: the onError call site is class-wide and belongs to a separate
-     *      change.
+     *      invoke a gate-mutating command. AND IT RUNS FIRST: in `cli-engine.ts`
+     *      the `await runHooks('onError', ...)` precedes the
+     *      `process.stderr.write('Error: ' + e.message)` that displays this
+     *      command's rejection report, so the operator reads the scope sentence
+     *      only AFTER the hook has already run. That ordering is why the
+     *      rejection text below states the scope and then discloses the hook,
+     *      rather than asserting an unqualified "nothing was written". Do not
+     *      "fix" this by adding a guard here: the onError call site is
+     *      class-wide and belongs to a separate change.
      *   2. ONE ACTIVITY ROW MAY BE APPENDED. The shared CLI entrypoint still
      *      appends one generic session row to `.lattice/activity.jsonl` when
      *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
@@ -510,8 +520,8 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         ...result.rejections.map((rejection) => `  - [${rejection.tag}] ${rejection.code}: ${rejection.message}`),
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
-        'No RED-evidence record, chain record or story artifact was written, no process event was emitted and no gate verdict changed; fix the envelope before spending a run.',
-        'This report is THROWN, so a configured onError hook does run, and the CLI may record this text in the error field of a .lattice/activity.jsonl row.',
+        'Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook. Fix the envelope before spending a run.',
+        'That scope covers this command only, and by the time you read this line it may already have been overtaken: this report is THROWN, and cli-engine.ts AWAITS any configured onError hook BEFORE printing it. Such a hook is arbitrary /bin/sh -c, so it can already have written evidence, appended a process event or moved a gate verdict. The CLI may also record this text in the error field of a .lattice/activity.jsonl row.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },

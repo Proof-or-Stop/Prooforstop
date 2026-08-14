@@ -89,11 +89,15 @@
  *      `core/health.ts`.
  *      So an unqualified "no artifact", "runs no hook" or "the verdict is
  *      recorded nowhere" would each be false. The contract asserted here is
- *      therefore the narrower one, scoped to the handler and the built-in CLI
- *      persistence paths (a configured onError hook is arbitrary shell and is
- *      outside it): no RED-evidence record, no chain record, no story or
- *      evidence artifact under the story directory, no process event, and no
- *      gate verdict change.
+ *      therefore the narrower one, in the canonical scope sentence used verbatim
+ *      at every site that states this guarantee: Scoped to the command handler
+ *      itself and the CLI story-evidence writers, it writes no RED-evidence
+ *      record, chain record or story/evidence artifact, emits no process event,
+ *      changes no gate verdict, and runs no preCommand or postCommand hook.
+ *      Nothing outside that scope is covered: see the
+ *      red_evidence_envelope_check note in `cli/activity-policy.ts`, which lists
+ *      the surfaces known when it was written and is not a proof of
+ *      exhaustiveness.
  *      These are declarations about wiring, NOT behavioural evidence, and are
  *      labelled as such below.
  *
@@ -176,10 +180,11 @@ assert.ok(MAIN_TOOLS.some((tool) => tool.name === COMMAND), `${COMMAND} must be 
 const policyEntry = getCommandPolicy(COMMAND);
 assert.ok(policyEntry, `${COMMAND} must have a CommandPolicy entry`);
 assert.equal(policyEntry.ownershipClass, 'readOnly',
-  `${COMMAND} is classified readOnly — in the handler and the built-in CLI persistence paths it writes no `
-  + 'RED-evidence record, chain record or story/evidence artifact and emits no process event. That '
-  + 'classification does NOT suppress the CLI onError hook (arbitrary /bin/sh -c, so it can write any of those) '
-  + 'or the .lattice/activity.jsonl runtime-activity-log row');
+  `${COMMAND} is classified readOnly. Scoped to the command handler itself and the CLI story-evidence writers, `
+  + 'it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes '
+  + 'no gate verdict, and runs no preCommand or postCommand hook. Nothing outside that scope is covered: see the '
+  + 'red_evidence_envelope_check note in cli/activity-policy.ts, which lists the surfaces known when it was '
+  + 'written and is not a proof of exhaustiveness');
 assert.equal(policyEntry.destructiveRisk, 'none', `${COMMAND} carries no destructive risk`);
 assert.notEqual(policyEntry.status, 'gateEvidence', `${COMMAND} is NOT gate evidence — it changes no gate verdict`);
 assert.notEqual(policyEntry.gateEvidence, true, `${COMMAND} must not declare gateEvidence`);

@@ -73,12 +73,23 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      (core/health.ts) appends one JSONL row to the health log — ~/.lattice/health.jsonl
   //      by default, overridable via LATTICE_HEALTH_PATH — outside the project tree.
   // What holds without qualification is the narrower contract in
-  // core/command-policy.ts, and it is scoped to the code paths this command owns:
-  // THE HANDLER AND THE BUILT-IN CLI PERSISTENCE PATHS write no RED-evidence
-  // record, no chain record and no story or evidence artifact under the story
-  // directory, emit no process event, change no gate verdict, and run no
-  // preCommand or postCommand hook. It says nothing about a configured onError
-  // hook, which is arbitrary shell and is bounded by the project config alone.
+  // core/command-policy.ts. THIS IS THE CANONICAL SCOPE SENTENCE, and it is
+  // repeated word for word everywhere the guarantee is stated:
+  //   Scoped to the command handler itself and the CLI story-evidence writers,
+  //   it writes no RED-evidence record, chain record or story/evidence artifact,
+  //   emits no process event, changes no gate verdict, and runs no preCommand or
+  //   postCommand hook.
+  // Read "the CLI story-evidence writers" as exactly what the name says: the
+  // writers that put story records, chain records, evidence artifacts and story
+  // process events under the story directory. That subject is decidable against
+  // this repository rather than against the prose around it, and A-D above fall
+  // outside it BY CONSTRUCTION, not by being re-listed as exceptions: the
+  // onError hook is arbitrary shell that the CLI only invokes, while the
+  // activity log, the owner-session token store and the health log are
+  // registered as RUNTIME artifacts (core/runtime-artifact-registry.ts) or live
+  // outside the project tree entirely. Nothing outside that scope is covered,
+  // and this note is the authoritative one: A-D are the surfaces known when it
+  // was written and are not a proof of exhaustiveness.
   'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
