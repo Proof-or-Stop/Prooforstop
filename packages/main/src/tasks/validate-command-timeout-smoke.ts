@@ -23,19 +23,25 @@
  *     text invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at
  *     exactly 4 call sites (declared exactly once — no duplicated matching logic outside
  *     it); and a very large configured timeoutMs is clamped end-to-end via
- *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector).
+ *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector);
+ *   - B-16df F-008: tokenizeCommandString (validation-executor.ts) and splitShellWords
+ *     (verifier.ts) normalize equivalently for allowlist-legal, whitespace/quoting-varied
+ *     input on BOTH the config side and the pinned-command side (parsing parity + evasion
+ *     resistance), and a pinned command whose args are a strict PREFIX of a longer configured
+ *     args array never partial-matches (returns undefined, CHK-003:edge:1).
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
  * side effects leak in. Sections 12-13 are the sole exception: they read this repo's own
  * source/git state (REPO_ROOT, resolved from this file's own compiled location) rather than
  * a temp dir, since H-003/H-002 are claims ABOUT this repo's actual source, not synthesized
- * fixtures. Registered in lattice.config.json validate.commands for ongoing regression
- * protection.
+ * fixtures. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
+ * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
+ * Registered in lattice.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
  */
 
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -46,6 +52,7 @@ import {
   runValidationCommand,
   executeValidationPlan,
   runSingleAllowlistedCommand,
+  parseAllowlistedCommand,
 } from '../core/validation-executor.js';
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
@@ -76,6 +83,12 @@ const base = (over: Partial<ValidationCommand>): ValidationCommand => ({
 
 void (async () => {
   try {
+    // Populated by sections 6 and 9 respectively; declared here (not `const` inline) so
+    // later sections can reuse the already-imported module without re-importing, even
+    // though each section's own temp dir is scoped to a per-section try/finally (F-001).
+    let checklistMod: any = null;
+    let verifierMod: any = null;
+
     // 1. The default ceiling sits below the cli-engine ~300s global idle watchdog so a
     //    per-command kill fires (and attributes) first, and above the observed
     //    full-validation incident envelope (~171s) with margin.
@@ -144,84 +157,96 @@ void (async () => {
     //    resolveCommandTimeoutMs does for the lattice-validate path exercised above. A temp
     //    project root pins a ~1.5s command at a 700ms override via lattice.config.json.
     const pinnedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-'));
-    const pinnedCommand = 'node -e "setTimeout(() => {}, 1500)"';
-    writeFileSync(
-      join(pinnedRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node', args: ['-e', 'setTimeout(() => {}, 1500)'], timeoutMs: 700 },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
+    try {
+      const pinnedCommand = 'node -e "setTimeout(() => {}, 1500)"';
+      writeFileSync(
+        join(pinnedRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'setTimeout(() => {}, 1500)'], timeoutMs: 700 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
 
-    // 6a. PERMANENT characterization (stays true before AND after CHK-002): calling
-    //     runSingleAllowlistedCommand directly, bypassing checklist.ts's resolver, is
-    //     documented/by-design to keep using the 270s default -- this is not the bug being
-    //     fixed and must NOT be asserted as timedOut === true.
-    const direct = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot);
-    check('direct runSingleAllowlistedCommand call (no options.timeoutMs) keeps the 270s default (timedOut=false)', direct.timedOut === false);
+      // 6a. PERMANENT characterization (stays true before AND after CHK-002): calling
+      //     runSingleAllowlistedCommand directly, bypassing checklist.ts's resolver, is
+      //     documented/by-design to keep using the 270s default -- this is not the bug being
+      //     fixed and must NOT be asserted as timedOut === true.
+      const direct = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot);
+      check('direct runSingleAllowlistedCommand call (no options.timeoutMs) keeps the 270s default (timedOut=false)', direct.timedOut === false);
 
-    // 6b. The real red->green assertion: exercises the actual fixed surface --
-    //     checklist.ts's resolvePinnedCommandTimeoutMs combined with
-    //     runSingleAllowlistedCommand, mirroring exactly what the 4 real call sites do.
-    //     Dynamic import (not a static top-level import) so this file still compiles even
-    //     before CHK-002 adds the export. Currently RED before CHK-002: the export does not
-    //     exist yet, so runSingleAllowlistedCommand is never given the configured override and
-    //     the ~1.5s command completes normally.
-    const checklistMod: any = await import('../handlers/checklist.js');
-    check('checklist.ts exports resolvePinnedCommandTimeoutMs', typeof checklistMod.resolvePinnedCommandTimeoutMs === 'function');
-    const resolved = checklistMod.resolvePinnedCommandTimeoutMs(pinnedRoot, pinnedCommand);
-    const pinned = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, { timeoutMs: resolved });
-    check('configured validate.commands[].timeoutMs override honored via resolvePinnedCommandTimeoutMs (timedOut=true)', pinned.timedOut === true);
-    check('configured validate.commands[].timeoutMs override attributed 124', pinned.code === 124);
+      // 6b. The real red->green assertion: exercises the actual fixed surface --
+      //     checklist.ts's resolvePinnedCommandTimeoutMs combined with
+      //     runSingleAllowlistedCommand, mirroring exactly what the 4 real call sites do.
+      //     Dynamic import (not a static top-level import) so this file still compiles even
+      //     before CHK-002 adds the export. Currently RED before CHK-002: the export does not
+      //     exist yet, so runSingleAllowlistedCommand is never given the configured override and
+      //     the ~1.5s command completes normally.
+      checklistMod = await import('../handlers/checklist.js');
+      check('checklist.ts exports resolvePinnedCommandTimeoutMs', typeof checklistMod.resolvePinnedCommandTimeoutMs === 'function');
+      const resolved = checklistMod.resolvePinnedCommandTimeoutMs(pinnedRoot, pinnedCommand);
+      const pinned = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, { timeoutMs: resolved });
+      check('configured validate.commands[].timeoutMs override honored via resolvePinnedCommandTimeoutMs (timedOut=true)', pinned.timedOut === true);
+      check('configured validate.commands[].timeoutMs override attributed 124', pinned.code === 124);
+    } finally {
+      rmSync(pinnedRoot, { recursive: true, force: true });
+    }
 
     // 7. B-16df CHK-003 (unmatched default): a pinned command with NO matching entry in
     //    validate.commands[] must resolve to undefined (so the caller falls through to the
     //    270s default), not a wrong non-matching entry's timeoutMs. Direct unit test of
     //    resolvePinnedCommandTimeoutMs -- no real timed wait needed.
     const unmatchedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-unmatched-'));
-    writeFileSync(
-      join(unmatchedRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const unmatchedCommand = 'node -e "process.exit(2)"';
-    const unmatchedResolved = checklistMod.resolvePinnedCommandTimeoutMs(unmatchedRoot, unmatchedCommand);
-    check('unmatched pinned command resolves to undefined (falls through to the default)', unmatchedResolved === undefined);
+    try {
+      writeFileSync(
+        join(unmatchedRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const unmatchedCommand = 'node -e "process.exit(2)"';
+      const unmatchedResolved = checklistMod.resolvePinnedCommandTimeoutMs(unmatchedRoot, unmatchedCommand);
+      check('unmatched pinned command resolves to undefined (falls through to the default)', unmatchedResolved === undefined);
+    } finally {
+      rmSync(unmatchedRoot, { recursive: true, force: true });
+    }
 
     // 8. B-16df CHK-003 (args-based disambiguation): two configured commands sharing the same
     //    executable ("node") but different args must NOT cross-match each other's timeoutMs --
     //    matching must compare the full parsed args array, not just the executable.
     const disambigRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-disambig-'));
-    writeFileSync(
-      join(disambigRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
-            { command: 'node', args: ['-e', 'process.exit(1)'], timeoutMs: 5_000 },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const commandA = 'node -e "process.exit(0)"';
-    const commandB = 'node -e "process.exit(1)"';
-    const resolvedA = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandA);
-    const resolvedB = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandB);
-    check('args-disambiguated command A resolves to its own timeoutMs (700)', resolvedA === 700);
-    check('args-disambiguated command B resolves to its own timeoutMs (5000)', resolvedB === 5_000);
-    check('command A does NOT cross-match command B\'s timeoutMs', resolvedA !== 5_000);
-    check('command B does NOT cross-match command A\'s timeoutMs', resolvedB !== 700);
+    try {
+      writeFileSync(
+        join(disambigRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
+              { command: 'node', args: ['-e', 'process.exit(1)'], timeoutMs: 5_000 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const commandA = 'node -e "process.exit(0)"';
+      const commandB = 'node -e "process.exit(1)"';
+      const resolvedA = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandA);
+      const resolvedB = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandB);
+      check('args-disambiguated command A resolves to its own timeoutMs (700)', resolvedA === 700);
+      check('args-disambiguated command B resolves to its own timeoutMs (5000)', resolvedB === 5_000);
+      check('command A does NOT cross-match command B\'s timeoutMs', resolvedA !== 5_000);
+      check('command B does NOT cross-match command A\'s timeoutMs', resolvedB !== 700);
+    } finally {
+      rmSync(disambigRoot, { recursive: true, force: true });
+    }
 
     // 9. B-16df F-003 (E-001, bare-string config entries): a validate.commands[] entry that is
     //    a bare STRING (not an object) can never carry a timeoutMs field -- configuredValidationCommands
@@ -230,25 +255,38 @@ void (async () => {
     //    resolvePinnedCommandTimeoutMs against a temp lattice.config.json whose only
     //    validate.commands[] entry is a bare string, plus a structural check on the parsed
     //    entry itself proving the absence of the field (not merely a missed match).
+    //    B-16df F-008: the fixture MUST contain none of verifier.ts's SHELL_META_RE
+    //    characters (`;&|<>$()``) or commandFromString takes the shell-style branch instead
+    //    -- the SAME code path section 10 (E-003) exercises. 'node -e "process.exit(0)"'
+    //    contains parentheses and does NOT genuinely reach the plain bare-string
+    //    (splitShellWords) branch this section claims to cover, so use a paren-free command.
     const bareStringRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-barestring-'));
-    const bareStringCommand = 'node -e "process.exit(0)"';
-    writeFileSync(
-      join(bareStringRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [bareStringCommand],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const verifierMod: any = await import('../handlers/verifier.js');
-    const bareStringEntries = verifierMod.configuredValidationCommands(bareStringRoot);
-    check(
-      'bare-string config entry is parsed but structurally carries no timeoutMs field',
-      bareStringEntries.length === 1 && !('timeoutMs' in bareStringEntries[0]),
-    );
-    const bareStringResolved = checklistMod.resolvePinnedCommandTimeoutMs(bareStringRoot, bareStringCommand);
-    check('bare-string config entry never yields a timeoutMs (resolves to undefined)', bareStringResolved === undefined);
+    try {
+      const bareStringCommand = 'node --version';
+      writeFileSync(
+        join(bareStringRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [bareStringCommand],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      verifierMod = await import('../handlers/verifier.js');
+      const bareStringEntries = verifierMod.configuredValidationCommands(bareStringRoot);
+      check(
+        'bare-string config entry is parsed but structurally carries no timeoutMs field',
+        bareStringEntries.length === 1 && !('timeoutMs' in bareStringEntries[0]),
+      );
+      check(
+        'bare-string config entry genuinely took the plain (non-shell) splitShellWords branch, distinct from section 10\'s shell-style entry (non-empty args, shell !== true)',
+        bareStringEntries[0].shell !== true && bareStringEntries[0].args.length > 0,
+      );
+      const bareStringResolved = checklistMod.resolvePinnedCommandTimeoutMs(bareStringRoot, bareStringCommand);
+      check('bare-string config entry never yields a timeoutMs (resolves to undefined)', bareStringResolved === undefined);
+    } finally {
+      rmSync(bareStringRoot, { recursive: true, force: true });
+    }
 
     // 10. B-16df F-003 (E-003, shell-style config entries never match): verified against the
     //     actual source (verifier.ts SHELL_META_RE / commandFromString / configuredValidationCommands)
@@ -263,27 +301,31 @@ void (async () => {
     //     took that path, then confirm its configured timeoutMs (700) does not leak onto an
     //     unrelated plain allowlisted pinned command that merely shares a text prefix.
     const shellStyleRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-shellstyle-'));
-    writeFileSync(
-      join(shellStyleRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node -e "process.exit(0)" && echo done', shell: true, timeoutMs: 700 },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const shellStyleEntries = verifierMod.configuredValidationCommands(shellStyleRoot);
-    check(
-      'shell-metacharacter config entry is marked shell:true with an empty args array',
-      shellStyleEntries.length === 1 && shellStyleEntries[0].shell === true && shellStyleEntries[0].args.length === 0,
-    );
-    const shellStyleResolved = checklistMod.resolvePinnedCommandTimeoutMs(shellStyleRoot, 'node -e "process.exit(0)"');
-    check(
-      'shell-style config entry never false-positive-matches a plain allowlisted pinned command (resolves to undefined)',
-      shellStyleResolved === undefined,
-    );
+    try {
+      writeFileSync(
+        join(shellStyleRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node -e "process.exit(0)" && echo done', shell: true, timeoutMs: 700 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const shellStyleEntries = verifierMod.configuredValidationCommands(shellStyleRoot);
+      check(
+        'shell-metacharacter config entry is marked shell:true with an empty args array',
+        shellStyleEntries.length === 1 && shellStyleEntries[0].shell === true && shellStyleEntries[0].args.length === 0,
+      );
+      const shellStyleResolved = checklistMod.resolvePinnedCommandTimeoutMs(shellStyleRoot, 'node -e "process.exit(0)"');
+      check(
+        'shell-style config entry never false-positive-matches a plain allowlisted pinned command (resolves to undefined)',
+        shellStyleResolved === undefined,
+      );
+    } finally {
+      rmSync(shellStyleRoot, { recursive: true, force: true });
+    }
 
     // 11. B-16df F-003 (E-004, zero/negative timeoutMs config values): resolvePinnedCommandTimeoutMs
     //     itself does NOT sanitize -- it returns match?.timeoutMs verbatim, including a
@@ -294,25 +336,29 @@ void (async () => {
     //     runSingleAllowlistedCommand -- mirroring exactly what a real call site does -- still
     //     completes normally rather than e.g. misinterpreting 0 as "no timeout".
     const zeroTimeoutRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-zerotimeout-'));
-    writeFileSync(
-      join(zeroTimeoutRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 0 },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const zeroTimeoutCommand = 'node -e "process.exit(0)"';
-    const zeroTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(zeroTimeoutRoot, zeroTimeoutCommand);
-    check('resolvePinnedCommandTimeoutMs returns a configured 0 verbatim (no sanitization)', zeroTimeoutResolved === 0);
-    const zeroTimeoutRun = await runSingleAllowlistedCommand(zeroTimeoutCommand, zeroTimeoutRoot, { timeoutMs: zeroTimeoutResolved });
-    check(
-      'downstream resolveCommandTimeoutMs safety net treats the resolved 0 as "use the default" (code 0, not timed out)',
-      zeroTimeoutRun.code === 0 && zeroTimeoutRun.timedOut === false,
-    );
+    try {
+      writeFileSync(
+        join(zeroTimeoutRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 0 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const zeroTimeoutCommand = 'node -e "process.exit(0)"';
+      const zeroTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(zeroTimeoutRoot, zeroTimeoutCommand);
+      check('resolvePinnedCommandTimeoutMs returns a configured 0 verbatim (no sanitization)', zeroTimeoutResolved === 0);
+      const zeroTimeoutRun = await runSingleAllowlistedCommand(zeroTimeoutCommand, zeroTimeoutRoot, { timeoutMs: zeroTimeoutResolved });
+      check(
+        'downstream resolveCommandTimeoutMs safety net treats the resolved 0 as "use the default" (code 0, not timed out)',
+        zeroTimeoutRun.code === 0 && zeroTimeoutRun.timedOut === false,
+      );
+    } finally {
+      rmSync(zeroTimeoutRoot, { recursive: true, force: true });
+    }
 
     // 12. B-16df F-004 (H-003): validation-executor.ts and verifier.ts — the shared
     //     validate-command execution/config-parsing primitives this story's fix builds on
@@ -322,35 +368,50 @@ void (async () => {
     //     REPO_ROOT actually resolved to the real repo root (so a broken path computation
     //     fails loudly here rather than being silently swallowed by the soft-skip below);
     //     then `git diff main` against both files must produce empty output. Soft-skip
-    //     (console.warn, no hard failure) only if `git diff` itself throws (e.g. `main` is
-    //     unresolvable in some CI checkout) so this section stays environment-tolerant —
-    //     but in this repo/worktree right now it asserts cleanly.
+    //     (console.warn, no hard failure) only if `git diff` ITSELF throws (e.g. `git` is
+    //     missing or `main` is unresolvable in some CI checkout) -- that guard covers ONLY the
+    //     execSync call. B-16df F-006: the check(...) assertion on the diff CONTENT must NEVER
+    //     live inside that same try/catch, or a genuine modification (check() throwing) would
+    //     be caught by the environment-only catch and silently downgraded to a console.warn
+    //     SOFT-SKIP instead of failing the smoke -- so it runs unguarded below, gated only on
+    //     whether execSync actually produced output (diffOutput !== null), never on whether
+    //     that output happens to be empty.
     check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
+    let diffOutput: string | null = null;
     try {
-      const diffOutput = execSync(
+      diffOutput = execSync(
         'git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts',
         { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
       );
+    } catch (e) {
+      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — execSync itself failed (e.g. git missing / main unresolvable), not a content evaluation — ${e instanceof Error ? e.message : String(e)}`);
+    }
+    if (diffOutput !== null) {
       check(
         'validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff)',
         diffOutput.trim().length === 0,
       );
-    } catch (e) {
-      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
     //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
     //     helper — no duplicated matching logic living outside it. Structural check on
-    //     checklist.ts's own SOURCE text: count occurrences of the exact call-site
-    //     invocation shape `resolvePinnedCommandTimeoutMs(root, command)`. This is
-    //     distinct from the function's own declaration line (which carries type
-    //     annotations — `(root: string, command: string)` — and so never matches the
-    //     call-site substring), so the two checks below independently confirm exactly one
-    //     declaration and exactly four call sites.
+    //     checklist.ts's own SOURCE text: count occurrences of the call-site invocation
+    //     shape `resolvePinnedCommandTimeoutMs(root, command)`. This is distinct from the
+    //     function's own declaration line (which carries type annotations —
+    //     `(root: string, command: string)` — and so never matches the call-site pattern),
+    //     so the two checks below independently confirm exactly one declaration and exactly
+    //     four call sites.
+    //     B-16df F-007: match via a regex tolerant of whitespace/formatting variance around
+    //     the call (e.g. reflowed args, extra spacing) rather than a rigid literal substring
+    //     -- a purely cosmetic future edit (reformatting, wrapping the call across lines)
+    //     would break an exact-literal check for a non-regression it did not actually cause,
+    //     while a coincidental comment containing the exact literal substring could mask a
+    //     real duplication regression; requiring the same two identifiers (root, command) in
+    //     the same order keeps the check meaningful either way.
     const checklistSource = readFileSync(join(REPO_ROOT, 'packages/main/src/handlers/checklist.ts'), 'utf-8');
-    const CALL_SITE_SNIPPET = 'resolvePinnedCommandTimeoutMs(root, command)';
-    const callSiteCount = checklistSource.split(CALL_SITE_SNIPPET).length - 1;
+    const CALL_SITE_RE = /resolvePinnedCommandTimeoutMs\s*\(\s*root\s*,\s*command\s*\)/g;
+    const callSiteCount = (checklistSource.match(CALL_SITE_RE) || []).length;
     check(
       'checklist.ts invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (all 4 runSingleAllowlistedCommand sites route through it, no accidental 5th)',
       callSiteCount === 4,
@@ -374,27 +435,129 @@ void (async () => {
     //     work), then feeding it through resolveCommandTimeoutMs — exactly as every real
     //     call site does — clamps it to MAX_NODE_TIMER_DELAY_MS.
     const hugeTimeoutRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-hugetimeout-'));
-    const HUGE_TIMEOUT_MS = 1e15;
-    writeFileSync(
-      join(hugeTimeoutRoot, 'lattice.config.json'),
-      JSON.stringify({
-        validate: {
-          commands: [
-            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: HUGE_TIMEOUT_MS },
-          ],
-        },
-      }, null, 2),
-      'utf-8',
-    );
-    const hugeTimeoutCommand = 'node -e "process.exit(0)"';
-    const hugeTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(hugeTimeoutRoot, hugeTimeoutCommand);
-    check('resolvePinnedCommandTimeoutMs returns a huge configured timeoutMs verbatim (no clamping in the helper itself)', hugeTimeoutResolved === HUGE_TIMEOUT_MS);
-    check('the raw configured huge timeoutMs exceeds MAX_NODE_TIMER_DELAY_MS (proving the downstream clamp below is doing real work)', hugeTimeoutResolved > MAX_NODE_TIMER_DELAY_MS);
-    const hugeTimeoutClamped = resolveCommandTimeoutMs(base({ timeoutMs: hugeTimeoutResolved }));
-    check(
-      'downstream resolveCommandTimeoutMs clamps a config-sourced huge timeoutMs to MAX_NODE_TIMER_DELAY_MS end-to-end (not passed through unbounded)',
-      hugeTimeoutClamped === MAX_NODE_TIMER_DELAY_MS,
-    );
+    try {
+      const HUGE_TIMEOUT_MS = 1e15;
+      writeFileSync(
+        join(hugeTimeoutRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: HUGE_TIMEOUT_MS },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const hugeTimeoutCommand = 'node -e "process.exit(0)"';
+      const hugeTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(hugeTimeoutRoot, hugeTimeoutCommand);
+      check('resolvePinnedCommandTimeoutMs returns a huge configured timeoutMs verbatim (no clamping in the helper itself)', hugeTimeoutResolved === HUGE_TIMEOUT_MS);
+      check('the raw configured huge timeoutMs exceeds MAX_NODE_TIMER_DELAY_MS (proving the downstream clamp below is doing real work)', hugeTimeoutResolved > MAX_NODE_TIMER_DELAY_MS);
+      const hugeTimeoutClamped = resolveCommandTimeoutMs(base({ timeoutMs: hugeTimeoutResolved }));
+      check(
+        'downstream resolveCommandTimeoutMs clamps a config-sourced huge timeoutMs to MAX_NODE_TIMER_DELAY_MS end-to-end (not passed through unbounded)',
+        hugeTimeoutClamped === MAX_NODE_TIMER_DELAY_MS,
+      );
+    } finally {
+      rmSync(hugeTimeoutRoot, { recursive: true, force: true });
+    }
+
+    // 15. B-16df F-008 (E-002 parsing parity + A-001 whitespace/quoting evasion resistance):
+    //     no assertion anywhere else in this file exercises parity between the two independent
+    //     tokenizers a pinned command must survive round-tripping through: splitShellWords
+    //     (verifier.ts, used by commandFromString for a bare-string, non-shell
+    //     validate.commands[] config entry) and tokenizeCommandString (validation-executor.ts,
+    //     used by parseAllowlistedCommand for the pinned command string passed into
+    //     resolvePinnedCommandTimeoutMs). A bare-string config entry structurally cannot carry
+    //     a timeoutMs (section 9 / E-001), so 15a proves parity directly by comparing both
+    //     tokenizers' parsed {executable/command, args} shapes for the SAME logical command
+    //     written with different whitespace/quoting; 15b/15c then prove the END-TO-END
+    //     resolvePinnedCommandTimeoutMs match still returns the real configured timeoutMs when
+    //     the CALLER's pinned command string itself uses irregular whitespace/quoting --
+    //     whitespace/quoting tricks do not evade the match (A-001).
+    const parityRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-parity-'));
+    try {
+      // 15a. Bare-string config entry with irregular spacing + single-quoting (no
+      //      SHELL_META_RE characters), parsed via splitShellWords; plus a clean object-form
+      //      entry with the SAME canonical args and a real timeoutMs (used by 15c). The
+      //      object-form entry is listed FIRST: resolvePinnedCommandTimeoutMs's `.find()`
+      //      returns the first structural match, and both entries deliberately parse to the
+      //      identical {command:"node", args:["-e","hello world"]} shape (that equality IS
+      //      the parity proof) -- ordering the timeoutMs-bearing entry first keeps 15c's
+      //      end-to-end resolution deterministic rather than incidentally picking the
+      //      timeoutMs-less bare-string entry.
+      const parityBareStringEntry = "node   -e  'hello world'";
+      writeFileSync(
+        join(parityRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'hello world'], timeoutMs: 700 },
+              parityBareStringEntry,
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      const parityConfigured = verifierMod.configuredValidationCommands(parityRoot);
+      const parityBareEntry = parityConfigured.find((c: any) => !('timeoutMs' in c));
+      check(
+        'irregularly-spaced/quoted bare-string config entry parses via splitShellWords to {command:"node", args:["-e","hello world"]}',
+        !!parityBareEntry && parityBareEntry.command === 'node' && parityBareEntry.args.length === 2 &&
+          parityBareEntry.args[0] === '-e' && parityBareEntry.args[1] === 'hello world',
+      );
+
+      // Canonical, differently-formatted pinned command string a real call site might pass
+      // (double-quoting, normal single-space separation) -- parsed via tokenizeCommandString.
+      const parityPinnedCommand = 'node -e "hello world"';
+      const parityPinnedParsed = parseAllowlistedCommand(parityPinnedCommand);
+      check(
+        'tokenizeCommandString (pinned-command side) and splitShellWords (config side) normalize the same logical command to an IDENTICAL {executable, args} shape -- real E-002 parsing-parity proof',
+        parityPinnedParsed.executable === parityBareEntry.command &&
+          JSON.stringify(parityPinnedParsed.args) === JSON.stringify(parityBareEntry.args),
+      );
+
+      // 15c. A-001 evasion-resistance proof: an irregularly whitespaced/quoted PINNED command
+      //      string (the caller side this time) still resolves the real configured timeoutMs
+      //      (700, from 15a's object-form entry) via resolvePinnedCommandTimeoutMs --
+      //      whitespace/quoting variation on the pinned-command side does not evade the match.
+      const evasivePinnedCommand = "node    -e   'hello world'";
+      const evasiveResolved = checklistMod.resolvePinnedCommandTimeoutMs(parityRoot, evasivePinnedCommand);
+      check(
+        'irregularly-spaced/quoted pinned command still resolves the configured timeoutMs (700) via resolvePinnedCommandTimeoutMs -- whitespace/quoting evasion does not defeat the match',
+        evasiveResolved === 700,
+      );
+    } finally {
+      rmSync(parityRoot, { recursive: true, force: true });
+    }
+
+    // 16. B-16df F-008 (CHK-003:edge:1, args-length strict-prefix mismatch): a configured
+    //     command with args [a, b] must NOT match a pinned command whose args are only [a] --
+    //     a strict PREFIX of the configured args -- and must return undefined, not a partial
+    //     match. Section 8's disambiguation fixtures both use EQUAL-length, differing-content
+    //     args (edge:2's scenario); this is the distinct edge:1 scenario (unequal length).
+    const argsLengthRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-argslength-'));
+    try {
+      writeFileSync(
+        join(argsLengthRoot, 'lattice.config.json'),
+        JSON.stringify({
+          validate: {
+            commands: [
+              { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
+            ],
+          },
+        }, null, 2),
+        'utf-8',
+      );
+      // Strict prefix of the configured args: only the FIRST of the two configured args.
+      const argsLengthPrefixCommand = 'node -e';
+      const argsLengthResolved = checklistMod.resolvePinnedCommandTimeoutMs(argsLengthRoot, argsLengthPrefixCommand);
+      check(
+        'a pinned command whose args are a strict PREFIX of a configured entry\'s (longer) args array resolves to undefined, not a partial match (CHK-003:edge:1)',
+        argsLengthResolved === undefined,
+      );
+    } finally {
+      rmSync(argsLengthRoot, { recursive: true, force: true });
+    }
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
   } catch (e) {
