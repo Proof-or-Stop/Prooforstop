@@ -446,6 +446,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-022",
+      "desc": "packages/main/tests/red/red-w2d-command-readonly.mjs still contains the F-014-class overclaim, in the very file whose header already documents three prior rounds of correction for related over-crediting (F-002/F-012/F-013: 'the directory snapshot was being credited with more than it proves'). Header section 3 ('Static registration facts') states: 'WHAT THEY PROVE: the CLI's own hook / activity-log / process-event write surfaces are suppressed for this command by classification.' This is false: classification (READ_ONLY_COMMANDS membership) makes shouldWriteActivityLog() return false, but cli-engine.ts ORs that with staleWarnings.length > 0 (lines ~1416/1488), so classification alone does NOT suppress the activity-log write surface -- an uncooled stale warning still appends a generic session row regardless of classification (STALE_WARNING_COOLDOWN_MS, core/stale-detector.ts; 22 such rows verified in .lattice/activity.jsonl for this exact command). Two inline assertion messages repeat the same unconditional claim: line 118 (COMMAND is readOnly -- it writes nothing) and line 127 (the CLI read-only predicate recognises the command, so no hook/activity/process-event write fires). All three should be corrected the same way commit b63dcad96b corrected activity-policy.ts: state that classification suppresses ONE of the two paths (the read-only branch of shouldWriteActivityLog) and is necessary but not sufficient, since the independent staleWarnings OR-path is unaffected by classification.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T03:41:59.993Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-018",
+      "_hash": "04ee45db4a1b55f5166a7f61b256f9cce821bbd610f57c4c1f1afb55787fd607",
+      "files": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs"
+      ],
+      "signatureTag": "doc-code-drift|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
