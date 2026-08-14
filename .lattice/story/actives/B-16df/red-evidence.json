@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-16df",
+  "records": [
+    {
+      "id": "RED-20260814114523",
+      "trigger": "verification_evidence_add/_batch_add/verification_run silently ignore lattice.config.json validate.commands[].timeoutMs when deriving mechanical receipts",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "ce9f57f3cc0876b04481c8e76a8a721a5a8791b6",
+      "baselineMaterialHash": "1188c12cbc81d51c8853a119b71a365741a4ff52df441eea034a9d868d490cab",
+      "observedFailure": "runSingleAllowlistedCommand(cmd, tmpRoot, {}) with tmpRoot/lattice.config.json containing a validate.commands[] entry {command:node,args:[-e,setTimeout(()=>{},1500)],timeoutMs:700} completed normally (code=0, timedOut=false, durationMs=1671) instead of being killed at the configured 700ms - proving the per-command config override is never consulted and the hardcoded 270000ms DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS is used unconditionally.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-jek-Documents-CDR3--claude-worktrees-gifted-cohen-7b00d5/e1e9efd3-3bc0-4681-8974-7404c3b373d1/scratchpad/b16df-red-probe.cjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      },
+      "note": "Live-reproduced on current main HEAD ce9f57f in the B-16df worktree (exit 1, RED CONFIRMED). CHK-001 formalizes this exact probe as a permanent regression case in validate-command-timeout-smoke.ts; CHK-002 fixes it; expected green command is the same smoke file post-fix.",
+      "createdAt": "2026-08-14T11:45:23.283Z"
+    },
+    {
+      "id": "RED-20260814114523",
+      "trigger": "verification_evidence_add/_batch_add/verification_run silently ignore lattice.config.json validate.commands[].timeoutMs when deriving mechanical receipts",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "ce9f57f3cc0876b04481c8e76a8a721a5a8791b6",
+      "baselineMaterialHash": "1188c12cbc81d51c8853a119b71a365741a4ff52df441eea034a9d868d490cab",
+      "observedFailure": "runSingleAllowlistedCommand(cmd, tmpRoot, {}) with tmpRoot/lattice.config.json containing a validate.commands[] entry {command:node,args:[-e,setTimeout(()=>{},1500)],timeoutMs:700} completed normally (code=0, timedOut=false, durationMs=1671) instead of being killed at the configured 700ms - proving the per-command config override is never consulted and the hardcoded 270000ms DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS is used unconditionally.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-jek-Documents-CDR3--claude-worktrees-gifted-cohen-7b00d5/e1e9efd3-3bc0-4681-8974-7404c3b373d1/scratchpad/b16df-red-probe.cjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      },
+      "note": "Live-reproduced on current main HEAD ce9f57f in the B-16df worktree (exit 1, RED CONFIRMED). acceptanceTargetRef corrected to CHK-001:happy:0 to match proofstory.json acceptance binding AB-001s verificationIntentRefs, per resolveExpectedRedTargets in core/proofstory.ts:916-929.",
+      "createdAt": "2026-08-14T11:48:32.065Z"
+    }
+  ],
+  "createdAt": "2026-08-14T11:45:23.283Z",
+  "updatedAt": "2026-08-14T11:48:32.065Z"
+}

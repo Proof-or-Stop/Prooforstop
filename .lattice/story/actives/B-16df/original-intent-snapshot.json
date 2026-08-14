@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-16df",
+  "sourceText": "Bug found while recording verification evidence for story B-3144: verification_evidence_add / verification_evidence_batch_add / verification_run derive a mechanical (tool-executed) receipt by running the pinned --command via runSingleAllowlistedCommand in packages/main/src/core/validation-executor.ts (around lines 584-606). That function always uses options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) -- it never consults lattice.config.json's validate.commands[].timeoutMs override, unlike lattice validate's own execution path (executeValidationPlan / runValidationCommand), which DOES call resolveCommandTimeoutMs(command) to read that per-command override. Concretely: lattice.config.json budgets node packages/main/dist/tasks/quorum-submit-smoke.js at timeoutMs: 1200000 (20 minutes), a real unfiltered run took 356-360s, but verification_evidence_add against that exact command was killed at [270.4s] with pinned command exited 124 (timed out) but result:pass was claimed, making it structurally impossible to ever earn a mechanical receipt for this command through the evidence-pinning tools. User confirmed via chat (after independent source verification of every claim, then asking what harm the bug causes) to open this as its own story rather than a drive-by fix, then said (Chinese) \"那就解决吧\" (\"let's fix it\") to authorize creating and executing this Lattice story.",
+  "normalizedOutcome": "verification_evidence_add / verification_evidence_batch_add / verification_run honor lattice.config.json's per-command validate.commands[].timeoutMs override when deriving a mechanical receipt, instead of always capping at the hardcoded 270s DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS regardless of what is configured for that command.",
+  "acceptanceClaim": "A pinned command configured with a validate.commands[].timeoutMs above 270s and a genuine runtime that also falls between 270s and that budget (e.g. quorum-submit-smoke.js at ~356-360s against its 1,200,000ms budget) now completes and yields a normal mechanical receipt via verification_evidence_add instead of being refused at 270s with [receipt_exit_nonzero]; a pinned command with no configured override still gets refused at exactly 270s as before (no regression for the common case).",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:07d608ddafe764e6103dd0a17e099a844fa63cd97dff311a3208f0a87fc759c4",
+  "createdAt": "2026-08-14T11:45:36.515Z",
+  "updatedAt": "2026-08-14T11:45:36.515Z"
+}

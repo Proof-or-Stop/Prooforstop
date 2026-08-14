@@ -1,0 +1,27 @@
+{
+  "storyId": "B-16df",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize scope contract from PLAN checklist files (CHK-001/002/003) and plan.md for the timeoutMs-config-override fix, matching scope-boundary.json allowed/excluded lists.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-14T11:47:22.453Z",
+  "updatedAt": "2026-08-14T11:47:22.453Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts"
+  }
+}
