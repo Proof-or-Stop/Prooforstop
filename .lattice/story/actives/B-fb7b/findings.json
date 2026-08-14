@@ -84,6 +84,21 @@
       "_hash": "0060f228db607d731fb04cede15881b2c1adf192a69fb5c51582ac6bf4c47f0d",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-006",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:49-50 (identically at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:43-44) -- the round-2 F-003/F-004 fix anchored ONLY the bare-fallback regex (runsExactRootBuild), but left the two --prefix regexes (/--prefix\\s+packages\\/main\\s+run\\s+build/ and /--prefix\\s+packages\\/utils\\s+run\\s+build/) unanchored at the script-name boundary -- same defect class, different branch. Reproduced live against the compiled smoke: pretest=\"npm --prefix packages/main run build:fast && npm --prefix packages/utils run build:fast\" makes test-suite-utils-autobuild-smoke.js print PASS and exit 0, even though build:fast is a namespaced sibling that is NOT the real build script (packages/main and packages/utils currently only define a \"build\" script, but the guard exists precisely to catch a future namespaced-sibling regression like this, which is exactly the class F-003/F-004 already fixed for the bare form). No guard-bite case (red-fb7b-guard-bite.mjs) exercises a --prefix + namespaced-sibling combination, so this false-pass is untested and undetected. Fix: apply the same negative-lookahead anchor used for runsExactRootBuild to both --prefix regexes, e.g. /--prefix\\s+packages\\/main\\s+run\\s+build(?![\\w:-])/ and /--prefix\\s+packages\\/utils\\s+run\\s+build(?![\\w:-])/, and add a guard-bite adversarial fixture covering the --prefix namespaced-sibling loophole.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T04:23:44.862Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-006",
+      "_hash": "6e19f5a90e6aeb3ae14b5057a9335b87ed515b7c7a44c2355475501802d27f66",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
