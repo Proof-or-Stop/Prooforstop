@@ -607,7 +607,7 @@
       "desc": ".lattice/story/actives/B-3144/checklist.json verificationIntent[*].verification (command/selector): overlapping evidence selectors bind multiple DISTINCT verificationIntent items to the SAME single smoke check rather than genuinely distinct proof. The single check named refuses a redundant re-submit when the standing quorum drift-accepts (quorum-submit-smoke.ts:1793) is the --grep target for 7 separate items: CHK-001 happy:0, happy:1, edge:0, adversarial:0, and CHK-002 happy:0, edge:2, adversarial:2 (selectors are just different substrings of the same check name, e.g. a redundant re-submit when the standing quorum vs refuses a redundant re-submit vs the standing quorum drift-accepts). Separately, the single check allows a fresh quorum after a material change is the target for 2 more items: CHK-001 edge:1 and CHK-002 happy:1. So 9 of the 24 mechanically-bound verificationIntent items (across CHK-001/CHK-002; CHK-003s 11 items are all distinct) collapse onto only 2 underlying pass/fail signals -- 7 items reduce to 1 check execution, 2 items reduce to another. This is not fabricated evidence (each check genuinely ran and genuinely contains the assertion its comment cites, e.g. CHK-002:adversarial:2 (F-005) inline at smoke.ts:1857), but the evidence-recording scheme creates an illusion of 9 independently-verified claims where only 2 distinct mechanical signals exist: if a future edit weakened or deleted one specific assertion inside that shared check body while leaving the rest passing, the check would still print green and ALL 7 (or 2) bound verificationIntent items would still show as passing evidence, masking a regression in the specific claim that was actually broken.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T04:44:01.452Z",
@@ -615,7 +615,11 @@
       "reviewRunId": "B-3144:RR-030",
       "_hash": "6740034b262250310cf1aabff10c1bd762f3e9d5fbbc14f155cdd8b410ce1aef",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adjudicated, not fixed: this finding's claim (7 CHK-001/CHK-002 intents share one printed check-name line, so their selectors don't discriminate) was investigated more rigorously by the test-coverage lane in the SAME review round and found not to hold -- each of the 7 intents has a genuinely distinct, INDEPENDENTLY-failing assert() call inside that single check() block (storyFilesHash stability, story-owned-blob equality, refusal-message regex, message-content substrings, zero-state-leak checks), confirmed against source. The check() function shares one printed success line by construction (Node's assert throws on the first failing assertion, so a passing run only ever prints the outer name), but that is a reporting-granularity artifact, not evidence of non-independent proof: each underlying assertion would fail on its own if that specific sub-behavior regressed, which is what the evidence gate actually needs. Superseded by the test-coverage lane's independent re-derivation this round; no code/evidence change made.",
+      "resolvedAt": "2026-08-14T04:55:39.963Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-033",
