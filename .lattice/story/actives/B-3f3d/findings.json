@@ -2269,7 +2269,7 @@
       "desc": "Temporal boundaries are not total-ordered, so F031/F032 can still be bypassed within one millisecond. review inventory classifies a run as current-wave when run.startedAt >= wave.completedAt/begunAt and seals it only when run.startedAt < boundary; cancel/invalidate uses the same strict-less-than test. Because all timestamps are millisecond ISO strings, a ReviewRun that actually started before wave_advance/cancel/begin but shares the exact timestamp is accepted as fresh evidence for the next wave. The handler smoke acknowledges this gap by busy-waiting until Date.now() is strictly greater than completedAt/updatedAt/finding.createdAt before exercising wave 2 and rebegin. Thus real execution has no mechanical happens-before identity: an old terminal can satisfy a supposedly independent zero-new wave, and a pre-begin finding whose ReviewRun shares begunAt can be omitted from baselineFindingIds. Replace timestamp-only admission with a signed monotonic boundary (sequence/event identity) or otherwise make equality conservatively old, while preserving an unambiguous way for genuinely post-boundary runs to prove freshness; add deterministic equal-timestamp tests without busy-waits.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T19:52:33.291Z",
@@ -2321,14 +2321,15 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|temporal-boundaries-total",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-033@a270f20"
     },
     {
       "id": "B-3f3d:F-034",
       "desc": "packages/main/src/core/review-inventory-epoch.ts:267-274 — critical same-wave multi-run omission remains after F029-F032 remediation. For each required lane, evaluateReviewInventoryWave sorts current-wave runs newest-first and selects only the first run with any terminal; rawFindings receives findings only from that one selected run. Yet assertCurrentReviewRunForEvidence explicitly permits a material-fresh non-latest run to write finding/pass evidence (review-run.ts:1215-1222). Therefore two concurrent same-lane runs can order as: older run records a verified finding, newer run records a pass; evaluation selects the newer pass and silently omits the older signed open finding from critic dispositions and the receipt. This is distinct from F031 because both runs start after the same wave boundary. The ordinary REVIEW verdict treats the older open finding as stale-run evidence rather than erased, but REVIEW-to-remediation-DEV consumes the inventory receipt without evaluateReviewVerdict (machine.ts:732-750), so an incomplete aggregate can authorize DEV. Aggregate verified findings from every eligible current-wave run while selecting one terminal only for lane coverage, or reject/supersede terminal writes with an explicit safe rule; add a real two-runs-one-lane finding-then-pass negative smoke.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T19:52:35.676Z",
@@ -2377,14 +2378,15 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "review-inventory-same-wave-multirun-finding-omission",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-034@a270f20"
     },
     {
       "id": "B-3f3d:F-035",
       "desc": "packages/main/src/handlers/review-inventory.ts:53-80,266-303 and packages/main/src/core/command-policy.ts:417 — critical frozen-scope bypass distinct from F033/F034. review_inventory_begin signs scopeDigest from the current scope contract and checklist and freezes requiredLanes, but every later freshness consumer (status, critic_set, wave_advance, finalize, and receipt consumption through the cutoff helper) recomputes only materialHash/storyFilesHash; none recomputes scopeDigest or active required lanes. Meanwhile scope_contract_acknowledge is explicitly allowed in REVIEW and appends an acknowledged-expansion to scope-contract.json without changing the frozen material cutoff. Therefore an owner can expand/acknowledge scope after RI-006 begins, retain all old lane/critic evidence, and finalize/consume a receipt bound to the obsolete pre-expansion scope and lane selection. This violates the signed epoch promise that scope and required lanes are frozen and that scope expansion invalidates stale review. Recompute the canonical scope digest and active lanes under the inventory lock at every evidence/finalize/consume boundary, fail closed to INVALIDATED or cancel/rebegin on mismatch, and add a real begin -> scope_contract_acknowledge -> status/finalize rejection smoke.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T19:59:05.430Z",
@@ -2437,14 +2439,15 @@
         "packages/main/src/handlers/scope-contract.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-035@a270f20"
     },
     {
       "id": "B-3f3d:F-036",
       "desc": "packages/main/src/handlers/finding.ts:87-92,359-453 and packages/main/src/core/mkdir-lock.ts:206-217 — critical cross-process review-pass lost-update family. withReviewPassLock and the outer review-inventory mutation lock use withMkdirLock defaults whose live holder is reclaimed solely after DEFAULT_STALE_MS=10000, but recordReviewPass performs expensive snapshot, candidate/read-diagnostic, provenance, persistence verification, process-event, and auto-commit work; real concurrent RI-006 commands exceeded 10s. In this run quality review_pass_set returned `Review pass B-3f3d:RP-020 recorded`, yet the later authoritative store contained RP-020/RP-021 for concept RR-044 and no pass for quality RR-045; review_inventory_critic_set then failed `REVIEW_INVENTORY_LANES_INCOMPLETE: lattice-review-quality`. A waiter can therefore reclaim a still-live lock, read an overlapping snapshot, reuse IDs, overwrite review-passes.json, and make a command report durable success that is subsequently erased. This is distinct from F033-F035: it is lock liveness/lost-update, not inventory timestamp, run selection, or scope drift. Use ownership-token plus live-PID/heartbeat classification or a non-timeout reclaim contract for reviewer metadata locks, keep the full RMW and final durability check under the non-reclaimable critical section, and add a real two-process >10s review_pass_set stress proving unique IDs and both signed passes survive.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T20:15:34.775Z",
@@ -2491,7 +2494,171 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-036@a270f20"
+    },
+    {
+      "id": "B-3f3d:F-037",
+      "desc": "packages/main/src/handlers/review-inventory.ts:54-80, packages/main/src/handlers/checklist.ts:1898-1937, and packages/main/src/core/command-policy.ts:178 — HIGH, distinct checklist-semantic drift left by the F035 remediation. captureReviewInventoryScope signs only scopeContract plus checklist item id/title/files. The supported verification_intent_repair command remains writable in REVIEW and persists reconstructed verificationIntent rows, but it neither takes the review-inventory mutation lock nor changes any field included in scopeDigest. Therefore after review_inventory_begin an operator can run verification_intent_repair, changing the acceptance/review subject seen by the test-coverage lane, while status/critic/wave/finalize recomputation sees identical material, storyFilesHash, scopeDigest, and requiredLanes and can consume pre-repair lane evidence. The decision contract says supported or direct scope drift must invalidate at the next authoritative consumer. Include the complete checklist review-subject projection, at minimum verificationIntent and related requirement-routing fields, in the signed/recomputed scope digest or serialize and explicitly invalidate every REVIEW-phase checklist semantic writer; add begin -> verification_intent_repair -> status/finalize rejection coverage. Existing focused smokes pass but only exercise scope_contract_acknowledge and do not cover this path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T21:15:37.999Z",
+      "reviewRound": "2026-08-14T21:08:42.391Z",
+      "reviewRunId": "B-3f3d:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Final concept review escalated F035 scope freshness to every supported REVIEW-phase checklist semantic writer after focused smokes covered only scope_contract_acknowledge.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "83745ccdfc21a3cb51e82a01a9eab5997a5dc180b885499caecdd20ac07b6c0e",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-038",
+      "desc": "packages/main/src/handlers/review-run.ts:145-183,311-313; packages/main/src/handlers/review-inventory.ts:505-541; packages/main/src/core/review-inventory-epoch.ts:271-281 — critical ReviewRun/boundary linearization TOCTOU, distinct from F033. review_run_start acquires the shared inventory lock only for context/cutoff validation, releases it at line 148, then does scope/prompt work and allocates/persists the RR under a different review-metadata lock. Concurrent wave_advance/cancel/begin can acquire the inventory lock in that gap and sign maxReviewRunSequence before the in-flight run is published. The in-flight command then allocates a numerically greater RR and persists it after the boundary, so evaluateReviewInventoryWave and assertReviewInventoryEvidenceWritable classify it as post-boundary even though its startedAt/snapshot/context were captured before the boundary. This violates the decision document claim of a linearized durable identity and can let pre-wave review context satisfy a later wave or escape a terminal boundary. The real >10s two-process review-pass stress passes, so F036 lock-reclaim/ID-loss is fixed; this is a separate cross-lock ordering family. Hold the shared inventory mutation lock across ReviewRun ID allocation and durable run publication with a consistent lock order against the review-metadata transaction, or allocate the monotonic sequence from an inventory-locked counter at publication and bind the run to the exact epoch/wave generation; add a deterministic barrier test interleaving precheck -> wave_advance/cancel -> run persist and require the run to remain sealed/old.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T21:16:57.604Z",
+      "reviewRound": "2026-08-14T21:08:42.391Z",
+      "reviewRunId": "B-3f3d:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd5ac516a9549ab10afbe92564ff75284e408110e26e0f5bc497be668f75c55e",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "review-run-sequence-boundary-linearization-toctou",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
