@@ -1119,3 +1119,30 @@ updated full document:
   no new BLOCKER/HIGH was introduced.
 
 Final audited status: **no unresolved BLOCKER or HIGH architecture finding**.
+
+### 21.5 Canonical `host_run` provenance
+
+The prose above records the architecture findings and their dispositions. The
+following canonical Lattice usage-ledger rows are the authoritative local
+evidence that the two external audit hosts were actually invoked for this
+Story. These rows are diagnostic execution provenance (`gateEvidence=false`),
+not verified external authority or production-release proof.
+
+| Host | Final record | Recorded usage | Audit result |
+|---|---|---|---|
+| Claude CLI | `llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81` | `source=provider-reported`; input `6`, output `1655`, cache creation `47054`, cache read `160377` | Completed under `agentType=lattice-audit-mechanism-placement`; no unresolved BLOCKER/HIGH. |
+| Antigravity CLI (`agy`) | `llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f` | `source=unavailable`; `unavailableReason=agy_print_mode_reports_no_usage`; no numeric count is asserted | Completed the single permitted focused replacement and emitted `AGY_HOST_AUDIT_CONFIRMED`. |
+
+Both final rows are bound to `storyId=B-c648`, `phase=DEV`, and distinct
+`ledgerCallId` values. Each is a sequence-2 final row that supersedes its own
+sequence-1 prompt-size estimate. The earlier agy call represented by preflight
+row `llmuse_d68b8791-13dc-4be8-b5d6-cfec9c57a1dc` was authoritatively aborted
+after 300 seconds without output and has no final row; it is retained as failed
+attempt provenance and is not cited as a successful audit.
+
+Delivery verification must resolve the two exact final record IDs in
+`.lattice/usage/llm-usage.jsonl`, check their Story/phase/agent/host bindings,
+and compare the recorded usage states above. A grep that only finds this prose
+is insufficient. In particular, agy's unavailable state must remain explicit:
+inventing token counts would turn an honest provider limitation into false
+evidence.
