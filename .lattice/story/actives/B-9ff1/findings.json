@@ -577,6 +577,21 @@
       "_hash": "a2386a2b8edf12a4c8dfb9bf35bbb18160209d00cc94a05eca44e631e6b3eba2",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-028",
+      "desc": "[codex host-B C5] Verified by main agent. tests/red/red-w2d-command-readonly.mjs presents two 'independent reasons' the activity row is invisible to it. They are not independent: reason 1 (writeLog is local to runCli, unreachable from a direct handler call) is sufficient on its own, while reason 2 (the fixture is not on a story/ branch) excludes only the stale-warning route - a CLI invocation with LATTICE_ACTIVITY_RECORD_READONLY=1 would still write a row. Reason 2 should be described as a secondary reason the stale-warning bypass specifically cannot fire.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:58.933Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "d3545c25dd0facc5e2161971b78d9929273cfa8e822f203ba4667378bf43825f",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
