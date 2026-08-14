@@ -419,6 +419,43 @@
         "scanEscalationReason": null
       },
       "_hash": "7cb6704dd7f42d3539108d3bd9bb1cfdb1c2e16f3f5baf42dc04bb9cb153a7cc"
+    },
+    {
+      "id": "B-3144:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality pass at HEAD adbb0a3 (post F-030/F-031 fixes). Reviewed full diff main...HEAD across quorum-submit.ts, quorum-prune.ts (new, 713 lines), quorum-submit-smoke.ts, cli-engine.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, and the two corrected spec docs. Dead code: none -- every new helper/function is referenced; tsc --noEmit clean. Type safety: no `as any` introduced; every catch{} in the diff is either a JSON.parse-skip-malformed-line pattern matching pre-existing convention or an explicitly commented best-effort/PROBE cleanup, none silently swallow a real error path. I/O isolation: project has no bridge.ts pattern, N/A. F-031 fix judged correct and minimal: appendDuplicatesForRunId (used only by the F-024/F-025 quorum_prune regression checks at quorum-submit-smoke.ts:3017 and :3059) now pins to currentMaterialHash(fixture.root,'HEAD',fixture.root) captured immediately before the call instead of a hardcoded synthetic drift string; verified in core/evidence-freshness.ts that process-events.jsonl is excluded from the material-hash tree walk, so the pre-call snapshot equals the post-commit material, correctly reproducing a same-identity duplicate AT the live native material (the shape B-f88e's review-escalation.ts liveIdentities exclusion would otherwise silently neutralize under the old synthetic string) -- exactly mirrors the established fix pattern in injectPoisonedDuplicates (commit 5291d420dd), scoped to only the two call sites that needed it. Ran the full quorum-submit-smoke.js suite fresh (not relying on stored evidence): tsc build clean, 70/70 checks pass, plus targeted --grep reruns of the F-024/F-025/F-028/F-029 checks individually. Checked the F-030 doc corrections against the shipped assertNoStandingQuorum implementation: accurately describes the thrown-Error (not idempotent no-op) behavior and the hand-synced LOCKSTEP mirror vs direct eventsWithStoryFilesHashDowngrade call-through, and honestly flags autopilot_review_submit as a known unguarded gap rather than overclaiming -- no doc-promise-undelivered found. Traced a theoretical LOCKSTEP gap (the guard's drift-accept branch does not implement review-escalation's liveIdentities already-superseded exclusion) but confirmed analytically it cannot diverge in outcome: any state where that exclusion would matter already implies a native-material verdict exists for the runId, which the guard's independent same-material branch already refuses on its own -- not a real bug, no finding raised. No blocking issues found in this pass.",
+      "createdAt": "2026-08-14T05:14:11.178Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-041",
+      "envelopeId": "0b242bac96c44b59675e13fdc5a0e6691569109d228e20cdf685632c6e176a84",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b95e2ab7ba9ca19c37cfbab2215ec33f5e556a42747e22d721408d02093eb5d8"
     }
   ]
 }
