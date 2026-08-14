@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Require a recorded dev-memory preflight acknowledgement before a story may enter DEV",
+      "context": "Mirrors the existing scope_boundary_set/execution_boundary_set/scope_freeze_check INIT_CHECK-gating pattern. New command (e.g. dev_memory_preflight_ack) writes a JSON artifact under .lattice/story/actives/<id>/ recording that dev_memory_preflight was run and its topHitIds were seen; the DEV-entry gate refuses to advance without this artifact present and bound to the current story's material.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Append a non-blocking dev-memory capture reminder to finding_resolve output",
+      "context": "After finding_resolve completes, append advisory text (does not block, does not mutate anything else) prompting the caller to consider dev_memory_capture for the finding's root cause/fix if it represents a genuinely reusable lesson.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Require a recorded dev_memory_finish_decision before a story may reach DONE",
+      "context": "Add to canFinishGuard (core/machine.ts) or wherever the DONE checklist is assembled: require a dev_memory_finish_decision record for the story, accepting captured | no-reusable-lesson | defer-with-reason as satisfying answers. Mirrors how summary_set/delivery-check are already required DONE items.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
