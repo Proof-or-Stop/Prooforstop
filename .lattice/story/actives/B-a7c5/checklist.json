@@ -277,6 +277,17 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Update dev-memory.md's own Non-Goal wording to clarify the entries-vs-records distinction for the new gate-checked artifacts",
+      "context": "dev-memory.md's Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks.' Add a 'Delivered differently' style annotation (preserving the original line as historical/still-true-for-entry-content context) clarifying that this story's new preflight-ack (CHK-001) and finish-decision (CHK-003) records are a structurally separate artifact type from DevMemoryEntry rows -- no entry's gateEvidence/authority fields are ever read by either gate, and no lesson CONTENT is ever surfaced as gate evidence. Only the existence of a reflection record is gate-checked, not entry content.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-a7c5/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ],
   "auditLog": [
@@ -301,6 +312,17 @@
       "reason": "story_review flagged two scope gaps: plan.md's Reconciliation section states both the M8-advisory-to-blocking escalation and the section-4.3-bypass-path precedent as commitments with no corresponding checklist coverage.",
       "addedTitle": "Update the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc to describe the delivered/escalated CHK-003 behavior",
       "addedContext": "M8 'Capture-Or-Noop Decision' currently describes dev_memory_finish_decision as advisory-only ('missing decision is visible in runbook/advisory output'). Update that section to describe the actually-delivered behavior: this story deliberately escalates ONE specific consumer (the DONE gate) to blocking, while preserving the original advisory text as historical rationale (mirrors B-3144's docs/evidence-write-guard-spec.md 'Delivered differently' pattern). Also document that this is the first concrete instance of section 4.3's registered-blocking-consumer-with-operator-visible-bypass-path pattern being exercised for a dev-memory consumer, satisfied via the existing reason-required decision/downgrade-ack values (no new bypass mechanism needed)."
+    },
+    {
+      "timestamp": "2026-08-14T10:52:47.335Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer round 3 raised OQ-3: dev-memory.md has its own separate Non-Goal (distinct from playbook-runtime-memory-consumption-execution-plan.md's M8/4.3, already covered by CHK-005) that textually conflicts with CHK-001/CHK-003 and needs its own reconciliation + doc update.",
+      "addedTitle": "Update dev-memory.md's own Non-Goal wording to clarify the entries-vs-records distinction for the new gate-checked artifacts",
+      "addedContext": "dev-memory.md's Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks.' Add a 'Delivered differently' style annotation (preserving the original line as historical/still-true-for-entry-content context) clarifying that this story's new preflight-ack (CHK-001) and finish-decision (CHK-003) records are a structurally separate artifact type from DevMemoryEntry rows -- no entry's gateEvidence/authority fields are ever read by either gate, and no lesson CONTENT is ever surfaced as gate evidence. Only the existence of a reflection record is gate-checked, not entry content."
     }
   ]
 }

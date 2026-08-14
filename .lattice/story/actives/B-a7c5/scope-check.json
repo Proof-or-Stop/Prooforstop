@@ -283,10 +283,10 @@
       "q": "docs/requirements/decisions/dev-memory.md's own Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks' -- a separate, differently-worded commitment from the already-reconciled playbook-runtime-memory-consumption-execution-plan.md M8/Non-Goal text (OQ-1/OQ-2, resolved in the prior PLAN round). plan.md's Reconciliation section and CHK-005 only cite and update playbook-runtime-memory-consumption-execution-plan.md; dev-memory.md itself is not read, cited, or scheduled for a corresponding update anywhere in plan.md, decision.json, or the checklist. Does this story's CHK-001/CHK-003 gate-existence-of-a-record design also require reconciling/updating dev-memory.md's own Non-Goal wording (even if, per the same record-of-reflection-vs-content-as-evidence reasoning already used for OQ-1, the gates do not actually surface dev-memory ENTRIES in validate/gate output, only the separate ack/finish-decision sidecar artifacts), or is dev-memory.md intentionally left as-is because its Non-Goal is scoped to entry CONTENT, not to sidecar attestation records?",
       "evidence": "dev-memory.md Non-Goals: 'Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.' plan.md Reconciliation section and CHK-005's title/context reference only 'the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc'; dev-memory.md is absent from plan.md's Reconciliation section, decision.json, and all five checklist item titles.",
       "sourcePointers": [
-        "docs/requirements/decisions/dev-memory.md",
-        "plan.md",
-        ".lattice/story/actives/B-a7c5/checklist.json"
-      ]
+        "docs/requirements/decisions/dev-memory.md:152-154,163;.lattice/story/actives/B-a7c5/plan.md:Reconciliation section"
+      ],
+      "resolution": "dev-memory.md's Non-Goal (line 163, 'entries are NOT surfaced in lattice validate output or gate checks') is about DevMemoryEntry JSONL row CONTENT, whose gateEvidence:false/authority:non_authoritative fields exist specifically so no consumer treats lesson text as gate evidence (doc's own FAQ, lines 152-154). CHK-001's preflight-ack and CHK-003's finish-decision are a separate artifact type -- no gateEvidence/authority fields, because they never claimed non-authoritative status over content; they record only that a reflection ritual occurred, never the lesson text. Same record-of-reflection-vs-entry-content distinction already applied to OQ-1/OQ-2. Added CHK-006 to update dev-memory.md's Non-Goals wording with a 'delivered differently' style clarification, preserving the original line as still-true for entry content.",
+      "resolvedAt": "2026-08-14T10:52:54.909Z"
     }
   ]
 }

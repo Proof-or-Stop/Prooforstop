@@ -1,6 +1,6 @@
 # Plan: dev-memory lifecycle gates (B-a7c5)
 
-## Reconciliation with the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec (OQ-1, OQ-2)
+## Reconciliation with the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec (OQ-1, OQ-2) and dev-memory.md (OQ-3)
 
 The PLAN scope reviewer found `docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`
 (specifically M8 "Capture-Or-Noop Decision" and section 4.3 "Active Playbook
@@ -52,6 +52,27 @@ overridden silently:
   that spec is misled the same way B-3144's F-030 finding showed a stale
   pre-merge design doc can mislead. Added as an explicit sub-task under
   CHK-003 below.
+- A second, separate pre-existing doc, `docs/requirements/decisions/dev-memory.md`,
+  has its own Non-Goals list including "Dev-memory entries are NOT surfaced in
+  `lattice validate` output or gate checks" (line 163). This is textually
+  narrower than it first looks: it is about *entries* -- the `DevMemoryEntry`
+  JSONL rows themselves, whose `gateEvidence: false` / `authority:
+  non_authoritative` fields (per that doc's own FAQ, lines 152-154) are a
+  "reminder baked into every entry" specifically so no consumer treats entry
+  CONTENT as gate evidence. CHK-001's preflight-ack record and CHK-003's
+  finish-decision record are NOT `DevMemoryEntry` rows -- they are a
+  structurally separate artifact type (no `gateEvidence`/`authority` fields at
+  all, because they never claimed non-authoritative status over lesson
+  content in the first place) that records only "did the ritual of
+  consulting/reflecting happen," never the lesson text itself. No entry's
+  `gateEvidence` field is ever read or flipped by either gate. Same
+  record-of-reflection-vs-entry-content-as-evidence distinction as OQ-1/OQ-2
+  above, applied to this doc's specific wording. Because this Non-Goal, read
+  fully literally, still needs a reader-facing clarification, `dev-memory.md`
+  itself also needs the same kind of "delivered differently" annotation as
+  `playbook-runtime-memory-consumption-execution-plan.md` -- added as CHK-006
+  below (kept separate from CHK-005 because it is a distinct file with a
+  distinct, differently-worded Non-Goal, not the same edit).
 
 ## Architecture decision: shared core module, no core→handlers inversion
 
