@@ -9,11 +9,13 @@
     "packages/main/src/cli/command-catalog.ts",
     "docs/CLI.md",
     "docs/requirements/decisions/testing-infra.md",
-    "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [
     "lattice.config.json",
@@ -26,10 +28,12 @@
     "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
   ],
-  "scopeChangeReason": "Initialize the independently reviewed eight-file PLAN scope before DEV; all validation inventory and proof-budget sources are protected.",
+  "scopeChangeReason": "Add only the canonical pre-review smoke file after its stale 57-versus-58 assertion contract directly blocked the registered B-6693 live proof.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T15:29:58.959Z",
-  "updatedAt": "2026-08-14T15:29:58.959Z",
+  "updatedAt": "2026-08-14T16:35:22.646Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -46,7 +50,8 @@
     "packages/main/package.json": "packages/main/package.json",
     "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
     "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
-    "packages/main/src/Direct bare npm test interception or wrapping": "Direct bare npm test interception or wrapping",
-    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
+    "packages/main/src/Direct bare npm test interception or wrapping": "packages/main/src/Direct bare npm test interception or wrapping",
+    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }

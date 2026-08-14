@@ -873,6 +873,51 @@
         "attestedAt": "2026-08-14T16:17:20.205Z",
         "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Synchronize the canonical pre-review focused rollout assertion count",
+      "context": "The registered focused rollout smoke now passes 58 assertions, but proofstory-pre-review-check-smoke still matches the stale literal 57, causing canonical live proof to exit 1 after a genuine PASS. Update the exact contract and add a regression that proves stale 57 rejects while current 58 passes; do not weaken the exact-count check.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "The canonical pre-review live proof accepts \"ProofStory acceptance rollout smoke: PASS (58 assertions)\" and exits 0 instead of reporting a false focused-control failure.",
+      "excludes": [
+        "Do not change acceptance-rollout behavior, scenario inventory, timeout budgets, or replace the exact assertion-count contract with a loose PASS substring."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: node scripts/run-proofstory-pre-review-live-proof.mjs under the canonical frozen-cohort environment. Execute the real nested acceptance-rollout smoke, require its exact output line ProofStory acceptance rollout smoke: PASS (58 assertions) to be accepted by the focused rollout consumer, and require the canonical process to exit 0 with PROOFSTORY_PRE_REVIEW_PROOF=. WHY: proves the live producer output, not a synthetic PASS string, reaches and satisfies the pre-review consumer.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same canonical command and prove the stale exact 57-assertion output is rejected; changing the expected count back to 57 or accepting both 57 and 58 must make the command exit nonzero before PROOFSTORY_PRE_REVIEW_PROOF= is emitted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the same canonical command and prove loose PASS text, a count-free output, and any non-58 assertion count are rejected while exact PASS (58 assertions) is accepted; loosening the consumer matcher must make the command exit nonzero.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
