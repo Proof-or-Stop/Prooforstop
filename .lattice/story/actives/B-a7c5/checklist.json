@@ -851,7 +851,11 @@
           },
           {
             "desc": "Smoke test uses mkdtempSync + git init temp fixture pattern (matching codebase convention e.g. quorum-submit-smoke.ts makeFixture) and does not leak temp directories on success or assertion failure; WHY: shared CI environment accumulation / cross-test contamination",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts\\\",\\\"utf8\\\"); const hasMkdtemp=s.includes(\\\"mkdtempSync(\\\"); const hasGitInit=s.includes(\\\"git(root, [\\x27init\\x27]\\\"); const hasFinally=s.includes(\\\"} finally {\\\"); console.log((hasMkdtemp && hasGitInit && hasFinally) ? \\\"MKDTEMP_GITINIT_FINALLY_PATTERN_CONFIRMED\\\" : \\\"PATTERN_MISMATCH\\\")\"",
+              "selector": "MKDTEMP_GITINIT_FINALLY_PATTERN_CONFIRMED"
+            }
           }
         ],
         "adversarial": [
@@ -987,6 +991,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:29:01.497Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts\\\",\\\"utf8\\\"); const hasMkdtemp=s.includes(\\\"mkdtempSync(\\\"); const hasGitInit=s.includes(\\\"git(root, [\\x27init\\x27]\\\"); const hasFinally=s.includes(\\\"} finally {\\\"); console.log((hasMkdtemp && hasGitInit && hasFinally) ? \\\"MKDTEMP_GITINIT_FINALLY_PATTERN_CONFIRMED\\\" : \\\"PATTERN_MISMATCH\\\")\"",
+          "result": "pass",
+          "note": "Source file uses mkdtempSync for fixture roots, git(root, ['init']) for the git-backed fixture (matching quorum-submit-smoke.ts's makeFixture convention), and every fixture block's cleanup runs inside a } finally { ... } so the temp directory is removed even when an assertion throws mid-block, not leaking on failure.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "65abf9170e2914aa3649903f6c5c3b2af6df45814ce8ec67263d5d458258e7a8",
+            "outputTail": "MKDTEMP_GITINIT_FINALLY_PATTERN_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:29:02.828Z"
+          },
+          "headHash": "93df9fdb229b1490596d7ded58c988ce617b2cfb",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:29:02.993Z"
         }
       ]
     },
