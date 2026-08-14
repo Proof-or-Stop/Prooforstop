@@ -1149,6 +1149,33 @@
         "scanEscalationReason": "no concept deletion in scope; residual scan clean."
       },
       "_hash": "0975e36ae916067bdd04acc58a8e3eceb0bcf4e38bf77c77d526c522e6ae83e5"
+    },
+    {
+      "id": "B-fb7b:RP-038",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code PASS at descoped material: CHANGELOG accurately describes the existence-based ensure-dist bootstrap and explicitly documents that concurrent-build mutex + content-bound freshness are deferred to a follow-up story.",
+      "createdAt": "2026-08-14T16:35:06.124Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-071",
+      "envelopeId": "5083e090a604ed4820499a695ae46ad6978123601b57a79cc10b3e846421ed17",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "131db1cf227f9f73921282b6fd1a561dbb278f4d08cbfdcada6c0a1e4866788f"
     }
   ]
 }
