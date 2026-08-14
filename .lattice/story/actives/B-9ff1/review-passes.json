@@ -888,6 +888,43 @@
         "scanEscalationReason": null
       },
       "_hash": "dbf6df44f63595f878f40e51cdb8842e5c687f09f1e8fbb79839a63e1ac9b5ee"
+    },
+    {
+      "id": "B-9ff1:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Round-9 confirmation of commit 82abb47b15 (4 files, text-only: cli/activity-policy.ts, cli/command-catalog.ts, core/command-policy.ts, handlers/red-evidence.ts). Independently rebuilt the fourteen-site inventory by grep, not by trusting the note's own count: searched every one of the ten declared files for the canonical scope sentence ('Scoped to the command handler itself and the CLI story-evidence writers, it writes no RED-evidence record, chain record or story/evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook.') and found exactly fourteen occurrences in exactly ten files: command-catalog.ts(1), command-policy.ts(1), config.ts(1), process-fact-levels.ts(1), process-fact-registry.ts(1), registry.ts(1), red-evidence.ts(4: docblock at handler L358-368, ADMISSIBLE footer L526, rejection footer L540, and the readCommittedBindingForTarget throw at L243), red-evidence-envelope-smoke.ts(1), red-w2d-command-readonly.mjs(2: file header + ownershipClass assertion). Verified each site's runtime string (concatenating JS +-joined literals, not just grepping raw source lines) carries BOTH the sentence verbatim AND the 'see the red_evidence_envelope_check note in cli/activity-policy.ts' pointer -- confirmed for all 14, no exceptions. Swept specifically for the vocabulary slip (a 'configured' onError claim missing the MATCHING qualifier): grepped 'configured'+'onError' co-occurrence across all of packages/main/src and packages/main/dist; every remaining site (command-policy.ts L445, red-evidence.ts L247/L389/L541, the file-top docblock L19-24, the smoke.ts assertion L497, activity-policy.ts's own item-A prose) now says CONFIGURED and MATCHING with the matching definition spelled out. Cross-checked the technical claim itself against the actual code: cli-engine.ts:1518-1524 confirmed runHooks('onError', ...) is unconditional (only the stderr notice is gated on config0?.hooks?.onError), and core/hooks.ts:96-116 resolveHookCommands confirmed it resolves only an exact stage-map[key] plus stageMap['*'], nothing else -- both match the note's claim exactly. Read the rewritten mitigation paragraph in full (activity-policy.ts L106-125): it says the declared set 'has not prevented drift', lists the three-rounds-plus-one history including this round's three self-found instances and the previously-undeclared fourteenth statement, and states mechanical enforcement 'is not built here and belongs to its own change' -- no claim that it is filed, tracked, or scheduled anywhere; grepped the whole diff and note for 'filed' and found no occurrence. Verified the DONE-gate boundary: commit 82abb47b touched zero .lattice/ paths (git show --stat confirms only the 4 src files); the five frozen artifacts (acceptance-basis.json, scope-boundary.json, execution-boundary.json, checklist.json, scope-freeze-check.json) show no diff in the working tree; the only .lattice churn present (process-events.jsonl, prompt-envelopes.json, review-runs.json, review-passes.json) is routine cross-lane review bookkeeping (other reviewer lanes finding_resolve/review_pass_set commits interleaving on this shared story), not a material edit. Ran both required commands: node packages/main/dist/tasks/red-evidence-envelope-smoke.js -> OK, exit 0 (dist verified byte-identical to src for the changed strings). python3 check-selectors.py -> OK, 106/106 non-waived pins pass (2 permanently-waived skipped), red-w2d-rejection-matrix.mjs holds at 89.0% of the 12000-char cap exactly as the commit message claims, confirming the added footer sentence did not push it over. Also directly ran all six red-w2d-*.mjs / red-w2c-validate-registration.mjs tests: all exit 0. No blocking finding. This is the fourth round I have reviewed as the inventory lane and, unlike the prior three, the declared count matches an independent recount, every site carries both required parts, and the mitigation prose does not overclaim -- this looks like genuine convergence rather than a gap I failed to find.",
+      "createdAt": "2026-08-14T11:47:25.978Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-044",
+      "envelopeId": "4509bb9ae301c2059e5cf0a0fb8d0c5ceca8d05d7394f871386a2570e50789ae",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f51dd13cd7394ad42982431d1a347e2a4da4bc3d0d04d314ebeb8a1810d4daf8"
     }
   ]
 }
