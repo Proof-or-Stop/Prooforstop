@@ -7,11 +7,10 @@
  * passed on this story it reports isFirstPass=true and the full main...HEAD
  * material diff.
  *
- * HARD INVARIANT (this story): this module is STRICTLY READ-ONLY. It only reads
- * via the StoryStore and git; it performs no writes and has no gate/store side
- * effects. It does NOT touch canPassReviewGuard, review-run bindings,
- * materialHash, or staleness logic — it only surfaces information so an operator
- * can decide whether to re-run a reviewer. The framework still skips nobody.
+ * The legacy per-reviewer context below remains STRICTLY READ-ONLY. The same
+ * module also owns the separately signed post-remediation selection consumed by
+ * the REVIEW gate: it narrows only from a proven current dependency closure and
+ * otherwise requires the full active set. Round number is never lane evidence.
  *
  * Diff source: changedFilesBetweenRenameAware (`git diff --name-status -M`) so a
  * file rename since the reviewer's last pass still surfaces as a changed path

@@ -7,11 +7,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
-import { reviewInventoryDigest, consumeReviewInventoryReceipt, finalizedUnconsumedReviewInventory } from '../core/review-inventory-epoch.js';
-import { hashReviewPrompt, signReviewRun } from '../core/review-run.js';
-import { resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
-import { signReviewPass } from '../core/finding-verify.js';
-import type { ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
+import { consumeReviewInventoryReceipt, finalizedUnconsumedReviewInventory } from '../core/review-inventory-epoch.js';
+import type { StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import {
   computeCanonicalDependencyClosure,
@@ -35,7 +32,11 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, ...env },
+    env: {
+      ...process.env,
+      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      ...env,
+    },
   }).trim();
 }
 
@@ -52,8 +53,8 @@ function setup() {
   writeFileSync(join(root, 'packages/main/tests/isolated.test.ts'), 'export const isolatedTest = 1;\n');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['config', 'user.name', 'Inventory Handler Smoke']);
-  git(root, ['config', 'user.email', 'inventory-handler@example.invalid']);
+  git(root, ['config', 'user.name', 'lattice-implementer']);
+  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
   resetConfigCache();
@@ -78,44 +79,17 @@ function setup() {
   return { root, store, handlers: createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store }) };
 }
 
-function signedRun(epoch: ReturnType<StoryStore['readReviewInventoryEpochs']>['epochs'][number], lane: string, index: number): ReviewRun {
-  const startedAt = new Date().toISOString();
-  const promptHash = hashReviewPrompt(resolvePromptRoleBody(lane, undefined).body);
-  const row: ReviewRun = {
-    reviewRunId: `${storyId}:RR-${String(index).padStart(3, '0')}`, storyId, agent: lane, lane,
-    reviewRound, startedAt, ...epoch.cutoff, promptHash,
-  };
-  row._hash = signReviewRun(storyId, row.reviewRunId, lane, lane, reviewRound, startedAt,
-    row.headHash, row.materialHash, promptHash, undefined, undefined, row.storyFilesHash);
-  return row;
-}
-
-function signedPass(run: ReviewRun, index: number): ReviewPass {
-  const createdAt = new Date().toISOString();
-  const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
-  const readLog = {
-    filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], summary: { readCount: 1, tokenCount: 8 },
-    digest: reviewInventoryDigest({ run: run.reviewRunId, read: 'subject.ts' }),
-  };
-  const row: ReviewPass = {
-    id: `${storyId}:RP-${String(index).padStart(3, '0')}`, agent: run.agent,
-    note: 'real handler smoke terminal review evidence', createdAt, reviewRound,
-    reviewRunId: run.reviewRunId, readManifest, readLog,
-  };
-  row._hash = signReviewPass(storyId, row.id, row.agent, row.note, createdAt, reviewRound,
-    row.reviewRunId, readManifest, readLog);
-  return row;
-}
-
-function waitForClockAfter(timestamp: string): void {
-  const boundary = Date.parse(timestamp);
-  while (Date.now() <= boundary) {
-    // Evidence ordering is millisecond-based; advance the real clock rather than
-    // manufacturing future terminal timestamps that a receipt could predate.
-  }
-}
-
 const first = setup();
+const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic',
+  LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
+});
+assert.match(criticDispatch, /findingDispositions/);
+const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic',
+  LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
+});
+assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
 const begin = cli(first.root, 'review_inventory_begin', { storyId, maxWaves: 2 });
 assert.match(begin, /State: OPEN/);
 assert.match(first.handlers.review_inventory_status({ storyId }), /REVIEW_INVENTORY_LANES_INCOMPLETE/);
@@ -123,26 +97,119 @@ assert.match(cli(first.root, 'review_inventory_status', { storyId }), /REVIEW_IN
 const reloaded = new StoryStore(first.root);
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs.length, 1, 'begin persists across store reload');
 const epoch = reloaded.readReviewInventoryEpochs(storyId).epochs[0];
-const lanes = epoch.requiredLanes.map((lane, index) => signedRun(epoch, lane, index + 1));
-const passes = lanes.map((run, index) => signedPass(run, index + 1));
-waitForClockAfter(passes.map(row => row.createdAt).sort().at(-1)!);
-const criticRun = signedRun(epoch, 'lattice-review-topology-critic', 10);
-const criticPass = signedPass(criticRun, 10);
-waitForClockAfter(criticPass.createdAt);
-reloaded.writeReviewRuns(storyId, { runs: [...lanes, criticRun] });
-reloaded.writeReviewPasses(storyId, { passes: [...passes, criticPass] });
+const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
+const readEvents = [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: 8 }];
+let realFindingId = '';
+for (const [index, lane] of epoch.requiredLanes.entries()) {
+  const sessionId = `sess-inventory-${lane}`;
+  cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+  assert.ok(reviewRunId, `real review_run_start must return a signed run for ${lane}: ${started}`);
+  if (index === 0) {
+    const finding = cli(first.root, 'finding_add', {
+      storyId,
+      agent: lane,
+      reviewRunId,
+      desc: 'Synthetic verified family proving the real finding_add terminal path.',
+      severity: 'medium',
+      category: 'missing',
+      evidenceState: 'verified',
+      files: ['packages/main/src/subject.ts'],
+      readManifest,
+      readEvents,
+    }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+    realFindingId = finding.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
+    assert.ok(realFindingId, `real finding_add must persist an ID: ${finding}`);
+  } else {
+    cli(first.root, 'review_pass_set', {
+      storyId,
+      agent: lane,
+      reviewRunId,
+      note: `Real handler smoke found no blocker for ${lane}.`,
+      readManifest,
+      readEvents,
+    }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  }
+}
+cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+});
+const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+});
+const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
+assert.ok(criticReviewRunId, `real critic review_run_start must return a signed run: ${criticStarted}`);
+cli(first.root, 'review_pass_set', {
+  storyId,
+  agent: 'lattice-review-topology-critic',
+  reviewRunId: criticReviewRunId,
+  note: 'Independent critic reviewed the exact aggregate and lane coverage.',
+  readManifest,
+  readEvents,
+}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
 const critic = cli(first.root, 'review_inventory_critic_set', {
-  storyId, epochId: epoch.epochId, reviewRunId: criticRun.reviewRunId,
-  agent: 'lattice-review-topology-critic', findingDispositions: [],
+  storyId, epochId: epoch.epochId, reviewRunId: criticReviewRunId,
+  agent: 'lattice-review-topology-critic',
+  findingDispositions: [{
+    findingId: realFindingId,
+    disposition: 'verified_family',
+    familyKey: `finding:${realFindingId}`,
+    reason: 'Independent critic conservatively retained this verified family',
+  }],
 }, { LATTICE_AGENT: 'lattice-review-topology-critic' });
 assert.match(critic, /Completeness critic: complete/);
+const discoveryWave = cli(first.root, 'review_inventory_finalize', { storyId });
+assert.match(discoveryWave, /State: OPEN/);
+assert.match(discoveryWave, /Current wave: 2\/2/);
+const firstWaveCompletedAt = reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves[0].completedAt;
+while (Date.now() <= Date.parse(firstWaveCompletedAt!)) { /* preserve strict wave ordering */ }
+for (const lane of epoch.requiredLanes) {
+  const sessionId = `sess-inventory-wave2-${lane}`;
+  cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+  assert.ok(reviewRunId, `second-wave review_run_start must return a signed run for ${lane}: ${started}`);
+  cli(first.root, 'review_pass_set', {
+    storyId, agent: lane, reviewRunId,
+    note: `Second complete unchanged-material wave found no new family for ${lane}.`,
+    readManifest, readEvents,
+  }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+}
+cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+});
+const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'lattice-review-topology-critic' }, {
+  LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+});
+const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];
+assert.ok(secondCriticReviewRunId);
+cli(first.root, 'review_pass_set', {
+  storyId, agent: 'lattice-review-topology-critic', reviewRunId: secondCriticReviewRunId,
+  note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,
+}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic' });
+cli(first.root, 'review_inventory_critic_set', {
+  storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
+  agent: 'lattice-review-topology-critic', findingDispositions: [],
+}, { LATTICE_AGENT: 'lattice-review-topology-critic' });
 const finalized = cli(first.root, 'review_inventory_finalize', { storyId });
 assert.match(finalized, /State: FINALIZED/);
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
 const receipt = finalizedData.receipts[0];
-consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff);
+writeFileSync(join(first.root, 'packages/main/src/subject.ts'), 'export const subject = 99;\n');
+assert.throws(
+  () => cli(first.root, 'story_advance', { storyId, phase: 'DEV' }),
+  /REVIEW_INVENTORY|cutoff|material|invalid/i,
+  'real story_advance rejects a post-finalize pre-consumption material mutation',
+);
+assert.equal(reloaded.readStory(storyId).phase, 'REVIEW', 'TOCTOU rejection cannot publish DEV');
+assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0].consumedAt, undefined, 'TOCTOU rejection cannot consume the receipt');
+writeFileSync(join(first.root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
+const remediationAdvance = cli(first.root, 'story_advance', { storyId, phase: 'DEV' });
+assert.match(remediationAdvance, /DEV/);
+assert.equal(reloaded.readStory(storyId).phase, 'DEV', 'real story_advance consumes the receipt before publishing DEV');
 assert.throws(() => consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff), /REVIEW_INVENTORY_REMEDIATION_BLOCKED/);
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0].receiptId, receipt.receiptId);
 

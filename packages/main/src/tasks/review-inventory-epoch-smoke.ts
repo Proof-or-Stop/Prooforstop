@@ -263,6 +263,15 @@ const rejectedByCritic = evaluateReviewInventoryWave({
   findingDispositions: [{ findingId: historical.id, disposition: 'not_verified', reason: 'critic disproved the candidate family' }],
 });
 assert.equal(rejectedByCritic.families.length, 0, 'critic not_verified disposition cannot count as a verified family');
+const unknownDisposition = evaluateReviewInventoryWave({
+  epoch: initial,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [historical],
+  findingDispositions: [{ findingId: historical.id, disposition: 'garbage' as never, reason: 'mutation must fail closed' }],
+});
+assert.deepEqual(unknownDisposition.invalidDispositionIds, [historical.id], 'unknown runtime disposition cannot suppress a verified family');
+assert.equal(unknownDisposition.families.length, 0);
 const suspectedFinding: Finding = { ...historical, id: `${storyId}:F-suspected`, evidenceState: 'suspected', uncertaintyReason: 'candidate not reproduced' };
 suspectedFinding._hash = signFinding(
   storyId, suspectedFinding.id, suspectedFinding.desc, suspectedFinding.severity,
@@ -339,6 +348,7 @@ const criticTerminalStatus = renderReviewInventoryStatus(initial, {
   criticReviewRunId: firstCritic.run.reviewRunId,
 });
 assert.match(criticTerminalStatus, /Next: lattice review_inventory_critic_set/);
+assert.match(criticTerminalStatus, /"findingDispositions":\[/, 'critic Next must include the CLI-required disposition inventory');
 assert.equal((criticTerminalStatus.match(/^Next:/gm) ?? []).length, 1);
 const criticCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery, criticComplete: true });
 assert.match(criticCompleteStatus, /Completeness critic: complete/);

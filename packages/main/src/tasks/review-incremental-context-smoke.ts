@@ -7,10 +7,10 @@
  * lattice review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
- * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
- * advisory. It must not write to the store and must not alter any gate input
- * (findings / review-passes / review-runs / currentReviewRound). The framework
- * still skips no reviewer; round-2+ targeted re-review is an operator judgement.
+ * HARD INVARIANT this guard defends: the legacy per-reviewer context is a pure
+ * read-only diagnostic and does not mutate gate inputs. Post-remediation lane
+ * selection is a separate signed current-material fact consumed by the gate;
+ * only proven dependency closure narrows it, never the round number.
  *
  * Cases:
  *   (a) RETURNING REVIEWER — a reviewer 'quality' with a prior PASS bound to an
@@ -30,8 +30,8 @@
  *   (d) GATE-UNCHANGED ASSERTION (the load-bearing one) — exercises the REAL
  *       canPassReviewGuard (imported from core/machine.ts) over deterministic
  *       fixture stories and asserts the actual gate semantics:
- *         - Round 1 (roundCount<=1): blocks unless ALL opt-in reviewers have a
- *           valid current-round verdict + quorum.
+ *         - Every round blocks unless every current selected lane has a valid
+ *           current-round verdict + quorum; unknown impact selects all lanes.
  *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
@@ -1145,9 +1145,9 @@ function runGateUnchangedCase(): void {
       const story = reviewStory(storyId, 2, undefined);
       const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(20))];
       const store = buildFixtureStore({ story, passes });
-      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) round-2 single valid receipt');
-      assert.equal(outcome, false, '(d.3) Round 2+ missing currentReviewRound must BLOCK the gate');
-      console.log(`${MARKER} (d.3) ROUND 2+ missing currentReviewRound -> gate BLOCK; identical with/without helper`);
+      const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) later-round single valid receipt');
+      assert.equal(outcome, false, '(d.3) missing currentReviewRound must BLOCK the gate in every review');
+      console.log(`${MARKER} (d.3) missing currentReviewRound -> gate BLOCK; incremental context cannot change the assurance floor`);
     }
 
     // (d.4) INVALID (unknown-run) current-round binding BLOCKS — in BOTH rounds.

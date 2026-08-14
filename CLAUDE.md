@@ -679,7 +679,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
 
 **签名算法**: `SHA256(storyId + JSON(docsPromises) + JSON(realMachineTests) + JSON(closingSelfCheck) + reviewRound + salt)`，salt = `lattice-delivery-check-integrity-v1`。
 
-**回炉流程**: gate fail → `story_advance DEV` 回炉 → 补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
+**回炉流程**: TEST/DONE gate fail 可按 gate guidance 回 DEV；若仍在 REVIEW，先 `review_inventory_begin`，完成同一 cutoff 的 required lanes，运行 topology critic 并提交完整 `findingDispositions`，`review_inventory_finalize` 取得签名单次 receipt 后才可 `story_advance DEV`。然后补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
 
 **Waiver**: `lattice delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30字符理由"}'`。waiverReason 入 `_hash` 重签名。
 
@@ -773,7 +773,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 lattice-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `lattice dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Lattice cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
-- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
+- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。发现 finding 后不能直接回 DEV：先冻结 inventory，完成 required lanes 和 topology critic 的逐 finding dispositions，finalize 出单次 receipt，再聚合回 DEV 修复；不允许跳过 medium finding 留给下一个 story
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
 - **跨 story 全局意识**：修一个 feature 可能发现基础设施的 bug，一起修
 
@@ -841,7 +841,7 @@ lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intent
 The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REVIEW→TEST transition) decides on reviewer evidence + findings, NOT on free text. Its accurate semantics:
 
 - **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, fresh head/material hash, scope binding; plus — for an open FINDING only — the lane's current-latest run, since a PASS is accepted on any current-round fresh run). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
-- **Every review round requires EVERY opt-in reviewer to have a valid current-round verdict, plus quorum.** The opt-in set is the same one `lattice reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Missing any opt-in reviewer, or failing the quorum check, blocks; round number is never evidence that a lane can be skipped.
+- **Every review round requires EVERY current selected reviewer to have a valid current-round verdict, plus quorum.** Initial/unknown-impact review selects the complete active set (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Only a signed current-material post-remediation dependency closure may select an exact impacted subset; stale/ambiguous scope or policy falls back to all active lanes. Missing a selected lane, or failing quorum, blocks; round number is never evidence that a lane can be skipped.
 - **A verified open blocking finding blocks** (after round decay): `status=open` AND severity in the round's effective blocking set (round 1 = profile `blockingSeverities`; round 2 = critical+high; round 3+ = critical) AND `evidenceState` verified-or-missing. `suspected` / `disproven` never block.
 
 **`lattice review_incremental_context --storyId=B-xxx --role=<reviewer>`** is a strictly read-only advisory: it returns the reviewer's prior verdict, the `headHash` that verdict was bound to, and the MATERIAL files changed since (rename-aware `git diff --name-status -M`, so a renamed file still counts as changed), plus `scopeChanged` / `isFirstPass`. A first-timer (no prior pass) gets `isFirstPass=true` and the full `main...HEAD` material diff. **It writes nothing and changes none of the gate inputs above** (findings / review-passes / review-runs / currentReviewRound); calling it does not alter `canPassReviewGuard` (proven by `test:review-incremental-context-smoke`).

@@ -540,7 +540,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.targetKind === 'story-review'
+    && candidate.targetKind === (args.lane === 'lattice-review-topology-critic' ? 'topology-critic-review' : 'story-review')
     && candidate.agentType === args.lane
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
@@ -829,7 +829,7 @@ function roundMismatchHint(storyId: string, lane: string): string {
 }
 
 function staleMaterialHint(storyId: string, lane: string): string {
-  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; run lattice review_inventory_begin --storyId=${storyId}, finish required lanes + topology critic findingDispositions + finalize, consume that receipt to enter DEV and commit the repair, then advance to REVIEW and run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 // ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──

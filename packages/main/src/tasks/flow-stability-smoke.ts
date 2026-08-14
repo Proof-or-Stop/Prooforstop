@@ -2108,8 +2108,8 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       reviewRound: '',
       _hash: signFinding(storyId, devFindingId, devDesc, 'high', devCreatedAt, ''),
     };
-    // One bound reviewer finding per opt-in lane — covers the legacy
-    // guard-utils.ts gate (which reads findings only, not review passes).
+    // One bound reviewer finding per opt-in lane. guard-utils delegates to the
+    // canonical machine verdict, so no round-number mirror exists here.
     const reviewerFindings: Finding[] = [
       makeFinding(storyId, 'lattice-review-concept', reviewRound, '821', runIds.get('lattice-review-concept')!),
       makeFinding(storyId, 'lattice-review-quality', reviewRound, '822', runIds.get('lattice-review-quality')!),
@@ -2133,16 +2133,11 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       null,
       'machine.ts guard must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
     );
-    // Legacy guard-utils.ts mirror — no source import today, but it exports
-    // the same `getGuardFailureReason` shape and must stay in sync so future
-    // code that wires it back in inherits the same isReviewerAgent
-    // classification. Without the F-005 fix this returned a "Cannot enter
-    // TEST" reason because main-agent F-001 was misclassified as a reviewer
-    // finding that lacked a current-round reviewRound.
+    // Compatibility entrypoint delegates to the same machine verdict.
     assert.equal(
       legacyGetGuardFailureReason(storyId, store, 'TEST', root),
       null,
-      'guard-utils.ts mirror must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
+      'guard-utils.ts compatibility entrypoint must use the canonical current selected-lane verdict',
     );
 
     // Negative arm: a real lattice-review-* finding in the current round with

@@ -276,15 +276,17 @@ normal readiness result, not an exception.
 
 ## Exact Rollback Commands
 
-V1 does not execute rollback itself, but it must print the exact command as a
-likely next action when a later phase has to return to implementation work.
+V1 does not execute rollback itself, but it must print the exact first legal
+command when a later phase has to return to implementation work.
 
 From REVIEW to DEV, use this when a verified blocking finding, stale reviewer
 pass, missing required lane, or stale material-bound evidence requires code or
 evidence changes before review can pass:
 
 ```bash
-lattice story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
+lattice review_inventory_begin --storyId=B-xxxx
+# follow review_inventory_status through required lanes, topology critic with
+# findingDispositions, and review_inventory_finalize; only then story_advance DEV
 ```
 
 From TEST to DEV, use the same command when validation, bug, evidence,
@@ -401,10 +403,12 @@ lattice lifecycle_check --storyId=B-xxxx --target=TEST
 lattice lifecycle_check --storyId=B-xxxx --target=DONE
 ```
 
-For a TEST target with a blocking REVIEW finding, the report prints:
+For a TEST target while the Story is still in REVIEW with a blocking finding,
+the report prints the first inventory action rather than an unauthorized direct
+rollback:
 
 ```bash
-lattice story_advance '{"storyId":"B-xxxx","phase":"DEV"}'
+lattice review_inventory_begin --storyId=B-xxxx
 ```
 
 For a DONE target with no current `done_prepare` report, the report prints:
@@ -500,7 +504,7 @@ The implementation story for V1 must prove:
 - passing `runCommands:true` or `writeEvidence:true` fails closed in V1;
 - stale `done_prepare` pre-merge reports are not treated as DONE-ready;
 - post-merge `done_prepare` binding is required when main sync changes HEAD;
-- REVIEW and TEST blockers print the exact rollback command to DEV;
+- REVIEW blockers print the exact inventory entry/status command that leads to a signed receipt; TEST-phase blockers may print the direct rollback command to DEV;
 - delivery blocker categories render distinctly;
 - metadata-only waiver satisfies only the live-smoke transcript row;
 - remote/Authority/production claims remain false without verified receipts;

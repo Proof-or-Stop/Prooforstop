@@ -84,7 +84,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 | **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
 | **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
 | **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
-| **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
+| **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass；有 finding 时先完成冻结 inventory 的全部 required lanes、topology critic dispositions 和 `review_inventory_finalize`，只有签名单次 receipt 才允许 REVIEW→DEV |
 | **TEST** | CLI / 主 agent | 跑 routine `lattice validate`，写 validation evidence / bug / stale evidence 结果 |
 | **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过；若配置了 DONE-required policy，还必须有当前 HEAD 的 `done-required-evidence.json`），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
 

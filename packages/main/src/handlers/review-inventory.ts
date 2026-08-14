@@ -107,8 +107,14 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     } else if (live?.duplicateIdentities.length) {
       next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="re-dispatch independent reviewer identities"`;
     } else if (live && !projection.criticComplete) {
+      const conservativeDispositions = live.rawFindingIds.map(findingId => ({
+        findingId,
+        disposition: 'verified_family' as const,
+        familyKey: `finding:${findingId}`,
+        reason: 'Conservative executable default: retain this verified finding as its own family',
+      }));
       next = projection.criticReviewRunId
-        ? `lattice review_inventory_critic_set --storyId=${epoch.storyId} --epochId=${epoch.epochId} --reviewRunId=${projection.criticReviewRunId} --agent=lattice-review-topology-critic`
+        ? `lattice review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'lattice-review-topology-critic', findingDispositions: conservativeDispositions })}'`
         : `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"lattice-review-topology-critic"}'`;
     } else {
       next = `lattice review_inventory_finalize --storyId=${epoch.storyId}`;

@@ -4205,6 +4205,43 @@ function assertValidationPersistenceTransactionContract() {
   );
 }
 
+function assertReviewInventoryRemediationContract() {
+  const transitionPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const transitionText = read(transitionPath);
+  assert(
+    /captureEvidenceHashSnapshot[\s\S]*materialDirtyFiles\.length\s*>\s*0[\s\S]*REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
+    `${transitionPath}: REVIEW to DEV must reject dirty story material before consuming the finalized inventory receipt`,
+  );
+
+  const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
+  const epochText = read(epochPath);
+  assert(
+    /\['verified_family',\s*'duplicate',\s*'not_verified'\]\.includes\(row\.disposition\)/.test(epochText),
+    `${epochPath}: critic finding dispositions must be runtime-enumerated and reject unknown values`,
+  );
+
+  const dispatchPath = 'packages/main/src/handlers/story-dispatch.ts';
+  const dispatchText = read(dispatchPath);
+  assert(
+    /promptBuilder\s*===\s*'topology-critic-review'[\s\S]*targetKind:\s*'topology-critic-review'[\s\S]*reviewRound/.test(dispatchText),
+    `${dispatchPath}: topology critic dispatch must persist its dedicated target kind and current review-round binding`,
+  );
+
+  const reviewRunPath = 'packages/main/src/core/review-run.ts';
+  const reviewRunText = read(reviewRunPath);
+  assert(
+    /args\.lane\s*===\s*'lattice-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
+    `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
+  );
+
+  const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
+  const inventoryHandlerText = read(inventoryHandlerPath);
+  assert(
+    /review_inventory_critic_set[\s\S]*findingDispositions:\s*conservativeDispositions/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: the unique critic Next command must include executable findingDispositions`,
+  );
+}
+
 function extractExportedObjectBody(text, exportName, relPath) {
   const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\{`).exec(text);
   assert(Boolean(match), `${relPath} should export ${exportName}`);
@@ -8015,6 +8052,7 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+assertReviewInventoryRemediationContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();

@@ -214,7 +214,7 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
               'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
               `Epoch: ${openInventory.epochId}`,
               `Frozen cutoff: ${openInventory.cutoff.materialHash}`,
-              `Recovery: lattice review_inventory_cancel --storyId=${storyId} --reason=\"return to DEV before material changes\"`,
+              `Recovery: lattice review_inventory_cancel --storyId=${storyId} --reason=\"replace invalid frozen candidate\", then begin a fresh frozen inventory; only a finalized receipt permits DEV`,
             ],
             violations: materialTargets.map(path => ({ path, rule: 'protected' as const })),
           };

@@ -120,8 +120,15 @@ function targetRank(target: LifecycleReadinessTarget): number {
   return PHASE_RANK[target];
 }
 
-function rollbackToDevCommand(storyId: string): string {
-  return `lattice story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
+function reviewRemediationCommand(store: StoryStore, storyId: string): string {
+  try {
+    const latest = store.readReviewInventoryEpochs(storyId).epochs.at(-1);
+    if (latest?.state === 'OPEN') return `lattice review_inventory_status --storyId=${storyId}`;
+    if (latest?.state === 'FINALIZED' && !latest.consumedAt) {
+      return `lattice story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
+    }
+  } catch { /* begin is the fail-closed recovery for missing/unreadable inventory */ }
+  return `lattice review_inventory_begin --storyId=${storyId}`;
 }
 
 function storyAdvanceCommand(storyId: string, phase: LifecycleReadinessTarget): string {
@@ -369,7 +376,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
         category: 'blocking',
         code: 'open_review_loop',
         reason: `${openLoops.length} review loop(s) are still open`,
-        nextCommand: rollbackToDevCommand(storyId),
+        nextCommand: reviewRemediationCommand(store, storyId),
       }));
     }
   } catch (err) {
@@ -414,7 +421,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'stale',
       code: 'invalid_review_run_binding',
       reason: evidenceState.invalid.slice(0, 3).map((issue) => issue.message).join('; '),
-      nextCommand: rollbackToDevCommand(storyId),
+      nextCommand: reviewRemediationCommand(store, storyId),
     }));
   }
 
@@ -473,7 +480,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
           category: 'blocking',
           code: 'reviewer_quorum_not_met',
           reason: `Round ${roundCount} reviewer quorum not met: ${quorum.blocking.slice(0, 3).join('; ')}`,
-          nextCommand: rollbackToDevCommand(storyId),
+          nextCommand: reviewRemediationCommand(store, storyId),
         }));
       } else if (quorum.warnings.length > 0) {
         rows.push(row({
@@ -516,7 +523,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'blocking',
       code: 'open_blocking_review_finding',
       reason: `${blockingFindings.length} blocking finding(s) open (Round ${roundCount}, blocking: ${severities.join('/')})`,
-      nextCommand: rollbackToDevCommand(storyId),
+      nextCommand: reviewRemediationCommand(store, storyId),
     }));
   } else {
     rows.push(row({

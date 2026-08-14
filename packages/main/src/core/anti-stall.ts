@@ -64,7 +64,7 @@ export function reviewAntiStall(storyId: string): string {
     storyId,
     title: 'REVIEW blocked by unresolved findings',
     retry: `finding_list '{"storyId":"${storyId}"}' then resolve each blocking finding`,
-    fix: `story_advance '{"storyId":"${storyId}","phase":"DEV"}' to roll back and fix code`,
+    fix: `review_inventory_begin --storyId=${storyId}, follow review_inventory_status through required lanes + topology critic findingDispositions + finalize, then consume the receipt with story_advance DEV`,
   });
 }
 

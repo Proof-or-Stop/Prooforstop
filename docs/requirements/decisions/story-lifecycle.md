@@ -87,7 +87,7 @@ By default the `correctness_fix` future denylist contains only `repair UX`, `Aut
 
 ## Automatic Rollback
 
-- **REVIEW fail**: return to DEV when a finding or the coverage reviewer lane finds a problem.
+- **REVIEW fail**: do not return directly to DEV. Freeze an inventory, finish every required lane on one cutoff, obtain topology-critic dispositions, finalize the signed single-use receipt, then aggregate remediation in DEV.
 - **TEST fail**: after `lattice validate` fails, write a bug/evidence, and the fix path returns to DEV.
 - **DONE gate fail**: stay in TEST and, per the failed items in the DONE checklist, fill in evidence, summary, delivery check, main sync, or git clean.
 - **DONE-required validation fail**: stay in TEST and run `done_required_validate --storyId=<id>` when the project has `doneRequiredCommands`; without such policy the row is advisory and no full-suite claim is made.
@@ -252,7 +252,7 @@ The CLI layer filters the available commands by the current story phase. When th
 | `finding_*` | Reviewer records findings |
 | `reviewer_list` | View which reviewers are needed |
 | `story_advance -> TEST` | Advance after blockers are resolved and preflight passes |
-| `story_advance -> DEV` | Return to implementation when there is a problem |
+| `story_advance -> DEV` | Consume a fresh finalized ReviewInventoryReceipt and return once for aggregated remediation |
 
 For an aggregated remediation, first open a frozen inventory with
 `review_inventory_begin`, let every required lane terminate on the same cutoff,
@@ -260,7 +260,9 @@ and call `review_inventory_finalize` until a complete wave adds zero new verifie
 finding families. Only the resulting signed, single-use receipt authorizes
 REVIEW→DEV. It proves inventory completeness only (`authorizesTest=false`). Any
 OPEN material drift becomes `INVALIDATED`; after remediation, the final REVIEW
-again requires every current active lane. See
+requires exactly the signed current-material dependency-closure impacted active
+lanes when that closure is proven, and otherwise fails closed to every current
+active lane. Host/quorum/escalation assurance is never reduced. See
 `review-inventory-epoch-and-saturation-gate.md`.
 
 `lattice-review-test-coverage` is the name of a reviewer agent/lane in the REVIEW phase, not a `lattice` CLI command or phase tool. It checks `verificationIntent` / `verificationEvidence` coverage; it first does `review_run_start` to get the current round's `reviewRunId`, and when there are no blockers it writes a review pass via `review_pass_set` + `reviewRunId`, while the internal coverage validation consumes this structured evidence.

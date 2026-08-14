@@ -524,7 +524,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('',
         'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
         `Start a fresh critic run with lattice review_run_start '{"storyId":"${args.storyId}","agent":"lattice-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
-        `Finally bind that terminal evidence with lattice review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>"}'.`,
+        `Finally bind that terminal evidence with lattice review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
       );
     }
     return { prompt: lines.join('\n') };
@@ -965,11 +965,35 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
+        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
+          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+        }
+        const reviewerBinding = story.currentReviewRound ? (() => {
+          const hostRenderHost = currentReviewerPromptHost();
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
+          const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
+          return {
+            dispatchPrompt: result.prompt,
+            dispatchPromptDigest,
+            hostRenderHost,
+            hostRenderIdentityDigest: hostIdentity.identityDigest,
+            dispatchBindingDigest: reviewerDispatchBindingDigest({
+              storyId: args.storyId,
+              lane: canonicalType,
+              reviewRound: story.currentReviewRound!,
+              dispatchPromptDigest,
+              hostRenderIdentityDigest: hostIdentity.identityDigest,
+            }),
+            reviewRound: story.currentReviewRound,
+          };
+        })() : {};
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'topology-critic-review',
           ...authorityBinding,
+          ...reviewerBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });

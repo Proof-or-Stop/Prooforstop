@@ -56,7 +56,7 @@ import type { ChecklistData, PendingReopenAudit, ProcessEvent, StoryInfo, StoryP
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { captureEvidenceHashSnapshot, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
@@ -1311,9 +1311,13 @@ async function runStoryTransitionInner(
           projectRoot: ctx.root,
         });
       }
+      const remediationSnapshot = captureEvidenceHashSnapshot({ gitCwd: transitionGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
+      if (remediationSnapshot.materialDirtyFiles.length > 0) {
+        throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material worktree is dirty (${remediationSnapshot.materialDirtyFiles.join(', ')})`);
+      }
       remediationCutoff = {
-        materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
-        storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        materialHash: remediationSnapshot.materialHash ?? '',
+        storyFilesHash: remediationSnapshot.storyFilesHash ?? '',
       };
     }
     // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.

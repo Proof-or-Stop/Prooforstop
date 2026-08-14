@@ -470,6 +470,7 @@ export interface NextStepCtx {
   configuredGitRootResolved: boolean;
   donePrecheck: DonePrecheckSummary | null;
   reviewerStatus: ReviewerStatusSummary | null;
+  reviewInventoryState?: 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED' | null;
   /**
    * B-b9d0 CHK-004: scope gate blocking signal. When the scope gate fails
    * (path/semantic enforce-fail or guard violations), TEST-phase next-step
@@ -686,7 +687,12 @@ export function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.blockerCount > 0)
             .map(e => `${e.name}(${e.blockerCount})`)
             .join(', ');
-          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: lattice finding_list --storyId=${sid} to view and fix, run lattice story_advance --storyId=${sid} --phase=DEV if needed`;
+          const inventoryNext = c.reviewInventoryState === 'OPEN'
+            ? `lattice review_inventory_status --storyId=${sid}`
+            : c.reviewInventoryState === 'FINALIZED'
+              ? `lattice story_advance --storyId=${sid} --phase=DEV`
+              : `lattice review_inventory_begin --storyId=${sid}`;
+          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: ${inventoryNext} (finish the frozen required lanes, topology critic findingDispositions, and finalize before DEV)`;
         }
         if (!c.reviewerStatus.allPassed) {
           const pending = c.reviewerStatus.entries
@@ -1475,6 +1481,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
       for (const l of renderRouterLogTail(routerTail)) lines.push(l);
 
       // Next step (kept — most important field).
+      let reviewInventoryState: NextStepCtx['reviewInventoryState'] = null;
+      try { reviewInventoryState = ctx.store.readReviewInventoryEpochs(storyId).epochs.at(-1)?.state ?? null; } catch {}
       const nextStep = computeNextStep({
         storyId,
         phase: story.phase,
@@ -1489,6 +1497,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         configuredGitRootResolved: !gitReady && !!configuredGitRootStatus?.signedWorkspaceRoot,
         donePrecheck,
         reviewerStatus,
+        reviewInventoryState,
         scopeBlocking,
       });
 

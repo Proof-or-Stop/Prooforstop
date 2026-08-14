@@ -247,6 +247,7 @@ export function evaluateReviewInventoryWave(args: {
   const unresolvedFindingIds = rawFindingIds.filter(id => !byFinding.has(id));
   const invalidDispositionIds = dispositions.filter(row => {
     if (dispositionCounts.get(row.findingId) !== 1 || !rawFindings.has(row.findingId) || !row.reason.trim()) return true;
+    if (!['verified_family', 'duplicate', 'not_verified'].includes(row.disposition)) return true;
     if (row.disposition === 'verified_family') return !row.familyKey?.trim();
     if (row.disposition === 'duplicate') {
       const canonicalDisposition = row.canonicalFindingId ? byFinding.get(row.canonicalFindingId) : undefined;

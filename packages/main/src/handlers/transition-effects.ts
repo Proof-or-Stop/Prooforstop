@@ -285,7 +285,7 @@ ${agentLines}
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, lattice finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
-→ Need code changes: story_advance(${storyId}, DEV) to return to DEV
+→ Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize(${storyId}); only its signed receipt authorizes story_advance(${storyId}, DEV)
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"lattice-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
       // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the
