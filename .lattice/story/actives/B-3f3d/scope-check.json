@@ -1,173 +1,238 @@
 {
   "storyId": "B-3f3d",
-  "checkedAt": "2026-08-14T14:04:13.519Z",
+  "checkedAt": "2026-08-14T16:14:20.159Z",
   "features": [
     {
-      "feature": "Frozen review inventory epoch and receipt are canonical signed gate-consumed facts bound to story, review round, cutoff hashes, scope, lanes, waves, host and prompt identities",
+      "feature": "Signed frozen review-inventory epoch and gate-consumed receipt with canonical identity, hashes, signatures, persistence, and command surface",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md; understanding.json; plan.md CHK-001; CHK-001"
+      "source": "checklist CHK-001; plan.md CHK-001"
     },
     {
-      "feature": "Operator can begin, inspect, finalize and cancel an epoch with exact state, cutoff, lane progress, blockers and one executable next command",
+      "feature": "Operator-visible epoch status includes cutoff, state, lanes, wave progress, finding counts, blockers, and exactly one next command",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json outcome; plan.md CHK-001; CHK-001 userSees and verificationIntent"
+      "source": "checklist CHK-001 userSees/intents; plan.md CHK-001"
     },
     {
-      "feature": "OPEN epoch blocks review-subject material mutation at handlers, supported Claude and Codex hooks, commit or prewrite guards and lifecycle transitions",
+      "feature": "Every authoritative producer and consumer revalidates OPEN inventory freshness and material lineage",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json constraints and touchpoints; plan.md CHK-002; CHK-002 files"
+      "source": "checklist CHK-002; plan.md CHK-002"
     },
     {
-      "feature": "Bypassed material drift atomically invalidates the epoch, makes prior verdicts advisory and exposes exact cancel or DEV recovery",
+      "feature": "Unmediated material mutation atomically invalidates the epoch and demotes prior evidence to advisory",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan.md CHK-002; CHK-002 context and verificationIntent"
+      "source": "checklist CHK-002; plan.md CHK-002"
     },
     {
-      "feature": "All scope and risk selected reviewer lanes plus completeness critic terminate on one unchanged cutoff with signed coverage or bounded read evidence",
+      "feature": "Supported Claude/Codex prewrite and commit guards project the OPEN-epoch barrier while consumer checks remain authoritative",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.touchpoints; checklist CHK-002; plan.md CHK-002"
+    },
+    {
+      "feature": "Waves consume signed current-cutoff ReviewRun, ReviewPass, Finding, coverage, host, prompt, and reviewer identity evidence",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md Key Insights; plan.md CHK-003; CHK-003"
+      "source": "checklist CHK-003; plan.md CHK-003"
     },
     {
-      "feature": "Only a zero-new-verified-finding saturation wave may finalize and timeout, missing output, duplicate identity or budget exhaustion cannot manufacture PASS",
+      "feature": "All canonical required lanes and the completeness critic must reach terminal complete evidence",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan.md CHK-003; CHK-003 edge and adversarial intents"
+      "source": "checklist CHK-003; plan.md CHK-003"
     },
     {
-      "feature": "A finalized receipt authorizes exactly one aggregated REVIEW-to-remediation-DEV transition and never authorizes TEST or certifies defective material",
+      "feature": "Only a clean zero-new-verified-finding saturation wave can finalize the inventory receipt",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003; plan.md CHK-003"
+    },
+    {
+      "feature": "Budget exhaustion never manufactures PASS and instead requires bounded replan, decomposition, escalation, or human adjudication",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json; checklist CHK-003; plan.md CHK-003"
+    },
+    {
+      "feature": "A verified receipt authorizes exactly one aggregated REVIEW-to-remediation-DEV rollback and is marked consumed",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json outcome; plan.md CHK-004; CHK-004"
+      "source": "checklist CHK-004; plan.md CHK-004"
     },
     {
-      "feature": "Repaired material requires fresh dependency-closure impacted lanes while unknown closure, scope or policy fails closed to full active lanes and preserves host escalation",
+      "feature": "The inventory receipt never authorizes TEST and becomes historical after remediation changes material",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan.md CHK-004; CHK-004 verificationIntent"
+      "source": "checklist CHK-004; plan.md CHK-004"
     },
     {
-      "feature": "Historical round-2-plus one-receipt sufficiency is replaced wherever it could claim final review completeness",
-      "covered_by": "CHK-004",
+      "feature": "Post-remediation final-review lanes derive from canonical changed-file and transitive dependency closure, narrow only when proven, and otherwise fail closed to all active lanes",
+      "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json facts; plan.md CHK-004; packages/main/src/core/machine.ts current shortcut"
+      "source": "checklist CHK-006 files/userSees/intents; plan.md CHK-006"
     },
     {
-      "feature": "B-cdf6 replay uses a falsifiable at-least-five-to-zero mutation-driven redispatch target with one inventory epoch and one remediation transition",
+      "feature": "Impact selection preserves host/escalation assurance, binds current story/round/material lineage, and exposes ordered lanes, mode, and machine reason",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-006 verificationIntent; plan.md CHK-006"
+    },
+    {
+      "feature": "Broken untracked B-cdf6 evidence link is replaced with repository-resolvable RR, Finding, and exact commit provenance",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-006; plan.md CHK-006"
+    },
+    {
+      "feature": "Deterministic B-cdf6 replay proves at least five historical mutation redispatches become zero with one discovery epoch and at most one clean final-review epoch",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md Trigger Event; plan.md CHK-005; CHK-005"
+      "source": "checklist CHK-005; plan.md CHK-005"
     },
     {
-      "feature": "Efficiency cannot reduce required reviewer lanes, host diversity, freshness, completeness critic coverage or historical critical/high detection",
+      "feature": "Replay retains required lane and host counts and proves zero accepted OPEN commits, stale accepts, critical/high escapes, post-cert mutation, and budget-manufactured PASS",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json constraints; plan.md CHK-005; CHK-005 quality invariants"
+      "source": "checklist CHK-005; ProofStory AB-B3F3D-EFFICIENCY-QUALITY; plan.md CHK-005"
     },
     {
-      "feature": "Every new gate fact has both prompt guidance and mechanical handler, hook, transition, registry and contract-verifier enforcement",
-      "covered_by": "CHK-001,CHK-002",
+      "feature": "Delivery order, focused smokes, process-fact contract, adapter verification when applicable, documentation, and routine validation cover all six slices",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005,CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "AGENTS.md process-fact dual contract; plan.md CHK-001 and CHK-002; checklist files"
+      "source": "plan.md Delivery order and CHK-001..CHK-006 verification sections"
     },
     {
-      "feature": "High-risk execution plan provides one implementation and verification section for every CHK plus explicit delivery order and safe rollback semantics",
-      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "plan.md"
-    },
-    {
-      "feature": "Every understanding touchpoint maps to at least one checklist modify, create or test declaration, including reviewer orchestration, saturation, incremental impact, prewrite guard, host hooks and process-fact contracts",
-      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "understanding.json touchpoints; checklist files"
-    },
-    {
-      "feature": "Atomic ReviewRemediation closeout is not part of this first Story",
+      "feature": "PRE_CERT phase or artifact",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Background and understanding explicitly retain it as a follow-up to keep one cohesive epoch deliverable",
-      "source": "background.md Solution Tradeoffs; understanding.json constraints"
+      "excluded_by": "Understanding explicitly excludes PRE_CERT from this Story",
+      "source": "understanding.json constraints"
     },
     {
-      "feature": "PRE_CERT scheduling is not part of this first Story",
+      "feature": "Atomic remediation closeout",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly excluded from this first epoch Story",
-      "source": "background.md Solution Tradeoffs; understanding.json constraints"
+      "excluded_by": "Understanding explicitly excludes atomic remediation closeout from this Story",
+      "source": "understanding.json constraints"
     },
     {
-      "feature": "Evidence cache redesign or freshness relaxation is not part of this Story",
+      "feature": "Reducing required reviewer lanes or two-host assurance for speed",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Freshness and material lineage are preserved safety invariants",
-      "source": "understanding.json constraints; CHK-005"
+      "excluded_by": "Assurance floor is invariant; only proven post-remediation impact closure may narrow unrelated lanes while host/escalation assurance remains",
+      "source": "understanding.json constraints; decision.json"
     },
     {
-      "feature": "Reducing reviewer lanes or required host counts is not an allowed optimization",
+      "feature": "Weakening freshness, signatures, material lineage, or TEST/DONE gates",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Assurance coverage must remain unchanged",
-      "source": "understanding.json constraints; CHK-005"
+      "excluded_by": "Explicit Story constraint prohibits weakening these gates",
+      "source": "understanding.json constraints"
     },
     {
-      "feature": "Untracked cross-story analysis documents are intake evidence rather than runtime or normative dependencies",
+      "feature": "Untracked cross-story analysis documents as runtime or normative implementation dependencies",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Their causal facts and thresholds are frozen in Story background, understanding and CHK-005; no current relatedDocs entry references them",
-      "source": "understanding.json constraints; current checklist relatedDocs"
+      "excluded_by": "They are intake evidence summarized in Story background; CHK-006 replaces the broken link with tracked provenance",
+      "source": "understanding.json constraints; checklist CHK-006"
     },
     {
-      "feature": "Retired legacy Authority Server receipt semantics are not normative for the local inventory receipt",
+      "feature": "Retired legacy Authority receipt guide as normative source",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The retired guide was removed from relatedDocs and understanding explicitly permits only current local binding predicates from active sources",
-      "source": "understanding.json constraints; current checklist relatedDocs"
+      "excluded_by": "Only current local binding predicates from active lifecycle and evidence-integrity sources are normative",
+      "source": "understanding.json constraints"
     }
   ],
   "readManifest": {
     "filesReadFully": [
+      ".claude/hooks/lattice-scope-pretool.cjs",
+      ".codex/hooks/lattice-scope-pretool.cjs",
       "AGENTS.md",
       "docs/evidence-integrity-program-spec.md",
-      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
-      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
-      "docs/requirements/decisions/story-files-hash-material-drift.md",
-      "docs/requirements/decisions/testing-completeness.md"
-    ],
-    "filesTriagedByName": [
+      "docs/guide-scope-guard.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
       "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
       "docs/requirements/decisions/story-lifecycle.md",
-      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/adversarial-review-round.ts",
+      "packages/main/src/core/adversarial-review.ts",
+      "packages/main/src/core/agent-dispatch-registry.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/machine.ts",
+      "packages/main/src/core/prewrite-guard-check.ts",
+      "packages/main/src/core/prewrite-guard.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/core/prompt-role-contract-registry.ts",
+      "packages/main/src/core/review-incremental-context.ts",
+      "packages/main/src/core/review-inventory-epoch.ts",
+      "packages/main/src/core/review-run.ts",
+      "packages/main/src/core/store.ts",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/handlers/finding.ts",
+      "packages/main/src/handlers/prewrite-guard.ts",
+      "packages/main/src/handlers/review-inventory.ts",
+      "packages/main/src/handlers/review-run.ts",
+      "packages/main/src/handlers/reviewer-batch.ts",
+      "packages/main/src/handlers/reviewer-list.ts",
+      "packages/main/src/handlers/story-dispatch.ts",
+      "packages/main/src/handlers/transition-orchestrator.ts",
+      "packages/main/src/registry.ts",
+      "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+      "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+      "packages/main/src/tasks/prewrite-guard-smoke.ts",
+      "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+      "scripts/verify-process-fact-contract.mjs"
     ],
-    "scanEscalationReason": null
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+    "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
   },
   "summary": {
-    "total": 20,
-    "covered": 14,
+    "total": 23,
+    "covered": 17,
     "excluded": 6,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "9b988d470ffa9a442acfb33e5855f2c4ad866e5cd44b3d0adb9a513dc6cec602",
+  "reviewRound": "2026-08-14T15:02:11.470Z",
+  "_hash": "2aa1db1755e5011536c8819227295c0ccdab8b01049f2ca674541930566ebf5e",
   "openQuestions": []
 }

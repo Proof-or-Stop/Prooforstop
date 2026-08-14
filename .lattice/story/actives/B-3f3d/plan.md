@@ -32,12 +32,19 @@ Add one deterministic B-cdf6 replay smoke and report. Encode the historical base
 
 Verification: run the replay twice for determinism, inject every declared historical and adversarial case, run focused typecheck/build/smokes, process-fact contract verification, Codex adapter verification when adapter assets change, and routine lattice validate. Record checklist evidence by intentRef only after commands pass.
 
+## CHK-006
+
+Implement canonical post-remediation impact closure as the deep owner of final-review lane selection. Derive changed-file and transitive dependency inputs from current repaired material, map them to active reviewer lanes, preserve required host and escalation assurance, and sign or otherwise bind the selection to story, review round, headHash, materialHash and storyFilesHash. A proven narrow repair selects exactly the impacted active lanes; missing, ambiguous, stale, unsupported or policy-sensitive inputs fail closed to the complete active lane set. Project the ordered gate-consumed lane list, selection mode and machine-derived reason in operator status. Remove the broken dependency on the excluded untracked B-cdf6 analysis document and replace it with tracked RR, Finding and exact commit provenance.
+
+Verification: focused logic and handler smokes cover deterministic transitive closure, duplicate and alias normalization, narrow selection, full-set fallback, unchanged host assurance, stale/forged/cross-story/cross-round rejection, regression and scope-expansion recomputation, no return of the round-two any-one shortcut, exact status text, and repository-resolvable evidence references.
+
 ## Delivery order
 
 1. Core epoch model, store and command surface.
 2. Freshness/mutation barriers and review evidence binding.
 3. Saturation evaluator and receipt.
 4. Lifecycle remediation/final-review gates.
-5. Replay, documentation, contract checks and full validation.
+5. Replay, documentation and contract checks.
+6. Post-remediation impact closure, tracked provenance repair and full validation.
 
 Rollback is configuration- and artifact-safe: cancelled or invalidated epochs cannot authorize any transition; removing the feature leaves existing REVIEW evidence historical and the old gate is not re-enabled by artifact absence.

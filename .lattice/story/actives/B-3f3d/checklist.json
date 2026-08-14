@@ -1573,6 +1573,96 @@
         "attestedAt": "2026-08-14T15:00:30.189Z",
         "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
       }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement canonical post-remediation impact closure and repair the broken evidence provenance link",
+      "context": "The current remediation made every later review round require all active lanes and removed the old targeted guidance. That preserves assurance but violates CHK-004 H2/E1 and the Story time-saving promise. Compute impacted final-review lanes from repaired material and canonical dependency closure, fail closed to all required lanes when closure, scope, or policy impact is unknown, never reduce required host assurance, and expose selected lanes and reason in operator status. Replace the decision document link to an excluded untracked B-cdf6 analysis file with tracked authoritative RR, Finding, and commit provenance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "After remediation, status prints Final-review lanes with the lane list and Selection: dependency-closure for a proven narrow repair, or Selection: full-set with unknown impact when it fails closed; every displayed source link resolves inside the tracked repository.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-006-H1",
+            "desc": "For a repair whose changed files and canonical dependency closure prove a narrow impact, final-review selection contains exactly the impacted active reviewer lanes, excludes only demonstrably unrelated lanes, records the closure inputs and reason, and preserves the same required host count and host-diversity policy.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-H2",
+            "desc": "Operator status deterministically prints `Final-review lanes: <ordered lane list>` and `Selection: dependency-closure (<machine-derived reason>)` for a proven narrow repair, plus one exact next command; the displayed lanes equal the gate-consumed selection.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-H3",
+            "desc": "The tracked review-inventory decision document cites repository-resolvable authoritative RR identifiers, Finding identifiers and exact commit provenance for the B-cdf6 failure, and contains no dependency on the excluded untracked analysis document.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-006-E1",
+            "desc": "If changed scope, policy impact, dependency closure, source inventory, or material lineage is missing, unsupported, ambiguous or stale, selection fails closed to the complete active required-lane set, keeps required host assurance unchanged, and status prints `Selection: full-set` with the specific unknown-impact reason.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-E2",
+            "desc": "Canonical closure is deterministic across ordering and duplicate inputs, follows transitive and shared-dependency impacts, never emits inactive or duplicate lanes, and cannot select an empty set for a material remediation unless a separately authoritative policy explicitly proves that outcome.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-E3",
+            "desc": "A post-remediation regression, newly discovered dependency, or scope expansion invalidates the prior narrow selection, broadens or recomputes required lanes on current material, reopens the finding/remediation path, and updates status without accepting stale passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-006-A1",
+            "desc": "A forged, unsigned, cross-story, cross-round, wrong-head, wrong-material, wrong-storyFilesHash or otherwise stale impact-closure artifact cannot narrow final review; every consumer rejects it or falls back to the full required-lane set.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-A2",
+            "desc": "The historical round-2-plus `any one current receipt` shortcut cannot reappear: REVIEW remains blocked when any selected impacted lane, required host verdict, escalation result or current-material binding is missing, even if one valid pass exists.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-006-A3",
+            "desc": "Path aliases, renames, symlinks, ignored or untracked files, fabricated RR/Finding labels, abbreviated or nonexistent commits, and links outside the tracked repository cannot be used either to hide an impacted lane or to satisfy the decision-document provenance check.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
@@ -1675,6 +1765,17 @@
       "to": "done",
       "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T16:07:52.281Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Round-4 scope review found one unimplemented CHK-004 promise and one broken tracked evidence link; add an explicit remediation slice before returning to DEV.",
+      "addedTitle": "Implement canonical post-remediation impact closure and repair the broken evidence provenance link",
+      "addedContext": "The current remediation made every later review round require all active lanes and removed the old targeted guidance. That preserves assurance but violates CHK-004 H2/E1 and the Story time-saving promise. Compute impacted final-review lanes from repaired material and canonical dependency closure, fail closed to all required lanes when closure, scope, or policy impact is unknown, never reduce required host assurance, and expose selected lanes and reason in operator status. Replace the decision document link to an excluded untracked B-cdf6 analysis file with tracked authoritative RR, Finding, and commit provenance."
     }
   ]
 }

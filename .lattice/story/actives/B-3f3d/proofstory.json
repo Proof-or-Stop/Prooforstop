@@ -34,7 +34,8 @@
         "CHK-002",
         "CHK-003",
         "CHK-004",
-        "CHK-005"
+        "CHK-005",
+        "CHK-006"
       ],
       "verificationIntentRefs": [
         "B3F3D-005-H1",
@@ -45,11 +46,20 @@
         "B3F3D-005-E3",
         "B3F3D-005-A1",
         "B3F3D-005-A2",
-        "B3F3D-005-A3"
+        "B3F3D-005-A3",
+        "B3F3D-006-H1",
+        "B3F3D-006-H2",
+        "B3F3D-006-H3",
+        "B3F3D-006-E1",
+        "B3F3D-006-E2",
+        "B3F3D-006-E3",
+        "B3F3D-006-A1",
+        "B3F3D-006-A2",
+        "B3F3D-006-A3"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "The B-cdf6 replay reduces mutation-driven reviewer redispatches from at least five to zero while accepted OPEN commits, stale acceptance, escaped critical/high findings, post-cert commits and assurance regressions remain zero.",
-      "note": "CHK-001 through CHK-004 establish the causal gate; CHK-005 verifies the falsifiable efficiency threshold and every quality non-regression invariant.",
+      "acceptanceClaim": "The B-cdf6 replay reduces mutation-driven reviewer redispatches from at least five to zero while accepted OPEN commits, stale acceptance, escaped critical/high findings, post-cert commits and assurance regressions remain zero; post-remediation dependency closure narrows only proven unrelated lanes and otherwise fails closed to the full required set.",
+      "note": "CHK-001 through CHK-004 establish the frozen discovery gate; CHK-005 proves efficiency and quality invariants; CHK-006 proves canonical impacted-lane selection and tracked provenance.",
       "verificationTopology": {
         "schemaVersion": "proofstory.acceptance_topology.v1",
         "producerRefs": [
@@ -107,6 +117,45 @@
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:B3F3D-005-H3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "PA-B3F3D-006-H1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-H1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "PA-B3F3D-006-H2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-H2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "PA-B3F3D-006-H3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-H3"
             },
             "producerRefs": [
               "P-REPLAY"
@@ -194,6 +243,84 @@
             "consumerRefs": [
               "C-REPLAY-ACCEPTANCE"
             ]
+          },
+          {
+            "id": "MC-B3F3D-006-E1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-E1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-006-E2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-E2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-006-E3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-E3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-006-A1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-A1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-006-A2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-A2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-006-A3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-006-A3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
           }
         ],
         "transcriptAssertionRefs": [
@@ -253,7 +380,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "The planned replay producer-to-consumer edge is verification-intent-owned; canonical process facts and verifier-reconciled static-call paths map the complete acceptance basis.",
+  "note": "The verification-intent-owned planned replay edge and canonical basis references bind the complete inventory, efficiency, and post-remediation closure claim.",
   "createdAt": "2026-08-14T14:05:34.348Z",
-  "updatedAt": "2026-08-14T16:01:37.458Z"
+  "updatedAt": "2026-08-14T16:09:57.495Z"
 }
