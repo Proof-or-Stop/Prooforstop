@@ -1005,6 +1005,26 @@
       "_hash": "cdc3307115ef329b4d50819cae4628a557e5bb40e3786bd9cd3215b8814b9c90",
       "signatureTag": "missing|unknown|concept-cleanup-auto",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-048",
+      "desc": "doc-code-drift: commit 5ea04e5e36 (body) and B-META-framework-audit commit 1b0faf0187 (chore log for F-030) both state adding packages/main/src to EXECUTABLE_SCAN_ROOTS fails closed on approximately 108 legitimate hits. Independently reproduced with the exact isBrandProseResidue detector from scripts/verify-lattice-residue.mjs against packages/main/src at commit 1b0faf0187 itself (the commit where the figure was recorded, checked out in a separate worktree): actual result is 161 hits across 84 files, not approximately 108 -- a 49 percent undercount. Reproduction is deterministic (git ls-files plus the same regex, run twice with identical results). The qualitative conclusions in both messages (gate scope gap, 3 of 3 PASS while 9 user-facing leaks were live, no code-level counted-roots mechanism exists, only prose) are independently verified TRUE, but the precise measured figure both commits present as having been measured first is wrong, and B-META-framework-audit:F-030 is a durable audit record making this same precise checkable claim. Per CLAUDE two-layer contract, a durable audit record with a wrong number undermines exactly the rigor it exists to certify.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T12:24:11.065Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-066",
+      "_hash": "f6dc205abc98d6e1514e38e299adb650ceb86273e5b2057d9eac330ab7f00e1f",
+      "files": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "scripts/verify-lattice-residue.mjs",
+        ".lattice/story/actives/B-META-framework-audit/findings.json"
+      ],
+      "signatureTag": "missing|ts|code-drift-commit",
+      "signatureTagSource": "auto"
     }
   ]
 }
