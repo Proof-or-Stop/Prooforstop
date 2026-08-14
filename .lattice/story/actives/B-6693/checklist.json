@@ -325,24 +325,40 @@
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Launch different-story validate processes A then B against linked worktrees, hold A after callback entry, and assert B emits holder diagnostics without entering; release A and assert terminal order is A PASS evidence then B callback then B PASS evidence, with both children exiting 0. WHY: directly proves wait-and-run and rejects fail-fast or wait-forever implementations.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate for story A, queue lattice done_required_validate for story B, then reverse the roles; assert both entrypoint pairs serialize and each command writes its own expected evidence artifact only after its callback runs. WHY: both official gates must consume one shared capacity mechanism.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Exercise owner callback success and throw paths with a queued successor; assert the lease directory is released in finally, the successor enters exactly once, and the thrown owner result remains a failure rather than being converted to PASS. WHY: cleanup must preserve command truth.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Terminate a child owner after it acquires capacity, retain a queued child, and assert the queued child does not enter while ownership is live, reclaims only after dead-holder classification and stale policy allow it, then exits 0 without orphan lock files. WHY: abrupt process loss must converge safely.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold one owner while three independent waiters queue; assert sampled max concurrent callback count is exactly one, every non-aborted waiter eventually runs after successive releases, and progress output is rate-bounded rather than emitted per poll. WHY: serialization must not trade races for starvation or log flooding.",
@@ -367,7 +383,85 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:happy:0: ordered wait-and-run, separate routine/DONE evidence, complete persistence critical section, release/throw/dead owner, bounded waiters, context-only reentrancy, and legacy story-lock compatibility.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:08:40.059Z"
+          },
+          "headHash": "a35a3ad293564a3ffeba00bb6ba113a1a7f2cb5f",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:10:33.392Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:happy:1: ordered wait-and-run, separate routine/DONE evidence, complete persistence critical section, release/throw/dead owner, bounded waiters, context-only reentrancy, and legacy story-lock compatibility.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:09:17.820Z"
+          },
+          "headHash": "a35a3ad293564a3ffeba00bb6ba113a1a7f2cb5f",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:10:33.392Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:edge:0: ordered wait-and-run, separate routine/DONE evidence, complete persistence critical section, release/throw/dead owner, bounded waiters, context-only reentrancy, and legacy story-lock compatibility.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:09:55.465Z"
+          },
+          "headHash": "a35a3ad293564a3ffeba00bb6ba113a1a7f2cb5f",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:10:33.392Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-002:edge:1: ordered wait-and-run, separate routine/DONE evidence, complete persistence critical section, release/throw/dead owner, bounded waiters, context-only reentrancy, and legacy story-lock compatibility.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:10:33.246Z"
+          },
+          "headHash": "a35a3ad293564a3ffeba00bb6ba113a1a7f2cb5f",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:10:33.392Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
