@@ -1,0 +1,52 @@
+{
+  "storyId": "B-6693",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+  ],
+  "protectedFiles": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/Direct bare npm test interception or wrapping",
+    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
+  ],
+  "scopeChangeReason": "Initialize the independently reviewed eight-file PLAN scope before DEV; all validation inventory and proof-budget sources are protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-14T15:29:58.959Z",
+  "updatedAt": "2026-08-14T15:29:58.959Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts": "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "docs/CLI.md": "docs/CLI.md",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/Direct bare npm test interception or wrapping": "Direct bare npm test interception or wrapping",
+    "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
+  }
+}

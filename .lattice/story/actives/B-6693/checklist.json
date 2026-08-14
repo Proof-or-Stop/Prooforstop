@@ -8,8 +8,8 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-14T15:30:16.494Z",
       "endTime": null,
       "userSees": "A second official validation prints \"waiting for workspace validation capacity\" with the active holder story/command and heartbeat age, then starts automatically after the first validation releases the lease.",
       "excludes": [
@@ -233,6 +233,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-14T15:30:16.494Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin independently implemented workspace validation capacity mechanism",
+      "agent": "lattice-implementer"
     }
   ]
 }
