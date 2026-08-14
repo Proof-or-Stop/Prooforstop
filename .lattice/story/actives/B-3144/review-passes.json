@@ -539,6 +539,33 @@
         "scanEscalationReason": null
       },
       "_hash": "fc36f8ce1138f2b501ffbf491499bb70698daa7de032bca59ea1ddef773855fd"
+    },
+    {
+      "id": "B-3144:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh pass after F-035 fix (cfdf3df2a2) fully landed; tree clean apart from expected .lattice review-run metadata. Re-verified: all 25 verificationIntent items (CHK-001/002/003, happy+edge+adversarial) have matching non-fail, non-waiver verificationEvidence at materialHash b17134cea015a172f25b748e2add1d0ebacba792075b5d4d713ab57aff7eca43 (evidence freshness confirmed: subsequent commits after evidence headHash 0695b01e26 are lattice-metadata-only, materialHash unchanged, matches current story materialHash). Re-confirmed CHK-001:adversarial:1 evidence reasoning (withFreshFixture builds an isolated tmpdir git repo per check and destroys it unconditionally in a finally block, structurally guaranteeing no leftover state across checks). Spot-checked the new F-035 regression check quorum-submit-smoke.ts:1917 by reading both sides of the mirror: quorum-submit.ts:553 (storyFilesHash===EMPTY_STORY_FILES_HASH ? [] : committedForGuard.filter(...)) exactly mirrors review-escalation.ts:975 (if (currentStoryFilesHash===EMPTY_STORY_FILES_HASH) return events), resolving finding B-3144:F-035. Traced the fixture: reverts index.ts to main content to force EMPTY_STORY_FILES_HASH, asserts the precondition, submits first quorum (6 verdicts), commitMainDrift, re-asserts still-empty precondition, then asserts the second submit succeeds with emittedCount===6 instead of being falsely refused. On reverted (unfixed) code the second call would instead throw the drift-accept refusal (driftAcceptEvents.length>0 since eventStoryFilesHash===EMPTY_STORY_FILES_HASH===storyFilesHash without the empty-set exclusion) -- an uncaught exception in the check body -- so the test genuinely fails if the fix is reverted, not just incidentally. No blocker found.",
+      "createdAt": "2026-08-14T06:03:51.618Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-050",
+      "envelopeId": "7050bf041568b7e0ec10325a2009a40bc18ed783801d3aaf84061374b076cd4f",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "624b7be4ddaa62831b91ec28767910cad718867829c4ba979033ae3a76d4436a"
     }
   ]
 }
