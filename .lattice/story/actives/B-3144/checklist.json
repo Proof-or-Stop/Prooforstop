@@ -55,10 +55,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'refuses a redundant re-submit when the standing quorum drift-accepts': RED-locked pre-fix at commit c9090580 (assert.fail with poisoning forensics), green post-fix with the refusal asserted.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -67,10 +69,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Same check asserts currentStoryFilesHash is byte-identical before/after commitMainDrift (incident precondition) and materialHash moved.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -79,10 +83,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "commitMainDrift helper commits only packages/main/src/main-drift.ts on the fixture main branch, then merges - no story-diff file is touched.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -91,10 +97,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Full smoke suite green (58 checks) including every pre-existing check - the RED addition broke nothing.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -103,10 +111,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "The check asserts BOTH the refusal (post-fix) AND, on the pre-fix path, proves the floor collapse via eventsWithStoryFilesHashDowngrade + evaluateHostVerdictRounds forensics (validRounds=0 invalidRounds=3) - un-gameable in both directions.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -115,10 +125,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "withFreshFixture chdir-restore + rmSync teardown isolates the RED fixture; all later checks in the same run stay green.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         }
       ]
     },
@@ -187,10 +199,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Refusal message matched against /quorum_submit refuses: .*drift-accept/i in the drift-accept check.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -199,10 +213,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'allows a fresh quorum after a material change' (story-diff file change moves storyFilesHash) still green under the new guard.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -211,10 +227,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch': field stripped from committed events, resubmission after drift proceeds (OQ-1 no-signal).",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -223,10 +241,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'refuses a same-material re-submit and writes no new verdicts' passes unchanged - branch (a) message and behavior preserved.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -235,10 +255,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Drift-branch message content asserted via regex; message names standing runIds, older material(s), current storyFilesHash, poisoning consequence, and points at review_escalation_status.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -247,10 +269,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'a second main drift does not circumvent the drift-accept refusal': refusal holds across two successive merges; still exactly six verdicts.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -259,10 +283,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'a story-owned file change after main drift makes the re-quorum genuine again': once storyFilesHash moves the fresh quorum is allowed (boundary).",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -271,10 +297,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Refusal leaks zero state: host_verdict event count and verdict file count asserted unchanged after the refusal.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         }
       ]
     },
@@ -366,10 +394,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune dry-run lists the poisoned duplicates without mutating'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -378,10 +408,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -390,10 +422,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune resolves as a registered CLI command (catalog + policy wired)'; scripts/verify-process-fact-contract.mjs passes with the new fact row and DEFAULT_PHASE_TOOLS entry.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -402,10 +436,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune refuses when there is nothing to prune'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -414,10 +450,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune apply refuses on a dirty tree before any mutation'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -426,10 +464,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune keeps exactly one event per group for a triple-duplicate'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -438,10 +478,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune runIds filter prunes only the specified runIds'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -450,10 +492,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune preserves interleaved non-host_verdict lines byte-identically'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -462,10 +506,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune keep:oldest-material inverts which duplicate survives'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -474,10 +520,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune refuses an uncommitted process-events file'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -486,10 +534,12 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Check 'quorum_prune never overwrites a previous run backup'.",
-          "headHash": "f561a2f2b7309ae31d68a310a7daf1e059af0dda",
-          "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2",
-          "storyFilesHash": "07b7c3cfb51a1ba625ce4a0fa574cc7279fe7428e2c57a3b181ca66bbebfe834",
-          "timestamp": "2026-07-24T22:45:47.244Z"
+          "headHash": "69bc6be3dc42d75684afba1abbbcb63007b7ae76",
+          "materialHash": "c29c75d988c687ff1de3799e861993f8784f033a5b3d35dd111f2c5d56e59540",
+          "storyFilesHash": "ae9de5a1599f3bc4262988324685652b313c6a7c94dbb6b99a62d484ead6d5a5",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-14T02:17:20.892Z"
         }
       ]
     }
