@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/playbook-runtime-memory.ts:21 duplicate-definition: local `type FinishDecision = 'captured' | 'no-reusable-lesson' | 'defer-with-reason';` was NOT deleted when finishDecisionPath was moved to core/playbook-runtime-memory.ts (which now exports its own identical `FinishDecision` type at line 892, plus `FinishDecisionRecord`). The plan/checklist explicitly frame this refactor as single-source-of-truth (CHK-003 edge:1: 'single source of truth for the path, no duplicate definitions'), and the sibling function finishDecisionPath WAS correctly deleted from handlers and re-imported from core, but the type alias it is paired with was left as an independent, unimported local copy instead of importing FinishDecision from core/playbook-runtime-memory.js. Two structurally-identical but textually-independent type definitions now exist for the same concept; if the core union is ever extended the handlers copy will silently drift out of sync since nothing ties them together. Not a compile error today (TS structural typing hides it), but it is exactly the dead/duplicate-code residue this refactor was supposed to eliminate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T13:45:46.647Z",
@@ -13,7 +13,9 @@
       "reviewRunId": "B-a7c5:RR-001",
       "_hash": "28b33ec907d058e78607743d9a53bec0fd2d02c8ec2405ff4d71ccbda988450d",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Imported FinishDecision as a type-only import from core/playbook-runtime-memory.js instead of redefining it locally; removed the duplicate local type alias. Rebuilt (tsc clean).",
+      "resolvedAt": "2026-08-14T13:46:54.687Z"
     }
   ]
 }
