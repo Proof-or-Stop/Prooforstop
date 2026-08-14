@@ -755,6 +755,21 @@
       ],
       "signatureTag": "missing|mjs|meta-framework-audit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-036",
+      "desc": "concept-cleanup: packages/main/src/tasks/prompt-token-cost-smoke.ts assertMirrorsMatch() (lines ~174-192) is a FOURTH hand-rolled copy of the F-005/F-034 rule that cd3260243b consolidated into renderPromptEntryForHost at exactly three sites (cli-init.ts, managed-assets.ts codex mirror, managed-assets.ts claude mirror). This function branches only on isModularReviewerRoleId, never on isModularComplexRoleId, so for the 5 MODULAR_COMPLEX_ROLE_IDS in its own baselineTemplateBytes table (lattice-evaluator.md, lattice-implementer.md, lattice-review-delivery.md, lattice-review-scope-plan.md, lattice-review-story-init.md) it computes expectedClaude/expectedCodex from the raw modular template instead of the digest-pinned legacy-full-context reconstruction via restoreLegacyPromptTemplate. Verified directly: comparing actual .claude/agents and .lattice-codex/agents content against this functions own expected* computation mismatches for all 5 complex roles x both hosts (10/10 mismatches). This is CURRENTLY LATENT/UNDETECTED only because assertPromptReductions() (an unrelated, also pre-existing, non-B-cdf6 assertion failure -- expected lattice managed block at line 95) throws earlier in the same file (call order at lines 289-290) and aborts execution before assertMirrorsMatch() ever runs; confirmed this same abort-before-assertMirrorsMatch happens identically on main HEAD 3a5036095c, so the masking bug is pre-existing and not introduced by this story. This smoke file is auto-discovered by run-all-smokes.js (npm run test:all / test:legacy), so once the masking assertPromptReductions failure is eventually fixed by anyone, assertMirrorsMatch will immediately start failing for these 5 roles -- the fix in cd3260243b did not reach every call site of the pattern it set out to consolidate, it reached 3 of at least 4. Recommend either (a) route assertMirrorsMatch through renderPromptEntryForHost like the three production sites, or (b) branch it on isModularComplexRoleId the same way. severity=medium because it is a pre-existing latent test-only defect (not a production runtime behavior regression, not introduced by this story, and currently masked), but it is squarely a concept-deletion-completeness gap in the exact pattern this story diff claims to have fully consolidated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T08:44:39.001Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-043",
+      "_hash": "63ce176e1c137874e60f2de18035dfb5a8f16b9459e5887610c97d4d562558e7",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
