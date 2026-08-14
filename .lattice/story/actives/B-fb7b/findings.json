@@ -402,6 +402,30 @@
       "_hash": "b800b1aa7d049ce50e75053d2eecc002185b78a087a944db8fa051860fb49cee",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-020",
+      "desc": "Re-verified F-014 on current HEAD (material unchanged since fix commit eab8a74651 -- git diff eab8a74651..HEAD touches only .lattice bookkeeping). F-014 re-confirmed that the earlier maxRetries/retryDelay-only fix (commit 3979c2f718) reduced but did not eliminate the ENOTEMPTY crash under sustained real concurrent shared-worktree load, because a bounded retry budget cannot outlast a full ~20-30s tsc compile under contention. Commit eab8a74651 replaces the retry-only approach with a blocking mutex: scripts/build-lock.mjs (atomic mkdir, 300s stale-holder steal, 900s wait timeout) held across the whole rm+tsc+binding critical section in scripts/build-main-with-binding.mjs, and now also by the new scripts/build-utils-with-lock.mjs -- so a contending process WAITS for the lock instead of racing and exhausting a retry budget. Verified live: smoke (test-suite-utils-autobuild-smoke.js) PASS exit 0; RED (red-fb7b-pretest-builds-utils.mjs) PASS exit 0; guard-bite (red-fb7b-guard-bite.mjs) all 9 selectors incl. GB-ALL-PASS exit 0. Directly re-ran the same repro shape that F-014 used -- 5 concurrent npm run pretest against this live worktree while other reviewer-lane build/lattice processes were independently and concurrently rebuilding the same dist trees at the same wall-clock time (confirmed via ps aux showing concurrent build-main-with-binding.mjs/build-utils-with-lock.mjs invocations from other lanes during this run, i.e. the exact sustained multi-process shared-worktree condition F-014 reproduced against): 5/5 pretest invocations exit 0, no ENOTEMPTY/TS2307/Error in any of the 5 captured logs. git status --porcelain clean; packages/main/dist/index.js and packages/utils/dist/index.js present and current afterward. Because the fix is now a wait-for-lock mutex (not a bounded retry), it is not subject to the F-014 root cause (retry-budget exhaustion under a compile-length contention window). F-014 is resolved.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "The retry-budget approach that F-014 falsified has been replaced by a blocking per-repo mutex (scripts/build-lock.mjs, commit eab8a74651) with a 900s wait timeout, held by both the main and utils builds across their full rm+tsc critical sections. A concurrent invocation now waits for the lock rather than racing and exhausting a bounded retry window. 5 of 5 concurrent pretest runs against a live, actively multi-process-contended shared worktree all exit 0 with zero ENOTEMPTY/TS2307; smoke, RED, and guard-bite all PASS; tree stays clean.",
+        "sourceRefs": [
+          "scripts/build-lock.mjs:14-40",
+          "scripts/build-main-with-binding.mjs:9-20",
+          "scripts/build-utils-with-lock.mjs:9-17"
+        ],
+        "reproCommand": "for i in 1 2 3 4 5; do ( npm run pretest --silent >/tmp/pretest_c$i.log 2>&1; echo EXIT_$i=$? >>/tmp/pretest_c$i.log ) & done; wait; grep EXIT_ /tmp/pretest_c*.log"
+      },
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T12:27:08.768Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "_hash": "c13fdfdd16f1a49d547644eb83610ed7a65403177ff54bc5f6f166800d658142",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
