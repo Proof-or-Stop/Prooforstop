@@ -765,6 +765,40 @@
         "scanEscalationReason": null
       },
       "_hash": "7085d2c93b89664016387fd063553d77af41e40e6e119b99238c2d70c43d7e07"
+    },
+    {
+      "id": "B-fb7b:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 delta review: since the prior docs pass (RP-023), exactly one code commit landed -- 3979c2f718 (scripts/build-main-with-binding.mjs: rmSync gained maxRetries:10/retryDelay:100 backoff for the recursive dist rmdir, per commit msg F-011/F-012 concurrent-rebuild ENOTEMPTY/EBUSY hardening). Verified via git show 3979c2f718 and git log that this is the only new commit and it touches no *.md file. Step1 diff-symbol extraction (git diff main...HEAD) yields the same set of internal test/task identifiers as before plus none new from this commit (an rmSync options-object literal has no exported symbol). Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for build-main-with-binding, rmSync, maxRetries, retryDelay, ENOTEMPTY, EBUSY: zero hits anywhere in the repo docs; no doc describes this script's internal retry semantics, so there is nothing that can drift. Re-read CHANGELOG.md L24-39 (the B-fb7b entry, unchanged since RP-023) against current package.json pretest, lattice.config.json validate.commands, and test-suite-utils-autobuild-smoke.ts: every claim in it (main-then-utils build order, dist gitignored/non-dirtying, structural-smoke plus behavioral-RED guard pairing, worktree-handler/bootstrap-runner.js intentionally untouched) still holds. The delta commit is purely internal build-tooling robustness (retry backoff on an already-existing rmSync call inside the already-documented pretest build step); it changes no documented behavior of the pretest, so no CHANGELOG update is required. Also re-checked docs/CLI.md L1049-1054 (manual utils-build recovery hint) and CLAUDE.md L1029 (pre-push hook main-build step, which also invokes build-main-with-binding.mjs) -- both remain accurate since neither describes rmSync retry mechanics. No doc-code drift introduced by the delta commit. No blockers.",
+      "createdAt": "2026-08-14T10:44:57.670Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-037",
+      "envelopeId": "cf5ec31b0b268799639d25d2efb742d80c13cd560c2b22abd5b263e87270fc8e",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e79aa7603b79471acdbcd2c6297c445c51a5c2c15ebdddde8156d76d3fd4baaa"
     }
   ]
 }
