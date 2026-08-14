@@ -1009,7 +1009,7 @@
       "desc": "acceptance-rollout-proof-still-inconclusive: current cutoff does not close F-013. On HEAD 7d4b3a183f, acceptance_rollout_report_read and acceptance_rollout_check report status=pass with quorum=full-3x2, but the mandatory pre_review_check_read component reports status=inconclusive and ok=false with PR_ARTIFACT_TAMPERED, PR_AUTHORITY_INADMISSIBLE, PR_CUTOFF_UNBOUND, missing mutation/transcript proof, and multiple coverage/path failures. Its stored artifact is itself status=inconclusive and has no headHash/materialHash binding. Therefore the Wave-4 chain is not a current signed PASS chain despite the rollout report; resolving F-013 at 3323785 and later metadata-binding commits did not establish the required pre-review authority.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T17:56:51.200Z",
@@ -1066,14 +1066,15 @@
       ],
       "signatureTag": "missing|json|acceptance-rollout-proof",
       "signatureTagSource": "auto",
-      "clusterId": "CL-010"
+      "clusterId": "CL-010",
+      "resolvedBy": "CL-010@3404a42"
     },
     {
       "id": "B-3f3d:F-018",
       "desc": ".lattice/story/actives/B-3f3d/checklist.json B3F3D-006-H3: required must coverage is not mechanically current. Its sole docs_check row is persisted with mechanical=false and nonMechanicalReason stating verification_evidence_refresh_stale invalidated the receipt after material changed and the pinned command was not rerun. Therefore only 53/54 must intents have valid current mechanical receipts; a live reviewer rerun of review-inventory-handler-smoke passes, but that does not repair the gate-consumed checklist evidence row. Re-run the pinned verification through verification_evidence_add/verification_run and persist a fresh selector-matched receipt before claiming 54/54.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T18:01:54.193Z",
@@ -1179,14 +1180,15 @@
       ],
       "signatureTag": "missing|json|lattice-story-actives",
       "signatureTagSource": "auto",
-      "clusterId": "CL-011"
+      "clusterId": "CL-011",
+      "resolvedBy": "CL-011@3404a42"
     },
     {
       "id": "B-3f3d:F-019",
       "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:41-47 still publishes review_inventory_critic_set without the mandatory findingDispositions argument. packages/main/src/cli/command-catalog.ts:642-653 requires that array, while packages/main/src/handlers/review-inventory.ts:109-118 now correctly renders the unique executable Next command with a complete conservative disposition for every raw finding. Copying the canonical Operator workflow therefore fails before critic authority can be persisted; update the example to include agent plus a complete findingDispositions payload, with [] only for an empty aggregate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T18:01:55.698Z",
@@ -1252,14 +1254,15 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-012"
+      "clusterId": "CL-012",
+      "resolvedBy": "CL-012@3404a42"
     },
     {
       "id": "B-3f3d:F-020",
       "desc": "doc-code-drift: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:516-520 still requires the open-verified-finding smoke to print a REVIEW/TEST-to-DEV rollback command. The same document at :507 and packages/main/src/core/lifecycle-readiness.ts:123-131 now correctly require REVIEW to print review_inventory_begin/status until a finalized receipt exists, while only TEST may return directly. The stale matrix can make a future smoke preserve the retired direct REVIEW rollback; split the expected results by phase.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T18:03:19.510Z",
@@ -1325,14 +1328,15 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-013"
+      "clusterId": "CL-013",
+      "resolvedBy": "CL-013@3404a42"
     },
     {
       "id": "B-3f3d:F-021",
       "desc": "zero-new-saturation-status-bypass: on the RI-003 frozen cutoff, the signed critic receipt leaves the live projection at New verified findings: 4 while renderReviewInventoryStatus reports Blockers: none and Next: lattice review_inventory_finalize. evaluateReviewInventoryWave correctly exposes live.newFamilies, and buildWave would mark this wave saturated=false, but handlers/review-inventory.ts never adds a blocker for live.newFamilies.length > 0 and its critic-complete branch unconditionally selects finalize. The finalize handler is then overloaded to accept the non-saturated wave, persist it, and only afterward reveal the next unchanged-material wave. This contradicts CHK-003 B3F3D-003-H2, which requires finalization to remain blocked and status itself to provide the exact next-wave dispatch command when any new verified family is added. The smoke tests codify the defect by expecting finalize after a discovery-wave critic and using review_inventory_finalize as the wave checkpoint. A distinct wave-close/checkpoint transition, or equivalent persistence before status projection, is required so review_inventory_finalize rejects nonzero newFamilies and cannot be presented as eligible before zero-new saturation.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T18:09:05.032Z",
@@ -1379,7 +1383,8 @@
       ],
       "signatureTag": "missing|ts|zero-saturation-status",
       "signatureTagSource": "auto",
-      "clusterId": "CL-014"
+      "clusterId": "CL-014",
+      "resolvedBy": "CL-014@3404a42"
     }
   ]
 }
