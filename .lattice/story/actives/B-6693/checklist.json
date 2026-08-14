@@ -8,9 +8,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T15:30:16.494Z",
-      "endTime": null,
+      "endTime": "2026-08-14T15:58:17.151Z",
       "userSees": "A second official validation prints \"waiting for workspace validation capacity\" with the active holder story/command and heartbeat age, then starts automatically after the first validation releases the lease.",
       "excludes": [
         "Do not protect a bare direct npm test invocation; the protected product entrypoints are lattice validate and lattice done_required_validate.",
@@ -77,6 +77,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5daae09cf309d8cc736dd42550ff87feaf82ad85844ddba5440b14bdac9d3412",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a073b4633560b1f73667331f4577aed92800fc0e",
+        "attestedAt": "2026-08-14T15:58:17.317Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
       }
     },
     {
@@ -245,6 +252,16 @@
       "to": "in_progress",
       "reason": "Begin independently implemented workspace validation capacity mechanism",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:58:17.151Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commits 089a77ca4c and a073b46335 reviewed; independent build and focused contract passed",
+      "agent": "main"
     }
   ]
 }
