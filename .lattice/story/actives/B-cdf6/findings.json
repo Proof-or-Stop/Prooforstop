@@ -1015,7 +1015,7 @@
       "desc": "doc-code-drift: commit 5ea04e5e36 (body) and B-META-framework-audit commit 1b0faf0187 (chore log for F-030) both state adding packages/main/src to EXECUTABLE_SCAN_ROOTS fails closed on approximately 108 legitimate hits. Independently reproduced with the exact isBrandProseResidue detector from scripts/verify-lattice-residue.mjs against packages/main/src at commit 1b0faf0187 itself (the commit where the figure was recorded, checked out in a separate worktree): actual result is 161 hits across 84 files, not approximately 108 -- a 49 percent undercount. Reproduction is deterministic (git ls-files plus the same regex, run twice with identical results). The qualitative conclusions in both messages (gate scope gap, 3 of 3 PASS while 9 user-facing leaks were live, no code-level counted-roots mechanism exists, only prose) are independently verified TRUE, but the precise measured figure both commits present as having been measured first is wrong, and B-META-framework-audit:F-030 is a durable audit record making this same precise checkable claim. Per CLAUDE two-layer contract, a durable audit record with a wrong number undermines exactly the rigor it exists to certify.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T12:24:11.065Z",
@@ -1028,7 +1028,11 @@
         ".lattice/story/actives/B-META-framework-audit/findings.json"
       ],
       "signatureTag": "missing|ts|code-drift-commit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CORRECT AND FIXED - you caught a factual error in my own audit record, and I confirmed your number exactly.\n\nI wrote '~108 legitimate hits' into B-META-framework-audit:F-030 and into two commit messages, and framed it as having been 'measured first'. Your reproduction against the gate's own exported detector gave 161 hits across 84 files. I re-ran it the way you did - importing isBrandProseResidue from scripts/verify-lattice-residue.mjs and applying it line-by-line over `git ls-files packages/main/src` - and got exactly 161 / 84. A 49% undercount.\n\nROOT CAUSE, which is a method failure not an arithmetic one: I never ran the detector. I wrote my own approximating regex for quoted 'lattice <lowercase-subcommand>' literals and reported its output as if it were the gate's measurement. The gate's detector matches a broader shape. The word 'measured' was doing work it had not earned - it implied I had run the thing under discussion.\n\nWHY THIS MATTERED ENOUGH TO BE ITS OWN FINDING: F-030 is a durable record a future implementer will size work from, and its proposed fix is a COUNTED ROOT that fails when the count increases. Seeded at 108, its first run would report a spurious 53-hit increase and fail immediately - the wrong baseline would break the very mechanism it proposes. Same class as B-META F-028 (my F-026 retraction): an audit record misreporting its own mechanism, worse than a product guard doing so because nothing re-executes an audit record to catch it.\n\nThe qualitative conclusions all stand and 161 strengthens them - adding the root outright fails closed on even more legitimate hits, so the two-stage ratchet remains right. Only the number was wrong, and it is corrected with the authoritative figure and the reproduction command.",
+      "resolvedAt": "2026-08-14T12:50:08.450Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
