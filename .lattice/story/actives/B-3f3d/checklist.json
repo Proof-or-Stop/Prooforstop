@@ -378,7 +378,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A reproducible report compares the B-cdf6 baseline with the new workflow and fails unless mutation-driven redispatches drop from at least five to zero while reviewer/host coverage is unchanged and every stated quality invariant remains at zero regressions.",
+      "userSees": "The replay report prints \"Baseline mutation-driven redispatches: >=5\", \"New mutation-driven redispatches: 0\", \"Accepted OPEN commits: 0\", \"Remediation DEV transitions: 1\", \"Clean final-review epochs: <=1\", unchanged lane/host counts, and every quality-regression counter as 0; otherwise it prints FAIL.",
       "verificationIntent": {
         "happy": [
           {
@@ -439,6 +439,17 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
         ]
       }
     }
