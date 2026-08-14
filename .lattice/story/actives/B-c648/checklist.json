@@ -274,7 +274,11 @@
           {
             "desc": "Run lattice host_run for host=claude and host=agy against the architecture-audit prompts and cite both host_run final recordIds in execution-plan section 21 -> the document cites two distinct canonical host_run final recordIds (llmuse_ prefix), one for the Claude CLI audit and one for the agy CLI audit; the Claude receipt additionally cites its provider-reported numeric usage fields since Claude's host_run final exposes a numeric usage surface, while the agy receipt honestly cites recorded=unavailable plus its exact unavailableReason (agy print mode exposes no numeric usage surface per docs/host-run-usage.md) instead of a fabricated count, replacing the prior prose-only claims; WHY: proves both audits actually ran through the canonical host_run choke point instead of resting on self-authored summaries, without demanding numeric usage from a host whose print mode structurally exposes none.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const ids=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];const found=ids.map(id=>rows.find(r=>r.recordId===id));if(found.some(r=>!r))throw Error(\\\"missing final\\\");if(new Set(found.map(r=>r.ledgerCallId)).size!==2)throw Error(\\\"calls not distinct\\\");if(found.some(r=>r.storyId!==\\\"B-c648\\\"||r.phase!==\\\"DEV\\\"||r.agentType!==\\\"lattice-audit-mechanism-placement\\\"||r.sequence!==2||!r.supersedesRecordIds.length))throw Error(\\\"binding mismatch\\\");console.log(\\\"CHK003_HAPPY_PASS\\\")\"",
+              "selector": "CHK003_HAPPY_PASS"
+            }
           }
         ],
         "edge": [
@@ -291,7 +295,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": ".lattice/usage/llm-usage.jsonl",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const ids=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];const found=ids.map(id=>rows.find(r=>r.recordId===id));if(found.some(r=>!r))throw Error(\\\"missing final\\\");if(new Set(found.map(r=>r.ledgerCallId)).size!==2)throw Error(\\\"calls not distinct\\\");if(found.some(r=>r.storyId!==\\\"B-c648\\\"||r.phase!==\\\"DEV\\\"||r.agentType!==\\\"lattice-audit-mechanism-placement\\\"||r.sequence!==2||!r.supersedesRecordIds.length))throw Error(\\\"binding mismatch\\\");console.log(\\\"CHK003_HAPPY_PASS\\\")\"",
+          "result": "pass",
+          "note": "Canonical ledger contains two distinct final host_run records exactly bound to B-c648/DEV/lattice-audit-mechanism-placement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "76726b1c3c1cc5e4aca9c89dcb431d05c901672815f74ffd404fa675d50318fc",
+            "outputTail": "CHK003_HAPPY_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:43.137Z"
+          },
+          "headHash": "0734c0539c4780968fc5ea7f970b7d1062ffba70",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:43.249Z"
+        }
+      ]
     }
   ]
 }
