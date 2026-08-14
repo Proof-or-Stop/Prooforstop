@@ -119,7 +119,7 @@
       "desc": "[codex host-B #2, orchestrator-verified] An empty literal value is tagged R1-3 but the spec assigns it R1-2. Section 1.6's R1-3 trigger enumeration covers a value LONGER than maxMatcherLen or carrying leading/trailing whitespace - it does not cover an empty value. Section 1.3 rule 1 explicitly requires value to be non-empty, and rule-1 failures are R1-2. red-w2d-rejection-matrix.mjs currently pins the wrong tag, which freezes the error. Fix the tag and the fixture.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T18:02:22.692Z",
@@ -129,7 +129,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed - see B-9ff1:F-005, the same defect reported independently by codex host-B. Empty literal now tagged R1-2; the matrix fixture that pinned the wrong tag was corrected too, since a fixture pinning a wrong tag freezes the error.",
+      "resolvedAt": "2026-08-14T02:12:19.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-007",
