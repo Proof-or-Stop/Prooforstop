@@ -174,10 +174,59 @@
         "lattice_review_topology_critic",
         "PromptEnvelope"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Verified F-002 and F-008 require the topology critic to be admitted consistently by project configuration and all generated agent assets, and require a real handler-level persistence/negative-path smoke instead of relying only on pure helper simulation. These are the canonical configuration, prompt asset, template, and executable-test touchpoints for that remediation.",
+      "timestamp": "2026-08-14T15:46:50.572Z",
+      "paths": [
+        "lattice.config.json",
+        ".claude/agents/lattice-review-topology-critic.md",
+        ".lattice-codex/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json",
+        ".claude/agents/lattice-review-topology-critic.md",
+        ".lattice-codex/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "4ed2a694b41cf471ff70b7ebd7a375406985c5eb",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "lattice_review_topology_critic",
+        "review_inventory_handler_smoke",
+        "promptEnvelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This command-generated signed lifecycle artifact is the canonical storage for the Story review inventory epochs and receipts introduced by CHK-001 and consumed by the REVIEW-to-remediation-DEV gate. The cancelled RI-001 recovery history and subsequent fresh epochs must remain tracked and reviewer-visible.",
+      "timestamp": "2026-08-14T15:48:41.329Z",
+      "paths": [
+        ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4ed2a694b41cf471ff70b7ebd7a375406985c5eb",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "ReviewInventoryEpoch",
+        "ReviewInventoryReceipt"
+      ]
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T15:23:28.954Z",
+  "updatedAt": "2026-08-14T15:48:41.329Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -227,6 +276,12 @@
     "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
     "CLAUDE.md": "CLAUDE.md",
     "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
-    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "lattice.config.json": "lattice.config.json",
+    ".claude/agents/lattice-review-topology-critic.md": ".claude/agents/lattice-review-topology-critic.md",
+    ".lattice-codex/agents/lattice-review-topology-critic.md": ".lattice-codex/agents/lattice-review-topology-critic.md",
+    "packages/main/templates/agents/lattice-review-topology-critic.md": "packages/main/templates/agents/lattice-review-topology-critic.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    ".lattice/story/actives/B-3f3d/review-inventory-epochs.json": ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
   }
 }
