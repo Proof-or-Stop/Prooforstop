@@ -843,7 +843,11 @@
           },
           {
             "desc": "Smoke test covers the section-4.3-compliant --reason bypass/downgrade path for CHK-001: when pack build throws AND --reason is provided, ack artifact is written with packDigest:null/topHitIds:[] and gate still passes; WHY: the reasoned-downgrade path is a plan-level requirement distinct from the normal preflight path",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
+              "selector": "CHK-001 downgrade: canStartDevGuard passes on the reasoned downgrade"
+            }
           },
           {
             "desc": "Smoke test uses mkdtempSync + git init temp fixture pattern (matching codebase convention e.g. quorum-submit-smoke.ts makeFixture) and does not leak temp directories on success or assertion failure; WHY: shared CI environment accumulation / cross-test contamination",
@@ -964,6 +968,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:28:56.855Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
+          "result": "pass",
+          "note": "This run's stdout contains the full downgrade-path assertion block (no ack without --reason, still refused after a too-short reason, packDigest:null/topHitIds:[] recorded, and this final gate-passes assertion), covering the section-4.3 reasoned-downgrade/bypass path this intent requires.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f9b2197d7d1026bb55f79cd858afdab8b23c57b31faab2769fde0a0bd84a1336",
+            "outputTail": " rollback): getGuardFailureReason tags missing_dev_memory_preflight_ack\n✓ CHK-001 door4 canReenterDevGuard (TEST->DEV rollback): refusal message names the run-command hint\n✓ CHK-001 door4 canReenterDevGuard (TEST->DEV rollback): dev_memory_preflight_ack writes the ack artifact\n✓ CHK-001 door4 canReenterDevGuard (TEST->DEV rollback): passes after ack is written\n✓ CHK-001 door4 canReenterDevGuard (TEST->DEV rollback): getGuardFailureReason no longer names missing_dev_memory_preflight_ack\n✓ CHK-001 edge: ack has correct schemaVersion\n✓ CHK-001 edge: ack.storyId matches\n✓ CHK-001 edge: ack.topHitIds is an array\n✓ CHK-001 edge: ack.acknowledgedAt is a non-empty string\n✓ CHK-001 edge: ack.acknowledgedBy is a non-empty string\n✓ CHK-001 edge: evaluateDevMemoryPreflightGate reads it back as true regardless of content\n✓ CHK-001 edge: canStartDevGuard passes on the round-tripped ack\n✓ CHK-001 adversarial: gate false before any artifact exists\n✓ CHK-001 adversarial: empty object {} treated as absent (fail-closed)\n✓ CHK-001 adversarial: wrong schemaVersion treated as absent (fail-closed)\n✓ CHK-001 adversarial: truncated/invalid JSON treated as absent (fail-closed)\n✓ CHK-001 adversarial: canStartDevGuard also refuses on corrupt artifact\n✓ CHK-001 adversarial: valid ack passes\n✓ CHK-001 adversarial: re-corrupting after a valid ack blocks again (no caching)\n✓ CHK-001 downgrade: no ack written when build fails without --reason\n✓ CHK-001 downgrade: canStartDevGuard still refuses\n✓ CHK-001 downgrade: still refused after a too-short --reason\n✓ CHK-001 downgrade: --reason (>=5 chars) records the downgrade\n✓ CHK-001 downgrade: packDigest is null on the downgrade path\n✓ CHK-001 downgrade: topHitIds is empty on the downgrade path\n✓ CHK-001 downgrade: downgradeReason is recorded\n✓ CHK-001 downgrade: gate still passes on the reasoned downgrade\n✓ CHK-001 downgrade: canStartDevGuard passes on the reasoned downgrade\n✓ CHK-002 happy: finding_resolve output still reports resolved\n✓ CHK-002 happy: advisory text mentions dev_memory_capture\n✓ CHK-002 happy: advisory text is a suffix AFTER the base \"resolved\" text, not a replacement\n✓ CHK-002 scope: finding_add output does NOT carry the dev_memory_capture advisory\n✓ CHK-002 scope: finding_list output does NOT carry the dev_memory_capture advisory\n✓ CHK-002 fail-safe: finding_resolve did NOT throw despite the forced memory-subsystem failure\n✓ CHK-002 fail-safe: finding_resolve output still reports resolved\n✓ CHK-002 fail-safe: advisory silently became empty (no dev_memory_capture text) on throw\n✓ CHK-002 fail-safe: the finding mutation itself was NOT blocked by the memory-subsystem failure\n✓ CHK-003 refusal: fixture has no finish-decision record yet\n✓ CHK-003 refusal: canFinishGuard is false with no finish-decision record\n✓ CHK-003 refusal: message tags missing_dev_memory_finish_decision\n✓ CHK-003 refusal: message names the run-command hint\n✓ CHK-003 pass: canFinishGuard is true after decision=captured\n✓ CHK-003 pass: getGuardFailureReason no longer names missing_dev_memory_finish_decision (decision=captured)\n✓ CHK-003 pass: canFinishGuard is true after decision=no-reusable-lesson\n✓ CHK-003 pass: getGuardFailureReason no longer names missing_dev_memory_finish_decision (decision=no-reusable-lesson)\n✓ CHK-003 pass: canFinishGuard is true after decision=defer-with-reason\n✓ CHK-003 pass: getGuardFailureReason no longer names missing_dev_memory_finish_decision (decision=defer-with-reason)\n✓ CHK-003 adversarial: readDevMemoryFinishDecision treats corrupt JSON as absent (fail-closed)\n✓ CHK-003 adversarial: canFinishGuard is false again on a corrupt finish-decision record\n✓ CHK-003 adversarial: an invented decision value is treated as absent\n✓ CHK-003 adversarial: canFinishGuard is false on an invented decision value\n✓ CHK-003 adversarial: a record naming a DIFFERENT storyId is treated as absent\n✓ CHK-003 adversarial: canFinishGuard is false on a cross-story record\ndev-memory-lifecycle-gates smoke passed: 72 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:29:01.372Z"
+          },
+          "headHash": "4a631311122ad814ff0005bae363fe842a05e4e8",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:29:01.497Z"
         }
       ]
     },
