@@ -561,6 +561,37 @@
         "scanEscalationReason": null
       },
       "_hash": "01d676e39417d4b8a725fb7e4f216a4104b5fd103134cf7d880dbf2729e039e4"
+    },
+    {
+      "id": "B-fb7b:RP-019",
+      "agent": "lattice-review-behavior",
+      "note": "Round-5 re-verification after main-sync (materialHash 249c271f0040f61...b32c41ac, storyFilesHash c4e8d5b9...5e84621). Confirmed my story's owned files (package.json pretest wiring, test-suite-utils-autobuild-smoke.ts, red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs, lattice.config.json red-b49d4 exclusion entries) are byte-identical to the pre-merge round-4 tip (only unrelated package.json version bump 0.3.253->0.3.254 from a sibling DONE-merge auto-bump). Re-ran the compiled structural smoke (node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS), the adversarial guard-bite RED (node packages/main/tests/red/red-fb7b-guard-bite.mjs -> GB-ALL-PASS incl GB-ADVFAST-BIT), and red-b49d4-harness-registration.mjs -> OK; all reconfirm the userSees/edge/adversarial behavior already verified across rounds 1-4 (F-004/F-006 fixed and re-verified disproven at F-007/F-010) still holds unbroken on the current merged material. No behavior regression introduced by the main-sync merge; no new blocker.",
+      "createdAt": "2026-08-14T09:42:30.970Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-025",
+      "envelopeId": "1c79afd4573272915ac8106360fbeae0941f09a0a82c8d80fdb9f47ed763b62e",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+          "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffd26ee3458cb1cbac18f59556f24ab80d4a2a4d81d0a1aa968b4196c7c657e4"
     }
   ]
 }
