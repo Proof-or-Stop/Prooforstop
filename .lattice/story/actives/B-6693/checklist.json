@@ -146,7 +146,7 @@
             "priority": "must"
           },
           {
-            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Seed malformed, mismatched-start-time, and fresh unknown holder records and assert the test never deletes a holder unless the shared classifier proves reclaimable; all refused takeovers keep callback entry count zero. WHY: hostile or partial metadata must fail closed.",
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Seed capacity leases with malformed metadata, unknown identity, and age-only expiry and assert none is deleted and callback entry remains zero; then seed a mechanically proven local-dead holder and a holder/heartbeat identity mismatch and assert each is reclaimed. In the same smoke, rerun the existing story-scoped stale-lock assertions unchanged. WHY: proves the new strict classifier is capacity-specific and does not silently alter legacy story-lock classification.",
             "type": "logic",
             "priority": "must"
           }
