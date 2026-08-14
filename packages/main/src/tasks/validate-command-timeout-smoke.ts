@@ -17,26 +17,46 @@
  *     never fabricates a timeoutMs out of a bare-string config entry, never false-positive-matches
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
- *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it).
+ *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
+ *   - B-16df F-004: validation-executor.ts and verifier.ts remain byte-for-byte unmodified
+ *     from main (git diff, soft-skip on environment failure); checklist.ts's own source
+ *     text invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at
+ *     exactly 4 call sites (declared exactly once — no duplicated matching logic outside
+ *     it); and a very large configured timeoutMs is clamped end-to-end via
+ *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector).
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
- * side effects leak in. Registered in lattice.config.json validate.commands for ongoing
- * regression protection.
+ * side effects leak in. Sections 12-13 are the sole exception: they read this repo's own
+ * source/git state (REPO_ROOT, resolved from this file's own compiled location) rather than
+ * a temp dir, since H-003/H-002 are claims ABOUT this repo's actual source, not synthesized
+ * fixtures. Registered in lattice.config.json validate.commands for ongoing regression
+ * protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
  */
 
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  MAX_NODE_TIMER_DELAY_MS,
   resolveCommandTimeoutMs,
   runValidationCommand,
   executeValidationPlan,
   runSingleAllowlistedCommand,
 } from '../core/validation-executor.js';
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
+
+/**
+ * B-16df F-004: resolved repo root, computed from this compiled file's own location
+ * (packages/main/dist/tasks/<this file> → up 4 directories to the repo root) — mirrors
+ * the existing `deprecated-gc-smoke.ts` `realRoot` pattern. Sections 12-13 below use this
+ * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to run `git
+ * diff` and read checklist.ts's own source text.
+ */
+const REPO_ROOT = join(new URL(import.meta.url).pathname, '../../../../..');
 
 const TMP = tmpdir();
 const NODE = process.execPath;
@@ -292,6 +312,88 @@ void (async () => {
     check(
       'downstream resolveCommandTimeoutMs safety net treats the resolved 0 as "use the default" (code 0, not timed out)',
       zeroTimeoutRun.code === 0 && zeroTimeoutRun.timedOut === false,
+    );
+
+    // 12. B-16df F-004 (H-003): validation-executor.ts and verifier.ts — the shared
+    //     validate-command execution/config-parsing primitives this story's fix builds on
+    //     top of — must remain byte-for-byte unmodified from main. The fix lives entirely
+    //     in checklist.ts's new resolvePinnedCommandTimeoutMs helper + its call sites,
+    //     never by editing either shared primitive. First a hard sanity check that
+    //     REPO_ROOT actually resolved to the real repo root (so a broken path computation
+    //     fails loudly here rather than being silently swallowed by the soft-skip below);
+    //     then `git diff main` against both files must produce empty output. Soft-skip
+    //     (console.warn, no hard failure) only if `git diff` itself throws (e.g. `main` is
+    //     unresolvable in some CI checkout) so this section stays environment-tolerant —
+    //     but in this repo/worktree right now it asserts cleanly.
+    check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
+    try {
+      const diffOutput = execSync(
+        'git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts',
+        { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
+      );
+      check(
+        'validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff)',
+        diffOutput.trim().length === 0,
+      );
+    } catch (e) {
+      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
+    //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
+    //     helper — no duplicated matching logic living outside it. Structural check on
+    //     checklist.ts's own SOURCE text: count occurrences of the exact call-site
+    //     invocation shape `resolvePinnedCommandTimeoutMs(root, command)`. This is
+    //     distinct from the function's own declaration line (which carries type
+    //     annotations — `(root: string, command: string)` — and so never matches the
+    //     call-site substring), so the two checks below independently confirm exactly one
+    //     declaration and exactly four call sites.
+    const checklistSource = readFileSync(join(REPO_ROOT, 'packages/main/src/handlers/checklist.ts'), 'utf-8');
+    const CALL_SITE_SNIPPET = 'resolvePinnedCommandTimeoutMs(root, command)';
+    const callSiteCount = checklistSource.split(CALL_SITE_SNIPPET).length - 1;
+    check(
+      'checklist.ts invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (all 4 runSingleAllowlistedCommand sites route through it, no accidental 5th)',
+      callSiteCount === 4,
+    );
+    const DECLARATION_SNIPPET = 'export function resolvePinnedCommandTimeoutMs(root: string, command: string): number | undefined {';
+    const declarationCount = checklistSource.split(DECLARATION_SNIPPET).length - 1;
+    check(
+      'resolvePinnedCommandTimeoutMs is declared exactly once (a single shared helper, not duplicated matching logic)',
+      declarationCount === 1,
+    );
+
+    // 14. B-16df F-004 (A-003): a very large configured timeoutMs must be CLAMPED, not an
+    //     unbounded-timeout vector, end-to-end from a project's lattice.config.json through
+    //     to the value actually armed on setTimeout. resolvePinnedCommandTimeoutMs itself
+    //     does NOT clamp (it returns match?.timeoutMs verbatim, mirrored by section 11's
+    //     verbatim-0 check above) — the existing safety net lives downstream in
+    //     resolveCommandTimeoutMs (unmodified by this story, per section 12 above), which
+    //     Math.min()s against MAX_NODE_TIMER_DELAY_MS (Node's setTimeout ceiling). Prove
+    //     both halves: the raw resolver hands back the huge configured value unclamped
+    //     (and that value genuinely exceeds the ceiling, so the clamp below is doing real
+    //     work), then feeding it through resolveCommandTimeoutMs — exactly as every real
+    //     call site does — clamps it to MAX_NODE_TIMER_DELAY_MS.
+    const hugeTimeoutRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-hugetimeout-'));
+    const HUGE_TIMEOUT_MS = 1e15;
+    writeFileSync(
+      join(hugeTimeoutRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: HUGE_TIMEOUT_MS },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const hugeTimeoutCommand = 'node -e "process.exit(0)"';
+    const hugeTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(hugeTimeoutRoot, hugeTimeoutCommand);
+    check('resolvePinnedCommandTimeoutMs returns a huge configured timeoutMs verbatim (no clamping in the helper itself)', hugeTimeoutResolved === HUGE_TIMEOUT_MS);
+    check('the raw configured huge timeoutMs exceeds MAX_NODE_TIMER_DELAY_MS (proving the downstream clamp below is doing real work)', hugeTimeoutResolved > MAX_NODE_TIMER_DELAY_MS);
+    const hugeTimeoutClamped = resolveCommandTimeoutMs(base({ timeoutMs: hugeTimeoutResolved }));
+    check(
+      'downstream resolveCommandTimeoutMs clamps a config-sourced huge timeoutMs to MAX_NODE_TIMER_DELAY_MS end-to-end (not passed through unbounded)',
+      hugeTimeoutClamped === MAX_NODE_TIMER_DELAY_MS,
     );
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
