@@ -1412,7 +1412,11 @@
         "adversarial": [
           {
             "desc": "The original Non-Goal line is NOT deleted or overwritten -- diff dev-memory.md against main branch to confirm the pre-existing text (Dev-memory entries are NOT surfaced in lattice validate output or gate checks) still appears in the file, possibly inside a historical-rationale or Delivered-differently block; WHY: user explicitly flagged deleting-instead-of-preserving as an adversarial failure mode",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+              "selector": "Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks."
+            }
           },
           {
             "desc": "The annotation does NOT contradict actual gate behavior -- specifically: the claim that no entry content is read by either gate must be verified against the actual evaluateDevMemoryPreflightGate and readDevMemoryFinishDecision code paths to confirm they read only separate artifact files (dev-memory-preflight-ack.json, dev-memory-finish-decision.json) and never import/parse experience.jsonl DevMemoryEntry rows or read their lesson/summary/trigger/gateEvidence/authority fields; WHY: user explicitly flagged annotation-contradicting-real-gate-behavior as an adversarial failure mode -- if the code actually reads entry content somewhere, the annotation would be a lie",
@@ -1538,6 +1542,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:24.946Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git diff main...HEAD -- docs/requirements/decisions/dev-memory.md\\\", {encoding:\\\"utf8\\\"}))\"",
+          "result": "pass",
+          "note": "Same diff as CHK-006 happy:1: 25 insertions(+), 0 deletions for this file (git omits a deletions count entirely when it is zero), and the original bullet appears as unprefixed context -- mechanically proving it was not deleted or overwritten.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ec4d61aedea25b92de7ce06a80f18a58f9578027600660131ccb31c048416474",
+            "outputTail": "diff --git a/docs/requirements/decisions/dev-memory.md b/docs/requirements/decisions/dev-memory.md\nindex 6f2e20e5d7..03ff160a14 100644\n--- a/docs/requirements/decisions/dev-memory.md\n+++ b/docs/requirements/decisions/dev-memory.md\n@@ -161,4 +161,29 @@ These fields are a reminder baked into every entry. A consumer that tries to int\n - Dev-memory does NOT replace `docs/requirements/decisions/` for architectural decisions.\n - Dev-memory does NOT generate signed artifacts of any kind.\n - Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.\n+\n+  > **Delivered differently (B-a7c5):** this bullet is still true, verbatim,\n+  > for `DevMemoryEntry` JSONL rows (the entries this doc otherwise\n+  > describes) — no entry's `gateEvidence`/`authority` fields are ever read\n+  > by a gate, and no lesson CONTENT is ever surfaced as gate evidence.\n+  > B-a7c5 introduces two structurally SEPARATE artifact types that ARE\n+  > gate-checked: `dev-memory-preflight-ack.json` (one per story, written by\n+  > `dev_memory_preflight_ack`, checked by `evaluateDevMemoryPreflightGate`\n+  > at every DEV-entry door) and the `dev_memory_finish_decision` record\n+  > under `.lattice/dev-memory/finish-decisions/` (checked by\n+  > `canFinishGuard`, the DONE gate). Neither is a `DevMemoryEntry`. The\n+  > preflight-ack record carries no `gateEvidence`/`authority` fields at all\n+  > (it never claimed non-authoritative status over lesson content in the\n+  > first place); the finish-decision record still carries its pre-existing\n+  > `gateEvidence:false`/`authority:non_authoritative` fields describing\n+  > LESSON CONTENT's status (unchanged by B-a7c5), but neither gate reads\n+  > those fields — both gates check only whether a reflection record\n+  > EXISTS at all (\"did the ritual of consulting/reflecting happen\"),\n+  > structurally identical in kind to `summary_set` (also a required\n+  > attestation, not itself code-correctness evidence) — never the lesson\n+  > text inside it, and never the record's own self-declared authority\n+  > fields. This bullet's guarantee about entry CONTENT is unweakened: no\n+  > gate anywhere reads a `DevMemoryEntry`'s `lesson`/`summary`/`trigger`\n+  > fields, and no gate is satisfied by what a captured lesson says.\n+\n - Dev-memory is NOT a replacement for proper test coverage or REVIEW reviewer findings.\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:25.942Z"
+          },
+          "headHash": "12f2df6bc2a35c2c527c79812814b3b7eca7200f",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:26.067Z"
         }
       ]
     },
