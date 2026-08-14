@@ -788,7 +788,7 @@
       "desc": "doc-code-drift: packages/main/src/tasks/global-agents-init-smoke.ts:85 hardcodes assert.equal(shims.length, 16, \"expected 16 managed agent roles\") one line below the correct dynamic check at :84 (assert.equal(shims.length, managedBasenames.length, ...)). The registry now has 17 roles (verified: listManagedAgentBasenames returns 17), so this line is LIVE and CURRENTLY RED: running node packages/main/dist/tasks/global-agents-init-smoke.js throws AssertionError: expected 16 managed agent roles / 17 !== 16 at this exact assertion, both on this branch and on pristine main HEAD 3a5036095c (reproduced both ways myself), so this is pre-existing and not introduced by this story. Filed here rather than dismissed because this story (commit 172b8abd54, CHK-006) edited this exact file on adjacent lines (message text at what is now line 98/144) and separately CHK-003 explicitly required correcting stale 16-thin-shim counts to 17 in CLAUDE.md, so the story touched the same defect class in the same file without catching this instance. It is outside the DONE-blocking npm test chain (package.json line 15 lists explicit test:* targets; this smoke is only reached via test:all/test:legacy auto-discovery per run-all-smokes.js), so it does not block this story, but a doc/code reader who runs test:legacy will see it fail with a stale-looking number in the same story that just finished correcting that exact stale number elsewhere.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T08:56:12.536Z",
@@ -799,7 +799,11 @@
         "packages/main/src/tasks/global-agents-init-smoke.ts"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in c4042848df and 56da8b5e4b. The docs lane reported one hardcoded 16 sitting one line BELOW a correct dynamic check; sweeping the file found SEVEN stale literals across two passes, in two classes.\n\nSTALE COUNTS (5): :85 (redundant with the dynamic check above it), :118 registry role count, :157 'migrated 16 managed agent file(s)', :175 'synced=0, ok=16' plus the shim-count equal. True count is 17 - both listManagedAgentBasenames and readPromptRegistry report 17 - so every one failed on this branch AND on pristine main. Two more escaped my first sweep because they were BARE numerics with no role/agent keyword to match: :159 and :165 both asserted 17 meaning '16 managed + 1 user', wrong now the managed set is 17. All now derive from managedBasenames.length.\n\nSTALE BRAND ASSERTIONS (2), found by running the smoke after the counts were fixed: /lattice review_run_start/ and /lattice agent_prompt --role=/ against shims that measurably emit the proof-or-stop forms (5x and 12x respectively, zero 'lattice'). Worth recording: the second assertion's own failure message ALREADY read 'must reference proof-or-stop agent_prompt' while its regex checked 'lattice' - the message and the assertion contradicted each other, which is precisely how it survived earlier passes. Each canonical check is now paired with a doesNotMatch guard.\n\nRESULT: node dist/tasks/global-agents-init-smoke.js exits 0 with PASS. On pristine main it fails at 'expected 16 managed agent roles', so this smoke was red before this story and is green now. Header and section comments describing '16 regular files' were refreshed too; the only surviving 16 mentions are historical notes. tsc clean.\n\nThis was the THIRD instance of the stale-count class in this story (after verify-entrypoints.mjs:526 and :1010). Each time I fixed only what I was shown, another remained - hence the whole-file sweep this time.",
+      "resolvedAt": "2026-08-14T09:03:43.877Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-038",
