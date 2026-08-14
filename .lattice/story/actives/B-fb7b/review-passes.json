@@ -941,6 +941,31 @@
         "scanEscalationReason": "plan.md does not exist for this story (decision.json/background.md serve the equivalent role); no full decisions-directory escalation was needed since the change is scoped to scripts/build-*.mjs and packages/utils build wiring with no README/CLAUDE.md/decisions-doc claims to reconcile beyond what the sibling lattice-review-docs lane already covered this round."
       },
       "_hash": "d8e6667224a54c48f994c582dd712f63269fdd300a851c6943880e71dab4c4df"
+    },
+    {
+      "id": "B-fb7b:RP-031",
+      "agent": "lattice-review-behavior",
+      "note": "Light re-verification of the F-012/F-014 concurrent-build fix (commit eab8a74651, shared scripts/build-lock.mjs held by both main and utils builds). Guards green: test-suite-utils-autobuild-smoke PASS, red-fb7b-pretest-builds-utils.mjs PASS, red-fb7b-guard-bite.mjs GB-ALL-PASS. One round of 5 concurrent npm run pretest against the live shared worktree (which had genuine concurrent other-lane build activity in flight) -- 5/5 exit 0, no ENOTEMPTY/TS2307. Filed B-fb7b:F-019 (disproven, closes F-012) and B-fb7b:F-020 (disproven, closes F-014). No new blocker found in this narrow scope.",
+      "createdAt": "2026-08-14T12:27:29.557Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "envelopeId": "03b643d77604d325c3a67f8dfde02fa82af52f026cece722f8191515f1c016a8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "57253080575c0e25df664692d6f4a537f88ee059c25e664c34376de6b0c695a2"
     }
   ]
 }
