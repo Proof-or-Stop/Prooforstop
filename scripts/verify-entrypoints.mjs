@@ -1007,7 +1007,15 @@ checks.push(() => {
     }
     assertIncludes(verifyOut, 'Codex adapter checks passed', 'fresh lattice verify_codex minimal PATH output');
     assertIncludes(verifyOut, 'Local wrapper heartbeat: source=codex', 'fresh lattice verify_codex should execute generated wrapper heartbeat');
-    assertIncludes(verifyOut, 'Codex agents mirror: 16 prompt(s) mirrored', 'fresh lattice verify_codex should pass via generated local bootstrap');
+    // B-cdf6: same stale-literal defect already fixed above at the first mirror
+    // assertion — this second site was missed. The registry has 17 roles, so the
+    // pinned `16` fails regardless of whether the mirror itself is correct. Derive
+    // it so adding or removing a role cannot rot either call site again.
+    assertIncludes(
+      verifyOut,
+      `Codex agents mirror: ${readPromptRegistry().agents.length} prompt(s) mirrored`,
+      'fresh lattice verify_codex should pass via generated local bootstrap',
+    );
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

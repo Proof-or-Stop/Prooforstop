@@ -44,7 +44,12 @@ import {
   resolveAgentTemplateDir,
   syncGlobalAgents,
 } from './core/global-agents.js';
-import { isModularReviewerRoleId } from './core/prompt-registry.js';
+import {
+  isModularReviewerRoleId,
+  isModularComplexRoleId,
+  restoreLegacyPromptTemplate,
+  readPromptRegistry,
+} from './core/prompt-registry.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -963,8 +968,29 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const packageContent = renderCodexAgentContent(readFileSync(src, 'utf-8'));
     const roleId = file.replace(/\.md$/, '');
+    // B-META-framework-audit:F-005 — a MODULAR COMPLEX role must be materialized as
+    // its digest-pinned legacy-full-context reconstruction, not as the raw modular
+    // template. `verify_codex`'s agents-mirror check compares each file against
+    // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
+    // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
+    // straight off disk emitted the modular body instead (marker
+    // proofbound:modular-role-body:v1, e.g. 3945 bytes for lattice-evaluator vs the
+    // 8998 the checker expects), so a freshly `init`-ed full-mode project failed its
+    // own verify_codex for exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Reproduced on the
+    // pristine main checkout, so this predates the proof-or-stop rename.
+    //
+    // restoreLegacyPromptTemplate validates its output against the pinned
+    // LEGACY_COMPLEX_TEMPLATE_SHA256 digest, so this cannot silently drift: a
+    // template edit that changes the reconstruction throws instead of writing a
+    // mismatched mirror.
+    const complexEntry = isModularComplexRoleId(roleId)
+      ? readPromptRegistry(agentTemplateDir).agents.find(entry => entry.agentId === roleId)
+      : undefined;
+    const sourceTemplate = complexEntry
+      ? restoreLegacyPromptTemplate(complexEntry)
+      : readFileSync(src, 'utf-8');
+    const packageContent = renderCodexAgentContent(sourceTemplate);
     const content = isModularReviewerRoleId(roleId)
       ? renderReviewerRunBootstrapForTemplate(packageContent, file)
       : packageContent;

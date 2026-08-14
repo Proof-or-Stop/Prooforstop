@@ -52,7 +52,12 @@ import {
   renderReviewerRunBootstrapForTemplate,
   resolveAgentTemplateDir,
 } from './global-agents.js';
-import { isModularReviewerRoleId } from './prompt-registry.js';
+import {
+  isModularReviewerRoleId,
+  isModularComplexRoleId,
+  restoreLegacyPromptTemplate,
+  readPromptRegistry,
+} from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
@@ -854,10 +859,23 @@ export function listManagedAssetDefinitions(
     );
     if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
+      // B-META-framework-audit:F-005 — must mirror cli-init.ts exactly. A MODULAR
+      // COMPLEX role is materialized as its digest-pinned legacy-full-context
+      // reconstruction, not the raw modular template, so the managed-asset
+      // expectation has to be built the same way or every freshly-init-ed project
+      // reports STALE_SAFE for those 5 files. Both sides now derive from
+      // restoreLegacyPromptTemplate, which validates against
+      // LEGACY_COMPLEX_TEMPLATE_SHA256 and therefore cannot drift silently.
+      const complexEntries = readPromptRegistry(templates).agents;
       for (const file of files) {
-        const content = readFileSync(join(templates, file), 'utf-8');
-        const codexContent = renderCodexAgentContent(content);
         const roleId = file.replace(/\.md$/, '');
+        const complexEntry = isModularComplexRoleId(roleId)
+          ? complexEntries.find(entry => entry.agentId === roleId)
+          : undefined;
+        const content = complexEntry
+          ? restoreLegacyPromptTemplate(complexEntry)
+          : readFileSync(join(templates, file), 'utf-8');
+        const codexContent = renderCodexAgentContent(content);
         defs.push(wholeFile(
           `.lattice-codex/agents:${file}`,
           `.lattice-codex/agents/${file}`,
