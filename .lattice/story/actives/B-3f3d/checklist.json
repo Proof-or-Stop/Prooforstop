@@ -967,9 +967,9 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T15:00:13.605Z",
-      "endTime": null,
+      "endTime": "2026-08-14T15:00:21.433Z",
       "userSees": "The accepted rollback prints \"Remediation authorized once by epoch <id>\", the aggregate finding count/digest, and \"This receipt does not authorize TEST\"; final review prints \"Impacted required lanes:\" followed by the exact lanes and corrective command on rejection.",
       "verificationIntent": {
         "happy": [
@@ -1263,7 +1263,14 @@
           "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
           "timestamp": "2026-08-14T14:58:34.927Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "93c9e32e389be2f921775cb507982e6b5ae1c4312100d06bfe9bca61060e7b16",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "21ca063b1ebc399fe378515cbe1026dcd0c32ae3",
+        "attestedAt": "2026-08-14T15:00:21.631Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-005",
@@ -1640,6 +1647,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:21.433Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
       "agent": "lattice-implementer"
     }
   ]
