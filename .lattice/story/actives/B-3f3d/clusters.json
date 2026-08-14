@@ -42,6 +42,118 @@
       ],
       "severity": "high",
       "createdAt": "2026-08-14T15:24:10.690Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-009"
+      ],
+      "files": [
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "CLAUDE.md"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-010"
+      ],
+      "files": [
+        ".lattice/story/actives/B-3f3d/checklist.json",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-005",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-011"
+      ],
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/reviewer-list.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-006",
+      "rootCause": "Multiple findings all involve packages/main/src/handlers/review-inventory.ts, packages/main/src/cli/command-catalog.ts",
+      "findingIds": [
+        "B-3f3d:F-012",
+        "B-3f3d:F-014"
+      ],
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-007",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-013"
+      ],
+      "files": [
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        ".lattice/story/actives/B-3f3d/acceptance-basis.json",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-008",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-015"
+      ],
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T17:03:22.771Z"
+    },
+    {
+      "clusterId": "CL-009",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-3f3d:F-016"
+      ],
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T17:03:22.771Z"
     }
   ]
 }

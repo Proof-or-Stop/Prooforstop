@@ -26,6 +26,32 @@
       "_hash": "e285aab88d369773d77ef4eb753087ebc625e613180975766897018fa625a045",
       "cancelledAt": "2026-08-14T15:21:01.019Z",
       "cancelReason": "Human-authorized bootstrap recovery: the newly introduced topology critic cannot sign terminal evidence because its role is missing from Prompt Envelope modular allowlists, so RI-001 cannot finalize and the mandatory REVIEW-to-DEV receipt gate deadlocks. Preserve RI-001, RR-001..RR-006, F-001..F-008 and the rejected topology receipt as historical evidence; no authority is granted by this cancellation."
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-002",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-14T16:42:57.348Z",
+      "updatedAt": "2026-08-14T17:01:38.146Z",
+      "cutoff": {
+        "headHash": "0c9d7419df864895b59d5eca612df49178cef831",
+        "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1",
+        "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015"
+      },
+      "scopeDigest": "859f6e9e65718715dc25235f151981fe5190ea4fb94f4fb2a188c765887f06cb",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "maxWaves": 3,
+      "waves": [],
+      "cancelledAt": "2026-08-14T17:01:38.146Z",
+      "cancelReason": "Mandatory topology critic cannot create a signed ReviewRun because dispatch emits topology-critic-review while the verifier accepts only story-review; cancel without transition authority and recover to DEV under the user-authorized audited deadlock procedure.",
+      "_hash": "5dcbefb99212d47b33098da7b0a4501090d3e04844ff0d6043778e2f84e35b2a"
     }
   ],
   "receipts": [],

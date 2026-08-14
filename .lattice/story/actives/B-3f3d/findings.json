@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: round-2+ single-receipt shortcut deletion is incomplete. packages/main/src/core/lifecycle-readiness.ts:428-525 still requires all active lanes/quorum only when roundCount <= 1 and reports round 2+ PASS from any one receipt; packages/main/src/handlers/transition-effects.ts:292-338 still tells operators they may rerun only scope-changed reviewers because one receipt suffices; CLAUDE.md:841-852 documents the obsolete contract. This contradicts CHK-004 and the new machine.ts all-round gate, so lifecycle diagnostics and operator guidance can claim sufficient final review under a condition the authoritative transition now rejects. Remove the old branch/advisory and synchronize the contract everywhere.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T15:03:56.567Z",
@@ -34,14 +34,15 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-round",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@33c14f3"
     },
     {
       "id": "B-3f3d:F-002",
       "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:32 and :150-418 — HIGH: all 45 must verificationIntent entries are claimed by this single smoke, but it imports only pure epoch helpers plus renderReviewInventoryBegin/renderReviewInventoryStatus and manually constructs signed epochs, critic receipts, final receipts and phase transitions. No test invokes createReviewInventoryHandlers or the real review_inventory_begin/status/critic_set/finalize/cancel command paths, so handler admission, persistence/reload/idempotency, atomic invalidation/TOCTOU, unsupported-host/cancelled-run handling, exact CLI recovery output, and finalize/consume integration required by B3F3D-001-H1/E1/E2/E3, B3F3D-002-H1/E2/E3/A1/A2, B3F3D-003-E1/E2/A2, and B3F3D-004-H1/E2/E3 are not executable evidence. The PASS selector therefore overclaims must coverage; add handler/CLI-level negative tests (including persisted reload and cutoff drift races) and bind each affected intent only to the command that exercises it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T15:04:16.435Z",
@@ -54,14 +55,15 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-003",
       "desc": "packages/main/src/core/review-inventory-epoch.ts:149 quality-boundary: evidenceForRun accepts any signature-valid finding as a terminal lane without requiring readManifest/readLog, and its coverageDigest only folds manifests/readLogs from passes (lines 154-163). A reviewer can therefore submit a finding with no bounded read evidence, satisfy required-lane completion, and let the critic/finalizer mint a saturation receipt although CHK-003 requires complete mechanical coverage or bounded read evidence for every lane. Require and authenticate read evidence for finding terminals, include it in coverageDigest, and reject lanes lacking it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T15:05:30.925Z",
@@ -89,14 +91,15 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-004",
       "desc": "packages/main/src/core/review-inventory-epoch.ts:138 quality-boundary: findingFamily declares a verified family solely by hashing normalized desc plus severity, while evaluateReviewInventoryWave immediately treats those hashes as verified/new families (lines 207-223). There is no signed independent duplicate/finding-family disposition contract: identical text is silently deduplicated without independent verification, semantically identical findings with different wording are counted as new, and suspected/disproven findings are also labeled verified. This does not deliver CHK-003 E2/A2 or the document promise that raw findings and duplicate claims are independently verified. Add a canonical signed family/disposition artifact consumed by evaluation/finalization; unresolved raw/duplicate claims must remain blockers rather than alter verified-family counts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T15:05:44.505Z",
@@ -125,14 +128,15 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-005",
       "desc": "packages/main/src/handlers/review-inventory.ts:227 lifecycle-integrity: review_inventory_begin only checks for an OPEN epoch, so it permits a new OPEN epoch while the previous FINALIZED receipt is still unconsumed. packages/main/src/core/review-inventory-epoch.ts:284 then independently selects the older FINALIZED/unconsumed pair and authorizes REVIEW->DEV even though the newer OPEN barrier exists. The transition can therefore consume the old receipt, enter DEV, and leave an OPEN epoch that blocks every remediation material write. Reject begin while an unconsumed FINALIZED receipt exists (or make the remediation gate require the authoritative latest epoch and no OPEN epoch), and cover this sequence with an integration test.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T15:05:58.655Z",
@@ -161,14 +165,15 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-006",
       "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:85-98 promises every wave folds complete coverage/read evidence into the lane digest before saturation, but packages/main/src/core/review-inventory-epoch.ts:149-180 accepts a finding-only lane as terminal even when the finding has no readManifest/readLog and computes coverageDigest from ReviewPass evidence only. packages/main/src/handlers/finding.ts:537-542 explicitly permits reviewer findings without read evidence. Therefore an unread/prose finding can satisfy lane coverage and contribute to a finalized inventory, contradicting the documented assurance boundary; require signed read/coverage evidence for every terminal lane and include finding manifests/logs in the digest.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T15:08:27.238Z",
@@ -202,14 +207,15 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-007",
       "desc": "doc-promise-undelivered: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:150-156 declares unchanged required-lane count a non-negotiable, mechanically demonstrated quality invariant, but packages/main/src/tasks/review-inventory-epoch-smoke.ts:393-416 only derives/asserts before/after host counts. It returns no baseline/proposed lane-count counters and performs no equality assertion, so the replay can PASS after lane reduction while the documented quality guarantee is unproven; derive and assert requiredLaneCountBefore/After from replay events or canonical active-lane inputs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T15:08:53.844Z",
@@ -242,14 +248,15 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedBy": "CL-002@33c14f3"
     },
     {
       "id": "B-3f3d:F-008",
       "desc": "packages/main/src/core/prompt-registry.ts:24 critical-deadlock: topology critic reproduction on fresh RR-006 showed that lattice-review-topology-critic was registered as an active role/dispatch lane (prompt-role-contract-registry.ts:293) but is absent from both MODULAR_REVIEWER_ROLE_IDS and MODULAR_COMPLEX_ROLE_IDS (prompt-registry.ts:24-39), and the project PromptEnvelope config type/rollout allowlist also omits it (config.ts:151-165; prompt-role-contract-registry.ts:556-557). Consequently its terminal finding/pass cannot survive the Prompt Envelope policy validation consumed by review evidence (review-run.ts:683-693 and 1341-1375), so review_inventory_critic_set can never obtain valid mandatory critic terminal evidence. With an OPEN inventory this blocks finalization and the required receipt, while REVIEW->DEV is itself receipt-gated: a deterministic remediation deadlock. Add topology critic to the canonical modular role and config rollout allowlists, select one consistent envelope mode, and add an end-to-end test that dispatches the critic, starts a fresh run, persists terminal evidence, signs critic receipt, and finalizes the epoch.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T15:13:55.175Z",
@@ -278,7 +285,716 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@33c14f3"
+    },
+    {
+      "id": "B-3f3d:F-009",
+      "desc": "concept-cleanup: retired round-number-driven review semantics deletion is incomplete. packages/main/src/core/guard-utils.ts:203-230 still exports a TEST gate mirror that requires all opt-in lanes only for round 1 and accepts any reviewer finding in later rounds; packages/main/src/tasks/flow-stability-smoke.ts:2136-2145 explicitly preserves that mirror. packages/main/src/core/review-incremental-context.ts:10-14 and packages/main/src/tasks/review-incremental-context-smoke.ts:10-38 still say the helper is only operator guidance, the framework skips nobody, and only Round 1 requires all lanes. These executable, test, and comment residues contradict the new current-material selected-lane gate and can reintroduce the retired shortcut if the exported mirror is rewired.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T16:48:58.759Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "c0ba67b8bd1d0f95e167e7295683b470a78dd65b2d202405c3cc46ca2a228646"
+      },
+      "readDiagnostics": [],
+      "_hash": "f64fe4994522b2be4d273eaefed54050f9a576e9c6f61a2f4f28d70167a7d574",
+      "files": [
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "CLAUDE.md"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-retired",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003"
+    },
+    {
+      "id": "B-3f3d:F-010",
+      "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:126-146 and packages/main/src/tasks/review-inventory-epoch-smoke.ts:451-563 — HIGH verification-coverage gap: 45 must-intent evidence rows for CHK-001..CHK-005 are bound to obsolete storyFilesHash 122782eb… while the current story-owned hash is 85c33bf8…, and the replacement real-handler smoke directly injects signed ReviewRun/ReviewPass rows with StoryStore before finalize/consume. It therefore bypasses review_run_start, finding_add, review_pass_set, and the actual story_advance transition it is supposed to prove. Concrete uncovered claims include B3F3D-002-E3/A2 concurrent or TOCTOU mutation-vs-receipt admission, B3F3D-004-H1/A1/A2 real REVIEW→DEV/TEST transition behavior and rejection of the historical round-2 any-one shortcut, and B3F3D-005-E3/A2 fail-closed behavior for missing or ambiguous baseline attribution and mutated reports. Current compiled focused smokes pass, but they do not make these stale/bypassed evidence rows valid. Add current-material tests through the real handler/gate/CLI paths (including negative controls), then re-record the affected verificationEvidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T16:49:18.446Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/prewrite-guard-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "70cf91a85062ea59cec462e608ad71c926187d86d2669cf9479588b850fb5a33"
+      },
+      "readDiagnostics": [],
+      "_hash": "b80be79a906256dca5be5911a881eee0a2d8e90124264774264a1c55b2de4e6d",
+      "files": [
+        ".lattice/story/actives/B-3f3d/checklist.json",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|json|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004"
+    },
+    {
+      "id": "B-3f3d:F-011",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:257-264 states that after remediation final REVIEW again requires every current active lane. The implemented and accepted contract instead selects exactly impacted active lanes for a proven canonical dependency closure and falls back to the full set only when impact is unknown (packages/main/src/core/review-incremental-context.ts:275-294,297-429; packages/main/src/handlers/reviewer-list.ts:183-221). This lifecycle truth source therefore gives operators and future maintainers the wrong final-review requirement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T16:49:32.013Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "c0ba67b8bd1d0f95e167e7295683b470a78dd65b2d202405c3cc46ca2a228646"
+      },
+      "readDiagnostics": [],
+      "_hash": "ecf573cf2dd44afb5d21139cf82c687153203fe72c898e6a35f5f541f2de46e7",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/reviewer-list.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005"
+    },
+    {
+      "id": "B-3f3d:F-012",
+      "desc": "doc-promise-undelivered: packages/main/src/handlers/review-inventory.ts:110 renders review_inventory_critic_set as the unique Next command without findingDispositions, and packages/main/src/handlers/story-dispatch.ts:527 repeats the same incomplete command. packages/main/src/cli/command-catalog.ts:647 makes findingDispositions mandatory; the printed command deterministically fails with `findingDispositions: Invalid input: expected array, received undefined`. Therefore the central completeness critic cannot follow the advertised executable path or finalize the epoch without undocumented manual schema repair.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T16:49:46.062Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d69975ad273e278d5d5552941b49567ece5367f7046f665ba4c19a17b3312bfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2ce578c8eea1a95b644eb64f210daef2985aaa4c2dcb6334c24cde5ff9e3fac",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-packages",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
+    },
+    {
+      "id": "B-3f3d:F-013",
+      "desc": "acceptance-rollout-proof-missing: the mandatory verifier-owned Wave-4 chain is not current for this candidate. acceptance_topology_check reports only diagnostic structural pass; pre_review_check_read reports status=inconclusive with PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE and PR_CUTOFF_UNBOUND and is bound to old HEAD 1797673c1d rather than current 0c9d7419df; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_MISSING, receipt=missing and quorum=degraded-or-missing. There is therefore no current signed PASS receipt or genuine 3 rounds x 2 hosts evidence, and prompt prose cannot substitute.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T16:50:44.010Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "c0ba67b8bd1d0f95e167e7295683b470a78dd65b2d202405c3cc46ca2a228646"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e62c3afae921e2dbd90080801e65597a51f075e4926673bd7be6f8e315df1c6",
+      "files": [
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        ".lattice/story/actives/B-3f3d/acceptance-basis.json",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-rollout-proof",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
+    },
+    {
+      "id": "B-3f3d:F-014",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:248-258 treats every disposition value other than verified_family or duplicate as valid whenever familyKey/canonicalFindingId are absent. The runtime therefore accepts an unknown value such as `garbage`, clears unresolvedFindingIds, produces zero families, and the same evaluator is reused by critic receipt validation. Repro against dist returned {unresolved:[],invalid:[],families:[],newFamilies:[]} for a signed verified finding plus disposition=garbage. The CLI Zod enum does not satisfy the required handler/runtime fail-closed boundary, so an in-process/alternate handler call can suppress a verified family and manufacture a clean wave.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T16:51:01.651Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d69975ad273e278d5d5552941b49567ece5367f7046f665ba4c19a17b3312bfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "89e07474dbf477d6e1bb67c78dc9e93d2f7988d50ef5bb86589a0191e9d2d20e",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
+    },
+    {
+      "id": "B-3f3d:F-015",
+      "desc": "doc-code-drift: AGENTS.md:87, CLAUDE.md:776, docs/requirements/decisions/story-lifecycle.md:90, and docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:287/295/407/503 still instruct an operator to return directly from REVIEW to DEV after a finding. The current mandatory gate in packages/main/src/core/machine.ts:720-747 and receipt consumption in packages/main/src/handlers/transition-orchestrator.ts:1304-1318/1439-1443 reject every REVIEW-to-DEV transition without a fresh FINALIZED single-use ReviewInventoryReceipt. The actual session_brief for this round likewise printed the impossible direct rollback as its retry/fix guidance. Following the repository host instructions therefore deterministically adds a failed lifecycle attempt and bypasses the documented frozen-inventory workflow; update all canonical operator guides/readiness output to require begin, complete required lanes, topology critic with dispositions, finalize, then story_advance DEV.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T16:55:23.340Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "873322a4839965840b089c2f3c31fe393a124b22d090aff478e7c3e4a7b72697"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc76d891390d2c4a512b6db8f0dbea8d9deb8ad4dd6fed7047693b7e659e73aa",
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-agents",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-008"
+    },
+    {
+      "id": "B-3f3d:F-016",
+      "desc": "packages/main/src/core/review-run.ts:541-547 only admits a current dispatch event whose targetKind is exactly `story-review`, but packages/main/src/handlers/story-dispatch.ts:964-975 records the mandatory lattice-review-topology-critic dispatch as targetKind=`topology-critic-review`. Because topology critic is now full-envelope, review_run_start always calls verifyCurrentReviewerDispatchBinding and therefore rejects the only canonical critic dispatch before a signed critic ReviewRun can be created. This is distinct from resolved F-008: the role is now allowlisted and dispatches, but its emitted binding kind is unconsumable, so no mandatory critic receipt or inventory finalization is reachable.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T17:01:17.528Z",
+      "reviewRound": "2026-08-14T16:42:42.149Z",
+      "reviewRunId": "B-3f3d:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d69975ad273e278d5d5552941b49567ece5367f7046f665ba4c19a17b3312bfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "a28ce5a565bd6164b9b4ebff175b85e02f4a790d0eabe38d2839b7e8189aaaa6",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-009"
     }
   ]
 }
