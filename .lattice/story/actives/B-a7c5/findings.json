@@ -56,7 +56,7 @@
       "desc": "checklist.json CHK-002:edge:0 (intentRef): intent describes finding_resolve on a finding with no reusable lesson context (trivial typo fix) -> advisory text still appears (it is unconditional). The bound evidence command is `node -e \"...readFileSync(...dist/handlers/finding.js...).includes(...fully advisory, non-blocking dev-memory capture nudge...)\"` -- a grep of a source-code COMMENT string in packages/main/src/handlers/finding.ts:794, not an actual invocation of finding_resolve against a trivial-content finding checked for advisory presence. I confirmed by reading finding.ts:799-813 that the memoryHint computation genuinely has no content-based conditional branch, so the underlying claim is true, but the specific evidence bound to this intent does not mechanically exercise the trivial-fix scenario it names -- it substitutes a comment-string grep (kind=manual_transcript) plus a manually-written note for a real behavioral test case that could have been added to dev-memory-lifecycle-gates-smoke.ts alongside the existing CHK-002:happy:0 real-invocation assertion.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T13:50:53.150Z",
@@ -64,7 +64,9 @@
       "reviewRunId": "B-a7c5:RR-003",
       "_hash": "da0c1223cba98a3171cab498c1fa0862ffc25ef5cc92fa099c29fb77750ae02f",
       "signatureTag": "adversarial|unknown|checklist-json-edge",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed the reviewer's diagnosis: CHK-002:edge:0's pinned evidence greps a source code comment string rather than actually invoking finding_resolve on a trivial-content finding. Same immutable-pin constraint as F-002/F-003 prevents re-binding. Independently re-verified the underlying behavioral claim directly: constructed a throwaway git fixture, wrote a trivial-content finding (desc='trivial typo fix in a comment'), and called the real compiled finding_resolve handler -- output genuinely includes the dev_memory_capture advisory text unconditionally (ADVISORY_APPEARS_ON_TRIVIAL_FINDING), confirming there is no content-based branch suppressing the advisory, exactly as the code at handlers/finding.ts:794-813 shows (no conditional gating memoryHint computation on finding content).",
+      "resolvedAt": "2026-08-14T13:53:21.220Z"
     }
   ]
 }
