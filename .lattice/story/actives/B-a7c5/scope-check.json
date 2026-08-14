@@ -274,9 +274,11 @@
       "q": "Does playbook-runtime-memory-consumption-execution-plan.md section 4.3's requirement that 'registered blocking consumers must expose an operator-visible bypass or downgrade path with a reason' apply to CHK-001's new DEV-entry blocking gate (dev-memory-preflight-ack)? If it applies, CHK-001 as scoped has no defer/skip-with-reason path analogous to CHK-003's defer-with-reason -- an operator whose preflight-pack build itself genuinely fails has no documented way to proceed past the gate. If section 4.3 is scoped only to the Active Playbook Runtime specifically (not artifact-existence gates like CHK-001), no action is needed.",
       "evidence": "'registered blocking consumers must expose an operator-visible bypass or downgrade path with a reason; unregistered playbooks, candidate playbooks, and caller-provided policy fields cannot create blocking behavior.'",
       "sourcePointers": [
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md:144-156 (section 4.3 Active Playbook Runtime)",
-        ".lattice/story/actives/B-a7c5/plan.md:17-51 (CHK-001 section)"
-      ]
+        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "plan.md"
+      ],
+      "resolution": "Section 4.3's bypass-path requirement is treated as applying generally (it is stated as a property of 'registered blocking consumers' in the abstract, not scoped textually to playbooks alone, and the design principle -- never block without a reasoned way out -- is sound regardless of whether the underlying artifact is a playbook or a dev-memory record). CHK-003 already satisfies it via decision=defer-with-reason/no-reusable-lesson (both require a reason). CHK-001 originally did NOT have an equivalent path, so one was added (plan.md CHK-001 sub-task 7): dev_memory_preflight_ack accepts an optional --reason for a reasoned-downgrade ack when the mechanical preflight-pack build itself fails, mirroring dev_memory_finish_decision's existing reason-required downgrade pattern. Both gates now conform to 4.3's bypass-path requirement identically.",
+      "resolvedAt": "2026-08-14T10:40:30.189Z"
     }
   ]
 }
