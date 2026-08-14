@@ -201,7 +201,7 @@
       "desc": "[codex host-B #6, orchestrator-verified] Absolute-path detection recognizes only a leading slash. Section 1.1.3 requires targetArtifactRef to be slash-normalized AND RELATIVE, rejecting an absolute path at envelope schema time as R1-3. Failing input: targetArtifactRef 'C:/outside' is slash-normalized and absolute yet returns ok:true. Reject non-relative forms generally, not just the POSIX leading-slash form.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T18:02:25.129Z",
@@ -211,7 +211,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: DRIVE_QUALIFIED_PREFIX rejects C:/, C:\\\\ and C:x, so absolute detection is no longer only the POSIX leading-slash form, per section 1.1.3's slash-normalized AND relative requirement. Seven new bad-path rows including C:/outside, plus an accept row for weird:name/dist/x.js so the rule is not degraded into 'reject any colon'.",
+      "resolvedAt": "2026-08-14T02:12:26.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-011",
