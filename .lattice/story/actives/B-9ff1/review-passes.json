@@ -444,6 +444,29 @@
         "scanEscalationReason": null
       },
       "_hash": "803b6f57a4e8563a2deb71fc2b9615b6d846f7981157498b600402d558797c05"
+    },
+    {
+      "id": "B-9ff1:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified F-027/F-028 repair (commit 0954bda0c8, HEAD ab37e1f053). F-027: no residual before-and-after-every-invocation/per-invocation overclaim in comments, assertion messages, or console output in either file; both now say ONE before snapshot / ONE after, aggregate net-equality, cannot prove no single call created-and-restored a file. F-028: two-independent-reasons framing removed; text now states reason 1 is sufficient alone and reason 2 is strictly narrower, explicitly not excluding the LATTICE_ACTIVITY_RECORD_READONLY=1 bypass on this fixture. Read handler body (red-evidence.ts:405-494): zero write calls, so the aggregate-vs-per-invocation gap is currently moot for this implementation, but the wording no longer overclaims regardless. checklist_get --json: 108 intent refs, 106 pass, 2 documented permanent waivers (CHK-012:edge:1, CHK-013:adversarial:0), 0 missing, 0 failed. Real transcripts (no build): red-evidence-envelope-smoke.js exit 0 (33 fixtures); all 5 red-w2d-*.mjs exit 0 (command-readonly: 8 invocations / 32 read-only git spawns, matching waiver note). dist postdates src and matches. Nothing blocks.",
+      "createdAt": "2026-08-14T09:44:45.036Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-027",
+      "envelopeId": "c75e421f8cbcff9b9a6755546039c1070e53087c6d9c7efbef0c72ec5634cd2a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a7b397e181786759c757adc809ce43337159790ca70b321235405654c1ebfc5e"
     }
   ]
 }
