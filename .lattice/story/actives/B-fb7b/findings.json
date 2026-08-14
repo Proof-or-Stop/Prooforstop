@@ -196,6 +196,26 @@
       "_hash": "129bddac2893944f4e15e0ced45060a510fc833cf4c205c862ee452951b479ea",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-011",
+      "desc": "scripts/build-main-with-binding.mjs:13 rmSync(dist,{recursive:true,force:true}) intermittently throws ENOTEMPTY on macOS (observed 3/20 re-runs at material 6f0e3911, e.g. Error: ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks, reproduced via both `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` and direct `npm run pretest`/execFileSync). CHK-001 wires this exact build into the pretest npm-lifecycle hook now fired on EVERY `npm test` (previously only inside validate.commands[0] during `lattice validate`), materially increasing exposure to this pre-existing race. This falsifies the must happy-path claims CHK-001:happy:0 (npm run pretest -> exits 0) and CHK-001:happy:2 (bare npm test -> full-suite bootstrap succeeds), and makes the RED witness CHK-001:happy:1 itself flaky rather than deterministic. None of the 13 verificationIntent refs test, retry-guard, or waive this failure mode; guard-bite GB-LIFECYCLE-FIRES only exercises an isolated stub-pretest fixture, never the real rmSync path, so it cannot catch this. Severity high: the storys purpose is to stop npm test from failing unpredictably on a fresh checkout, and it still can, roughly 1 in 7 times locally, via a different but equally opaque crash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T10:26:58.244Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-032",
+      "_hash": "f1ccdc3526b6ee7ddfffb6e578febeefddf6affa022acc8330e40cb1b6844368",
+      "files": [
+        "scripts/build-main-with-binding.mjs",
+        "package.json",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-build-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
