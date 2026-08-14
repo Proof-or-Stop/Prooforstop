@@ -66,7 +66,19 @@
       "excludes": [
         "Do not wrap or alter bare npm test in this Story.",
         "Do not change any validation command, member timeout, suite threshold, or evidence freshness rule."
-      ]
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "docs/CLI.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      }
     }
   ]
 }
