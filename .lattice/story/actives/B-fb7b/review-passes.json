@@ -419,6 +419,39 @@
         "scanEscalationReason": null
       },
       "_hash": "dacaabd2bc245c486537741c110027d6c683df32b54e77572de66d0cc7d43733"
+    },
+    {
+      "id": "B-fb7b:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 re-pass: since round 3 (RP-010/RR-013) only 6bc5d2e824 changed (packages/main/tests/red/red-b49d4-harness-registration.mjs, +10 lines: 2 REGISTRATION_EXCLUSIONS map entries for red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs, no edit to smoke/RED/guard-bite logic -- confirmed via git show 6bc5d2e824). All 13 CHK-001 verificationIntent refs (happy:4, edge:4, adversarial:5) carry verificationEvidence result=pass bound to the current materialHash 1df74d7dfccdbe5cb7c8406454e007a0af4ae68d93b069fedead8e727379a5db (matches HEAD c266c29 task-context materialHash). Independently re-ran node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js (PASS, exit 0), node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS, exit 0, real npm run pretest rebuild, mtime-fresh utils/index.js), and node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 11 selectors printed: GB-EDGE3-REGISTERED, GB-ADV3-ABSENT, GB-ADV0-BIT, GB-ADV1-BIT, GB-ADVLAB-BIT, GB-ADVFAST-BIT, GB-ADV4-BIT, GB-ADV2-BIT, GB-EDGE1-CLEAN, GB-LIFECYCLE-FIRES, ending GB-ALL-PASS, exit 0) directly on a freshly rebuilt dist -- all match the selectors bound in verificationEvidence. Read the full source of both red-fb7b RED files this round and confirmed the adversarial:2 F-001 fix (distinct runRedIn path vs adversarial:4's runSmokeIn) and the F-003/F-004/F-006 negative-lookahead regex fix are still present and unchanged. Also ran the changed file's own guard, red-b49d4-harness-registration.mjs (OK, all 39 RED entries accounted for, exit 0), confirming the new exclusion entries are sound bookkeeping that does not touch red-fb7b test logic or any verificationIntent. Prior findings F-001/F-002 (this lane) remain closed (evidenceState=disproven via F-008/F-009 filed round 2); no new coverage gap from the round-4 delta. git status --porcelain clean after all re-runs. No blocker; test coverage review passed.",
+      "createdAt": "2026-08-14T05:29:45.683Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-019",
+      "envelopeId": "e0835d8aacc8fd4ef8267616528b969e7a49f0f11b195d1ea7c4c3db953e6617",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "package.json",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/acceptance-basis.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d5f5ba4d1cc51ee8a1701da83c936eadc17ff77cb2908721a0a1cfe9504469d"
     }
   ]
 }
