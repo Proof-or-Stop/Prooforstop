@@ -47,7 +47,7 @@
       "desc": "CHK-002 edge intents E-001 (\"Bare-string config entries ... do not inject a spurious timeout\"), E-003 (\"Shell-style config entries (shell:true) cannot false-positive-match\"), E-004 (\"Config entry with timeoutMs:0 or negative value\" on the NEW pinned-command path), and adversarial A-003/A-004, have NO corresponding check() assertion anywhere in packages/main/src/tasks/validate-command-timeout-smoke.ts. Grep confirms every validate.commands[] entry ever constructed in the file (lines 126,164,183-184) is object-form {command,args,timeoutMs} with a positive timeoutMs — no bare-string entry, no shell:true entry, and no timeoutMs:0/negative entry is ever written or fed through resolvePinnedCommandTimeoutMs. These 5 intents are pure code-reading/analytical claims about configuredValidationCommands/commandFromString/resolveCommandTimeoutMs behavior, yet are stamped kind:logic_test, mechanical:true, result:pass, bound to the same shared smoke-run receipt that passes for reasons entirely unrelated to these claims (the 27 assertions that do exist never touch bare-string, shell:true, or zero/negative-timeoutMs config entries).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T12:30:27.932Z",
@@ -59,7 +59,11 @@
         "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/.lattice/story/actives/B-16df/checklist.json"
       ],
       "signatureTag": "missing|ts|edge-intents-bare",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Real assertions added for E-001 (section 9), E-003 (section 10), E-004 (section 11) in commit 7b2fcd3e03; H-002/H-003/A-003 given real assertions (sections 13/12/14) in commit cc9aa30579; A-004 (TOCTOU reasoning, not unit-testable) resolved via honest waiver. All independently re-verified by lattice-review-test-coverage across REVIEW rounds 2-4.",
+      "resolvedAt": "2026-08-14T13:38:27.597Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-004",
