@@ -533,7 +533,11 @@
           },
           {
             "desc": "canFinishGuard checks finish-decision AFTER existing test-evidence check (lines 877-882 pattern), so a story missing test evidence still fails on test-evidence first, not on finish-decision; WHY: guard ordering must not mask more fundamental blockers",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\"); const i1=s.indexOf(\\\"if (!hasEvidence || !bugsOk)\\\"); const i2=s.indexOf(\\\"const finishDecision = readDevMemoryFinishDecision\\\"); console.log((i1>=0 && i2>=0 && i1<i2) ? \\\"ORDER_OK_TEST_EVIDENCE_BEFORE_FINISH_DECISION\\\" : \\\"ORDER_WRONG_OR_NOT_FOUND\\\")\"",
+              "selector": "ORDER_OK_TEST_EVIDENCE_BEFORE_FINISH_DECISION"
+            }
           }
         ],
         "adversarial": [
@@ -669,6 +673,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:27:53.366Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\"); const i1=s.indexOf(\\\"if (!hasEvidence || !bugsOk)\\\"); const i2=s.indexOf(\\\"const finishDecision = readDevMemoryFinishDecision\\\"); console.log((i1>=0 && i2>=0 && i1<i2) ? \\\"ORDER_OK_TEST_EVIDENCE_BEFORE_FINISH_DECISION\\\" : \\\"ORDER_WRONG_OR_NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "In the compiled canFinishGuard, the test-evidence early-return (if (!hasEvidence || !bugsOk) return false) appears textually before the finish-decision read/check, confirming a story missing test evidence fails on the test-evidence check first, not on finish-decision, matching the guard-ordering claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5e7da05eafdb78ba7fb01180130462b5bfa5efc4b3196c0a0d3d76b346780fce",
+            "outputTail": "ORDER_OK_TEST_EVIDENCE_BEFORE_FINISH_DECISION\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:27:55.190Z"
+          },
+          "headHash": "c9b2fcd9ec1c88df370f70031d4950ac98e061d8",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:27:55.434Z"
         }
       ]
     },
