@@ -1,0 +1,261 @@
+{
+  "passes": [
+    {
+      "id": "B-c648:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-08-14T04:06:17.377Z",
+      "reviewRound": "2026-08-14T04:04:28.505Z",
+      "reviewRunId": "B-c648:RR-003",
+      "envelopeId": "d92844b1a2be56f82e4229699d65dc825f2431a697234faf6831b09eee8a51d4",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d9323a370afbfde249fd16ad1db694f4ec74ad7560ca0a13403dc860af9f234"
+    },
+    {
+      "id": "B-c648:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Architecture decision document pre-story-mechanism-placement-proof-execution-plan.md reviewed in full with no code quality issues, dead code, type errors, or blockers.",
+      "createdAt": "2026-08-14T04:06:19.398Z",
+      "reviewRound": "2026-08-14T04:04:28.505Z",
+      "reviewRunId": "B-c648:RR-005",
+      "envelopeId": "d2b9ad0d888a77436d17cea96d869eb6dd498588a33b4cd5c1473405ddfd4361",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7eb936ab13cc0cdeb3f47f1b5d05603eec85552a7a35f1e51ee3c8400b37f9bd"
+    },
+    {
+      "id": "B-c648:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step1 symbol extraction over git diff main...HEAD returned 0 exported symbols (pure docs/story-metadata diff) -> Fallback 1 applied: full-text scan of the new decision doc against current repo state, cross-checking ~15 factual/architectural claims (build/bootstrap chain, nextStoryId call sites, existing mechanisms, touchpoint file paths, cross-referenced decisions docs existence). No doc-code drift or promise-undelivered findings.",
+      "createdAt": "2026-08-14T04:07:21.839Z",
+      "reviewRound": "2026-08-14T04:04:28.505Z",
+      "reviewRunId": "B-c648:RR-006",
+      "envelopeId": "a250c7ccdbeb9fb15286b663c843e75aa54087a7f04e61426126b54cda33f1d5",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "053d38bfa94fc9a3074a5bd885c3199fec3c8303f34da92d2e87bf2f444a6eea"
+    },
+    {
+      "id": "B-c648:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Full diff reviewed: purely additive change (new decision doc + routine story process metadata). No concept deletion/replacement, no residue to grep.",
+      "createdAt": "2026-08-14T04:09:13.224Z",
+      "reviewRound": "2026-08-14T04:04:28.505Z",
+      "reviewRunId": "B-c648:RR-009",
+      "envelopeId": "6dbd621c2e4cce3b46aa7c56d61adb17abda3d930e7fd9a3c137f5ed30272d76",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c648/acceptance-basis.json",
+          ".lattice/story/actives/B-c648/decision.json",
+          ".lattice/story/actives/B-c648/index.json",
+          ".lattice/story/actives/B-c648/intent-collision.json",
+          ".lattice/story/actives/B-c648/original-intent-snapshot.json",
+          ".lattice/story/actives/B-c648/pre-review-check.json",
+          ".lattice/story/actives/B-c648/process-events.jsonl",
+          ".lattice/story/actives/B-c648/process-metrics.json",
+          ".lattice/story/actives/B-c648/prompt-envelopes.json",
+          ".lattice/story/actives/B-c648/proofstory.json",
+          ".lattice/story/actives/B-c648/review-passes.json",
+          ".lattice/story/actives/B-c648/review-runs.json",
+          ".lattice/story/actives/B-c648/review.json",
+          ".lattice/story/actives/B-c648/scope-check.json",
+          ".lattice/story/actives/B-c648/scope-contract.json",
+          ".lattice/story/actives/B-c648/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2f136274809601057470b6af5b6e46357d5914c98284e0d255b41635c6f5db24"
+    },
+    {
+      "id": "B-c648:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Diff is additive-only (new decision doc + Lattice story metadata); no concept word was deleted or replaced en masse, so no residual-reference grep applies. Verified referenced handlers/scripts/artifact-kind names (story-evidence-binding, verifyAcceptanceBasisReceipt, evidence-candidate scope, story-create/story-draft/draft-check/planner/repro-intake handlers) exist in repo, and re-ran all CHK-001/002/003 happy/edge/adversarial mechanical selector checks plus the llm-usage.jsonl ledger bindings, all pass. No acceptance-rollout-gate touchpoints in this diff.",
+      "createdAt": "2026-08-14T05:09:01.325Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-011",
+      "envelopeId": "efda32bcd7479e6da4ad63ceeac88811f30bf126436ba19cc56ffbc03ba10069",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6f047b76e34d410e88ee3f9ed71203c8ada381cfe1c27dc31bdfaac618fab18e"
+    },
+    {
+      "id": "B-c648:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only story (zero packages/scripts/bin diff). Verified the new decision doc's existing-mechanism claims (repro_probe, story_draft, draft_check_set, init_preflight, plannedPathDeclarations, verifyAcceptanceBasisReceipt, acceptance_topology_check, _nextStoryId x2 in story-create.ts, forceNew, reproFirstBypassReason, bootstrap-runner.js dependency chain, B-8de3/B-fb7b/B-3783 references, and the two cited llm-usage.jsonl host_run records) against the actual repo and CLI; all accurate. No dead code, type-safety, or I/O-isolation findings apply since no runtime code changed. No blocker.",
+      "createdAt": "2026-08-14T05:09:08.886Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-010",
+      "envelopeId": "3f75afacf395da8e15eaef84552fa75ba83ca1ca549bd1a630e22e8ca789f3b7",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/usage/llm-usage.jsonl",
+          "docs/host-run-usage.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/planner.ts",
+          "packages/main/src/handlers/repro-intake.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4aa775078b65d941d337bd1364784b7ae985137cd5968d6684b935ee093556c9"
+    },
+    {
+      "id": "B-c648:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency review, fallback-1 (docs-only diff, empty exported-symbol set). Verified new decision doc docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md against live repo state: root npm run build/test scripts, bin/bootstrap-runner.js + bin/lattice.js chain, lattice.config.json validate ordering, existing symbols (verifyAcceptanceBasisReceipt, story-evidence-binding probeId/probeDigest/reviewId/reviewDigest fields, plannedPathDeclarations rejection message, _nextStoryId fixture helper, draft-check-hash.ts signature fields), all 16 implementation-touchpoint file paths, referenced stories B-8de3/B-fb7b/B-3783 (titles/phases match), AGENTS.md#流程事实双层契约 relatedDoc, and the CHK-003 host_run usage-ledger provenance rows in .lattice/usage/llm-usage.jsonl (record IDs, sequence, storyId/phase/agentType binding, Claude provider-reported usage numbers, agy unavailable+reason, aborted preflight row) which match the document's section 21.5 claims exactly. No doc-code drift or undelivered doc promise found; document explicitly scopes itself as a documentation-only proposal with no runtime implementation, so no CLAUDE.md/README command-promise check applies.",
+      "createdAt": "2026-08-14T05:10:23.798Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-012",
+      "envelopeId": "22203c9c073911f1ff8f859f9917bd059121ac3904f698ffd66c5d19fb630f38",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          ".lattice/story/actives/B-c648/understanding.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/usage/llm-usage.jsonl",
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "bin/lattice.js",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/draft-check-hash.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cd5c55705f5e8412d385d791058e61f6c23b2560f7d1ab3b22fa5a8551dd2e2a"
+      },
+      "readDiagnostics": [],
+      "_hash": "acab2b47ae24c8e8a9b2b9432b74ee2235158d15a20de42eda8f8dde102d6714"
+    },
+    {
+      "id": "B-c648:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Story-level test-coverage re-review after CHK-003 added. All 3 checklist items (CHK-001/002/003) carry happy+edge+adversarial must-priority verificationIntent (9 total), each with exactly one verificationEvidence entry (kind docs_check/logic_test, result=pass, mechanical=true, receipt.selectorMatched=true). Independently re-executed all 9 selector commands against current HEAD (54ef7c9): all 9 reproduced their exact PASS tokens. Cross-checked CHK-003 host_run receipt claims (section 21.5) directly against .lattice/usage/llm-usage.jsonl: Claude final llmuse_e67c2062... shows source=provider-reported input=6/output=1655/cacheCreation=47054/cacheRead=160377 exactly as cited; agy final llmuse_681319b0... shows source=unavailable/unavailableReason=agy_print_mode_reports_no_usage with no fabricated numeric usage, exactly as cited; failed agy preflight llmuse_d68b8791... is sequence=1 prompt-size-estimate with no row superseding it, matching the failed-attempt-not-cited-as-success claim. git diff since prior pass (b97f7cf..HEAD) confirms the only change to the reviewed document is the additive section 21.5 block; CHK-001/CHK-002 evidence text is untouched. No waivers, no bugs open, no must-priority gaps. No blocker.",
+      "createdAt": "2026-08-14T05:11:07.671Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-013",
+      "envelopeId": "7756b0072246f8ab5bf6d71f7940b45bd45df9175a3039f772cb80665ebc4af0",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          ".lattice/story/actives/B-c648/review-passes.json",
+          ".lattice/story/actives/B-c648/review.json",
+          ".lattice/usage/llm-usage.jsonl",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md#section-21"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "scanEscalationReason": "Story-level test-coverage re-review scoped to the single changed file (section 21.5 addition) per review_incremental_context; full document sections 1-1046 were reviewed in prior pass B-c648:RP-001 and are unchanged per git diff b97f7cf..HEAD."
+      },
+      "_hash": "8d1e02a070d2d2a4bdaf757cf74cda92568edfd9bf4568cc765b6b01dd76985d"
+    }
+  ]
+}

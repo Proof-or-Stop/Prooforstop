@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c648",
+  "mode": "feature",
+  "allowed": [
+    "Create one architecture decision document at docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+    "Run independent Claude CLI and Antigravity CLI (agy) audits and reconcile their findings in the document",
+    "Use existing Proof-or-Stop mechanisms as the design baseline: STORY_INTAKE candidate evidence, story draft review, central story_create, verificationIntent, acceptance topology, and process-fact contracts"
+  ],
+  "excluded": [
+    "Changing the B-fb7b root npm test implementation",
+    "Creating a parallel lifecycle phase or a second canonical truth source",
+    "Implementing runtime commands, handlers, schemas, registries, prompts, or enforcement in this Story"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User explicitly requested that the detailed mechanism proposal be written as a Markdown document and audited by Claude CLI and agy CLI.",
+  "createdAt": "2026-08-14T03:21:33.952Z",
+  "updatedAt": "2026-08-14T03:21:33.952Z",
+  "_hash": "9b9d5fdc00fcee4370424ff86d97981d8f8bb215b09109c1f8315cdbbfc28d1e"
+}
