@@ -678,6 +678,40 @@
         "scanEscalationReason": null
       },
       "_hash": "2499e61779c5cef3c3d7ba5c75869073b485aa99082b2f8dbea3b96c3e2e2cdc"
+    },
+    {
+      "id": "B-3144:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirm after prior clean pass. Step1: extracted ~200 changed identifiers from git diff main...HEAD (mostly internal quorum-prune.ts/quorum-submit.ts locals + test helpers); doc-relevant public symbols: assertNoStandingQuorum guard and new quorum_prune command. Step2: grepped README.md/CLAUDE.md/docs/**/*.md; hits in docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md, docs/CLI.md, docs/guide.md. Step3: docs/evidence-integrity-program-spec.md Step4 and evidence-write-guard-spec.md callouts accurately describe the LOCKSTEP hand-synced predicate in assertNoStandingQuorum (quorum-submit.ts:502) vs eventsWithStoryFilesHashDowngrade, and correctly flag autopilot_review_submit (verdict.ts:187-251) as still unguarded (verified: writeVerdict has no duplicate/drift check). quorum_prune has 0 doc hits in README/CLAUDE.md/docs/CLI.md; confirmed via git log this matches existing convention (other recent handler commands e.g. review_escalation_status, verification_evidence_refresh_stale not individually listed in docs/CLI.md either), so not drift. docs/CLI.md and docs/guide.md quorum_submit usage examples unchanged and remain accurate. Re-confirmed the single commit since last clean pass (bd2b6c8e03) touches only scripts/verify-process-fact-contract.mjs (one-line pinned-fingerprint literal) with no doc or behavior implication. No doc-code drift, no doc-promise-undelivered found.",
+      "createdAt": "2026-08-14T06:47:55.472Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-057",
+      "envelopeId": "3fb2ab89d14773fba750dd65f484d8602acce64300254feb2876d1fbee1fb586",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/guide.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a4be91acb987d813b8487002f6764f3dffc2a8d85bcb0b56f051febd35bb9ea"
     }
   ]
 }
