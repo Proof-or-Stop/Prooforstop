@@ -1,0 +1,241 @@
+{
+  "findings": [
+    {
+      "id": "B-3f3d:F-001",
+      "desc": "concept-cleanup: round-2+ single-receipt shortcut deletion is incomplete. packages/main/src/core/lifecycle-readiness.ts:428-525 still requires all active lanes/quorum only when roundCount <= 1 and reports round 2+ PASS from any one receipt; packages/main/src/handlers/transition-effects.ts:292-338 still tells operators they may rerun only scope-changed reviewers because one receipt suffices; CLAUDE.md:841-852 documents the obsolete contract. This contradicts CHK-004 and the new machine.ts all-round gate, so lifecycle diagnostics and operator guidance can claim sufficient final review under a condition the authoritative transition now rejects. Remove the old branch/advisory and synchronize the contract everywhere.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T15:03:56.567Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": "Repository-wide residue scan was required because CHK-004 replaces the round-2+ one-receipt concept wherever it can claim review sufficiency."
+      },
+      "_hash": "780115ee67c07dfcd3215c7094f29686e9a9586f50add577ad0cb92245e55cea",
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-round",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-002",
+      "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:32 and :150-418 — HIGH: all 45 must verificationIntent entries are claimed by this single smoke, but it imports only pure epoch helpers plus renderReviewInventoryBegin/renderReviewInventoryStatus and manually constructs signed epochs, critic receipts, final receipts and phase transitions. No test invokes createReviewInventoryHandlers or the real review_inventory_begin/status/critic_set/finalize/cancel command paths, so handler admission, persistence/reload/idempotency, atomic invalidation/TOCTOU, unsupported-host/cancelled-run handling, exact CLI recovery output, and finalize/consume integration required by B3F3D-001-H1/E1/E2/E3, B3F3D-002-H1/E2/E3/A1/A2, B3F3D-003-E1/E2/A2, and B3F3D-004-H1/E2/E3 are not executable evidence. The PASS selector therefore overclaims must coverage; add handler/CLI-level negative tests (including persisted reload and cutoff drift races) and bind each affected intent only to the command that exercises it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T15:04:16.435Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-003",
+      "_hash": "faffce2d3455fb91d479fcd89c4692975b005afe0b3721f058a1e8bfd850930c",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-003",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:149 quality-boundary: evidenceForRun accepts any signature-valid finding as a terminal lane without requiring readManifest/readLog, and its coverageDigest only folds manifests/readLogs from passes (lines 154-163). A reviewer can therefore submit a finding with no bounded read evidence, satisfy required-lane completion, and let the critic/finalizer mint a saturation receipt although CHK-003 requires complete mechanical coverage or bounded read evidence for every lane. Require and authenticate read evidence for finding terminals, include it in coverageDigest, and reject lanes lacking it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T15:05:30.925Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f857e68c631d8b271f1251d200fe32078e6849dd65c806cef15b54d764e0cd2",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-004",
+      "desc": "packages/main/src/core/review-inventory-epoch.ts:138 quality-boundary: findingFamily declares a verified family solely by hashing normalized desc plus severity, while evaluateReviewInventoryWave immediately treats those hashes as verified/new families (lines 207-223). There is no signed independent duplicate/finding-family disposition contract: identical text is silently deduplicated without independent verification, semantically identical findings with different wording are counted as new, and suspected/disproven findings are also labeled verified. This does not deliver CHK-003 E2/A2 or the document promise that raw findings and duplicate claims are independently verified. Add a canonical signed family/disposition artifact consumed by evaluation/finalization; unresolved raw/duplicate claims must remain blockers rather than alter verified-family counts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T15:05:44.505Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bde2e21915e3711d32bcdc4e873981072ec19f3c2dc81e1aa8bb2b637071466b",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-005",
+      "desc": "packages/main/src/handlers/review-inventory.ts:227 lifecycle-integrity: review_inventory_begin only checks for an OPEN epoch, so it permits a new OPEN epoch while the previous FINALIZED receipt is still unconsumed. packages/main/src/core/review-inventory-epoch.ts:284 then independently selects the older FINALIZED/unconsumed pair and authorizes REVIEW->DEV even though the newer OPEN barrier exists. The transition can therefore consume the old receipt, enter DEV, and leave an OPEN epoch that blocks every remediation material write. Reject begin while an unconsumed FINALIZED receipt exists (or make the remediation gate require the authoritative latest epoch and no OPEN epoch), and cover this sequence with an integration test.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T15:05:58.655Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6436da3dcb198db32e44d0d3c42290d5d08e6be02c8969e45fcad56aa59190e3",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-006",
+      "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:85-98 promises every wave folds complete coverage/read evidence into the lane digest before saturation, but packages/main/src/core/review-inventory-epoch.ts:149-180 accepts a finding-only lane as terminal even when the finding has no readManifest/readLog and computes coverageDigest from ReviewPass evidence only. packages/main/src/handlers/finding.ts:537-542 explicitly permits reviewer findings without read evidence. Therefore an unread/prose finding can satisfy lane coverage and contribute to a finalized inventory, contradicting the documented assurance boundary; require signed read/coverage evidence for every terminal lane and include finding manifests/logs in the digest.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T15:08:27.238Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "cd0aacde6f44ef509c827b495211ad54486dcc7793186164740175fa95c1f136",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-007",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:150-156 declares unchanged required-lane count a non-negotiable, mechanically demonstrated quality invariant, but packages/main/src/tasks/review-inventory-epoch-smoke.ts:393-416 only derives/asserts before/after host counts. It returns no baseline/proposed lane-count counters and performs no equality assertion, so the replay can PASS after lane reduction while the documented quality guarantee is unproven; derive and assert requiredLaneCountBefore/After from replay events or canonical active-lane inputs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T15:08:53.844Z",
+      "reviewRound": "2026-08-14T15:02:11.470Z",
+      "reviewRunId": "B-3f3d:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "18ebaa31ddadc39db56cbe00e5fe84bec8db632e1700009beda3124467bcd902",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
