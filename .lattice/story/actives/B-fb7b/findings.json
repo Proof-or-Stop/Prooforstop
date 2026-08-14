@@ -148,6 +148,29 @@
       "_hash": "5bbefc35a290dc3c57d7df70b5d169a11ead34beb1e85395780e8db06babc1c5",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-009",
+      "desc": "Re-verified F-002 on current HEAD 847854aa (material unchanged since fix commit 8bdc42ffa8): CHK-001:edge:2 gap (packages/main/dist/index.js existence never checked on disk) is closed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-002 fix confirmed sound. packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (the RED that CHK-001:happy:0/happy:1 evidence is bound to, sharing the underlying build-both-packages invariant with edge:2) now runs the REAL npm run pretest against the live worktree (line 70) and then asserts existsSync(mainIndex) at line 72, with message: after npm run pretest, packages/main/dist/index.js must also exist (main build not regressed) -- directly addressing the original gap that neither the smokes regex-only check nor the RED previously performed a filesystem existence check on packages/main/dist/index.js. The exact adversarial scenario named in F-002 (a pretest whose main-build sub-command silently no-ops while the literal script text still matches the smokes buildsMain regex) is now caught: since dist is gitignored and this RED runs the actual command, a main-build sub-command that does not really produce packages/main/dist/index.js in a clean/rebuilt worktree fails the existsSync assertion. Residual, narrower-scope note, non-blocking: unlike the utils check, this existsSync(mainIndex) assertion has no mtime-freshness gate, so it could not detect a main-build no-op if a stale pre-existing packages/main/dist/index.js already sits on disk at RED-run time; edge:2s literal intent text only asks to confirm packages/main/dist/index.js ALSO exists, not freshness, and validate.commands[0] already rebuilds packages/main immediately before this guard runs in the real lattice validate pipeline, so this residual gap is not filed as a new finding. Live-reran: rebuilt both packages (npm --prefix packages/main run build && npm --prefix packages/utils run build, both exit 0), then node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS red-fb7b-pretest-builds-utils, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS test-suite-utils-autobuild-smoke, exit 0. git diff --stat 8bdc42ffa8..847854aa -- . :!.lattice is empty, confirming no non-bookkeeping code changed since the evidence-bound commit (headHash 8bdc42ffa8031976ce6c9bafffe25d5e9f1602da, materialHash dbb8bfd9834bed030879081eeb6c3562890749aa1ad4a9ca312c02be54621aab).",
+        "sourceRefs": [
+          "B-fb7b:F-002",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:64-76"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T04:28:37.702Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-007",
+      "_hash": "6133827c10e39370fb40cc04aab9247073ecb67809a7bf3fe516f2c8ad576810",
+      "signatureTag": "edge|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
