@@ -226,7 +226,7 @@
       "desc": "CHK-001 concurrency boundary: the new root pretest (package.json:15, npm --prefix packages/main run build && npm --prefix packages/utils run build) now fires automatically on every npm test invocation and transitively calls scripts/build-main-with-binding.mjs:13 (rmSync(dist,{recursive:true,force:true}) followed by a non-atomic tsc rebuild, no lock/retry). When two processes invoke pretest/build against the SAME worktree concurrently -- a real, recurring pattern in this project own review workflow, where multiple reviewer lanes (behavior/quality/docs/concept) independently re-run verification commands against the same shared worktree during REVIEW -- the rm-rf races with the other process writing into dist/tasks and crashes with an unhandled ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks (reproduced directly in this session; stack trace roots at build-main-with-binding.mjs:13 via package.json pretest, exit status 1). Before this story, npm test never auto-triggered a build, so this race window barely existed; after this story, every npm test call now multiplies build invocations, increasing exposure to this pre-existing non-atomic rm-rf-then-rebuild race in exactly the shared-worktree conditions this codebase own review pipeline creates. The checklist edge test (CHK-001:edge:1) only proves two SEQUENTIAL pretest runs stay clean; no test covers concurrent/overlapping pretest invocation, so this crash mode is undetected. Net effect: instead of the clean, documented Missing build artifacts recovery path this story explicitly cites as the trigger event, done_required validation or npm test can now crash with a confusing unhandled ENOTEMPTY node exception under concurrent worktree usage.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-14T10:28:38.397Z",
@@ -234,7 +234,11 @@
       "reviewRunId": "B-fb7b:RR-033",
       "_hash": "ac429642c674e98a7088d4208b273b1c8a7b612d46b8333ad42daf1978685e2c",
       "signatureTag": "adversarial|unknown|concurrency-boundary-root",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by shared build lock; reviewers disproved via disproven counters.",
+      "resolvedAt": "2026-08-14T12:36:25.107Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fb7b:F-013",
