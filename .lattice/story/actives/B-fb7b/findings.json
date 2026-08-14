@@ -14,6 +14,21 @@
       "_hash": "468e5dabebdc3b14ce7e1af7bcb7636a401443307ab2b7783f37a22c49ac51ea",
       "signatureTag": "adversarial|unknown|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-002",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:44-53 -- CHK-001:edge:2 intent explicitly requires a filesystem check (\"confirm packages/main/dist/index.js ALSO exists\"), but the bound evidence (the structural smoke) only does a regex string match on the pretest script text (buildsMain check) and never calls existsSync on packages/main/dist/index.js. Neither this smoke nor the RED test (which only checks packages/utils/dist/index.js) nor guard-bite ever verifies the main dist artifact exists on disk after npm run pretest. A pretest whose main-build sub-command silently fails or no-ops (while its literal script text still matches the --prefix packages/main run build regex) would pass this evidence unnoticed, so the edge case as literally specified is not covered.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T03:50:20.861Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-001",
+      "_hash": "632118cea727d80d8bdefa649ab9b3f6794f06b65b9b57e70600ef9ca434c7e4",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
