@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-fb7b:F-001",
+      "desc": "packages/main/tests/red/red-fb7b-guard-bite.mjs:103-104 -- CHK-001:adversarial:2 evidence is a byte-identical duplicate of adversarial:4 (both call biteCase with the same {test:...}-only fixture and only assert the compiled structural smoke exits non-zero). The RED test red-fb7b-pretest-builds-utils.mjs is never invoked with the pretest key removed, so the intent claim RED test must FAIL at the first structural assertion is unproven by the recorded evidence -- it tests the smoke, not the RED, which is exactly what adversarial:4 already independently proves. Manually verified the underlying claim IS true (running red-fb7b-pretest-builds-utils.mjs with pretest deleted throws AssertionError at the first assert.ok), but the bound evidence command does not exercise that path at all.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T03:50:13.818Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-001",
+      "_hash": "468e5dabebdc3b14ce7e1af7bcb7636a401443307ab2b7783f37a22c49ac51ea",
+      "signatureTag": "adversarial|unknown|packages-main-tests",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
