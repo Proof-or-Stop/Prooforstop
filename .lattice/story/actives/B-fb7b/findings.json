@@ -319,6 +319,38 @@
       ],
       "signatureTag": "missing|mjs|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-017",
+      "desc": "Re-verified F-015 on current HEAD 8ad0cfbf8c (code fix commit eab8a74651 'shared main+utils build lock closes cross-package rebuild race'): the cross-package TS2307 race F-015 describes (a concurrent packages/main rebuild mid-rewrite while a sibling process's packages/utils tsc reads packages/main/dist) is closed by extracting the mutex into a shared, repo-keyed scripts/build-lock.mjs and having BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (wired via packages/utils/package.json's build script) take the SAME lock keyed by projectRoot, so a packages/main rebuild and any packages/utils tsc invocation across ALL concurrent processes in this worktree now mutually exclude, not just main-vs-main as the prior, narrower fix (75eb6c2c03) did. Live-verified on current material: node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 9 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS. Also observed a genuinely concurrent 5-way `npm run pretest` stress round (main-then-utils, the exact CHK-001/F-015 surface) against this shared worktree during this review session, launched independently by a sibling reviewer lane (scratchpad/pretest_1..5.log, finish timestamps 13:11-13:14 confirming serialized, non-overlapping completion): 5/5 exit 0, grep for TS2307/ENOTEMPTY across all 5 logs found zero matches. git status --porcelain clean after all runs. git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, confirming no code drift since the checklist evidence was captured.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-015 (packages/utils tsc racing a concurrent packages/main rebuild -> TS2307 'Cannot find module ../../main/dist/*') is fixed by commit eab8a74651: scripts/build-lock.mjs is now a shared, repo-keyed mutex used by BOTH scripts/build-main-with-binding.mjs and the new scripts/build-utils-with-lock.mjs (packages/utils/package.json build script rewired to it), so main rebuild and utils tsc can never interleave across any number of concurrent processes in the worktree. Re-ran the story's own guards on current HEAD, all pass, and a live 5-way concurrent npm run pretest round (the exact main-then-utils CHK-001 surface F-015 targets) in the shared worktree during this review completed 5/5 clean with zero TS2307/ENOTEMPTY, superseding the prior narrower fix's 13/15 failure rate under the same repro.",
+        "sourceRefs": [
+          "B-fb7b:F-015",
+          "scripts/build-lock.mjs:1-40",
+          "scripts/build-utils-with-lock.mjs:1-17",
+          "packages/utils/package.json:12",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs && node packages/main/tests/red/red-fb7b-guard-bite.mjs && node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T12:23:54.160Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-042",
+      "_hash": "ba7d4d8f56ceb7195d9227dcd550c67b2dbbe83f7f252f79af9953f2e3600cd7",
+      "files": [
+        "scripts/build-lock.mjs",
+        "scripts/build-utils-with-lock.mjs",
+        "packages/utils/package.json",
+        "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
