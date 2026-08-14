@@ -180,8 +180,13 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   // W2d (B-9ff1): the read-only envelope pre-flight validates a candidate
   // assertion against the §1.1 schema and the §1.2 policy registries, so it
   // carries schema-contract + verification-policy semantics — but NOT
-  // 'gate-evidence': it writes nothing and no gate consumes its answer (the
-  // gate-consumption query is §5 / W3).
+  // 'gate-evidence': it persists no RED-evidence record, chain record or story
+  // artifact, emits no process event, and no gate consumes its answer (the
+  // gate-consumption query is §5 / W3). What it does NOT suppress are the two
+  // surfaces owned by the shared CLI entrypoint: a configured onError hook runs
+  // when the command throws, and one row may be appended to activity.jsonl (the
+  // runtime-activity-log artifact) carrying the rejection report in its `error`
+  // field — see the note in cli/activity-policy.ts.
   red_evidence_envelope_check: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],

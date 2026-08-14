@@ -29,14 +29,22 @@
 //      computed assertionDigest, the matched binding reference, and the resolved
 //      policyDigest — the operator's primary use case, not only rejections.
 //   8. The command is READ-ONLY at the HANDLER boundary, which is the boundary
-//      this file exercises: it calls the registered handler directly, and across
-//      those direct invocations the .lattice tree is byte-identical and the gate
-//      verdict is unchanged. It is also a member of the CLI read-only command
-//      class. What is NOT observed here: nothing in this file goes through
-//      cli-engine.ts, so the shared entrypoint's own session telemetry (one
-//      generic activity.jsonl row, written under
+//      this file exercises: it calls the registered handler directly, takes ONE
+//      per-file hash snapshot of the .lattice tree before the batch of calls and
+//      compares it ONCE after, and the gate verdict is unchanged. WHAT THAT
+//      PROVES is NET byte equality across the whole batch, NOT per-invocation
+//      purity — a single call that created a file and then restored it would be
+//      invisible to an aggregate comparison. It is also a member of the CLI
+//      read-only command class, which suppresses the preCommand/postCommand
+//      hooks and the process event, but NOT the onError hook (that cli-engine.ts
+//      call site carries no read-only predicate, and this command throws its
+//      rejection report by design). What is NOT observed here: nothing in this
+//      file goes through cli-engine.ts, so the generic session row written by
+//      the shared entrypoint to .lattice/activity.jsonl (the runtime-activity-log
+//      artifact per core/runtime-artifact-registry.ts, written under
 //      LATTICE_ACTIVITY_RECORD_READONLY=1 or while an uncooled stale warning is
-//      present) is structurally outside this smoke's reach.
+//      present, and carrying the thrown rejection report in its error field) is
+//      structurally outside the reach of this smoke.
 //   9. The three pre-existing mechanical contracts still pass with the command
 //      fully wired.
 //
@@ -475,9 +483,11 @@ try {
   assert.equal(levelEntry!.level, 'L0');
   assert.equal((levelEntry as { gateConsumer?: string }).gateConsumer, undefined, 'an L0 read-only checker declares no gateConsumer');
   assert.ok(READ_ONLY_COMMANDS.has(COMMAND) && isReadOnlyCommand(COMMAND, {}),
-    `${COMMAND} is in the CLI read-only class, which suppresses the CLI hook and process-event writes; `
-    + 'the activity row additionally depends on LATTICE_ACTIVITY_RECORD_READONLY and the stale-warning path, '
-    + 'so classification alone does not settle it');
+    `${COMMAND} is in the CLI read-only class, which suppresses the preCommand/postCommand hooks and the `
+    + 'process event. It does NOT suppress the onError hook: that cli-engine.ts call site carries no read-only '
+    + 'predicate (its only guard is config.hooks.onError), and this command throws by design. The activity row '
+    + 'additionally depends on LATTICE_ACTIVITY_RECORD_READONLY and the stale-warning path, so classification '
+    + 'alone does not settle it either');
 
   {
     const root = freshRoot('command');
@@ -564,11 +574,17 @@ try {
     assert.throws(() => check!({ storyId, assertionFile: join(root, 'missing.json') }), /missing\.json/);
     assert.throws(() => check!({ storyId }), /assertionFile/);
 
-    // READ-ONLY at the handler boundary: no file under .lattice changed across
-    // the DIRECT handler invocations above, and no gate verdict moved. The CLI
-    // entrypoint is not exercised here, so its session telemetry is out of view.
+    // READ-ONLY at the handler boundary: the .lattice tree is NET byte-identical
+    // across the whole batch of DIRECT handler invocations above (ONE snapshot
+    // before, ONE comparison after — aggregate, not per-invocation), and no gate
+    // verdict moved. The CLI entrypoint is not exercised here, so its onError
+    // hook and its .lattice/activity.jsonl runtime-activity-log row are out of
+    // view.
     assert.equal(snapshotLattice(), before,
-      `${COMMAND}, invoked directly as a handler, created/modified/removed no file under .lattice/ — no artifact, chain record, process event, or gate verdict`);
+      `${COMMAND}, invoked directly as a handler, left the .lattice/ tree NET byte-identical across the batch of `
+      + 'calls above (ONE before snapshot, ONE after: this proves no NET create/modify/remove, not that no single '
+      + 'call created and then restored a file) — so no RED-evidence record, chain record, story process event or '
+      + 'stored gate verdict survives the batch');
     assert.equal(
       JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence),
       gateBefore,
@@ -597,7 +613,8 @@ try {
     'matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a ' +
     'two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, ' +
     'the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), ' +
-    'a byte-identical .lattice tree across DIRECT handler invocations (the CLI entrypoint is not exercised here) ' +
+    'a NET byte-identical .lattice tree across the batch of DIRECT handler invocations (aggregate before/after, ' +
+    'not per-invocation; and the CLI entrypoint is not exercised here) ' +
     'with no gate verdict change, and all three registry contracts pass.',
   );
 } finally {

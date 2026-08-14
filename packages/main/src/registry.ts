@@ -417,8 +417,12 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // W2c (B-506e) adds red_evidence_quarantine / red_evidence_recover (the two
   // owner-gated chain-control appends) to the SAME batch — auto-registered here.
   // W2d (B-9ff1) adds the READ-ONLY red_evidence_envelope_check: a §1.1 envelope
-  // admissibility pre-flight that executes no envelope, writes no artifact,
-  // process event or chain record, and changes no gate verdict.
+  // admissibility pre-flight that executes no envelope, writes no RED-evidence
+  // record, chain record or story/evidence artifact, emits no process event,
+  // changes no gate verdict, and runs no preCommand or postCommand hook. The
+  // onError hook and the .lattice/activity.jsonl runtime-activity-log row of the
+  // shared CLI entrypoint are NOT suppressed by that classification — see the
+  // fence note in handlers/red-evidence.ts.
   registry.registerBatch(createRedEvidenceHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations

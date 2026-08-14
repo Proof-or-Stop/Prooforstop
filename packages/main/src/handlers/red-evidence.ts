@@ -16,7 +16,12 @@
  *     `topology_critic_receipt_check` and `proofstory_gate_check`: derived
  *     output only, no caller-submitted status, and an inadmissible verdict is
  *     surfaced by THROWING the rendered report (non-zero exit) rather than by
- *     recording the verdict anywhere. See the fence note on the handler itself.
+ *     recording it as RED evidence. The throw is NOT verdict-free everywhere:
+ *     the CLI catch path in cli-engine.ts passes `e.message` into `writeLog`,
+ *     so under either activity-log bypass the full tagged report is stored in
+ *     the `.lattice/activity.jsonl` row's `error` field, and a configured
+ *     `onError` hook runs on that same path (that call site has no read-only
+ *     predicate). See the fence note on the handler itself.
  *
  * Authorization is layered exactly like every other mutating story command:
  *   1. The story-owner LEASE is enforced UPSTREAM at the single CLI choke point
@@ -232,7 +237,9 @@ function readCommittedBindingForTarget(
   } catch (error) {
     throw new Error(
       `red_evidence_envelope_check: could not read the COMMITTED target bindings at HEAD:${relPath} — ${(error as Error).message}. ` +
-        'This check wrote no artifact, no process event and no chain record, and changed no gate verdict.',
+        'This check wrote no RED-evidence record, no chain record and no story or evidence artifact, emitted no ' +
+        'process event, and changed no gate verdict. It is thrown, so a configured onError hook does run, and the ' +
+        'CLI may record this text in the error field of a .lattice/activity.jsonl row.',
     );
   }
   if (!file) return null;
@@ -345,19 +352,37 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      * sits OUTSIDE the §5.5 fence.
      *
      * READ-ONLY, mechanically: the handler reads config, the story record, the
-     * candidate file, and the COMMITTED bindings blob; it writes no artifact, no
-     * process event, no chain record, and no gate verdict, spawns no RED run,
-     * and never calls autoCommitStoryMetadata. `command-policy` classifies it
-     * `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
-     * READ_ONLY_COMMANDS, which suppresses the CLI's own hook and process-event
-     * write surfaces (both are gated on `isReadOnlyCommand` alone, with no
-     * second term). The activity log is the one surface that membership does NOT
-     * settle: the shared CLI entrypoint still appends one generic session row
-     * when `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
-     * mode) or while the story carries an uncooled stale warning — see the
-     * `red_evidence_envelope_check` note in `cli/activity-policy.ts`, which names
-     * both paths. That row is CLI session telemetry, outside the four categories
-     * above, and is not a write performed by this command.
+     * candidate file, and the COMMITTED bindings blob; it writes no RED-evidence
+     * record, no chain record and no story or evidence artifact under the story
+     * directory, emits no process event, changes no gate verdict, spawns no RED
+     * run, and never calls autoCommitStoryMetadata. `command-policy` classifies
+     * it `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
+     * READ_ONLY_COMMANDS, which suppresses exactly TWO of the CLI's own write
+     * surfaces — the `preCommand` and `postCommand` hooks, and
+     * `writeCodexProcessEvent`'s class-wide early return — because those are the
+     * ones gated on `isReadOnlyCommand` alone, with no second term.
+     *
+     * TWO SURFACES THAT CLASSIFICATION DOES NOT SETTLE. Stated plainly, because
+     * the guarantee above is easy to over-read into "this command causes no
+     * write at all", which is false:
+     *   1. THE `onError` HOOK RUNS. Its call site in `cli-engine.ts` carries no
+     *      read-only predicate — its only guard is `config0?.hooks?.onError` —
+     *      so a configured onError hook runs whenever the command throws. This
+     *      command throws its rendered rejection report BY DESIGN, so that is
+     *      its primary failure route, not an edge case. Do not "fix" this by
+     *      adding a guard here: the onError call site is class-wide and belongs
+     *      to a separate change.
+     *   2. ONE ACTIVITY ROW MAY BE APPENDED. The shared CLI entrypoint still
+     *      appends one generic session row to `.lattice/activity.jsonl` when
+     *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
+     *      mode) or while the story carries an uncooled stale warning — see the
+     *      `red_evidence_envelope_check` note in `cli/activity-policy.ts`, which
+     *      names both paths. That file is NOT outside this repository's artifact
+     *      taxonomy: `core/runtime-artifact-registry.ts` registers it as the
+     *      `runtime-activity-log` artifact. And the CLI catch path passes
+     *      `e.message` into `writeLog`, which stores it in the row's `error`
+     *      field — so when the row is written, the full rendered rejection
+     *      verdict IS recorded there.
      *
      * IT DOES SPAWN, and the set is enumerated here because a claim nobody can
      * check is worth nothing (the committed regression
@@ -462,7 +487,8 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         ...result.rejections.map((rejection) => `  - [${rejection.tag}] ${rejection.code}: ${rejection.message}`),
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
-        'No artifact, process event or chain record was written and no gate verdict changed; fix the envelope before spending a run.',
+        'No RED-evidence record, chain record or story artifact was written, no process event was emitted and no gate verdict changed; fix the envelope before spending a run.',
+        'This report is THROWN, so a configured onError hook does run, and the CLI may record this text in the error field of a .lattice/activity.jsonl row.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },
