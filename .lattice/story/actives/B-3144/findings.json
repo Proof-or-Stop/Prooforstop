@@ -645,7 +645,7 @@
       "desc": ".lattice/story/actives/B-3144/checklist.json CHK-001:adversarial:1 (waiver evidence) asserts the verification_evidence_add 270s-ceiling-vs-20min-budget mismatch is a genuine tooling gap that was flagged separately for a follow-up fix (runSingleAllowlistedCommand hardcodes DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270000 and ignores lattice.config.json per-command timeoutMs overrides). No such follow-up story/task exists: story_list --json (319 stories, all phases) has zero title matches for timeout/ceiling/270/per-command/grep, and a full-text grep for runSingleAllowlistedCommand / DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS / per-command timeoutMs override across every story background.md+plan.md+index.json in the repo returns only B-3144 itself plus two unrelated, pre-existing DONE stories from 2026-06-19 (B-317f harden-validate-default-timeout, B-5d18 fix-validate-suite-hang) that predate this incident and do not name or address it. The --grep addition itself is correctly scoped (opt-in only, not used by lattice.config.jsons validate.commands entry, no assertion on total check count that a filtered run could game) and no fix was scope-crept into this story for the general tooling gap -- but the explicit claim of having filed a follow-up is not backed by any artifact, so a future reader trusting this waiver note would wrongly believe the gap is tracked.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T04:59:48.437Z",
@@ -653,7 +653,11 @@
       "reviewRunId": "B-3144:RR-035",
       "_hash": "7134ed5eb39ce5742a66f778a1db26e7adc3bbe47b68edb816ddbf292dfca481",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Acknowledged: the earlier claimed follow-up ('task_3922b708') was created as an ephemeral session-level spawn_task chip (a UI-visible-to-the-user suggestion mechanism), not a durable Lattice story -- so it correctly does not appear in a search over Lattice's own story tracker. This is a fair point: Lattice reviewers/gates have no visibility into that mechanism. The underlying gap (verification tools' hard-coded 270s execution ceiling not honoring lattice.config.json validate.commands[].timeoutMs) is real but minor/non-blocking -- it was worked around narrowly and safely in-story via the opt-in --grep isolation flag rather than a general tooling fix, which is the correct scope boundary for this story. Not opening a new Lattice story for it now; noting it here as the durable, gate-visible record of the gap for whoever picks up general verification-tooling hardening next.",
+      "resolvedAt": "2026-08-14T05:01:35.890Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
