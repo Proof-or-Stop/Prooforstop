@@ -171,7 +171,9 @@ function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDia
     candidates,
     suggestedGitRoot: null,
     repairCommand: null,
-    note: 'Multiple immediate child git repositories were found; ambiguous layouts stay fail-closed and no repair target is chosen. Pick one explicitly: lattice config repair --set-git-root=<dir> --confirm.',
+    // B-cdf6:F-046 — hardcoded the deprecated bin while configRepairCommandFor()
+    // (fixed for F-041 in this same file) already emits the canonical form.
+    note: `Multiple immediate child git repositories were found; ambiguous layouts stay fail-closed and no repair target is chosen. Pick one explicitly: ${configRepairCommandFor('<dir>')}.`,
   };
 }
 
@@ -202,7 +204,9 @@ function buildConfigDoctor(ctx: HandlerContext) {
     {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
-      detail: 'packages/main package.json exposes only the lattice bin',
+      // B-cdf6:F-046 — this said 'only the lattice bin', which became FALSE when the
+      // rename added proof-or-stop as the primary bin alongside the retained alias.
+      detail: 'packages/main package.json exposes the proof-or-stop bin (with the lattice alias retained for compatibility)',
     },
   ];
   const ok = checks.every(check => check.ok);
@@ -342,7 +346,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const requested = typeof args.setGitRoot === 'string' ? args.setGitRoot.trim() : '';
   if (requested.length === 0) {
     throw new Error(
-      'lattice_config_repair requires an explicit --set-git-root=<relative-dir>; it never guesses a repair target. Run `lattice config doctor` first to see wrapper-root candidates.',
+      'lattice_config_repair requires an explicit --set-git-root=<relative-dir>; it never guesses a repair target. Run `proof-or-stop config doctor` first to see wrapper-root candidates.',
     );
   }
   const verifiedTarget = validateRepairGitRootTarget(metadataRoot, requested);

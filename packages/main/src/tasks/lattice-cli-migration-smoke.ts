@@ -250,10 +250,12 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-// config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin.
+// B-cdf6:F-046 — this comment and the assertion message below both claimed the package
+// exposes ONLY the lattice bin. That became false with the rename: package.json now lists
+// proof-or-stop as the primary bin with lattice retained as a compatibility alias.
 assert.ok(
   configDoctor.checks.some((c: any) => c.id === 'package-bin-aliases' && c.ok === true),
-  'package-bin-aliases check confirms the package exposes only the lattice bin',
+  'package-bin-aliases check confirms the package exposes the proof-or-stop bin plus the retained lattice alias',
 );
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
