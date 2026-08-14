@@ -1,10 +1,10 @@
 # Pre-Story Mechanism Placement Proof — Architecture and Execution Plan
 
-Status: **AUDITED PROPOSAL; documentation only; no runtime enforcement is implemented by this document**  
-Story: `B-c648`  
+Status: **AUDITED PROPOSAL; documentation only; no runtime enforcement is implemented by this document**
+Story: `B-c648`
 Motivating incident: build/bootstrap side failure tracked by `B-fb7b`, surfaced
-during `B-3783` DONE-required validation  
-Enforce-mode dependency: `B-8de3` evidence-store atomic-write hardening  
+during `B-3783` DONE-required validation
+Enforce-mode dependency: `B-8de3` evidence-store atomic-write hardening
 Date: 2026-08-14
 
 ## 1. Executive decision
