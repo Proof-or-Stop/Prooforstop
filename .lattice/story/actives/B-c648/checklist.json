@@ -296,7 +296,11 @@
           {
             "desc": "Either the Claude or the agy host_run final recordId is absent, the document's cited receipt state does not match the actual ledger state, or a numeric token count is invented for a record whose usage is recorded=unavailable -> receipt capture fails closed: the missing/mismatched/fabricated evidence is refused/blocked rather than accepted, and the document may not assert both audits are receipt-backed; WHY: guarantees the delivery-evidence replan cannot be satisfied by a missing host record, a document/ledger mismatch, or a fabricated token count standing in for agy's structurally unavailable usage surface.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const d=fs.readFileSync(\\\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\\\",\\\"utf8\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const finalIds=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];if(finalIds.some(id=>!d.includes(id)||!rows.some(r=>r.recordId===id&&r.sequence===2)))throw Error(\\\"document ledger mismatch\\\");const failed=rows.find(r=>r.recordId===\\\"llmuse_d68b8791-13dc-4be8-b5d6-cfec9c57a1dc\\\");if(!failed||failed.sequence!==1||rows.some(r=>r.supersedesRecordIds?.includes(failed.recordId)))throw Error(\\\"failed agy attempt misclassified\\\");if(!d.includes(\\\"unavailableReason=agy_print_mode_reports_no_usage\\\")||/agy[^\\\\n]{0,80}(input|output)[^\\\\n]{0,30}[1-9][0-9]*/i.test(d.split(\\\"### 21.5\\\")[1].split(\\\"Delivery verification\\\")[0]))throw Error(\\\"fabricated agy count\\\");console.log(\\\"CHK003_ADV_PASS\\\")\"",
+              "selector": "CHK003_ADV_PASS"
+            }
           }
         ]
       },
@@ -342,6 +346,27 @@
           "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
           "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
           "timestamp": "2026-08-14T05:04:44.398Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const d=fs.readFileSync(\\\"docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md\\\",\\\"utf8\\\");const rows=fs.readFileSync(\\\".lattice/usage/llm-usage.jsonl\\\",\\\"utf8\\\").trim().split(/\\\\n/).map(JSON.parse);const finalIds=[\\\"llmuse_e67c2062-1063-4c7e-bf33-9cef6fe90b81\\\",\\\"llmuse_681319b0-4a0d-4f17-9ba4-a5862e38e23f\\\"];if(finalIds.some(id=>!d.includes(id)||!rows.some(r=>r.recordId===id&&r.sequence===2)))throw Error(\\\"document ledger mismatch\\\");const failed=rows.find(r=>r.recordId===\\\"llmuse_d68b8791-13dc-4be8-b5d6-cfec9c57a1dc\\\");if(!failed||failed.sequence!==1||rows.some(r=>r.supersedesRecordIds?.includes(failed.recordId)))throw Error(\\\"failed agy attempt misclassified\\\");if(!d.includes(\\\"unavailableReason=agy_print_mode_reports_no_usage\\\")||/agy[^\\\\n]{0,80}(input|output)[^\\\\n]{0,30}[1-9][0-9]*/i.test(d.split(\\\"### 21.5\\\")[1].split(\\\"Delivery verification\\\")[0]))throw Error(\\\"fabricated agy count\\\");console.log(\\\"CHK003_ADV_PASS\\\")\"",
+          "result": "pass",
+          "note": "Exact document-to-ledger IDs are required; the failed agy preflight cannot count as final and agy numeric usage must not be fabricated.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6537b25194811c7c161fb144c5868581159162f1a6c9beddb66c7f22e224de79",
+            "outputTail": "CHK003_ADV_PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T05:04:45.422Z"
+          },
+          "headHash": "85b80f3a84e4c098ed2af4a758169e52caa7433c",
+          "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+          "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+          "timestamp": "2026-08-14T05:04:45.529Z"
         }
       ]
     }
