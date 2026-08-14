@@ -330,8 +330,8 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-14T14:58:57.282Z",
       "endTime": null,
       "userSees": "A blocked change prints \"OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\", \"Epoch: <id>\", \"Changed lineage: <old> -> <new>\" and one \"Recovery:\" command; bypassed drift changes status to the exact state \"INVALIDATED\".",
       "verificationIntent": {
@@ -1576,6 +1576,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:58:57.282Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
       "agent": "lattice-implementer"
     }
   ]
