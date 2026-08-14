@@ -89,6 +89,26 @@
         "scanEscalationReason": null
       },
       "_hash": "75d06282e1d9f2fab0b5e07421ed1432b3c0ed7218605deb7e24cbc1d80b3688"
+    },
+    {
+      "id": "B-9ff1:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Confirmation round: re-verified F-009 (count violation must not suppress §1.3 block) with own probes incl. both guard rows (9-matcher class-only, 9-matcher+below-floor-literal, zero-matcher no-fabrication); F-005 (empty literal-line -> R1-2 not R1-3) confirmed against own probe + committed fixture correction; F-013 (spawn-set docstring) confirmed against red-w2d-command-readonly.mjs positive spawn-set assertion and handler docstring wording. Independently probed all six codex-round fixes: greenExempt:false-on-wrong-polarity rejects (presence not truth), testCaseRef/testCaseRefPattern mismatch -> R1-5, drive-qualified C:/outside and C:outside and C:\\\\outside reject R1-3 while a colon-bearing relative path is accepted, supplementaryArtifact:null rejects R1-3 while omitted is legal. Agree with both adjudications: (1) maxMatcherLen/trim are literal-line-only per the §1.1.1 value-bullet scoping and class values are governed by registry membership alone (verified: a 600-byte unregistered class value and a whitespace-padded class value both fail via matcher-class-unregistered only, never matcher-value-too-long/matcher-value-untrimmed); (2) policyDigest/assertionDigest optional-but-must-match is correct and non-circular (verified: omitted is admissible, supplied+matching is admissible, supplied+mismatched on either field produces a NAMED diagnostic with zero fabricated §1.6 tags, in both directions). Ran all 5 red-w2d-*.mjs regressions + the compiled smoke + command-catalog-smoke from a fresh tsc build; all pass. Checked CLI/registry/process-fact/activity-policy wiring for red_evidence_envelope_check directly; all five registration points present.",
+      "createdAt": "2026-08-14T02:20:45.680Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-006",
+      "envelopeId": "8b65fde684efdc0b31e4b1277f127c0abd3417024cb772098235f00c5c99f916",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "972e705d87f43c2dc6f5cc6ca4c35803aac26d600e4b42cda970143603dd9c78"
     }
   ]
 }
