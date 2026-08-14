@@ -3008,7 +3008,13 @@ try {
 
       // Fail-closed is PER GROUP: a genuine B-bf52 collision elsewhere in the same log is still
       // recoverable in the same call, so the hardening does not disable the recovery.
-      appendDuplicatesForRunId(fixture, collidingRunId, 'B-3144-F-024-drift-material');
+      // F-031: must pin to the REAL current material, not a synthetic drift string — B-f88e
+      // declines to downgrade a stale-material duplicate that shares identity with an already-live
+      // native-material verdict, so a synthetic string here is silently neutralized and never
+      // actually poisons collidingRunId (the "genuinely poisoned round recovered" assertion below
+      // would then hold vacuously even if quorum_prune's recovery were broken). Same fix as
+      // injectPoisonedDuplicates (commit 5291d420dd).
+      appendDuplicatesForRunId(fixture, collidingRunId, currentMaterialHash(fixture.root, 'HEAD', fixture.root)!);
       const applied: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
       assert.equal(applied.applied, true, 'the genuine collision is still recoverable');
       assert.equal(applied.removedVerdictCount, 2, 'only the two losing rows of the recoverable group are removed');
@@ -3047,10 +3053,13 @@ try {
       // The crafted id resolves to <root>/evidence-target.json from inside the verdict cache dir.
       const craftedVerdictId = '../../../evidence-target';
       const targetRunId = `${STORY_ID}-q-r1`;
+      // F-031: pin to the REAL current material (see the identical fix + rationale at the F-024
+      // check above and in injectPoisonedDuplicates, commit 5291d420dd) so the duplicate genuinely
+      // collides instead of being silently neutralized by B-f88e's downgrade-skip.
       appendDuplicatesForRunId(
         fixture,
         targetRunId,
-        'B-3144-F-025-drift-material',
+        currentMaterialHash(fixture.root, 'HEAD', fixture.root)!,
         event => ({ ...event, verdictId: craftedVerdictId }),
       );
       assert.equal(
