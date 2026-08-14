@@ -552,6 +552,31 @@
         "scanEscalationReason": null
       },
       "_hash": "c8c1bfbd710ddc936658458e359a8908713610e23a16374633da299ee5f37bed"
+    },
+    {
+      "id": "B-cdf6:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-bound to HEAD 5cb348a80a (round 2026-08-13T05:25:24.496Z). Re-verified all three specific claims in the re-run brief. (1) Waiver typing: CHK-002:adversarial:1 evidence record still carries waiverType=deferred_gate_evidence (not upgraded to permanent), read directly from checklist.json verificationEvidence. Its note correctly attributes the remaining failure to B-META-framework-audit:F-005 (now mostly fixed) and stays honest that the suite still cannot reach green. (2) Coverage count: 36 must-priority intents total (unchanged). Precise re-tally: 34 covered by non-waiver passing evidence plus 2 waivers (CHK-002:adversarial:1 deferred_gate_evidence, CHK-004:edge:0 permanent -- pre-existing from an earlier round and unrelated to this round's material changes, correctly distinguished per its own note referencing F-024) plus 0 hard gaps. Note: the dispatch brief's framing of 35/36-covered-1-gap undercounts by one waiver (there are 2 waivers total, not 1); this is a prose-precision slip in the briefing message, not a flow-fact or evidence-record defect -- checklist_get itself correctly reports waivers:1 per item independently for CHK-002 and CHK-004. Not filing as a finding since no coverage was misrepresented in stored evidence and nothing needs fixing. (3) Failure claim honesty: independently ran node scripts/verify-entrypoints.mjs myself rather than trusting the self-report. It passed checks 1 through 7, including the F-005 mirror-count fix, then threw 'Error: lattice check should pass immediately after init' at line 551, matching the claimed failure site exactly. Cross-checked against B-META-framework-audit findings F-005 (fixed at three sites -- cli-init.ts, managed-assets.ts, verify-entrypoints.mjs:1010 -- confirmed by HEAD commit 8f18a193a1) and F-026 (new, correctly scoped as owned by the B-097f agent-prompt-consolidation plan rather than this rename story, and proven pre-existing on pristine main per its own text). Both findings are internally consistent with the current HEAD commit history, where 5cb348a80a logs F-026 immediately after the F-005 fix commit. review_incremental_context confirms the three changed files since prior pass RP-018 map exactly onto CHK-002's intent set, so this was a correctly scoped incremental re-review. No drift toward claiming unearned coverage was found. PASS.",
+      "createdAt": "2026-08-14T04:10:21.901Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-040",
+      "envelopeId": "e8ad2a4a00fa7f598ea3eaf9340ac62168b56890ddd50613ddb60bcdb84a8a04",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd26ada703afec52fe818b6dd70fc8e3ed23fcfde66e09f005dd962733bfb60b"
     }
   ]
 }
