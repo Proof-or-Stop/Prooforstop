@@ -223,10 +223,54 @@
         "ReviewInventoryEpoch",
         "ReviewInventoryReceipt"
       ]
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "RI-002 verified findings require removing legacy round-dependent review semantics and aligning operator recovery guidance with the signed inventory receipt gate.",
+      "timestamp": "2026-08-14T17:23:10.134Z",
+      "paths": [
+        "AGENTS.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/anti-stall.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/anti-stall.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "16f947ac33ff55e1d80bb30994639e02a09cc2d3",
+      "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-013 requires the registered rollout cohort fixture to include every current process-fact closure source so snapshot sealing remains complete and fail-closed.",
+      "timestamp": "2026-08-14T17:31:50.217Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3323785aa72a28700e2d8d86d8b26b2f49fd00e9",
+      "materialHash": "4c9a15ad72cb520bf1ef36aaae0fb3799de4d0a98c0bbddecfbfd055bd5f2173"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T15:48:41.329Z",
+  "updatedAt": "2026-08-14T17:31:50.217Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -282,6 +326,14 @@
     ".lattice-codex/agents/lattice-review-topology-critic.md": ".lattice-codex/agents/lattice-review-topology-critic.md",
     "packages/main/templates/agents/lattice-review-topology-critic.md": "packages/main/templates/agents/lattice-review-topology-critic.md",
     "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
-    ".lattice/story/actives/B-3f3d/review-inventory-epochs.json": ".lattice/story/actives/B-3f3d/review-inventory-epochs.json"
+    ".lattice/story/actives/B-3f3d/review-inventory-epochs.json": ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+    "AGENTS.md": "AGENTS.md",
+    "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+    "packages/main/src/core/anti-stall.ts": "packages/main/src/core/anti-stall.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }

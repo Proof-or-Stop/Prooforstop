@@ -1,6 +1,6 @@
 {
   "storyId": "B-3f3d",
-  "checkedAt": "2026-08-14T16:14:20.159Z",
+  "checkedAt": "2026-08-14T17:36:07.614Z",
   "features": [
     {
       "feature": "Signed frozen review-inventory epoch and gate-consumed receipt with canonical identity, hashes, signatures, persistence, and command surface",
@@ -115,11 +115,11 @@
       "source": "checklist CHK-005; ProofStory AB-B3F3D-EFFICIENCY-QUALITY; plan.md CHK-005"
     },
     {
-      "feature": "Delivery order, focused smokes, process-fact contract, adapter verification when applicable, documentation, and routine validation cover all six slices",
-      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005,CHK-006",
+      "feature": "Delivery verification seals current process-fact closure, including pre_review_check, pre_review_check_read and pre-review-check artifact sources, alongside focused smokes, adapter checks, documentation and routine validation",
+      "covered_by": "CHK-001,CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan.md Delivery order and CHK-001..CHK-006 verification sections"
+      "source": "plan.md CHK-001/CHK-005 and Delivery order; scope-contract acknowledgement 9; ProofStory commandRefs; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     },
     {
       "feature": "PRE_CERT phase or artifact",
@@ -216,6 +216,7 @@
       "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
       "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
       "packages/main/src/tasks/prewrite-guard-smoke.ts",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
       "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
       "scripts/verify-process-fact-contract.mjs"
     ],
@@ -232,7 +233,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-14T15:02:11.470Z",
-  "_hash": "2aa1db1755e5011536c8819227295c0ccdab8b01049f2ca674541930566ebf5e",
+  "reviewRound": "2026-08-14T16:42:42.149Z",
+  "_hash": "9274de9a69b0ef28a19a4d62663d25ac20afb4d26fb410c266a22a88cc689ce8",
   "openQuestions": []
 }
