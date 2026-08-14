@@ -1,0 +1,47 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve packages/main/src/core/lifecycle-readiness.ts, packages/main/src/handlers/transition-effects.ts",
+      "findingIds": [
+        "B-3f3d:F-001",
+        "B-3f3d:F-008"
+      ],
+      "files": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T15:24:09.977Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/review-inventory-epoch-smoke.ts, packages/main/src/handlers/review-inventory.ts",
+      "findingIds": [
+        "B-3f3d:F-002",
+        "B-3f3d:F-003",
+        "B-3f3d:F-004",
+        "B-3f3d:F-005",
+        "B-3f3d:F-006",
+        "B-3f3d:F-007"
+      ],
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T15:24:10.690Z"
+    }
+  ]
+}

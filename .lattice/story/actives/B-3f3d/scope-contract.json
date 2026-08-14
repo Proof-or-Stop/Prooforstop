@@ -144,10 +144,40 @@
         "assertCurrentReviewRunForEvidence",
         "assertReviewInventoryCutoff"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The first frozen inventory review produced verified F-001 and F-008: legacy round-2 any-one semantics remain in readiness/operator contracts, and the newly required topology critic is absent from the canonical Prompt Envelope rollout allowlists. These existing authority and regression-test files must change together to remove contradictory guidance and make independent critic terminal evidence mechanically signable.",
+      "timestamp": "2026-08-14T15:23:28.954Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "CLAUDE.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "910e92ef0660e6165827164b1d24d00edb1a53d9",
+      "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151",
+      "anchors": [
+        "MODULAR_REVIEWER_ROLE_IDS",
+        "MODULAR_COMPLEX_ROLE_IDS",
+        "lattice_review_topology_critic",
+        "PromptEnvelope"
+      ]
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T15:00:50.892Z",
+  "updatedAt": "2026-08-14T15:23:28.954Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -192,6 +222,11 @@
     "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts": "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
-    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts"
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/lifecycle-readiness.ts": "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
   }
 }
