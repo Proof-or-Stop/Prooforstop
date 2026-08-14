@@ -43,10 +43,11 @@
           "scopeRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
             "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
           ]
         },
-        "resultDigest": "sha256:df438adc3e1ca859eaa103403c1dbf06fccdd4a7407964a89ba5573d5897f458"
+        "resultDigest": "sha256:f69b8585a6b44cb6363301eb84b4306359d27283814ddd24eaccce4062e440f3"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -78,10 +79,11 @@
           "scopeRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
             "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
           ]
         },
-        "resultDigest": "sha256:94129f22393664da15599b0f7366ea6de77d44e6e2dd8c4e2a0f89a346e6ddeb"
+        "resultDigest": "sha256:baea21fa3474577748e946ad69915b3ab15509f902730c823a5b021b94417363"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -100,10 +102,11 @@
           "scopeRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
             "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
           ]
         },
-        "resultDigest": "sha256:8ba11e4a26de20f2e532fdd2eb704774708bbf07effdc51b0819b159986d2330"
+        "resultDigest": "sha256:61e04a29d8417d44dc73772882255b41d3af2fe46f9f7adc96b03f029c2a4a89"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -115,6 +118,7 @@
         "provenanceRefs": [
           "scope:checklist:CHK-001",
           "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
           "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
@@ -124,10 +128,11 @@
           "scopeRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
             "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
           ]
         },
-        "resultDigest": "sha256:cb7f4f155cd881248be443ef3894833603d2bab345877acbc455bd06b0d4569a"
+        "resultDigest": "sha256:60a71694625734965282c40f2a749d11ce5267a6e5f7780869ce139a364ec701"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -142,7 +147,7 @@
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
         "provenanceRefs": [
-          "source-file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md:sha256:e31b3281d082d9b5a509a10d21425fa7815fb8c0283b0097c50897c05e6f5cab",
+          "source-file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md:sha256:95ba428a057b2bab6624aedf46c642f1b6aef7810befca6d324da1d01e5566e7",
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
@@ -155,15 +160,17 @@
           "scopeRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
             "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
           ]
         },
-        "resultDigest": "sha256:83fd2865671a0bd79aa6867224dc093b382849928228fb734b917441ed75a12b"
+        "resultDigest": "sha256:e28d030aaa66740935aced07f23e364dba4d0503bbd6e9b0dfbd8459225bc9f6"
       }
     ],
     "scopeRefs": [
       "scope:checklist:CHK-001",
       "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
       "scope:file:docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
     ],
     "sourceInventoryRefs": [
@@ -219,7 +226,7 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:5479f868c8177b2bba4a510d14ba27aa1b4199a04b182d117c82e96fb641e9ab",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:e767e1063f2cf1fcd1361808e77f37996d68154ac40b6c3fd1fa7ada30fc5b02",
+      "sourceSnapshotDigest": "sha256:35b37b1859ac3f467c52a93aba0326c83af4bf1d0dc0eb58182e53db3a137f5e",
       "sourceSnapshotCount": 793,
       "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
       "status": "partial",
@@ -245,37 +252,37 @@
           "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         }
       ],
-      "sealDigest": "sha256:2ee22b7d1148718d28ead4bdae8e9daf1696ec59ce767370cc0fc3a8ebdde0c4"
+      "sealDigest": "sha256:3186e0243454ca02472ffc2a0cc06682215fa6bb4f9671be0e92d01778ec9935"
     },
     "binding": {
-      "headHash": "79c3bf4895d05b9d8befc21286bec51ad35af279",
-      "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-      "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-      "scopeCheckDigest": "sha256:edc58f347d498c4b93972e1ee6c4f9f27987b6930d3b43540125561ef66dc2f1",
+      "headHash": "e73a55f4d0f102a048ff6e34dc5c5a3593552b97",
+      "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+      "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+      "scopeCheckDigest": "sha256:5b391ddbbab03195eb51256d7d52e78b4e27e637936f3f732846b5ff3a5559a9",
       "scopeContractDigest": "sha256:c9275af4c4032bb062b275695424a62ec5cddc99ff1f18e19a737e1d7d23fbb1",
-      "closureFilesHash": "sha256:6697ffdae4e2c355b77f4c988300e0b4e9cb1eb3047e6ee37e32af1c316170e1"
+      "closureFilesHash": "sha256:9a7da4d3f36c3a036e3e10f3e981521f44d4c46c84358cc14a9bcd9e951f82b2"
     },
-    "receiptRef": "receipt:coverage-basis:B-c648:plan:f8f3f01880dd6fcc",
-    "basisDigest": "sha256:f1b15a11b1b58a861c7257fcb3837c36d0c7763ef8676978773ab6b6716fb60b"
+    "receiptRef": "receipt:coverage-basis:B-c648:plan:cfc6ad70cc46c09f",
+    "basisDigest": "sha256:ae69a643ae5bca3d066da5ef33517660f7dfbd8aae9ea50a8d6dd82d7b424d88"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-c648:plan:f8f3f01880dd6fcc",
+    "receiptRef": "receipt:coverage-basis:B-c648:plan:cfc6ad70cc46c09f",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-c648",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:f1b15a11b1b58a861c7257fcb3837c36d0c7763ef8676978773ab6b6716fb60b",
+    "basisDigest": "sha256:ae69a643ae5bca3d066da5ef33517660f7dfbd8aae9ea50a8d6dd82d7b424d88",
     "topologyDigest": "sha256:dbcd071e1011a63119e167f54b72dcc235f84245eee33b2f9b2324d29ac38e20",
-    "scopeCheckDigest": "sha256:edc58f347d498c4b93972e1ee6c4f9f27987b6930d3b43540125561ef66dc2f1",
+    "scopeCheckDigest": "sha256:5b391ddbbab03195eb51256d7d52e78b4e27e637936f3f732846b5ff3a5559a9",
     "scopeContractDigest": "sha256:c9275af4c4032bb062b275695424a62ec5cddc99ff1f18e19a737e1d7d23fbb1",
-    "headHash": "79c3bf4895d05b9d8befc21286bec51ad35af279",
-    "materialHash": "39fbd4e7ae2a1f7129085536a6892e4b01bf3c19bebc8cda687d814d63806070",
-    "storyFilesHash": "608acd7923bcb9a2238f64788d5bf99ee7eb1a2fd80b208e01f353656ade0f92",
-    "closureFilesHash": "sha256:6697ffdae4e2c355b77f4c988300e0b4e9cb1eb3047e6ee37e32af1c316170e1",
-    "sealDigest": "sha256:2ee22b7d1148718d28ead4bdae8e9daf1696ec59ce767370cc0fc3a8ebdde0c4",
+    "headHash": "e73a55f4d0f102a048ff6e34dc5c5a3593552b97",
+    "materialHash": "1a67121887d335d89c0844d7473012524aab2bd933069182ab0c924be449d030",
+    "storyFilesHash": "c6c3b13e7d989b0e14d8df4e072c614ad66396b55312cdc351946873cb1849e0",
+    "closureFilesHash": "sha256:9a7da4d3f36c3a036e3e10f3e981521f44d4c46c84358cc14a9bcd9e951f82b2",
+    "sealDigest": "sha256:3186e0243454ca02472ffc2a0cc06682215fa6bb4f9671be0e92d01778ec9935",
     "workspaceIdentityDigest": "sha256:919791ebb8aa65e4f00cdef13582c224a6a99decbc1b9400c6c47d7a78ad1378",
-    "signature": "q/vruweB3y/iZeg3gIWZuWBPdFkbrFD/TZQTKgezd6DsFo/9HwbOqhaN5iXRjMrj7xieesR7BoHOkFXm6kZcAA=="
+    "signature": "KQpYp/F45r2fxlyfxNSw2p24PdUccP5X4QaUZT4cvt+ktpXnwo0V2wtnolnPIzuwwWwpAH4gMy3MV/aUDWxQDg=="
   }
 }
