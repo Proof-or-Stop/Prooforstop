@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-6693",
   "mode": "observe",
-  "cutoffAt": "2026-08-14T16:17:47.832Z",
-  "planBasisDigest": "sha256:a41a5b6936471f8ba259266affa4cd67da77285aa86a6af0e6dbfbce5c217640",
+  "cutoffAt": "2026-08-14T16:50:19.023Z",
+  "planBasisDigest": "sha256:41200b98d4328c8359f9e365889e8a6c0be335f4c9e5881a0d3d3a35bbc423f7",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-6693",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:a41a5b6936471f8ba259266affa4cd67da77285aa86a6af0e6dbfbce5c217640",
+      "priorPlanBasisDigest": "sha256:41200b98d4328c8359f9e365889e8a6c0be335f4c9e5881a0d3d3a35bbc423f7",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -55,6 +55,7 @@
               "scope:checklist:CHK-001",
               "scope:checklist:CHK-002",
               "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
               "scope:file:docs/CLI.md",
               "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
               "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -62,10 +63,11 @@
               "scope:file:packages/main/src/core/validation-execution-lock.ts",
               "scope:file:packages/main/src/handlers/done-required-validation.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:e3d8388e5cd3911f73b4fdd6dd4f7bc6cfe0c42f569ffa31cca5d38dcf2643a0"
+          "resultDigest": "sha256:5d894357815cfcf3729d5715907d06e96a354ce80c88940c98ec68ea5a57d4cf"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -107,6 +109,7 @@
               "scope:checklist:CHK-001",
               "scope:checklist:CHK-002",
               "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
               "scope:file:docs/CLI.md",
               "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
               "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -114,10 +117,11 @@
               "scope:file:packages/main/src/core/validation-execution-lock.ts",
               "scope:file:packages/main/src/handlers/done-required-validation.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:b99390cf481894b2e325aed8a72e3151c586b2db9913286c1f81a65512822c3a"
+          "resultDigest": "sha256:03d654706d59f8561a33b0363f94123ad66b738a49c7a8138c128afbf7dea362"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -137,6 +141,7 @@
               "scope:checklist:CHK-001",
               "scope:checklist:CHK-002",
               "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
               "scope:file:docs/CLI.md",
               "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
               "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -144,22 +149,26 @@
               "scope:file:packages/main/src/core/validation-execution-lock.ts",
               "scope:file:packages/main/src/handlers/done-required-validation.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:5d87174fa9aaa648a392fba7d472d00abc968943a6b1921846cb6d753f8b2c13"
+          "resultDigest": "sha256:32d218d53b97bfe4c3b2585d1e34b71868c3fc1bbf269b2a5bc66a318a95fd7c"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
           "adapterId": "scope-contract:plan:v1",
           "method": "scope_contract",
-          "pathRefs": [],
+          "pathRefs": [
+            "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY"
+          ],
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
             "scope:checklist:CHK-001",
             "scope:checklist:CHK-002",
             "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
             "scope:file:docs/CLI.md",
             "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
             "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -167,8 +176,10 @@
             "scope:file:packages/main/src/core/validation-execution-lock.ts",
             "scope:file:packages/main/src/handlers/done-required-validation.ts",
             "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
             "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts",
-            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:packages/main/src/core/validation-execution-lock.ts:sha256:6c5582750800a617192de8802115fa8de3da040a6a6618bed2ac421045fc0b94"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -177,6 +188,7 @@
               "scope:checklist:CHK-001",
               "scope:checklist:CHK-002",
               "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
               "scope:file:docs/CLI.md",
               "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
               "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -184,23 +196,39 @@
               "scope:file:packages/main/src/core/validation-execution-lock.ts",
               "scope:file:packages/main/src/handlers/done-required-validation.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:cad83c47249c37faff7b69cfd559cea8d29f9b61b6936cb8a27bb50420cb59a9"
+          "resultDigest": "sha256:5e19685acb6ab9fe8366e391e92cb89629540dd5e97b804ea15b0dcb1125ffe1"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
           "adapterId": "static-call-graph:plan:v1",
           "method": "static_call_graph",
           "pathRefs": [
+            "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withOfficialValidationExecution",
+            "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withWorkspaceValidationCapacity",
             "path:process-fact:acceptance_basis->consumer:<audit-only>",
             "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
             "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
             "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
             "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+            "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+            "path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
+            "path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof",
+            "path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact",
+            "path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef",
+            "path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords",
+            "path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent",
+            "path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot",
+            "path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           ],
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
@@ -218,6 +246,7 @@
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
             "source-file:packages/main/src/handlers/verifier.ts:sha256:2f50248e80d374179068d0e6efe678b85868bb287cb733379ab48b8e531f8f80",
+            "source-file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:sha256:7e4383f31f7550fe281a1415a3f21a516c325da69287ee1786f07e6c09baf04e",
             "source-file:packages/main/src/tasks/validate-execution-lock-smoke.ts:sha256:898fd1d8b6d2c604b6547e539fbcb8fee7d46410a257e9b3ed6b76328ca445a4",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
             "source-file:scripts/verify-process-fact-contract.mjs:sha256:dd0292586206f955a8f1d9c0c56c861ddf138754d3bcf245fdc51533bafeeeab"
@@ -229,6 +258,7 @@
               "scope:checklist:CHK-001",
               "scope:checklist:CHK-002",
               "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
               "scope:file:docs/CLI.md",
               "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
               "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -236,16 +266,18 @@
               "scope:file:packages/main/src/core/validation-execution-lock.ts",
               "scope:file:packages/main/src/handlers/done-required-validation.ts",
               "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:aeb6f5a6cc5c332e2eb33c32d938326d3da17c1471429e2f3f6892ea7376c1f5"
+          "resultDigest": "sha256:ef57c0ed92d4b1cc1661c13f3e268391b6170fb32124f17a39c1c0ee0ed41a02"
         }
       ],
       "scopeRefs": [
         "scope:checklist:CHK-001",
         "scope:checklist:CHK-002",
         "scope:checklist:CHK-003",
+        "scope:checklist:CHK-004",
         "scope:file:docs/CLI.md",
         "scope:file:docs/requirements/decisions/done-full-test-gate-execution-plan.md",
         "scope:file:docs/requirements/decisions/testing-infra.md",
@@ -253,11 +285,13 @@
         "scope:file:packages/main/src/core/validation-execution-lock.ts",
         "scope:file:packages/main/src/handlers/done-required-validation.ts",
         "scope:file:packages/main/src/handlers/verifier.ts",
+        "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
         "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "sourceInventoryRefs": [
         "artifact:acceptance-basis.json",
         "artifact:pre-review-check.json",
+        "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
         "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
         "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
         "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
@@ -277,6 +311,7 @@
         "source-file:closure:packages/main/src/handlers/proofstory.ts",
         "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
         "source-file:closure:packages/main/src/handlers/verifier.ts",
+        "source-file:closure:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
         "source-file:closure:packages/main/src/tasks/validate-execution-lock-smoke.ts",
         "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:closure:scripts/verify-process-fact-contract.mjs",
@@ -316,34 +351,99 @@
         "source-file:producer:pre_review_check:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-live-proof.ts",
-        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs"
+        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source_file:packages/main/src/core/validation-execution-lock.ts#withOfficialValidationExecution",
+        "source_file:packages/main/src/core/validation-execution-lock.ts#withWorkspaceValidationCapacity"
       ],
-      "plannedPathRecords": [],
-      "plannedActualReconciliations": [],
+      "plannedPathRecords": [
+        {
+          "schemaVersion": "proofstory.planned_coverage_path.v1",
+          "plannedPathRef": "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+          "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+          "declarationDigest": "sha256:d9c10ff2f8d7427ea8447abaeed75e7d8a52c22275435c9a7416e0ed1806af1e",
+          "producer": {
+            "id": "EP-CAPACITY-LEASE",
+            "role": "producer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+            "expectedSymbolOrFact": "withWorkspaceValidationCapacity",
+            "fileDeclarationRef": "CHK-001:files:modify:0"
+          },
+          "consumers": [
+            {
+              "id": "EP-OFFICIAL-VALIDATION",
+              "role": "consumer",
+              "expectedArtifactKind": "source_file",
+              "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+              "expectedSymbolOrFact": "withOfficialValidationExecution",
+              "fileDeclarationRef": "CHK-001:files:modify:0"
+            }
+          ],
+          "outputFactRef": "workspace-validation-capacity-lease",
+          "acceptanceBindingRefs": [
+            "acceptance-binding:REQ-WORKSPACE-CAPACITY"
+          ],
+          "verificationIntentRefs": [
+            "CHK-001:happy:0"
+          ],
+          "declarationRefs": [
+            "CHK-001:files:modify:0",
+            "CHK-001:files:modify:0"
+          ],
+          "plannedPathDigest": "sha256:d6153135577ab130b5c6658a9198598be76d9b510e9554aec1e82c0a0d64e3f7"
+        }
+      ],
+      "plannedActualReconciliations": [
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withWorkspaceValidationCapacity",
+            "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withOfficialValidationExecution"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:1501e01d0d681ecedff082d4c22b4f2b23d7ea2d6101faa252fe363c495e0e29"
+        }
+      ],
       "enumeratedPathRefs": [
+        "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withOfficialValidationExecution",
+        "actual:source_file:packages/main/src/core/validation-execution-lock.ts#withWorkspaceValidationCapacity",
         "path:process-fact:acceptance_basis->consumer:<audit-only>",
         "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
         "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+        "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+        "path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
+        "path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof",
+        "path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact",
+        "path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef",
+        "path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords",
+        "path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent",
+        "path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot",
+        "path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
+        "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY"
       ],
       "excludedPathRefs": [],
       "blindSpots": [
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
       ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:5a483d26784898429d1172f2991652810d01aab33f863ea9cb8e147e15e6053c",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:17f6e2bef6889dcef17330c15621ce2bfd6c8d51b1ecebaebeb29e0a1fdd747d",
+        "sourceSnapshotDigest": "sha256:b536b38a397eaf3c7fe4b2adc435c9fd722ee52a39affac7f6d6745690d27b7e",
         "sourceSnapshotCount": 796,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
         "status": "partial",
@@ -351,260 +451,94 @@
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords"
           },
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
           }
         ],
-        "sealDigest": "sha256:05bfdf997bf13ec026d89a70f0709f1e6599172ac11a4797fc43c06b5b9a8c96"
+        "sealDigest": "sha256:9fa66a2d42a68c4273f14b2459fcf4b506ee943c54a139891d87146f1623c52f"
       },
       "binding": {
-        "headHash": "f7cabc5f1bc267e1103c9dd86e329f056f411e1a",
-        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "28960773b1aac7122e55220fd7a297e3dd67201f",
+        "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+        "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
         "scopeCheckDigest": "sha256:c73b5a88c3d3b88991e53eb8ade16a5e95e31113826cdf0777e9069dcaf11c4b",
-        "scopeContractDigest": "sha256:907379d76b6d4117704843dcf1d2567818ef281e7645faf079b24c82db48f3eb",
-        "closureFilesHash": "sha256:4799111d79e9624ee369a3b633e8bc19364b154d8b3fba4eb3b3b4596efc5731"
+        "scopeContractDigest": "sha256:b763d4133073ca622d6618b15a8cb21ec7f4c4daffb3ef2a9b1b6aaf72edeb87",
+        "closureFilesHash": "sha256:f5ee3a4e61002722c7ad64d9aeb9f4ec2a67f70789ce951e3fa55a6e3f71c13d"
       },
-      "receiptRef": "receipt:coverage-basis:B-6693:pre_review:48b75971fcb257df",
-      "basisDigest": "sha256:b13f1a16f4b4409e4976a7146ada76cf84eb4cbe8e1145c45def6261703986c9"
+      "receiptRef": "receipt:coverage-basis:B-6693:pre_review:af0478a20923c5ec",
+      "basisDigest": "sha256:49726abe1b0eb74d2baac9299efd7ee3f629ff8ec4d6bcd33d0b6de2ef3a8c1a"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-6693:pre_review:48b75971fcb257df",
+      "receiptRef": "receipt:coverage-basis:B-6693:pre_review:af0478a20923c5ec",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
       "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
       "storyId": "B-6693",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:b13f1a16f4b4409e4976a7146ada76cf84eb4cbe8e1145c45def6261703986c9",
-      "topologyDigest": "sha256:965d4abcde8f362780732d6150af6730a9339e59449d85b139c1c01085c6d2d9",
+      "basisDigest": "sha256:49726abe1b0eb74d2baac9299efd7ee3f629ff8ec4d6bcd33d0b6de2ef3a8c1a",
+      "topologyDigest": "sha256:6a17d8c09d7f184cc6adf76a21b7d9a296d1a2e2c80f0bd2aefdaff6fc0b40d7",
       "scopeCheckDigest": "sha256:c73b5a88c3d3b88991e53eb8ade16a5e95e31113826cdf0777e9069dcaf11c4b",
-      "scopeContractDigest": "sha256:907379d76b6d4117704843dcf1d2567818ef281e7645faf079b24c82db48f3eb",
-      "headHash": "f7cabc5f1bc267e1103c9dd86e329f056f411e1a",
-      "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-      "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-      "closureFilesHash": "sha256:4799111d79e9624ee369a3b633e8bc19364b154d8b3fba4eb3b3b4596efc5731",
-      "sealDigest": "sha256:05bfdf997bf13ec026d89a70f0709f1e6599172ac11a4797fc43c06b5b9a8c96",
+      "scopeContractDigest": "sha256:b763d4133073ca622d6618b15a8cb21ec7f4c4daffb3ef2a9b1b6aaf72edeb87",
+      "headHash": "28960773b1aac7122e55220fd7a297e3dd67201f",
+      "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+      "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+      "closureFilesHash": "sha256:f5ee3a4e61002722c7ad64d9aeb9f4ec2a67f70789ce951e3fa55a6e3f71c13d",
+      "sealDigest": "sha256:9fa66a2d42a68c4273f14b2459fcf4b506ee943c54a139891d87146f1623c52f",
       "workspaceIdentityDigest": "sha256:0594cfb9baf98223d7774a0678b34a60bcc37c73b5412e799f39c100f5db5c0f",
-      "signature": "kKJjtRln46Cjn4YU0ywroLgsnyiDk2gV6o800pRqF/+bOhkJKNjq5l1H3uxOTqZY7u/X8D4H4u4b9WuxcFjKDw=="
+      "signature": "yBLYgipu6PgR+KE2SIN2pBvc46/YaVswkD7nszhSGXkaOTWH7zdhoQHw9J8KtWVuDJ2OWI6qn5CLmx2zX/LDCQ=="
     }
   },
-  "topologyDigest": "sha256:965d4abcde8f362780732d6150af6730a9339e59449d85b139c1c01085c6d2d9",
+  "topologyDigest": "sha256:6a17d8c09d7f184cc6adf76a21b7d9a296d1a2e2c80f0bd2aefdaff6fc0b40d7",
   "scopeCheckDigest": "sha256:c73b5a88c3d3b88991e53eb8ade16a5e95e31113826cdf0777e9069dcaf11c4b",
-  "scopeContractDigest": "sha256:907379d76b6d4117704843dcf1d2567818ef281e7645faf079b24c82db48f3eb",
-  "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-  "closureFilesHash": "sha256:4799111d79e9624ee369a3b633e8bc19364b154d8b3fba4eb3b3b4596efc5731",
+  "scopeContractDigest": "sha256:b763d4133073ca622d6618b15a8cb21ec7f4c4daffb3ef2a9b1b6aaf72edeb87",
+  "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+  "closureFilesHash": "sha256:f5ee3a4e61002722c7ad64d9aeb9f4ec2a67f70789ce951e3fa55a6e3f71c13d",
   "evidenceRefs": [
     {
-      "intentRef": "CHK-001:adversarial:0",
-      "itemId": "CHK-001",
-      "evidenceIndex": 5,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:fddbbeef925ffdec0550a8d55fa6bb78f0205e8b625192e3e57ade0a3cff5e32"
-    },
-    {
-      "intentRef": "CHK-001:adversarial:1",
-      "itemId": "CHK-001",
-      "evidenceIndex": 6,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:2f95a44798a9d71f9e3669146ab3e524f01df1c76795875c5cc8cb25f1d985ba"
-    },
-    {
-      "intentRef": "CHK-001:adversarial:2",
-      "itemId": "CHK-001",
-      "evidenceIndex": 7,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:f54faa75af232099cca5e787c40bdedc52a1d68e42a2f7fd37e9adc62f3380ce"
-    },
-    {
-      "intentRef": "CHK-001:adversarial:3",
-      "itemId": "CHK-001",
-      "evidenceIndex": 8,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:6cbf54d5e1fe3958be968f969600072f5ceeeb11c5012fbef10ea239a0712d21"
-    },
-    {
-      "intentRef": "CHK-001:edge:0",
-      "itemId": "CHK-001",
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:22eae6611d82d1bebd2e5d2275d71779ada73ae904535c54265e519e10aa3401"
+      "evidenceDigest": "sha256:00a213f5ad021b2a5b1be1d5dbcee09be1fe66243c1b1ec7cc63078a59a68777"
     },
     {
-      "intentRef": "CHK-001:edge:1",
-      "itemId": "CHK-001",
-      "evidenceIndex": 3,
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:18b75ea5f53c028718a941f3035aeba5b93efcb46f97104132e797816d19de2a"
+      "evidenceDigest": "sha256:799dbee96878a4eb13bcb3c9b2ab5dadb6a8dbbb4af1e31812a0001d07c7faff"
     },
     {
-      "intentRef": "CHK-001:edge:2",
-      "itemId": "CHK-001",
-      "evidenceIndex": 4,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:72e361f52f6f19b64bb3ddbe4f825e5220ae5b25676d3b203fbd27e8c6d836f9"
-    },
-    {
-      "intentRef": "CHK-001:happy:0",
-      "itemId": "CHK-001",
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
       "evidenceIndex": 0,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:e1c016aec4b333c610ae07e5be4fc997491e838a7633b04a0f2106e4e4914b28"
-    },
-    {
-      "intentRef": "CHK-001:happy:1",
-      "itemId": "CHK-001",
-      "evidenceIndex": 1,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:7b5e58a1d459c79c99051118b94f48b18c8a0168eb10d95c4fd27624d91db3c5"
-    },
-    {
-      "intentRef": "CHK-002:adversarial:0",
-      "itemId": "CHK-002",
-      "evidenceIndex": 5,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:628e6992f89c349931c6a5b574c3224b54546d7fbc7125a145e36e8fdde40381"
-    },
-    {
-      "intentRef": "CHK-002:adversarial:1",
-      "itemId": "CHK-002",
-      "evidenceIndex": 6,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:76df25969cef67580891ccbeae1b24de3c01ec6115eed119794b36bc84890683"
-    },
-    {
-      "intentRef": "CHK-002:adversarial:2",
-      "itemId": "CHK-002",
-      "evidenceIndex": 7,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:e9c342bf1af6e5730ee298ce9de2bf827a05943131b366425dc4252ef66c2c60"
-    },
-    {
-      "intentRef": "CHK-002:edge:0",
-      "itemId": "CHK-002",
-      "evidenceIndex": 2,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:e0ae166232365ae49a985be4d294c0d218ce49611699455f6f3f539d1dc9f36b"
-    },
-    {
-      "intentRef": "CHK-002:edge:1",
-      "itemId": "CHK-002",
-      "evidenceIndex": 3,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:517677068c3add339b3d6a98e2307653073a7a8889693c3f4ff1aeebf900a0e4"
-    },
-    {
-      "intentRef": "CHK-002:edge:2",
-      "itemId": "CHK-002",
-      "evidenceIndex": 4,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:405a29a06f28ef74a8ad029a8e381b2b3ea5dfa3f66d135add7e65f6d8f68119"
-    },
-    {
-      "intentRef": "CHK-002:happy:0",
-      "itemId": "CHK-002",
-      "evidenceIndex": 0,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:f90faf69cff71a7a839b1672b718a262ca6dc29a9539a70a24b8efdb301fad93"
-    },
-    {
-      "intentRef": "CHK-002:happy:1",
-      "itemId": "CHK-002",
-      "evidenceIndex": 1,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:18d4a927cbe54cee8c1a499534a5902469ed7594c41dd3e5e82f7a48128af08a"
-    },
-    {
-      "intentRef": "CHK-003:adversarial:0",
-      "itemId": "CHK-003",
-      "evidenceIndex": 6,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:a18c6fa40786a0624f6f52572568035c9f4aa5f7dfa14c73c20dcfb3a68631ac"
-    },
-    {
-      "intentRef": "CHK-003:adversarial:1",
-      "itemId": "CHK-003",
-      "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:5d50824092374dd6254d2dc1c07a1d87c58cd393d24623389b6f51d3ea76392c"
-    },
-    {
-      "intentRef": "CHK-003:adversarial:2",
-      "itemId": "CHK-003",
-      "evidenceIndex": 7,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:c072e0d1da0a9b626fd68b49167cebbe0a52ec34a32585b489c7d4817d06bc28"
-    },
-    {
-      "intentRef": "CHK-003:adversarial:3",
-      "itemId": "CHK-003",
-      "evidenceIndex": 8,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:3e480c8f8c819213c07aafaa73610053aa70bf415a8abd16dd231cc1a9b833ac"
-    },
-    {
-      "intentRef": "CHK-003:edge:0",
-      "itemId": "CHK-003",
-      "evidenceIndex": 4,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:33a4f3fc365e4559a6315a4ee56d3be1c41952492981b048b8d7234ab40e1412"
-    },
-    {
-      "intentRef": "CHK-003:edge:1",
-      "itemId": "CHK-003",
-      "evidenceIndex": 5,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:712296d27d8304b4b33919929e9fbc14f73b1ae01e15a55b911bb721ee96660c"
-    },
-    {
-      "intentRef": "CHK-003:edge:2",
-      "itemId": "CHK-003",
-      "evidenceIndex": 3,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:c9293f6192c6c6c86e6361c2ed049edd0938197c75d5598499257fa265102b0e"
-    },
-    {
-      "intentRef": "CHK-003:happy:0",
-      "itemId": "CHK-003",
-      "evidenceIndex": 2,
-      "kind": "integration_test",
-      "evidenceDigest": "sha256:d6a4987dda00f2ac81b6e55ca8eca407bec9af03f62c5f6729fcf8b46f251fc8"
-    },
-    {
-      "intentRef": "CHK-003:happy:1",
-      "itemId": "CHK-003",
-      "evidenceIndex": 0,
-      "kind": "docs_check",
-      "evidenceDigest": "sha256:1e171d699470b63ba458376e7e019d7ab0f426f48d6189518fae4fdcb44f5343"
+      "evidenceDigest": "sha256:87af38e622ca795e64533c22aeb93890277ea02fa79d15a3d34cc01150289e42"
     }
   ],
   "executableProof": {
@@ -612,31 +546,57 @@
     "storyId": "B-6693",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:546c4f70af6789128a28b3a5fcd1dbbfbc22e91053d97737601cd919537ec582"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "REQ-WORKSPACE-CAPACITY",
+        "positiveAssertionIds": [
+          "A-POS-5"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "A-MUT-17",
+            "expectedCode": "ABSENT",
+            "observedCode": "ABSENT",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "A-TRANSCRIPT-1",
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-OFFICIAL-VALIDATION"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          }
+        ]
+      }
+    ]
   },
   "codes": [
     "PR_NEW_PATH_UNMAPPED",
     "PR_COVERAGE_BASIS_CHANGED",
     "PR_COVERAGE_INCONCLUSIVE",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE"
+    "PR_POSITIVE_EVIDENCE_MISSING",
+    "PR_EVIDENCE_STALE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-14T16:17:47.832Z",
+  "issuedAt": "2026-08-14T16:50:19.023Z",
   "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
-  "signature": "d2bwkJmrqFQB9g1mq2PoKHzHU6jsB9laSJ5ZSefqh92w16/1yp65wQItWTRjja8sGRNeBifXthyaYswkNLoXAA=="
+  "signature": "3w/zdCpIIkPScOTpLWXxRmQ+CBjFokh+UzvlHpyrhqRPDsLzZGukEO8oseBlF7dzZIla9cD31Z7XX9SI9DecDQ=="
 }
