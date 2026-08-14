@@ -103,6 +103,54 @@
         "test": [
           "packages/main/src/tasks/validate-execution-lock-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Launch different-story validate processes A then B against linked worktrees, hold A after callback entry, and assert B emits holder diagnostics without entering; release A and assert terminal order is A PASS evidence then B callback then B PASS evidence, with both children exiting 0. WHY: directly proves wait-and-run and rejects fail-fast or wait-forever implementations.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate for story A, queue lattice done_required_validate for story B, then reverse the roles; assert both entrypoint pairs serialize and each command writes its own expected evidence artifact only after its callback runs. WHY: both official gates must consume one shared capacity mechanism.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Exercise owner callback success and throw paths with a queued successor; assert the lease directory is released in finally, the successor enters exactly once, and the thrown owner result remains a failure rather than being converted to PASS. WHY: cleanup must preserve command truth.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Terminate a child owner after it acquires capacity, retain a queued child, and assert the queued child does not enter while ownership is live, reclaims only after dead-holder classification and stale policy allow it, then exits 0 without orphan lock files. WHY: abrupt process loss must converge safely.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold one owner while three independent waiters queue; assert sampled max concurrent callback count is exactly one, every non-aborted waiter eventually runs after successive releases, and progress output is rate-bounded rather than emitted per poll. WHY: serialization must not trade races for starvation or log flooding.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Delay story A after validation command exit but before evidence persistence and start story B; assert B cannot enter capacity until A persistence finishes and A evidence cannot overwrite B evidence afterward. WHY: the capacity lease must cover the complete official evidence critical section, not only child execution.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Run a same-story nested validation from the owning AsyncLocal context and a same-story independent process concurrently; assert only the true nested call is reentrant, the independent process queues, and the existing per-story evidence lock is still acquired inside capacity. WHY: preserving the inner lock must not permit sibling-context bypass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Seed malformed, mismatched-start-time, and fresh unknown holder records and assert the test never deletes a holder unless the shared classifier proves reclaimable; all refused takeovers keep callback entry count zero. WHY: hostile or partial metadata must fail closed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
