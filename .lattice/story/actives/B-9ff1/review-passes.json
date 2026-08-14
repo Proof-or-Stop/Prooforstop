@@ -500,6 +500,39 @@
         "scanEscalationReason": null
       },
       "_hash": "db290147cedbe624180cce578d5ae2c2a9f875e240eaf3a393e46d36eeab6915"
+    },
+    {
+      "id": "B-9ff1:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Rebuilt inventory from scratch by pattern search (grep -rl red_evidence_envelope_check across the whole repo, no reuse of prior list): 11 non-dist source/test files mention the command, 10 of which (activity-policy.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, red-evidence.ts, registry.ts, red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs -- exactly the repair commit's file list) make substantive claims; command-catalog-smoke.ts only asserts ordering, no claim. Verified every claim in all 10 against source, including the four names given explicitly: command-policy.ts no longer says surfaced by a non-zero exit not by a write (grep confirms zero remaining instances of that phrase or writes nothing/no artifact about this command repo-wide); process-fact-levels.ts and process-fact-registry.ts both now state the onError/activity-row caveat (process-fact-registry.ts previously said writes nothing and covered nothing -- now covered and corrected); runtime-artifact-registry.ts registration of .lattice/activity.jsonl as runtime-activity-log (line 44) is cited accurately everywhere it is invoked. Confirmed by reading cli-engine.ts directly: runHooks( has exactly three call sites (preCommand line 1352, postCommand line 1458, onError line 1523); preCommand/postCommand are wrapped in if(!isReadOnlyCommand(...)) but the onError call at 1523 carries no such guard (only a stderr-message branch is gated on config0?.hooks?.onError, the call itself is unconditional on the catch path) -- matches every file's claim. writeCodexProcessEvent (line 1195) has its own internal isReadOnlyCommand early return (line 1215) -- confirms the writeCodexProcessEvent class-wide suppression claim. shouldWriteActivityLog (activity-policy.ts:177) returns LATTICE_ACTIVITY_RECORD_READONLY==='1' for read-only commands, and that env var is baked into GLOBAL_CODEX_FALLBACK_COMMAND (codex-adapter-checks.ts:57) and the generated Codex wrapper (init-assets.ts:160) -- confirms this is a real operating mode, not a test knob. All 10 files agree substantively post-repair: unconditionally no RED-evidence record/chain record/story-evidence-artifact/process-event/gate-verdict-change/preCommand-postCommand-hook; NOT guaranteed are the onError hook and one activity.jsonl row (which on the throw path carries the rejection report in its error field, confirmed by writeLog call at cli-engine.ts:1489 passing error:e.message, vs the success-path writeLog at line 1417 which carries no error field since commandSucceeded is true -- so files correctly scope the recorded-verdict claim to the throw path only, not overclaiming it for the ADMISSIBLE success path). No divergent formulations found -- this is a correctly-converged second pass. Boundary confirmed clean: git diff 0954bda0c8~1..0954bda0c8 -- scope-contract.json checklist.json execution-boundary.json scope-boundary.json scope-check.json is empty (frozen files untouched); the six Nothing written. refusals belonging to W2b/W2c (2 refusal branches x 3 chain commands sharing readRedEvidenceForChain in red-evidence.ts, plus the unrelated red-evidence-artifact-validation.ts/proofstory.ts/dev-memory.ts occurrences) are all outside the diff; the usage_sweep/B-70e9 comments in process-fact-levels.ts, command-policy.ts and config.ts are untouched -- diffs in those three files are single-line, scoped only to the red_evidence_envelope_check entry. Per F-029's resolvedReason, scope-contract.json (line 33, appends no hook no activity log no process event) and checklist.json CHK-012:edge:0's note (no .lattice file created/modified/removed across 8 invocations) do carry now-superseded phrasing -- correctly left untouched (frozen story artifacts, not material code) and disclosed rather than silently stale. Judgement on the ADMISSIBLE transcript line (This check is read-only: it validated the envelope and executed nothing., handlers/red-evidence.ts:477, unchanged): the reasoning is sound on the onError half (verified from source -- onError only runs on the cli-engine.ts catch/throw path at line 1523, and the ADMISSIBLE branch returns a string normally without throwing, so onError structurally cannot fire there) but incomplete on the write-claim half. onError not firing does not make the line write-safe in general: the activity-log surface is independent of throw/no-throw -- the SUCCESS-path writeLog call (cli-engine.ts:1417) is gated only by shouldWriteActivityLog(cmd,parsed)||staleWarnings.length>0, the same predicate as the failure path, so a row CAN still be appended on this exact ADMISSIBLE branch under LATTICE_ACTIVITY_RECORD_READONLY=1 or an uncooled stale warning. What saves this line from being a repeat of the F-024/F-029 defect is that the row it can produce here is content-free: success:true with no error field, so no verdict or report is recorded in it, unlike the throw path. And unlike command-policy.ts/process-fact-registry.ts (cited elsewhere as source of truth and literally inherited), this operator console line is not cited by any other file as an authoritative contract. So I do not block on it, but the word read-only used bare on this line is the same word this repair spent ten files qualifying as necessary-but-not-sufficient for a no-write guarantee, and leaving it unqualified here is a residual inconsistency in voice, not substance -- worth a follow-up editorial pass, not a blocking finding this round. Ran node packages/main/dist/tasks/red-evidence-envelope-smoke.js directly (required check): OK, all assertions pass, dist already reflects the src fix (grep for the old phrase in dist/core/command-policy.js returns nothing). Also ran packages/main/tests/red/red-w2d-command-readonly.mjs directly: PASS. finding_list --storyId=B-9ff1: all 29 findings resolved or dismissed (F-016 dismissed, F-001..F-029 remainder resolved), zero open.",
+      "createdAt": "2026-08-14T09:45:39.967Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-028",
+      "envelopeId": "7929a45b687c197048a57ca3a764e3fe1267d7e95b5cbed44e2b1bb5e43930ae",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c79b8e1b4d52536f22059aadd9530844bdeb1e639a1e8b28d340e75c7e99ecf4"
     }
   ]
 }
