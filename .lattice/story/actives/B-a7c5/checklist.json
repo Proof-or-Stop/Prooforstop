@@ -877,7 +877,11 @@
           },
           {
             "desc": "Smoke test source file exists at packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts AND lattice.config.json validate.commands contains an entry pointing to the compiled dist/ path -- both must be present simultaneously; WHY: source without registration means the test never runs in validate (silently passing CI with zero coverage)",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"); const hasSrc=fs.existsSync(\\\"packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts\\\"); const cfg=fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"); const hasCfgEntry=cfg.includes(\\\"packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js\\\"); console.log((hasSrc && hasCfgEntry) ? \\\"BOTH_SOURCE_AND_CONFIG_REGISTERED\\\" : \\\"MISSING_ONE\\\")\"",
+              "selector": "BOTH_SOURCE_AND_CONFIG_REGISTERED"
+            }
           },
           {
             "desc": "Smoke test CHK-002 fail-safe coverage includes a concrete throw-path test (e.g. corrupt experience.jsonl or missing .lattice/dev-memory dir causing pack builder to throw) where finding_resolve still completes without error -- not just testing that advisory text appears on the happy path; WHY: the fail-safe-under-throw property is the critical adversarial guarantee of CHK-002, and testing only the happy path would miss a try/catch that silently swallows the wrong exception or re-throws",
@@ -1056,6 +1060,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:29:06.195Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const hasSrc=fs.existsSync(\\\"packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts\\\"); const cfg=fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"); const hasCfgEntry=cfg.includes(\\\"packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js\\\"); console.log((hasSrc && hasCfgEntry) ? \\\"BOTH_SOURCE_AND_CONFIG_REGISTERED\\\" : \\\"MISSING_ONE\\\")\"",
+          "result": "pass",
+          "note": "A single script checks both facts simultaneously: the source .ts file exists on disk AND lattice.config.json's validate.commands array contains an entry pointing at the compiled dist path -- only prints the marker if both are true at once.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "18eb68bd53773000c8affc937fbbd4cceb6f69c38adb99c19a0a556e7b5b5359",
+            "outputTail": "BOTH_SOURCE_AND_CONFIG_REGISTERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:29:07.423Z"
+          },
+          "headHash": "f6ffea65710e6a0b1c661d3d22d3ed742bb0ec3b",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:29:07.584Z"
         }
       ]
     },
