@@ -267,10 +267,30 @@
       "phase": "DEV",
       "headHash": "3323785aa72a28700e2d8d86d8b26b2f49fd00e9",
       "materialHash": "4c9a15ad72cb520bf1ef36aaae0fb3799de4d0a98c0bbddecfbfd055bd5f2173"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "RI-004 verified findings require synchronizing the mandatory rollout authority truth source and making docs-intent command+selector evidence produce a signed mechanical receipt with a dedicated bite test.",
+      "timestamp": "2026-08-14T19:04:56.449Z",
+      "paths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "de7ce70ee8680bedb051edc308bbc7651ebc52b5",
+      "materialHash": "ee33359cccc0674273dcc70e6f9aacc62e8cc87579e97f855d0f304a3753a9ec"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T17:31:50.217Z",
+  "updatedAt": "2026-08-14T19:04:56.450Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -334,6 +354,9 @@
     "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
   }
 }

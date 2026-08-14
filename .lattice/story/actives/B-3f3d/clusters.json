@@ -228,6 +228,40 @@
       ],
       "severity": "critical",
       "createdAt": "2026-08-14T18:09:57.805Z"
+    },
+    {
+      "clusterId": "CL-015",
+      "rootCause": "Multiple findings all involve lattice.config.json, docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "findingIds": [
+        "B-3f3d:F-022",
+        "B-3f3d:F-024"
+      ],
+      "files": [
+        "lattice.config.json",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-14T18:49:33.789Z"
+    },
+    {
+      "clusterId": "CL-016",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/story-lifecycle.md, packages/main/src/handlers/review-inventory.ts",
+      "findingIds": [
+        "B-3f3d:F-023",
+        "B-3f3d:F-028"
+      ],
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-14T18:49:34.306Z"
     }
   ]
 }
