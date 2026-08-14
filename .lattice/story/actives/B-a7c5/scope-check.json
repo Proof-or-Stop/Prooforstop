@@ -1,6 +1,6 @@
 {
   "storyId": "B-a7c5",
-  "checkedAt": "2026-08-14T10:38:18.452Z",
+  "checkedAt": "2026-08-14T10:51:29.229Z",
   "features": [
     {
       "feature": "dev_memory_preflight_ack command writes ack artifact (schemaVersion, storyId, packDigest, topHitIds, acknowledgedAt, acknowledgedBy) under .lattice/story/actives/<storyId>/dev-memory-preflight-ack.json",
@@ -29,6 +29,13 @@
       "status": "covered",
       "excluded_by": null,
       "source": "description"
+    },
+    {
+      "feature": "dev_memory_preflight_ack accepts an optional --reason (>=5 chars) reasoned-downgrade bypass path (packDigest:null/topHitIds:[]/downgradeReason) when the mechanical preflight-pack build throws; reason is mandatory for the downgrade path, no silent skip",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
     },
     {
       "feature": "Non-blocking dev-memory capture advisory text appended to finding_resolve output, referencing dev_memory_capture",
@@ -80,30 +87,44 @@
       "source": "description"
     },
     {
-      "feature": "New smoke test packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts covering all three gates against a fresh temp-git fixture, registered in lattice.config.json validate.commands",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Boolean guard (canFinishGuard) and its human-readable message twin (getGuardFailureReason) must be added in the same commit and kept in lockstep for the new CHK-003 check, since no shared data structure enforces parity in this codebase guard architecture",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Pre-existing M8 'Capture-Or-Noop Decision' milestone specifies dev_memory_finish_decision as an ADVISORY end-of-work reminder ('missing decision is visible in runbook/advisory output'), consistent with that same plan's Non-Goal 'Do not make every advisory reminder a hard blocker' and its Acceptance-Table row that all memory packs stay gateEvidence:false/authority:non_authoritative",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "CHK-003 refusal message must name the exact one-line fix command with all three valid decision values inline, so already-in-flight stories are not stuck with no clear unblock path",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New smoke test packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts covering all three gates against a fresh temp-git fixture, registered in lattice.config.json validate.commands",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Pre-existing M8 'Capture-Or-Noop Decision' milestone in playbook-runtime-memory-consumption-execution-plan.md describes dev_memory_finish_decision as an ADVISORY end-of-work reminder ('missing decision is visible in runbook/advisory output'), consistent with that plan's Non-Goal 'Do not make every advisory reminder a hard blocker' -- must be reconciled/updated to describe the actually-delivered blocking behavior rather than left stale",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
     },
     {
-      "feature": "Section 4.3 'Active Playbook Runtime': registered blocking DONE-gate consumer (CHK-003) exposes an operator-visible bypass/downgrade path with a reason via decision=defer-with-reason",
+      "feature": "Section 4.3 'Active Playbook Runtime': registered blocking DONE-gate consumer (CHK-003) exposes an operator-visible bypass/downgrade path with a reason via decision=defer-with-reason / no-reusable-lesson",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
     },
     {
-      "feature": "Section 4.3 'Active Playbook Runtime': registered blocking consumers must expose an operator-visible bypass/downgrade path with a reason -- CHK-001's new DEV-entry blocking gate has no analogous defer/skip-with-reason path if the underlying preflight-pack build itself fails",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Spec doc must additionally note that this is the first concrete instance of section 4.3's registered-blocking-consumer-with-operator-visible-bypass-path pattern being exercised for a dev-memory (not playbook) consumer",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
     }
@@ -242,43 +263,30 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": "High-risk lifecycle/gate change (story adds 3 new gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard) plus candidate_spec_route (hosts=false, deterministic local-only) reported requiresEscalation=true with ambiguitySignals=['candidate_cutoff_tie'] and escalationReasons including 'high_risk_structured_signal'. Beyond the tool's top-8 ranked candidates and the two directly-relevant full reads (dev-memory.md; playbook-runtime-memory-consumption-execution-plan.md, found via targeted grep for dev-memory/dev_memory/finish_decision/preflight_ack/finding_resolve), ran additional targeted rg sweeps across the full decisions/ corpus for exact symbol/command names (dev_memory_preflight_ack, dev_memory_finish_decision, evaluateDevMemoryPreflightGate, canFinishGuard, canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, INIT_CHECK, scope_boundary_set) and spot-read story-lifecycle.md / lifecycle-artifact-scope.md / cc-learnings.md / a matched section of red-evidence-legacy-v1-record-validation-audit.md to rule out missed direct commitments. No further full-content reads beyond the two candidates were warranted; the wider hit set was either the same generic term overlap the ranker flagged (advisory/capture/handlers/import/registration) or confirmed incidental/unrelated to this story's dev-memory-gate scope.",
-    "candidateSpecSetDigest": "6f31fe0f2dfd5c35d356c58206759a9de46beafdf0bdb277608ddd4cfb89ed5e",
+    "scanEscalationReason": "High-risk lifecycle/gate change (story adds/extends 3 gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard) plus candidate ambiguity: candidate-spec-set.json's own top-8 ranked routing (score 40-64, generic term overlap on 'advisory'/'capture'/'handlers'/'import'/'registration'/'guard') did not surface either dev-memory.md or playbook-runtime-memory-consumption-execution-plan.md in its top ranks despite both being directly on-topic. Beyond the two full reads, ran targeted rg sweeps across the full decisions/ corpus for exact symbol/command names (dev_memory_preflight_ack, dev_memory_finish_decision, finding_resolve, canFinishGuard, canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, dev-memory/dev_memory, INIT_CHECK gate pattern, scope_boundary_set/execution_boundary_set) and spot-read matched sections of story-lifecycle.md, lifecycle-artifact-scope.md, red-evidence-legacy-v1-record-validation-audit.md, lattice-experience-layer-execution-plan.md, session-ownership-and-write-leases.md, and proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md (the top-ranked candidate) to rule out missed direct commitments. All matched hits were either the guard-reacher-chain architecture facts already reflected in understanding.json, a different/future Experience Layer system (B-1480, explicitly a not-yet-implemented plan) whose 'never automatically finding_resolve / change a gate' principle governs a separate advisory-hint system rather than this story's dev-memory output-splice, or generic keyword overlap unrelated to dev-memory gating. No further full-content reads beyond the two candidates were warranted.",
+    "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
     "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
   },
   "summary": {
-    "total": 15,
-    "covered": 12,
+    "total": 18,
+    "covered": 18,
     "excluded": 0,
-    "gaps": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "94a23c1702760c380cab7c76a066f79208bec5c48dd9831972f9359df1a8e76e",
+  "_hash": "c4b68d40294624fa3672029bc710275a21dc3d3e6b592c2df1fbd6ea10ad9ebf",
   "openQuestions": [
     {
-      "id": "OQ-1",
-      "q": "Does CHK-003's hard-blocking DONE gate for dev_memory_finish_decision conflict with the pre-existing playbook-runtime-memory-consumption-execution-plan.md M8 design, which specifies the same capture-or-noop decision as an ADVISORY reminder, and with that plan's Non-Goal 'Do not make every advisory reminder a hard blocker'? B-a7c5's decision.json explicitly overrides the dev-memory entry's own generic gateEvidence:false/authority:non_authoritative framing, but does not cite or reconcile with this specific pre-existing M8 milestone text or its Non-Goals/Acceptance-Table rows.",
-      "evidence": "M8 tests: 'missing decision is visible in runbook/advisory output; no-op decision is accepted with reason'. Non-Goals: 'Do not make every advisory reminder a hard blocker.' Acceptance table: 'No evidence confusion | All packs remain gateEvidence:false and authority:non_authoritative.' B-a7c5 decision.json: 'This is a deliberate, explicit override of the artifact's own self-declared authority: non_authoritative / gateEvidence: false fields ... record this override explicitly in code comments so it isn't mistaken for a bug later.'",
+      "id": "OQ-3",
+      "q": "docs/requirements/decisions/dev-memory.md's own Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks' -- a separate, differently-worded commitment from the already-reconciled playbook-runtime-memory-consumption-execution-plan.md M8/Non-Goal text (OQ-1/OQ-2, resolved in the prior PLAN round). plan.md's Reconciliation section and CHK-005 only cite and update playbook-runtime-memory-consumption-execution-plan.md; dev-memory.md itself is not read, cited, or scheduled for a corresponding update anywhere in plan.md, decision.json, or the checklist. Does this story's CHK-001/CHK-003 gate-existence-of-a-record design also require reconciling/updating dev-memory.md's own Non-Goal wording (even if, per the same record-of-reflection-vs-content-as-evidence reasoning already used for OQ-1, the gates do not actually surface dev-memory ENTRIES in validate/gate output, only the separate ack/finish-decision sidecar artifacts), or is dev-memory.md intentionally left as-is because its Non-Goal is scoped to entry CONTENT, not to sidecar attestation records?",
+      "evidence": "dev-memory.md Non-Goals: 'Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.' plan.md Reconciliation section and CHK-005's title/context reference only 'the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc'; dev-memory.md is absent from plan.md's Reconciliation section, decision.json, and all five checklist item titles.",
       "sourcePointers": [
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+        "docs/requirements/decisions/dev-memory.md",
         "plan.md",
-        "decision.json"
-      ],
-      "resolution": "Deliberate, recorded escalation, not an accidental conflict. playbook-runtime-memory-consumption-execution-plan.md M8 shipped the dev_memory_finish_decision MECHANISM (command + record shape) as advisory-only, but never wired any CONSUMER to treat its absence as blocking -- that gap is exactly what this story closes. The escalation is scoped narrowly (this ONE command's presence, for THIS ONE consumer, the DONE gate) and stays inside Non-Goal #4's actual boundary ('do not let dev-memory or playbooks satisfy... DONE... evidence gates') because the gate requires a RECORD OF REFLECTION having happened, not that any LESSON's content be treated as proof of correctness -- structurally identical to summary_set, an existing required attestation that is not itself code-correctness evidence. plan.md's Reconciliation section documents this in full, and the spec doc itself will be updated (CHK-003 sub-task 6) to describe the delivered, escalated behavior rather than leaving the original advisory-only M8 text as a misleading stale description.",
-      "resolvedAt": "2026-08-14T10:40:22.235Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "Does playbook-runtime-memory-consumption-execution-plan.md section 4.3's requirement that 'registered blocking consumers must expose an operator-visible bypass or downgrade path with a reason' apply to CHK-001's new DEV-entry blocking gate (dev-memory-preflight-ack)? If it applies, CHK-001 as scoped has no defer/skip-with-reason path analogous to CHK-003's defer-with-reason -- an operator whose preflight-pack build itself genuinely fails has no documented way to proceed past the gate. If section 4.3 is scoped only to the Active Playbook Runtime specifically (not artifact-existence gates like CHK-001), no action is needed.",
-      "evidence": "'registered blocking consumers must expose an operator-visible bypass or downgrade path with a reason; unregistered playbooks, candidate playbooks, and caller-provided policy fields cannot create blocking behavior.'",
-      "sourcePointers": [
-        "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
-        "plan.md"
-      ],
-      "resolution": "Section 4.3's bypass-path requirement is treated as applying generally (it is stated as a property of 'registered blocking consumers' in the abstract, not scoped textually to playbooks alone, and the design principle -- never block without a reasoned way out -- is sound regardless of whether the underlying artifact is a playbook or a dev-memory record). CHK-003 already satisfies it via decision=defer-with-reason/no-reusable-lesson (both require a reason). CHK-001 originally did NOT have an equivalent path, so one was added (plan.md CHK-001 sub-task 7): dev_memory_preflight_ack accepts an optional --reason for a reasoned-downgrade ack when the mechanical preflight-pack build itself fails, mirroring dev_memory_finish_decision's existing reason-required downgrade pattern. Both gates now conform to 4.3's bypass-path requirement identically.",
-      "resolvedAt": "2026-08-14T10:40:30.189Z"
+        ".lattice/story/actives/B-a7c5/checklist.json"
+      ]
     }
   ]
 }
