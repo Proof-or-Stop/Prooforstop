@@ -990,6 +990,21 @@
       "resolvedAt": "2026-08-14T12:01:45.694Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-047",
+      "desc": "concept-cleanup: auto-commit message literals still say the old bin/product name in live git history -- handlers/worktree.ts:691 `lattice: discard ${storyId}`, :1080/:1136 `lattice: auto-add story files for ${args.storyId}`; handlers/done-effects.ts:266/:334 `lattice: record artifact/product capability release for ${storyId}`; :1075 `lattice: mark ${storyId} DONE + clear worktree`; handlers/done-prepare.ts:2395 `lattice: prepare ${storyId} for DONE`; core/capability-release.ts:685 `lattice: backfill product capability release`. Verified LIVE: git log in this worktree right now shows commits titled `lattice: record B-cdf6 review_pass_set metadata` and `lattice: mark ... DONE` from this very story run. Under CHK-006 own corrected governing rule (only the 13 salt literals hashed into stored _hash fields qualify as past evidence; everything else is coupling that must be renamed with a coordinated edit), these are NEW WRITES emitted by handler code at commit time -- not persisted evidence being read back -- so under the stated rule they should read `proof-or-stop: ...` going forward. This surface is absent from brand-rename-mapping.md (grepped: zero mentions of commit message / auto-commit anywhere in the file), absent from CHK-006 own scope enumeration, absent from plan.md, and NOT caught by verify-lattice-residue.mjs because its brand-prose/brand-exec detectors match bare `lattice <subcommand>` CLI-invocation syntax, not `lattice: <verb>` commit-message-prefix strings -- a genuine miss class rather than a disputable policy call.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T12:19:20.515Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-064",
+      "_hash": "cdc3307115ef329b4d50819cae4628a557e5bb40e3786bd9cd3215b8814b9c90",
+      "signatureTag": "missing|unknown|concept-cleanup-auto",
+      "signatureTagSource": "auto"
     }
   ]
 }
