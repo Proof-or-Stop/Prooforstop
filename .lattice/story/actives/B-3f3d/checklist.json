@@ -138,18 +138,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:56:59.393Z"
+            "executedAt": "2026-08-14T22:07:36.088Z"
           },
-          "timestamp": "2026-08-14T21:04:25.567Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-H2",
@@ -158,18 +158,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:56:59.755Z"
+            "executedAt": "2026-08-14T22:07:36.441Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-H3",
@@ -178,18 +178,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:00.114Z"
+            "executedAt": "2026-08-14T22:07:36.791Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-E1",
@@ -198,18 +198,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:00.472Z"
+            "executedAt": "2026-08-14T22:07:37.144Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-E2",
@@ -218,18 +218,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:00.833Z"
+            "executedAt": "2026-08-14T22:07:37.495Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-E3",
@@ -238,18 +238,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:01.191Z"
+            "executedAt": "2026-08-14T22:07:37.847Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-A1",
@@ -258,18 +258,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:01.549Z"
+            "executedAt": "2026-08-14T22:07:38.202Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-A2",
@@ -278,18 +278,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:01.909Z"
+            "executedAt": "2026-08-14T22:07:38.553Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-001-A3",
@@ -298,18 +298,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:02.271Z"
+            "executedAt": "2026-08-14T22:07:38.904Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         }
       ],
       "userSeesSnapshot": {
@@ -459,18 +459,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:02.627Z"
+            "executedAt": "2026-08-14T22:07:39.255Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-H2",
@@ -479,18 +479,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:02.983Z"
+            "executedAt": "2026-08-14T22:07:39.605Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-H3",
@@ -499,18 +499,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:03.346Z"
+            "executedAt": "2026-08-14T22:07:39.955Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-E1",
@@ -519,18 +519,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:03.706Z"
+            "executedAt": "2026-08-14T22:07:40.298Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-E2",
@@ -539,18 +539,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:04.063Z"
+            "executedAt": "2026-08-14T22:07:40.649Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-E3",
@@ -559,18 +559,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:04.427Z"
+            "executedAt": "2026-08-14T22:07:41.004Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-A1",
@@ -579,18 +579,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:04.790Z"
+            "executedAt": "2026-08-14T22:07:41.359Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-A2",
@@ -599,18 +599,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:05.149Z"
+            "executedAt": "2026-08-14T22:07:41.710Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-002-A3",
@@ -619,18 +619,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:05.509Z"
+            "executedAt": "2026-08-14T22:07:42.067Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         }
       ],
       "userSeesSnapshot": {
@@ -775,18 +775,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:05.866Z"
+            "executedAt": "2026-08-14T22:07:42.416Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-003-H2",
@@ -795,18 +795,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:06.229Z"
+            "executedAt": "2026-08-14T22:07:42.767Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-003-H3",
@@ -815,18 +815,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:06.589Z"
+            "executedAt": "2026-08-14T22:07:43.118Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.604Z"
         },
         {
           "intentRef": "B3F3D-003-E1",
@@ -835,18 +835,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:06.949Z"
+            "executedAt": "2026-08-14T22:07:43.464Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-003-E2",
@@ -855,18 +855,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:07.307Z"
+            "executedAt": "2026-08-14T22:07:43.822Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-003-E3",
@@ -875,18 +875,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:07.664Z"
+            "executedAt": "2026-08-14T22:07:44.173Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-003-A1",
@@ -895,18 +895,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:08.019Z"
+            "executedAt": "2026-08-14T22:07:44.526Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-003-A2",
@@ -915,18 +915,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:08.376Z"
+            "executedAt": "2026-08-14T22:07:44.877Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-003-A3",
@@ -935,18 +935,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:08.736Z"
+            "executedAt": "2026-08-14T22:07:45.230Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1090,18 +1090,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:09.100Z"
+            "executedAt": "2026-08-14T22:07:45.581Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-H2",
@@ -1110,18 +1110,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:09.461Z"
+            "executedAt": "2026-08-14T22:07:45.931Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-H3",
@@ -1130,18 +1130,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:09.818Z"
+            "executedAt": "2026-08-14T22:07:46.281Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-E1",
@@ -1150,18 +1150,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:10.177Z"
+            "executedAt": "2026-08-14T22:07:46.632Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-E2",
@@ -1170,18 +1170,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:10.538Z"
+            "executedAt": "2026-08-14T22:07:46.988Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-E3",
@@ -1190,18 +1190,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:10.897Z"
+            "executedAt": "2026-08-14T22:07:47.344Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-A1",
@@ -1210,18 +1210,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:11.259Z"
+            "executedAt": "2026-08-14T22:07:47.692Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-A2",
@@ -1230,18 +1230,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:11.617Z"
+            "executedAt": "2026-08-14T22:07:48.042Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-004-A3",
@@ -1250,18 +1250,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:11.977Z"
+            "executedAt": "2026-08-14T22:07:48.400Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1428,18 +1428,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:12.336Z"
+            "executedAt": "2026-08-14T22:07:48.757Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-H2",
@@ -1448,18 +1448,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:12.696Z"
+            "executedAt": "2026-08-14T22:07:49.116Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-H3",
@@ -1468,18 +1468,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:13.054Z"
+            "executedAt": "2026-08-14T22:07:49.476Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-E1",
@@ -1488,18 +1488,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:13.415Z"
+            "executedAt": "2026-08-14T22:07:49.830Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-E2",
@@ -1508,18 +1508,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:13.771Z"
+            "executedAt": "2026-08-14T22:07:50.189Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-E3",
@@ -1528,18 +1528,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:14.129Z"
+            "executedAt": "2026-08-14T22:07:50.542Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-A1",
@@ -1548,18 +1548,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:14.486Z"
+            "executedAt": "2026-08-14T22:07:50.891Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-A2",
@@ -1568,18 +1568,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:14.846Z"
+            "executedAt": "2026-08-14T22:07:51.249Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-005-A3",
@@ -1588,18 +1588,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:57:15.203Z"
+            "executedAt": "2026-08-14T22:07:51.607Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1743,18 +1743,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Signed narrow repair selects the exact impacted lanes and preserves host assurance.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:58:16.559Z"
+            "executedAt": "2026-08-14T22:09:00.755Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-H2",
@@ -1763,18 +1763,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Status and gate consume the same ordered selection with one next action.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T20:59:17.898Z"
+            "executedAt": "2026-08-14T22:10:10.055Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-H3",
@@ -1783,12 +1783,12 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Real handler smoke mechanically verifies tracked RR/finding/commit provenance and excludes the untracked analysis source.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-E1",
@@ -1797,18 +1797,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Unknown, dirty, untracked, rename, ignored, or opaque impact falls back to the full lane set.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:00:19.265Z"
+            "executedAt": "2026-08-14T22:11:19.383Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-E2",
@@ -1817,18 +1817,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Dependency closure is deterministic, transitive, unique, active-only, and nonempty.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:01:20.537Z"
+            "executedAt": "2026-08-14T22:12:28.986Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-E3",
@@ -1837,18 +1837,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Dependency or scope expansion invalidates and recomputes the current-material selection.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:02:22.121Z"
+            "executedAt": "2026-08-14T22:13:38.486Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-A1",
@@ -1857,18 +1857,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Unsigned, cross-story, wrong-round, wrong-head, wrong-material, and stale selections are rejected.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:03:23.468Z"
+            "executedAt": "2026-08-14T22:14:47.946Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-A2",
@@ -1877,18 +1877,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
           "note": "Replay preserves lanes 3 to 3 and hosts 2 to 2 with no round-two any-one shortcut.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
             "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:03:23.834Z"
+            "executedAt": "2026-08-14T22:14:48.309Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         },
         {
           "intentRef": "B3F3D-006-A3",
@@ -1897,18 +1897,18 @@
           "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
           "result": "pass",
           "note": "Traversal, symlink, rename, ignored, untracked, and false provenance inputs fail closed.",
-          "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
-          "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-          "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+          "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+          "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b",
+          "storyFilesHash": "54834e3f5d511b0b910948b92eccc3aff84a9839f1c4da136e5aa5bb1c25d74c",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "df0255463681821c82e14ec0d615da42e7e6e24f18d8c92cc2f08ea0055561b6",
             "outputTail": "B3F3D-006-H3 docs/provenance: PASS\nreview inventory real handler smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T21:04:25.556Z"
+            "executedAt": "2026-08-14T22:15:57.584Z"
           },
-          "timestamp": "2026-08-14T21:04:25.568Z"
+          "timestamp": "2026-08-14T22:15:57.605Z"
         }
       ],
       "userSeesSnapshot": {

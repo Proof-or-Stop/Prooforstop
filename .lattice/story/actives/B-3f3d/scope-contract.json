@@ -323,10 +323,32 @@
       "phase": "DEV",
       "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
       "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F037-F041 require immutable Prompt Envelope subject snapshots, inventory-serialized candidate routing, and a real current-evidence routing smoke so frozen review subjects cannot drift without invalidation.",
+      "timestamp": "2026-08-14T22:07:25.168Z",
+      "paths": [
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
+      "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T20:50:51.838Z",
+  "updatedAt": "2026-08-14T22:07:25.168Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -397,6 +419,10 @@
     "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
     "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
-    "docs/requirements/decisions/session-ownership-and-write-leases.md": "docs/requirements/decisions/session-ownership-and-write-leases.md"
+    "docs/requirements/decisions/session-ownership-and-write-leases.md": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts": "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
   }
 }
