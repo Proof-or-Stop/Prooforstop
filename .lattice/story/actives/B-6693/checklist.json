@@ -24,6 +24,59 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold lattice validate --story=B-cap-a in one linked worktree, start lattice validate --story=B-cap-b in another, and assert B callback entry count stays zero while A holds; B stderr reports waiting for workspace validation capacity with holder story/command and heartbeat age; after A releases, both processes exit 0 automatically and persist distinct PASS evidence. WHY: proves the requested user-visible wait-and-run contract instead of fail-fast contention.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Hold a no-story lattice validate --json, then start story-scoped validate and done_required_validate probes one at a time; assert each waits on the same git-common-dir capacity path and enters only after its predecessor releases. WHY: no-story official validation must not remain a concurrency bypass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Keep the first lease alive across at least two heartbeat periods and assert an independent event-loop timer fires, holder heartbeat timestamps advance, and bounded wait progress is emitted without synchronous polling. WHY: an async waiter must not freeze the owner heartbeat and falsely manufacture staleness.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Abort one queued waiter and exhaust another queued wait deadline; assert each exits with the classified abort/deadline result, never enters its validation callback, never acquires the inner story lock, and leaves the active owner untouched. WHY: cancellation must stop before protected work starts.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Nest capacity acquisition in the same AsyncLocal context while a concurrent sibling competes; assert the nested call is reentrant, the sibling remains queued, and both finish after ordered release. WHY: reentrancy must not become process-wide bypass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Instrument acquisition order and assert every story-scoped official validation acquires workspace capacity before the existing story evidence lock, never the reverse; induce overlapping waiters and assert no deadlock. WHY: fixed global-to-story ordering prevents lock inversion.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Present aged leases owned by a live matching process, an unknown or mismatched active holder, and a proven-dead stale holder; assert live and unknown holders are not stolen and only the proven-dead stale holder is reclaimed before callback entry. WHY: time alone must not authorize takeover.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Run probes in two independent git repositories and in two linked worktrees of one repository; assert independent repositories overlap while linked worktrees serialize through the canonical git-common-dir lease. WHY: coordination scope is workspace identity, not machine-global path or cwd.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Capture stdout and stderr separately for a queued --json validate; JSON.parse every stdout record and assert wait, holder, and heartbeat progress exists only on stderr. WHY: diagnostics must not corrupt machine-readable output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
