@@ -127,31 +127,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Build-success entailment: the pinned smoke script structurally cannot produce a passing receipt unless `npm --prefix packages/main run build` already succeeded (dist/ must exist and be current). Independently, this exact build command was run clean many",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch (see other waivers on this story). Build-success entailment: the pinned smoke script structurally cannot produce a passing receipt unless npm --prefix packages/main run build already succeeded (dist/ must exist and be current). Independently, this exact build command ran clean many times across this stories DEV rounds.",
+          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:36:29.102Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Intent text describes the pre-correction single-assertion design; plan.md's CORRECTION note (## CHK-001, recorded during DEV) documents that design could never turn green after CHK-002 and was replaced by the actually-implemented 6a/6b split (commit 63ec",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Intent text describes the pre-correction single-assertion design; plan.md CORRECTION note (## CHK-001) documents that design could never turn green after CHK-002 and was replaced by the actually-implemented 6a/6b split (commit 63ecf79d5b), which fulfills the intents underlying goal even though the literal mechanism described in the frozen intent text differs.",
+          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:36:29.102Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Describes RED (pre-fix) behavior on 'current main' - inherently cannot be evidenced by any CURRENT command run, mechanical or not. Genuinely observed and formally recorded: red_evidence.json record bound to baseline head ce9f57f; the CHK-001-correction i",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Describes RED (pre-fix) behavior on current main - inherently cannot be evidenced by any CURRENT command run. Genuinely observed and formally recorded: red_evidence.json bound to baseline head ce9f57f; the CHK-001-correction implementers stash-based reproduction; and the lattice-review-concept reviewers independent stash-based re-reproduction during REVIEW round 1.",
+          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:36:29.102Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -490,11 +493,12 @@
           "intentRef": "E-005",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Build-success + import-graph entailment: same build-success entailment as CHK-001:happy:0. The 'no circular dependency' half is covered directly by H-002 (section 13, exact-4-call-site check) plus the smoke's own section 6b dynamic import of checklist.js",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Build-success + import-graph entailment: same build-success entailment as CHK-001:happy:0. The no-circular-dependency half is covered directly by H-002 (section 13, exact-4-call-site check) plus the smokes own section 6b dynamic import of checklist.js resolving cleanly at runtime.",
+          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:36:29.102Z"
         },
         {
           "intentRef": "A-001",
@@ -531,11 +535,12 @@
           "intentRef": "A-004",
           "kind": "waiver",
           "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Design-reasoning claim (TOCTOU race window identical to the pre-existing lattice-validate path) not mechanically testable as a single deterministic assertion - a race's ABSENCE cannot be proven by one run. Architectural justification: both the new resolv",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "result": "pass",
+          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Design-reasoning claim (TOCTOU race window identical to the pre-existing lattice-validate path) not mechanically testable by a single deterministic assertion - a races absence cannot be proven by one run. Architectural justification: both the new resolvePinnedCommandTimeoutMs path and the pre-existing lattice-validate path read config synchronously via loadConfig then capture the value in a local before an async spawn - identical risk profile, no new exposure.",
+          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-14T13:36:29.102Z"
         }
       ]
     },
