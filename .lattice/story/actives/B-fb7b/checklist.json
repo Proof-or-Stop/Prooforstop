@@ -38,7 +38,11 @@
           {
             "desc": "Inspect the pretest script string: packages/main build appears before packages/utils build -> ordering assertion passes; WHY: utils tooling may assume main dist exists, so main-before-utils ordering is load-bearing",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+              "selector": "PASS test-suite-utils-autobuild-smoke"
+            }
           },
           {
             "desc": "Run `npm run pretest` twice consecutively, then `git diff --stat` and `git status --porcelain` -> no dirty tree (no untracked or modified files); WHY: dist is gitignored, so idempotent rebuilds must not produce tree dirt that blocks done_required git-clean checks",
@@ -264,6 +268,25 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:40:54.318Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "structural smoke asserts pretest builds packages/main before packages/utils",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:40:56.048Z"
+          },
+          "headHash": "547a4313b0d39ac8636735337fb089e553b388f1",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:40:56.304Z"
         }
       ]
     }
