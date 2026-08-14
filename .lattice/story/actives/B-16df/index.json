@@ -4,7 +4,7 @@
   "title": "verification_evidence_add ignores validate.commands[].timeoutMs, capping mechanical receipts at 270s regardless of configured budget",
   "description": "verification_evidence_add/_batch_add/verification_run derive a mechanical (tool-executed) receipt by running the pinned command via runSingleAllowlistedCommand (validation-executor.ts:584-606), which always uses `options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS` (270_000ms) and never consults lattice.config.json's validate.commands[].timeoutMs per-command override - unlike lattice validate's own path (runValidationCommand/executeValidationPlan), which calls resolveCommandTimeoutMs(command) (line 72) to read it. Concretely: quorum-submit-smoke.js is budgeted at timeoutMs: 1200000 (lattice.config.json:85, raised by commit c15e6dc8 \"chore(validate): raise quorum-submit-smoke budget to 20m\" after a measured 617s run under load), and a genuine unfiltered run in this environment measures 356-360s - well inside its budget - but verification_evidence_add against that exact command is killed at [270.4s] with \"pinned command exited 124 (timed out) but result:pass was claimed\" [receipt_exit_nonzero] (checklist.ts:650). This makes it structurally impossible to ever earn a mechanical receipt for this command, or any other validate command whose genuine runtime falls between 270s and its configured budget. Root cause: runSingleAllowlistedCommand never looks up the pinned command's configured override, and none of its four call sites in checklist.ts (1557, 1648, 1779, 1858) thread one through. A reusable normalizer already exists - configuredValidationCommands (handlers/verifier.ts:224-258) - which resolves both validate.commands[] config shapes (bare string vs {command,args,timeoutMs,...}; schema at config.ts:198-211) into ValidationCommand[] with .command/.args/.timeoutMs already populated. Fix direction: match the pinned command's parsed {executable,args} against configuredValidationCommands(root) entries and thread the matched .timeoutMs into runSingleAllowlistedCommand's options.timeoutMs, falling back to the 270s default only when no entry matches - mirroring what resolveCommandTimeoutMs already does for lattice validate. B-3144's own branch (commit fc784b8403, quorum-submit-smoke.ts) worked around this specifically via an opt-in --grep=<substring> argv filter in its check() runner, letting individual checks run in isolation in seconds; that workaround is fine for that script alone but does not generalize to any other slow validate command someone later pins evidence against.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "B-3144 evidence-recording forensics (2026-08-14)",
   "keywords": [
@@ -60,11 +60,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T12:21:00.555Z",
+      "branch": "story/B-16df",
+      "user": "Harmonygo",
+      "sessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-16df",
     "branch": "story/B-16df",
     "createdAt": "2026-08-14T11:25:40.220Z"
-  }
+  },
+  "currentReviewRound": "2026-08-14T12:21:00.555Z"
 }
