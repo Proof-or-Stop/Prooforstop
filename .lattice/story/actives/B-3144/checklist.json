@@ -75,18 +75,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Check name IS the RED-repro headline claim: submit at M1, commitMainDrift, re-submit must be REFUSED. On unfixed code the check body falls back to asserting the poisoning forensics via assert.fail before failing the check, so this check can only print its checkmark when the refusal genuinely happens post-fix. --grep isolates just this one check (B-3144 smoke-harness addition) so the pinned command completes well under the tool's 270s ceiling; the check's own body and assertions are byte-for-byte unmodified.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:32:57.979Z"
+            "executedAt": "2026-08-14T04:57:43.305Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -95,18 +95,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check: before the redundant re-submit is attempted, the check computes currentStoryFilesHash(root) before and after commitMainDrift and asserts equality ('incident precondition: main drift must not move storyFilesHash') - this is the in-test storyFilesHash-stability invariant the intent requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:05.118Z"
+            "executedAt": "2026-08-14T04:57:54.435Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -115,18 +115,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check, F-006 block, commented 'CHK-001:edge:0 (F-006)'): captures storyOwnedDiffBlobs before/after commitMainDrift and asserts the (path,status,blobId) triples are byte-identical and that main-drift.ts never enters the story-owned diff set - proves the drift helper touches ZERO story-owned blobs, the necessary-but-not-sufficient companion to the storyFilesHash equality check.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:11.737Z"
+            "executedAt": "2026-08-14T04:58:04.749Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -135,18 +135,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"allows a fresh quorum after a material change\"",
           "result": "pass",
           "note": "This pre-existing check commits a real story-diff change (commitMaterialChange edits index.ts, moving storyFilesHash) and asserts quorum_submit still succeeds with 6 fresh verdicts. Confirmed (via isolated --grep run) to pass standalone: the check's own body is self-sufficient and does not depend on state left by earlier checks, so its continued pass demonstrates the RED-test addition (CHK-001) caused no regression to this existing green check.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c9aaea7ea5d2e5e6d830fcc97b31ac01d251494040eea1496fd43108d367cd5f",
-            "outputTail": "  \u2713 allows a fresh quorum after a material change\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ allows a fresh quorum after a material change\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:14.864Z"
+            "executedAt": "2026-08-14T04:58:09.467Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -155,18 +155,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check: the try/catch around handler(quorumArgs()) treats refusal===null (i.e. the poisoning path: second submit accepted, no throw) as its own failure branch that computes evaluateHostVerdictRounds forensics (validRounds/invalidRounds with duplicate host/session/key identity reasons) and assert.fails with that detail - so the check is un-gameable: it fails for the right reason (poisoning accepted) not an unrelated throw, and only passes when the actual refusal occurs.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:21.600Z"
+            "executedAt": "2026-08-14T04:58:19.502Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -278,18 +278,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check: assert.match(refusalMessage, /quorum_submit refuses: .*drift-accept/i, 'refusal names the standing drift-accepted quorum') - the core fix-verification assertion that the widened guard's refusal message contains the drift-accept explanation naming the standing quorum, exactly as CHK-002:happy:0 requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:28.225Z"
+            "executedAt": "2026-08-14T04:58:29.495Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -298,18 +298,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"allows a fresh quorum after a material change\"",
           "result": "pass",
           "note": "Same check as CHK-001:edge:1, read from the fix-verification angle: commitMaterialChange genuinely moves storyFilesHash (story-diff file index.ts edited) and quorum_submit still succeeds with 6 new verdicts, proving the widened drift-accept guard does not block genuinely new story material.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c9aaea7ea5d2e5e6d830fcc97b31ac01d251494040eea1496fd43108d367cd5f",
-            "outputTail": "  \u2713 allows a fresh quorum after a material change\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ allows a fresh quorum after a material change\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:31.359Z"
+            "executedAt": "2026-08-14T04:58:34.488Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -318,18 +318,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch\"",
           "result": "pass",
           "note": "Dedicated check, commented 'CHK-002:edge:0 (OQ-1)'): strips storyFilesHash from committed host_verdict events to simulate legacy verdicts, drifts main, and asserts the resubmit still emits 6 fresh verdicts (i.e. the guard does not fabricate a false collision from a blank/legacy field).",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "cc6383b9e9a210575dfc9dca564f773d98821a2969a7b88144da0ff068eba883",
-            "outputTail": "  \u2713 blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:39.336Z"
+            "executedAt": "2026-08-14T04:58:44.806Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -338,18 +338,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"same-material duplicate refusal survives deletion of the ignored verdict cache\"",
           "result": "pass",
           "note": "Self-contained check, withFreshFixture): with NO commitMainDrift and NO material change, a second quorum_submit at the exact same materialDigest is asserted to throw /quorum_submit refuses: verdicts already exist for runId/ - the original same-material guard branch, preserved unchanged alongside the new drift-accept branch (this check additionally proves the refusal survives deletion of the ignored verdict cache, a strictly stronger version of the same regression claim than the older top-level-fixture-dependent check of the same behavior).",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "5b914c9c00e062f5a3e3c2480608dfc125a7450ad959742c227be951221b1517",
-            "outputTail": "  \u2713 same-material duplicate refusal survives deletion of the ignored verdict cache\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ same-material duplicate refusal survives deletion of the ignored verdict cache\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:43.336Z"
+            "executedAt": "2026-08-14T04:58:50.443Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -358,18 +358,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check, F-003 block, commented 'CHK-002:edge:2 (F-003)'): asserts the refusal message literally includes each standing runId (r1/r2/r3), the older materialDigest, the current storyFilesHash, and the substring 'review_escalation_status' - the message-CONTENT assertions the intent requires, beyond just the branch keyword.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:33:50.011Z"
+            "executedAt": "2026-08-14T04:59:00.472Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -378,18 +378,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"a second main drift does not circumvent the drift-accept refusal\"",
           "result": "pass",
           "note": "Dedicated check, commented 'CHK-002:adversarial:0'): two sequential commitMainDrift calls, each followed by an asserted refusal (/drift-accept/i), then asserts exactly 6 verdicts still exist - proves double drift accumulation cannot circumvent the guard.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a6c7ccfde24c8c7e15978e996d7681b15b06974b9507b376537c124958e2313f",
-            "outputTail": "  \u2713 a second main drift does not circumvent the drift-accept refusal\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ a second main drift does not circumvent the drift-accept refusal\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:00.474Z"
+            "executedAt": "2026-08-14T04:59:15.341Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -398,18 +398,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"a story-owned file change after main drift makes the re-quorum genuine again\"",
           "result": "pass",
           "note": "Dedicated check, commented 'CHK-002:adversarial:1 boundary'): commitMainDrift followed by commitMaterialChange (a genuine story-owned edit) asserts the fresh quorum is allowed (emittedCount 6) and storyFilesHash genuinely moved - the drift-accept/genuine-change boundary the intent requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "2a4e4abe8b1dc2e43c9b4016ddff85abdf6308560a17c9b85de84b85c9ecae34",
-            "outputTail": "  \u2713 a story-owned file change after main drift makes the re-quorum genuine again\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ a story-owned file change after main drift makes the re-quorum genuine again\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:07.303Z"
+            "executedAt": "2026-08-14T04:59:24.976Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -418,18 +418,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"refuses a redundant re-submit when the standing quorum drift-accepts\"",
           "result": "pass",
           "note": "Same check, F-005 block capture beforeEvents/beforeVerdicts/beforeHead, commented 'CHK-002:adversarial:2 (F-005)'; asserted at: after the refusal, hostVerdictEventCount, verdictFileCount, and `git rev-parse HEAD` are all asserted unchanged - proving the guard refusal leaks zero state.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "dce2decfacaecee2f0b056351508555e6a7ed6244239eb2034d3503f77bcb8e6",
-            "outputTail": "  \u2713 refuses a redundant re-submit when the standing quorum drift-accepts\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ refuses a redundant re-submit when the standing quorum drift-accepts\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:13.896Z"
+            "executedAt": "2026-08-14T04:59:34.225Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         }
       ]
     },
@@ -565,18 +565,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune dry-run lists the poisoned duplicates without mutating\"",
           "result": "pass",
           "note": "Dedicated check: injectPoisonedDuplicates creates the B-bf52-shaped poisoning, then quorum_prune with json:true (dryRun default) is asserted to report applied:false, dryRun:true, 6 duplicateGroups each with exactly one KEEP/REMOVE member carrying verdictId/runId/hostId/materialDigest/timestamp, and to mutate nothing (bytes, HEAD, backups all unchanged) - the discovery/reporting-only behavior the intent requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ccedbff9874d2944ce7f02a88d47527087a7434c6976827d4f6c332cf7a7cb1e",
-            "outputTail": "  \u2713 quorum_prune dry-run lists the poisoned duplicates without mutating\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune dry-run lists the poisoned duplicates without mutating\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:17.239Z"
+            "executedAt": "2026-08-14T04:59:38.905Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -585,18 +585,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2\"",
           "result": "pass",
           "note": "Dedicated check: quorum_prune apply:true is asserted to write a timestamped backup byte-identical to the pre-prune log, remove only the losing host_verdict lines (every other line byte-identical/in order), commit cleanly, and leave quorumFloorRounds with 3 valid rounds / 0 invalid - the full end-to-end recovery path the intent requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ae499d579bb87a49c4b12636c14b9a38be4d5db5450646acff9f7b35146ccf9c",
-            "outputTail": "  \u2713 quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:20.891Z"
+            "executedAt": "2026-08-14T04:59:44.561Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -605,18 +605,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)\"",
           "result": "pass",
           "note": "Dedicated check, commented 'CHK-003:happy:2 (F-004)'): asserts DEFAULT_PHASE_TOOLS['*'] lists quorum_prune, isCommandAllowed admits it in REVIEW, a negative-control command (plan_set) is genuinely phase-refused in the same fixture, and quorum_prune itself dispatches through the real built CLI (runFixtureCli) end to end with exit 0 and a schemaVersion-stamped payload - behaviorally verifies all 5 wiring points (catalog, lattice-cli, command-policy, process-fact-levels via schemaVersion, config.ts DEFAULT_PHASE_TOOLS) the intent lists.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "41a6bd4a91165b631b6132c940a39844cb2408620a33b8d892d29675ccd1af3d",
-            "outputTail": "  \u2713 quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:24.977Z"
+            "executedAt": "2026-08-14T04:59:50.202Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -625,18 +625,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune refuses when there is nothing to prune\"",
           "result": "pass",
           "note": "Dedicated check: a clean quorum (no duplicates) is asserted to make quorum_prune apply:true throw /nothing to prune/, with no commit and no backup written.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "14a5308ffbdc20c86b23083834e4b5914f7c64892263e7f816e077e4380b4aec",
-            "outputTail": "  \u2713 quorum_prune refuses when there is nothing to prune\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune refuses when there is nothing to prune\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:28.297Z"
+            "executedAt": "2026-08-14T04:59:54.542Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -645,18 +645,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune apply refuses on a dirty tree before any mutation\"",
           "result": "pass",
           "note": "Dedicated check: a poisoned fixture with an uncommitted dirty write to index.ts is asserted to make quorum_prune apply:true throw /worktree\\/index must be clean/, with HEAD, the poisoned log bytes, and backup count all unchanged (refusal happens before any file I/O).",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "351f04e083e46d08c9093898e035ece2fab61cecaebb7531142156eab00f0239",
-            "outputTail": "  \u2713 quorum_prune apply refuses on a dirty tree before any mutation\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune apply refuses on a dirty tree before any mutation\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:31.727Z"
+            "executedAt": "2026-08-14T04:59:59.038Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -665,18 +665,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune keeps exactly one event per group for a triple-duplicate\"",
           "result": "pass",
           "note": "Dedicated check: injectPoisonedDuplicates with copies:2 (triple duplication) is asserted to yield 6 groups of 3 members each (1 KEEP, 2 REMOVE), removedVerdictCount 12, and after apply the floor recovers to 3 valid rounds - proves triple-plus duplication is handled, not just the double case.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0d47ed3c4e9ab21ad94c7a45f9be8ea07810c8f63e091e2a8f92ebb5b5907f52",
-            "outputTail": "  \u2713 quorum_prune keeps exactly one event per group for a triple-duplicate\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune keeps exactly one event per group for a triple-duplicate\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:36.117Z"
+            "executedAt": "2026-08-14T05:00:04.023Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -685,18 +685,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune runIds filter prunes only the specified runIds\"",
           "result": "pass",
           "note": "Dedicated check: quorum_prune with runIds:[r1] is asserted to report duplicateGroups only for r1 (2 groups, removedVerdictCount 2) and, after apply, r1 recovers while r2/r3 duplicates remain in invalidRounds untouched - the selective/targeted pruning the intent requires.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "6cb55d04335eeb28809e42ad05222d5d2283d62ac5af86ffb103f935f3cc9432",
-            "outputTail": "  \u2713 quorum_prune runIds filter prunes only the specified runIds\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune runIds filter prunes only the specified runIds\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:40.227Z"
+            "executedAt": "2026-08-14T05:00:09.522Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -705,18 +705,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune preserves interleaved non-host_verdict lines byte-identically\"",
           "result": "pass",
           "note": "Dedicated check: a non-host_verdict review_run line is interleaved into the poisoned log; after apply the interleaved line is asserted to survive verbatim and every other non-host_verdict line stays byte-identical and in original order, with only the losing host_verdict rows removed.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "56471d9159b4ea21c705aed9dfadd8baa523cf2d5edd944dc4ac8813e1f6416c",
-            "outputTail": "  \u2713 quorum_prune preserves interleaved non-host_verdict lines byte-identically\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune preserves interleaved non-host_verdict lines byte-identically\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:43.809Z"
+            "executedAt": "2026-08-14T05:00:15.104Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -725,18 +725,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune keep:oldest-material inverts which duplicate survives\"",
           "result": "pass",
           "note": "Dedicated check: quorum_prune apply with keep:'oldest-material' is asserted to keep the surviving verdicts at the FIRST (older) materialDigest rather than the drift-copy materialDigest, and the floor still recovers to 3 valid rounds - proves the keep selector genuinely inverts disposition, not hardcoded to newest.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "70564aec5fd748d80860a111d3214ef07922ab28c3cfb3d0175516818d5634e2",
-            "outputTail": "  \u2713 quorum_prune keep:oldest-material inverts which duplicate survives\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune keep:oldest-material inverts which duplicate survives\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:47.378Z"
+            "executedAt": "2026-08-14T05:00:20.445Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -745,18 +745,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune refuses an uncommitted process-events file\"",
           "result": "pass",
           "note": "Dedicated check: duplicate host_verdict lines are appended directly to process-events.jsonl WITHOUT committing them, and quorum_prune apply:true is asserted to throw /uncommitted changes|prune only operates on the committed/ with HEAD and the file bytes left untouched - the command only operates on committed state.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c7f6cfe6a954c0bff5596bf8437d855d77248b805e88a99d90283fa7b811fbc7",
-            "outputTail": "  \u2713 quorum_prune refuses an uncommitted process-events file\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune refuses an uncommitted process-events file\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:50.843Z"
+            "executedAt": "2026-08-14T05:00:24.823Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
@@ -765,18 +765,18 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js --grep=\"quorum_prune never overwrites a previous run backup\"",
           "result": "pass",
           "note": "Dedicated check: two successive quorum_prune apply runs are asserted to produce two DISTINCT backup file paths (the second never overwrites the first) - prevents loss of earlier recovery evidence across repeated pruning.",
-          "headHash": "0b9c8f6f5617beffea8f9604f9b5440d2d534851",
-          "materialHash": "ccf6862311312f3a55cc5b6fd5ed643ab1213738630e42740165906242a61b2f",
-          "storyFilesHash": "a864461a92907ccb65403f5d122918f226e7e3a81410374fa51c9fc8d20f5ef0",
+          "headHash": "96a1c3c1a30fb3aadbbe48ee5b7d09d0ba6fa825",
+          "materialHash": "56a9fe5e8385dfc9aa52ed9f8ffebbf1929b2ba4907bc2ed8b6c85a56b7e4437",
+          "storyFilesHash": "06867d646bacb4a51664e83a8f641343fa82a16ace7217d66e322e440be2699a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "3c5d5ae9a50df0d0016d3919a4a385964f72e437786255810d2c52625c8e2357",
-            "outputTail": "  \u2713 quorum_prune never overwrites a previous run backup\n\n\u2713 quorum_submit smoke passed (1 checks)\n",
+            "outputTail": "  ✓ quorum_prune never overwrites a previous run backup\n\n✓ quorum_submit smoke passed (1 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T04:34:54.687Z"
+            "executedAt": "2026-08-14T05:00:29.857Z"
           },
-          "timestamp": "2026-08-14T04:34:54.697Z"
+          "timestamp": "2026-08-14T05:00:29.868Z"
         }
       ]
     }
