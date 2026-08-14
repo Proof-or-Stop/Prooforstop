@@ -562,6 +562,21 @@
       "_hash": "b72947e39cfc8da87b23ddb5fa35836be1f9a68a378081f7fd35110fe276ccd7",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-027",
+      "desc": "[codex host-B C4] Verified by main agent. The read-only harnesses claim the .lattice snapshot is compared 'before and after every invocation'. In fact both tests/red/red-w2d-command-readonly.mjs and tasks/red-evidence-envelope-smoke.ts take ONE before-snapshot, make several intervening calls, then compare ONCE. That proves net byte equality across the batch only; it cannot show that no single invocation created, modified and then restored a file. The wording is stronger than the mechanism.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T04:13:57.966Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "_hash": "a2386a2b8edf12a4c8dfb9bf35bbb18160209d00cc94a05eca44e631e6b3eba2",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
