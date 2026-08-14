@@ -1077,6 +1077,25 @@
       "resolvedAt": "2026-08-14T13:38:01.686Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-051",
+      "desc": "doc-code-drift: B-META-framework-audit:findings.json F-030 (status=open, severity=high, desc field) still reads \"~108 candidate hits\" and \"nothing tracks the 108 or ratchets it downward\" -- the ORIGINAL wrong number this same story's F-048 was filed to correct. F-048's resolvedReason claims the correction is complete (\"corrected with the authoritative figure and the reproduction command\"), but that text lives only in B-cdf6:F-048's resolvedReason -- a note on a different story's finding, not read by any gate and not the artifact F-048 itself calls \"a durable record a future implementer will size work from.\" F-030's own desc field (.lattice/story/actives/B-META-framework-audit/findings.json:555) was never edited; grep for \"108\" there still returns the stale figure in both places it appears.\n\nIndependently reproduced the measurement, twice, against clean `git worktree add --detach` checkouts (avoiding the shared worktree, which had concurrent uncommitted/in-flight edits from another session throughout this review) using isBrandProseResidue imported from scripts/verify-lattice-residue.mjs applied line-by-line over `git ls-files packages/main/src` -- the exact method both F-030 and F-048 describe using:\n  - at headHash 0c630092fe (F-048's own resolution head): 159 hits / 83 files, not the 161/84 F-048 claims (off by 2 hits, 1 file) and obviously not the original ~108.\n  - at headHash e2f457f621 (current REVIEW head, after F-049's unrelated version-bump.ts fix continued shrinking the same surface): 153 hits / 80 files.\nBoth counts are stable across repeated runs at their respective heads. The count is a genuine moving target as concurrent concept-lane fixes continue landing on this exact surface (F-049 lowered it further, unrelated to F-030/F-048's own number).\n\nWhy this is not just an arithmetic nit: F-030 proposes a mechanism that is itself a counted root that \"fails when the count increases.\" Whatever value ships in F-030's desc as the seed, the story's own concurrent activity (F-049 and likely more) means that seed is stale before anyone reads it -- reproducing, in miniature, the exact failure mode (\"wrong baseline breaks the very mechanism it proposes\") that F-048 was filed to prevent. This durable audit record needs either (a) a note that the count is intentionally a snapshot-at-time-T with the reproduction command included so a future reader re-measures rather than trusts a frozen number, or (b) removal of the specific number from prose entirely in favor of \"run <repro command> for the current count,\" since the exact figure has now demonstrably drifted twice within this same story's REVIEW phase and cannot be trusted to stay fixed.\n\nFix: edit B-META-framework-audit:F-030's desc (both \"108\" occurrences) to either the reproduction command (preferred, since the number keeps moving) or the count as of a stated headHash, and verify against a clean isolated worktree checkout rather than the live worktree before recording it.\n",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T13:41:45.580Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-073",
+      "_hash": "d8877bee96260ce78e5ff131aa221e19bb4bb5423bc82dc8894e8f0352c8dcb1",
+      "files": [
+        ".lattice/story/actives/B-META-framework-audit/findings.json",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|code-drift-meta",
+      "signatureTagSource": "auto"
     }
   ]
 }
