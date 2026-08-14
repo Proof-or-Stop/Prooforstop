@@ -712,6 +712,42 @@
         "scanEscalationReason": null
       },
       "_hash": "0a4be91acb987d813b8487002f6764f3dffc2a8d85bcb0b56f051febd35bb9ea"
+    },
+    {
+      "id": "B-3144:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass at head ef0a14f, since last clean pass f038ecb. Only source-level delta in that range is commit bd2b6c8e03 (scripts/verify-process-fact-contract.mjs, 1 line): the STALE pre-quorum_prune cli-engine.ts fingerprint literal a2468ce5...abdbc0 in the expected-vocabulary array was replaced with ef1c4e96...ff050f. Verified this is a real, single-value, minimal, and complete fix: (1) grepped the OLD value repo-wide (excl. node_modules/dist/.git) -> zero remaining occurrences anywhere; (2) grepped the NEW value -> exactly two occurrences, this file and retired-authority-vocabulary-guard-smoke.ts PINNED_EXECUTABLE_SOURCE_FINGERPRINTS (the source of truth, repinned earlier this story per the F-030-adjacent scope_contract_acknowledge at head a284292); (3) extracted and diffed the full 8-entry fingerprint list from both files programmatically -> identical values in identical order, confirming no other stale entry slipped through and nothing else needs updating. Ran the two named smokes directly plus the full contract script: red-evidence-target-binding-smoke.js exit 0, red-w2b-wiring-contract.mjs exit 0, verify-process-fact-contract.mjs exit 0 (\"Process fact contract verified\"). scope_contract_acknowledge for this one out-of-scope file is present and correctly justified (scope-contract.json acknowledgements[4]). Re-swept the whole story diff (main...HEAD, 34 files) for concept deletion/replacement per role mandate: every packages/main/src + scripts + docs hunk is additive (new quorum_prune command/handler/CLI wiring, widened quorum_submit guard predicate assertNoStandingQuorum, smoke expansion) except this one repin; nothing renamed/deleted en masse, so no residue grep target exists. Doc diffs (evidence-integrity-program-spec.md, evidence-write-guard-spec.md) honestly reconcile design-vs-delivered gaps (explicitly flag assertNoStandingQuorum as NOT literally the proposed direct-call-through, and autopilot_review_submit as an explicit known-gap) -- no promised-but-undelivered claims found. Working tree clean; no console.log/debugger/TODO/FIXME residue in the diff. No blocker.",
+      "createdAt": "2026-08-14T06:48:26.453Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-054",
+      "envelopeId": "3d41df9a6b34bf7dee311880c1650fe76d28b88347474525a498343ab50b4652",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd90021bafd914e1836cf11228a4920232e13bb406ef3790bb8702a8bf6efbee"
     }
   ]
 }
