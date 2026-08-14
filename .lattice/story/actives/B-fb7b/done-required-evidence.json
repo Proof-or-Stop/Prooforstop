@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-fb7b",
+  "status": "FAIL",
+  "startedAt": "2026-08-14T06:05:27.315Z",
+  "endedAt": "2026-08-14T06:10:47.835Z",
+  "durationMs": 320520,
+  "headHash": "ee7a95483911831aadf85195302e8be80da67ff2",
+  "materialHash": "6013a84e6142562467d7a024359edf8cff835007693b0283caa6cdd2f36b573e",
+  "storyFilesHash": "26ba52c5427cc30835f17028b172dcdda7398355dfd603caefcc013886eae276",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 9890,
+      "outputDigest": "4602cae22de450c190a861f3eaad693ea12d4f6782f24af8f61c4b9eeb2a020a",
+      "outputTail": "\n> @lattice/core@0.3.253 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-14T06:05:27.316Z",
+      "endedAt": "2026-08-14T06:05:37.206Z",
+      "effectiveEnvironmentDigest": "11a90c97f3e7b2bdb44b60d8f9cafcb4f2e53bee435e903e787ae23f3b1084c3",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "ee7a95483911831aadf85195302e8be80da67ff2",
+      "materialHash": "6013a84e6142562467d7a024359edf8cff835007693b0283caa6cdd2f36b573e",
+      "storyFilesHash": "26ba52c5427cc30835f17028b172dcdda7398355dfd603caefcc013886eae276"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 310335,
+      "outputDigest": "006afba8d89c615c0bc12745191f933664fe5d635d947c4ce7612d7b2b1647d1",
+      "outputTail": "\n> lattice@0.3.253 pretest\n> npm --prefix packages/main run build && npm --prefix packages/utils run build\n\n\n> @lattice/core@0.3.253 build\n> node ../../scripts/build-main-with-binding.mjs\n\n\n> @lattice/utils@0.3.65 build\n> tsc\n\n\n> lattice@0.3.253 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:milestone-status 66.6s\nPASS test:brief-output 53.4s\nPASS test:review-incremental-context-smoke 141.7s\nPASS test:experiments 24.5s\nPASS test:main-write-lock-coverage 0.4s\nPASS test:production-test-seam-guard 2.4s\nPASS test:lattice-residue 0.4s\nPASS test:proof-or-stop-prompt-baseline 17.0s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 1.4s\nPASS test:full-suite-runner-smoke 35.7s\nPASS test:delivery-context-pack-smoke 11.3s\nPASS test:full-suite-resource-sentinel 0.3s\nPASS test:review-assurance-floor-smoke 14.3s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 1.5s\nPASS test:withdrawn-disposition-smoke 2.7s\nPASS test:global-core-realpath 1.0s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.9s\nPASS test:docs-drift-smoke 0.2s\nPASS test:docs-drift-wrapper-root 1.6s\nPASS test:gitroot-cwd-contract 0.4s\nPASS test:process-fact-contract 6.7s\nPASS test:proofstory-intent-hardening-smoke 222.7s\nPASS test:runtime-fact-contract 2.0s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.2s\nPASS test:storydir-inside-gitroot-smoke 1.3s\nPASS test:gitroot-cwd-routing 2.9s\nPASS test:bare-gate-gitroot-cwd 0.6s\nPASS test:project-gitroot-cwd 0.7s\nPASS test:done-oracle-wrapper-root 2.5s\nPASS test:done-premerge-mainsha-recheck 10.6s\nPASS test:done-escalation-drift-advisory 2.0s\nPASS test:review-escalation-freshness-root 5.5s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.4s\nPASS test:graceful-sites-gitroot-cwd 1.0s\nPASS test:closeout-trust 47.4s\nPASS test:experience-hint-worktree-cache 1.6s\nPASS test:experience-coverage-gap 1.7s\nPASS test:proofstory-acceptance-rollout 257.6s\nPASS test:done-merge-experience-refresh 3.8s\nPASS test:experience-arm-gate 0.3s\nPASS test:e2e 4.1s\nPASS test:convergence-breaker 0.6s\nPASS test:experience-arm-isolation-e2e 14.9s\nPASS test:nested-worktree-bootstrap 22.3s\nTIMEOUT test:flow-stability-smoke 120.0s (exceeded 120000ms)\n\n--- test:flow-stability-smoke TIMEOUT ---\n\n> lattice@0.3.253 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.253 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\nagent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n\nfull-suite: 46/47 passed in 297.8s; retries=0; jobs=4\n",
+      "startedAt": "2026-08-14T06:05:37.339Z",
+      "endedAt": "2026-08-14T06:10:47.674Z",
+      "effectiveEnvironmentDigest": "11a90c97f3e7b2bdb44b60d8f9cafcb4f2e53bee435e903e787ae23f3b1084c3",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "ee7a95483911831aadf85195302e8be80da67ff2",
+      "materialHash": "6013a84e6142562467d7a024359edf8cff835007693b0283caa6cdd2f36b573e",
+      "storyFilesHash": "26ba52c5427cc30835f17028b172dcdda7398355dfd603caefcc013886eae276"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
