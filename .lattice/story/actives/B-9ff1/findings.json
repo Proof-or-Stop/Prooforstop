@@ -861,6 +861,21 @@
       "_hash": "9c2cf652bf7609c3e178ff907f331018f4a95a1f9c9746a07aaf5bcde44a7fdd",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-041",
+      "desc": "[codex host-B E4] DEFECT IN MY OWN ACCEPTANCE INSTRUMENT, reproduced by the main agent before acting. scratchpad/check-selectors.py judged a pin solely on selector containment and ignored the process exit status, while handlers/checklist.ts requires BOTH: exitOk = run.code === 0 && !run.timedOut, AND run.output.includes(pinSelector). A command printing the selector and exiting 7 was accepted by the checker and would be refused by the lifecycle. Self-test after the fix: echo PIN; exit 7 now evaluates FAIL where it previously evaluated PASS. The checker also did not model the 12000-char capture limit (MAX_OUTPUT_CHARS), ANSI stripping, or the 270s ceiling; all three are now modelled, and the two remaining fidelity gaps (shell invocation versus allowlisted argv, and one execution reused across pins sharing a command) are documented in the file header instead of being hidden. This matters beyond the instrument: rounds 5 and 6 were accepted partly on its say-so.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T10:20:25.044Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-029",
+      "_hash": "6b8b9d66242f568a7486451a479034e7c77f1880bb9e34b94a422a2346e4b4c1",
+      "signatureTag": "missing|unknown|codex-host-defect",
+      "signatureTagSource": "auto"
     }
   ]
 }
