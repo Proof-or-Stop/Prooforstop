@@ -780,7 +780,13 @@ export function listManagedAssetDefinitions(
     // demanding it unconditionally would report a spurious MISSING on every freshly
     // initialized project. Present-and-drifted is still worth reporting, so when the file
     // IS there it gets the same drift checking as the canonical one.
-    ...(managedAssetPathKind(root, 'bin/lattice.js') === 'file'
+    // B-cdf6: the presence probe must run against projectRoot, NOT root. `root`
+    // defaults to packageRoot() — where the CLI package is installed — so probing it
+    // asks "does the PACKAGE ship bin/lattice.js", which is never true. The alias
+    // therefore never registered for any project, and verify-entrypoints.mjs:698
+    // (which asserts the self-repo alias is recognized as an owned compatibility
+    // asset) failed even though bin/lattice.js is present and byte-correct here.
+    ...(managedAssetPathKind(projectRoot, 'bin/lattice.js') === 'file'
       ? [wholeFile(
           'bin:lattice.js',
           'bin/lattice.js',
@@ -815,7 +821,8 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
-      ...(managedAssetPathKind(root, 'bin/lattice-codex.js') === 'file'
+      // B-cdf6: same projectRoot-vs-root defect as the bin/lattice.js alias above.
+      ...(managedAssetPathKind(projectRoot, 'bin/lattice-codex.js') === 'file'
         ? [wholeFile(
             'bin:lattice-codex.js',
             'bin/lattice-codex.js',
