@@ -569,8 +569,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-14T16:13:35.502Z",
       "endTime": null,
       "userSees": "Official validate and done_required_validate retain their existing PASS output and evidence, while help/diagnostics state that bare npm test is outside the workspace lease boundary.",
       "excludes": [
@@ -683,6 +683,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "8/8 tool-executed full smoke receipts recorded; implementation and release-race follow-up committed",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:13:35.502Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record gate-invariance, documentation boundary, and protected-budget evidence",
       "agent": "main"
     }
   ]
