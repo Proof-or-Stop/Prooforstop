@@ -618,6 +618,26 @@
         "scanEscalationReason": null
       },
       "_hash": "08ecafcad48529f500fe9afe4c98b49e827bfb0b726bb8f48984692b66375e29"
+    },
+    {
+      "id": "B-9ff1:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 clean. (1) Inertness of 8c1ec91805 confirmed by full diff read: all 5 files (cli/activity-policy.ts, core/command-policy.ts, handlers/red-evidence.ts, tasks/red-evidence-envelope-smoke.ts, tests/red/red-w2d-command-readonly.mjs) change only comments/docstrings, the command-policy reason: description field, assert-message strings, and the one console.log string; no control flow or signature changed. (2) tsc --noEmit -p packages/main: clean, exit 0. (3) check-selectors.py: 'pinned selectors: 108 checked: 106 permanently waived (skipped): 2 ... OK'. Judged the instrument itself: it reads pins from the correct canonical place (checklist.json verificationIntent[].verification, matching what enforceAndStampEvidence pins in checklist.ts), and its substring match (python \"in\") mirrors the real receipt check (checklist.ts run.output.includes(pinSelector)) exactly. Two real (currently dormant) fidelity gaps versus the true lifecycle spawn path: (a) it runs each command via subprocess shell=True (/bin/sh -c), while runSingleAllowlistedCommand in validation-executor.ts tokenizes into executable+argv and spawns with NO shell on POSIX under a small executable allowlist -- harmless today only because every pinned command here is a bare node-plus-path with no quoting or metacharacters; (b) it captures full untruncated stdout+stderr with no ANSI-strip, while the real runValidationCommand pipes through stripAnsi()+trimOutput() which hard-truncates at 12000 chars -- harmless today (largest measured output, red-w2d-rejection-matrix.mjs, is ~10.7K chars, 89% of the cap) but not modeled by the checker, so it could someday report OK on a pin the real write path would actually refuse with receipt_selector_absent once fixture-heavy output crosses ~12K. Recommend not treating this checker's OK as proof a fresh verification_run would succeed once output approaches that ceiling -- spot check via the real CLI instead. The two skipped waived pins (CHK-012:edge:1, CHK-013:adversarial:0) were checked directly: each has exactly one verificationEvidence entry, kind=waiver / waiverType=permanent / result not fail, matching milestone-status.ts evidenceCanCover's coverage predicate exactly, and both waiver notes give a specific, legitimate reason the immutable pin can never be corrected; skipping them hides nothing new, and their underlying commands still execute anyway via other non-waived pins sharing the same command cache. (4) Durability: no line numbers in the new text; every named symbol verified present and behaving as described -- spawnHook (private) and runHooks (exported) in core/hooks.ts, spawnHook genuinely runs via /bin/sh -c in the passed cwd; runHooks's early-returns match the claimed filtering; cli-engine.ts's onError call site has the config0?.hooks?.onError guard wrapping only the stderr notice with the runHooks('onError',...) call unconditional right after; getSessionIdentity (core/owner-session.ts) reaches readOrCreateOwnerSessionToken (core/owner-session-token-store.ts) via resolveAdapterOwnerSession under generated-token mode; reportHealthIssue (core/health.ts) defaults to ~/.lattice/health.jsonl overridable via LATTICE_HEALTH_PATH; owner-session-token-store registry entry matches prefix .lattice/runtime/owner-session-tokens/ exactly; writeLog in cli-engine.ts calls getSessionIdentity before appendActivityLog and calls reportHealthIssue('persist:writeLog',...) on failure. Read the actual red_evidence_envelope_check handler body: it only reads (readStory/readFileSync/loadConfig/committed-tree git read) and returns or throws, no write path exists, so the docstring's handler-level unconditional guarantee still holds as unconditional fact within its now-narrower stated scope -- no overcorrection into hedged mush. (5) verify-process-fact-contract.mjs: real run, 'Process fact contract verified', exit 0, no fail/mismatch/warn strings anywhere in output; the known apostrophe-desync fragility did not trigger. (6) All required tests run directly with real output: red-evidence-envelope-smoke.js exit 0 with the restored pinned phrase verbatim followed by its qualification; all five red-w2d-*.mjs exit 0/PASS. Nothing blocks.",
+      "createdAt": "2026-08-14T10:14:23.884Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-030",
+      "envelopeId": "b7bab630d3a7386d40c58b8a4364d152713efcae13be9fc237d558a53e8c1e2f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4e662779456581b3236b632b79d0cd61cbe4d2ed60df673da5409bb883160551"
     }
   ]
 }
