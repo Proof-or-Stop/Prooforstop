@@ -2852,7 +2852,7 @@
       "desc": "packages/main/src/handlers/proofstory.ts:1091-1220, packages/main/src/core/command-policy.ts:445, packages/main/src/handlers/review-inventory.ts:128-139,468-530, and packages/main/src/core/review-inventory-epoch.ts:572-590 — CRITICAL distinct acceptance-subject writer/finalized-receipt TOCTOU family, not F037 verification_intent_repair. scope_shrinkage_decision_set is deliberately allowed in REVIEW and TEST and is the sole writer that can withdraw checklist items and ProofStory acceptance bindings, but it takes only the checklist lock, not withReviewInventoryMutationLock. The frozen acceptance digest also omits the ProofStory contract/binding dispositions. Therefore it can race review_inventory_finalize after the final scope check, or run after FINALIZED, and change the reviewed acceptance subject while leaving the signed receipt usable. Receipt consumption calls assertReviewInventoryContextFreshLocked, which returns immediately when there is no OPEN epoch, then checks only material/storyFiles and live reviewer aggregate; it never recomputes the FINALIZED scope/acceptance subject. An old saturated receipt can consequently authorize remediation DEV after a human-confirmed scope withdrawal that no lane reviewed. Put every acceptance-semantic writer, including scope_shrinkage_decision_set and ProofStory binding dispositions, under the shared inventory lock; bind the complete acceptance contract into the epoch digest; and revalidate that digest at FINALIZED consumption. Add deterministic finalize-vs-shrink and FINALIZED-then-shrink-then-consume rejection smokes.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T22:24:33.015Z",
@@ -2900,7 +2900,8 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-042@90e88a3"
     },
     {
       "id": "B-3f3d:F-043",
@@ -2928,7 +2929,7 @@
       "desc": "packages/main/src/handlers/proofstory.ts:1091-1203, packages/main/src/core/command-policy.ts:445, packages/main/src/core/review-inventory-epoch.ts:50-67, and packages/main/src/handlers/review-inventory.ts:56-90 — HIGH frozen-acceptance subject bypass left after F037 remediation, distinct from the repaired checklist writer path. scope_shrinkage_decision_set is intentionally allowed in REVIEW and is the sole writer for both checklist withdrawals and ProofStory acceptance-binding dispositions, but it takes only the checklist mkdir lock and writes scope-shrinkage-decision.json / proofstory.json directly. The new reviewInventoryAcceptanceSubjectDigest signs only scopeContract plus checklist fields; it does not include the ProofStory contract, bindingDispositions, or scope-shrinkage decision. Therefore an OPEN epoch can receive a confirmed user-approved withdrawnAcceptanceBindingRefs mutation with no withdrawnChecklistItemRefs: material/storyFiles hashes, checklist scopeDigest, required lanes, and candidate digests all remain unchanged, so status/evidence/critic/wave/finalize continue accepting pre-withdrawal lane evidence on a changed acceptance contract. This contradicts the documented complete acceptance subject and frozen-scope invariant. Put scope_shrinkage_decision_set under the inventory-first lock order and bind the effective ProofStory acceptance contract/shrinkage disposition into the recomputed subject digest (or immediately invalidate on any REVIEW mutation); add begin -> acceptance-binding-only withdrawal -> status/finalize rejection coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T22:25:38.753Z",
@@ -3000,14 +3001,15 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "review-inventory-proofstory-acceptance-subject-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-044@90e88a3"
     },
     {
       "id": "B-3f3d:F-045",
       "desc": "doc-code-drift: evidence-complete recovery of the F043 kind-aware latest-run documentation family. docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, CLAUDE.md:843, and packages/main/src/core/review-run.ts:1413-1428 define and implement the actual kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. The contradictory operator guidance can manufacture unnecessary review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion for these duplicated workflow facts.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T22:39:02.245Z",
@@ -3090,14 +3092,15 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-045@90e88a3"
     },
     {
       "id": "B-3f3d:F-046",
       "desc": "packages/main/src/handlers/finding.ts:371-489 — verified critical terminal-command idempotency failure, distinct from F036 lock-reclaim/lost-update. In unchanged RI-008 wave 2, the first review_pass_set for coverage B-3f3d:RR-089 emitted only the running line to its client but asynchronously persisted RP-052; an operationally safe retry with the exact same reviewRunId/evidence then persisted a second signed pass RP-054. recordReviewPass serializes the RMW and allocates a fresh RP id on every call, but never checks for an already valid pass keyed by the terminal identity (storyId, reviewRound, lane, reviewRunId and canonical evidence), so ambiguous client completion is not safely replayable. This can duplicate signed gate evidence and process events, distort completion/re-attestation telemetry and require operators to choose between risking duplicate mutation or abandoning a terminal lane after a lost response. F036 covered a live lock being stale-reclaimed so one successful writer was erased; here both writes survive after the F036 lock fix, proving a different replay/idempotency boundary. Make review_pass_set idempotent under the existing lock by returning the existing byte/semantic-equivalent pass for the same run terminal identity (and fail closed on conflicting evidence), and add a real command test where response completion is ambiguous then the exact call is retried, asserting one pass/event and a stable id.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T22:54:08.693Z",
@@ -3153,7 +3156,8 @@
         "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
       ],
       "signatureTag": "review-terminal-command-retry-idempotency",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-046@90e88a3"
     }
   ]
 }
