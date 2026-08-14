@@ -1281,9 +1281,9 @@
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T15:00:26.388Z",
-      "endTime": null,
+      "endTime": "2026-08-14T15:00:30.007Z",
       "userSees": "The replay report prints \"Baseline mutation-driven redispatches: >=5\", \"New mutation-driven redispatches: 0\", \"Accepted OPEN commits: 0\", \"Remediation DEV transitions: 1\", \"Clean final-review epochs: <=1\", unchanged lane/host counts, and every quality-regression counter as 0; otherwise it prints FAIL.",
       "verificationIntent": {
         "happy": [
@@ -1575,7 +1575,14 @@
           "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
           "timestamp": "2026-08-14T14:58:34.927Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "43b44909bdc4c4dce8e3b8ac1968588fe4b4bfc5dbbc9d328d5fd72829ed0eb5",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "5217cce749d4e9f3893b2052ddc62ebd4503c198",
+        "attestedAt": "2026-08-14T15:00:30.189Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     }
   ],
   "auditLog": [
@@ -1667,6 +1674,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:30.007Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
       "agent": "lattice-implementer"
     }
   ]
