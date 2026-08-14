@@ -1653,7 +1653,11 @@
         "adversarial": [
           {
             "desc": "Doc union list contains finding_resolve but has a typo or wrong casing (e.g. findingResolve, finding-resolve, finding_Resolve, findng_resolve) that does not byte-match the code literal -> detected as a verification failure; WHY: a near-miss string that looks right to a human but fails a literal comparison is the classic doc-drift adversarial scenario",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const correct=s.includes(\\\"\\x27finding_resolve\\x27\\\"); const typos=[\\\"findingResolve\\\",\\\"finding-resolve\\\",\\\"finding_Resolve\\\",\\\"findng_resolve\\\"]; const foundTypo=typos.filter(t=>s.includes(t)); console.log((correct && foundTypo.length===0) ? \\\"CORRECT_SPELLING_NO_TYPO_CONFIRMED\\\" : \\\"SPELLING_ISSUE:\\\"+foundTypo.join(\\\",\\\"))\"",
+              "selector": "CORRECT_SPELLING_NO_TYPO_CONFIRMED"
+            }
           },
           {
             "desc": "Doc union list was updated but the members are in a different order than the code union (e.g. finding_resolve inserted alphabetically rather than appended after final_response_check matching the code position) -> detected as a byte-match failure; WHY: the requirement is byte-match including order, not set-equality",
@@ -1783,6 +1787,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:33.733Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "docs_check",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const correct=s.includes(\\\"\\x27finding_resolve\\x27\\\"); const typos=[\\\"findingResolve\\\",\\\"finding-resolve\\\",\\\"finding_Resolve\\\",\\\"findng_resolve\\\"]; const foundTypo=typos.filter(t=>s.includes(t)); console.log((correct && foundTypo.length===0) ? \\\"CORRECT_SPELLING_NO_TYPO_CONFIRMED\\\" : \\\"SPELLING_ISSUE:\\\"+foundTypo.join(\\\",\\\"))\"",
+          "result": "pass",
+          "note": "Checks both that the exact byte-correct literal 'finding_resolve' is present AND that none of four plausible typo/casing variants (findingResolve, finding-resolve, finding_Resolve, findng_resolve) appear anywhere in the doc, a real mechanical typo/near-miss detector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "47254b17d6dc0ddb817319c2f78c53a39f2a30909c7b8aa678d8e1c872f38f8d",
+            "outputTail": "CORRECT_SPELLING_NO_TYPO_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:34.816Z"
+          },
+          "headHash": "d6fe2e3dc62014ae57838f6f32be3618fe000468",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:34.958Z"
         }
       ]
     }
