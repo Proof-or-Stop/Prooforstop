@@ -569,9 +569,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T16:13:35.502Z",
-      "endTime": null,
+      "endTime": "2026-08-14T16:17:19.965Z",
       "userSees": "Official validate and done_required_validate retain their existing PASS output and evidence, while help/diagnostics state that bare npm test is outside the workspace lease boundary.",
       "excludes": [
         "Do not wrap or alter bare npm test in this Story.",
@@ -839,7 +839,14 @@
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
           "timestamp": "2026-08-14T16:17:14.313Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "72c9fde62f287d9d30fd6d9e4e294d3be520fc1ee7e00cc48b8133a6ed011491",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a4a8f6495d90168f4f929c6652b62d1f3d516ac6",
+        "attestedAt": "2026-08-14T16:17:20.205Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+      }
     }
   ],
   "auditLog": [
@@ -891,6 +898,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Record gate-invariance, documentation boundary, and protected-budget evidence",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:17:19.965Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "9/9 gate-invariance, documentation, protected-budget, and official-handler evidence recorded",
       "agent": "main"
     }
   ]
