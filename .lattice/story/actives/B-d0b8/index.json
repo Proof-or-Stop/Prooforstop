@@ -4,7 +4,7 @@
   "title": "Strengthen the pre-story Mechanism Placement Proof to answer all six allocation questions",
   "description": "Amend the existing architecture plan so a pre-story candidate cannot PROCEED merely from entrypoint, chain, existing-mechanism, hook, and minimum-change evidence. Add mandatory cause classification, active-Story relationship assessment, and development-conflict assessment, bind them to freshness and review, and define fail-closed verdict rules that answer all six user questions before Story ID allocation.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "mechanism-placement",
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T09:35:43.683Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d0b8",
+    "branch": "story/B-d0b8",
+    "createdAt": "2026-08-14T09:35:41.468Z"
+  }
 }
