@@ -1001,7 +1001,7 @@
       "desc": "[codex host-B H1] Verified by main agent. cli/command-catalog.ts's user-facing description still carried the ordering claim corrected in the footer one round earlier - that the CLI runs the onError hook before the report reaches the reader - when in fact the report is printed twice, once before the hook and once after. The fix reached the footer and not the catalog description, which is surfaced through help.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T11:39:00.042Z",
@@ -1009,7 +1009,11 @@
       "reviewRunId": "B-9ff1:RR-037",
       "_hash": "d9aa6a2ba14b9995f030c54a4b9292e8b2b229e362de01bd05c429335040fd4d",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 82abb47b150c232286c63b6171d5531755e39c77. The catalog description now states that the report is printed twice, once before and once after the onError hooks are awaited, and that those hooks run only when the hooks map carries an exact key or a star key. Kept terse because it is surfaced through help.",
+      "resolvedAt": "2026-08-14T11:39:02.649Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-048",
