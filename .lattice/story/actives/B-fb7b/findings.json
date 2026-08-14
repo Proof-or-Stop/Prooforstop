@@ -259,7 +259,7 @@
       "desc": "Re-verified F-012 on current HEAD (fix commit 3979c2f718, scripts/build-main-with-binding.mjs:17: rmSync(dist,{recursive:true,force:true,maxRetries:10,retryDelay:100})): the retry backoff REDUCES but does NOT eliminate the ENOTEMPTY crash under real concurrent shared-worktree access -- the exact scenario F-012 describes. Reproduced live, three independent ways, all crashing on the same patched line (build-main-with-binding.mjs:17): (1) my own `npm --prefix packages/main run build && npm --prefix packages/utils run build` crashed with `Error: ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/tasks` (captured in /tmp/rebuild-main.log) while a concurrent process was independently rebuilding the SAME worktree (confirmed via `ps aux` showing concurrent `npm run pretest`/`npm run build`/`node scripts/build-main-with-binding.mjs` processes at the same wall-clock time -- this project's own review pipeline creating exactly the shared-worktree concurrency F-012 warns about; at one point 20 such processes were observed running simultaneously against this single worktree). (2) An independent controlled 3-round x 5-concurrent stress test of the SAME retry-protected script (captured at /tmp/rbuild_3_1.log through _5.log): rounds 1-2 passed cleanly (exit=0, ~28-30s elapsed, full tsc compile), but round 3 crashed ALL 5 concurrent invocations simultaneously with `ENOTEMPTY: directory not empty, rmdir .../packages/main/dist/core` at the identical build-main-with-binding.mjs:17 call site, each failing fast after only ~5.7s (i.e. the 10-retry/100ms-linear-backoff budget was exhausted well before the tsc write contention cleared). (3) My own build-restore retry loop independently reproduced the identical ENOTEMPTY on dist/core at build-main-with-binding.mjs:17 on a later attempt (/tmp/main-rebuild-attempt-1.log and again /tmp/gate-rebuild-1.log), each requiring a second retry to reach a stable build, and even after a stable build was confirmed via `lattice --version`, the very next CLI invocation seconds later hit Missing build artifacts again because dist had been deleted mid-flight by the same ongoing concurrent activity. Net effect: maxRetries:10/retryDelay:100 (bounded to roughly a few seconds of linear backoff) is insufficient when contention is sustained across the ~20-30s tsc compile window by multiple concurrent OS processes touching the same dist tree, which is exactly the multi-reviewer-lane / shared-worktree condition described in the original finding and which was actively occurring live in this worktree throughout this re-verification. F-012 is NOT resolved by commit 3979c2f718; the fix lowers the failure probability but the unhandled crash still reproduces non-deterministically, repeatedly, under real concurrent load. Fix direction: either a filesystem lock/mutex around the dist rebuild (flock or a lockfile with wait), or increase maxRetries/retryDelay enough to cover a full compile cycle, or make pretest/build itself serialize concurrent invocations against the same worktree instead of relying on rmSync retry alone.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-14T10:51:13.914Z",
@@ -270,7 +270,11 @@
         "scripts/build-main-with-binding.mjs"
       ],
       "signatureTag": "adversarial|mjs|verified-current-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the shared main+utils build mutex (scripts/build-lock.mjs, commit eab8a74651); reviewers independently disproved via F-016/F-017/F-018/F-019/F-020 after verifying 15 concurrent pretests exit 0 with zero ENOTEMPTY/TS2307.",
+      "resolvedAt": "2026-08-14T12:36:23.085Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fb7b:F-015",
