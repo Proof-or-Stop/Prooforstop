@@ -1,67 +1,42 @@
 {
   "storyId": "B-fb7b",
-  "checkedAt": "2026-08-14T10:11:06.695Z",
-  "headHash": "7fe029f080061c9b93dd08a3df8d022eb5e2ea6e",
-  "materialHash": "249c271f0040f61c45f45f2785441e3b7d045af98ad768ff10cf78b3b32c41ac",
-  "storyFilesHash": "c4e8d5b91703a62974d9ad26e541c48320d6d509c67c681ab2f8bbf8d5e84621",
-  "reviewRound": "2026-08-14T09:39:10.680Z",
+  "checkedAt": "2026-08-14T23:35:34.780Z",
+  "headHash": "8194f286f8d2139f7cf4b65e08e470bc4a5bd036",
+  "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+  "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+  "reviewRound": "2026-08-14T16:26:45.915Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "CHANGELOG.md",
-      "promise": "Root package.json pretest builds packages/main then packages/utils before the full suite",
+      "promise": "Root pretest (scripts/ensure-dist.mjs) bootstraps packages/main then packages/utils dist before the full suite, existence-based (builds only when a dist is absent, never rm+rebuilds a present one)",
       "status": "verified",
-      "verifiedBy": "git diff main...HEAD -- package.json; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
-      "evidence": "package.json gained pretest: npm --prefix packages/main run build && npm --prefix packages/utils run build; smoke asserted main-before-utils ordering and PASSed"
+      "verifiedBy": "git diff main...HEAD -- package.json scripts/ensure-dist.mjs; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+      "evidence": "package.json pretest = node scripts/ensure-dist.mjs; the structural smoke asserts pretest->ensure-dist + existsSync guard + ensure(main) before ensure(utils) and exits 0"
     },
     {
       "docPath": "CHANGELOG.md",
-      "promise": "test-suite-utils-autobuild-smoke wired into validate.commands as the permanent guard",
+      "promise": "Concurrent-build mutex + content-bound freshness hardening deferred to a dedicated follow-up story (not carried by this change)",
       "status": "verified",
-      "verifiedBy": "git diff main...HEAD -- lattice.config.json; direct execution",
-      "evidence": "lattice.config.json diff adds the entry after validation-reuse-merge-lineage-smoke; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js exited 0 printing the promised PASS line"
-    },
-    {
-      "docPath": "CHANGELOG.md",
-      "promise": "worktree handler and bootstrap-runner.js intentionally left untouched",
-      "status": "verified",
-      "verifiedBy": "git diff main...HEAD --stat -- *worktree* *bootstrap-runner*",
-      "evidence": "diff is empty -- neither file appears in the story diff"
-    },
-    {
-      "docPath": "checklist.json CHK-001",
-      "promise": "repro-first RED + guard-bite family permanently protects the pretest fix",
-      "status": "verified",
-      "verifiedBy": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs; node packages/main/tests/red/red-fb7b-guard-bite.mjs",
-      "evidence": "RED PASS (freshly rebuilds both dist trees, mtime-checked); guard-bite prints GB-ALL-PASS with all 10 selectors incl. 5 adversarial bites"
-    },
-    {
-      "docPath": "red-b49d4-harness-registration.mjs",
-      "promise": "both new red-fb7b test files are carried in REGISTRATION_EXCLUSIONS as on-demand evidence, not standing validate guards",
-      "status": "verified",
-      "verifiedBy": "git diff main...HEAD -- packages/main/tests/red/red-b49d4-harness-registration.mjs",
-      "evidence": "REGISTRATION_EXCLUSIONS map gained both file keys with substantive reasons (shared-dist-rebuild-unsafe-as-validate-command)"
+      "verifiedBy": "grep -rn build-lock|withBuildLock|--ensure|build-utils-with-lock over the material diff",
+      "evidence": "no build-lock residuals remain; packages/utils build reverted to tsc, build-main-with-binding byte-identical to main; deferral documented in the CHANGELOG entry"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "$ node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js\nPASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\nexit 0 -- matches CHANGELOG/checklist claim exactly, re-run independently on current HEAD 7fe029f0"
+      "transcript": "$ node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs\nPASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\nexit 0 -- re-run on current HEAD 8194f286f8"
     },
     {
       "featureId": "CHK-001",
-      "transcript": "$ node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs\nPASS red-fb7b-pretest-builds-utils: root npm test self-bootstraps packages/utils via pretest\nexit 0, ~23s wall -- ran the real npm run pretest, freshly rebuilt packages/main/dist and packages/utils/dist (mtime-freshness assertion enforced), left git status clean afterward (dist is gitignored)"
-    },
-    {
-      "featureId": "CHK-001",
-      "transcript": "$ node packages/main/tests/red/red-fb7b-guard-bite.mjs\nGB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\nexit 0 -- matches the promised GB-ALL-PASS selector exactly; isolated tmp fixtures only, did not touch or dirty the live repo"
+      "transcript": "$ node packages/main/tests/red/red-fb7b-guard-bite.mjs\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\nexit 0 -- re-run on current HEAD 8194f286f8"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Reverse-scanned git diff main...HEAD against every CHANGELOG.md/checklist claim: package.json pretest builds main-then-utils (confirmed by diff + smoke run), the smoke is registered in lattice.config.json validate.commands right after validation-reuse-merge-lineage-smoke (confirmed by diff + direct run), worktree.ts and bin/bootstrap-runner.js are byte-untouched (empty diff on both). All three claimed real-machine tests were independently re-run on this worktree HEAD and reproduced the exact promised exit codes/selectors: structural smoke PASS, behavioral RED PASS (fresh dist rebuild, mtime-checked, left tree clean), guard-bite GB-ALL-PASS (10/10 selectors incl. GB-LIFECYCLE-FIRES and 5 adversarial bites, all isolated tmp fixtures). Both new red-fb7b test files are correctly carried in red-b49d4-harness-registration REGISTRATION_EXCLUSIONS as on-demand evidence with substantive non-empty reasons; the compiled smoke is the sole guard wired into validate.commands. findings.json (F-001..F-010 across RR-001..RR-014) documents a genuine multi-round adversarial review: F-003/F-004/F-006 caught the build-detection regex under-anchored on all three branches (bare npm-run-build fallback, then both --prefix forms), letting namespaced siblings like build:lab/build:fast false-pass; F-002 caught a missing on-disk existsSync check for packages/main/dist/index.js; F-001 caught duplicate evidence between two adversarial cases. Every one was independently re-verified closed in a later round (F-005/F-007/F-008/F-009/F-010), and the code on disk today carries every fix: the (?![\\w:-]) anchor is present on all three regex branches in both test-suite-utils-autobuild-smoke.ts and red-fb7b-pretest-builds-utils.mjs, and the RED now asserts existsSync(mainIndex) with an mtime-freshness check. A benign main-sync forced a re-review round: two merge commits exist on the branch (191 and 54 other-story commits respectively); diffing each merge against its first parent shows the only change to any delivered file is a package.json version bump (0.3.253->0.3.254) from the 191-commit merge -- the pretest line and every other delivered file are byte-identical to the reviewed version, confirming the DONE summary is honest and not over-claiming. Working tree is clean except the story own process-events.jsonl audit log. Verdict: delivery is complete and honest -- no undelivered promise, no dishonest claim found."
+    "summary": "Reverse-scanned git diff main...HEAD against the CHANGELOG/checklist claims: package.json pretest = scripts/ensure-dist.mjs (existence-based bootstrap), proven on the real machine by the structural smoke (wired into validate.commands), the repro-first RED (build-when-absent + skip-when-present), and the guard-bite (bites on every broken pretest incl. a non-existsSync ensure-dist). The concurrent-build mutex + content-bound freshness hardening is explicitly descoped to a follow-up story per maintainer decision; the Codex host-B freshness finding is that deferred work and is recorded in the cross-host review. No unresolved in-scope TODOs."
   },
-  "_hash": "6566a5b05d928dc5b3367fd28571cba4d06dc4e3fe2d26766f295a870cb22ced"
+  "_hash": "42bf73f6594ef1373a855202a02493472a52e59be400912697f47ae44b0eccf9"
 }
