@@ -21,12 +21,16 @@
  * directory snapshot was being credited with more than it proves):
  *
  *   1. A per-file SHA-256 snapshot of the whole `.lattice/` tree, compared
- *      before and after every invocation. WHAT IT PROVES: no file under
- *      `.lattice/` was created, modified or removed — which covers the story
- *      record, the chain, evidence artifacts and process-event logs, because
- *      those all live there. WHAT IT CANNOT PROVE: anything about writes
- *      OUTSIDE `.lattice/`, and — the point of the finding — anything about
- *      CHILD PROCESSES. A directory hash cannot see a spawn.
+ *      before and after every invocation. WHAT IT PROVES: across the DIRECT
+ *      handler invocations this file makes, no file under `.lattice/` was
+ *      created, modified or removed — which covers the story record, the chain,
+ *      evidence artifacts and process-event logs, because those all live there.
+ *      WHAT IT CANNOT PROVE: anything about writes OUTSIDE `.lattice/`;
+ *      anything about CHILD PROCESSES (a directory hash cannot see a spawn);
+ *      and anything the CLI WRAPPER does, because these are direct
+ *      `registry.get(COMMAND)` calls that never enter `runCli` in
+ *      `cli-engine.ts`. Section 6a states both reasons the CLI's own
+ *      `activity.jsonl` session row is structurally invisible here.
  *   2. A CHILD-PROCESS RECORDER installed before the dist graph is imported, so
  *      the handler's `child_process` calls are observed rather than assumed.
  *      WHAT IT PROVES: the exact spawn set of the call, positively. The command
@@ -38,10 +42,22 @@
  *      make this test demand the removal of a deliberate safety property.
  *   3. Static registration facts (`ownershipClass: readOnly`,
  *      `READ_ONLY_COMMANDS` membership, process-fact level L0, no
- *      `gateEvidence`). WHAT THEY PROVE: the CLI's own hook / activity-log /
- *      process-event write surfaces are suppressed for this command by
- *      classification. They are declarations about wiring, NOT behavioural
- *      evidence, and are labelled as such below.
+ *      `gateEvidence`). WHAT THEY PROVE: the command is CLASSIFIED read-only, so
+ *      the CLI's hook and process-event write surfaces are suppressed for it —
+ *      both are gated on `isReadOnlyCommand` alone, with no second term. WHAT
+ *      THEY DO NOT PROVE: that the CLI writes no activity row. Classification is
+ *      necessary but not sufficient there, and two independent paths break it:
+ *      `shouldWriteActivityLog` returns true for a read-only command when
+ *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (a real operating mode — it is baked
+ *      into the global Codex fallback command and the generated Codex wrapper),
+ *      and both `writeLog` call sites in `cli-engine.ts` read
+ *      `shouldWriteActivityLog(...) || staleWarnings.length > 0`, so an uncooled
+ *      stale warning appends one generic session row for ANY command, read-only
+ *      included. That row is CLI session telemetry, not a write by this command,
+ *      which is why the contract asserted here is the four-category one (no
+ *      artifact, no process event, no chain record, no gate verdict change).
+ *      These are declarations about wiring, NOT behavioural evidence, and are
+ *      labelled as such below.
  *
  * CHK-013 validate-pipeline invocation: the smoke's `validate.commands` entry is
  * resolved with the SAME `configuredValidationCommands` the validate pipeline
@@ -109,13 +125,17 @@ const FROZEN_POLICY_DIGEST = 'sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3
 
 // ── 1. Registration (CHK-013) ────────────────────────────────────────────────
 // These are DECLARATIONS about wiring, not behavioural evidence: they prove the
-// command is CLASSIFIED read-only (which is what suppresses the CLI's hook /
-// activity-log / process-event writes), not that any particular call wrote
-// nothing. The behavioural evidence is sections 2 and 6 below.
+// command is CLASSIFIED read-only — which is what suppresses the CLI's hook and
+// process-event writes, and which is NOT sufficient to suppress the activity row
+// (see §3 of the header) — not that any particular call wrote nothing. The
+// behavioural evidence is sections 2 and 6 below, and it is evidence about the
+// HANDLER: every invocation there is a direct `registry.get(COMMAND)` call, so it
+// establishes what the handler does, never what the CLI wrapper around it does.
 assert.ok(MAIN_TOOLS.some((tool) => tool.name === COMMAND), `${COMMAND} must be in MAIN_TOOLS (CLI dispatchable)`);
 const policyEntry = getCommandPolicy(COMMAND);
 assert.ok(policyEntry, `${COMMAND} must have a CommandPolicy entry`);
-assert.equal(policyEntry.ownershipClass, 'readOnly', `${COMMAND} is readOnly — it writes nothing`);
+assert.equal(policyEntry.ownershipClass, 'readOnly',
+  `${COMMAND} is classified readOnly — it writes no artifact, process event or chain record`);
 assert.equal(policyEntry.destructiveRisk, 'none', `${COMMAND} carries no destructive risk`);
 assert.notEqual(policyEntry.status, 'gateEvidence', `${COMMAND} is NOT gate evidence — it changes no gate verdict`);
 assert.notEqual(policyEntry.gateEvidence, true, `${COMMAND} must not declare gateEvidence`);
@@ -124,7 +144,10 @@ assert.ok(levelEntry, `${COMMAND} must have a process-fact level entry`);
 assert.equal(levelEntry.level, 'L0', `${COMMAND} is an L0 read-only/reporting fact`);
 assert.equal(levelEntry.gateConsumer, undefined, 'an L0 read-only checker declares no gateConsumer');
 assert.ok(READ_ONLY_COMMANDS.has(COMMAND), `${COMMAND} must be in the CLI READ_ONLY_COMMANDS class`);
-assert.equal(isReadOnlyCommand(COMMAND, {}), true, 'the CLI read-only predicate recognises the command, so no hook/activity/process-event write fires');
+assert.equal(isReadOnlyCommand(COMMAND, {}), true,
+  'the CLI read-only predicate recognises the command, so its hook and process-event writes are suppressed; '
+  + 'the activity row is NOT settled by this predicate alone (LATTICE_ACTIVITY_RECORD_READONLY=1 and the '
+  + 'stale-warning OR in cli-engine.ts each still append one generic session row)');
 
 // ── Fixture repo ─────────────────────────────────────────────────────────────
 const root = mkdtempSync(join(tmpdir(), 'red-w2d-cmd-'));
@@ -277,8 +300,29 @@ try {
   // evidence artifacts and process-event logs all live under `.lattice/`, so
   // this covers those writes — and nothing else. It says NOTHING about child
   // processes; section 6b is what carries that claim.
+  //
+  // AND IT CANNOT SEE THE CLI WRAPPER. Every invocation above is
+  // `registeredCheck(args)` — the handler, called directly. Two independent
+  // reasons the CLI's own `activity.jsonl` session row can never show up in this
+  // comparison, so an unchanged snapshot must not be read as "the CLI writes
+  // nothing when this command runs":
+  //   1. PRIMARY and controlling: `writeLog` is a function local to `runCli` in
+  //      `cli-engine.ts`, called only from that function's inner `run()` wrapper.
+  //      A direct handler call never enters `runCli`, so neither the
+  //      `shouldWriteActivityLog(...) || staleWarnings.length > 0` decision nor
+  //      the append it guards is reached at all. This holds no matter how the
+  //      fixture or the environment is configured.
+  //   2. SECONDARY, and it would still hold even through the CLI: the
+  //      stale-warning path starts at `detectActiveStoryId` in
+  //      `core/stale-detector.ts`, which requires the git branch to start with
+  //      `story/`. This fixture repo is a bare `git init` in a tmpdir, so
+  //      `detectStaleState` short-circuits to `[]` and that OR term is always
+  //      false here regardless.
+  // Observing the row would take a CLI-level test running on a `story/` branch
+  // with an uncooled warning, or with LATTICE_ACTIVITY_RECORD_READONLY=1; that
+  // belongs to the follow-up work on the shared entrypoint, not here.
   assert.equal(snapshotLattice(), before,
-    'red_evidence_envelope_check created, modified or removed NO file under .lattice/ — so it wrote no story record, chain record, evidence artifact or process event, and moved no stored gate verdict');
+    'red_evidence_envelope_check, invoked directly as a handler, created, modified or removed NO file under .lattice/ — so it wrote no story record, chain record, evidence artifact or process event, and moved no stored gate verdict');
 
   // ── 6b. THE SPAWN SET, ASSERTED POSITIVELY ────────────────────────────────
   // The command IS expected to spawn: §1.1.3 requires the target binding to be
@@ -385,7 +429,7 @@ try {
   console.log('red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
-  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; no .lattice file created/modified/removed across ${invocations} invocations`);
+  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; no .lattice file created/modified/removed across ${invocations} DIRECT handler invocations (the CLI wrapper is not exercised here)`);
   console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
   console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
 } finally {

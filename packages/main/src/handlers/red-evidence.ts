@@ -16,7 +16,7 @@
  *     `topology_critic_receipt_check` and `proofstory_gate_check`: derived
  *     output only, no caller-submitted status, and an inadmissible verdict is
  *     surfaced by THROWING the rendered report (non-zero exit) rather than by
- *     writing anything. See the fence note on the handler itself.
+ *     recording the verdict anywhere. See the fence note on the handler itself.
  *
  * Authorization is layered exactly like every other mutating story command:
  *   1. The story-owner LEASE is enforced UPSTREAM at the single CLI choke point
@@ -232,7 +232,7 @@ function readCommittedBindingForTarget(
   } catch (error) {
     throw new Error(
       `red_evidence_envelope_check: could not read the COMMITTED target bindings at HEAD:${relPath} — ${(error as Error).message}. ` +
-        'Nothing was written; this check is read-only.',
+        'This check wrote no artifact, no process event and no chain record, and changed no gate verdict.',
     );
   }
   if (!file) return null;
@@ -349,8 +349,15 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      * process event, no chain record, and no gate verdict, spawns no RED run,
      * and never calls autoCommitStoryMetadata. `command-policy` classifies it
      * `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
-     * READ_ONLY_COMMANDS, which suppresses the CLI's own hook / activity-log /
-     * process-event write surfaces.
+     * READ_ONLY_COMMANDS, which suppresses the CLI's own hook and process-event
+     * write surfaces (both are gated on `isReadOnlyCommand` alone, with no
+     * second term). The activity log is the one surface that membership does NOT
+     * settle: the shared CLI entrypoint still appends one generic session row
+     * when `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
+     * mode) or while the story carries an uncooled stale warning — see the
+     * `red_evidence_envelope_check` note in `cli/activity-policy.ts`, which names
+     * both paths. That row is CLI session telemetry, outside the four categories
+     * above, and is not a write performed by this command.
      *
      * IT DOES SPAWN, and the set is enumerated here because a claim nobody can
      * check is worth nothing (the committed regression
@@ -455,7 +462,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         ...result.rejections.map((rejection) => `  - [${rejection.tag}] ${rejection.code}: ${rejection.message}`),
         `Diagnostics: ${result.diagnostics.length}`,
         ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
-        'Nothing was written and no gate verdict changed; fix the envelope before spending a run.',
+        'No artifact, process event or chain record was written and no gate verdict changed; fix the envelope before spending a run.',
       ].join('\n');
       throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },

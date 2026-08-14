@@ -21,16 +21,27 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_rollout_check',
   'topology_critic_receipt_check',
   // W2d (B-9ff1): read-only RED assertion-envelope admissibility pre-flight.
-  // Membership here makes shouldWriteActivityLog (this file) return false, so the
-  // command runs no hook, writes no process event, and records no activity row of
-  // its own. Membership is necessary but NOT sufficient: the writeLog call sites
-  // in cli-engine.ts OR in `staleWarnings.length > 0`, an independent path that
-  // appends one generic session row for any command — read-only included — while
-  // the story carries an uncooled stale warning (STALE_WARNING_COOLDOWN_MS, 30
-  // minutes, in core/stale-detector.ts). The command's formal contract in
-  // core/command-policy.ts (writes no artifact, no process event, no chain record,
-  // changes no gate verdict) holds unconditionally: activity.jsonl is generic CLI
-  // session telemetry, not one of those four categories.
+  // Membership here settles TWO of the CLI's own write surfaces outright, because
+  // both are gated on isReadOnlyCommand alone with no second term: the pre/post
+  // command hooks in cli-engine.ts, and writeCodexProcessEvent's class-wide early
+  // return. It does NOT settle the ACTIVITY LOG. For that surface membership is
+  // necessary but not sufficient, and each of the two remaining conditions has a
+  // real operating mode that breaks it:
+  //   1. shouldWriteActivityLog (below) returns true for a read-only command when
+  //      LATTICE_ACTIVITY_RECORD_READONLY === '1'. That is not a test knob: it is
+  //      baked into GLOBAL_CODEX_FALLBACK_COMMAND (core/codex-adapter-checks.ts)
+  //      and into the generated Codex wrapper (src/init-assets.ts), so under the
+  //      documented Codex heartbeat mode read-only rows ARE recorded on purpose.
+  //   2. Both writeLog call sites in cli-engine.ts read
+  //      `shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0`. While
+  //      the story carries an uncooled stale warning (STALE_WARNING_COOLDOWN_MS,
+  //      30 minutes, in core/stale-detector.ts) that OR appends one generic
+  //      session row for ANY command, read-only included.
+  // What holds without qualification is the command's formal contract in
+  // core/command-policy.ts: it writes no artifact, no process event, no chain
+  // record, and changes no gate verdict. An activity row is generic CLI session
+  // telemetry emitted by the shared entrypoint, outside those four categories and
+  // not a write performed by this command.
   'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
