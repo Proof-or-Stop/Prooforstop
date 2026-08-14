@@ -1,0 +1,35 @@
+{
+  "storyId": "B-fb7b",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Reviewers F-011/F-012 found the new pretest wires the pre-existing racy rmSync(dist) into every npm test; adding Node maxRetries backoff there is the only fix that resolves the ENOTEMPTY concurrency crash the pretest exposes.",
+      "timestamp": "2026-08-14T10:37:21.285Z",
+      "paths": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d4dc3663b223dff25fbfaaed10ef9b63ae277110",
+      "materialHash": "0f83a70ec3aea359d966e1f8746acc30f9c4f4650448d256f94185b40e99a2e5"
+    }
+  ],
+  "createdAt": "2026-08-14T10:37:20.717Z",
+  "updatedAt": "2026-08-14T10:37:21.285Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs"
+  }
+}
