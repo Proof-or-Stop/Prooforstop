@@ -898,6 +898,42 @@
         "scanEscalationReason": "re-attestation round: zero-diff verified via git diff against RP-022 checkpoint commit, so prior full read stands unchanged"
       },
       "_hash": "b91895d98abdf6ebdef1c96d19cd7035fc9ff98e5b4a3e28d2d5af363e0805ca"
+    },
+    {
+      "id": "B-3144:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Pure re-attestation round (RP-024 was the last clean quality pass, head ef0a14f, RR-055). Story cycled TEST->DEV->REVIEW only because an unrelated large main-merge (6b5df0cd10) plus a story_advance/summary_set metadata commit invalidated the Prompt Envelope on all 4 reviewer lanes; no story-owned source edits were intended or made. Verified directly rather than trusting the narrative: diffed ef0a14f..4d833d0 (RP-024 head -> current RR-059 head) restricted to the 10 story scope-contract files (quorum-submit.ts, quorum-prune.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, quorum-submit-smoke.ts, retired-authority-vocabulary-guard-smoke.ts) plus the 2 docs -> byte-identical, zero diff, for 9 of 10; the 10th (scripts/verify-process-fact-contract.mjs) showed a raw-content delta, but tracing it (git log ef0a14f..HEAD -- that file) showed it came from an unrelated main commit (4af2f427a0, canonicalRoutineIncludes test:closeout-trust check) folded in by the same merge, not from any B-3144 edit; confirmed by re-diffing `git diff main...HEAD -- scripts/verify-process-fact-contract.mjs` now, which is still exactly the single-line fingerprint-repin hunk (a2468c...bdbc0 -> ef1c4e...f050f) RP-024 already reviewed line-for-line, nothing added. `git diff main...HEAD --name-only` (34 files: 22 .lattice/B-3144 metadata + 2 docs + 10 scope-contract-listed source/test files) matches RP-024/RR-055s reviewed footprint exactly; no other-story .lattice dirs or unrelated source files appear in the B-3144-owned diff (they only appear in a raw HEAD..RP-024-head range diff because that range spans the whole main-merge commit, which is expected and irrelevant to this storys scope). dist/ was absent in this shared worktree (another reviewer mid-build); hit one transient ENOTEMPTY on `npm --prefix packages/main run build` from the concurrent lattice-review-delivery process, retried once and it succeeded cleanly per the dispatch note. Reran the full quorum-submit-smoke.js suite fresh post-build: 71/71 checks pass (matches RP-024s 71/71 baseline exactly, same count). Reran retired-authority-vocabulary-guard-smoke.js: PASS. Reran scripts/verify-process-fact-contract.mjs standalone: PASS (Process fact contract verified). git status --short is clean after all runs. No dead code, type-safety regressions, I/O-isolation violations, or promised-but-undelivered surface introduced -- because nothing in the reviewed scope changed since RP-024s clean pass. No blocker.",
+      "createdAt": "2026-08-14T07:32:40.413Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-059",
+      "envelopeId": "36b12f5ac0018b108dc449eb1a9fe3f0df0e0453b58970b6951c86df497cbbed",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/review-runs.json",
+          ".lattice/story/actives/B-3144/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Diffed ef0a14f (RP-024 reviewed head) against 4d833d0 (current HEAD) restricted to all 10 scope-contract files plus 2 docs to prove zero-delta; for the one file with a raw delta, traced the introducing commit range to confirm it originated from an unrelated main commit folded in by the merge, then re-ran git diff main...HEAD on that file to confirm the story-owned hunk is unchanged from what RP-024 reviewed."
+      },
+      "_hash": "92dbf89d3cd4cf682dea7ab6c56abf151cddf5d1ca09b6f038bcd127b5056b86"
     }
   ]
 }
