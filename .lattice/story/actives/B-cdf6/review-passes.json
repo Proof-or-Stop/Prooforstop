@@ -645,6 +645,47 @@
         "scanEscalationReason": null
       },
       "_hash": "0c7ba6f0c162aecd3439ddc07c52d2d680f791d048fdb99409bc4fbdc89c4d76"
+    },
+    {
+      "id": "B-cdf6:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Fresh run RR-059 bound to HEAD 7724ab966c (tree had moved past the requested a06ab64 binding mid-review; original RR-058 was rejected by the framework as stale, per session_brief Prompt-Envelope-invalid, so I restarted). Verified all claims made this round with direct execution, not text-trust: (1) F-045 git-notes remedy on 56da8b5e4b confirmed byte-for-byte (831-line polluted message, note attached at refs/notes/commits, correctly states cause/non-evidence/tsc-clean boundary/no-rewrite-rationale; git log shows the note by default). (2) F-042 acceptance-topology.ts fix confirmed: isLatticeWrapper was deprecated-bin-only (backwards from read-both), now accepts both proof-or-stop and lattice with deprecated retained deliberately -- exact code match to the commit message and checklist claims. (3) All five F-041/F-044 comment sites (global-agents-unit-smoke.ts, lattice-cli.ts, verifier.ts, story-review.ts, autopilot-executor.ts) verified against the actual diff in 9f6fb6ecc4 -- each comment accurately states what was wrong. (4) Self-correction in 9f6fb6ecc4 verified empirically: ran proofstory-acceptance-topology-smoke.js on both this branch and a scratch worktree of pristine main -- both fail at the identical assertion (line 333, checklist_update_executable_evidence_unenforced regex), confirming the branch/main comparison claim (previously wrongly compared by exit code alone at :135 vs :333). Also ran prompt-token-cost-smoke.js on both -- identical assertion text (extractLatticeBlock/assertPromptReductions, 'expected lattice managed block'), corroborating the CHK-002:adversarial:1 honesty-boundary claim (comparing assertion text AND location, not just exit code). (5) B-META-framework-audit:F-029 git archaeology verified directly against git history: 36501da2de=42/tail F-040,F-041,F-042 -> b8d0d0170e=41/tail F-039,F-040,F-041 -> 35c0773ad4=42/tail F-040,F-041,F-042 -> 4201ce6681=43/tail F-041,F-042,F-043; confirmed F-041/F-042 at those two points hold completely different agent/content (concept+test-coverage originals vs quality's later reuse of the same ids) -- the id-aliasing claim is accurate. (6) New material discovered mid-review (F-046, landed after original binding): verified all four sites in 5ea04e5e36 against the diff, verified lattice_config_repair now prints 'proof-or-stop config doctor' live, verified lattice-cli-migration-smoke.ts fails identically on branch and pristine main at the pre-existing 'lattice host status' help-alias assertion (not a regression), and verified the F-030 root-cause claim that packages/main/src is absent from both DOC_SCAN_ROOTS and EXECUTABLE_SCAN_ROOTS in verify-lattice-residue.mjs. (7) Re-ran the STATE claims at the fresh head: tsc clean (0 errors across packages/main), global-agents-unit-smoke exit 0, global-agents-init-smoke exit 0, flow-stability-smoke exit 0, rollout-check-smoke exit 0, decision-doc-promotion-smoke exit 0 (9 checks), all three verify-lattice-residue.mjs checks PASS, red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs (the two touched by this story) both exit 0. finding_list confirms 46 findings total, 0 open, no duplicate ids. CHK-002:adversarial:1 verified still deferred_gate_evidence with an honest, specific root-cause note (B-META-framework-audit:F-005, itself still open even though a related F-026/F-028 retraction shows most of its consequences were separately fixed) -- no doc, comment, or commit message anywhere claims that waiver as earned or claims the two identically-failing smokes are green. CHANGELOG.md and .lattice/story/ archives outside B-cdf6/B-META-framework-audit remain untouched in git diff main...HEAD --stat. Symbol-diff step 1 over the 9 changed files (relative to prior pass) yielded 3 module-local const/param identifiers, no exported/public symbols, so no README/CLAUDE.md paragraph anchors this incremental slice; no stale doc references to isLatticeWrapper/acceptance-topology internals or the old configRepairCommandFor/config-doctor error strings found in README.md/CLAUDE.md/AGENTS.md/docs/**. No inconsistencies found between docs and code for this round; no doc-promise-undelivered found. Closing self-check: no new proof-or-stop command examples, handler-schema fields, env vars, or behavior-description paragraphs introduced by this incremental slice in active docs (all changes are internal comments/private implementation/error strings, already verified above). Every honesty-boundary claim in this round is corroborated by direct mechanical evidence, not by trusting the prose.",
+      "createdAt": "2026-08-14T12:11:35.693Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-059",
+      "envelopeId": "a166fe331303ffd128c2d5a7dddee2cb06b0d9846f82a7dc48c2f331d7f8ba09",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "CLAUDE.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cabde38b2e1993d9eaa3101f3300b89d8223a9b0eba4589323f9e43d4f0e9499"
     }
   ]
 }
