@@ -806,6 +806,39 @@
         "scanEscalationReason": "Ran full untargeted quorum-submit-smoke.js suite (no --grep) plus verify-process-fact-contract.mjs directly against current HEAD to independently confirm the 25/25 evidence-to-intent mapping derived from checklist.json, rather than trusting the JSON alone."
       },
       "_hash": "1483694aa28ddce793047d9d485d9ac30e7fb851f67f7af6f4353aa13f83ad63"
+    },
+    {
+      "id": "B-3144:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation pass, no source changed since last clean pass RP-023 (head ef0a14f). Verified: diff ef0a14f02a..4d833d0 (current head) is a large main-merge (other stories B-137a/B-c648/B-9812/B-74af/B-cdf6/B-fb7b landing to main) plus routine lifecycle-metadata commits; every B-3144 story-scoped file (handlers/quorum-submit.ts, handlers/quorum-prune.ts, tasks/quorum-submit-smoke.ts, cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, handlers/lattice-cli.ts, docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md) is byte-identical (0 diff lines) across that range. The only touched file adjacent to B-3144 scope, scripts/verify-process-fact-contract.mjs (7 lines), traces to commit 4af2f427a0 which is B-9812 work flowing through the main merge, not new B-3144 work; already acknowledged out-of-scope pattern from RP-023 continues to apply, no new B-3144-authored change to that file. Re-swept full story diff main...HEAD (36 files) for concept deletion/replacement per role mandate: story remains purely additive (new quorum_prune command/handler/CLI wiring + widened quorum_submit guard predicate); grepped remove/delete/rename/replace hits in the diff and all are intentional quorum_prune functional vocabulary (verdict removal/pruning), not a mass concept rename needing residue-grep. Confirmed packages/main/dist/handlers/quorum-prune.js build artifact present and fresh; working tree clean except this review run own metadata writes. No blocker.",
+      "createdAt": "2026-08-14T07:23:32.458Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-058",
+      "envelopeId": "82cea758ddc3344ce6483b52a98a084e5ad5318f02e77882e0568ef46812b1f1",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37e8f5e76b2d64f342f804720542690595b3db9605cdfc04c5dd755d04b1372b"
     }
   ]
 }
