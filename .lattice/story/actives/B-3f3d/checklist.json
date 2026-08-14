@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T14:06:16.709Z",
-      "endTime": null,
+      "endTime": "2026-08-14T14:58:53.875Z",
       "userSees": "After start, the terminal includes the exact fields \"Review inventory epoch: <id>\", \"State: OPEN\", \"Frozen cutoff: <hash>\" and \"Next: lattice review_inventory_status --storyId=<id>\"; status prints one row per required lane and exactly one \"Next:\" command.",
       "verificationIntent": {
         "happy": [
@@ -311,7 +311,14 @@
           "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
           "timestamp": "2026-08-14T14:58:34.927Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "958279600987ae96b8112740a185a96094b0ab0473a22e48fae09630dab68a8e",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "61ec7348081114eca0f0b217f1e65de26132db08",
+        "attestedAt": "2026-08-14T14:58:54.102Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-002",
@@ -1559,6 +1566,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV implementation started by dispatched lattice-implementer",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:58:53.875Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
       "agent": "lattice-implementer"
     }
   ]
