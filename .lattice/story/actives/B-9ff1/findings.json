@@ -341,7 +341,7 @@
       "desc": "category probe - please ignore, will resolve as disproven",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-14T03:40:49.517Z",
@@ -349,7 +349,11 @@
       "reviewRunId": "B-9ff1:RR-015",
       "_hash": "852e29620ecb2d463ca4feb06dd5e9cafcd7e1a01f2827a937cd40bfb1ae8e64",
       "signatureTag": "doc-code-drift|unknown|category-probe-please",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "probe-only finding created to check category-normalization behavior of finding_add; not a real review finding",
+      "dismissedAt": "2026-08-14T03:41:06.646Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-017",
@@ -367,6 +371,26 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "doc-code-drift|ts|handlers-evidence-lines",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-018",
+      "desc": "red-w2d-command-readonly.mjs section 6a (lines 274-281) snapshots the whole .lattice/ tree before/after 8 calls to check()=registeredCheck(args)=registry.get('red_evidence_envelope_check')(args), and its own docstring (CHK-012 item 1, lines 19-29) asserts this 'covers the story record, the chain, evidence artifacts and process-event logs, because those all live there.' registry.get(cmd) returns the raw handler and is invoked directly here — it never goes through cli-engine.ts's outer run() wrapper, which is the exact code containing the two writeLog call sites (cli-engine.ts lines 1416 and 1488) that OR in staleWarnings.length > 0. That OR-bypass is what the main agent actually reproduced this round (grep -c red_evidence_envelope_check .lattice/activity.jsonl = 20) via genuine full node bin/lattice.js invocations, i.e. through run(). handlers/red-evidence.ts's red_evidence_envelope_check itself contains no writeLog/activity call, so this test's snapshot is trivially unchanged no matter what staleWarnings or LATTICE_ACTIVITY_RECORD_READONLY are set to -- it structurally cannot observe, and provides zero behavioural evidence about, the exact write path F-014 proved really appends rows during genuine CLI use. The test's own docstring already distinguishes 'declarations about wiring, NOT behavioural evidence' (item 3, static READ_ONLY_COMMANDS/isReadOnlyCommand assertions) from the directory snapshot, which it presents AS behavioural evidence (item 1) -- but that snapshot's own invocations are themselves only direct handler calls, not real CLI invocations through run(), and that gap is undisclosed. This is the same the directory snapshot was being credited with more than it proves defect class the docstring says three earlier reviewers (F-002/F-012/F-013) already caught elsewhere in this file. Needs either (a) a comment at section 6a disclosing that check() bypasses cli-engine outer run()/writeLog/staleWarnings entirely, so the snapshot excludes that path, or (b) an added assertion that drives the command through the real CLI engine (mirroring section 8 use of configuredValidationCommands/runValidationCommand) to actually observe activity.jsonl under a live staleWarnings condition.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T03:41:21.887Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-015",
+      "_hash": "70b873ba2e700d4b1023b594a0a15ea4fb3d6cc14ba6b5dae80ba9120c4f9ca7",
+      "files": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "doc-code-drift|mjs|command-readonly-section",
       "signatureTagSource": "auto"
     }
   ]
