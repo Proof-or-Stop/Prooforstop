@@ -845,7 +845,7 @@
       "desc": "[codex host-B E2] Verified by main agent. ORDERING defect in the operator-facing rejection text of handlers/red-evidence.ts: the message categorically states that no evidence, process event or gate change occurred, but cli-engine.ts awaits the arbitrary configured onError hook BEFORE printing that error. By the time the operator reads the sentence, the hook may already have done exactly what it denies. The following sentence does say the hook runs, but it neither scopes the guarantee nor discloses the hook's mutation power. This is a stronger version of the scoping problem because the falsifying event provably precedes the claim's display.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:20:23.272Z",
@@ -853,7 +853,11 @@
       "reviewRunId": "B-9ff1:RR-029",
       "_hash": "d81e3d5c63217da6a9f58adb33a4749ad70039680cafc515634ac42b5ae513e3",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 8aa435b089c9503e7c3a8ef2fbdc58aee2cc3395. Confirmed at source before editing: cli-engine.ts awaits runHooks('onError', ...) and only then writes the error to stderr, so the falsifying event provably precedes the claim's display. The rejection footer now scopes the guarantee to this command AND states the tense - that the report is thrown, that the CLI awaits any configured onError hook before printing it, that such a hook is arbitrary /bin/sh -c and can already have written evidence, appended a process event or moved a gate verdict, and that the CLI may also record the text in an activity row's error field. The doc comment above the handler records the ordering and why the text is shaped this way, so a later editor does not simplify it back.",
+      "resolvedAt": "2026-08-14T10:33:09.273Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-040",
