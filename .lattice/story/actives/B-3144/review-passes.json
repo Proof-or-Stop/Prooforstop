@@ -485,6 +485,36 @@
         "scanEscalationReason": null
       },
       "_hash": "68208da2b6ca1aca61f172afeb320c82066b61f6dcc722644b0173a14092032d"
+    },
+    {
+      "id": "B-3144:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Re-check confirming prior docs-lane pass (RR-039, head adbb0a3e9e) still holds. git diff adbb0a3e9e..f75b05c5da (current HEAD f75b05c5da) shows the two doc files (docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md), CLAUDE.md, README.md, and the code files previously compared (quorum-submit.ts, quorum-prune.ts, quorum-submit-smoke.ts) are byte-identical -- zero diff. Only source change since RR-039 is commit 2c3e327b72: repins PINNED_EXECUTABLE_SOURCE_FINGERPRINTS hash + its own inline comment for cli-engine.ts in retired-authority-vocabulary-guard-smoke.ts (no exported symbols added/changed, no doc content touched). The CHK-001:adversarial:1 waiver-to-mechanical-evidence swap is confined to .lattice/story/actives/B-3144/*.json metadata, not source or docs. No new doc-code drift found.",
+      "createdAt": "2026-08-14T05:39:42.814Z",
+      "reviewRound": "2026-08-14T05:37:34.971Z",
+      "reviewRunId": "B-3144:RR-047",
+      "envelopeId": "969ff937199114c118187def6a73ee934c4de2fa057390099a904a5b13b0ec33",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5179784d78651b01ade6a59b3fb3b5aa8fbeaa73cc77fa588a94585b68ca2bb1"
     }
   ]
 }
