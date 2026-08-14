@@ -10,7 +10,14 @@
  *   - a hung command is killed and attributed (124, timedOut) while a fast command passes;
  *   - the DEFAULT-arming path actually fires (no explicit timeoutMs) via the injected seam;
  *   - the timeout kills the whole PROCESS GROUP — a SIGTERM-ignoring grandchild that holds
- *     stdio open is reaped, so the result settles instead of hanging forever.
+ *     stdio open is reaped, so the result settles instead of hanging forever;
+ *   - resolvePinnedCommandTimeoutMs (checklist.ts, B-16df) matching against a project's
+ *     configured validate.commands[]: honors an explicit override, falls through to undefined
+ *     for an unmatched command, disambiguates same-executable commands by full args equality,
+ *     never fabricates a timeoutMs out of a bare-string config entry, never false-positive-matches
+ *     a shell-style config entry against a plain allowlisted pinned command, and returns a
+ *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
+ *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it).
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
  * side effects leak in. Registered in lattice.config.json validate.commands for ongoing
@@ -195,6 +202,97 @@ void (async () => {
     check('args-disambiguated command B resolves to its own timeoutMs (5000)', resolvedB === 5_000);
     check('command A does NOT cross-match command B\'s timeoutMs', resolvedA !== 5_000);
     check('command B does NOT cross-match command A\'s timeoutMs', resolvedB !== 700);
+
+    // 9. B-16df F-003 (E-001, bare-string config entries): a validate.commands[] entry that is
+    //    a bare STRING (not an object) can never carry a timeoutMs field -- configuredValidationCommands
+    //    / commandFromString only ever build {label, command, args[, shell]} out of a raw string,
+    //    so a timeoutMs field is structurally absent. Direct unit test of
+    //    resolvePinnedCommandTimeoutMs against a temp lattice.config.json whose only
+    //    validate.commands[] entry is a bare string, plus a structural check on the parsed
+    //    entry itself proving the absence of the field (not merely a missed match).
+    const bareStringRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-barestring-'));
+    const bareStringCommand = 'node -e "process.exit(0)"';
+    writeFileSync(
+      join(bareStringRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [bareStringCommand],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const verifierMod: any = await import('../handlers/verifier.js');
+    const bareStringEntries = verifierMod.configuredValidationCommands(bareStringRoot);
+    check(
+      'bare-string config entry is parsed but structurally carries no timeoutMs field',
+      bareStringEntries.length === 1 && !('timeoutMs' in bareStringEntries[0]),
+    );
+    const bareStringResolved = checklistMod.resolvePinnedCommandTimeoutMs(bareStringRoot, bareStringCommand);
+    check('bare-string config entry never yields a timeoutMs (resolves to undefined)', bareStringResolved === undefined);
+
+    // 10. B-16df F-003 (E-003, shell-style config entries never match): verified against the
+    //     actual source (verifier.ts SHELL_META_RE / commandFromString / configuredValidationCommands)
+    //     that the auto-detecting SHELL_META_RE flip (; & | < > $ ( ) `) only fires for STRING
+    //     validate.commands[] entries via commandFromString; an OBJECT entry only gets
+    //     `shell: true` when the config author sets it explicitly -- configuredValidationCommands's
+    //     object branch does not re-run SHELL_META_RE. Either way, a shell:true entry is stored
+    //     as {command: <raw string>, args: [], shell: true}: its args array is empty, so it can
+    //     NEVER structurally equal a plain allowlisted pinned command's parsed {executable, args}.
+    //     Construct an object entry that genuinely triggers the real matcher's shell path (explicit
+    //     shell: true, command text also containing a shell metacharacter for realism), confirm it
+    //     took that path, then confirm its configured timeoutMs (700) does not leak onto an
+    //     unrelated plain allowlisted pinned command that merely shares a text prefix.
+    const shellStyleRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-shellstyle-'));
+    writeFileSync(
+      join(shellStyleRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node -e "process.exit(0)" && echo done', shell: true, timeoutMs: 700 },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const shellStyleEntries = verifierMod.configuredValidationCommands(shellStyleRoot);
+    check(
+      'shell-metacharacter config entry is marked shell:true with an empty args array',
+      shellStyleEntries.length === 1 && shellStyleEntries[0].shell === true && shellStyleEntries[0].args.length === 0,
+    );
+    const shellStyleResolved = checklistMod.resolvePinnedCommandTimeoutMs(shellStyleRoot, 'node -e "process.exit(0)"');
+    check(
+      'shell-style config entry never false-positive-matches a plain allowlisted pinned command (resolves to undefined)',
+      shellStyleResolved === undefined,
+    );
+
+    // 11. B-16df F-003 (E-004, zero/negative timeoutMs config values): resolvePinnedCommandTimeoutMs
+    //     itself does NOT sanitize -- it returns match?.timeoutMs verbatim, including a
+    //     configured 0. The actual safety net lives downstream in resolveCommandTimeoutMs
+    //     (already covered by section 2 above), which treats a non-positive timeoutMs as "use
+    //     the default". Prove both halves here: the raw resolver returns 0 verbatim (not
+    //     sanitized to undefined/the default), and feeding that resolved 0 into
+    //     runSingleAllowlistedCommand -- mirroring exactly what a real call site does -- still
+    //     completes normally rather than e.g. misinterpreting 0 as "no timeout".
+    const zeroTimeoutRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-zerotimeout-'));
+    writeFileSync(
+      join(zeroTimeoutRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 0 },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const zeroTimeoutCommand = 'node -e "process.exit(0)"';
+    const zeroTimeoutResolved = checklistMod.resolvePinnedCommandTimeoutMs(zeroTimeoutRoot, zeroTimeoutCommand);
+    check('resolvePinnedCommandTimeoutMs returns a configured 0 verbatim (no sanitization)', zeroTimeoutResolved === 0);
+    const zeroTimeoutRun = await runSingleAllowlistedCommand(zeroTimeoutCommand, zeroTimeoutRoot, { timeoutMs: zeroTimeoutResolved });
+    check(
+      'downstream resolveCommandTimeoutMs safety net treats the resolved 0 as "use the default" (code 0, not timed out)',
+      zeroTimeoutRun.code === 0 && zeroTimeoutRun.timedOut === false,
+    );
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
   } catch (e) {
