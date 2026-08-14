@@ -345,10 +345,28 @@
       "phase": "DEV",
       "headHash": "6462632ac2536edd7e60ce79f04328e6a5d9bf7d",
       "materialHash": "2abff2e856508094d6c8646afdebcf302f91f4a251266881df8acf3f8b11dc0b"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-042 requires the scope-shrink acceptance writer to share the review-inventory lock; F-045 requires canonical kind-aware latest-run guidance.",
+      "timestamp": "2026-08-14T23:26:41.822Z",
+      "paths": [
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "90e88a3f9c1da6fcbf79513d9874731dcb8ef0c5",
+      "materialHash": "0974c8bf1d4b8b50089c496d1fa526b38c459db22315f7d4ee57f2e94d977568"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T22:07:25.168Z",
+  "updatedAt": "2026-08-14T23:26:41.822Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -423,6 +441,8 @@
     "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
     "packages/main/src/handlers/candidate-spec-routing.ts": "packages/main/src/handlers/candidate-spec-routing.ts",
-    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md"
   }
 }
