@@ -1677,7 +1677,11 @@
           },
           {
             "desc": "The doc change exists in the working tree but was never git-committed (git diff --name-only shows the file modified, git log --oneline on the branch shows no new commits touching docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md) -> detected as uncommitted work that will not survive branch switch or merge; WHY: an uncommitted doc update provides zero durable assurance and is invisible to reviewers",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git log --oneline --diff-filter=M -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\", {encoding:\\\"utf8\\\"}))\"",
+              "selector": "9aa65cf0b9"
+            }
           }
         ]
       },
@@ -1852,6 +1856,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:37.711Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:3",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"child_process\\\").execSync(\\\"git log --oneline --diff-filter=M -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\", {encoding:\\\"utf8\\\"}))\"",
+          "result": "pass",
+          "note": "git log --diff-filter=M lists commit 9aa65cf0b9 as a modifying commit on this branch for the plan doc; separately verified git diff HEAD -- <file> returns empty (no unstaged changes), confirming the union/sweep edits are actually committed, not left as uncommitted working-tree drift.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cb77b7d13d14380eaa45387ff708c26285f4b7715e5239b35d67c7163542797a",
+            "outputTail": "9aa65cf0b9 feat(B-a7c5): dev-memory lifecycle gates (CHK-001..007)\n9cb2acfefa fix: close runtime memory review gaps\n0572ed3795 lattice: wire runtime memory consumers\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:39.155Z"
+          },
+          "headHash": "07e945110f36129d65d9d9278f7677ec9b8733e2",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:39.325Z"
         }
       ]
     }
