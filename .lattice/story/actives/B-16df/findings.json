@@ -135,7 +135,7 @@
       "desc": "packages/main/src/tasks/validate-command-timeout-smoke.ts:351-357 — section 13 (H-002 call-site count) asserts \"exactly 4 call sites\" by counting literal source-text occurrences of the substring `resolvePinnedCommandTimeoutMs(root, command)` in checklist.ts, rather than any semantic/AST-based check. This smoke is permanently registered in lattice.config.json:59 validate.commands, so it runs on every future `lattice validate`. Any purely cosmetic future change to checklist.ts that does not alter behavior at all — e.g. renaming either lambda parameter (command/cwd -> cmd/dir) at one call site, reformatting via a wider line-wrap that inserts a line break inside the argument list, or wrapping runCommand construction in a small local helper — would silently drop the matched count below 4 (or, in the case a future comment happens to mention the exact same literal substring, could mask a real missing-call-site regression by coincidentally keeping the count at 4). Either way this section validates the literal text shape of unrelated call sites rather than the actual behavior (that all 4 runSingleAllowlistedCommand invocations route their timeoutMs through the shared resolver), making it a maintenance trap: it can fail `lattice validate` for a no-op refactor with a cryptic message unrelated to any real regression, or silently pass despite a real duplication regression if the comment/text happens to coincide.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T13:05:30.470Z",
@@ -143,7 +143,11 @@
       "reviewRunId": "B-16df:RR-005",
       "_hash": "23201031e69ef54fb51e0dcfe2239246dda8e8cc1d36b2aa19e325dc4abbb327",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 97b03047c0: section 13s call-site check now uses a whitespace-tolerant regex (/resolvePinnedCommandTimeoutMs\\s*\\(\\s*root\\s*,\\s*command\\s*\\)/g) instead of a rigid literal-substring split, while keeping the exactly-4/exactly-1 assertion shape. Independently live-verified by lattice-review-quality in REVIEW round 3: reformatted whitespace at all 4 real call sites, rebuilt, confirmed the smoke still passed; reverted.",
+      "resolvedAt": "2026-08-14T13:38:44.573Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-008",
