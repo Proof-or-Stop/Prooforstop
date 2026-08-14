@@ -1,6 +1,6 @@
 {
   "storyId": "B-a7c5",
-  "checkedAt": "2026-08-14T10:51:29.229Z",
+  "checkedAt": "2026-08-14T10:57:26.239Z",
   "features": [
     {
       "feature": "dev_memory_preflight_ack command writes ack artifact (schemaVersion, storyId, packDigest, topHitIds, acknowledgedAt, acknowledgedBy) under .lattice/story/actives/<storyId>/dev-memory-preflight-ack.json",
@@ -125,6 +125,20 @@
       "feature": "Spec doc must additionally note that this is the first concrete instance of section 4.3's registered-blocking-consumer-with-operator-visible-bypass-path pattern being exercised for a dev-memory (not playbook) consumer",
       "covered_by": "CHK-005",
       "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
+    },
+    {
+      "feature": "dev-memory.md's own Non-Goal ('Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks', line 163) requires a 'delivered differently'-style clarification distinguishing DevMemoryEntry row content (still non-authoritative, unchanged) from the new CHK-001 preflight-ack / CHK-003 finish-decision sidecar records (a structurally separate artifact type with no gateEvidence/authority fields, whose mere existence -- not entry content -- is now gate-checked), preserving the original line as still-true for entry content",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:dev-memory.md"
+    },
+    {
+      "feature": "Section 4.3's documented `RuntimeConsumer` TypeScript type union ('session_brief' | 'dev_memory_start' | 'host_handoff' | 'story_create' | 'story_advance' | 'done_prepare' | 'done_closure' | 'final_response_check') currently matches the shipped code exactly (verified: core/playbook-runtime-memory.ts:44-52 has the identical 8 members). CHK-002 step 1 adds a 9th member, 'finding_resolve', to the shipped code union, but no checklist item (CHK-005 is scoped only to CHK-003's M8/4.3-blocking-consumer escalation; CHK-006 is scoped only to dev-memory.md's Non-Goal) updates section 4.3's documented type block to add 'finding_resolve', so the spec's literal TypeScript contract will silently go stale the same way M8/dev-memory.md were found stale in prior PLAN rounds",
+      "covered_by": null,
+      "status": "gap",
       "excluded_by": null,
       "source": "decisions:playbook-runtime-memory-consumption-execution-plan.md"
     }
@@ -263,30 +277,19 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": "High-risk lifecycle/gate change (story adds/extends 3 gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard) plus candidate ambiguity: candidate-spec-set.json's own top-8 ranked routing (score 40-64, generic term overlap on 'advisory'/'capture'/'handlers'/'import'/'registration'/'guard') did not surface either dev-memory.md or playbook-runtime-memory-consumption-execution-plan.md in its top ranks despite both being directly on-topic. Beyond the two full reads, ran targeted rg sweeps across the full decisions/ corpus for exact symbol/command names (dev_memory_preflight_ack, dev_memory_finish_decision, finding_resolve, canFinishGuard, canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, dev-memory/dev_memory, INIT_CHECK gate pattern, scope_boundary_set/execution_boundary_set) and spot-read matched sections of story-lifecycle.md, lifecycle-artifact-scope.md, red-evidence-legacy-v1-record-validation-audit.md, lattice-experience-layer-execution-plan.md, session-ownership-and-write-leases.md, and proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md (the top-ranked candidate) to rule out missed direct commitments. All matched hits were either the guard-reacher-chain architecture facts already reflected in understanding.json, a different/future Experience Layer system (B-1480, explicitly a not-yet-implemented plan) whose 'never automatically finding_resolve / change a gate' principle governs a separate advisory-hint system rather than this story's dev-memory output-splice, or generic keyword overlap unrelated to dev-memory gating. No further full-content reads beyond the two candidates were warranted.",
+    "scanEscalationReason": "High-risk lifecycle/gate change (story adds/extends 3 gates touching canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard); re-verified in this round (6-item checklist, OQ-3 resolved). candidate-spec-set.json's top-8 keyword routing (score 40-64) again did not surface dev-memory.md or playbook-runtime-memory-consumption-execution-plan.md in top rank despite direct relevance, so both were read in full independently this round. Independently re-ran full-corpus rg sweeps for RuntimeConsumer, finding_resolve, dev_memory_preflight_ack, dev_memory_finish_decision, canFinishGuard/canStartDevGuard/canSkipPlanGuard/canReenterDevGuard, dev-memory-preflight-ack, finish-decision across all 129 decisions/*.md files: RuntimeConsumer is defined only in playbook-runtime-memory-consumption-execution-plan.md (confirming the new RuntimeConsumer-union gap below is fully scoped to that one file, not spread across other docs); finding_resolve also appears in session-ownership-and-write-leases.md (write-lease command list, unrelated to advisory-hint text) and lattice-experience-layer-execution-plan.md (a distinct, not-yet-implemented B-1480 Experience Layer whose 'never automatically finding_resolve' constraint governs auto-invoking finding_resolve as an action, not this story's output-text splice) -- both ruled out as non-conflicting, consistent with the prior round's same conclusion. No further full-content reads beyond the two candidates were warranted this round.",
     "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
     "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
   },
   "summary": {
-    "total": 18,
-    "covered": 18,
+    "total": 20,
+    "covered": 19,
     "excluded": 0,
-    "gaps": 0,
+    "gaps": 1,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "c4b68d40294624fa3672029bc710275a21dc3d3e6b592c2df1fbd6ea10ad9ebf",
-  "openQuestions": [
-    {
-      "id": "OQ-3",
-      "q": "docs/requirements/decisions/dev-memory.md's own Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks' -- a separate, differently-worded commitment from the already-reconciled playbook-runtime-memory-consumption-execution-plan.md M8/Non-Goal text (OQ-1/OQ-2, resolved in the prior PLAN round). plan.md's Reconciliation section and CHK-005 only cite and update playbook-runtime-memory-consumption-execution-plan.md; dev-memory.md itself is not read, cited, or scheduled for a corresponding update anywhere in plan.md, decision.json, or the checklist. Does this story's CHK-001/CHK-003 gate-existence-of-a-record design also require reconciling/updating dev-memory.md's own Non-Goal wording (even if, per the same record-of-reflection-vs-content-as-evidence reasoning already used for OQ-1, the gates do not actually surface dev-memory ENTRIES in validate/gate output, only the separate ack/finish-decision sidecar artifacts), or is dev-memory.md intentionally left as-is because its Non-Goal is scoped to entry CONTENT, not to sidecar attestation records?",
-      "evidence": "dev-memory.md Non-Goals: 'Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.' plan.md Reconciliation section and CHK-005's title/context reference only 'the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc'; dev-memory.md is absent from plan.md's Reconciliation section, decision.json, and all five checklist item titles.",
-      "sourcePointers": [
-        "docs/requirements/decisions/dev-memory.md:152-154,163;.lattice/story/actives/B-a7c5/plan.md:Reconciliation section"
-      ],
-      "resolution": "dev-memory.md's Non-Goal (line 163, 'entries are NOT surfaced in lattice validate output or gate checks') is about DevMemoryEntry JSONL row CONTENT, whose gateEvidence:false/authority:non_authoritative fields exist specifically so no consumer treats lesson text as gate evidence (doc's own FAQ, lines 152-154). CHK-001's preflight-ack and CHK-003's finish-decision are a separate artifact type -- no gateEvidence/authority fields, because they never claimed non-authoritative status over content; they record only that a reflection ritual occurred, never the lesson text. Same record-of-reflection-vs-entry-content distinction already applied to OQ-1/OQ-2. Added CHK-006 to update dev-memory.md's Non-Goals wording with a 'delivered differently' style clarification, preserving the original line as still-true for entry content.",
-      "resolvedAt": "2026-08-14T10:52:54.909Z"
-    }
-  ]
+  "_hash": "72e19850887a3e5894a31d0d7a3ea8f7a5a428a3ae032e8d4247856a04cc56ac",
+  "openQuestions": []
 }
