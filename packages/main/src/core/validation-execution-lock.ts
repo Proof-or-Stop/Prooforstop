@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import {
@@ -9,6 +9,7 @@ import {
   type AcquiredMkdirLock,
   type ExistingMkdirLockSnapshot,
   type MkdirLockHolderInfo,
+  readMkdirLockHolder,
 } from './mkdir-lock.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 
@@ -16,6 +17,9 @@ export const VALIDATION_EXECUTION_LOCKS_REL = `${LATTICE_DIR}/locks/validation`;
 export const VALIDATION_EXECUTION_LOCK_STALE_MS = 120000;
 export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_MS = 2000;
 export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE = 'heartbeat.json';
+export const VALIDATION_CAPACITY_LOCK_REL = `${LATTICE_DIR}/locks/validation-capacity.lock`;
+export const VALIDATION_CAPACITY_WAIT_POLL_MS = 100;
+export const VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS = 30000;
 
 const heldValidationLockPaths = new Set<string>();
 const validationLockOwnerStore = new AsyncLocalStorage<Set<string>>();
@@ -164,6 +168,29 @@ export function classifyValidationExecutionLock(snapshot: ExistingMkdirLockSnaps
 }
 
 /**
+ * Workspace capacity is stricter than the legacy story-evidence lock. A lease
+ * is reclaimable only when local process identity or holder/heartbeat identity
+ * mechanically proves that the recorded owner cannot still own it. Age,
+ * missing metadata, malformed metadata, and an old heartbeat are never enough.
+ */
+export function classifyValidationCapacityLock(snapshot: ExistingMkdirLockSnapshot): 'active' | 'stale' {
+  const holder = snapshot.holder;
+  if (!holder) return 'active';
+  const heartbeat = readValidationLockHeartbeat(snapshot.lockDir);
+  if (heartbeatLooksMismatched(holder, heartbeat)) return 'stale';
+  const localHost = hostname();
+  if (holder.hostname === localHost && !pidAppearsAlive(holder.pid)) return 'stale';
+  if (
+    holder.hostname === localHost &&
+    holder.pid === process.pid &&
+    !sameProcessStart(holder.processStartTimeMs, currentProcessStartTimeMs())
+  ) {
+    return 'stale';
+  }
+  return 'active';
+}
+
+/**
  * Resolve the canonical, worktree-independent repository root that anchors
  * story-scoped coordination state (validation locks). Two linked worktrees of
  * the same repository must share ONE lock per story so a validation running in
@@ -205,6 +232,12 @@ export function validationExecutionLockPath(root: string, storyId: string): stri
   if (!id) throw new Error('validationExecutionLockPath: storyId is required');
   const sharedRoot = resolveSharedLockRoot(projectRoot);
   return join(sharedRoot, VALIDATION_EXECUTION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
+}
+
+export function validationCapacityLockPath(root: string): string {
+  const projectRoot = String(root ?? '').trim();
+  if (!projectRoot) throw new Error('validationCapacityLockPath: root is required');
+  return join(resolveSharedLockRoot(projectRoot), VALIDATION_CAPACITY_LOCK_REL);
 }
 
 /**
@@ -296,6 +329,168 @@ export interface ValidationExecutionLockOptions {
   workspaceRoot: string;
   command: string;
   staleMs?: number;
+}
+
+export interface ValidationCapacityLockOptions {
+  root: string;
+  workspaceRoot: string;
+  command: string;
+  storyId?: string;
+  staleMs?: number;
+  pollMs?: number;
+  progressIntervalMs?: number;
+  abortSignal?: AbortSignal;
+  deadlineAt?: number;
+  deadlineError?: () => Error;
+  onWaitProgress?: (message: string) => void;
+}
+
+export interface OfficialValidationExecutionOptions extends ValidationCapacityLockOptions {}
+
+function capacityDeadlineError(options: ValidationCapacityLockOptions): Error {
+  return options.deadlineError?.() ?? new Error('workspace validation capacity wait deadline exceeded');
+}
+
+function assertCapacityWaitActive(options: ValidationCapacityLockOptions): void {
+  if (options.abortSignal?.aborted) {
+    throw options.abortSignal.reason instanceof Error
+      ? options.abortSignal.reason
+      : new Error('workspace validation capacity wait aborted');
+  }
+  if (typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) && Date.now() >= options.deadlineAt) {
+    throw capacityDeadlineError(options);
+  }
+}
+
+async function waitForCapacityRetry(options: ValidationCapacityLockOptions, delayMs: number): Promise<void> {
+  assertCapacityWaitActive(options);
+  const remainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
+    ? Math.max(0, options.deadlineAt - Date.now())
+    : delayMs;
+  const waitMs = Math.max(1, Math.min(delayMs, remainingMs));
+  await new Promise<void>((resolveWait, rejectWait) => {
+    let settled = false;
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      options.abortSignal?.removeEventListener('abort', onAbort);
+      if (error) rejectWait(error);
+      else resolveWait();
+    };
+    const onAbort = () => finish(options.abortSignal?.reason instanceof Error
+      ? options.abortSignal.reason
+      : new Error('workspace validation capacity wait aborted'));
+    const timer = setTimeout(() => finish(), waitMs);
+    options.abortSignal?.addEventListener('abort', onAbort, { once: true });
+    if (options.abortSignal?.aborted) onAbort();
+  });
+  assertCapacityWaitActive(options);
+}
+
+function buildCapacityWaitMessage(options: ValidationCapacityLockOptions, lockPath: string): string {
+  const holder = readMkdirLockHolder(lockPath);
+  const heartbeat = readValidationLockHeartbeat(lockPath);
+  const beatAge = heartbeatAgeMs(heartbeat, Date.now());
+  let lockAge = 0;
+  try { lockAge = Math.max(0, Date.now() - statSync(lockPath).mtimeMs); } catch { /* retry race */ }
+  const holderText = holder
+    ? `${holder.command} (pid ${holder.pid} on ${holder.hostname})`
+    : 'unknown holder';
+  const heartbeatText = beatAge === null
+    ? `heartbeat unavailable; lock age ${formatLockAge(lockAge)}`
+    : `heartbeat ${formatLockAge(beatAge)} ago`;
+  return `waiting for workspace validation capacity: holder ${holderText}, ${heartbeatText}`;
+}
+
+/**
+ * Acquire one capacity lease per git-common-dir without blocking the event
+ * loop. Each mkdir probe is fail-fast; contention is retried with an awaited,
+ * abortable timer so the active holder's heartbeat remains live.
+ */
+export async function withWorkspaceValidationCapacity<T>(
+  options: ValidationCapacityLockOptions,
+  fn: () => Promise<T> | T,
+): Promise<T> {
+  const command = String(options.command ?? '').trim() || 'validate';
+  const storyId = String(options.storyId ?? '').trim();
+  const lockKey = validationCapacityLockPath(options.root);
+  if (heldValidationLockPaths.has(lockKey) && currentContextOwns(lockKey)) return await fn();
+
+  const holderInfo: MkdirLockHolderInfo = {
+    lockId: randomUUID(),
+    pid: process.pid,
+    hostname: hostname(),
+    command: storyId ? `${command} for ${storyId}` : command,
+    acquiredAt: new Date().toISOString(),
+    processStartTimeMs: currentProcessStartTimeMs(),
+  };
+  const pollMs = Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS);
+  const progressIntervalMs = Math.max(pollMs, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS);
+  let lastProgressAt = Number.NEGATIVE_INFINITY;
+  let lock: AcquiredMkdirLock | null = null;
+  while (!lock) {
+    assertCapacityWaitActive(options);
+    let held = false;
+    try {
+      lock = acquireMkdirLock(lockKey, {
+        label: 'workspace validation capacity',
+        deadlineMs: 1,
+        staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
+        failFastIfHeld: true,
+        holderInfo,
+        requireHolderToken: true,
+        ownedAuxFiles: [VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE],
+        classifyExistingLock: classifyValidationCapacityLock,
+        onContentionHeld: () => {
+          held = true;
+          return 'workspace validation capacity is held';
+        },
+      });
+    } catch (error) {
+      if (!held) throw error;
+      const now = Date.now();
+      if (now - lastProgressAt >= progressIntervalMs) {
+        lastProgressAt = now;
+        try {
+          options.onWaitProgress?.(buildCapacityWaitMessage(options, lockKey));
+        } catch {
+          /* Progress is descriptive and must not change lock ownership. */
+        }
+      }
+      await waitForCapacityRetry(options, pollMs);
+    }
+  }
+
+  heldValidationLockPaths.add(lockKey);
+  const heartbeat = startHeartbeat(lock, holderInfo);
+  try {
+    assertCapacityWaitActive(options);
+    return await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
+  } finally {
+    clearInterval(heartbeat);
+    heldValidationLockPaths.delete(lockKey);
+    lock.release();
+  }
+}
+
+/** Fixed acquisition order for official validators: workspace capacity first,
+ * then the existing per-story evidence lock when a story id is present. */
+export async function withOfficialValidationExecution<T>(
+  options: OfficialValidationExecutionOptions,
+  fn: () => Promise<T> | T,
+): Promise<T> {
+  return await withWorkspaceValidationCapacity(options, async () => {
+    const storyId = String(options.storyId ?? '').trim();
+    if (!storyId) return await fn();
+    return await withValidationExecutionLock({
+      root: options.root,
+      storyId,
+      workspaceRoot: options.workspaceRoot,
+      command: options.command,
+      staleMs: options.staleMs,
+    }, fn);
+  });
 }
 
 export async function withValidationExecutionLock<T>(

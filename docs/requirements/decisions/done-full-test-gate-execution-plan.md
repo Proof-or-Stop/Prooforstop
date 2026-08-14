@@ -27,6 +27,8 @@ Add a dedicated DONE/release-required validation profile, or an equivalent `done
 
 Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.lattice/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
 
+Execution-capacity boundary: `lattice done_required_validate` and every `lattice validate` mode share one git-common-dir workspace capacity lease. Contenders wait asynchronously with `waiting for workspace validation capacity` holder/heartbeat progress and then continue automatically; story-scoped runs acquire capacity before the per-story evidence lock. The capacity classifier never reclaims on age, unknown ownership, or malformed metadata alone. A bare `npm test` / direct full-suite command remains outside this lease and must not be launched concurrently with either official command. This coordination adds no timeout, inventory, receipt, freshness, or gate-policy exception.
+
 Reasons:
 
 - Normal `lattice validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.

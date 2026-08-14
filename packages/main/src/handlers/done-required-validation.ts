@@ -7,7 +7,7 @@ import {
   runDoneRequiredValidation,
 } from '../core/done-required-validation.js';
 import type { ValidationProgressReporter } from '../core/validation-types.js';
-import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { evaluateDoneRequiredPreRunReuse } from '../core/done-prepare-validation-reuse.js';
@@ -28,6 +28,18 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       const storyId = (args.storyId ?? args.story ?? '').trim();
       if (!storyId) throw new Error('done_required_validate requires --storyId=<id>');
       assertCwdInWorktree(ctx.store, storyId);
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      try {
+        return await withOfficialValidationExecution({
+        root: ctx.root,
+        storyId,
+        workspaceRoot: gitCwd,
+        command: 'done_required_validate',
+        abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt,
+        deadlineError: args.deadlineError,
+        onWaitProgress: (message) => ctx.log?.(message),
+      }, async () => {
 
       const policy = resolveDoneRequiredPolicy(ctx.root);
       if (!policy.required) {
@@ -52,16 +64,10 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         ].join('\n');
       }
 
-      const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
       const prior = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
       let evidence;
       try {
-        evidence = await withValidationExecutionLock({
-          root: ctx.root,
-          storyId,
-          workspaceRoot: gitCwd,
-          command: 'done_required_validate',
-        }, () => runDoneRequiredValidation({
+        evidence = await runDoneRequiredValidation({
           projectRoot: ctx.root,
           storyId,
           store: ctx.store,
@@ -75,7 +81,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
             deadlineAt: args.deadlineAt,
             deadlineError: args.deadlineError,
           },
-        }));
+        });
       } catch (error) {
         const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
         const terminal = {
@@ -114,6 +120,36 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         renderDoneRequiredEvidence(evidence),
         `disposition=executed result=${structuredResult} refusalReasons=${evidence.reasons.join(',') || 'none'} timeoutLayer=${timeoutLayer ?? 'null'} existingEvidenceBasis=${prior.existingEvidenceBasis}`,
       ].join('\n');
+        });
+      } catch (error) {
+        const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
+        let existingEvidenceBasis = 'missing';
+        try {
+          existingEvidenceBasis = evaluateDoneRequiredPreRunReuse({
+            root: ctx.root,
+            gitCwd,
+            storyId,
+            store: ctx.store,
+          }).existingEvidenceBasis;
+        } catch {
+          /* Capacity errors remain reportable even when prior evidence is unreadable. */
+        }
+        const terminal = {
+          provider: 'lattice-done-required-validation',
+          status: 'fail',
+          allPass: false,
+          storyId,
+          disposition: 'executed',
+          result: timeoutLayer ? 'timed_out' : 'blocked',
+          refusalReasons: [error instanceof Error ? error.message : String(error)],
+          timeoutLayer,
+          existingEvidenceBasis,
+        };
+        return args.json ? JSON.stringify(terminal) : [
+          'DONE-required validation: FAIL',
+          `disposition=${terminal.disposition} result=${terminal.result} refusalReasons=${terminal.refusalReasons.join(',')} timeoutLayer=${terminal.timeoutLayer ?? 'null'} existingEvidenceBasis=${terminal.existingEvidenceBasis}`,
+        ].join('\n');
+      }
     },
   };
 }

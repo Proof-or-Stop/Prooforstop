@@ -42,8 +42,11 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import {
   VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE,
+  validationCapacityLockPath,
   validationExecutionLockPath,
+  withOfficialValidationExecution,
   withValidationExecutionLock,
+  withWorkspaceValidationCapacity,
 } from '../core/validation-execution-lock.js';
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
@@ -60,6 +63,9 @@ type ChildResult = {
 type SpawnedChild = {
   child: ReturnType<typeof spawn>;
   done: Promise<ChildResult>;
+  output: () => string;
+  stdout: () => string;
+  stderr: () => string;
 };
 
 type FixtureOptions = {
@@ -158,6 +164,15 @@ async function waitForEntered(root: string, count: number, timeoutMs: number): P
   return enteredCount(root) >= count;
 }
 
+async function waitForOutput(proc: SpawnedChild, pattern: RegExp, timeoutMs: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (pattern.test(proc.output())) return true;
+    await sleep(25);
+  }
+  return pattern.test(proc.output());
+}
+
 function spawnCommand(root: string, args: string[], label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
   const child = spawn(process.execPath, [cliPath(), ...args], {
     cwd: root,
@@ -170,14 +185,15 @@ function spawnCommand(root: string, args: string[], label: string, extraEnv: Rec
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  let output = '';
-  child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
-  child.stderr?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
+  let stdout = '';
+  let stderr = '';
+  child.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+  child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
   const done = new Promise<ChildResult>((resolveDone) => {
-    child.on('close', (code) => resolveDone({ code, output }));
-    child.on('error', (error) => resolveDone({ code: null, output: `${output}\n${error.message}` }));
+    child.on('close', (code) => resolveDone({ code, output: stdout + stderr }));
+    child.on('error', (error) => resolveDone({ code: null, output: `${stdout}${stderr}\n${error.message}` }));
   });
-  return { child, done };
+  return { child, done, output: () => stdout + stderr, stdout: () => stdout, stderr: () => stderr };
 }
 
 function spawnValidate(root: string, storyId: string, label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
@@ -267,44 +283,62 @@ function release(root: string): void {
   writeFileSync(join(root, 'release'), 'release\n', 'utf8');
 }
 
-async function assertSameStoryMutualExclusion(): Promise<void> {
-  const { root, storyId } = setupFixture();
+async function assertWorkspaceWaitAndRun(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-capacity-a' });
+  const secondStoryId = 'B-capacity-b';
+  const store = new StoryStore(root);
+  store.writeStory(secondStoryId, story(secondStoryId));
+  store.writeChecklist(secondStoryId, checklist());
+  commitAll(root, 'seed second story metadata');
+  const originalCwd = process.cwd();
   try {
-    const first = spawnValidate(root, storyId, 'first');
+    process.chdir(root);
+    process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL = 'first';
+    const firstLog: string[] = [];
+    const firstHandlers = createVerifierHandlers({
+      root, scanRoot: join(root, 'packages/main'), store,
+      log: (message) => firstLog.push(message),
+    });
+    const first = firstHandlers.validate({ story: storyId, json: true, noSync: true }) as Promise<string>;
     const firstEntered = await waitForEntered(root, 1, 4000);
     if (!firstEntered) {
       release(root);
-      const firstResult = await waitChild(first, 4000);
+      const firstResult = await first;
       assert.fail([
         'precondition: first validate command entered the probe',
-        `firstExit=${firstResult.code}`,
-        `firstOutput=${firstResult.output.slice(0, 2000)}`,
+        `firstOutput=${firstResult.slice(0, 2000)}`,
       ].join('\n'));
     }
 
-    const second = spawnValidate(root, storyId, 'second');
+    process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL = 'second';
+    const secondLog: string[] = [];
+    const secondHandlers = createVerifierHandlers({
+      root, scanRoot: join(root, 'packages/main'), store,
+      log: (message) => secondLog.push(message),
+    });
+    const second = secondHandlers.validate({ story: secondStoryId, json: true, noSync: true }) as Promise<string>;
     const secondEnteredBeforeRelease = await waitForEntered(root, 2, 1500);
-    const secondResult = await waitChild(second, 4000);
+    assert.equal(secondEnteredBeforeRelease, false, 'second story must wait outside its validation callback');
+    assert.match(secondLog.join('\n'), /waiting for workspace validation capacity/);
+    assert.match(secondLog.join('\n'), /validate for B-capacity-a/);
+    assert.match(secondLog.join('\n'), /heartbeat/);
 
     release(root);
-    const firstResult = await waitChild(first, 12000);
+    const [firstRaw, secondRaw] = await Promise.all([first, second]);
+    const firstResult = JSON.parse(firstRaw) as { status?: string };
+    const secondResult = JSON.parse(secondRaw) as { status?: string };
 
-    assert.equal(firstResult.code, 0, firstResult.output);
-    assert.notEqual(secondResult.code, 0, 'contending validate must fail before running validation command');
-    assert.match(secondResult.output, /validation execution|already running|is blocked/);
-    assert.equal(
-      secondEnteredBeforeRelease,
-      false,
-      [
-        'second validate entered the validation command before the first validate released',
-        `enteredCount=${enteredCount(root)}`,
-        `firstExit=${firstResult.code}`,
-        `secondExit=${secondResult.code}`,
-        `firstOutput=${firstResult.output.slice(0, 1000)}`,
-        `secondOutput=${secondResult.output.slice(0, 1000)}`,
-      ].join('\n'),
-    );
+    assert.equal(firstResult.status, 'pass', firstRaw);
+    assert.equal(secondResult.status, 'pass', secondRaw);
+    assert.equal(enteredCount(root), 2, 'queued story must run automatically after the holder releases');
+    const evidenceStore = new StoryStore(root);
+    const firstEvidence = evidenceStore.readTestEvidence(storyId);
+    const secondEvidence = evidenceStore.readTestEvidence(secondStoryId);
+    assert.equal(firstEvidence?.result, 'PASS', `first evidence=${JSON.stringify(firstEvidence)}`);
+    assert.equal(secondEvidence?.result, 'PASS', `second evidence=${JSON.stringify(secondEvidence)}`);
   } finally {
+    delete process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL;
+    process.chdir(originalCwd);
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -325,6 +359,8 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
             assert.equal(enteredCount(root), 1, 'real configured command must finish before evidence persistence');
             assert.equal(existsSync(validationExecutionLockPath(root, storyId)), true,
               'real verifier evidence persistence must remain inside the story validation lock');
+            assert.equal(existsSync(validationCapacityLockPath(root)), true,
+              'real verifier evidence persistence must remain inside workspace capacity');
             persistenceObserved = true;
             return target.writeTestEvidence(...args);
           };
@@ -342,6 +378,8 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
     assert.equal(persistenceObserved, true, 'real verifier must call the instrumented evidence writer');
     assert.equal(existsSync(validationExecutionLockPath(root, storyId)), false,
       'validation lock releases only after the real handler returns');
+    assert.equal(existsSync(validationCapacityLockPath(root)), false,
+      'workspace capacity releases only after the real handler returns');
     assert.ok(targetStore.readTestEvidence(storyId), 'real verifier persists story evidence');
   } finally {
     process.chdir(originalCwd);
@@ -530,15 +568,18 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
       'done_required_validate',
       JSON.stringify({ storyId, json: true }),
     ], 'done-required-contender');
-    const doneRequiredResult = await waitChild(doneRequired, 5000);
-
     assert.equal(enteredCount(root), 1, 'done_required_validate must not enter the validation command while validate is held');
-    assert.notEqual(doneRequiredResult.code, 0, 'done_required_validate must fail on live validate lock contention');
-    assert.match(doneRequiredResult.output, /validation execution|already running|is blocked/);
+    assert.equal(await waitForOutput(doneRequired, /waiting for workspace validation capacity/, 4000), true,
+      `done_required_validate must visibly wait; output=${doneRequired.output()}`);
 
     release(root);
-    const validateResult = await waitChild(validate, 12000);
+    const [validateResult, doneRequiredResult] = await Promise.all([
+      waitChild(validate, 12000),
+      waitChild(doneRequired, 12000),
+    ]);
     assert.equal(validateResult.code, 0, validateResult.output);
+    assert.equal(doneRequiredResult.code, 0, doneRequiredResult.output);
+    assert.equal(enteredCount(root), 2, 'queued done_required_validate must run after validate releases');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -686,9 +727,212 @@ async function assertReentrantButNotSiblingBypass(): Promise<void> {
   }
 }
 
+function writeCapacityOwner(
+  root: string,
+  holder: Record<string, unknown> | null,
+  heartbeat?: Record<string, unknown>,
+  ageMs = 0,
+): string {
+  const lockDir = validationCapacityLockPath(root);
+  mkdirSync(lockDir, { recursive: true });
+  if (holder) writeFileSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), JSON.stringify(holder, null, 2) + '\n', 'utf8');
+  if (heartbeat) {
+    writeFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), JSON.stringify(heartbeat, null, 2) + '\n', 'utf8');
+  }
+  const timestamp = new Date(Date.now() - ageMs);
+  utimesSync(lockDir, timestamp, timestamp);
+  return lockDir;
+}
+
+async function assertCapacityStrictStaleClassifier(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-stale-'));
+  const base = { root, workspaceRoot: root, command: 'validate', pollMs: 15, progressIntervalMs: 15 };
+  try {
+    const unknown = writeCapacityOwner(root, null, undefined, 60_000);
+    await assert.rejects(
+      () => withWorkspaceValidationCapacity({ ...base, staleMs: 10, deadlineAt: Date.now() + 80 }, () => undefined),
+      /deadline/,
+    );
+    assert.equal(existsSync(unknown), true, 'old ownerless capacity lease must not be reclaimed');
+    rmSync(unknown, { recursive: true, force: true });
+
+    const malformed = writeCapacityOwner(root, { nope: true }, undefined, 60_000);
+    await assert.rejects(
+      () => withWorkspaceValidationCapacity({ ...base, staleMs: 10, deadlineAt: Date.now() + 80 }, () => undefined),
+      /deadline/,
+    );
+    assert.equal(existsSync(malformed), true, 'malformed capacity owner must not be reclaimed');
+    rmSync(malformed, { recursive: true, force: true });
+
+    const startMs = processStartTimeMs();
+    const oldBeat = new Date(Date.now() - 60_000).toISOString();
+    const live = writeCapacityOwner(root, {
+      lockId: 'live-owner', pid: process.pid, hostname: hostname(), command: 'validate for B-live',
+      acquiredAt: oldBeat, processStartTimeMs: startMs,
+    }, {
+      lockId: 'live-owner', pid: process.pid, hostname: hostname(), heartbeatAt: oldBeat,
+      processStartTimeMs: startMs,
+    }, 60_000);
+    await assert.rejects(
+      () => withWorkspaceValidationCapacity({ ...base, staleMs: 10, deadlineAt: Date.now() + 80 }, () => undefined),
+      /deadline/,
+    );
+    assert.equal(existsSync(live), true, 'age-only expiry with a live matching owner must stay blocked');
+    rmSync(live, { recursive: true, force: true });
+
+    const dead = writeCapacityOwner(root, {
+      lockId: 'dead-owner', pid: 999_999_999, hostname: hostname(), command: 'validate for B-dead',
+      acquiredAt: new Date().toISOString(), processStartTimeMs: startMs - 60_000,
+    });
+    let deadRan = false;
+    await withWorkspaceValidationCapacity({ ...base, staleMs: 60_000 }, () => { deadRan = true; });
+    assert.equal(deadRan, true, 'mechanically dead local owner must be reclaimed');
+    assert.equal(existsSync(dead), false);
+
+    const mismatch = writeCapacityOwner(root, {
+      lockId: 'holder-a', pid: process.pid, hostname: hostname(), command: 'validate for B-mismatch',
+      acquiredAt: new Date().toISOString(), processStartTimeMs: startMs,
+    }, {
+      lockId: 'heartbeat-b', pid: process.pid, hostname: hostname(), heartbeatAt: new Date().toISOString(),
+      processStartTimeMs: startMs,
+    });
+    let mismatchRan = false;
+    await withWorkspaceValidationCapacity({ ...base, staleMs: 60_000 }, () => { mismatchRan = true; });
+    assert.equal(mismatchRan, true, 'holder/heartbeat identity mismatch must be reclaimed');
+    assert.equal(existsSync(mismatch), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-async-'));
+  const options = {
+    root, workspaceRoot: root, command: 'validate', storyId: 'B-owner',
+    pollMs: 15, progressIntervalMs: 20, staleMs: 60_000,
+  };
+  try {
+    let releaseOwner: () => void = () => {};
+    let ownerEntered = false;
+    let nestedEntered = false;
+    const owner = withWorkspaceValidationCapacity(options, async () => {
+      ownerEntered = true;
+      await withWorkspaceValidationCapacity(options, () => { nestedEntered = true; });
+      await new Promise<void>((resolveOwner) => { releaseOwner = resolveOwner; });
+    });
+    while (!ownerEntered) await sleep(5);
+
+    const progress: string[] = [];
+    let siblingEntered = false;
+    let timerFired = false;
+    setTimeout(() => { timerFired = true; }, 25);
+    const sibling = withOfficialValidationExecution({
+      ...options,
+      storyId: 'B-sibling',
+      progressIntervalMs: 1000,
+      onWaitProgress: (message) => progress.push(message),
+    }, () => { siblingEntered = true; });
+    await sleep(75);
+    assert.equal(timerFired, true, 'capacity wait must not block the event loop');
+    assert.equal(nestedEntered, true, 'same AsyncLocal owner must be reentrant');
+    assert.equal(siblingEntered, false, 'independent sibling context must remain queued');
+    assert.ok(progress.length >= 1 && progress.length <= 4, `wait progress must be visible and bounded: ${progress.length}`);
+    assert.match(progress[0]!, /waiting for workspace validation capacity: holder validate for B-owner .*heartbeat/);
+    const heartbeatPath = join(validationCapacityLockPath(root), VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE);
+    const firstHeartbeat = JSON.parse(readFileSync(heartbeatPath, 'utf8')) as { heartbeatAt: string };
+    await sleep(2100);
+    const secondHeartbeat = JSON.parse(readFileSync(heartbeatPath, 'utf8')) as { heartbeatAt: string };
+    assert.ok(Date.parse(secondHeartbeat.heartbeatAt) > Date.parse(firstHeartbeat.heartbeatAt),
+      'capacity heartbeat must advance while a sibling waits asynchronously');
+    assert.ok(progress.length <= 4, `rate-bounded progress must not emit per poll: ${progress.length}`);
+    releaseOwner();
+    await Promise.all([owner, sibling]);
+    assert.equal(siblingEntered, true, 'queued sibling must enter automatically after release');
+
+    let releaseAbortOwner: () => void = () => {};
+    let abortOwnerEntered = false;
+    const abortOwner = withWorkspaceValidationCapacity(options, async () => {
+      abortOwnerEntered = true;
+      await new Promise<void>((resolveOwner) => { releaseAbortOwner = resolveOwner; });
+    });
+    while (!abortOwnerEntered) await sleep(5);
+    const abortController = new AbortController();
+    let abortedEntered = false;
+    const aborted = withWorkspaceValidationCapacity({
+      ...options,
+      storyId: 'B-aborted',
+      abortSignal: abortController.signal,
+    }, () => { abortedEntered = true; });
+    abortController.abort(new Error('capacity wait cancelled by smoke'));
+    await assert.rejects(() => aborted, /cancelled by smoke/);
+    assert.equal(abortedEntered, false, 'aborted waiter must stop before callback entry');
+    releaseAbortOwner();
+    await abortOwner;
+
+    await assert.rejects(
+      () => withWorkspaceValidationCapacity(options, async () => { throw new Error('owner callback truth'); }),
+      /owner callback truth/,
+    );
+    let successorEntered = false;
+    await withWorkspaceValidationCapacity(options, () => { successorEntered = true; });
+    assert.equal(successorEntered, true, 'throw path must release capacity for its successor');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
+  const first = setupFixture({ storyId: 'B-cap-scope' });
+  const second = setupFixture({ storyId: 'B-independent' });
+  const linked = join(tmpdir(), `lattice-capacity-linked-${process.pid}-${Date.now()}`);
+  try {
+    git(first.root, ['worktree', 'add', '-b', `capacity-linked-${Date.now()}`, linked]);
+    assert.equal(validationCapacityLockPath(first.root), validationCapacityLockPath(linked),
+      'linked worktrees must resolve one git-common-dir capacity path');
+    assert.notEqual(validationCapacityLockPath(first.root), validationCapacityLockPath(second.root),
+      'independent repositories must not share capacity');
+
+    const holder = spawnValidate(first.root, first.storyId, 'selective-holder');
+    assert.equal(await waitForEntered(first.root, 1, 4000), true);
+    const selective = spawnCommand(first.root, ['validate', '--concept', '--json'], 'selective-contender');
+    assert.equal(await waitForOutput(selective, /waiting for workspace validation capacity/, 4000), true,
+      `selective mode must visibly wait; output=${selective.output()}`);
+    release(first.root);
+    const [holderResult, selectiveResult] = await Promise.all([
+      waitChild(holder, 12000), waitChild(selective, 12000),
+    ]);
+    assert.equal(holderResult.code, 0, holderResult.output);
+    assert.equal(selectiveResult.code, 0, selectiveResult.output);
+    assert.doesNotMatch(selective.stdout(), /waiting for workspace validation capacity/,
+      'capacity progress must not pollute JSON stdout');
+    assert.match(selective.stderr(), /waiting for workspace validation capacity/);
+    assert.doesNotThrow(() => JSON.parse(selective.stdout().trim()),
+      `queued --json stdout must remain parseable: ${selective.stdout()}`);
+
+    const verifierSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verifier.ts'), 'utf8');
+    const doneSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
+    assert.match(verifierSource, /return await withOfficialValidationExecution[\s\S]*if \(args\.channel \|\| args\.concept \|\| args\.lint\)/,
+      'all selective validate returns must be below the official capacity boundary');
+    assert.match(doneSource, /return await withOfficialValidationExecution/,
+      'done_required_validate must use the same official capacity boundary');
+  } finally {
+    try { git(first.root, ['worktree', 'remove', '--force', linked]); } catch { /* fixture cleanup */ }
+    rmSync(linked, { recursive: true, force: true });
+    rmSync(first.root, { recursive: true, force: true });
+    rmSync(second.root, { recursive: true, force: true });
+  }
+}
+
 void (async () => {
   try {
-    await assertSameStoryMutualExclusion();
+    await assertWorkspaceWaitAndRun();
+    await assertCapacityStrictStaleClassifier();
+    await assertCapacityAsyncWaitAbortReentrancyAndRelease();
+    await assertCapacityRepositoryScopeAndSelectiveModes();
+    if (process.argv.includes('--workspace-capacity-contract-only')) {
+      console.log('validate-execution-lock workspace capacity contract passed: 4 assertion groups');
+      return;
+    }
     await assertPostCommandPersistenceHoldsLock();
     await assertRetiredRaceSeamIsProductionUnreachable();
     await assertDifferentWorktreesCanValidateConcurrently();
@@ -700,7 +944,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 12 assertions');
+    console.log('validate-execution-lock smoke passed: 15 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

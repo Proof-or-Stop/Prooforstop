@@ -42,7 +42,7 @@ import {
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
-import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1066,6 +1066,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const handlerGitCwd = args.story
         ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
         : resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+      return await withOfficialValidationExecution({
+        root: projectRoot,
+        storyId: args.story,
+        workspaceRoot: handlerGitCwd,
+        command: 'validate',
+        abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt,
+        deadlineError: args.deadlineError,
+        onWaitProgress: (message) => ctx.log?.(message),
+      }, async () => {
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
@@ -1202,14 +1212,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
-          const decorated = args.story
-            ? await withValidationExecutionLock({
-              root: projectRoot,
-              storyId: args.story,
-              workspaceRoot: handlerGitCwd,
-              command: 'validate',
-            }, buildNoValidatorResult)
-            : buildNoValidatorResult();
+          const decorated = buildNoValidatorResult();
           if (args.json) return JSON.stringify(decorated);
           return renderExternalResult(decorated);
         }
@@ -1280,14 +1283,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
-        const decorated = args.story
-          ? await withValidationExecutionLock({
-            root: projectRoot,
-            storyId: args.story,
-            workspaceRoot: handlerGitCwd,
-            command: 'validate',
-          }, runPlanAndPersist)
-          : await runPlanAndPersist();
+        const decorated = await runPlanAndPersist();
         for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -1470,14 +1466,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
-      return args.story
-        ? await withValidationExecutionLock({
-          root: projectRoot,
-          storyId: args.story,
-          workspaceRoot: handlerGitCwd,
-          command: 'validate',
-        }, runValidateFileAndRender)
-        : await runValidateFileAndRender();
+      return await runValidateFileAndRender();
+      });
     },
 
     /**
