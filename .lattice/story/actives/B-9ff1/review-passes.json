@@ -184,6 +184,38 @@
         "scanEscalationReason": null
       },
       "_hash": "e8f15b6ef0b128aa33dc4b79b4b626907d1adaf38aaf60c1d58b8495e7098453"
+    },
+    {
+      "id": "B-9ff1:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Fresh post-merge confirmation (RP-005 invalidated by 218-commit main merge). tsc --noEmit -p packages/main clean. Story production files byte-identical to fix commit d47a35787d (empty diff). Zero commits between d47a35787d..HEAD touched dependency API surfaces (canon/policy/registries/target-bindings, activity-policy READ_ONLY_COMMANDS, cli-engine.ts, command-policy.ts, process-fact-*). No API drift under this story.",
+      "createdAt": "2026-08-14T02:27:03.361Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-009",
+      "envelopeId": "55302d45bcc46cbbae1f72764008447599a79d1173967061952bca71cea32f33",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "290768bc1fec39c0acc2b31a5421d6e7cace8de3c974fc0a60755064bf527c7d"
     }
   ]
 }
