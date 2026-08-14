@@ -154,7 +154,7 @@
       "desc": "4 of the 32 deferred_gate_evidence waiver notes claim specific validate-command-timeout-smoke.ts sections \"genuinely cover\" an intent, but tracing the actual code shows they do not test the described scenario (underlying implementation is correct on manual probe -- this is a coverage-attribution error in the notes, not a functional bug). (1) CHK-002:E-001 note claims section 9 (smoke:226-251) covers \"bare-string config entries never carry timeoutMs\", but the chosen bareStringCommand = node -e \"process.exit(0)\" (smoke:234) contains parentheses matching verifier.ts SHELL_META_RE (/[;&|<>$()`]/, verifier.ts:72), so commandFromString (verifier.ts:151-160) takes the early shell:true/{args:[]} return, NOT the splitShellWords tokenization path E-001 is about. Verified empirically: configuredValidationCommands() on this exact input returns {command:\"node -e \\\"process.exit(0)\\\"\",args:[],shell:true} -- the same code path as section 10 (E-003), not a genuine bare-string match. (2) CHK-002:E-002 note claims sections 6a/6b (smoke:141-179) exercise \"parsing parity between tokenizeCommandString and splitShellWords\", but splitShellWords is never invoked anywhere in this file (grep confirms zero call sites) -- every config entry in the file is either object-form (bypasses splitShellWords entirely, e.g. sections 6-8/11/14) or the metachar-triggering bareStringCommand above. (3) CHK-002:A-001 note claims the same sections cover whitespace/quoting-evasion resistance; no test anywhere varies quoting/whitespace of a command between its config entry and its matching pinned string. (4) CHK-003:edge:1 note claims section 8 (smoke:201-224) covers the args-length/strict-prefix guard, but section 8s two config entries and two pinned commands all have EQUAL-length args differing only in content (that is edge:2s scenario, correctly covered) -- no length-mismatch/prefix case exists in the file. I manually verified via ad hoc probes against the compiled dist/handlers/checklist.js+verifier.js that the real resolvePinnedCommandTimeoutMs/configuredValidationCommands correctly handle all four scenarios (true bare strings tokenize+match correctly, whitespace variants normalize identically, prefix-length mismatches return undefined) -- so the fix itself is not defective, but these 4 waiver notes should either be corrected to admit the gap (not claim section coverage that is not there) or the smoke file should gain a genuinely non-shell-metacharacter bare string (e.g. node --version) plus a strict-prefix-args case, since this story is specifically about evidence integrity and the notes currently overstate what is tested.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T13:12:32.789Z",
@@ -162,7 +162,11 @@
       "reviewRunId": "B-16df:RR-006",
       "_hash": "0983b9b4c594228d8dc24d938ace7e414ce1facf00c61af872c19c16955c289f",
       "signatureTag": "missing|unknown|deferred-gate-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 97b03047c0: section 9s E-001 fixture changed to node --version (genuinely non-shell path, confirmed via new structural check); section 15 added for E-002 (tokenizer parity) and A-001 (whitespace/quoting evasion resistance) as two distinct real assertions; section 16 added for CHK-003:edge:1 (strict-prefix args mismatch, distinct from edge:2s content mismatch). Waiver notes for all 4 affected intentRefs updated to cite the corrected sections. Independently re-derived from source (not trusted from commit message) by lattice-review-test-coverage in REVIEW round 3, confirming all four sub-claims (a/b/c/d) genuinely hold.",
+      "resolvedAt": "2026-08-14T13:38:45.434Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-009",
