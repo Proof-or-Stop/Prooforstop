@@ -4,7 +4,7 @@
       "id": "CHK-001",
       "title": "RED repro proves runSingleAllowlistedCommand ignores validate.commands[].timeoutMs",
       "context": "Extend packages/main/src/tasks/validate-command-timeout-smoke.ts (already covers resolveCommandTimeoutMs and the lattice validate path in depth, per its own docstring, but never touches runSingleAllowlistedCommand) with a case that writes a temp lattice.config.json to a tmpdir project root with a validate.commands[] entry pinning a Node command plus a small timeoutMs override, then calls runSingleAllowlistedCommand with that exact command string and NO options.timeoutMs. Assert the configured override is honored (timedOut=true at the small budget) instead of the hardcoded 270s default. Must fail on current main because validation-executor.ts:595 ignores the config.",
-      "userSees": "validate-command-timeout-smoke fails on current main, demonstrating runSingleAllowlistedCommand never consults the per-command config override.",
+      "userSees": "Running `node packages/main/dist/tasks/validate-command-timeout-smoke.js` on current main prints `FAIL: hung command was killed by the per-command timer (timedOut=true)` (or similar assertion text) and exits 1 for the new section-6 case, because the ~1.5s command completes normally under the hardcoded 270s default instead of being killed by the configured 700ms override.",
       "files": {
         "modify": [],
         "create": [],
