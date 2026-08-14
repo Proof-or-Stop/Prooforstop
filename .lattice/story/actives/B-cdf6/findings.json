@@ -746,7 +746,7 @@
       "desc": "B-META-framework-audit:F-026 mischaracterizes the root cause of the red assertion at scripts/verify-entrypoints.mjs:551. F-026 claims check reports MISSING:17 because init deliberately does not write project-local .claude/agents/* under B-097f. That mechanism does not apply to this assertion: the SAME check block calls seedClaudeAgentMirror(tempDir) at line :519, which writes all 17 correctly host-rendered files into tempDir/.claude/agents via renderPromptEntryForHost(entry,'claude'), strictly before the check --json call at :550/:551; cleanupClaudeMirror() that removes the seed does not run until :620, well after the assertion at :551 has already executed. Reproduced with the real compiled init/check binaries plus the real seedClaudeAgentMirror logic: check --json at that point returns ok:false with STALE_SAFE:5 (not MISSING:17) for exactly the 5 MODULAR_COMPLEX_ROLE_IDS under .claude/agents:*, i.e. the live F-005 sibling bug documented in the companion finding on managed-assets.ts:902-916. I also ran the unmodified scripts/verify-entrypoints.mjs end to end and confirmed the assert at :551 does throw, so the assertion genuinely being red is correct, and F-026 is right that this is a real, reproducible, pre-existing-on-main defect, but F-026 is wrong about why, and its own recommended remediation path (relaxing check semantics or the assertion, both said to be owned by another plan) is therefore also wrong: the actual fix is extending the same isModularComplexRoleId branch that 8f18a193a1 already added to the .lattice-codex/agents mirror into the sibling .claude/agents mirror block a few lines below in the same file. This is exactly the recurring measurement-error shape named in the standing remit (reporting a plausible substitute for what was actually observed): F-026's author reported the MISSING:17 mechanism as the cause without instrumenting or reading the actual non-OK item list that check --json returns at that call site, when the seed call a few lines above it directly contradicts that mechanism.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T04:12:56.639Z",
@@ -758,7 +758,11 @@
         ".lattice/story/actives/B-META-framework-audit/findings.json"
       ],
       "signatureTag": "missing|mjs|meta-framework-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED and formally retracted. The quality lane disproved my F-026 diagnosis outright, and it was right on both counts.\n\nI had claimed verify-entrypoints.mjs:551 failed because init does not write .claude/agents/* under B-097f, producing MISSING:17, and concluded the defect was 'owned by the agent-prompt consolidation plan, not fixable here'. Verified false: the script calls seedClaudeAgentMirror(tempDir) at :519, the check runs at :550-551, and cleanup only runs at :620 - so the mirror IS populated when the assertion executes. Reproducing with the seed in place gives MISSING:0 and the real failure STALE_SAFE:5, i.e. the live F-034 defect.\n\nROOT CAUSE OF MY ERROR: I reproduced a SIMPLIFIED scenario (bare init + check, no seed) - one the script never executes - and then attributed the script's failure to it. The wrong mechanism produced a wrong ownership verdict that would have pushed a fixable defect out of scope; it was in fact fixed here in minutes once correctly identified.\n\nRecorded as B-META-framework-audit:F-028, which retracts F-026's mechanism and conclusion while preserving its one correct observation (the assertion was red). I noted there that this is the same plausible-substitute-for-observed-mechanism class as F-012/F-013/F-018/F-020, but occurring in an AUDIT RECORD rather than a product guard - worse, because nothing ever re-executes an audit record to catch it.",
+      "resolvedAt": "2026-08-14T09:03:41.336Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-036",
