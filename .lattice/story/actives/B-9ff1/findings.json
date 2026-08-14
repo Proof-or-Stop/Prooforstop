@@ -278,6 +278,39 @@
       "resolvedAt": "2026-08-14T02:12:30.534Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-014",
+      "desc": "Empirical read-only check (post-merge, unaffected by the merge — cli-engine.ts and stale-detector.ts have 0 commits in d47a35787d..HEAD): running node bin/lattice.js red_evidence_envelope_check against B-9ff1 (which is genuinely stale in REVIEW) DID append a row to .lattice/activity.jsonl, contradicting the literal comment at packages/main/src/cli/activity-policy.ts:23-25 ('It must append NOTHING (no hook, no activity log, no process event)'). Root cause: cli-engine.ts writeLog is gated by 'shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0' (line 1416/1488) — the staleWarnings OR-clause bypasses the READ_ONLY_COMMANDS suppression for EVERY read-only command (not specific to red_evidence_envelope_check), by design, for stale-state trend analysis, and is self-limited by a cooldown (suppressRecentlyEmittedWarnings in stale-detector.ts) so it fires at most once per cooldown window. Verified: a second story_get call immediately after (same stale story) did NOT re-append, confirming the cooldown, not red_evidence_envelope_check-specific misbehavior. IMPORTANT SCOPE NOTE: this predates B-9ff1 entirely (packages/main/src/cli-engine.ts and core/stale-detector.ts are untouched in the whole d47a35787d..HEAD range, so it already existed when RP-003 passed pre-merge) and is shared uniformly by all ~90 READ_ONLY_COMMANDS members, not introduced or worsened by this story or by the merge. The formal guarantee the story actually makes in command-policy.ts (line 445: executes no envelope, writes no artifact/process event/chain record, and changes no gate verdict) remains TRUE and verified — activity.jsonl is generic CLI session telemetry, not one of those four enumerated categories, and no gate/verdict/artifact/chain state is touched. Recommend softening the activity-policy.ts comment's absolute no-activity-log wording rather than any functional change. Repro: cd worktree; run node bin/lattice.js red_evidence_envelope_check --storyId=B-9ff1 --assertionFile=<any path> --json while the story is stale, and diff a full .lattice/ shasum snapshot before/after — activity.jsonl hash changes.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T03:22:05.211Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/stale-detector.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce08e78257d65837b3f5f31b8f9dc1bae207002edd925056938474528ceadbe4",
+      "files": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/stale-detector.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|empirical-read-check",
+      "signatureTagSource": "auto"
     }
   ]
 }
