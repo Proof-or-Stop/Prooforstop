@@ -651,8 +651,8 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-14T15:00:06.371Z",
       "endTime": null,
       "userSees": "Status prints \"Wave: n/max\", \"New verified findings: n\", every lane as \"pending|complete|blocked\", \"Completeness critic: pending|complete\", blocker codes, and either one exact dispatch command or \"Next: lattice review_inventory_finalize --storyId=<id>\".",
       "verificationIntent": {
@@ -1603,6 +1603,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:06.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
       "agent": "lattice-implementer"
     }
   ]
