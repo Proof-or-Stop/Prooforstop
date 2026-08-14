@@ -11,7 +11,7 @@ import {
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
 import type { ImmutableMetadataCommitTestHooks } from '../core/done-prepare-generated-metadata.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { deriveCanonicalHostKeyId, deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { evaluateReviewEscalation } from '../core/review-escalation.js';
@@ -499,14 +499,23 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       //       host/session/key identities and every round would then collapse as "duplicate
       //       host/session/key identity" — the B-bf52 poisoning.
       //
-      // LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY, including its
-      // lack of an EMPTY_STORY_FILES_HASH no-signal exclusion (OQ-1 resolution). A committed
+      // LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY. A committed
       // event with a blank/absent storyFilesHash is treated as no-signal and never collides on
-      // this branch, matching the floor. If a future floor-hardening story adds the
-      // EMPTY_STORY_FILES_HASH exclusion (or otherwise changes the drift-accept predicate) to
-      // the floor, THIS guard MUST be updated in the same story to keep producer/consumer
-      // parity; otherwise the guard would over-block resubmissions the floor would no longer
-      // drift-accept. review_escalation_status reveals any such mismatch.
+      // this branch, matching the floor. If a future floor-hardening story changes the
+      // drift-accept predicate, THIS guard MUST be updated in the same story to keep
+      // producer/consumer parity; otherwise the guard would over-block resubmissions the floor
+      // would no longer drift-accept (or under-block ones it no longer would). review_escalation_status
+      // reveals any such mismatch.
+      //
+      // B-3144 F-035: the floor's top-level EMPTY_STORY_FILES_HASH exclusion (B-f88e,
+      // review-escalation.ts:975 — currentStoryFilesHash===EMPTY_STORY_FILES_HASH disables ALL
+      // downgrades, since two "owns zero files" hashes are not evidence anything is unchanged) was
+      // missing here. Without it, a story with EMPTY_STORY_FILES_HASH would have this guard
+      // over-block: it would see a stale-material event whose storyFilesHash also happens to equal
+      // EMPTY_STORY_FILES_HASH, treat it as a drift-accept collision, and refuse a resubmit the
+      // floor is NOT actually drift-accepting (the floor ignores that event entirely) — falsely
+      // claiming "nothing needs resubmitting" while the floor holds zero valid assurance for that
+      // round. Mirrored the floor's exact top-level exclusion below.
       //
       // B-3144 F-029: the same-material branch compares the NORMALIZED material on both sides,
       // exactly as the consumer does (core/host-independence.ts normalizes event.materialDigest
@@ -538,7 +547,10 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         if (sameMaterialRunIds.length > 0) {
           throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
         }
-        const driftAcceptEvents = committedForGuard.filter((event) => {
+        // F-035: matches eventsWithStoryFilesHashDowngrade's top-level guard exactly — when the
+        // CURRENT storyFilesHash is the empty-set sentinel, no event can ever drift-accept
+        // (two EMPTY_STORY_FILES_HASH values are not evidence of "unchanged").
+        const driftAcceptEvents = storyFilesHash === EMPTY_STORY_FILES_HASH ? [] : committedForGuard.filter((event) => {
           const eventMaterial = normalizeString(event.materialDigest);
           const eventStoryFilesHash = normalizeString(event.storyFilesHash);
           return eventMaterial !== ''

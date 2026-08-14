@@ -14,6 +14,7 @@ import {
   currentGitHead,
   currentMaterialHash,
   currentStoryFilesHash,
+  EMPTY_STORY_FILES_HASH,
   isMaterialExcludedPath,
 } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
@@ -1910,6 +1911,43 @@ try {
       recordReviewerPasses(fixture.registry);
       const second: any = handler(quorumArgs());
       assert.equal(second.emittedCount, 6, 'legacy no-signal verdicts do not collide on the drift branch');
+    });
+  });
+
+  check('EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)', () => {
+    // F-035: mirrors eventsWithStoryFilesHashDowngrade's top-level EMPTY_STORY_FILES_HASH
+    // exclusion (review-escalation.ts:975). When the story owns ZERO files (current
+    // storyFilesHash === sha256('')), the floor never drift-accepts ANY event -- two
+    // "owns nothing" hashes are not evidence of "unchanged" -- so a stale-material verdict
+    // whose own storyFilesHash also happens to equal EMPTY_STORY_FILES_HASH must NOT be
+    // treated by the guard as a drift-accept collision; the resubmit must be ALLOWED,
+    // matching the floor holding zero valid assurance for that round.
+    withFreshFixture((fixture) => {
+      // Revert the fixture's story-owned diff-causing file back to its main-branch content so
+      // the NET diff between merge-base(main) and HEAD is empty -> currentStoryFilesHash
+      // resolves to EMPTY_STORY_FILES_HASH.
+      git(fixture.root, ['checkout', 'main', '--', 'packages/main/src/index.ts']);
+      git(fixture.root, ['add', '-A']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'revert story diff to empty']);
+      const emptyStoryFilesHash = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root);
+      assert.equal(emptyStoryFilesHash, EMPTY_STORY_FILES_HASH, 'fixture precondition: story owns zero files');
+      recordReviewerPasses(fixture.registry);
+      const handler = fixture.registry.get('quorum_submit')!;
+      const first: any = handler(quorumArgs());
+      assert.equal(first.emittedCount, 6);
+      commitMainDrift(fixture.root);
+      assert.equal(
+        currentStoryFilesHash(fixture.root, 'HEAD', fixture.root),
+        EMPTY_STORY_FILES_HASH,
+        'fixture precondition: still owns zero files after main drift',
+      );
+      recordReviewerPasses(fixture.registry);
+      const second: any = handler(quorumArgs());
+      assert.equal(
+        second.emittedCount,
+        6,
+        'a resubmit at EMPTY_STORY_FILES_HASH is allowed, not falsely refused as drift-accepted',
+      );
     });
   });
 
