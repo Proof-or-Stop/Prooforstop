@@ -828,6 +828,21 @@
       "resolvedAt": "2026-08-14T09:03:45.146Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-039",
+      "desc": "packages/main/src/core/codex-adapter-checks.ts:645-648: the retryCommand fallback for id===\"local-wrapper-heartbeat\" still hardcodes the deprecated node bin/lattice-codex.js session_brief string, inconsistent with this same story rename (LOCAL_CODEX_WRAPPERS, resolveCodexSessionBriefCommand, resolveLocalCodexVerifyCommand all prefer the canonical bin/proof-or-stop-codex.js name first elsewhere in this file). The branch is unreachable today: runHeartbeat is only invoked for this id from checkLocalWrapper (around line 892-903) with heartbeat.displayCommand always supplied, and localWrapperHeartbeatCommand (line 750-756) always returns a non-empty displayCommand, so the displayCommand-or-fallback expression never falls through to the hardcoded string. Low severity because it cannot currently surface to an operator, but it is a stale leftover from the exact rename this story performs and should be updated to bin/proof-or-stop-codex.js (or deleted, since displayCommand is always supplied) so a future edit that removes displayCommand does not resurrect the deprecated bin name.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T09:04:52.281Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-052",
+      "_hash": "bed94bdea72a6b48187cec2ad5f2ce88d39edca234345d1854250f967440b553",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
