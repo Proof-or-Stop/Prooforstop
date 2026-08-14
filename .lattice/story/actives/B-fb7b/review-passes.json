@@ -1119,6 +1119,36 @@
         "scanEscalationReason": "intent-to-evidence surface fully read; no escalation."
       },
       "_hash": "b8fc712da3c42f702b8a5b2098139c7298879bc528fe0d9c5eeb73d1820733ef"
+    },
+    {
+      "id": "B-fb7b:RP-037",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion PASS at frozen tree. This story adds a pretest build step + a shared build mutex; it deletes no concept. Scanned the diff for orphaned/residual references to removed symbols — none, because nothing was removed. The prior 'tsc' build script in packages/utils/package.json was cleanly replaced by the wrapper with no dangling callers. No residual.",
+      "createdAt": "2026-08-14T12:53:52.972Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-070",
+      "envelopeId": "13df767f5d5824f73f11be8646bfeeb0ca66dc0b2b7b3ca258b2ad5e74659f88",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "no concept deletion in scope; residual scan clean."
+      },
+      "_hash": "0975e36ae916067bdd04acc58a8e3eceb0bcf4e38bf77c77d526c522e6ae83e5"
     }
   ]
 }
