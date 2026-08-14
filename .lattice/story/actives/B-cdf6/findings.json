@@ -1201,6 +1201,25 @@
       "resolvedAt": "2026-08-14T15:18:24.327Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-057",
+      "desc": "HONESTY-BOUNDARY: retired-authority-vocabulary-guard-smoke.ts is a FIFTH red smoke, undisclosed, and materially different from the four disclosed ones. The brief states four smokes remain red (prompt-token-cost, proofstory-acceptance-topology, lattice-cli-migration, retired-authority-vocabulary-guard) all verified identical on pristine main. I independently reproduced all four names via `node dist/tasks/<name>-smoke.js` at HEAD and via a clean detached worktree of main (abe666af4f): prompt-token-cost, proofstory-acceptance-topology, and lattice-cli-migration DO fail identically on pristine main (same assertion/expected values) -- those three are accurately characterized. But retired-authority-vocabulary-guard-smoke.js PASSES cleanly on pristine main (retired authority vocabulary guard PASS builds=784...) and FAILS on this branch/HEAD with AssertionError at packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:4696 (assertLegacyDeliveryCompatibilityPositiveControls): actual=[{file:packages/main/src/cli-engine.ts, line:814, label:unapproved non-literal dynamic module load, text:...typescript-printer-remove-comments-sha256-v1=34a45a752f...}], expected=[]. Root cause traced: commit e79323b4de (2026-08-12) last repinned this guard smoke file, pinning cli-engine.ts to AST fingerprint 61136cc574a0... . Commit 8f42f1113e (fix(F-047), later in this same story) edited cli-engine.ts line 663 (`lattice: from-draft metadata` -> `proof-or-stop: from-draft metadata`), which changes the file text fed into canonicalAstFingerprint and therefore its actual fingerprint (now 34a45a752f...), but the guard smoke pin for cli-engine.ts was never updated after that edit. So the fifth red smoke is a genuine story-caused regression (a repin the story itself needs), not a fourth instance of the disclosed identical-to-main class. Confirmed reproducible (re-ran twice, same result) and confirmed the guard smoke source itself has not changed since e79323b4de (git log shows no further edits to retired-authority-vocabulary-guard-smoke.ts after that commit through HEAD). Fix: repin cli-engine.ts in the APPROVED_NON_LITERAL/pinned-fingerprint table inside retired-authority-vocabulary-guard-smoke.ts to the current fingerprint after confirming the F-047 diff at that call site introduces no new dynamic-load risk, OR disclose it honestly as a fifth distinct red smoke with its own root cause rather than omitting it from the four-smoke honesty statement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T15:25:01.604Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-080",
+      "_hash": "9ea5e80b4165835ee6a3399b502b5820c02629452929e161f0d254aa24a7bbfc",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|ts|honesty-boundary-retired",
+      "signatureTagSource": "auto"
     }
   ]
 }
