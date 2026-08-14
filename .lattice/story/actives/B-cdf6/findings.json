@@ -834,7 +834,7 @@
       "desc": "packages/main/src/core/codex-adapter-checks.ts:645-648: the retryCommand fallback for id===\"local-wrapper-heartbeat\" still hardcodes the deprecated node bin/lattice-codex.js session_brief string, inconsistent with this same story rename (LOCAL_CODEX_WRAPPERS, resolveCodexSessionBriefCommand, resolveLocalCodexVerifyCommand all prefer the canonical bin/proof-or-stop-codex.js name first elsewhere in this file). The branch is unreachable today: runHeartbeat is only invoked for this id from checkLocalWrapper (around line 892-903) with heartbeat.displayCommand always supplied, and localWrapperHeartbeatCommand (line 750-756) always returns a non-empty displayCommand, so the displayCommand-or-fallback expression never falls through to the hardcoded string. Low severity because it cannot currently surface to an operator, but it is a stale leftover from the exact rename this story performs and should be updated to bin/proof-or-stop-codex.js (or deleted, since displayCommand is always supplied) so a future edit that removes displayCommand does not resurrect the deprecated bin name.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T09:04:52.281Z",
@@ -842,7 +842,11 @@
       "reviewRunId": "B-cdf6:RR-052",
       "_hash": "bed94bdea72a6b48187cec2ad5f2ce88d39edca234345d1854250f967440b553",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in fccced8f3b. codex-adapter-checks.ts hardcoded the deprecated bin/lattice-codex.js in a retryCommand fallback, against the canonical-name-first convention the rest of that file follows (LOCAL_CODEX_WRAPPERS, LOCAL_CODEX_VERIFY_COMMAND). Now derived from LOCAL_CODEX_WRAPPERS[0].\n\nI verified the reviewer's own caveat that the branch is currently unreachable - every call site for 'local-wrapper-heartbeat' supplies displayCommand - and fixed it anyway, for the reason the finding gives: an unreachable string teaching the old bin name still misleads the next maintainer and still surfaces to anyone grepping for remaining aliases.\n\nSwept production source rather than fixing only the reported line. Remaining hits are deliberate and deliberately left: cli-init.ts:481 iterates BOTH names as part of the compat cleanup path, and proofstory-acceptance-topology-smoke.ts:154-164 are fixtures that MUST keep exercising bin/lattice.js because the parser has to go on recognizing the deprecated form - that is the compatibility contract itself, not residue. Separately noted: that smoke fails on this branch AND on pristine main with the same assertion, so it is pre-existing and untouched here. tsc clean.",
+      "resolvedAt": "2026-08-14T09:08:01.367Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-040",
