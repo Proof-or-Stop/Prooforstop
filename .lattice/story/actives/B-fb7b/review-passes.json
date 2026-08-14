@@ -511,6 +511,56 @@
         "scanEscalationReason": null
       },
       "_hash": "72fe0cff195856f87ebfb3eaf521fd38132c16f773ec371f9eda5b3977fb73e4"
+    },
+    {
+      "id": "B-fb7b:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "git diff main...HEAD reviewed in full: only additive pretest wiring (package.json pretest script, lattice.config.json validate.commands entry, new test-suite-utils-autobuild-smoke.ts, new red-fb7b-*.mjs RED/guard-bite tests, CHANGELOG entry, and two new harness-registration exclusion entries). No concept was deleted or replaced en masse; the only diff-level deletions are 5 lines of story-bookkeeping status/phase field churn (checklist item pending->done, phase INIT_CHECK removal), not source concept residue. Grep for stray references to the new pretest concept found none outside the intended files. No blocker.",
+      "createdAt": "2026-08-14T09:42:29.258Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-026",
+      "envelopeId": "00448fd8c2281159c847d8b11ec4bf0bc4efabffbfaa4e641c86d6d9c65b4434",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/done-required-evidence.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/intent-collision.json",
+          ".lattice/story/actives/B-fb7b/original-intent-snapshot.json",
+          ".lattice/story/actives/B-fb7b/pre-review-check.json",
+          ".lattice/story/actives/B-fb7b/process-events.jsonl",
+          ".lattice/story/actives/B-fb7b/process-metrics.json",
+          ".lattice/story/actives/B-fb7b/prompt-envelopes.json",
+          ".lattice/story/actives/B-fb7b/proofstory.json",
+          ".lattice/story/actives/B-fb7b/red-evidence.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json",
+          ".lattice/story/actives/B-fb7b/review.json",
+          ".lattice/story/actives/B-fb7b/scope-check.json",
+          ".lattice/story/actives/B-fb7b/summary.json",
+          ".lattice/story/actives/B-fb7b/test-evidence.json",
+          ".lattice/story/actives/B-fb7b/topology-critic-receipt.json",
+          ".lattice/story/actives/B-fb7b/understanding.json",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01d676e39417d4b8a725fb7e4f216a4104b5fd103134cf7d880dbf2729e039e4"
     }
   ]
 }
