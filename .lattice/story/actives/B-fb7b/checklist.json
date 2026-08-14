@@ -27,7 +27,11 @@
           {
             "desc": "Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+              "selector": "PASS test-suite-utils-autobuild-smoke"
+            }
           }
         ],
         "edge": [
@@ -241,6 +245,25 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:40:52.347Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "compiled structural smoke runs directly and passes (the permanent validate.commands guard)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:40:54.091Z"
+          },
+          "headHash": "a8f3fac96b9d6e1f489c66d5df91b48d4fd847d6",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:40:54.318Z"
         }
       ]
     }
