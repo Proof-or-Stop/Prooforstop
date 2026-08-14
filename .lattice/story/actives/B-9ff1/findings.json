@@ -656,7 +656,7 @@
       "desc": "[codex host-B D2] Verified by main agent. The 'unconditionally true' clauses held only for the handler and the built-in CLI writers, not for the whole invocation: core/hooks.ts spawnHook runs a configured onError hook as arbitrary /bin/sh -c in the project root, so such a hook can write RED or story evidence, append a process event, or invoke a gate-mutating command. The clauses were falsified by the very error path the same paragraph acknowledged. Now explicitly scoped.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:03:07.960Z",
@@ -664,7 +664,11 @@
       "reviewRunId": "B-9ff1:RR-025",
       "_hash": "d04e1dee9a5bbe7c30c3bb437fb43f4d791689615b96569b19072fc80ce6f927",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All three sites now scope the guarantee to the handler and the built-in CLI persistence paths, and name the escape hatch explicitly - a configured onError hook is arbitrary shell run by spawnHook in core/hooks.ts and can therefore write evidence, append a process event or invoke a gate-mutating command. Fixed in commit 8c1ec91805f36d7ea5024f9c00f983b8d96c88f1 (text only, five files). Acceptance was mechanical, not asserted: a checker runs all 108 pinned verification selectors against real command output and reports 106 checked, 2 permanently waived, zero mismatches. That checker was written in response to this round and is the instrument that both proved the regression and bounded it to a single selector.",
+      "resolvedAt": "2026-08-14T10:03:44.146Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-032",
