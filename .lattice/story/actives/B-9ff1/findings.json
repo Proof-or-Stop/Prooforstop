@@ -646,6 +646,21 @@
       "_hash": "cd00195bad5f5252aaebe084f62822bf3c9ff6833ab6d0d7ce218aa9deda022e",
       "signatureTag": "missing|unknown|codex-host-regression",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-031",
+      "desc": "[codex host-B D2] Verified by main agent. The 'unconditionally true' clauses held only for the handler and the built-in CLI writers, not for the whole invocation: core/hooks.ts spawnHook runs a configured onError hook as arbitrary /bin/sh -c in the project root, so such a hook can write RED or story evidence, append a process event, or invoke a gate-mutating command. The clauses were falsified by the very error path the same paragraph acknowledged. Now explicitly scoped.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T10:03:07.960Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-025",
+      "_hash": "d04e1dee9a5bbe7c30c3bb437fb43f4d791689615b96569b19072fc80ce6f927",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
