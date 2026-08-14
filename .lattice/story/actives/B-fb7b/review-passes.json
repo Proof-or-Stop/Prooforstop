@@ -905,6 +905,42 @@
         "scanEscalationReason": null
       },
       "_hash": "701f04d0da0cbea5c160beda3e55e1982c5bbed3327adb44d5daacf2c176f7b0"
+    },
+    {
+      "id": "B-fb7b:RP-030",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed for B-fb7b. Verified all 13 CHK-001 verificationIntent refs (4 happy, 4 edge, 5 adversarial) have valid, must-priority-satisfying verificationEvidence with result=pass, mechanical=true receipts, and materialHash/storyFilesHash matching the current REVIEW-round binding (0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5 / a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff); git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, so no code drift invalidates the recorded evidence. Findings F-011 (rmSync ENOTEMPTY under concurrent pretest) and F-015 (packages/utils tsc racing a concurrent packages/main rebuild -> TS2307), both authored by this lane, are resolved by code fix commit eab8a74651 (shared main+utils build lock: scripts/build-lock.mjs, scripts/build-utils-with-lock.mjs, packages/utils/package.json rewired) and closed this round via disproven findings F-016 (closes F-011) and F-017 (closes F-015). Light re-verification performed: (1) inspected the shared-lock design -- scripts/build-lock.mjs is a per-repo mkdirSync mutex (300s stale-lock steal, 900s wait timeout) taken by BOTH scripts/build-main-with-binding.mjs (whole rm+tsc+binding critical section) and the new scripts/build-utils-with-lock.mjs (whole tsc critical section, wired via packages/utils/package.json's build script), closing the cross-package race by construction since main-rebuild and utils-tsc now mutually exclude repo-wide; (2) ran the story's guard family on current HEAD -- node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS), node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 9 selectors incl. GB-ALL-PASS, exit 0), node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js (PASS) -- all exit 0; (3) observed one full round of 5 concurrent `npm run pretest` invocations against this exact worktree during this review (launched independently by a sibling reviewer lane sharing this worktree/scratchpad, logs at scratchpad/pretest_1..5.log): 5/5 exit 0, grep for TS2307/ENOTEMPTY across all 5 logs found zero matches, finish timestamps 13:11-13:14 confirming properly queued/serialized rather than racing execution. git status --porcelain clean throughout (dist stays gitignored). No blocking coverage gaps found; 0 must-priority intents lack valid evidence, 0 waivers present. Did not run an extended multi-round stress loop or full `lattice validate` per dispatch scope.",
+      "createdAt": "2026-08-14T12:24:49.449Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-042",
+      "envelopeId": "c17fb3a1be5df3a207a7c28dce3ed6a08c8795c9c72d2737a8a8ab7d4fbbc102",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          ".lattice/story/actives/B-fb7b/scope-contract.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "plan.md does not exist for this story (decision.json/background.md serve the equivalent role); no full decisions-directory escalation was needed since the change is scoped to scripts/build-*.mjs and packages/utils build wiring with no README/CLAUDE.md/decisions-doc claims to reconcile beyond what the sibling lattice-review-docs lane already covered this round."
+      },
+      "_hash": "d8e6667224a54c48f994c582dd712f63269fdd300a851c6943880e71dab4c4df"
     }
   ]
 }
