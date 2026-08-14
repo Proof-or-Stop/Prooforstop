@@ -135,7 +135,9 @@
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
         "adapterId": "scope-contract:plan:v1",
         "method": "scope_contract",
-        "pathRefs": [],
+        "pathRefs": [
+          "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY"
+        ],
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
         "provenanceRefs": [
@@ -150,7 +152,8 @@
           "scope:file:packages/main/src/handlers/done-required-validation.ts",
           "scope:file:packages/main/src/handlers/verifier.ts",
           "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts",
-          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/validation-execution-lock.ts:sha256:6c5582750800a617192de8802115fa8de3da040a6a6618bed2ac421045fc0b94"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -169,7 +172,7 @@
             "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
           ]
         },
-        "resultDigest": "sha256:cad83c47249c37faff7b69cfd559cea8d29f9b61b6936cb8a27bb50420cb59a9"
+        "resultDigest": "sha256:f3aa8f6027c434d4a84689cd9c1cfb35f253f2c7485c402b03010e334ba2d214"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -182,6 +185,8 @@
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
           "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+          "path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot",
+          "path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
@@ -220,7 +225,7 @@
             "scope:file:packages/main/src/tasks/validate-execution-lock-smoke.ts"
           ]
         },
-        "resultDigest": "sha256:860ba5672ad7c590e80beee8f1c2f3831334f1bd6e6cdd4f1ea85f22565aa92d"
+        "resultDigest": "sha256:3154650da8f4ff473afbeb8711232d5ca5fc0aae5fca86d58fe05f1710c02b23"
       }
     ],
     "scopeRefs": [
@@ -238,8 +243,7 @@
     ],
     "sourceInventoryRefs": [
       "artifact:acceptance-basis.json",
-      "existing:process-fact:acceptance_basis_generate",
-      "existing:process-fact:acceptance_topology_check",
+      "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
       "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
       "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
       "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
@@ -277,9 +281,48 @@
       "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
       "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
       "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
-      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
+      "source_file:packages/main/src/core/validation-execution-lock.ts#withOfficialValidationExecution",
+      "source_file:packages/main/src/core/validation-execution-lock.ts#withWorkspaceValidationCapacity"
     ],
-    "plannedPathRecords": [],
+    "plannedPathRecords": [
+      {
+        "schemaVersion": "proofstory.planned_coverage_path.v1",
+        "plannedPathRef": "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+        "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-WORKSPACE-CAPACITY",
+        "declarationDigest": "sha256:d9c10ff2f8d7427ea8447abaeed75e7d8a52c22275435c9a7416e0ed1806af1e",
+        "producer": {
+          "id": "EP-CAPACITY-LEASE",
+          "role": "producer",
+          "expectedArtifactKind": "source_file",
+          "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+          "expectedSymbolOrFact": "withWorkspaceValidationCapacity",
+          "fileDeclarationRef": "CHK-001:files:modify:0"
+        },
+        "consumers": [
+          {
+            "id": "EP-OFFICIAL-VALIDATION",
+            "role": "consumer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/core/validation-execution-lock.ts",
+            "expectedSymbolOrFact": "withOfficialValidationExecution",
+            "fileDeclarationRef": "CHK-001:files:modify:0"
+          }
+        ],
+        "outputFactRef": "workspace-validation-capacity-lease",
+        "acceptanceBindingRefs": [
+          "acceptance-binding:REQ-WORKSPACE-CAPACITY"
+        ],
+        "verificationIntentRefs": [
+          "CHK-001:happy:0"
+        ],
+        "declarationRefs": [
+          "CHK-001:files:modify:0",
+          "CHK-001:files:modify:0"
+        ],
+        "plannedPathDigest": "sha256:d6153135577ab130b5c6658a9198598be76d9b510e9554aec1e82c0a0d64e3f7"
+      }
+    ],
     "plannedActualReconciliations": [],
     "enumeratedPathRefs": [
       "path:process-fact:acceptance_basis->consumer:<audit-only>",
@@ -288,18 +331,17 @@
       "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
       "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+      "path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot",
+      "path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment",
       "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
       "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-      "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+      "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
+      "planned:CHK-001:happy:0:VPP-WORKSPACE-CAPACITY"
     ],
     "excludedPathRefs": [],
     "blindSpots": [
-      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:process-fact:acceptance_basis_generate->existing:process-fact:acceptance_topology_check",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
@@ -313,65 +355,45 @@
         {
           "code": "derivation_diagnostic",
           "targetKind": "inventory",
-          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:process-fact:acceptance_basis_generate->existing:process-fact:acceptance_topology_check"
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/validation-execution-lock.ts#resolveSharedLockRoot->consumer:packages/main/src/handlers/transition-orchestrator.ts#resolveSharedLockRoot"
         },
         {
           "code": "derivation_diagnostic",
           "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/validation-execution-lock.ts#sanitizeLockSegment->consumer:packages/main/src/handlers/transition-orchestrator.ts#sanitizeLockSegment"
         }
       ],
-      "sealDigest": "sha256:2b6bbb6fc97f485a7352049d0f0edc95cba86fad6ac545db8300234ccac8c7b7"
+      "sealDigest": "sha256:f873ab9acce3f567e7f3754508f60e3c277411ff214ef477aef9f77c8d5df3c3"
     },
     "binding": {
-      "headHash": "b178b66b899084b60a7e327f99705eaf636cb226",
+      "headHash": "e0f039261a807240a7049ffa9275a448d5ad44e0",
       "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
       "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
       "scopeCheckDigest": "sha256:c73b5a88c3d3b88991e53eb8ade16a5e95e31113826cdf0777e9069dcaf11c4b",
       "scopeContractDigest": "sha256:907379d76b6d4117704843dcf1d2567818ef281e7645faf079b24c82db48f3eb",
-      "closureFilesHash": "sha256:ad79f94e478b237188f2a0b926e7fa05dcbf7e649db372eddf190d98867f46ee"
+      "closureFilesHash": "sha256:d576c78fa4191d165ac8e4b1767d8327c682ec819ba1f2a0f135552879f58763"
     },
-    "receiptRef": "receipt:coverage-basis:B-6693:plan:97015f7e402ef3d0",
-    "basisDigest": "sha256:10f14629015781650092f2950b2486f82a799e03fb33f232b051435b1919b204"
+    "receiptRef": "receipt:coverage-basis:B-6693:plan:12a3b3eef2ee21e0",
+    "basisDigest": "sha256:1af0f5d2f7571b1bf9eadb82d0e01e139e3f9aeb3de76726fb541e5d3bd3d344"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-6693:plan:97015f7e402ef3d0",
+    "receiptRef": "receipt:coverage-basis:B-6693:plan:12a3b3eef2ee21e0",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-6693",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:10f14629015781650092f2950b2486f82a799e03fb33f232b051435b1919b204",
-    "topologyDigest": "sha256:23ff935ab5abd5e0e135c5badd425181755c47a0ce00dd9dbcadc9316923f013",
+    "basisDigest": "sha256:1af0f5d2f7571b1bf9eadb82d0e01e139e3f9aeb3de76726fb541e5d3bd3d344",
+    "topologyDigest": "sha256:cb4da3ba25e4d81594de0cebcb73202ea424f1f8c8a26a230ca5019c7096c595",
     "scopeCheckDigest": "sha256:c73b5a88c3d3b88991e53eb8ade16a5e95e31113826cdf0777e9069dcaf11c4b",
     "scopeContractDigest": "sha256:907379d76b6d4117704843dcf1d2567818ef281e7645faf079b24c82db48f3eb",
-    "headHash": "b178b66b899084b60a7e327f99705eaf636cb226",
+    "headHash": "e0f039261a807240a7049ffa9275a448d5ad44e0",
     "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
     "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-    "closureFilesHash": "sha256:ad79f94e478b237188f2a0b926e7fa05dcbf7e649db372eddf190d98867f46ee",
-    "sealDigest": "sha256:2b6bbb6fc97f485a7352049d0f0edc95cba86fad6ac545db8300234ccac8c7b7",
+    "closureFilesHash": "sha256:d576c78fa4191d165ac8e4b1767d8327c682ec819ba1f2a0f135552879f58763",
+    "sealDigest": "sha256:f873ab9acce3f567e7f3754508f60e3c277411ff214ef477aef9f77c8d5df3c3",
     "workspaceIdentityDigest": "sha256:0594cfb9baf98223d7774a0678b34a60bcc37c73b5412e799f39c100f5db5c0f",
-    "signature": "j4BvI2jV87BecifzaegzdX7ANe+PDARmnMPRqZbMvYESmVPqFIoaKWSqU3F6OaAQmvW7Q/TTgTLLSXmW71+aBg=="
+    "signature": "pEhwMGWW7nHhnlYCCbU3UHHCQlO+q9u+1yNfdOLSlDcq1CTIAQwmSLczzCOrX7kEvBCFRaKTTBo6eXuwPrIXCw=="
   }
 }
