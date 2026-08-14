@@ -9,6 +9,18 @@ execution path (`executeValidationPlan`/`runValidationCommand`) are not touched.
 
 ## CHK-001: RED repro proves runSingleAllowlistedCommand ignores validate.commands[].timeoutMs
 
+**CORRECTION (recorded during DEV, after CHK-002's implementer caught a real plan flaw)**:
+the original design below (section 6 = a single assertion calling
+`runSingleAllowlistedCommand` directly with `{}`) can NEVER turn green after CHK-002, because
+the chosen fix (checklist-layer-lookup) only makes `checklist.ts`'s callers config-aware —
+`runSingleAllowlistedCommand` itself is deliberately unmodified (scope-boundary.json). A test
+that bypasses `checklist.ts` entirely can't observe the fix. Corrected design below splits
+section 6 into 6a (a permanent, still-true-after-the-fix characterization of the low-level
+primitive) and 6b (the actual red→green assertion, exercising the real fixed surface). This
+correction does not reopen the circular-import question (decision_set's
+`executor-layer-lazy-import` alternative stays rejected) — it only fixes which surface CHK-001
+exercises.
+
 **Owner**: lattice-implementer
 **DependsOn**: none
 **Files**:
@@ -18,31 +30,48 @@ execution path (`executeValidationPlan`/`runValidationCommand`) are not touched.
 existing smoke, following its hermetic style (temp `projectRoot`, no real config/git-status
 side effects):
 1. Write a temp `lattice.config.json` to a fresh tmpdir project root with a `validate.commands`
-   entry: `{"command": NODE, "args": [<args that make the process sleep ~1.5s, e.g. "-e",
-   "setTimeout(() => {}, 1500)">], "timeoutMs": 700}` (small on purpose — the test must run
-   fast, not wait anywhere near 270s).
-2. Call `runSingleAllowlistedCommand` (already imported from `../core/validation-executor.js`)
-   with a command string that parses (via `parseAllowlistedCommand`) to the exact same
-   `{executable, args}` as the configured entry above, `projectRoot` = the temp dir, and
-   **no** `options.timeoutMs`.
-3. Assert `result.timedOut === true` and `result.code === 124` — the configured 700ms override
-   should kill a command that runs ~1.5s.
+   entry: `{"command": "node", "args": ["-e", "setTimeout(() => {}, 1500)"], "timeoutMs": 700}`
+   (small on purpose — the test must run fast, not wait anywhere near 270s). Command string:
+   `node -e "setTimeout(() => {}, 1500)"`.
+2. **6a (permanent characterization, stays true before AND after CHK-002)**: call
+   `runSingleAllowlistedCommand` (already imported from `../core/validation-executor.js`)
+   directly with `projectRoot` = the temp dir and **no** `options.timeoutMs`. Assert
+   `result.timedOut === false` — calling the low-level primitive directly, bypassing
+   `checklist.ts`'s resolver, is documented/by-design to keep using the 270s default; this is
+   not the bug being fixed and must NOT be asserted as `timedOut === true`.
+3. **6b (the real red→green assertion)**: dynamically import the compiled checklist handler
+   module — `const checklistMod: any = await import('../handlers/checklist.js');` (dynamic,
+   not a static top-level import, so this file still compiles before CHK-002 adds the export —
+   a static import of a not-yet-existing named export would be a TypeScript compile error,
+   breaking every section, not just this one). Assert
+   `typeof checklistMod.resolvePinnedCommandTimeoutMs === 'function'` (red today: the export
+   does not exist yet). When present, call
+   `checklistMod.resolvePinnedCommandTimeoutMs(pinnedRoot, pinnedCommand)` to get the resolved
+   timeout, then call `runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, { timeoutMs:
+   resolved })` — mirroring exactly what the 4 real call sites in `checklist.ts` do post-fix —
+   and assert `result.timedOut === true` and `result.code === 124`.
 
-Must FAIL on current main: today `runSingleAllowlistedCommand` never reads the temp
-`lattice.config.json`, so it always falls back to the hardcoded 270_000ms default, the ~1.5s
-command completes normally before that, and `timedOut` is `false`.
+Must FAIL on current main at 6b's `typeof ... === 'function'` check (or, if that's patched
+around, at the final `timedOut === true` assertion): today `checklist.ts` exports no such
+helper and `runSingleAllowlistedCommand` never reads config on its own.
 
 **Verify**:
 - `npm --prefix packages/main run build` clean.
-- `node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 1 (`FAIL: ...`) on
-  current main.
-- The same command exits 0 after CHK-002.
+- `node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 1 on current main
+  (before CHK-002's export exists).
+- The same command exits 0 once CHK-002's `resolvePinnedCommandTimeoutMs` export and its 4
+  rewired call sites are present — verify this by temporarily stashing CHK-002's
+  `checklist.ts` diff, rebuilding, confirming red, then restoring it and rebuilding again to
+  confirm green (mirrors the controlled-experiment discipline the CHK-002 implementer already
+  used to find this flaw).
 
 **DoneWhen**:
-- The new case is genuinely red today: it fails because `timedOut` is `false` when it should
-  be `true`, not because of an unrelated error.
-- The command used to prove the timeout is short (~1.5s), so the smoke stays fast in both the
-  red and green states — no test should ever wait near 270s or the configured budget.
+- 6a documents the primitive's permanent direct-call behavior (never expected to flip).
+- 6b is genuinely red before CHK-002's export exists and genuinely green after, exercising the
+  same combined call shape (`resolvePinnedCommandTimeoutMs` + `runSingleAllowlistedCommand`)
+  the 4 real call sites use.
+- The command used to prove the timeout is short (~1.5s), so the smoke stays fast in both
+  states — no test should ever wait near 270s or the configured budget.
 - Registered nowhere new: this smoke is already in `lattice.config.json` `validate.commands`
   per its own docstring; no config change needed for CHK-001 itself.
 
@@ -86,7 +115,10 @@ reused as-is.
 **Verify**:
 - `npm --prefix packages/main run build` clean (tsc succeeds — confirms no circular-import
   breakage between `checklist.ts`, `validation-executor.ts`, `verifier.ts`).
-- `node packages/main/dist/tasks/validate-command-timeout-smoke.js` (CHK-001's new case) exits 0.
+- `node packages/main/dist/tasks/validate-command-timeout-smoke.js` (CHK-001's corrected 6a/6b
+  cases, see CHK-001's CORRECTION note) exits 0: 6a still asserts the direct-call default
+  (unchanged), 6b's `resolvePinnedCommandTimeoutMs` export now exists and, combined with
+  `runSingleAllowlistedCommand`, honors the configured override.
 
 **DoneWhen**:
 - All 4 call sites route through the one shared helper; no duplicated matching logic.
