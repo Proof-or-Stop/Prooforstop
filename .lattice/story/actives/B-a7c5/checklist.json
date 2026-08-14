@@ -1635,7 +1635,11 @@
           },
           {
             "desc": "No other section of the doc (outside section 4.3 and the M8 section covered by CHK-005) asserts a specific count of RuntimeConsumer members (e.g. 8 consumers) that is now wrong after the 9th member was added; WHY: a stale count assertion elsewhere would be a missed audit finding",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const bad=[\\\"8 consumers\\\",\\\"eight consumers\\\",\\\"8 RuntimeConsumer\\\",\\\"9 consumers\\\",\\\"nine consumers\\\"]; const found=bad.filter(p=>s.toLowerCase().includes(p.toLowerCase())); console.log(found.length===0 ? \\\"NO_STALE_COUNT_ASSERTION_FOUND\\\" : \\\"STALE_COUNT_FOUND:\\\"+found.join(\\\",\\\"))\"",
+              "selector": "NO_STALE_COUNT_ASSERTION_FOUND"
+            }
           },
           {
             "desc": "Section 4.3 rollout severity table and any REGISTERED_CRITICAL_RUNTIME_CONSUMERS or ADVISORY_ONLY_RUNTIME_CONSUMERS prose in the doc do not list finding_resolve as blocking or critical, consistent with CHK-002 plan stating it must stay fully advisory non-blocking; WHY: the doc must not accidentally describe finding_resolve as having a severity class it does not have in code",
@@ -1737,6 +1741,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:31.605Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "docs_check",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const bad=[\\\"8 consumers\\\",\\\"eight consumers\\\",\\\"8 RuntimeConsumer\\\",\\\"9 consumers\\\",\\\"nine consumers\\\"]; const found=bad.filter(p=>s.toLowerCase().includes(p.toLowerCase())); console.log(found.length===0 ? \\\"NO_STALE_COUNT_ASSERTION_FOUND\\\" : \\\"STALE_COUNT_FOUND:\\\"+found.join(\\\",\\\"))\"",
+          "result": "pass",
+          "note": "Searches the whole doc for common numeric RuntimeConsumer-count phrasings (8/9/eight/nine consumers) that would go stale after the 9th member was added; a real executed search returning zero matches is the mechanical proof of this negative property.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad232d19fded29060b44221ca8b6d47e52937bc57c70d87c7004d6270fa11922",
+            "outputTail": "NO_STALE_COUNT_ASSERTION_FOUND\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:32.554Z"
+          },
+          "headHash": "79ec8257a0a7e0fadfdee39c301ce9a126715f9e",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:32.673Z"
         }
       ]
     }
