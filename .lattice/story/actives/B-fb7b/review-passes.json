@@ -217,6 +217,38 @@
         "scanEscalationReason": null
       },
       "_hash": "b88be8680f1b00ec21cbd226baed03b0d67ae1b468d2e7272f645a4ed8e93922"
+    },
+    {
+      "id": "B-fb7b:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-deletion-completeness scan. Since the round-2 pass (RP-004, RR-010), material moved by exactly one commit, fd8054daa6 (F-006 fix, CHK-001, 3 files / 11 insertions / 7 deletions per `git show --stat`): it tightens the buildsMain/buildsUtils --prefix regex fallbacks in packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts and the mirrored RED at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs by adding the same (?![\\w:-]) negative-lookahead anchor already used on the bare npm-run-build fallback, plus one new GB-ADVFAST-BIT guard-bite case in packages/main/tests/red/red-fb7b-guard-bite.mjs. The per-file -7/+11 lines are same-line regex/comment replacements, not concept removal: buildsMain, buildsUtils, runsExactRootBuild, every existing GB-* selector (GB-ADV0-BIT..GB-ADV4-BIT, GB-EDGE1-CLEAN, GB-EDGE3-REGISTERED, GB-ADV3-ABSENT, GB-LIFECYCLE-FIRES), the pretest script key, the lattice.config.json validate.commands entry, and the CHANGELOG section from round 2 are all still present verbatim; nothing was deleted, renamed, or replaced. Re-ran `git diff main...HEAD --stat` and `git diff main...HEAD` fresh against current HEAD 24e2c68: 25 files changed, 3484 insertions(+), 5 deletions(-) total; grepped the full diff for lines matching ^-[^-] and confirmed all 5 are `.lattice/story/actives/B-fb7b/checklist.json` (status pending->done, startTime/endTime null->timestamps) and `.lattice/story/actives/B-fb7b/index.json` (phase INIT_CHECK->REVIEW, one closing-brace reflow from the checklist expansion) lifecycle bookkeeping -- zero deletions in code/config/docs. No concept word was deleted or replaced this round, so there is no concept-word to grep for residue; the deletion-completeness check is vacuously satisfied for round 3, consistent with the round-2 conclusion. Also re-executed the guard family live on current HEAD after build: `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> PASS; `node packages/main/tests/red/red-fb7b-guard-bite.mjs` -> all 11 selectors printed including the new GB-ADVFAST-BIT, GB-ALL-PASS, exit 0.",
+      "createdAt": "2026-08-14T04:42:00.036Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-015",
+      "envelopeId": "12a9898058d4752ff9293916cb428ff22e181e027613fb6406a639f30576f73b",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "889d4ac30f2e9a62e0ed8190744ff0bb927425dc769f6c01005b272e976de2df"
     }
   ]
 }
