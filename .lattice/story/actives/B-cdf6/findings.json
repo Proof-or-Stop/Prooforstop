@@ -770,6 +770,24 @@
       "_hash": "63ce176e1c137874e60f2de18035dfb5a8f16b9459e5887610c97d4d562558e7",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-037",
+      "desc": "doc-code-drift: packages/main/src/tasks/global-agents-init-smoke.ts:85 hardcodes assert.equal(shims.length, 16, \"expected 16 managed agent roles\") one line below the correct dynamic check at :84 (assert.equal(shims.length, managedBasenames.length, ...)). The registry now has 17 roles (verified: listManagedAgentBasenames returns 17), so this line is LIVE and CURRENTLY RED: running node packages/main/dist/tasks/global-agents-init-smoke.js throws AssertionError: expected 16 managed agent roles / 17 !== 16 at this exact assertion, both on this branch and on pristine main HEAD 3a5036095c (reproduced both ways myself), so this is pre-existing and not introduced by this story. Filed here rather than dismissed because this story (commit 172b8abd54, CHK-006) edited this exact file on adjacent lines (message text at what is now line 98/144) and separately CHK-003 explicitly required correcting stale 16-thin-shim counts to 17 in CLAUDE.md, so the story touched the same defect class in the same file without catching this instance. It is outside the DONE-blocking npm test chain (package.json line 15 lists explicit test:* targets; this smoke is only reached via test:all/test:legacy auto-discovery per run-all-smokes.js), so it does not block this story, but a doc/code reader who runs test:legacy will see it fail with a stale-looking number in the same story that just finished correcting that exact stale number elsewhere.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T08:56:12.536Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-047",
+      "_hash": "7e54fda7fcbd2e4542a5279e663ec2bbd17388566fd5dcaee2c6dd4af4e2d0b2",
+      "files": [
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
