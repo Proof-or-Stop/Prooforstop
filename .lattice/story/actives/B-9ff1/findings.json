@@ -925,7 +925,7 @@
       "desc": "[codex host-B G1] Verified by main agent. The by-construction argument that the four carved-out surfaces fall outside 'the CLI story-evidence writers' BREAKS at the health log. core/health.ts returns LATTICE_HEALTH_PATH verbatim with no project-tree containment check, and a matching onError hook that exits non-zero reaches reportHealthIssue. So the override can point inside .lattice/story/actives/<id>/, even at an existing gate or evidence artifact, which makes 'the health log lives outside the project tree' false and makes the subject decidable only as a nominal prose category rather than by actual destination. The concept lane cleared this argument as holding by construction; it does not. The canonical sentence can stay, but the authoritative note must qualify the override.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:46:43.125Z",
@@ -933,7 +933,11 @@
       "reviewRunId": "B-9ff1:RR-033",
       "_hash": "29739cb533bc24fc41dc5c7b7e4a96568aef2c8faebefed6dfed611d14112895",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d18a4ca022b5bdd7283f1fba3e4f1cfc8c546d5. The by-construction argument was that the carved-out surfaces fall outside the canonical sentence's subject because of where they write; it breaks at the health log, since core/health.ts returns LATTICE_HEALTH_PATH verbatim with no containment check and core/hooks.ts reaches reportHealthIssue on a non-zero hook exit. The implementer did not stop at reading: it built a probe with an exit-3 onError hook and LATTICE_HEALTH_PATH pointed inside a story directory, and health.jsonl was created there - the inference is now an observed fact. The note now says the subject is a NOMINAL PROSE CATEGORY, a named set of writers, not a destination-decidable one, and names item D as exactly where the destination argument fails. Adding a containment check would be a behaviour change and belongs to its own story. The concept lane had cleared this argument as holding by construction; it does not, and that is worth recording because two reviewers reached opposite conclusions and only the one that ran a probe was right.",
+      "resolvedAt": "2026-08-14T11:00:48.268Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-044",
