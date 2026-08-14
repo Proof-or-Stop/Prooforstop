@@ -396,6 +396,54 @@
         "scanEscalationReason": null
       },
       "_hash": "88274d8c3cec89592a45f5f4c27c22c38a9e544dbd4101bb6b059044327003ca"
+    },
+    {
+      "id": "B-9ff1:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Rebuilt the full residual-claim inventory against HEAD 5a90d602 (commits ee73b9f + 63a9092). Verified line-by-line against actual runtime code (cli-engine.ts hook/writeCodexProcessEvent/writeLog gating, shouldWriteActivityLog, GLOBAL_CODEX_FALLBACK_COMMAND, init-assets.ts, stale-detector.ts) that all seven repaired sites (activity-policy.ts, command-catalog.ts, config.ts, registry.ts, handlers/red-evidence.ts docstring+2 operator strings, smoke header/assertions/transcript, red test sections 1/3/6a) now state only the four-category contract (no artifact, no process event, no chain record, no gate-verdict change) plus, where relevant, explicitly name the activity.jsonl exception rather than an unconditional read-only claim. All seven agree in substance; wording differs only stylistically. command-policy.ts and process-fact-levels.ts re-confirmed correct (distinct four-category / process-fact-taxonomy scope). core/red-evidence/*.ts module headers re-verified TRUE by absence of fs/child_process/env imports. handlers/red-evidence.ts:452 success string ('executed nothing') checked and confirmed a different, correctly-scoped execution claim, not part of this family. Confirmed by diff/git show that the six pre-existing 'Nothing written.' refusal/replay strings in W2b/W2c mutating chain commands and the F-028 usage_sweep docstring (story B-70e9) were untouched by this round; deferral boundary is principled (different story ownership, per-invocation refusal claims about the designated write target, not architectural read-only guarantees, no surprise-write-path risk). background.md/plan.md/checklist.json titles+userSees re-read: narrative/design-scope statements only, no divergence. Real run: node packages/main/dist/tasks/red-evidence-envelope-smoke.js exited 0, PASS. No new defects found; nothing blocks.",
+      "createdAt": "2026-08-14T04:06:14.205Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-023",
+      "envelopeId": "0468e9af2746fa4cb145c73e217f8a241f720fbf240a9192caa47416502e727a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "803b6f57a4e8563a2deb71fc2b9615b6d846f7981157498b600402d558797c05"
     }
   ]
 }
