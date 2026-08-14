@@ -1172,7 +1172,11 @@
           },
           {
             "desc": "The doc does NOT add new bypass mechanisms or new decision values beyond what the code ships (no invented values like \"skip\" or \"override\" that do not exist in the codebase) -- it only describes what is actually delivered; WHY: doc-code divergence creates false expectations for the next implementer reading the spec",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"); const docS=fs.readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const codeS=fs.readFileSync(\\\"packages/main/dist/core/playbook-runtime-memory.js\\\",\\\"utf8\\\"); const codeMatch=codeS.match(/FINISH_DECISION_VALUES = \\[([^\\]]*)\\]/); const realValues=codeMatch[1].match(/\\x27[a-z-]+\\x27/g).map(x=>x.slice(1,-1)); const start=docS.indexOf(\\\"the DONE-gate consumer of\\\"); const end=docS.indexOf(\\\"### M9.\\\", start); const block=docS.slice(start,end); const tokens=[...new Set((block.match(/`[^`]+`/g)||[]).map(t=>t.slice(1,-1)))]; const candidateValues=tokens.filter(t=>/^[a-z][a-z-]*$/.test(t)); const invented=candidateValues.filter(v=>!realValues.includes(v)); const allRealPresent=realValues.every(v=>candidateValues.includes(v)); console.log((invented.length===0 && allRealPresent) ? \\\"ALL_DECISION_VALUE_TOKENS_MATCH_SHIPPED_CODE_NO_INVENTED_VALUES\\\" : \\\"CHECK_FAILED:\\\"+JSON.stringify(invented))\"",
+              "selector": "ALL_DECISION_VALUE_TOKENS_MATCH_SHIPPED_CODE_NO_INVENTED_VALUES"
+            }
           }
         ],
         "adversarial": [
@@ -1358,13 +1362,21 @@
         {
           "intentRef": "CHK-005:edge:2",
           "kind": "docs_check",
-          "note": "Manually reviewed the M8 Delivered-differently annotation in playbook-runtime-memory-consumption-execution-plan.md end to end: the only decision values it names are captured, no-reusable-lesson, and defer-with-reason (matching FINISH_DECISION_VALUES in packages/main/src/core/playbook-runtime-memory.ts exactly), and no invented values such as skip, override, or ack appear anywhere in the annotation or the surrounding M8 section as decision values. A naive grep for the substring 'skip' is not reliable here since 'intentionally skipped' appears elsewhere in the doc's unrelated M8 deliverables prose (not as a decision value), so this was verified by reading the annotation's actual decision-value mentions rather than a blind absence-grep.",
-          "mechanical": false,
-          "nonMechanicalReason": "Verified by manual reading of the M8 annotation that only captured/no-reusable-lesson/defer-with-reason are named as decision values, matching the code's FINISH_DECISION_VALUES exactly; a mechanical grep for invented-value words like skip is unreliable since that word legitimately appears elsewhere in unrelated M8 prose, so a false-negative-prone keyword search was not used as the evidence basis.",
-          "headHash": "986f53245bd8e5d2bfadc9ae9e9439c45ebf45e9",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const docS=fs.readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const codeS=fs.readFileSync(\\\"packages/main/dist/core/playbook-runtime-memory.js\\\",\\\"utf8\\\"); const codeMatch=codeS.match(/FINISH_DECISION_VALUES = \\[([^\\]]*)\\]/); const realValues=codeMatch[1].match(/\\x27[a-z-]+\\x27/g).map(x=>x.slice(1,-1)); const start=docS.indexOf(\\\"the DONE-gate consumer of\\\"); const end=docS.indexOf(\\\"### M9.\\\", start); const block=docS.slice(start,end); const tokens=[...new Set((block.match(/`[^`]+`/g)||[]).map(t=>t.slice(1,-1)))]; const candidateValues=tokens.filter(t=>/^[a-z][a-z-]*$/.test(t)); const invented=candidateValues.filter(v=>!realValues.includes(v)); const allRealPresent=realValues.every(v=>candidateValues.includes(v)); console.log((invented.length===0 && allRealPresent) ? \\\"ALL_DECISION_VALUE_TOKENS_MATCH_SHIPPED_CODE_NO_INVENTED_VALUES\\\" : \\\"CHECK_FAILED:\\\"+JSON.stringify(invented))\"",
+          "result": "pass",
+          "note": "Extracts the real FINISH_DECISION_VALUES array from the compiled code, then extracts every backtick-quoted lowercase-hyphenated token from the M8 Delivered-differently annotation block (bounded to that paragraph, excluding unrelated M8 prose like 'no-op decision is accepted with reason'), and mechanically confirms the two sets are identical: no invented value (e.g. skip, override) appears, and all three real values are present.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "36abc5b9b7c4f0200ce06aa65d6abce23c2671e23b7e33b60e6ae4d8c85d6df3",
+            "outputTail": "ALL_DECISION_VALUE_TOKENS_MATCH_SHIPPED_CODE_NO_INVENTED_VALUES\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:38:00.486Z"
+          },
+          "headHash": "9d5ec4e9b2e6bbd8ccf2e702cecf2dbc670295d3",
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
-          "timestamp": "2026-08-14T13:34:09.074Z"
+          "timestamp": "2026-08-14T13:38:00.736Z"
         }
       ]
     },
