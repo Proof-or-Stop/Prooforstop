@@ -352,8 +352,13 @@ assert.match(criticTerminalStatus, /"findingDispositions":\[/, 'critic Next must
 assert.equal((criticTerminalStatus.match(/^Next:/gm) ?? []).length, 1);
 const criticCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery, criticComplete: true });
 assert.match(criticCompleteStatus, /Completeness critic: complete/);
-assert.match(criticCompleteStatus, /Next: lattice review_inventory_finalize/);
+assert.match(criticCompleteStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
+assert.match(criticCompleteStatus, /Next: lattice review_inventory_wave_advance/);
 assert.equal((criticCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
+const saturationReadyStatus = renderReviewInventoryStatus(secondEpoch, { evaluation: saturated, criticComplete: true });
+assert.match(saturationReadyStatus, /Blockers: none/);
+assert.match(saturationReadyStatus, /Next: lattice review_inventory_finalize/);
+assert.equal((saturationReadyStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.equal(validateReviewInventoryCriticReceipt({
   receipt: { ...firstCritic.receipt, aggregateFindingSetDigest: '0'.repeat(64) },
   epoch: initial,

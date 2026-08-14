@@ -286,7 +286,8 @@ evidence changes before review can pass:
 ```bash
 lattice review_inventory_begin --storyId=B-xxxx
 # follow review_inventory_status through required lanes, topology critic with
-# findingDispositions, and review_inventory_finalize; only then story_advance DEV
+# findingDispositions, wave_advance for every nonzero-new wave, and finalize
+# only after a zero-new wave; only then story_advance DEV
 ```
 
 From TEST to DEV, use the same command when validation, bug, evidence,
@@ -516,7 +517,8 @@ Minimum smoke matrix:
 | Scenario | Expected result |
 |---|---|
 | clean REVIEW target | report passes from existing proof and prints REVIEW next command only |
-| open verified finding | blocked row plus REVIEW/TEST to DEV rollback command |
+| open verified finding while phase is REVIEW | blocked row plus `review_inventory_begin`/`review_inventory_status` until a finalized receipt authorizes DEV |
+| open verified finding while phase is TEST | blocked row plus direct TEST-to-DEV rollback command |
 | stale validation | blocked row with `lattice validate --story=B-xxxx` next command |
 | missing delivery check | `missing_delivery_check` row, no delivery signature written |
 | stale pre-merge `done_prepare` | blocked DONE row with `done_prepare` rerun command |

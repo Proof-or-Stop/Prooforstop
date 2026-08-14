@@ -101,6 +101,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   review_inventory_begin: 'gate-evidence',
   review_inventory_status: 'gate-evidence',
   review_inventory_critic_set: 'gate-evidence',
+  review_inventory_wave_advance: 'gate-evidence',
   review_inventory_finalize: 'gate-evidence',
   review_inventory_cancel: 'gate-evidence',
   review_pass_set: 'review-pass',
@@ -134,6 +135,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
   review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
@@ -235,7 +237,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'review-inventory-epochs.json',
     signed: true,
     signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch and signReviewInventoryReceipt/verifyReviewInventoryReceipt',
-    producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_finalize/review_inventory_cancel',
+    producerCommand: 'review_inventory_begin/review_inventory_status/review_inventory_wave_advance/review_inventory_finalize/review_inventory_cancel',
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
   },
   review_inventory_status: {
@@ -247,6 +249,12 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
     signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with fresh topology-critic ReviewRun, terminal read evidence, and complete per-finding dispositions', producerCommand: 'review_inventory_critic_set',
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
+    reviewerLane: 'lattice-review-topology-critic',
+  },
+  review_inventory_wave_advance: {
+    name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
+    signature: 'signReviewInventoryEpoch/verifyReviewInventoryEpoch after validated current-wave critic receipt and nonzero new families', producerCommand: 'review_inventory_wave_advance',
+    consumerGate: 'review_inventory_finalize zero-new saturation gate',
     reviewerLane: 'lattice-review-topology-critic',
   },
   review_inventory_finalize: {

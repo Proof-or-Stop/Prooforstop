@@ -98,6 +98,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
   if (epoch.state === 'OPEN' && live?.invalidDispositionIds.length) blockers.push('REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID');
   if (epoch.state === 'OPEN' && live && live.missingLanes.length === 0
     && live.duplicateIdentities.length === 0 && !projection.criticComplete) blockers.push('REVIEW_INVENTORY_CRITIC_INCOMPLETE');
+  if (epoch.state === 'OPEN' && projection.criticComplete && live?.newFamilies.length) {
+    blockers.push('REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE');
+  }
   let next: string;
   if (epoch.state === 'OPEN') {
     if (blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')) {
@@ -116,6 +119,8 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
       next = projection.criticReviewRunId
         ? `lattice review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'lattice-review-topology-critic', findingDispositions: conservativeDispositions })}'`
         : `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"lattice-review-topology-critic"}'`;
+    } else if (live?.newFamilies.length) {
+      next = `lattice review_inventory_wave_advance --storyId=${epoch.storyId}`;
     } else {
       next = `lattice review_inventory_finalize --storyId=${epoch.storyId}`;
     }
@@ -410,10 +415,10 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const wave = buildWave(epoch, evaluation, now);
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         if (!wave.saturated) {
-          const next = signEpoch({ ...epoch, updatedAt: now, waves: [...epoch.waves, wave] });
-          data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? next : row);
-          ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-          return `${renderProjectedStatus(ctx, next)}\nSaturation: new verified finding families require another full unchanged-material wave.`;
+          throw new Error(
+            `REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE: ${evaluation.newFamilies.join(', ')}; ` +
+            `Next: lattice review_inventory_wave_advance --storyId=${args.storyId}`,
+          );
         }
         const aggregateFamilies = wave.verifiedFindingFamilies;
         const receiptId = `${epoch.epochId}:RCP-001`;
@@ -446,6 +451,44 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
         return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false`;
+      });
+    },
+
+    review_inventory_wave_advance(args: { storyId: string }): string {
+      return inventoryLock(ctx, args.storyId, () => {
+        let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
+        if (!epoch) throw new Error(`review_inventory_wave_advance: no OPEN epoch for ${args.storyId}`);
+        epoch = persistInvalidationIfDrifted(ctx, epoch);
+        if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
+        if (epoch.waves.length >= epoch.maxWaves) {
+          throw new Error(`REVIEW_INVENTORY_BUDGET_EXHAUSTED: ${epoch.epochId}; cancel and replan/decompose/escalate`);
+        }
+        const evaluation = evaluateCurrentWave(ctx, epoch);
+        if (evaluation.missingLanes.length > 0) {
+          throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}`);
+        }
+        if (evaluation.duplicateIdentities.length > 0) {
+          throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}`);
+        }
+        const critic = validateReviewInventoryCriticReceipt({
+          receipt: criticReceiptForCurrentWave(ctx, epoch),
+          epoch,
+          evaluation,
+          runs: ctx.store.readReviewRuns(args.storyId).runs,
+          passes: ctx.store.readReviewPasses(args.storyId).passes,
+          findings: ctx.store.readFindings(args.storyId).findings,
+        });
+        if (!critic.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}`);
+        if (evaluation.newFamilies.length === 0) {
+          throw new Error(`REVIEW_INVENTORY_ZERO_NEW_READY_TO_FINALIZE: Next: lattice review_inventory_finalize --storyId=${args.storyId}`);
+        }
+        const now = new Date().toISOString();
+        const wave = buildWave(epoch, evaluation, now);
+        const next = signEpoch({ ...epoch, updatedAt: now, waves: [...epoch.waves, wave] });
+        const data = ctx.store.readReviewInventoryEpochs(args.storyId);
+        data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? next : row);
+        ctx.store.writeReviewInventoryEpochs(args.storyId, data);
+        return renderProjectedStatus(ctx, next);
       });
     },
 

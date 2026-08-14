@@ -159,7 +159,17 @@ const critic = cli(first.root, 'review_inventory_critic_set', {
   }],
 }, { LATTICE_AGENT: 'lattice-review-topology-critic' });
 assert.match(critic, /Completeness critic: complete/);
-const discoveryWave = cli(first.root, 'review_inventory_finalize', { storyId });
+const discoveryStatus = cli(first.root, 'review_inventory_status', { storyId });
+assert.match(discoveryStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
+assert.match(discoveryStatus, /Next: lattice review_inventory_wave_advance/);
+assert.equal((discoveryStatus.match(/^Next:/gm) ?? []).length, 1);
+assert.throws(
+  () => cli(first.root, 'review_inventory_finalize', { storyId }),
+  /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/,
+  'finalize cannot persist a non-saturated wave as an implicit checkpoint',
+);
+assert.equal(reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves.length, 0, 'rejected finalize is side-effect free');
+const discoveryWave = cli(first.root, 'review_inventory_wave_advance', { storyId });
 assert.match(discoveryWave, /State: OPEN/);
 assert.match(discoveryWave, /Current wave: 2\/2/);
 const firstWaveCompletedAt = reloaded.readReviewInventoryEpochs(storyId).epochs[0].waves[0].completedAt;
@@ -340,6 +350,7 @@ const decisionText = readFileSync(join(repositoryRoot, 'docs/requirements/decisi
 for (const [, identifier] of provenance) assert.ok(decisionText.includes(identifier), `decision provenance must cite ${identifier}`);
 assert.ok(decisionText.includes('155e787d0c92612f16e9c2dd011531b0caa18ee6'), 'decision provenance must cite the exact material-fix commit');
 assert.ok(!decisionText.includes('claude-session-b-cdf6-review-convergence-analysis-and-optimization.md'), 'decision provenance cannot depend on the excluded analysis document');
+console.log('B3F3D-006-H3 docs/provenance: PASS');
 
 const symlinkCase = setup();
 symlinkSync('subject.ts', join(symlinkCase.root, 'packages/main/src/subject-alias.ts'));

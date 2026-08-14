@@ -679,7 +679,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
 
 **签名算法**: `SHA256(storyId + JSON(docsPromises) + JSON(realMachineTests) + JSON(closingSelfCheck) + reviewRound + salt)`，salt = `lattice-delivery-check-integrity-v1`。
 
-**回炉流程**: TEST/DONE gate fail 可按 gate guidance 回 DEV；若仍在 REVIEW，先 `review_inventory_begin`，完成同一 cutoff 的 required lanes，运行 topology critic 并提交完整 `findingDispositions`，`review_inventory_finalize` 取得签名单次 receipt 后才可 `story_advance DEV`。然后补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
+**回炉流程**: TEST/DONE gate fail 可按 gate guidance 回 DEV；若仍在 REVIEW，先 `review_inventory_begin`，完成同一 cutoff 的 required lanes，运行 topology critic 并提交完整 `findingDispositions`；若 status 报告新增 finding family，先 `review_inventory_wave_advance` 开启下一波，直到零新增 wave 才 `review_inventory_finalize` 取得签名单次 receipt，随后才可 `story_advance DEV`。然后补齐承诺/测试 → REVIEW → TEST → 重 spawn delivery reviewer → 重签名 → DONE。
 
 **Waiver**: `lattice delivery_waiver_add '{"storyId":"B-xxx","promiseId":"...","waiverReason":"≥30字符理由"}'`。waiverReason 入 `_hash` 重签名。
 
@@ -773,7 +773,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 lattice-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `lattice dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Lattice cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
-- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。发现 finding 后不能直接回 DEV：先冻结 inventory，完成 required lanes 和 topology critic 的逐 finding dispositions，finalize 出单次 receipt，再聚合回 DEV 修复；不允许跳过 medium finding 留给下一个 story
+- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。发现 finding 后不能直接回 DEV：先冻结 inventory，完成 required lanes 和 topology critic 的逐 finding dispositions；非零新增 wave 必须显式 `review_inventory_wave_advance`，只有后续零新增 wave 才能 finalize 出单次 receipt，再聚合回 DEV 修复；不允许跳过 medium finding 留给下一个 story
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
 - **跨 story 全局意识**：修一个 feature 可能发现基础设施的 bug，一起修
 

@@ -743,7 +743,14 @@ try {
     const value = structuredClone(artifact); mutate(value); store.writePreReviewCheck(storyId, value);
     const tampered = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     assert.ok(tampered.codes.includes('PR_ARTIFACT_TAMPERED'), `${label}: ${JSON.stringify(tampered.codes)}`);
-    if (label === 'signature') recordExecutedCase(['A-MUT-3', 'mutation', 'artifact:signature', 'field-tamper', 'tamper signed pre-review artifact field', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    if (label === 'signature') {
+      const observeDiagnostic = runPreReviewCheckGate(ctx, storyId);
+      assert.match(observeDiagnostic, /mode=observe; status=fail; blocking=false/,
+        'observe mode preserves a tampered failure as diagnostic-only without relabeling it PASS or authority');
+      assert.match(observeDiagnostic, /codes=PR_ARTIFACT_TAMPERED/,
+        'observe mode keeps the exact tamper diagnostic visible');
+      recordExecutedCase(['A-MUT-3', 'mutation', 'artifact:signature', 'field-tamper', 'tamper signed pre-review artifact field', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    }
     if (label === 'adapter record') recordExecutedCase(['A-MUT-8', 'mutation', 'basis:adapter-record', 'adapter-tamper', 'remove signed adapter result', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   }
   store.writePreReviewCheck(storyId, parsed.artifact);

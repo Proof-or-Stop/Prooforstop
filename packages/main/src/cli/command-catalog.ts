@@ -652,7 +652,10 @@ Behavior:
       reason: z.string().min(10),
     }).strict()).describe('Independent signed disposition for every raw finding in this wave; unresolved findings block finalization.'),
   }},
-  { name: 'review_inventory_finalize', description: 'Evaluate one unchanged-material wave and mint a receipt only at zero-new verified finding saturation', schema: {
+  { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
+    storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
+  }},
+  { name: 'review_inventory_finalize', description: 'Mint a receipt only when the current complete unchanged-material wave adds zero verified finding families', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
   }},
   { name: 'review_inventory_cancel', description: 'Cancel an OPEN inventory epoch without granting transition authority', schema: {

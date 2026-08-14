@@ -131,6 +131,7 @@ const requiredProcessFactSemantics = {
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
   review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
@@ -4239,6 +4240,14 @@ function assertReviewInventoryRemediationContract() {
   assert(
     /review_inventory_critic_set[\s\S]*findingDispositions:\s*conservativeDispositions/.test(inventoryHandlerText),
     `${inventoryHandlerPath}: the unique critic Next command must include executable findingDispositions`,
+  );
+  assert(
+    /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: a complete nonzero-new wave must expose the explicit wave-advance blocker and command`,
+  );
+  assert(
+    /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize must fail closed on new finding families instead of checkpointing implicitly`,
   );
 }
 

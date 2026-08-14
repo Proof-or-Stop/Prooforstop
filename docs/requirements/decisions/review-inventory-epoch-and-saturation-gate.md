@@ -43,7 +43,9 @@ lattice review_inventory_begin --storyId=B-xxxx
 lattice review_inventory_status --storyId=B-xxxx
 lattice review_run_start --storyId=B-xxxx --agent=lattice-review-topology-critic
 # submit the critic's terminal finding_add or review_pass_set with read evidence
-lattice review_inventory_critic_set --storyId=B-xxxx --epochId=<epoch> --reviewRunId=<critic-run>
+lattice review_inventory_critic_set '{"storyId":"B-xxxx","epochId":"<epoch>","reviewRunId":"<critic-run>","agent":"lattice-review-topology-critic","findingDispositions":[{"findingId":"B-xxxx:F-001","disposition":"verified_family","familyKey":"finding:B-xxxx:F-001","reason":"independent critic retained this verified family"}]}'
+# use findingDispositions:[] only when the aggregate verified finding set is empty
+lattice review_inventory_wave_advance --storyId=B-xxxx # only when status reports new families
 lattice review_inventory_finalize --storyId=B-xxxx
 ```
 
@@ -53,7 +55,9 @@ and newly verified finding counts, blocker codes and exactly one `Next:`
 command. For an OPEN epoch these are live projections from current signed
 ReviewRun/pass/finding evidence; they do not wait for `finalize` to append a
 wave. The unique next action progresses from the first missing lane, to the
-independent critic dispatch/receipt, to finalize. Duplicate identity or budget
+independent critic dispatch/receipt, then to `review_inventory_wave_advance`
+when the wave added families, and only to finalize when the current wave added
+zero. Duplicate identity or budget
 exhaustion directs cancellation/replanning; invalidated, cancelled, or a
 consumed-without-phase-write epoch directs a fresh begin. `cancel` is the
 explicit recovery path:
@@ -126,6 +130,9 @@ old-wave dispositions fail closed. Only signature-valid findings whose
 `verified_family` contribute a family; a signed duplicate reuses the canonical
 family and `not_verified` contributes none. New verified families append to the
 immutable aggregate and require another full unchanged-material wave.
+`review_inventory_wave_advance` is the sole checkpoint for a complete
+nonzero-new wave. `review_inventory_finalize` rejects that state without
+persisting the wave; it is exclusively the zero-new receipt writer.
 Exhausting the bounded wave budget yields
 `REVIEW_INVENTORY_BUDGET_EXHAUSTED` and requires replan/decompose/escalation; it
 never yields PASS.
@@ -189,8 +196,20 @@ ambiguous, the comparison is inconclusive rather than PASS.
 ## Process-fact contract
 
 `review-inventory-epochs.json` is an L4 signed artifact registered in
-`process-fact-registry.ts`. The five epoch commands (including the independent
+`process-fact-registry.ts`. The six epoch commands (including the independent
 critic command), artifact signatures, freshness
 semantics and REVIEW-to-DEV consumer are checked by
 `scripts/verify-process-fact-contract.mjs`. Prompt wording can guide the host,
 but only these CLI/handler/gate facts grant authority.
+
+## Wave 4 authority boundary for this Story
+
+This repository configures executable pre-review in `observe` mode. Its signed
+artifact remains diagnostic; an inconclusive result must never be described as
+PASS or used as lifecycle authority. The mandatory Wave 4 acceptance authority
+for B-3f3d is the current signed `acceptance-rollout-report.json`: the registered
+producer executes the frozen matched cohort, and the read/check consumers
+verify current HEAD/material/story-files bindings plus genuine full-3x2 quorum.
+Enforce-mode projects may additionally require a passing pre-review artifact;
+that separate configuration does not let this observe-mode Story claim
+pre-review authority.

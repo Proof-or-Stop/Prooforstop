@@ -489,7 +489,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   REVIEW: [
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
     'review_run_start',
-    'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_finalize', 'review_inventory_cancel',
+    'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_wave_advance', 'review_inventory_finalize', 'review_inventory_cancel',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',
