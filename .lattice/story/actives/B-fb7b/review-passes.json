@@ -308,6 +308,33 @@
         "scanEscalationReason": null
       },
       "_hash": "afe5419abd3fd686246f7e257ef655ac0cbec1fc2de0210e4eae091368732ced"
+    },
+    {
+      "id": "B-fb7b:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 re-pass: since round 3 only 6bc5d2e (packages/main/tests/red/red-b49d4-harness-registration.mjs, +10 lines, 2 REGISTRATION_EXCLUSIONS map entries for red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs) changed. Step1 symbol extraction over git diff main...HEAD yielded only local test-file consts (no exported API); ran full Step2 grep sweep, all hits were unrelated generic-word matches, none referencing the new exclusion entries or the changed file. CHANGELOG.md B-fb7b entry and package.json pretest script are byte-unchanged since round 3 (last touched by ae4a130f6a, predating this story) and remain accurate: pretest builds main then utils, structural guard test-suite-utils-autobuild-smoke stays in validate.commands, red-fb7b-pretest-builds-utils.mjs is named as the behavioral RED - all still true. No doc references red-fb7b-guard-bite.mjs, REGISTRATION_EXCLUSIONS, or the b49d4 exclusion registry, so the round-4 change (test-harness bookkeeping only) had no doc surface to drift. No blocker.",
+      "createdAt": "2026-08-14T05:27:08.318Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-018",
+      "envelopeId": "7f726cce666f296fbb26074dbab297e3839fdc7dce6a752b8046ae355285124b",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74324c066edb3b994bc73df6b763bc2808015a87d9e12665e9c013bdcdec1fee"
     }
   ]
 }
