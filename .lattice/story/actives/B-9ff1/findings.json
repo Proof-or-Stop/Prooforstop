@@ -713,7 +713,7 @@
       "desc": "[codex host-B D5] Verified by main agent. One blanket hook claim survived the previous sweep, in the red-w2d-command-readonly registration assertion message.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:03:10.544Z",
@@ -721,7 +721,11 @@
       "reviewRunId": "B-9ff1:RR-025",
       "_hash": "a8d55fd3cbb12afb3303360df730812330c06dd9990c91ab3c2acadb18e7da5d",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The registration assertion message now distinguishes preCommand and postCommand suppression from onError, which is not suppressed. Fixed in commit 8c1ec91805f36d7ea5024f9c00f983b8d96c88f1 (text only, five files). Acceptance was mechanical, not asserted: a checker runs all 108 pinned verification selectors against real command output and reports 106 checked, 2 permanently waived, zero mismatches. That checker was written in response to this round and is the instrument that both proved the regression and bounded it to a single selector.",
+      "resolvedAt": "2026-08-14T10:03:46.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-035",
