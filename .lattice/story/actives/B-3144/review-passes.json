@@ -566,6 +566,43 @@
         "scanEscalationReason": null
       },
       "_hash": "624b7be4ddaa62831b91ec28767910cad718867829c4ba979033ae3a76d4436a"
+    },
+    {
+      "id": "B-3144:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept-lane recheck at head f038ecb (post-F-035). This round went stale mid-review once already: lattice-review-quality filed HIGH finding F-035 (EMPTY_STORY_FILES_HASH exclusion missing from the guard mirror) while I was mid-check under RR-043, DEV fixed it live (commit cfdf3df2a2), and the story re-entered REVIEW; I re-ran review_run_start fresh (RR-052) against the settled head rather than force a pass over the moving target. Full git diff main...HEAD --stat + content reviewed for concept deletion/replacement across the whole story diff: none found -- purely additive (new quorum_prune command, widened quorum_submit drift-accept guard predicate incl. the new F-035 EMPTY_STORY_FILES_HASH mirror, smoke expansion to 71 checks, honest doc reconciliation in evidence-integrity-program-spec.md/evidence-write-guard-spec.md). Verified F-035 itself: EMPTY_STORY_FILES_HASH is a real, already-exported sha256(empty-string) constant (core/evidence-freshness.ts:19), consumed correctly by the new guard branch and by the floor helper it mirrors; not a promised-but-undelivered stub. Rebuilt (npm run build, tsc clean) and reran both affected smokes fresh against this head: retired-authority-vocabulary-guard-smoke PASS, and the full quorum-submit-smoke suite PASS (71 checks, exit 0), confirming the fix and its new test are real and green. Independently re-verified the two pre-existing deltas noted at dispatch, both still hold at this head: (1) CHK-001:adversarial:1 waiver-to-real-evidence swap -- the RED check is genuinely wrapped in withFreshFixture (mkdtempSync isolated tmpdir + git init per call, unconditional rmSync in finally), reproduced the cited isolated grep command matching the receipt; deferred_gate_evidence remains a live concept used by many other stories (repo-wide grep), so this is not a concept deletion. (2) cli-engine.ts fingerprint repin in retired-authority-vocabulary-guard-smoke.ts -- independently recomputed canonicalAstFingerprint(cli-engine.ts) via ts.createPrinter+sha256 and got the exact pinned value ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f; the dynamic-import call site (line 809) is untouched by the diff. No concept residue found anywhere in the diff; no promised-but-undelivered doc/schema/env claims found.",
+      "createdAt": "2026-08-14T06:12:56.566Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-052",
+      "envelopeId": "e500992045e6a19084037b0cb280c02e6d7ad36eadf8b738911898441b553278",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json (diff for f08c8c0d0a evidence swap)",
+          ".lattice/story/actives/B-3144/findings.json (F-035 finding text)",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md (diff main...HEAD)",
+          "docs/evidence-write-guard-spec.md (diff main...HEAD)",
+          "packages/main/src/cli-engine.ts (diff main...HEAD)",
+          "packages/main/src/cli/command-catalog.ts (diff main...HEAD)",
+          "packages/main/src/core/command-policy.ts (diff main...HEAD)",
+          "packages/main/src/core/config.ts (diff main...HEAD)",
+          "packages/main/src/core/evidence-freshness.ts (EMPTY_STORY_FILES_HASH definition)",
+          "packages/main/src/core/process-fact-levels.ts (diff main...HEAD)",
+          "packages/main/src/handlers/lattice-cli.ts (diff main...HEAD)",
+          "packages/main/src/handlers/quorum-submit.ts (diff main...HEAD, incl. F-035 fix)",
+          "packages/main/src/tasks/quorum-submit-smoke.ts (withFreshFixture, makeFixture, targeted RED check, new F-035 check)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (diff main...HEAD + fingerprint function)"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/quorum-prune.ts (schema-field wiring grep + header comment; new file, previously reviewed in RP-013, unchanged this round)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b87b4f03b73398789c9237f692409c7d221fdb3022f7d5166580f0e8fae4919"
     }
   ]
 }
