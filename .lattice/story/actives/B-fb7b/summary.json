@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fb7b",
+  "changes": "Root package.json: added \"pretest\" = 'npm --prefix packages/main run build && npm --prefix packages/utils run build', so the npm lifecycle builds BOTH packages before the full suite (previously validate.commands built only packages/main). lattice.config.json: registered node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js in validate.commands as the permanent fast guard. New: packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts (structural guard), packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (repro-first behavioral RED), packages/main/tests/red/red-fb7b-guard-bite.mjs (isolated-fixture guard-family verifier). red-b49d4-harness-registration.mjs: added both new red files to REGISTRATION_EXCLUSIONS with reasons. CHANGELOG.md entry.",
+  "usage": "Run 'npm test' (or done_required validation) in a worktree where packages/utils/dist is absent: the pretest fires via the npm lifecycle and builds packages/main then packages/utils, so the full suite (and its bin/lattice.js sub-tests) bootstrap without 'Missing build artifacts: packages/utils/dist/index.js'.",
+  "expectedOutcome": "Operator runs 'npm test' with packages/utils/dist absent -> pretest auto-builds main then utils -> full suite runs green without the bootstrap-runner missing-utils failure.",
+  "actualTranscript": "npm test -> pretest: builds packages/main (code 0) then packages/utils (code 0) -> full-suite-runner: 47/47 passed in ~249s, retries=0. No 'Missing build artifacts' error. The structural smoke passes in validate.commands; the guard-bite proves the smoke bites on every broken pretest variant (echo-ok, main-only, build:lab, --prefix build:fast, missing).",
+  "outcomeDiff": "No difference — delivered exactly as intended; npm test self-bootstraps packages/utils via the pretest and the full suite is green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The behavioral RED and guard-bite are intentionally EXCLUDED from validate.commands (the RED rebuilds the shared dist trees, unsafe as a concurrent validate command); they are on-demand verification-evidence tests. The permanent everyday-validate guard is the fast pure-read structural smoke. none — otherwise fully covered.",
+  "pitfalls": "Long: 4 DEV/REVIEW rounds. Adversarial reviewers found real defects the first cut missed — the build-detection regex was under-anchored on ALL THREE branches (fallback npm run build, and both --prefix forms) so build:lab/build:fast/build-x false-passed; the RED's existsSync was trivially true until a mtime-freshness check was added; the npm-lifecycle firing and from-absent build were unproven until a GB-LIFECYCLE-FIRES fixture and the freshness check were added; the two new tests/red files were unregistered orphans until added to red-b49d4 REGISTRATION_EXCLUSIONS. NEXT PERSON: (1) run the FULL 'lattice validate' in DEV before REVIEW — the harness-registration guard only fires there and caught the unregistered red files late; (2) the shared worktree suffers the 3a09431 concurrency race — parallel reviewers/builds rebuilding dist cause spurious MODULE_NOT_FOUND / npm test exitCode=1; ISOLATE the worktree (no concurrent build/test) when running the full suite or done_required_validate, and re-run sequentially to confirm; (3) implementer provenance (topology-critic receipt) requires a lattice-implementer-authored business commit + a session-bound lattice-implementer dispatch — route DEV commits through the implementer, do not self-code as main agent.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 244278
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 55280
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1585579
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 3254894
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 4941895
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 13461844
+    }
+  },
+  "totalDurationMs": 23545296,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-14T09:27:47.736Z",
+  "updatedAt": "2026-08-14T09:27:47.736Z"
+}
