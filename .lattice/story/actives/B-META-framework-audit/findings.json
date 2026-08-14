@@ -492,6 +492,45 @@
         "packages/main/src/core/managed-assets.ts"
       ],
       "_hash": "af6280d1f5132345683ca5cb82533bec85fdd7541a792ecd45de5c21b2342962"
+    },
+    {
+      "id": "B-META-framework-audit:F-027",
+      "desc": "scripts/verify-entrypoints.mjs is LOAD-SENSITIVE and returns non-deterministic verdicts on identical committed code, which makes it unusable as a pinned verification receipt even when the code under test is correct. MEASURED on one unchanged commit (8c0a0f248e), four consecutive executions: exit 0 with 'ok 28/28'; exit 1 at 11/28; exit 0 with 28/28; and exit 1 when executed by verification_evidence_add's own receipt executor. The failing runs stopped at DIFFERENT checks - one at the `serve` launcher assertion expecting the '\\u1F428 proof-or-stop serve' banner (scripts/verify-entrypoints.mjs:681), which fails because the spawned server produced no output in time, not because the banner is wrong (verified present at packages/main/src/verifier/serve.ts:826).\n\nWHY THIS IS A GATE-INTEGRITY PROBLEM, not just a slow test: the receipt executor runs the pinned command itself and derives result from the real exit code - correctly refusing a caller-claimed result:pass with [receipt_exit_nonzero]. That is the right behaviour. But when the pinned command is itself flaky, the ONLY way a host can obtain the receipt is to re-run until a green roll happens, which converts a mechanical receipt into a lottery ticket. A host under delivery pressure is thereby incentivised to retry rather than to fix, and nothing in the recorded evidence would distinguish 'passed because correct' from 'passed on the third attempt'.\n\nSAME CLASS AS the milestone-status mkfifo defect already observed this session: tests/milestone-status.test.mjs:3158 asserts NOT ETIMEDOUT against a 2000ms ceiling and flipped under load average 35.9, then passed three times quiet including on pristine main. Both are wall-clock assertions competing with unrelated machine load. This script is worse because it spawns full `init --profile=all --asset-mode=full` runs plus live servers across 28 checks, so its exposure to timing is far larger and a single flaky check fails the whole run.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T08:31:59.437Z",
+      "reviewRound": "",
+      "gapFingerprint": "5849c029c82c80d1c6d0de38a0c7a4c180172324a32d2257163b854df295ce30",
+      "files": [
+        "scripts/verify-entrypoints.mjs:681",
+        "packages/main/src/verifier/serve.ts:826",
+        "packages/main/tests/milestone-status.test.mjs:3158",
+        "scripts/verify-entrypoints.mjs"
+      ],
+      "_hash": "e164a88a2a893a79b909ba36e49bbcedffba2974043bff829d5350887b302b1f"
+    },
+    {
+      "id": "B-META-framework-audit:F-028",
+      "desc": "RETRACTION of B-META-framework-audit:F-026's stated mechanism and conclusion, filed by its own author after the quality lane disproved it (B-cdf6:F-035). F-026 claimed verify-entrypoints.mjs:551 failed because init does not write .claude/agents/* under B-097f, producing MISSING:17, and concluded the defect was 'owned by the agent-prompt consolidation plan, not fixable here'. BOTH the mechanism and the conclusion were WRONG.\n\nWHAT IS ACTUALLY TRUE: the script calls seedClaudeAgentMirror(tempDir) at :519, which populates all 17 files into .claude/agents; the check runs at :550-551; cleanup only runs at :620. So the mirror IS present when the assertion executes. Reproduced with the mirror seeded exactly as the script does it: MISSING:0, and the real failure was STALE_SAFE:5 on precisely the 5 MODULAR_COMPLEX_ROLE_IDS - a live third copy of the F-005 branch in managed-assets.ts:902-916 (filed as B-cdf6:F-034). My MISSING:17 measurement came from running check WITHOUT the seed, i.e. I reproduced a scenario the script never executes, then attributed the script's failure to it.\n\nCONSEQUENCE OF THE ERROR: the wrong mechanism produced a wrong ownership verdict, and that verdict would have pushed a fixable defect out of scope. It was in fact fixed here in minutes once correctly identified, and fixing it plus the bin-alias projectRoot defect took verify-entrypoints.mjs from red-since-before-this-story to exit 0 / 28/28.\n\nERROR CLASS: this is the plausible-substitute-for-observed-mechanism pattern that B-META F-012/F-013/F-018/F-020 already document - and notably I filed several of those myself, then committed the same error in F-026. Worth recording because it shows the pattern is not confined to product guards: an AUDIT RECORD can misreport its own mechanism just as a guard can, and a wrong audit record is more durable because nothing re-executes it. The specific trigger was reproducing a simplified scenario (bare init + check) instead of the actual execution path (init + seed + check), then treating the simplified result as evidence about the real one.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T08:32:25.739Z",
+      "reviewRound": "",
+      "gapFingerprint": "93a7a6d4613b103ffa323889bece36df1a1335cfbc72976db1db953a8bdde59e",
+      "files": [
+        "scripts/verify-entrypoints.mjs:519",
+        "scripts/verify-entrypoints.mjs:551",
+        "packages/main/src/core/managed-assets.ts:902",
+        "scripts/verify-entrypoints.mjs",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "6310e6e9772a2901202b4b123f6efea9c9cae38abcf2c54b163a7a637931ff69"
     }
   ]
 }
