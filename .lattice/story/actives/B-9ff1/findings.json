@@ -580,7 +580,7 @@
       "desc": "[codex host-B C4] Verified by main agent. The read-only harnesses claim the .lattice snapshot is compared 'before and after every invocation'. In fact both tests/red/red-w2d-command-readonly.mjs and tasks/red-evidence-envelope-smoke.ts take ONE before-snapshot, make several intervening calls, then compare ONCE. That proves net byte equality across the batch only; it cannot show that no single invocation created, modified and then restored a file. The wording is stronger than the mechanism.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T04:13:57.966Z",
@@ -588,7 +588,11 @@
       "reviewRunId": "B-9ff1:RR-020",
       "_hash": "a2386a2b8edf12a4c8dfb9bf35bbb18160209d00cc94a05eca44e631e6b3eba2",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Both harnesses take ONE before snapshot, make several calls, then compare ONCE. 'before and after every invocation' overstated the mechanism, which establishes NET byte equality across the batch and cannot show that no single invocation created, modified and then restored a file. The header, section 6a, the assertion message and the console summary in both files now say aggregate and state what it cannot prove. Fixed in commit 0954bda0c8ec19977016d273adb9360435799bb8 (text only: comments, docstrings, assertion messages, thrown-error strings, catalog/config/registry descriptions and console output across ten files; no logic, matcher rule, tag routing, digest, registration-set membership or config value changed). Found by the cross-vendor codex host-B reviewer and independently verified against source by the main agent before any action was taken. The corrected picture now stated consistently: UNCONDITIONALLY the command writes no RED-evidence record, no chain record and no story or evidence artifact, emits no process event, changes no gate verdict, and runs no preCommand or postCommand hook; NOT GUARANTEED are the onError hook (its call site has no isReadOnlyCommand predicate and the inadmissible path throws by design, so it is the primary failure route) and a row in .lattice/activity.jsonl, which core/runtime-artifact-registry.ts registers as the runtime-activity-log artifact, appended either under LATTICE_ACTIVITY_RECORD_READONLY=1 or an uncooled stale warning, and carrying the thrown rejection report in its error field. Two further occurrences live in frozen story artifacts that cannot be edited at this phase (scope-contract.json justification prose and checklist.json CHK-012:edge:0 WHY clause) and are disclosed as superseded in the TEST summary instead of being silently left to read as current.",
+      "resolvedAt": "2026-08-14T09:38:52.707Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-028",
