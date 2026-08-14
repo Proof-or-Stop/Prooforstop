@@ -147,6 +147,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0c8a3fc2662982250eeb9daae334d029a6013986a119ac045a503b447c25a842"
+    },
+    {
+      "id": "B-16df:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-diff pass vs main (round 5, prior RP-003 invalidated by post-round hash drift from finding_resolve + waiver-note commits). Full diff is two source files: packages/main/src/handlers/checklist.ts (adds resolvePinnedCommandTimeoutMs helper + threads timeoutMs into 4 existing runSingleAllowlistedCommand call sites) and packages/main/src/tasks/validate-command-timeout-smoke.ts (adds regression coverage, sections 6-16). No concept was deleted or replaced: the change is purely additive (new exported helper + new imports of already-existing configuredValidationCommands/parseAllowlistedCommand), no renamed/removed identifiers, no deleted types or enum values. grep scan for concept residue not applicable (nothing deleted). All 9 prior findings (F-001..F-009) verified resolved. Template Wave 4 concept-boundary line (acceptance_topology_check chain) is out of scope for this diff: git diff --stat confirms no source file in that chain is touched by this change.",
+      "createdAt": "2026-08-14T13:41:23.066Z",
+      "reviewRound": "2026-08-14T13:26:11.912Z",
+      "reviewRunId": "B-16df:RR-012",
+      "envelopeId": "7dc72cc0844bdfa05413d1ee779ad698130938ac61f013a4b9bd601022050a1c",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9d0cf19b0f05ae08fb61c028e20e4c1f007a753708b3fa5284ceb134ceacc47"
     }
   ]
 }
