@@ -1,0 +1,53 @@
+{
+  "storyId": "B-a7c5",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "docs/requirements/decisions/dev-memory.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+    "packages/main/src/**/*.test.ts",
+    "packages/main/src/**/*.spec.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Populated from understanding.json's 10 touchpoints (checklist items are in legacy no-files mode, so scope_contract_init_from_plan produced an empty contract) plus the two decisions/ docs CHK-005/006/007 commit to editing.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-14T11:04:45.930Z",
+  "updatedAt": "2026-08-14T11:05:10.781Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts": "packages/main/src/core/playbook-runtime-memory.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts": "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json": "lattice.config.json",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "docs/requirements/decisions/dev-memory.md": "docs/requirements/decisions/dev-memory.md",
+    "packages/main/src/handlers/dev-memory.ts": "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+    "packages/main/src/**/*.test.ts": "packages/main/src/**/*.test.ts",
+    "packages/main/src/**/*.spec.ts": "packages/main/src/**/*.spec.ts"
+  }
+}

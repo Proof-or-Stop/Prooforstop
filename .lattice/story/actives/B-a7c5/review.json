@@ -307,6 +307,125 @@
         }
       ],
       "_hash": "a4d9b55889977ffcb83c75b2a3ee722d615f412cb0f76a94e76600f7b1b5139b"
+    },
+    {
+      "timestamp": "2026-08-14T11:02:51.026Z",
+      "issueCount": 20,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Add a new smoke test covering all three dev-memory lifecycle gates, registered in validate.commands\") was added in PLAN phase: story_review flagged this as a scope gap: plan.md's Testing Strategy section names a concrete new file deliverable with no corresponding checklist item."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Update the pre-existing playbook-runtime-memory-consumption-execution-plan.md spec doc to describe the delivered/escalated CHK-003 behavior\") was added in PLAN phase: story_review flagged two scope gaps: plan.md's Reconciliation section states both the M8-advisory-to-blocking escalation and the section-4.3-bypass-path precedent as commitments with no corresponding checklist coverage."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Update dev-memory.md's own Non-Goal wording to clarify the entries-vs-records distinction for the new gate-checked artifacts\") was added in PLAN phase: PLAN scope reviewer round 3 raised OQ-3: dev-memory.md has its own separate Non-Goal (distinct from playbook-runtime-memory-consumption-execution-plan.md's M8/4.3, already covered by CHK-005) that textually conflicts with CHK-001/CHK-003 and needs its own reconciliation + doc update."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 (\"Update the RuntimeConsumer type union documented in playbook-runtime-memory-consumption-execution-plan.md section 4.3 to include finding_resolve, and audit that doc for any other stale references to the shipped shape\") was added in PLAN phase: PLAN scope reviewer round 4 found a new gap: the spec doc's documented RuntimeConsumer union is stale relative to CHK-002's code change, and CHK-005/CHK-006 are each scoped to a different specific edit in this or a sibling doc."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "7 checklist items; please check for missing combined scenarios (e.g., what happens when Require a recorded dev-memory preflight acknowledgement before a story may enter DEV + Append a non-blocking dev-memory capture reminder to finding_resolve output are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): State Machine/Gate. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-a7c5\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact RuntimeConsumer wiring details for finding_resolve's advisory (core/playbook-runtime-memory.ts:44-52 union, and whether it needs registration in any other lookup table) -- to be confirmed during implementation by reading the full file; Whether any existing test fixture already builds a full story lifecycle from INIT through DONE that the new smoke test can reuse/adapt, versus needing a from-scratch fixture"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-a7c5 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "167d05bb86a3c069d34b051406ab58310df2b1b7ee404ecec2762d5e7ab26445"
     }
   ]
 }

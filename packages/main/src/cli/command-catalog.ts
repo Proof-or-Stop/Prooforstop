@@ -3168,6 +3168,14 @@ Behavior:
     maxLines: z.number().optional().describe('Line budget (default: 60).'),
     json: z.boolean().optional().describe('JSON output format.'),
   }},
+  { name: 'dev_memory_preflight_ack', description: 'Build the dev-memory preflight pack and write a per-story acknowledgement required by the DEV-entry gate (or, if the build fails, record a reasoned downgrade with --reason)', schema: {
+    storyId: z.string().describe('Story id whose DEV-entry gate this acknowledgement satisfies.'),
+    query: z.string().optional().describe('Preflight relevance query.'),
+    maxEntries: z.number().optional().describe('Maximum number of entries to include (default: 5).'),
+    maxLines: z.number().optional().describe('Line budget (default: 60).'),
+    reason: z.string().optional().describe('Reasoned-downgrade explanation (>=5 chars), required only when the preflight pack build itself throws.'),
+    actor: z.string().optional().describe('Acknowledging actor (default: LATTICE_AGENT/USER env or "main-agent").'),
+  }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proofbound sessions.'),
     storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),

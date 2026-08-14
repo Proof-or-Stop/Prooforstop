@@ -20,8 +20,30 @@ import { getProcessFactRegistryEntry, hasProcessFactSemantic } from '../core/pro
 import { StoryStore } from '../core/store.js';
 import type { ClosingSelfCheck, DeliveryCheckData, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { z } from 'zod';
+
+// B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+// record. Every fixture in this file exercises delivery-check-SPECIFIC DONE-gate
+// behavior, so each base fixture writes a satisfying record up front — otherwise
+// every `getGuardFailureReason(..., 'DONE', ...)` assertion below would observe
+// [missing_dev_memory_finish_decision] instead of the delivery-check-specific
+// code/message this file exists to test.
+function satisfyDevMemoryFinishDecision(root: string, store: StoryStore): void {
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'delivery-check-freshness-smoke fixture; no lesson to capture' });
+  // `.lattice/dev-memory/` is git-tracked in real Proofbound repos (un-ignored in
+  // .gitignore), unlike `.lattice/story/`, which is materialHash-EXCLUDED — so
+  // this write DOES count toward materialHash. Commit it immediately, before any
+  // delivery_check_set call in this file signs a materialHash, so every scenario
+  // below observes one stable HEAD instead of the delivery-check being signed
+  // pre-commit and then retroactively invalidated by a later `.lattice` commit.
+  if (git(root, ['status', '--porcelain', '--', '.lattice/dev-memory'])) {
+    git(root, ['add', '.lattice/dev-memory']);
+    git(root, ['commit', '-m', 'dev-memory finish decision']);
+  }
+}
 
 const STORY_ID = 'B-delivery-fresh';
 const NOW = '2026-06-23T12:00:00.000Z';
@@ -139,6 +161,7 @@ function createFixture(): { root: string; store: StoryStore } {
       entries: [],
     },
   });
+  satisfyDevMemoryFinishDecision(root, store);
   return { root, store };
 }
 
@@ -215,6 +238,7 @@ function createMainFixture(): { root: string; store: StoryStore } {
       entries: [],
     },
   });
+  satisfyDevMemoryFinishDecision(root, store);
   return { root, store };
 }
 

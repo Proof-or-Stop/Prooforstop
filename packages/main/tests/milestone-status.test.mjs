@@ -36,6 +36,24 @@ const {
   createMilestoneStatusHandlers,
 } = await import(join(distRoot, 'handlers/milestone-status.js'));
 const { createStoryAdvanceHandlers } = await import(join(distRoot, 'handlers/story-advance.js'));
+const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'handlers/playbook-runtime-memory.js'));
+
+/**
+ * B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+ * record. `.lattice/dev-memory/` is git-tracked (unlike `.lattice/story/`, which
+ * is materialHash-EXCLUDED), so this write must be committed BEFORE a fixture
+ * computes/signs its `preEvidenceMaterialHash` — never after — so it cannot
+ * retroactively invalidate a delivery-check/test-evidence materialHash binding
+ * already signed against an earlier HEAD.
+ */
+function satisfyDevMemoryFinishDecisionAndCommit(root, store, storyId, git) {
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: root })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'milestone-status.test.mjs fixture; no lesson to capture' });
+  if (git(['status', '--porcelain', '--', '.lattice/dev-memory'])) {
+    git(['add', '.lattice/dev-memory']);
+    git(['commit', '-m', 'dev-memory finish decision']);
+  }
+}
 
 function story(storyId = 'B-7ba7') {
   return {
@@ -1960,6 +1978,7 @@ function assertEvidenceRefShape(evidenceRef) {
     git(['commit', '-m', 'init']);
 
     const store = new StoryStore(root);
+    satisfyDevMemoryFinishDecisionAndCommit(root, store, storyId, git);
     const preEvidenceHead = git(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(root, 'HEAD', root);
     assert.ok(preEvidenceMaterialHash, 'fixture must be able to compute a material hash');
@@ -2127,6 +2146,7 @@ function assertEvidenceRefShape(evidenceRef) {
 
     process.chdir(worktreeRoot);
     const store = new StoryStore(worktreeRoot);
+    satisfyDevMemoryFinishDecisionAndCommit(worktreeRoot, store, storyId, gitWorktree);
     const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
     assert.ok(preEvidenceMaterialHash, 'worktree fixture must be able to compute a material hash');
@@ -2854,6 +2874,7 @@ function assertEvidenceRefShape(evidenceRef) {
     gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
 
     const store = new StoryStore(worktreeRoot);
+    satisfyDevMemoryFinishDecisionAndCommit(worktreeRoot, store, storyId, gitWorktree);
     const preEvidenceHead = gitWorktree(['rev-parse', 'HEAD']);
     const preEvidenceMaterialHash = currentMaterialHash(worktreeRoot, 'HEAD', worktreeRoot);
     assert.ok(preEvidenceMaterialHash, 'CLI worktree fixture must be able to compute a material hash');

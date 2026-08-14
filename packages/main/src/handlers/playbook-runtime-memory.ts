@@ -10,6 +10,7 @@ import {
 import {
   buildMemoryFreshnessPack,
   evaluateRuntimeMemoryConsumerPolicy,
+  finishDecisionPath,
   renderMemoryFreshnessPackSummary,
 } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
@@ -174,10 +175,6 @@ function finishDecisionStoryId(storyId?: string): { recordStoryId?: string; path
     );
   }
   return { recordStoryId: trimmed, pathSegment: trimmed };
-}
-
-function finishDecisionPath(root: string, pathSegment: string): string {
-  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
 }
 
 function normalizeDecision(value: unknown): FinishDecision {
