@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## Proofbound 0.3.254 - 2026-08-14
 
 **Fixed**
 
