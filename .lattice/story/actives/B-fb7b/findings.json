@@ -44,6 +44,21 @@
       "_hash": "2e4ff5acd3ab0cb26f3b2b3b7c1daa48b8cb602eb21ea195181162a85f381870",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-004",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:45-46 (identically duplicated at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:40-41): the buildsMain/buildsUtils fallback regex /\\bnpm\\s+run\\s+build\\b/ is unanchored at the script-name boundary and matches any npm script name that merely STARTS with build followed by a non-word char (e.g. npm run build:lab, npm run build-x), not only the literal build script. Concretely reproduced: a fixture with pretest=\"npm run build:lab\" (an existing root script that builds only the unrelated packages/lab, never main or utils) makes the compiled structural smoke print PASS and exit 0 -- i.e. the permanent validate.commands regression guard reports success for a pretest that builds neither packages/main nor packages/utils. The main-before-utils ordering assertion is also silently skipped for any such string because it only fires when literal packages/main and packages/utils substrings are both present (mainIdx>=0 && utilsIdx>=0), which is false for build:lab-style forms. This is a false negative in the guard whose entire purpose is to keep this exact regression (utils never built) from recurring undetected; none of the guard-bite adversarial fixtures (GB-ADV0..4) exercise this bare/mis-anchored npm run build* form, so the gap is untested. Fix: require the fallback match to target the literal build script only (e.g. /\\bnpm\\s+run\\s+build(?:\\s|$)/ with no trailing word/`:`/`-` char after build, or drop the bare-match OR-branch entirely and require explicit --prefix packages/main|packages/utils run build tokens), and add a guard-bite adversarial case for a build:lab-style pretest.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-14T03:52:38.821Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-005",
+      "_hash": "a5b2de4c67cd77ceaebee7e6b4932c689fc50e665af71eed09baf9241c3714eb",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
