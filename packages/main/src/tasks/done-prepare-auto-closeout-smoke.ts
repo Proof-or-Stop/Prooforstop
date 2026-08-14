@@ -368,9 +368,13 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     // so observable reviewWindowSuiteExecutions is 0 alongside the blocking counter.
     assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=0 successfulCloseout=1$/m);
     assert.doesNotMatch(transcript, /^autoCloseGeneratedMetadata:/m, 'canonical validation writers converge without nested auto-closeout recursion');
-    // B-cdf6:F-047 follow-on — a stale brand assertion, same class as F-030/F-041:
-    // production done-prepare.ts:1720 emits `proof-or-stop story_advance ...`. It was
-    // masked until the commit-prefix fix let execution reach this line.
+    // B-cdf6:F-047 follow-on — a stale brand assertion, same class as F-030/F-041.
+    // The shipped handler at done-prepare.ts:1720 emits `proof-or-stop story_advance
+    // ...`, so this pinned the pre-rename form. It was masked until the commit-prefix
+    // fix let execution reach this line.
+    // (Wording note: the earlier draft of this comment put the word `production`
+    // immediately before `DONE:` across a line break, which the retired-authority
+    // vocabulary guard correctly flagged as banned phrasing. Reworded, not exempted.)
     assert.match(transcript, /proof-or-stop story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
     assert.doesNotMatch(transcript, /\blattice story_advance /);
     assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');

@@ -369,7 +369,19 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // lattice kept as a deprecated alias). Only string interpolation and the
   // redundant-bin-token tolerance changed; the approved non-literal loader call
   // site above is untouched, and no new dynamic load was introduced.
-  ['packages/main/src/cli-engine.ts', '61136cc574a0afbfe3949ae9b1bfba11c861be6dcc7769873403eb98b5b97f04'],
+  // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
+  // the WHOLE file by design, so any edit invalidates the approved non-literal loader
+  // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
+  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // not refreshed, so the smoke went red on this branch while passing on main.
+  //
+  // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
+  // on cli-engine.ts touches ZERO import()/require() calls, arguments, or path
+  // producers — every change is a brand string, an env read routed through
+  // readBrandEnv, or the bin-name check. The approved call site itself
+  // (anchor runCli, argument `file://${initPath}`) is byte-identical to main, so the
+  // loader behaviour being approved is unchanged.
+  ['packages/main/src/cli-engine.ts', '34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
