@@ -891,7 +891,7 @@
       "desc": "process-integrity: the tree moved materially during this review (HEAD 80fb4d92d0 my binding -> 7f25b68e -> 36501da2, at least 2 concurrent finding_add auto-commits from other lanes landed mid-review, mirroring the F-040 pattern with RR-044/RR-051). This time it MECHANICALLY INVALIDATED my first review run: my initial review_run_start (B-cdf6:RR-054, bound to 80fb4d92d0) disappeared from review-runs.json entirely after the concurrent writes (finding_add against it failed with unknown reviewRunId), forcing a restart as RR-053. Reported per the standing instruction that any HEAD move during this review is a defect on your side to state plainly, not paper over. Separately: review-runs.json / findings.json appear to be read-modify-written non-atomically across concurrent lane processes (one diff showed a 20020-line bulk insert into review-runs.json, and my RR-054 record was lost outright rather than merged) - that data-loss-under-concurrency is itself worth a framework-level look, distinct from the review-round freeze discipline already under discussion.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T09:20:50.840Z",
@@ -899,7 +899,11 @@
       "reviewRunId": "B-cdf6:RR-053",
       "_hash": "d948e0722bdfa31292d5ece6007b0525401fa65bcf9ddcca351e5db242d67d96",
       "signatureTag": "missing|unknown|process-integrity-tree",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED as a correct process finding about MY conduct; recording as accepted_risk rather than fixed because the harm to your bindings already happened.\n\nYou reported HEAD moving twice during your review and your first run RR-054 disappearing from review-runs.json, forcing a restart. Both are real. The HEAD moves were metadata-only (.lattice/ bookkeeping from concurrent lanes' finding_add auto-commits) and I verified material drift stayed at ZERO across the whole four-lane window - the freeze itself held this round, for the first time in four attempts. But your run VANISHING is a separate and worse problem than churn.\n\nI investigated it and it is a genuine framework defect, now logged as B-META-framework-audit:F-029 at CRITICAL. Concurrent finding_add calls do a non-atomic read-modify-write on findings.json and derive the next id from array length, so a losing writer's record is destroyed AND its id is reassigned. Proven from git: the array went 42 -> 41 -> 42 -> 43 across successive auto-commits, and the concept lane's F-041 plus the test-coverage lane's F-042 were both overwritten by later writes. I recovered their content from git history - that is the only reason those two findings were acted on at all. review-runs.json has the same window, which is exactly what ate RR-054.\n\nSo your instinct to report it rather than silently restart was correct and load-bearing: without it I would have treated the vanished run as a transient glitch instead of finding the data-loss bug underneath.",
+      "resolvedAt": "2026-08-14T11:49:08.900Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-043",
