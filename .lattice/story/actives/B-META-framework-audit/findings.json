@@ -531,6 +531,24 @@
         "packages/main/src/core/managed-assets.ts"
       ],
       "_hash": "6310e6e9772a2901202b4b123f6efea9c9cae38abcf2c54b163a7a637931ff69"
+    },
+    {
+      "id": "B-META-framework-audit:F-029",
+      "desc": "CONCURRENT finding_add CALLS SILENTLY DESTROY REVIEWER FINDINGS. findings.json is written with a non-atomic read-modify-write and the next id is derived from the in-memory array length, so two lanes writing near-simultaneously lose one record AND then REUSE its id for a different finding. Two distinct reviewers' verified findings were irrecoverably overwritten in this story's ledger; I recovered their content only from git history.\n\nPROVEN FROM GIT, not inferred. Successive auto-commits of .lattice/story/actives/B-cdf6/findings.json show the array LOSING an element and then reusing the freed id:\n  36501da2de -> 42 findings, tail F-040,F-041,F-042\n  b8d0d0170e -> 41 findings, tail F-039,F-040,F-041   <-- count DROPPED, F-042 destroyed\n  35c0773ad4 -> 42 findings, tail F-040,F-041,F-042   <-- F-042 id REUSED by a different lane\n  4201ce6681 -> 43 findings, tail F-041,F-042,F-043   <-- F-041 id also now reused\n\nWHAT WAS LOST. At 36501da2de, F-041 was lattice-review-concept/high (bin-rename residue in live paths: global-agents-unit-smoke.ts:159, handlers/lattice-cli.ts configRepairCommandFor, handlers/verifier.ts + handlers/story-review.ts verification_intent_repair hints, core/autopilot-executor.ts displayCommand) and F-042 was lattice-review-test-coverage/high (core/acceptance-topology.ts isLatticeWrapper recognizes only lattice / bin/lattice.js and never learned proof-or-stop, so the CANONICAL command's producer provenance is unrecognized while the DEPRECATED one is). At HEAD both ids belong to lattice-review-quality instead. Neither original survives in findings.json.\n\nWHY THIS IS CRITICAL RATHER THAN MERELY UNTIDY. (1) It destroys AUDIT EVIDENCE - the artifact the REVIEW->TEST gate consumes - so a story can advance while a verified high-severity finding has been erased. (2) It is SILENT: no error, no warning, both finding_add calls report success. (3) It CORRUPTS BY ALIASING rather than merely dropping: an id that one reviewer's resolution text references now points at an unrelated finding from another lane, so cross-references in resolutions and commit messages become wrong. (4) The framework already has a main-write-lock for other paths (core/main-write-lock.ts) and per-story owner leases, but reviewer finding writes are exempt from the lease by design (ownershipClass reviewerWrite, so independent reviewers can submit) - and nothing serializes them against each other. The same window applies to review-runs.json: the quality lane reported its review run RR-054 vanished entirely and had to restart as RR-053.\n\nPARALLEL REVIEW IS A DOCUMENTED, RECOMMENDED WORKFLOW (CLAUDE.md tells the host to run the opt-in reviewer set in parallel), so this is not an exotic race - it is the normal path.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T09:23:17.308Z",
+      "reviewRound": "",
+      "gapFingerprint": "2a134681b8edb293fb6578810dee79f0c508528229a7f0f8ccee9cebbae2f08a",
+      "files": [
+        ".lattice/story/actives/B-cdf6/findings.json",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/main-write-lock.ts"
+      ],
+      "_hash": "fd81350b185de82f10992cb305567d5e90b8a7f29f33b59b33aab8871eef139e"
     }
   ]
 }
