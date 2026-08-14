@@ -641,6 +641,40 @@
         "scanEscalationReason": null
       },
       "_hash": "2302c090c5f8ef65057a6d6fdd59b77abb6d73baa0ad6399d8e586ccffaac929"
+    },
+    {
+      "id": "B-fb7b:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 re-pass after DONE-prep main-sync (merge ded81bbb, materialHash 249c271f0040f61c45f45f2785441e3b7d045af98ad768ff10cf78b3b32c41ac). Independently sha256-verified (not taken on trust) that all of B-fb7bs own story files are byte-identical to round-4 (my prior PASS at RR-016): packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs, packages/main/tests/red/red-fb7b-guard-bite.mjs, lattice.config.json all match round-4 hashes exactly. git diff c266c29696(round-4 head)..HEAD excluding .lattice/ touches only unrelated main-sync files (quorum-prune.ts, quorum-submit.ts, quorum-submit-smoke.ts, cli-engine.ts, command-catalog.ts, etc. -- other-story material, e.g. B-3144) plus a version-only bump 0.3.253->0.3.254 in package.json/package-lock.json/packages/main/package.json/package-lock.json (single version-line diff each, no script/dependency changes; root package.json scripts.pretest string unchanged and confirmed present). git diff main...HEAD (the actual story-scoped three-dot diff) is unchanged in shape from prior rounds: 7 non-.lattice files, 358 insertions, 0 deletions (CHANGELOG.md, lattice.config.json, package.json, test-suite-utils-autobuild-smoke.ts, red-b49d4-harness-registration.mjs +10 lines, red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs) -- already fully quality-reviewed across my rounds 2/3/4 passes (RR-009/RR-011/RR-016): no dead code, no as-any, no swallowed catches, no I/O-shell-isolation issue, no proof/receipt/job/run metadata touched. Doc-promise-undelivered self-check on the new CHANGELOG.md entry: every claim verified against code -- test-suite-utils-autobuild-smoke registered in lattice.config.json validate.commands (grep confirmed line 68), red-fb7b-pretest-builds-utils.mjs exists and PASSes live, packages/utils/dist and packages/main/dist confirmed gitignored via git check-ignore. Live-reran on current material (did not run full lattice validate, per task scope -- targeted CHK-001 commands only): node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 11 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0. git status --porcelain clean outside .lattice bookkeeping after all runs. No new findings since round 3 (F-001..F-010 all previously verified-then-disproven/fixed, confirmed by re-reading findings.json). Verdict: no quality regression, round-5 PASS.",
+      "createdAt": "2026-08-14T09:44:35.439Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-028",
+      "envelopeId": "404561448a164b2ca34f6c994232aa93c7f4941e8954bcb6c5f987f28bb4d238",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dae19ca0ab23ab8c09f1570f64f6ea3d9824cc921a7fc2229e062ef4c577818e"
     }
   ]
 }
