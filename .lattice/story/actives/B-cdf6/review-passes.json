@@ -577,6 +577,40 @@
         "scanEscalationReason": null
       },
       "_hash": "dd26ada703afec52fe818b6dd70fc8e3ed23fcfde66e09f005dd962733bfb60b"
+    },
+    {
+      "id": "B-cdf6:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Scope: incremental review bound to changedFiles=[cli-init.ts, managed-assets.ts, scripts/verify-entrypoints.mjs] since prior pass RP-016. Independently reproduced every claim rather than trusting resolution text: (1) F-033 byte/UTF-16 fix at cli-init.ts:976 verified by measuring Buffer.byteLength vs .length on the live registry render: raw=3945B/3939 units, expected=9008B/8998 units, matching exactly; confirmed managed-assets.ts has no such comment. (2) F-034 THIRD-copy claim verified against git history: 8f18a193a1 fixed cli-init.ts + managed-assets.ts .lattice-codex block; fbb517121c fixed the separate sibling .claude/agents block; swept all isModularReviewerRoleId/isModularComplexRoleId call sites and confirmed no fourth copy exists. (3) bin-alias fix verified against listManagedAssetDefinitions signature: root=packageRoot() is a distinct earlier positional param from projectRoot=process.cwd(); pre-fix code passed root where projectRoot was needed; caller at :1261 confirms packageRoot() is passed as root. (4) De-dup refactor byte-identical claim verified by rebuilding the pre-refactor commit in a scratch worktree and diffing renderPromptEntryForHost output against the reconstructed old per-site logic for all 17 roles on both hosts: 0 mismatches after correcting my own first (flawed) repro attempt. (5) Reproduced verify-entrypoints.mjs to a completed 28/28 exit-0 run, and separately observed multiple runs taking well over 100s without finishing, corroborating the load-sensitivity claim in real time. verify-lattice-residue.mjs 3/3 PASS; tsc -p packages/main clean; CHANGELOG.md diff empty (FROZEN held). (6) Gap-log line references verified exactly: seed at :519, check at :550-551, cleanup at :620 (F-028 retraction accurate); banner assertion at :681 and serve.ts:826 both use the exact string, confirming F-027's timing-not-defect characterization. (7) Honesty boundary confirmed live: CHK-002:adversarial:1 evidence is still kind=waiver/deferred_gate_evidence, not fabricated as pass; no doc claims the receipt was earned or the script is reliably green. CLAUDE.md already states the corrected 17-total/13-lattice-prefixed count. No new doc-code drift found. F-034/F-035 remain open, correctly outside this lane, not a blocker. Additionally, filed B-cdf6:F-037 (low) for a genuinely pre-existing, non-blocking defect found while sweeping this scope: global-agents-init-smoke.ts:85 hardcodes a stale literal 16 one line below the correct dynamic 17-role check at :84, live-reproduced as currently red both on this branch and on pristine main HEAD 3a5036095c, outside the DONE-blocking npm test chain. Low severity, not a blocker for this pass.",
+      "createdAt": "2026-08-14T08:57:24.782Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-049",
+      "envelopeId": "8c0f11c083f7a241e343bc79431cc28ee6c839caed2951550dcbb449b998f215",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "CLAUDE.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/verifier/serve.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ffbf439d9c4fae3c555b16aba0f5dc37d270ef72578002072e37ee466d92dcd"
     }
   ]
 }
