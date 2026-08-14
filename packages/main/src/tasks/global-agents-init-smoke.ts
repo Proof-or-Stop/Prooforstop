@@ -9,14 +9,15 @@
  *
  * Covers:
  *   (a) fresh claude-marker project: project has 0 `.claude/agents/*.md`;
- *       global `$HOME/.claude/agents` has 16 regular files. Five migrated
+ *       global `$HOME/.claude/agents` has one regular file per managed role
+ *       (currently 17; the smoke derives the count, never hardcodes it). Five migrated
  *       reviewers contain only the canonical review_run_start bootstrap; the
  *       other roles retain the agent_prompt thin shim. No shim contains a
  *       migrated reviewer role body.
  *   (b) `proof-or-stop agent_prompt --role=<name>` returns the same actual Claude
  *       registry render: bootstrap for the five migrated reviewers, package
  *       body for ordinary roles.
- *   (c) `--upgrade` migration: 16 managed removed, user file kept, normal init
+ *   (c) `--upgrade` migration: all managed removed, user file kept, normal init
  *       only warns (no delete).
  *   (d) idempotency: re-running init reports synced=0 (all shims already ok).
  *
@@ -67,7 +68,7 @@ function listProjectAgentMd(root: string): string[] {
   return readdirSync(dir).filter(f => f.endsWith('.md'));
 }
 
-// ─── Test (a): fresh claude init → 0 project agent files, 16 global thin-shims ──
+// ─── Test (a): fresh claude init → 0 project agent files, N global thin-shims ──
 {
   const home = makeDir('ga-home-fresh');
   const proj = makeDir('ga-proj-fresh');
@@ -96,11 +97,21 @@ function listProjectAgentMd(root: string): string[] {
       // tools sandbox preserved
       assert.match(content, /^tools:/m, `${basename} shim must keep tools: frontmatter`);
       const role = basename.replace(/\.md$/, '');
+      // B-cdf6: these pinned the PRE-rename bin name, so they failed BECAUSE the
+      // rename succeeded. Note line 2 of the old `else` branch already SAID
+      // "must reference proof-or-stop agent_prompt" while its regex checked
+      // `lattice` — the message and the assertion disagreed, which is why the
+      // mismatch survived earlier passes. Measured shim contents: 12x
+      // `proof-or-stop agent_prompt --role=`, 5x `proof-or-stop review_run_start`,
+      // zero `lattice`. Each canonical check is paired with a doesNotMatch on the
+      // deprecated form so the generated shims cannot regress to the old bin name.
       if (isModularReviewerRoleId(role)) {
-        assert.match(content, /lattice review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
+        assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
+        assert.doesNotMatch(content, /lattice review_run_start/, `${basename} must not teach the deprecated bin`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
       } else {
-        assert.match(content, /lattice agent_prompt --role=/, `${basename} shim body must reference proof-or-stop agent_prompt`);
+        assert.match(content, /proof-or-stop agent_prompt --role=/, `${basename} shim body must reference proof-or-stop agent_prompt`);
+        assert.doesNotMatch(content, /lattice agent_prompt --role=/, `${basename} shim body must not teach the deprecated bin`);
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
@@ -132,12 +143,12 @@ function listProjectAgentMd(root: string): string[] {
   }
 }
 
-// ─── Test (c): --upgrade migration (16 managed removed, user file kept, normal warns) ──
+// ─── Test (c): --upgrade migration (managed removed, user file kept, normal warns) ──
 {
   const home = makeDir('ga-home-upgrade');
   const proj = makeDir('ga-proj-upgrade');
   try {
-    // Pre-seed project-local .claude/agents with the 16 managed copies + 1 user file.
+    // Pre-seed project-local .claude/agents with the managed copies + 1 user file.
     const agentsDir = join(proj, '.claude', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     for (const basename of managedBasenames) {
@@ -146,13 +157,24 @@ function listProjectAgentMd(root: string): string[] {
     const userFile = join(agentsDir, 'my-custom.md');
     const userContent = '# user authored agent\nkeep me\n';
     writeFileSync(userFile, userContent);
-    assert.equal(listProjectAgentMd(proj).length, 17, 'pre-seed must be 16 managed + 1 user');
+    // B-cdf6:F-037 — derived: this said 17 meaning '16 managed + 1 user', which is
+    // wrong now that the managed set is 17. Bare numeric literals like this escaped
+    // the earlier sweep because they carry no role/agent keyword to grep for.
+    assert.equal(
+      listProjectAgentMd(proj).length,
+      managedBasenames.length + 1,
+      `pre-seed must be ${managedBasenames.length} managed + 1 user`,
+    );
 
     // Normal init: WARN only, delete nothing.
     const warnOut = runInit(home, proj, ['--profile=claude']);
     assert.match(warnOut, /managed agent files found in \.claude\/agents/, 'normal init must warn about managed files');
     assert.match(warnOut, /run proof-or-stop init --upgrade/, 'normal init must point at --upgrade');
-    assert.equal(listProjectAgentMd(proj).length, 17, 'normal init must NOT delete any project file');
+    assert.equal(
+      listProjectAgentMd(proj).length,
+      managedBasenames.length + 1,
+      'normal init must NOT delete any project file',
+    );
 
     // --upgrade: remove exactly the managed set, preserve the user file.
     const upgradeOut = runInit(home, proj, ['--profile=claude', '--upgrade']);
