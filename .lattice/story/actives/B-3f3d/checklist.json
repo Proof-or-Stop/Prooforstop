@@ -5,7 +5,6 @@
       "title": "Represent the frozen review-inventory epoch and its receipt as signed gate-consumed process facts",
       "context": "Create one deep owner for epochId, cutoff hashes, scope digest, required lanes, wave identities, host and prompt identities, terminal states, verified finding-set digest, coverage or read evidence, saturation result, state OPEN FINALIZED INVALIDATED CANCELLED, and bounded-budget adjudication. Expose supported start and status operations. Status must return epochId, frozen cutoff, state, required lanes, current wave, per-lane progress or terminal state, verified/new finding counts, blockers and one exact next command. Do not reuse audit-only signatureTag as gate authority without a new validated canonical duplicate or finding-family disposition contract. The receipt proves inventory saturation on the frozen candidate, not correctness of later remediation.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
         "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
