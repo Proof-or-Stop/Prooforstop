@@ -24,7 +24,7 @@
       "desc": "CHK-001:happy:2, CHK-001:edge:2, CHK-001:adversarial:2 (checklist.json) each assert RED/pre-fix (\"current main\") behavior of validate-command-timeout-smoke.js — exits 1, prints a FAIL line, section 6 fails while sections 1-5 pass. Every one of the 33 bound verificationEvidence entries (all 3 checklist items) carries the IDENTICAL receipt outputDigest 2846ab033bfe46f8813e65938364d2401a95447562c120b1ab694112d88dc37a / outputTail \"validate-command-timeout smoke passed: 27 assertions\\n\" / exitCode 0 — i.e. a GREEN, post-fix run with no FAIL line. A passing-receipt cannot support a failing-state claim: these three intents have zero evidence that the RED state (documented only as a manual stash/rebuild/restore control experiment in plan.md CHK-001 Verify section) was ever captured. Even the checklist items own pinned verification.command/selector for these three intents is the same PASS-selector (\"...passed: 27 assertions\") smoke invocation, so no red-state proof was ever recorded, only re-confirmations of the current green state.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T12:30:22.229Z",
@@ -36,7 +36,11 @@
         "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/packages/main/src/tasks/validate-command-timeout-smoke.ts"
       ],
       "signatureTag": "missing|json|happy-edge-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-001 red-state intents (happy:2, edge:2, adversarial:2) rebound via kind:waiver/deferred_gate_evidence with honest notes explaining the receipt-vs-claim mismatch and pointing to red_evidence.json plus two independent stash-based reproductions (CHK-001-correction implementer and lattice-review-concept reviewer). Independently confirmed by lattice-review-test-coverage in REVIEW round 2 as honestly and accurately characterized, and by round 3s deferred_gate_evidence-still-blocks-DONE confirmation that this is not gate-gaming.",
+      "resolvedAt": "2026-08-14T13:38:26.311Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-003",
