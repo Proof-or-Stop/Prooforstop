@@ -809,6 +809,49 @@
         "scanEscalationReason": null
       },
       "_hash": "8a7bc36c82bca4d3ec168006266cc452c13a38867af6946e49debc98df08c59a"
+    },
+    {
+      "id": "B-9ff1:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 re-audit of commit 3d18a4ca02 (F-042/F-043/F-046, activity-policy.ts + red-evidence.ts, text-only). No blockers.\n\n1) INSTRUMENT re-audit (check-selectors.py at scratchpad/check-selectors.py, outside the repo), THIRD time: ran it for real -> pinned selectors: 108, checked: 106, permanently waived: 2 (CHK-012:edge:1, CHK-013:adversarial:0), 7 distinct commands, max 89.0% of the 12000-char cap (red-w2d-rejection-matrix.mjs), OK. Went further than reading the script: wrote a Node harness that invokes the ACTUAL production runValidationCommand (the same function runSingleAllowlistedCommand/checklist.ts delegates to for every pin) for all 7 distinct pinned commands and diffed its captured output byte-for-byte against the checkers own independently-computed output. 6/7 identical byte-for-byte; the 7th (red-w2d-command-readonly.mjs) differed only in a self-printed elapsed-ms figure (4772ms vs 4560ms, inherent run-to-run timing noise, not part of any pinned selector) -- same exit code, same OK verdict, same selector match everywhere. I hunted specifically for a fourth false-OK class in the same family as the two already-fixed rounds: validation-executor.ts appends to `output` via `d.toString()` per stdout/stderr data event with no StringDecoder, so a multi-byte UTF-8 character split across a kernel pipe-read boundary could corrupt the real capture in a way Pythons decode-the-whole-buffer-once approach never would -- exactly the OK-here/refuses-there shape. Tried to reproduce it against the real pin set: could not. Every pin is well under the ~16-64KB needed to force a read split (max 10680/12000 units) and is written via ordinary line-based console.log (never fragments a character across a write), so this is real in principle but inert today, same posture as the two already-disclosed-and-accepted fidelity gaps in the docstring. Also checked the waiver-skip: the checker keys off waiverType===\"permanent\" while the real write-time exemption (checklist.ts:552-555, `enforceAndStampEvidence`) is keyed on kind===\"waiver\" more broadly; todays only two waivers carry waiverType:\"permanent\" too (confirmed against the live checklist.json), so no live divergence, and if one ever existed it would make the checker MORE strict (spurious FAIL on an already-exempt item), not falsely OK. Verdict: I judge the instrument SOUND for the stories current state -- I could not construct a live counter-example this round. The two new theoretical-but-inert notes above are worth a short docstring addition alongside the two already there; not blocking.\n\n2) DECLINED single-constant recommendation: ACCEPTED. Independently re-derived the 13-site classification: 7 comments (activity-policy.ts, config.ts, process-fact-registry.ts, registry.ts, red-evidence.ts handler docblock, red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs file header) -- matches \"seven of thirteen.\" Of the remaining 6 strings, exactly 3 (command-catalog.ts description, command-policy.ts reason, process-fact-levels.ts rationale) are true per-entry registration-table fields that scripts/verify-process-fact-contract.mjs block-scans via raw-text .includes()/regex for many OTHER entries in those same files (confirmed directly, e.g. catalogText.includes(`name: ${cmd}`), processRegistryText regex) -- a template-interpolated shared constant would put that established, fragile text-scanning approach at real risk. The other 3 strings (red-evidence.ts two report-footer lines, the .mjs assertion message) are not registration-table entries -- the finding log (F-046 resolvedReason) says \"three of the six\" precisely, matching my count, while the in-code comment more loosely says \"the rest are literals in registration tables\" (implying all six); a minor imprecision in the code prose vs. the finding log, not one that changes the conclusion (a constant still helps a minority either way: at most 6/13). The 13th-site argument checks out against F-046 itself: before this commit the ADMISSIBLE footer used its own paraphrase, not the canonical sentence -- exactly the restated-not-copied case a shared constant cannot prevent, since nothing forces a future author to reach for the constant instead of writing fresh prose. Satisfied with the reasoning. Non-blocking nit: tighten the code comment from \"the rest are literals in registration tables\" to \"three of the rest,\" to match the more precise finding-log phrasing.\n\n3) Inertness: full diff of 3d18a4ca02 across both files is exclusively `//`/`/* */` comment lines and string-literal continuation lines (verified line-by-line via diff + regex filter, zero non-comment/non-string lines). `npx tsc --noEmit -p packages/main` exits 0.\n\n4) Durability: wrote a normalizer (strip comment markers/backticks/quote-concat, collapse whitespace) over every file in the repo matching \"story-evidence writers\" (grep -rl across the whole tree, excluding dist/node_modules -- exactly 10 files, no 11th anywhere) and confirmed the canonical sentence is byte-identical, post-normalization, at all 13 declared sites -- matches \"thirteen statements in ten files\" exactly, no missing site, no extra site. No line numbers in the new prose (checked the added diff lines for digit-after-colon / \"line N\" patterns: none). getHealthPath (core/health.ts:52) returns LATTICE_HEALTH_PATH verbatim with no containment check; reportHealthIssue (core/health.ts:64) mkdirs the parent and appends there -- both exactly as F-043s note claims. F-042s print-twice claim independently reconfirmed by direct inspection of cli-engine.ts: `log(...)` at line 1487 precedes `await runHooks(onError, ...)` at line 1523, which precedes `process.stderr.write` at line 1526.\n\n5) Real transcripts, all exit 0: `node scripts/verify-process-fact-contract.mjs` -> \"Process fact contract verified\". `node packages/main/dist/tasks/red-evidence-envelope-smoke.js` -> OK. All five red-w2d-*.mjs (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix, specificity-conjunction) -> PASS/OK. Also re-ran red-w2c-validate-registration.mjs as part of the pin re-verification -> OK.\n\nEight rounds in, this round converges: no findings filed, nothing outstanding (finding_list confirms 0 open). The instrument is sound as of now; the declined-constant reasoning holds up under independent re-derivation.",
+      "createdAt": "2026-08-14T11:17:27.719Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-038",
+      "envelopeId": "fb54d03a2dac3ba63b3ab2381c3ba0c5006039e724e117a4d65a1852e7b924ad",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "packages/main/dist/core/validation-executor.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/health.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "03891b5ce5cf3e8899510ce17cf277bb02b5b41acc7690717e49b317d528e142"
     }
   ]
 }
