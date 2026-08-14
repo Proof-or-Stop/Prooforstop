@@ -154,7 +154,11 @@
         "edge": [
           {
             "desc": "readDevMemoryFinishDecision lives in core/playbook-runtime-memory.ts and is imported by core/machine.ts as a core->core import (not core->handlers); WHY: architectural constraint from plan -- no new core->handlers inversions",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\").includes(\\\"from \\x27./playbook-runtime-memory.js\\x27\\\") ? \\\"CORE_TO_CORE_IMPORT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "CORE_TO_CORE_IMPORT_CONFIRMED"
+            }
           },
           {
             "desc": "handlers/playbook-runtime-memory.ts dev_memory_finish_decision writer imports finishDecisionPath from core module instead of defining it locally; WHY: single source of truth for the path, no duplicate definitions",
@@ -183,7 +187,28 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\").includes(\\\"from \\x27./playbook-runtime-memory.js\\x27\\\") ? \\\"CORE_TO_CORE_IMPORT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "core/machine.ts imports readDevMemoryFinishDecision via a relative ./playbook-runtime-memory.js specifier, which from core/machine.ts resolves to core/playbook-runtime-memory.ts -- a core-to-core import, not core-to-handlers, matching the architectural-constraint claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8a87f016e799bf5aeda25a11d72fc6c3fa5471344aa1a2e1f1d7c222945128ae",
+            "outputTail": "CORE_TO_CORE_IMPORT_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:24:48.668Z"
+          },
+          "headHash": "38a1de98cb57335c325dcc49e6e4b64db87b7c94",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:24:49.078Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
