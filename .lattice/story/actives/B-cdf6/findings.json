@@ -1133,6 +1133,21 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-054",
+      "desc": "packages/main/src/core/review-run.ts:1605 comment still quotes the pre-rename commit-subject prose (lattice: record ... metadata) as illustrative example text, even though the actual writer now emits proof-or-stop: (see auto-commit-metadata.ts COMMIT_SUBJECT_PREFIX). Not a functional bug -- design-rationale comment, not a subject match -- but stale in exactly the class of surface this story exists to fix.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T13:44:43.460Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-072",
+      "_hash": "a2c966d7baf33278a3d4f7922c987d73c5c2901f87e005bd475b7ab63e416fbc",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
