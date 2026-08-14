@@ -56,7 +56,11 @@
           {
             "desc": "After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+              "selector": "PASS test-suite-utils-autobuild-smoke"
+            }
           },
           {
             "desc": "Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually",
@@ -287,6 +291,25 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:40:56.304Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "structural smoke asserts pretest builds BOTH packages (main not regressed)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:40:58.192Z"
+          },
+          "headHash": "28ec0fdd03fdc5396f159d7f2f5b603538f596f1",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:40:58.407Z"
         }
       ]
     }
