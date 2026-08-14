@@ -109,7 +109,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "An attempted material change during OPEN is rejected with the epoch ID, changed subject and recovery command; if drift bypasses an admission boundary, the next authoritative operation visibly invalidates the epoch instead of silently accepting stale reviews.",
+      "userSees": "A blocked change prints \"OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\", \"Epoch: <id>\", \"Changed lineage: <old> -> <new>\" and one \"Recovery:\" command; bypassed drift changes status to the exact state \"INVALIDATED\".",
       "verificationIntent": {
         "happy": [
           {
@@ -170,6 +170,19 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
         ]
       }
     },
