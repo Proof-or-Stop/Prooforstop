@@ -843,6 +843,21 @@
       "_hash": "bed94bdea72a6b48187cec2ad5f2ce88d39edca234345d1854250f967440b553",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-040",
+      "desc": "Process finding, not a code defect: this review was originally dispatched with review_run_start bound to headHash 73f42d07d1 under the explicit instruction that the tree is clean and frozen with no material changes until all four lanes report. That was not honored: during this review window HEAD advanced through at least 73f42d07d1 -> 155e787d0c (fix F-036: fourth hand-rolled copy of the complex-role render rule, found live by the concept lane) -> c4042848df (fix F-037: derived role counts) -> 56da8b5e4b (a further uncommitted-then-committed fix to stale pre-rename bin-name assertions in the same file) -> 12c4349e3a (finding_resolve bookkeeping for F-034..F-038) -> current head, and the working tree was observed dirty with in-flight material_source_changes on packages/main/src/tasks/global-agents-init-smoke.ts on two separate occasions. Two of my review_run_start bindings were mechanically invalidated mid-review: B-cdf6:RR-044 was rejected by finding_add with a Prompt Envelope incremental-eligibility mismatch, and B-cdf6:RR-051 was rejected with a diff_pack_changed scope-binding error, both because the tree kept moving underneath the binding -- exactly the staleness the CLAUDE.md REVIEW round-staleness rule is designed to catch. I ultimately had to restart review_run_start three times (RR-044 -> RR-051 -> RR-052) to reach a binding that survived long enough to record findings. I spot-checked each material delta as it landed (the renderPromptEntryForHost consolidation, the F-036/F-037 fixes, and the newest bin-name assertion fix) and found no correctness defects from the churn itself, but a story cannot be reliably reviewed by four parallel lanes while its own tree is being edited live underneath them: a lane whose reviewRunId predates a later fix is reviewing an artifact that no longer exists. Recommend the coordinating agent confirm all four lanes recorded their verdicts against a truly stable, mutually-consistent headHash before consuming any of them for the REVIEW to TEST gate decision, rather than relying on pass/fail existing at all.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T09:05:41.395Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-052",
+      "_hash": "74a94636dfcb60e0c65eb505879760532f6ca0eaacb502170012fd4d1eb53238",
+      "signatureTag": "missing|unknown|process-finding-code",
+      "signatureTagSource": "auto"
     }
   ]
 }
