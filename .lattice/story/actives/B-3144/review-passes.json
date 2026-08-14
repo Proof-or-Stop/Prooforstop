@@ -638,6 +638,46 @@
         "scanEscalationReason": null
       },
       "_hash": "675f48ed228a8be723100a88e12b8a775224774c48b903c198746496abe232ce"
+    },
+    {
+      "id": "B-3144:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "F-035 fix verified correct/minimal/complete: driftAcceptEvents forced to [] iff storyFilesHash===EMPTY_STORY_FILES_HASH, exact mirror of eventsWithStoryFilesHashDowngrade top-level guard (review-escalation.ts:975). Checked for further floor-vs-guard parity gaps in that predicate: the floor's other top-level guard (!currentStoryFilesHash) is unreachable in the guard's context (storyFilesHash already validated truthy at quorum-submit.ts:451-453); the floor's per-event liveIdentities exclusion (already-superseded-by-native-verdict) is structurally unreachable within driftAcceptEvents because branch (a) sameMaterialRunIds already throws before driftAcceptEvents runs whenever any planned-runId event exists at current material -- the precondition liveIdentities requires. review-assurance-floor.ts imports and reuses the SAME eventsWithStoryFilesHashDowngrade (no divergent copy); decision-doc-quorum.ts is an unrelated mechanism with no storyFilesHash drift-accept logic. No residual parity gap found. Rebuilt dist and ran the compiled quorum-submit smoke directly: 71/71 pass including check 33 (the new F-035 regression, EMPTY_STORY_FILES_HASH resubmit-allowed). Reviewed full story diff (quorum-submit.ts, quorum-prune.ts, 5-point wiring in cli-engine/command-catalog/command-policy/config/process-fact-levels/lattice-cli, and the two program-spec docs) for dead code, type safety, I/O isolation, and doc-promise-undelivered: none found -- the two doc edits honestly disclose the guard is a hand-synced mirror (not a direct eventsWithStoryFilesHashDowngrade call) and that autopilot_review_submit remains an explicitly out-of-scope known gap, matching plan.md's stated exclusion. Working tree clean, all 35 findings resolved.",
+      "createdAt": "2026-08-14T06:16:27.469Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-049",
+      "envelopeId": "e41068c754ef437895d106438fbab660649b23bcaa19acc3d139bc6ff9b26aa0",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-independence.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/decision-doc-quorum.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2499e61779c5cef3c3d7ba5c75869073b485aa99082b2f8dbea3b96c3e2e2cdc"
     }
   ]
 }
