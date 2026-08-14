@@ -1317,19 +1317,31 @@
                 ],
                 "outputFactRef": "process-fact:review-inventory-efficiency-report"
               }
-            ]
+            ],
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-H2",
             "desc": "With remediation introducing no regression, the replay completes in at most one fresh final-review epoch while required lane count, required host count and escalation policy equal the baseline and every historical critical/high defect is still detected.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-H3",
             "desc": "The reproducible report shows before/after discovery/remediation cycles, reviewer executions, mutation-driven redispatches and wall-time projection, and fails unless baseline redispatches are at least five, new redispatches are zero, and all declared quality-invariant counters remain zero.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           }
         ],
         "edge": [
@@ -1337,19 +1349,31 @@
             "id": "B3F3D-005-E1",
             "desc": "Replay variants for timeout, cancelled lane, unsupported host, duplicate identity and forged duplicate disposition remain blocked or explicitly adjudicated and never improve the efficiency result by being counted as successful coverage.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-E2",
             "desc": "Replay variants for scope expansion, related material drift, stale receipt and post-remediation regression require fresh appropriate review, preserve lane/host assurance, and do not count necessary regression work as eliminated mutation-driven redispatch.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-E3",
             "desc": "Repeated runs from the same fixture and configuration produce the same baseline and proposed counters, and any missing baseline event, ambiguous attribution or nonzero quality invariant makes the comparison inconclusive or failed rather than PASS.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           }
         ],
         "adversarial": [
@@ -1357,19 +1381,31 @@
             "id": "B3F3D-005-A1",
             "desc": "Reducing reviewer lanes, host diversity, evidence freshness, completeness-critic coverage or escalation requirements cannot satisfy the efficiency gate even if elapsed time or raw review count improves.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-A2",
             "desc": "Injected historical critical/high mutations, stale old-cutoff pass acceptance, post-cert source commit, escaped critical/high finding and historical mutation survival are each detected; every corresponding accepted or escaped counter must remain exactly zero.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           },
           {
             "id": "B3F3D-005-A3",
             "desc": "Wave-budget exhaustion, metric relabeling, excluding failed reviewers, merging multiple redispatches into one label, or using round reduction as a gate fact cannot manufacture PASS or the required at-least-five-to-zero result.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
           }
         ]
       },
@@ -1391,13 +1427,19 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:53.751Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-H2",
@@ -1405,13 +1447,19 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:54.116Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-H3",
@@ -1419,13 +1467,19 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:54.512Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-E1",
@@ -1433,13 +1487,19 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:54.909Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-E2",
@@ -1447,13 +1507,19 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:55.340Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-E3",
@@ -1461,55 +1527,79 @@
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:55.692Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-A1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:56.062Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-A2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:56.431Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         },
         {
           "intentRef": "B3F3D-005-A3",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
           "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
           "result": "pass",
-          "note": "Behavioral B-cdf6 replay derives baseline redispatches 5 to proposed 0, host count 2 to 2, one remediation transition, one clean final review, and zero quality regressions.",
-          "headHash": "47d7f61d8a6a0818851f2909609879aecc66b9cc",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "07561ea49ecb9af3bcd3909c61ac156781a2714e7c8fede83c66713e1362e3ac",
+            "outputTail": "{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T17:52:56.785Z"
+          },
+          "headHash": "fb14e8ffceb396e18c99e78ff94e9fdee8474b8a",
           "materialHash": "09a923c505f4651c39d0f16f545c5b6cc3036c2885e2542aafb3d768873e0fc0",
           "storyFilesHash": "c442a1d70c367dd082717574ba57e6677ff28e1b41ba16fb6c9783c5ef2c1ad6",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T17:48:15.062Z"
+          "timestamp": "2026-08-14T17:52:56.918Z"
         }
       ],
       "userSeesSnapshot": {
