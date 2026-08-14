@@ -42,19 +42,20 @@ assert.ok(
     'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/lattice.js sub-tests die at bootstrap-runner.',
 );
 
-// 2) The pretest must run the IDEMPOTENT (`--ensure`) build for BOTH packages, main BEFORE utils.
-// `--ensure` is what skips the rebuild on a current dist (the Codex MAJOR-2 fix); a plain
-// always-rebuild form (`--prefix ... run build`, or the scripts without `--ensure`) must NOT satisfy
-// this, so the assertion pins the idempotent invocation of each build script, not merely "a build".
-const buildsMainEnsure = /build-main-with-binding(?:\.mjs)?\s+--ensure(?![\w:-])/.test(pretest);
-const buildsUtilsEnsure = /build-utils-with-lock(?:\.mjs)?\s+--ensure(?![\w:-])/.test(pretest);
-assert.ok(buildsUtilsEnsure, `RED: pretest does not idempotently (--ensure) build packages/utils: ${pretest}`);
-assert.ok(buildsMainEnsure, `RED: pretest does not idempotently (--ensure) build packages/main: ${pretest}`);
-const mainIdx = pretest.indexOf('build-main-with-binding');
-const utilsIdx = pretest.indexOf('build-utils-with-lock');
+// 2) The pretest must run the existence-based bootstrap (scripts/ensure-dist.mjs), which builds
+// packages/main then packages/utils ONLY when their dist is absent. Existence-based (not rm+rebuild)
+// is what keeps a repeated `npm test` from destroying a present dist a concurrent suite is reading.
+assert.ok(/ensure-dist(?:\.mjs)?(?![\w:-])/.test(pretest), `RED: pretest must run the ensure-dist bootstrap: ${pretest}`);
+const ensureSrc = readFileSync(join(repoRoot, 'scripts', 'ensure-dist.mjs'), 'utf8');
+assert.ok(
+  /existsSync/.test(ensureSrc),
+  'RED: ensure-dist must be existence-based (build each dist only when absent — no unconditional rm+rebuild)',
+);
+const mainIdx = ensureSrc.search(/ensure\(\s*['"]main['"]\s*\)/);
+const utilsIdx = ensureSrc.search(/ensure\(\s*['"]utils['"]\s*\)/);
 assert.ok(
   mainIdx >= 0 && utilsIdx >= 0 && mainIdx < utilsIdx,
-  `RED: pretest must build packages/main before packages/utils (utils tsc links against main dist): ${pretest}`,
+  'RED: ensure-dist must bootstrap packages/main before packages/utils (utils tsc links against main dist)',
 );
 
 // 3) Invariant links — establish WHY utils must be built (so this guard is not a moot string check).

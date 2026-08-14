@@ -22,40 +22,33 @@
   tracks the git-command tokens in the shared module.
 
 - **Root `npm test` now self-bootstraps `packages/utils` (B-fb7b).** Added a root
-  `pretest` script that ensures `packages/main` then `packages/utils` `dist` exist
-  before the full suite runs. Previously `validate.commands` auto-built only
-  `packages/main`, so a worktree without `packages/utils/dist` ran the full suite
-  (via done_required's `npm test`) with utils absent, and any sub-test that spawns
-  `bin/lattice.js` aborted in `bootstrap-runner.js` with
-  `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires
-  through the npm lifecycle, closing the gap at the exact point utils is needed;
-  `dist` is gitignored and the build is deterministic, so the rebuild neither
-  dirties the tree nor conflicts with the `packages-main-build` proof (materialHash
-  is source-based). A fast structural guard (`test-suite-utils-autobuild-smoke`,
-  wired into `validate.commands`) plus a behavioral repro-first RED
-  (`packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs`) keep the pretest
-  from regressing. The worktree handler and `bootstrap-runner.js` are intentionally
-  left untouched (their human recovery hint stays).
+  `pretest` script (`scripts/ensure-dist.mjs`) that ensures `packages/main` then
+  `packages/utils` `dist` exist before the full suite runs. Previously
+  `validate.commands` auto-built only `packages/main`, so a worktree without
+  `packages/utils/dist` ran the full suite (via done_required's `npm test`) with utils
+  absent, and any sub-test that spawns `bin/lattice.js` aborted in `bootstrap-runner.js`
+  with `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires through
+  the npm lifecycle, closing the gap at the exact point utils is needed.
 
-  Because that pretest runs on every `npm test` in a review pipeline that fires many
-  builds in one shared worktree, the build scripts (`scripts/build-main-with-binding.mjs`,
-  `scripts/build-utils-with-lock.mjs`) take a shared per-repo build mutex
-  (`scripts/build-lock.mjs`) so concurrent `rm -rf dist` + `tsc` runs serialize instead
-  of racing into `ENOTEMPTY`/`TS2307` corruption. Two follow-on hardenings, from an
-  independent cross-host (Codex) review:
-    - **Idempotent `--ensure` pretest (skip-if-current).** The pretest now builds each
-      `dist` only when it is missing or older than its sources, so a repeated `npm test`
-      over a current `dist` does NOT `rm -rf dist`+rebuild — removing the reader-writer
-      race where one invocation's pretest destroys a `dist` another invocation's full
-      suite is still spawning tasks out of. The full rebuild+binding purity proof stays
-      the default (no `--ensure`) build path.
-    - **Liveness-based mutex reclaim + ownership-checked release.** The lock is reclaimed
-      only from a holder whose PID is provably gone — never age-stolen from a live
-      long-running build — and a holder releases the lock only while its own nonce still
-      owns it, so a reclaimed-then-re-acquired lock can never be deleted out from under a
-      successor. Behavioral RED `red-fb7b-build-lock-liveness.mjs` (wired into
-      `validate.commands`) and an extended `red-fb7b-guard-bite.mjs` (a non-`--ensure`
-      pretest now bites) lock in both fixes.
+  The bootstrap is deliberately **existence-based**: it builds a package's `dist` only
+  when that `dist` is absent, and never `rm -rf dist`+rebuilds a present one — so a
+  repeated `npm test` cannot destroy a `dist` a concurrent invocation's suite is reading.
+  Freshness (rebuild on a source change) stays owned by the `packages-main-build` validate
+  proof, which rm+rebuilds from source; within a worktree the build output is at a fixed
+  HEAD, so an already-present `dist` is the correct one to reuse. `dist` is gitignored, so
+  the bootstrap never dirties the tree. A fast structural guard
+  (`test-suite-utils-autobuild-smoke`, wired into `validate.commands`), a behavioral
+  repro-first RED (`red-fb7b-pretest-builds-utils.mjs`), and a guard-bite verifier
+  (`red-fb7b-guard-bite.mjs`) keep the bootstrap from regressing. The worktree handler and
+  `bootstrap-runner.js` are intentionally left untouched (their human recovery hint stays).
+
+  Scope note: an independent cross-host (Codex) review of an in-story attempt to also add a
+  crash-safe concurrent-build mutex + content-bound idempotent build surfaced several MAJOR
+  correctness bugs in a hand-rolled `mkdir` lock and `mtime` freshness heuristic (age-steal
+  of a live holder; a check-then-delete reclaim race; `mtime` misclassifying deleted-source
+  orphans and partial builds). That is a genuine infrastructure problem, disproportionate to
+  this bootstrap, so it is deferred to a dedicated follow-up story; this change carries only
+  the minimal existence-based bootstrap.
 
 ## Proofbound 0.3.251 - 2026-07-31
 

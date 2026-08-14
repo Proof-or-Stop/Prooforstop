@@ -14,8 +14,8 @@
  *   GB-ADV1-BIT         adversarial:1  main-only pretest -> structural smoke FAILS
  *   GB-ADVLAB-BIT       adversarial:1  `npm run build:lab` namespaced-sibling loophole -> structural smoke FAILS
  *   GB-ADVFAST-BIT      adversarial:1  `--prefix ... run build:fast` (--prefix + namespaced sibling) -> structural smoke FAILS
- *   GB-ADVNOENSURE-BIT  adversarial:1  build scripts WITHOUT `--ensure` (non-idempotent always-rebuild) -> structural smoke FAILS (Codex MAJOR-2)
  *   GB-ADV4-BIT         adversarial:4  no pretest -> structural smoke FAILS (independent of the RED)
+ *   GB-ADVNOGUARD-BIT   adversarial:1  ensure-dist WITHOUT an existsSync guard (unconditional rebuild) -> structural smoke FAILS
  *   GB-ADV2-BIT     adversarial:2  no pretest -> the repro-first RED (a distinct artifact) FAILS at its first assertion
  *   GB-ADV3-ABSENT      adversarial:3  removing the validate.commands entry -> not dispatched
  *   GB-LIFECYCLE-FIRES  happy:2     bare `npm test` auto-fires the pretest via the npm lifecycle hook
@@ -43,8 +43,12 @@ assert.ok(existsSync(RED_ABS), `repro-first RED missing: ${RED_REL}`);
 const realPkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const realConfig = JSON.parse(readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8'));
 
+const REAL_ENSURE_DIST = readFileSync(join(repoRoot, 'scripts', 'ensure-dist.mjs'), 'utf8');
+
 // Build an isolated fixture root that the smoke can resolve (it walks up to lattice.config.json).
-function makeFixture(pkgScripts) {
+// opts.ensureDistContent overrides the copied scripts/ensure-dist.mjs (to bite the existence-based
+// requirement); default copies the real one so the control fixture passes the smoke's on-disk checks.
+function makeFixture(pkgScripts, opts = {}) {
   const root = mkdtempSync(join(tmpdir(), 'fb7b-guard-bite-'));
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: '.' }));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'fixture', scripts: pkgScripts }));
@@ -54,13 +58,11 @@ function makeFixture(pkgScripts) {
   cpSync(SMOKE_ABS, join(root, 'packages', 'main', 'dist', 'tasks', 'test-suite-utils-autobuild-smoke.js'));
   mkdirSync(join(root, 'packages', 'main', 'tests', 'red'), { recursive: true });
   cpSync(RED_ABS, join(root, 'packages', 'main', 'tests', 'red', 'red-fb7b-pretest-builds-utils.mjs'));
-  // The smoke also asserts the idempotent build scripts the pretest references exist and that
-  // build-lock reclaims by liveness (Codex MAJOR-1). Copy the real scripts so the control fixture
-  // satisfies those on-disk checks; the smoke only reads them, never executes them.
+  // The smoke asserts the pretest references scripts/ensure-dist.mjs, that it exists, and that it is
+  // existence-based (guards each build behind existsSync). Copy the real one (the smoke only reads it,
+  // never executes it) unless the case overrides it to bite the existence-based requirement.
   mkdirSync(join(root, 'scripts'), { recursive: true });
-  for (const rel of ['scripts/build-main-with-binding.mjs', 'scripts/build-utils-with-lock.mjs', 'scripts/build-lock.mjs']) {
-    cpSync(join(repoRoot, rel), join(root, rel));
-  }
+  writeFileSync(join(root, 'scripts', 'ensure-dist.mjs'), opts.ensureDistContent ?? REAL_ENSURE_DIST);
   return root;
 }
 
@@ -98,7 +100,7 @@ function biteCase(label, pkgScripts, selector) {
   }
 }
 
-const goodPretest = 'node scripts/build-main-with-binding.mjs --ensure && node scripts/build-utils-with-lock.mjs --ensure';
+const goodPretest = 'node scripts/ensure-dist.mjs';
 
 // --- Positive: control fixture with the real (good) pretest must PASS, else the bite tests are meaningless.
 {
@@ -130,11 +132,27 @@ biteCase('adversarial:0 (echo-ok pretest)', { pretest: 'echo ok', test: 'node pa
 biteCase('adversarial:1 (main-only pretest, omits utils)', { pretest: 'npm --prefix packages/main run build', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV1-BIT');
 biteCase('adversarial:1 (build:lab loophole — a namespaced sibling build that touches neither main nor utils)', { pretest: 'npm run build:lab', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVLAB-BIT');
 biteCase('adversarial:1 (--prefix + namespaced sibling — `--prefix packages/... run build:fast` is not the real build script)', { pretest: 'npm --prefix packages/main run build:fast && npm --prefix packages/utils run build:fast', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVFAST-BIT');
-// The pre-Codex-MAJOR-2 form: the correct scripts, correct order, but WITHOUT `--ensure` — i.e. the
-// always-`rm -rf dist`+rebuild pretest that races a concurrent suite reading dist. The guard now
-// requires the idempotent `--ensure` flag, so this must FAIL.
-biteCase('adversarial:1 (build scripts without --ensure — the non-idempotent always-rebuild loophole; Codex MAJOR-2)', { pretest: 'node scripts/build-main-with-binding.mjs && node scripts/build-utils-with-lock.mjs', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVNOENSURE-BIT');
 biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED)', { test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV4-BIT');
+
+// --- adversarial:1 / GB-ADVNOGUARD-BIT: the pretest DOES run ensure-dist, but a non-existence-based
+// ensure-dist (unconditional rm+rebuild — no existsSync guard) is the reader-writer hazard the
+// existence-based bootstrap avoids, so the guard must FAIL on it.
+{
+  const nonGuardedEnsure = "import { execFileSync } from 'node:child_process';\n"
+    + "// unconditional rebuild — no existsSync guard (the reader-writer loophole)\n"
+    + "execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { stdio: 'inherit' });\n"
+    + "execFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build'], { stdio: 'inherit' });\n";
+  const root = makeFixture(
+    { pretest: 'node scripts/ensure-dist.mjs', test: 'node packages/main/dist/tasks/full-suite-runner.js' },
+    { ensureDistContent: nonGuardedEnsure },
+  );
+  try {
+    assert.notEqual(runSmokeIn(root), 0, 'adversarial:1: a non-existence-based ensure-dist (no existsSync) must FAIL the guard');
+    console.log('GB-ADVNOGUARD-BIT');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 
 // --- adversarial:2 / GB-ADV2-BIT: the REPRO-FIRST RED (a distinct artifact from the smoke) fails at
 // its first structural assertion when the pretest key is absent (F-001: no longer a duplicate of adversarial:4).

@@ -9,7 +9,7 @@
     "./register": "./dist/register.js"
   },
   "scripts": {
-    "build": "node ../../scripts/build-utils-with-lock.mjs"
+    "build": "tsc"
   },
   "dependencies": {
     "@lattice/core": "0.3.65",
