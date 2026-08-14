@@ -675,6 +675,37 @@
         "scanEscalationReason": null
       },
       "_hash": "dae19ca0ab23ab8c09f1570f64f6ea3d9824cc921a7fc2229e062ef4c577818e"
+    },
+    {
+      "id": "B-fb7b:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 24 local identifiers from git diff main...HEAD (all internal vars/functions inside packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts and the two new red tests; no exported class/function/interface/type/enum was added, so no library API surface needs README/CLAUDE.md coverage). Step2 grep of README*.md/CLAUDE.md/docs/**/*.md for those 24 symbol names returned 0 hits (expected: pure test-infra internals). Ran a targeted keyword scan (pretest, packages/utils, utils/dist, full-suite-runner, bootstrap-runner, Missing build artifacts) and compared 1 paragraph (CLAUDE.md L1001-1041, the .githooks/pre-push recursive-tsc section) -- that paragraph documents an unrelated script (.githooks/pre-push building packages/main before recursive tsc) not touched by this diff, so no drift. CHANGELOG.md L24-39 (B-fb7b entry) was compared against the actual package.json pretest script, lattice.config.json validate.commands wiring, and test-suite-utils-autobuild-smoke.ts assertions: the described build order (main then utils), the gitignored/non-dirtying dist claim, the structural-smoke-plus-behavioral-RED guard pairing, and the untouched worktree-handler/bootstrap-runner.js note all match the code exactly. No doc-promise-undelivered gaps found. No blockers.",
+      "createdAt": "2026-08-14T10:21:24.412Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-030",
+      "envelopeId": "94e7fb5649ca213f3416c2c74ddf06ec0e12ca3f0ceb5ac31305c254e186ce41",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5cc113de5cd5ca54adb7ae7c0d66ee161c81622df5a0fbec2a8b1be57f21f5d8"
     }
   ]
 }
