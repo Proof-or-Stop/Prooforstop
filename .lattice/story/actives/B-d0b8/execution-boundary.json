@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d0b8",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin",
+    "packages/main/src",
+    "packages/utils/src"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Document-only amendment with bounded local verification and independent CLI audits.",
+  "createdAt": "2026-08-14T09:34:26.315Z",
+  "updatedAt": "2026-08-14T09:34:26.315Z",
+  "_hash": "8af375675885fddc377fbb5a49c649018616e1f230b28fd5734e63d5545c713d"
+}
