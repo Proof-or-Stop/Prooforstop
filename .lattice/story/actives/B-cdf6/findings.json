@@ -869,36 +869,17 @@
     },
     {
       "id": "B-cdf6:F-041",
-      "desc": "concept-cleanup: bin-rename residue in live paths (not test-only): (1) packages/main/src/tasks/global-agents-unit-smoke.ts:159 is a FIFTH hand-rolled recomputation of the shim-body content (buildShimBody unit block) still asserting the deprecated /lattice agent_prompt --role=lattice-implementer/ regex while production buildShimBody (core/global-agents.ts:161-166) emits proof-or-stop agent_prompt --role=...; reproduced failing standalone: node packages/main/dist/tasks/global-agents-unit-smoke.js throws AssertionError at this exact line, and this smoke is auto-discovered by run-all-smokes (test:all/test:legacy). Same file was already edited twice in this story diff (doc comment L11, assertion L183) for the identical rename but this third occurrence at L159 was missed. (2) packages/main/src/handlers/lattice-cli.ts:118-119 configRepairCommandFor() builds and PRINTS to the user (reproduced live via node bin/proof-or-stop.js lattice_config_repair --setGitRoot=<dir> without --confirm) the deprecated invocation \"lattice config repair --set-git-root=... --confirm\" in both the structured confirmCommand field and trailing prose, even though the same commands --help output correctly shows the proof-or-stop config repair alias. (3) packages/main/src/handlers/verifier.ts:471 and packages/main/src/handlers/story-review.ts:438 both build the string lattice + VERIFICATION_INTENT_REPAIR_COMMAND (literal lattice verification_intent_repair) as an actionable repair hint surfaced in validate details / review blocker messages; both files were actively rebranded elsewhere in this same story commit family (verifier.ts has about 10 sibling lattice-to-proof-or-stop edits in this diff) but these two sites were missed. (4) packages/main/src/core/autopilot-executor.ts:222-225 displayCommand() still hardcodes lattice-prefixed output for the Failing-command line shown inside claudeRepairPrompt(), even though sibling lines in the same function/file (228-231, edited by this story) were correctly rebranded to Proof-or-Stop. None of these are frozen per brand-rename-mapping.md (not salts, not .lattice/ paths, not LATTICE_* env, not lattice-* role IDs) - they are unrouted user-visible/agent-visible command examples using the deprecated bin form, matching the CHK-002 adversarial intent that no help/usage/hint line prints the old bin name.",
+      "desc": "quality-verify: independently reproduced F-042 against material content unchanged since headHash 80fb4d92d0 (confirmed same materialHash b3010660b2c3... across 80fb4d92d0 -> 7f25b68e -> 36501da2, all .lattice/-bookkeeping-only drift) — packages/main/src/tasks/proofstory-acceptance-topology-smoke.js:135 throws AssertionError (supported Proof-or-Stop invocation is derived: false!==true) because packages/main/src/core/acceptance-topology.ts isLatticeWrapper() is byte-identical to pristine main (git diff main...80fb4d92d0 for that file is zero-length) and only recognizes lattice/bin/lattice.js tokens, while this story edited the smoke to assert the new canonical proof-or-stop acceptance_matrix form succeeds. This contradicts the brief's known-not-fixed claim that this smoke fails identically on pristine main (pre-existing, untouched): pristine main fails at a DIFFERENT assertion (per independent build+run on main). This is a genuine CHK-002/CHK-006 rename regression, not the represented pre-existing defect. Product impact: the new canonical proof-or-stop acceptance_matrix invocation is the one form whose producer-command provenance silently fails isAcceptanceMatrixDerivedEvidence, backwards from the CHK-002/CHK-006 read-both compatibility contract.",
       "severity": "high",
       "category": "missing",
       "status": "open",
       "evidenceState": "verified",
-      "agent": "lattice-review-concept",
-      "createdAt": "2026-08-14T09:16:28.401Z",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T09:20:07.626Z",
       "reviewRound": "2026-08-13T05:25:24.496Z",
       "reviewRunId": "B-cdf6:RR-053",
-      "_hash": "a93e33cf624a74822b576a79ec26d5840e41ee9de3065d0405c0505a6677bccc",
-      "signatureTag": "missing|unknown|concept-cleanup-rename",
-      "signatureTagSource": "auto"
-    },
-    {
-      "id": "B-cdf6:F-042",
-      "desc": "packages/main/src/core/acceptance-topology.ts:140-145 isLatticeWrapper() only recognizes bin token lattice / bin/lattice.js as an acceptance_matrix producer-command wrapper; it was never updated to also recognize proof-or-stop / bin/proof-or-stop.js added by CHK-002/CHK-006. Reproduced mechanically: node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js fails at line 135 (assert.equal(isAcceptanceMatrixDerivedEvidence({command:\"proof-or-stop acceptance_matrix --storyId=...\"}), true) -> actual false), on this branch HEAD 80fb4d92d0. Confirmed NOT the known-not-fixed pre-existing failure: git diff main...HEAD -- packages/main/src/core/acceptance-topology.ts is EMPTY (isLatticeWrapper byte-identical to pristine main, so this is not touched/pre-existing drift), while the smoke test itself WAS edited by this story (git show shows the literal renamed from lattice acceptance_matrix to proof-or-stop acceptance_matrix at what is now line ~159, with the assertion message also updated to say Proof-or-Stop, but the corresponding production recognizer was left unchanged). Confirmed by running node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js on pristine main (built fresh there): it fails at a DIFFERENT assertion (line 333, checklist_update_executable_evidence_unenforced format mismatch), not this one -- so main and B-cdf6 HEAD fail at genuinely different assertions, contradicting the story claim that this smoke fails identically/untouched on pristine main. Product impact: a real user running the new canonical proof-or-stop acceptance_matrix --storyId=X command produces evidence whose producer-command provenance silently fails to be recognized by isAcceptanceMatrixDerivedEvidence, which is exactly backwards from CHK-002/CHK-006 read-both compatibility contract (new bin name should be canonical and fully working, old name kept as alias) -- the new canonical form is the one NOT recognized.",
-      "severity": "high",
-      "category": "missing",
-      "status": "open",
-      "evidenceState": "verified",
-      "agent": "lattice-review-test-coverage",
-      "createdAt": "2026-08-14T09:17:25.166Z",
-      "reviewRound": "2026-08-13T05:25:24.496Z",
-      "reviewRunId": "B-cdf6:RR-056",
-      "_hash": "601b521b51cd6799e4329dbfd36ad53ca7104af166553344c3b9946c68fe1ec4",
-      "files": [
-        "packages/main/src/core/acceptance-topology.ts",
-        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
-      ],
-      "signatureTag": "missing|ts|packages-main-core",
+      "_hash": "a632e963c4fcf29ee36be99e61e3f4640bc80f1e0769a0b9d96859464e0db531",
+      "signatureTag": "missing|unknown|quality-verify-independently",
       "signatureTagSource": "auto"
     }
   ]
