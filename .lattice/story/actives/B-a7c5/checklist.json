@@ -332,6 +332,65 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-007",
+      "title": "Update the RuntimeConsumer type union documented in playbook-runtime-memory-consumption-execution-plan.md section 4.3 to include finding_resolve, and audit that doc for any other stale references to the shipped shape",
+      "context": "Section 4.3 documents a literal TypeScript RuntimeConsumer union (session_brief | dev_memory_start | host_handoff | story_create | story_advance | done_prepare | done_closure | final_response_check) that must byte-match the real union in packages/main/src/core/playbook-runtime-memory.ts:44-52. CHK-002 adds a 9th member, 'finding_resolve', to that code union but nothing updates the doc's copy. Add the new member to the documented union and, while in that file, sweep for any other place the doc's text asserts a specific shape/list/behavior that CHK-001/002/003 change (beyond the M8 and 4.3-bypass-path items already covered by CHK-005) so this doesn't require a further follow-up checklist item.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-a7c5/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Section 4.3 RuntimeConsumer union in playbook-runtime-memory-consumption-execution-plan.md now lists exactly 9 members including finding_resolve, and the list byte-matches the real code union in packages/main/src/core/playbook-runtime-memory.ts lines 44-52 (same members, same order, same spelling); WHY: the primary deliverable is doc-code union parity after CHK-002 adds the 9th member",
+            "type": "cli"
+          },
+          {
+            "desc": "A diff of the doc file against main branch shows finding_resolve was added to the section 4.3 union list as a new line, not replacing or removing any existing member; WHY: confirms additive change only, no accidental member deletion during edit",
+            "type": "cli"
+          },
+          {
+            "desc": "A sweep of the entire doc file for other references that CHK-001/002/003 make stale (beyond the M8 and 4.3-bypass items already scoped to CHK-005) was performed and either (a) those references were updated in the same commit, or (b) an explicit note records that no other stale references were found; WHY: the audit sub-task is half the checklist item and must produce evidence it was done, not silently skipped",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The doc union list uses the exact pipe-delimited TypeScript union syntax matching the code (e.g. | finding_resolve on its own line or in the same pipe chain), not a prose bullet list or markdown table that could diverge in format from the code; WHY: byte-match requirement means format matters, not just member names",
+            "type": "cli"
+          },
+          {
+            "desc": "No other section of the doc (outside section 4.3 and the M8 section covered by CHK-005) asserts a specific count of RuntimeConsumer members (e.g. 8 consumers) that is now wrong after the 9th member was added; WHY: a stale count assertion elsewhere would be a missed audit finding",
+            "type": "cli"
+          },
+          {
+            "desc": "Section 4.3 rollout severity table and any REGISTERED_CRITICAL_RUNTIME_CONSUMERS or ADVISORY_ONLY_RUNTIME_CONSUMERS prose in the doc do not list finding_resolve as blocking or critical, consistent with CHK-002 plan stating it must stay fully advisory non-blocking; WHY: the doc must not accidentally describe finding_resolve as having a severity class it does not have in code",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Doc union list contains finding_resolve but has a typo or wrong casing (e.g. findingResolve, finding-resolve, finding_Resolve, findng_resolve) that does not byte-match the code literal -> detected as a verification failure; WHY: a near-miss string that looks right to a human but fails a literal comparison is the classic doc-drift adversarial scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Doc union list was updated but the members are in a different order than the code union (e.g. finding_resolve inserted alphabetically rather than appended after final_response_check matching the code position) -> detected as a byte-match failure; WHY: the requirement is byte-match including order, not set-equality",
+            "type": "cli"
+          },
+          {
+            "desc": "The audit-for-other-stale-references sub-task was skipped entirely -- no commit message mentions it, no inline comment, no checklist note, and no evidence artifact records that the sweep was performed -> detected as incomplete delivery; WHY: the most likely adversarial failure mode is that the implementer updates the union line and calls the item done without doing the sweep, leaving latent stale references for a future reader to hit",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc change exists in the working tree but was never git-committed (git diff --name-only shows the file modified, git log --oneline on the branch shows no new commits touching docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md) -> detected as uncommitted work that will not survive branch switch or merge; WHY: an uncommitted doc update provides zero durable assurance and is invisible to reviewers",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
@@ -367,6 +426,17 @@
       "reason": "PLAN scope reviewer round 3 raised OQ-3: dev-memory.md has its own separate Non-Goal (distinct from playbook-runtime-memory-consumption-execution-plan.md's M8/4.3, already covered by CHK-005) that textually conflicts with CHK-001/CHK-003 and needs its own reconciliation + doc update.",
       "addedTitle": "Update dev-memory.md's own Non-Goal wording to clarify the entries-vs-records distinction for the new gate-checked artifacts",
       "addedContext": "dev-memory.md's Non-Goals list states 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks.' Add a 'Delivered differently' style annotation (preserving the original line as historical/still-true-for-entry-content context) clarifying that this story's new preflight-ack (CHK-001) and finish-decision (CHK-003) records are a structurally separate artifact type from DevMemoryEntry rows -- no entry's gateEvidence/authority fields are ever read by either gate, and no lesson CONTENT is ever surfaced as gate evidence. Only the existence of a reflection record is gate-checked, not entry content."
+    },
+    {
+      "timestamp": "2026-08-14T10:58:04.923Z",
+      "phase": "PLAN",
+      "itemId": "CHK-007",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer round 4 found a new gap: the spec doc's documented RuntimeConsumer union is stale relative to CHK-002's code change, and CHK-005/CHK-006 are each scoped to a different specific edit in this or a sibling doc.",
+      "addedTitle": "Update the RuntimeConsumer type union documented in playbook-runtime-memory-consumption-execution-plan.md section 4.3 to include finding_resolve, and audit that doc for any other stale references to the shipped shape",
+      "addedContext": "Section 4.3 documents a literal TypeScript RuntimeConsumer union (session_brief | dev_memory_start | host_handoff | story_create | story_advance | done_prepare | done_closure | final_response_check) that must byte-match the real union in packages/main/src/core/playbook-runtime-memory.ts:44-52. CHK-002 adds a 9th member, 'finding_resolve', to that code union but nothing updates the doc's copy. Add the new member to the documented union and, while in that file, sweep for any other place the doc's text asserts a specific shape/list/behavior that CHK-001/002/003 change (beyond the M8 and 4.3-bypass-path items already covered by CHK-005) so this doesn't require a further follow-up checklist item."
     }
   ]
 }
