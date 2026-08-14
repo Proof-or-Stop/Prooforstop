@@ -564,7 +564,7 @@
       "desc": "doc-code-drift: docs/evidence-integrity-program-spec.md:105-110 (Step 4, the program spec this story implements) claims the quorum_submit duplicate fix makes a repeat submission an 'idempotent no-op (\"already recorded, no action\") rather than a throw-or-append', reusing eventsWithStoryFilesHashDowngrade directly, and states it covers BOTH quorum_submit and autopilot_review_submit. The shipped fix in packages/main/src/handlers/quorum-submit.ts (assertNoStandingQuorum, ~lines 486-560) does the opposite on both counts: it still THROWS a refusal Error on drift-accept collision (throw-or-append semantics retained, only the predicate widened) rather than silently no-op-ing, it does NOT call eventsWithStoryFilesHashDowngrade (that helper is only named in a comment; the predicate is reimplemented inline, flagged in-code as 'LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY' i.e. a manually-synced duplicate, not a reuse), and autopilot_review_submit is untouched by this diff. docs/evidence-write-guard-spec.md ss2 'Single source of truth' makes the same now-inaccurate reuse claim. A reader relying on either doc would expect silent idempotent handling and cross-command coverage that the shipped code does not provide.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T04:40:04.285Z",
@@ -577,7 +577,11 @@
         "packages/main/src/handlers/quorum-submit.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: updated docs/evidence-integrity-program-spec.md Step 4 and docs/evidence-write-guard-spec.md to describe the actually-delivered design (assertNoStandingQuorum: throws an informative Error rather than a silent idempotent no-op; reimplements the drift-accept predicate inline as a hand-synced LOCKSTEP mirror of eventsWithStoryFilesHashDowngrade rather than calling it directly; autopilot_review_submit remains an explicitly documented known gap, not covered by this story) instead of the pre-merge design proposal. Commit 397b6e4f51.",
+      "resolvedAt": "2026-08-14T04:55:06.457Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-031",
