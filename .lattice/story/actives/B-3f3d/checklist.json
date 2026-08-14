@@ -196,7 +196,7 @@
       "title": "Require complete discovery lenses and a verified zero-new-finding saturation wave before inventory finalization",
       "context": "Run all scope and risk selected required lanes on the same cutoff, then run the completeness critic over the verified finding set. A wave is clean only when every required lane has a valid terminal receipt, mechanical coverage or bounded read evidence is complete, raw findings and duplicate claims are independently verified, and the wave adds zero new verified findings. Status exposes current wave, lane progress, new verified findings, remaining blockers and next dispatch or finalize command. Repeating the same reviewer, missing output, timeout, cancellation, unsupported host or prose-only PASS cannot satisfy saturation. New findings reopen another bounded wave on the same material; exhaustion visibly requires replan, decomposition, root-cause escalation or human adjudication and provides the corresponding command, never PASS.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
@@ -272,7 +272,9 @@
           "packages/main/src/core/adversarial-review.ts",
           "packages/main/src/core/adversarial-review-round.ts",
           "packages/main/src/core/review-inventory-epoch.ts",
-          "packages/main/src/handlers/review-inventory.ts"
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/reviewer-batch.ts"
         ],
         "create": [],
         "test": [
