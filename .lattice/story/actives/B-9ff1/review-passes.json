@@ -279,6 +279,32 @@
         "scanEscalationReason": null
       },
       "_hash": "75c5ecb140a5d94e2a9ad09b0762425941696e13f6546684fcbf2da55adb9e2e"
+    },
+    {
+      "id": "B-9ff1:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-confirmation (218 main commits merged): no conceptual collision introduced (grepped merge range for red_evidence/CANON/entropy/matcher vocabulary in packages/ code — only unrelated full-suite-runner canonicalizeEntries hits, no new envelope/CANON/policy-resolver/path-validator/red_evidence_* command); fence integrity unchanged (envelope.ts/specificity.ts/handlers/red-evidence.ts byte-identical to last fix commit d47a35787d via git diff --stat; only read-only git rev-parse committed-tree binding-reader spawn present, no exec/receipt-persist/chunk-framing/GREEN-confirm/gate-verdict wiring).",
+      "createdAt": "2026-08-14T02:31:37.635Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-013",
+      "envelopeId": "c50667bee72030311fbd26b818de3ea234e934428421fbad64f9075184bacfe6",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f6a6df5eef8bd6e68dceeab892ccf251116cd7d6f8d5e7ca13fc26ebb222b9c4"
     }
   ]
 }
