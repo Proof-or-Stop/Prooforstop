@@ -1175,7 +1175,11 @@
           },
           {
             "desc": "The doc update does NOT describe the DONE gate as advisory-only when the code makes it blocking, or describe it as blocking in contexts where it is actually advisory -- the doc description of blocking vs advisory behavior must match the actual canFinishGuard code path; WHY: user explicitly flagged contradicting the shipped code as an adversarial failure mode",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\").includes(\\\"if (!finishDecision)\\\") ? \\\"GATE_ACTUALLY_BLOCKS_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "GATE_ACTUALLY_BLOCKS_CONFIRMED"
+            }
           },
           {
             "desc": "The doc update is committed to the branch (git log --oneline --diff-filter=M -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md shows at least one commit on the branch touching this file), not merely described in chat output; WHY: user explicitly flagged not-actually-committed as an adversarial failure mode",
@@ -1320,6 +1324,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:17.267Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/core/machine.js\\\",\\\"utf8\\\").includes(\\\"if (!finishDecision)\\\") ? \\\"GATE_ACTUALLY_BLOCKS_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "Cross-checks the doc's BLOCKING claim against the shipped code: canFinishGuard's compiled body literally does if (!finishDecision) return false, i.e. the code genuinely blocks DONE when the record is missing, matching (not contradicting) the doc's description of a required BLOCKING check.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ac78a0e0d4d14e38cc3d2e7fbc3d4ab843bc1c87c6323917e6acd1c93ecda630",
+            "outputTail": "GATE_ACTUALLY_BLOCKS_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:18.209Z"
+          },
+          "headHash": "650a78dd7f1d0d50a0af7310467e5624416ff3f2",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:18.330Z"
         }
       ]
     },
