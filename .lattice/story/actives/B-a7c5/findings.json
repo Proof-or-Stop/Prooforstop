@@ -16,6 +16,21 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Imported FinishDecision as a type-only import from core/playbook-runtime-memory.js instead of redefining it locally; removed the duplicate local type alias. Rebuilt (tsc clean).",
       "resolvedAt": "2026-08-14T13:46:54.687Z"
+    },
+    {
+      "id": "B-a7c5:F-002",
+      "desc": "checklist.json CHK-005:adversarial:0 (intentRef) evidence: verification command is `git diff main...HEAD -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`, selector `\"missing decision is visible in runbook/advisory output\"` (no +/- diff-line prefix). The gate mechanism (packages/main/src/handlers/checklist.ts:645, `selectorMatched = run.output.includes(pinSelector)`) is a raw substring match over the entire diff output, so it cannot distinguish the phrase appearing on a preserved context line from it appearing on a removed `-` line. If the original M8 advisory text had actually been deleted (the exact adversarial scenario this intent claims to test: user explicitly flagged losing/deleting the original rationale as an adversarial failure mode), this same command+selector would still report pass, because a git-diff deletion still contains the phrase as substring text on the `-` line. The evidence note correctly reasons that todays diff has zero removed lines, but that reasoning is human-authored prose, not something the pinned command mechanically verifies going forward. A robust version of the same claim already exists at CHK-005:edge:0 (readFileSync(...).includes(...) against final file content) -- that pattern was not reused for adversarial:0.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T13:50:33.780Z",
+      "reviewRound": "2026-08-14T13:41:16.096Z",
+      "reviewRunId": "B-a7c5:RR-003",
+      "_hash": "f12c0952c2ed7fd39a735d860242079b60aa77db64a79b4810cb77f26812a832",
+      "signatureTag": "adversarial|unknown|checklist-json-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
