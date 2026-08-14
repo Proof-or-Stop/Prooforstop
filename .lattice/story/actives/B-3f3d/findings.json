@@ -3001,6 +3001,159 @@
       ],
       "signatureTag": "review-inventory-proofstory-acceptance-subject-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-045",
+      "desc": "doc-code-drift: evidence-complete recovery of the F043 kind-aware latest-run documentation family. docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, CLAUDE.md:843, and packages/main/src/core/review-run.ts:1413-1428 define and implement the actual kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. The contradictory operator guidance can manufacture unnecessary review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion for these duplicated workflow facts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-14T22:39:02.245Z",
+      "reviewRound": "2026-08-14T22:19:29.429Z",
+      "reviewRunId": "B-3f3d:RR-085",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 9,
+          "tokenCount": null
+        },
+        "digest": "88ee2526152fe42bc17138b626269f452592281de6d8e181b47d919022ab0484"
+      },
+      "readDiagnostics": [],
+      "_hash": "c7709063896f545713bba366f76be1e00688bf2289a7958d9ae5ebbc1f527b65",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "CLAUDE.md",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-046",
+      "desc": "packages/main/src/handlers/finding.ts:371-489 — verified critical terminal-command idempotency failure, distinct from F036 lock-reclaim/lost-update. In unchanged RI-008 wave 2, the first review_pass_set for coverage B-3f3d:RR-089 emitted only the running line to its client but asynchronously persisted RP-052; an operationally safe retry with the exact same reviewRunId/evidence then persisted a second signed pass RP-054. recordReviewPass serializes the RMW and allocates a fresh RP id on every call, but never checks for an already valid pass keyed by the terminal identity (storyId, reviewRound, lane, reviewRunId and canonical evidence), so ambiguous client completion is not safely replayable. This can duplicate signed gate evidence and process events, distort completion/re-attestation telemetry and require operators to choose between risking duplicate mutation or abandoning a terminal lane after a lost response. F036 covered a live lock being stale-reclaimed so one successful writer was erased; here both writes survive after the F036 lock fix, proving a different replay/idempotency boundary. Make review_pass_set idempotent under the existing lock by returning the existing byte/semantic-equivalent pass for the same run terminal identity (and fail closed on conflicting evidence), and add a real command test where response completion is ambiguous then the exact call is retried, asserting one pass/event and a stable id.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T22:54:08.693Z",
+      "reviewRound": "2026-08-14T22:19:29.429Z",
+      "reviewRunId": "B-3f3d:RR-087",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "The live same-RR089 duplicate terminal required comparing the exact review_pass_set RMW/retry behavior against F036 lock-liveness semantics and checking whether any semantic terminal dedup or replay test exists.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "73ba5c67cd9833d5bb45b395abda3680374e4d16c0218a071e42c85f68b82376"
+      },
+      "readDiagnostics": [],
+      "_hash": "9788792ea77b41216ed9e983229965017d2607d4aace34f1ccfc3f162175ee19",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "signatureTag": "review-terminal-command-retry-idempotency",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
