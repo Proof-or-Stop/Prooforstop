@@ -901,9 +901,23 @@ export function listManagedAssetDefinitions(
     );
     if (templates) {
       const expected = new Set(listAgentPromptFiles(templates));
+      // B-cdf6:F-034 — the THIRD copy of the F-005 root cause, and the one that
+      // proves hand-synchronising this rule does not work: the codex mirror a few
+      // lines above and cli-init.ts were both fixed while this sibling block kept
+      // the raw template, so a seeded `.claude/agents` reported STALE_SAFE for
+      // exactly the 5 MODULAR_COMPLEX_ROLE_IDS. Complex roles must be materialized
+      // as their digest-pinned legacy-full-context reconstruction here too;
+      // restoreLegacyPromptTemplate validates against LEGACY_COMPLEX_TEMPLATE_SHA256
+      // and throws rather than emitting a mismatched mirror.
+      const registryEntries = readPromptRegistry(templates).agents;
       for (const file of expected) {
-        const content = readFileSync(join(templates, file), 'utf-8');
         const roleId = file.replace(/\.md$/, '');
+        const complexEntry = isModularComplexRoleId(roleId)
+          ? registryEntries.find(entry => entry.agentId === roleId)
+          : undefined;
+        const content = complexEntry
+          ? restoreLegacyPromptTemplate(complexEntry)
+          : readFileSync(join(templates, file), 'utf-8');
         defs.push(wholeFile(
           `.claude/agents:${file}`,
           `.claude/agents/${file}`,
