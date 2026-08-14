@@ -63,11 +63,386 @@
       ],
       "milestoneIds": [],
       "acceptanceClaim": "With one official validation holding workspace capacity, a different-story or no-story validate/done_required_validate reports the holder without entering its callback, then automatically runs after release and produces its own normal PASS evidence while command inventories and timeout budgets remain unchanged.",
-      "note": "Single user-visible acceptance claim spans capacity acquisition, ordered wait-and-run, evidence integrity, unchanged budgets, and the explicit bare npm boundary."
+      "note": "Single user-visible acceptance claim spans capacity acquisition, ordered wait-and-run, evidence integrity, unchanged budgets, and the explicit bare npm boundary.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-WORKSPACE-CAPACITY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-LIFECYCLE-GATE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_topology_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "A-POS-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-4",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "A-MUT-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-4",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-6",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-7",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-8",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-9",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-10",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-11",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-12",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-13",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-14",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-15",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-16",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "A-TRANSCRIPT-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            },
+            "producerRefs": [
+              "P-WORKSPACE-CAPACITY"
+            ],
+            "consumerRefs": [
+              "C-LIFECYCLE-GATE"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_topology_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check_read"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:pre-review-check.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          }
+        ]
+      }
     }
   ],
   "diagnosticGaps": [],
-  "note": "B-6693 ProofStory binding for the workspace validation capacity acceptance claim.",
+  "note": "B-6693 ProofStory binding for the workspace validation capacity acceptance claim, with canonical reference-only pre-review proof topology.",
   "createdAt": "2026-08-14T15:29:47.703Z",
-  "updatedAt": "2026-08-14T15:29:47.703Z"
+  "updatedAt": "2026-08-14T16:21:11.408Z"
 }
