@@ -14,7 +14,7 @@
  *   GB-ADV1-BIT         adversarial:1  main-only pretest -> structural smoke FAILS
  *   GB-ADVLAB-BIT       adversarial:1  `npm run build:lab` namespaced-sibling loophole -> structural smoke FAILS
  *   GB-ADV4-BIT         adversarial:4  no pretest -> structural smoke FAILS (independent of the RED)
- *   GB-ADV2-RED-BIT     adversarial:2  no pretest -> the repro-first RED (a distinct artifact) FAILS at its first assertion
+ *   GB-ADV2-BIT     adversarial:2  no pretest -> the repro-first RED (a distinct artifact) FAILS at its first assertion
  *   GB-ADV3-ABSENT      adversarial:3  removing the validate.commands entry -> not dispatched
  *   GB-LIFECYCLE-FIRES  happy:2     bare `npm test` auto-fires the pretest via the npm lifecycle hook
  */
@@ -122,13 +122,13 @@ biteCase('adversarial:1 (main-only pretest, omits utils)', { pretest: 'npm --pre
 biteCase('adversarial:1 (build:lab loophole — a namespaced sibling build that touches neither main nor utils)', { pretest: 'npm run build:lab', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVLAB-BIT');
 biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED)', { test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV4-BIT');
 
-// --- adversarial:2 / GB-ADV2-RED-BIT: the REPRO-FIRST RED (a distinct artifact from the smoke) fails at
+// --- adversarial:2 / GB-ADV2-BIT: the REPRO-FIRST RED (a distinct artifact from the smoke) fails at
 // its first structural assertion when the pretest key is absent (F-001: no longer a duplicate of adversarial:4).
 {
   const root = makeFixture({ test: 'node packages/main/dist/tasks/full-suite-runner.js' });
   try {
     assert.notEqual(runRedIn(root), 0, 'adversarial:2: the RED test must FAIL at its first assertion when the pretest key is absent');
-    console.log('GB-ADV2-RED-BIT');
+    console.log('GB-ADV2-BIT');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
