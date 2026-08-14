@@ -227,6 +227,35 @@
       },
       "readDiagnostics": [],
       "_hash": "acab2b47ae24c8e8a9b2b9432b74ee2235158d15a20de42eda8f8dde102d6714"
+    },
+    {
+      "id": "B-c648:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Story-level test-coverage re-review after CHK-003 added. All 3 checklist items (CHK-001/002/003) carry happy+edge+adversarial must-priority verificationIntent (9 total), each with exactly one verificationEvidence entry (kind docs_check/logic_test, result=pass, mechanical=true, receipt.selectorMatched=true). Independently re-executed all 9 selector commands against current HEAD (54ef7c9): all 9 reproduced their exact PASS tokens. Cross-checked CHK-003 host_run receipt claims (section 21.5) directly against .lattice/usage/llm-usage.jsonl: Claude final llmuse_e67c2062... shows source=provider-reported input=6/output=1655/cacheCreation=47054/cacheRead=160377 exactly as cited; agy final llmuse_681319b0... shows source=unavailable/unavailableReason=agy_print_mode_reports_no_usage with no fabricated numeric usage, exactly as cited; failed agy preflight llmuse_d68b8791... is sequence=1 prompt-size-estimate with no row superseding it, matching the failed-attempt-not-cited-as-success claim. git diff since prior pass (b97f7cf..HEAD) confirms the only change to the reviewed document is the additive section 21.5 block; CHK-001/CHK-002 evidence text is untouched. No waivers, no bugs open, no must-priority gaps. No blocker.",
+      "createdAt": "2026-08-14T05:11:07.671Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-013",
+      "envelopeId": "7756b0072246f8ab5bf6d71f7940b45bd45df9175a3039f772cb80665ebc4af0",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          ".lattice/story/actives/B-c648/review-passes.json",
+          ".lattice/story/actives/B-c648/review.json",
+          ".lattice/usage/llm-usage.jsonl",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md#section-21"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "scanEscalationReason": "Story-level test-coverage re-review scoped to the single changed file (section 21.5 addition) per review_incremental_context; full document sections 1-1046 were reviewed in prior pass B-c648:RP-001 and are unchanged per git diff b97f7cf..HEAD."
+      },
+      "_hash": "8d1e02a070d2d2a4bdaf757cf74cda92568edfd9bf4568cc765b6b01dd76985d"
     }
   ]
 }
