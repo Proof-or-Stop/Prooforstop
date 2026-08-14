@@ -145,6 +145,38 @@
         "scanEscalationReason": null
       },
       "_hash": "6f047b76e34d410e88ee3f9ed71203c8ada381cfe1c27dc31bdfaac618fab18e"
+    },
+    {
+      "id": "B-c648:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only story (zero packages/scripts/bin diff). Verified the new decision doc's existing-mechanism claims (repro_probe, story_draft, draft_check_set, init_preflight, plannedPathDeclarations, verifyAcceptanceBasisReceipt, acceptance_topology_check, _nextStoryId x2 in story-create.ts, forceNew, reproFirstBypassReason, bootstrap-runner.js dependency chain, B-8de3/B-fb7b/B-3783 references, and the two cited llm-usage.jsonl host_run records) against the actual repo and CLI; all accurate. No dead code, type-safety, or I/O-isolation findings apply since no runtime code changed. No blocker.",
+      "createdAt": "2026-08-14T05:09:08.886Z",
+      "reviewRound": "2026-08-14T05:05:13.871Z",
+      "reviewRunId": "B-c648:RR-010",
+      "envelopeId": "3f75afacf395da8e15eaef84552fa75ba83ca1ca549bd1a630e22e8ca789f3b7",
+      "writerSessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c648/background.md",
+          ".lattice/story/actives/B-c648/checklist.json",
+          ".lattice/story/actives/B-c648/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/usage/llm-usage.jsonl",
+          "docs/host-run-usage.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/planner.ts",
+          "packages/main/src/handlers/repro-intake.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4aa775078b65d941d337bd1364784b7ae985137cd5968d6684b935ee093556c9"
     }
   ]
 }
