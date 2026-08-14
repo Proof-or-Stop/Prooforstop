@@ -79,10 +79,15 @@ function listProjectAgentMd(root: string): string[] {
     // Project has zero agent .md files.
     assert.equal(listProjectAgentMd(proj).length, 0, 'fresh project must have 0 .claude/agents/*.md');
 
-    // Global has exactly the 16 managed basenames as REGULAR FILES (not symlinks).
+    // Global has exactly the managed basenames as REGULAR FILES (not symlinks).
     const shims = listGlobalShims(home);
     assert.equal(shims.length, managedBasenames.length, `global must have ${managedBasenames.length} thin-shims`);
-    assert.equal(shims.length, 16, 'expected 16 managed agent roles');
+    // B-cdf6:F-037 — a hardcoded `16` used to sit here, one line below the dynamic
+    // check above, against a registry that now has 17 roles. The literal was both
+    // redundant (the line above already pins the count to the registry) and wrong, so
+    // it failed on this branch AND on pristine main. Third instance of this
+    // stale-count class in this story after verify-entrypoints.mjs:526 and :1010;
+    // deriving the count is the only spelling that cannot rot when a role is added.
 
     for (const basename of shims) {
       const shimPath = join(home, '.claude', 'agents', basename);
@@ -110,7 +115,9 @@ function listProjectAgentMd(root: string): string[] {
 // ─── Test (b): agent_prompt byte-equal to registry body (same source as Codex) ──
 {
   const snapshot = readPromptRegistry();
-  assert.equal(snapshot.agents.length, 16, 'registry must expose 16 roles');
+  // B-cdf6:F-037 — derived, not hardcoded: a literal role count rots the moment a
+  // role is added, which is how this file came to assert 16 against a 17-role registry.
+  assert.equal(snapshot.agents.length, managedBasenames.length, `registry must expose ${managedBasenames.length} roles`);
   for (const entry of snapshot.agents) {
     const expected = renderPromptEntryForHost(entry, 'claude');
     const cliOut = execFileSync(process.execPath, [cliPath, 'agent_prompt', `--role=${entry.agentId}`], {
@@ -147,9 +154,13 @@ function listProjectAgentMd(root: string): string[] {
     assert.match(warnOut, /run proof-or-stop init --upgrade/, 'normal init must point at --upgrade');
     assert.equal(listProjectAgentMd(proj).length, 17, 'normal init must NOT delete any project file');
 
-    // --upgrade: remove exactly the 16 managed, preserve the user file.
+    // --upgrade: remove exactly the managed set, preserve the user file.
     const upgradeOut = runInit(home, proj, ['--profile=claude', '--upgrade']);
-    assert.match(upgradeOut, /migrated 16 managed agent file\(s\) to global/, '--upgrade must migrate 16 managed files');
+    assert.match(
+      upgradeOut,
+      new RegExp(`migrated ${managedBasenames.length} managed agent file\\(s\\) to global`),
+      `--upgrade must migrate ${managedBasenames.length} managed files`,
+    );
     const remaining = listProjectAgentMd(proj);
     assert.deepEqual(remaining, ['my-custom.md'], 'only the user file must remain');
     assert.equal(readFileSync(userFile, 'utf8'), userContent, 'user file content must be preserved byte-for-byte');
@@ -166,8 +177,16 @@ function listProjectAgentMd(root: string): string[] {
   try {
     runInit(home, proj, ['--profile=claude']);
     const out2 = runInit(home, proj, ['--profile=claude']);
-    assert.match(out2, /synced=0,\s*ok=16,\s*replaced=0/, 'second init must be idempotent (synced=0, ok=16)');
-    assert.equal(listGlobalShims(home).length, 16, 'global shim count stays 16 after idempotent re-run');
+    assert.match(
+      out2,
+      new RegExp(`synced=0,\\s*ok=${managedBasenames.length},\\s*replaced=0`),
+      `second init must be idempotent (synced=0, ok=${managedBasenames.length})`,
+    );
+    assert.equal(
+      listGlobalShims(home).length,
+      managedBasenames.length,
+      `global shim count stays ${managedBasenames.length} after idempotent re-run`,
+    );
   } finally {
     rmSync(home, { recursive: true, force: true });
     rmSync(proj, { recursive: true, force: true });
