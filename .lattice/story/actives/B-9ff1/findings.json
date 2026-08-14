@@ -751,7 +751,7 @@
       "desc": "[codex host-B D7] Verified by main agent. Both snapshotLattice implementations record non-directory paths plus content hashes only, so they establish net identity of a file-path-and-content manifest, not of the tree - empty directories, file modes and symlink identity are not recorded.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:03:12.228Z",
@@ -759,7 +759,11 @@
       "reviewRunId": "B-9ff1:RR-025",
       "_hash": "939a8d0d97d035676ef9cd114618589735fe4bf329074e4e1585251abed5767e",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Both snapshot claims now say the manifest of file paths and content hashes is net-identical, and name what the manifest does not record: empty directories, file modes and symlink identity. Fixed in commit 8c1ec91805f36d7ea5024f9c00f983b8d96c88f1 (text only, five files). Acceptance was mechanical, not asserted: a checker runs all 108 pinned verification selectors against real command output and reports 106 checked, 2 permanently waived, zero mismatches. That checker was written in response to this round and is the instrument that both proved the regression and bounded it to a single selector.",
+      "resolvedAt": "2026-08-14T10:03:47.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
