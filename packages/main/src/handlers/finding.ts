@@ -16,7 +16,7 @@ import type {
   ReviewerReadManifest,
 } from '../core/types.js';
 import { isFindingEvidenceState, FINDING_EVIDENCE_STATES } from '../core/advisory.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
@@ -374,6 +374,52 @@ function recordReviewPass(
     const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
     assertReviewInventoryEvidenceWritable(ctx.store, storyId, reviewRun);
     const data = ctx.store.readReviewPasses(storyId);
+    const reviewRound = story.currentReviewRound || '';
+    const trimmedNote = note.trim();
+    const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
+    if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
+      throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
+    }
+    const semanticKey = digestCandidateRoutingValue({
+      storyId,
+      reviewRound,
+      agent,
+      reviewRunId,
+      envelopeId: reviewRun.envelopeId ?? null,
+      note: trimmedNote,
+      readManifest: readEvidence.readManifest,
+      readLog: readEvidence.readLog ?? null,
+      readDiagnostics: readEvidence.readDiagnostics ?? null,
+    });
+    const sameTerminal = data.passes.filter(pass =>
+      pass.reviewRound === reviewRound && pass.agent === agent && pass.reviewRunId === reviewRunId,
+    );
+    if (sameTerminal.length > 1) {
+      throw new Error(`${command}: multiple terminal passes already exist for ${storyId}/${reviewRound}/${agent}/${reviewRunId}; refusing ambiguous retry`);
+    }
+    for (const prior of sameTerminal) {
+      if (!verifyReviewPass(storyId, prior)) {
+        throw new Error(`${command}: existing terminal pass ${prior.id} has an invalid signature; refusing retry`);
+      }
+      const priorSemanticKey = digestCandidateRoutingValue({
+        storyId,
+        reviewRound: prior.reviewRound,
+        agent: prior.agent,
+        reviewRunId: prior.reviewRunId,
+        envelopeId: prior.envelopeId ?? null,
+        note: prior.note.trim(),
+        readManifest: prior.readManifest,
+        readLog: prior.readLog ?? null,
+        readDiagnostics: prior.readDiagnostics ?? null,
+      });
+      if (priorSemanticKey === semanticKey) {
+        return `Review pass ${prior.id} already recorded by ${agent} (idempotent retry)`;
+      }
+      throw new Error(
+        `${command}: conflicting terminal pass already exists for ${storyId}/${reviewRound}/${agent}/${reviewRunId}; ` +
+        `existing=${prior.id}, semantic evidence differs`,
+      );
+    }
     // Test-only barrier deliberately holds the full read-modify-write section;
     // a live-owner lock must survive beyond the historical 10s stale threshold.
     holdReviewPassLockForDeterministicStress();
@@ -386,12 +432,6 @@ function recordReviewPass(
       throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
     }
     const createdAt = new Date().toISOString();
-    const reviewRound = story.currentReviewRound || '';
-    const trimmedNote = note.trim();
-    const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
-    if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
-      throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
-    }
     // B-3b05 CHK-002: writer-session provenance. Resolve the writing session
     // identity, compare it against the current story owner lease session, and
     // persist writerSessionId + sessionSource into the versioned signature

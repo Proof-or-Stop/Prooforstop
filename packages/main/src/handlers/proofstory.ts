@@ -40,6 +40,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
@@ -1112,7 +1113,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
       const hasWithdrawals = withdrawnChecklistItemRefs.length > 0 || withdrawnAcceptanceBindingRefs.length > 0;
 
-      return withMkdirLock(
+      return withReviewInventoryMutationLock(store, args.storyId, () => withMkdirLock(
         store.runtimeLockDirPath(args.storyId, 'checklist', 'checklist'),
         () => {
           // Build (and shape-validate) the decision. buildScopeShrinkageDecision
@@ -1217,7 +1218,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           ].join('\n');
         },
         { label: 'checklist metadata' },
-      );
+      ));
     },
 
     scope_shrinkage_decision_get(args: { storyId: string; json?: boolean }): string {

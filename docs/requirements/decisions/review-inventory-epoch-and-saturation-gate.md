@@ -276,6 +276,20 @@ replays the current signed runs, terminals, finding dispositions, critic binding
 family digest, and coverage digest; an out-of-band or crash-era late append fails
 with `REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED` and cannot publish DEV.
 
+The frozen acceptance subject includes the scope contract, complete checklist
+semantics, the semantic ProofStory contract, binding dispositions, and the
+scope-shrinkage decision. Every acceptance writer—including
+`scope_shrinkage_decision_set` and its `declare_unreachable` caller—uses the same
+inventory lock as finalize/consume. Both OPEN boundaries and FINALIZED receipt
+consumption recompute the subject; finalize-vs-shrink serializes, while a
+post-finalize shrink makes the old receipt unusable and requires a fresh epoch.
+
+`review_pass_set` is replay-safe at its terminal boundary. Under the shared
+inventory/pass lock, story + review round + lane + ReviewRun identify the
+terminal and canonical note/read evidence identifies its semantics. An exact
+retry returns the existing RP id without another pass or process event; a retry
+with conflicting semantics fails closed.
+
 ## Wave 4 authority boundary for this Story
 
 This repository configures executable pre-review in `observe` mode. Its signed

@@ -62,7 +62,7 @@ import { promptRoleContract } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
 import {
   reviewInventoryDigest,
-  reviewInventoryAcceptanceSubjectDigest,
+  reviewInventoryAcceptanceSubjectDigestForStore,
   verifyReviewInventoryEpoch,
   verifyReviewInventoryReceipt,
 } from './review-inventory-epoch.js';
@@ -259,8 +259,7 @@ export function verifyCurrentPostRemediationReviewSelection(
 ): boolean {
   if (!verifyPostRemediationReviewSelection(selection) || selection.storyId !== storyId) return false;
   const story = store.readStory(storyId);
-  const checklist = store.readChecklist(storyId);
-  const scopeDigest = reviewInventoryAcceptanceSubjectDigest(store.readScopeContract(storyId), checklist);
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const bindingMatches = story.currentReviewRound === selection.reviewRound
     && currentGitHead(projectRoot) === selection.headHash
     && currentMaterialHash(projectRoot, 'HEAD', projectRoot) === selection.materialHash
@@ -305,7 +304,7 @@ export function postRemediationReviewSelection(
   const reviewRound = story.currentReviewRound ?? '<unavailable>';
   const activeLanes = active.map(row => `lattice-review-${row.name}`);
   const checklist = store.readChecklist(storyId);
-  const scopeDigest = reviewInventoryAcceptanceSubjectDigest(store.readScopeContract(storyId), checklist);
+  const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const data = store.readReviewInventoryEpochs(storyId);
   const receipt = [...data.receipts].reverse().find(row => Boolean(row.consumedAt));
   const fallback = (

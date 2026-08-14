@@ -14,7 +14,7 @@ import {
   signReviewInventoryReceipt,
 } from '../core/review-inventory-epoch.js';
 import { signFinding } from '../core/finding-verify.js';
-import type { Finding, StoryInfo } from '../core/types.js';
+import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import {
   computeCanonicalDependencyClosure,
@@ -107,7 +107,23 @@ function setup() {
   return { root, store, handlers: createReviewInventoryHandlers({ root, scanRoot: join(root, 'packages/main'), store }) };
 }
 
+function seedProofStoryAcceptance(store: StoryStore): void {
+  const now = new Date().toISOString();
+  const contract: ProofStoryContractData = {
+    schemaVersion: 'proofstory.contract.v1', storyId, diagnosticOnly: false,
+    hardeningLevel: 'standard', triggerReasons: [],
+    acceptanceBindings: [
+      { id: 'AB-001', checklistRefs: ['CHK-001'], verificationIntentRefs: [], milestoneIds: [] },
+      { id: 'AB-002', checklistRefs: ['CHK-001'], verificationIntentRefs: [], milestoneIds: [] },
+    ],
+    diagnosticGaps: [], createdAt: now, updatedAt: now,
+  };
+  store.writeProofStoryContract(storyId, contract);
+}
+
 const first = setup();
+seedProofStoryAcceptance(first.store);
+const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, {
   LATTICE_AGENT: 'lattice-review-topology-critic',
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
@@ -169,6 +185,25 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
     }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
   }
 }
+const retryLane = epoch.requiredLanes[1];
+const retryRun = firstWaveRuns.get(retryLane)!;
+const passCountBeforeRetry = reloaded.readReviewPasses(storyId).passes.length;
+const passEventsBeforeRetry = reloaded.readProcessEvents(storyId).filter(row => row.type === 'review_pass').length;
+const ambiguousRetry = cli(first.root, 'review_pass_set', {
+  storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
+  note: `Real handler smoke found no blocker for ${retryLane}.`, readManifest, readEvents,
+}, { LATTICE_AGENT: retryLane, LATTICE_SESSION_ID: retryRun.sessionId });
+const retryPassId = reloaded.readReviewPasses(storyId).passes.find(row => row.reviewRunId === retryRun.reviewRunId)!.id;
+assert.match(ambiguousRetry, new RegExp(`Review pass ${retryPassId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} already recorded`));
+assert.equal(reloaded.readReviewPasses(storyId).passes.length, passCountBeforeRetry, 'F046: an ambiguous exact retry preserves one RP');
+assert.equal(reloaded.readProcessEvents(storyId).filter(row => row.type === 'review_pass').length, passEventsBeforeRetry, 'F046: an ambiguous exact retry emits no duplicate event');
+assert.throws(
+  () => cli(first.root, 'review_pass_set', {
+    storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
+    note: 'Conflicting semantic evidence for the same terminal must fail closed.', readManifest, readEvents,
+  }, { LATTICE_AGENT: retryLane, LATTICE_SESSION_ID: retryRun.sessionId }),
+  /conflicting terminal pass/,
+);
 const multiRunLane = epoch.requiredLanes[0];
 const multiRunSession = `sess-inventory-newer-pass-${multiRunLane}`;
 cli(first.root, 'dispatch', { storyId, agentType: multiRunLane }, { LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession });
@@ -204,6 +239,17 @@ cli(first.root, 'review_pass_set', {
   readManifest,
   readEvents,
 }, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+const criticPassCount = reloaded.readReviewPasses(storyId).passes.length;
+const criticPassRetry = cli(first.root, 'review_pass_set', {
+  storyId,
+  agent: 'lattice-review-topology-critic',
+  reviewRunId: criticReviewRunId,
+  note: 'Independent critic reviewed the exact aggregate and lane coverage.',
+  readManifest,
+  readEvents,
+}, { LATTICE_AGENT: 'lattice-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+assert.match(criticPassRetry, /already recorded/, 'F046: critic pass uses the same idempotent terminal writer');
+assert.equal(reloaded.readReviewPasses(storyId).passes.length, criticPassCount);
 const critic = cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: criticReviewRunId,
   agent: 'lattice-review-topology-critic',
@@ -296,8 +342,33 @@ assert.throws(
   'real wave_advance refuses the zero-new state reserved for finalize',
 );
 assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeZeroNewAdvance, 'zero-new rejection is side-effect free');
-const finalized = cli(first.root, 'review_inventory_finalize', { storyId });
+const finalizeReady = join(first.root, 'review-inventory-finalize.ready');
+const finalizeDuringShrinkRace = cliAsync(first.root, 'review_inventory_finalize', { storyId }, {
+  NODE_ENV: 'test',
+  LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS: '1000',
+  LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE: finalizeReady,
+});
+waitForFile(finalizeReady);
+const shrinkAfterFinalizeChecks = cliAsync(first.root, 'scope_shrinkage_decision_set', {
+  storyId, decision: 'confirmed', userConfirmed: true,
+  withdrawnAcceptanceBindingRefs: ['AB-002'],
+  reason: 'Race a binding withdrawal against receipt publication.', approvedBy: 'operator',
+});
+const [finalizeRaceResult, shrinkRaceResult] = await Promise.all([finalizeDuringShrinkRace, shrinkAfterFinalizeChecks]);
+unlinkSync(finalizeReady);
+assert.equal(finalizeRaceResult.ok, true, finalizeRaceResult.output);
+assert.equal(shrinkRaceResult.ok, true, shrinkRaceResult.output);
+const finalized = finalizeRaceResult.output;
 assert.match(finalized, /State: FINALIZED/);
+assert.throws(
+  () => consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff),
+  /effective ProofStory\/checklist acceptance subject changed/,
+  'F042: finalize-vs-shrink linearizes finalize first, then consume rejects the changed acceptance subject',
+);
+// Restore the exact frozen semantic subject so the remaining independent
+// receipt/aggregate tests can exercise their intended rejection boundaries.
+reloaded.writeProofStoryContract(storyId, originalProofStoryContract);
+unlinkSync(join(first.root, '.lattice/story/actives', storyId, 'scope-shrinkage-decision.json'));
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
@@ -652,6 +723,56 @@ assert.throws(
   () => cli(acceptanceDrift.root, 'review_inventory_finalize', { storyId }),
   /no OPEN epoch/,
   'F037: begin -> verification_intent_repair changes the frozen acceptance subject and rejects finalize',
+);
+
+const proofStoryDrift = setup();
+seedProofStoryAcceptance(proofStoryDrift.store);
+cli(proofStoryDrift.root, 'review_inventory_begin', { storyId });
+cli(proofStoryDrift.root, 'scope_shrinkage_decision_set', {
+  storyId, decision: 'confirmed', userConfirmed: true,
+  withdrawnAcceptanceBindingRefs: ['AB-002'],
+  reason: 'Withdraw one acceptance binding after the frozen inventory begins.', approvedBy: 'operator',
+});
+assert.match(cli(proofStoryDrift.root, 'review_inventory_status', { storyId }), /OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/);
+assert.throws(
+  () => cli(proofStoryDrift.root, 'review_inventory_finalize', { storyId }),
+  /no OPEN epoch/,
+  'F042/F044: an acceptance-binding-only withdrawal invalidates the OPEN epoch before finalize',
+);
+
+const finalizedProofStoryDrift = setup();
+seedProofStoryAcceptance(finalizedProofStoryDrift.store);
+cli(finalizedProofStoryDrift.root, 'review_inventory_begin', { storyId });
+let finalizedProofData = finalizedProofStoryDrift.store.readReviewInventoryEpochs(storyId);
+const finalizedProofEpoch = finalizedProofData.epochs[0];
+const finalizedProofAt = new Date().toISOString();
+const finalizedProofReceiptUnsigned = {
+  schemaVersion: 'proofbound.review_inventory_receipt.v1' as const,
+  receiptId: `${finalizedProofEpoch.epochId}:RCP-001`, epochId: finalizedProofEpoch.epochId, storyId,
+  reviewRound, cutoff: finalizedProofEpoch.cutoff, scopeDigest: finalizedProofEpoch.scopeDigest,
+  requiredLanes: finalizedProofEpoch.requiredLanes, waveCount: 1,
+  findingSetDigest: 'f'.repeat(64), coverageDigest: 'e'.repeat(64),
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS' as const,
+  authority: 'inventory-completeness-only' as const, authorizesTest: false as const,
+  issuedAt: finalizedProofAt,
+};
+const { _hash: _finalizedProofHash, ...finalizedProofBase } = finalizedProofEpoch;
+const finalizedProofUnsigned = {
+  ...finalizedProofBase, state: 'FINALIZED' as const, updatedAt: finalizedProofAt,
+  receiptId: finalizedProofReceiptUnsigned.receiptId,
+};
+finalizedProofData.epochs[0] = { ...finalizedProofUnsigned, _hash: signReviewInventoryEpoch(finalizedProofUnsigned) };
+finalizedProofData.receipts.push({ ...finalizedProofReceiptUnsigned, _hash: signReviewInventoryReceipt(finalizedProofReceiptUnsigned) });
+finalizedProofStoryDrift.store.writeReviewInventoryEpochs(storyId, finalizedProofData);
+cli(finalizedProofStoryDrift.root, 'scope_shrinkage_decision_set', {
+  storyId, decision: 'confirmed', userConfirmed: true,
+  withdrawnAcceptanceBindingRefs: ['AB-002'],
+  reason: 'Withdraw one binding after FINALIZED but before receipt consumption.', approvedBy: 'operator',
+});
+assert.throws(
+  () => consumeReviewInventoryReceipt(finalizedProofStoryDrift.store, storyId, reviewRound, finalizedProofEpoch.cutoff),
+  /effective ProofStory\/checklist acceptance subject changed/,
+  'F042: FINALIZED consumption recomputes the acceptance subject instead of trusting the old receipt',
 );
 
 const candidateDrift = setup();

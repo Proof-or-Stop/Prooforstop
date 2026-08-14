@@ -4299,6 +4299,27 @@ function assertReviewInventoryRemediationContract() {
     /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
     `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,
   );
+  assert(
+    /proofStoryContract[\s\S]*scopeShrinkageDecision[\s\S]*reviewInventoryAcceptanceSubjectDigestForStore/.test(epochText)
+      && /currentAcceptanceSubjectDigest[\s\S]*effective ProofStory\/checklist acceptance subject changed/.test(epochText),
+    `${epochPath}: OPEN and FINALIZED consumers must bind and recompute the effective ProofStory acceptance subject`,
+  );
+  const proofStoryHandlerText = read('packages/main/src/handlers/proofstory.ts');
+  assert(
+    /scope_shrinkage_decision_set[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(proofStoryHandlerText),
+    'packages/main/src/handlers/proofstory.ts: scope shrinkage must use inventory -> checklist lock order',
+  );
+  const idempotentFindingHandlerText = read('packages/main/src/handlers/finding.ts');
+  assert(
+    /sameTerminal[\s\S]*verifyReviewPass[\s\S]*idempotent retry[\s\S]*conflicting terminal pass/.test(idempotentFindingHandlerText),
+    'packages/main/src/handlers/finding.ts: review-pass terminal writes must be strongly idempotent and reject semantic conflicts',
+  );
+  const agentsDocText = read('AGENTS.md');
+  const storyLifecycleText = read('docs/requirements/decisions/story-lifecycle.md');
+  const testingInfraText = read('docs/requirements/decisions/testing-infra.md');
+  for (const [label, text] of [['AGENTS.md', agentsDocText], ['story-lifecycle.md', storyLifecycleText], ['testing-infra.md', testingInfraText]]) {
+    assert(/fresh (?:non-latest )?PASS|fresh PASS/.test(text) && /open FINDING/.test(text), `${label}: latest-run guidance must preserve the kind-aware PASS/FINDING distinction`);
+  }
   const candidateHandlerText = read('packages/main/src/handlers/candidate-spec-routing.ts');
   assert(
     /withReviewInventoryMutationLock[\s\S]*writeCandidateSpecSet[\s\S]*refreshReviewInventoryContextLocked/.test(candidateHandlerText),

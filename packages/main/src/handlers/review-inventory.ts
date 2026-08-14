@@ -11,7 +11,7 @@ import {
   evaluateReviewInventoryWave,
   finalizedUnconsumedReviewInventory,
   reviewInventoryDigest,
-  reviewInventoryAcceptanceSubjectDigest,
+  reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
   maxReviewRunSequence,
@@ -26,6 +26,16 @@ import {
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { verifyCandidateSpecSet } from '../core/candidate-spec-routing.js';
+import { writeFileSync } from 'node:fs';
+
+function holdFinalizeForDeterministicStress(): void {
+  if (process.env.NODE_ENV !== 'test') return;
+  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_HOLD_MS ?? 0);
+  if (!Number.isFinite(holdMs) || holdMs <= 0) return;
+  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_INVENTORY_FINALIZE_READY_FILE;
+  if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
+}
 
 function signedRoot(ctx: HandlerContext, storyId: string): { root: string; metadataRoot: string } {
   const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
@@ -70,7 +80,7 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
   return {
     requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
       .map(row => `lattice-review-${row.name}`),
-    scopeDigest: reviewInventoryAcceptanceSubjectDigest(ctx.store.readScopeContract(storyId), checklist),
+    scopeDigest: reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId),
     ...(validCandidate ? {
       candidateSpecSetDigest: validCandidate.artifactDigest,
       corpusDigest: validCandidate.corpusDigest,
@@ -489,6 +499,9 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           findings: ctx.store.readFindings(args.storyId).findings,
         });
         if (!critic.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}; run the independent topology critic for wave ${epoch.waves.length + 1}`);
+        // Test-only barrier holds the real shared inventory critical section
+        // after every finalize admission check and before receipt publication.
+        holdFinalizeForDeterministicStress();
         const now = new Date().toISOString();
         const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);

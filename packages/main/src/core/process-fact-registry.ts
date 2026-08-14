@@ -526,7 +526,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review-passes.json',
     path: 'review-passes.json',
     signed: true,
-    signature: 'signReviewPass/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain, reviewRunId-inclusive records do not fall back to legacy signatures, and writerSessionId-inclusive records bind writer session provenance',
+    signature: 'signReviewPass/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain, reviewRunId-inclusive records do not fall back to legacy signatures, writerSessionId-inclusive records bind writer session provenance, and exact terminal semantic retries return the existing RP id while conflicts fail closed',
     producerCommand: 'review_pass_set',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -1349,7 +1349,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canReenterDev REVIEW to DEV inventory saturation gate',
     consumerSourceRefs: ['packages/main/src/core/machine.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_inventory_finalize,
-    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts prove only bounded zero-new verified-finding saturation and are single-use for aggregated remediation DEV, never TEST authority.',
+    rationale: 'Signed epochs freeze REVIEW material/scope/round/required lanes plus complete checklist and effective ProofStory acceptance contract/dispositions; signed critic receipts bind complete per-finding verified-family/duplicate/not-verified dispositions plus pass/finding read evidence; signed inventory receipts prove only bounded zero-new verified-finding saturation, are revalidated against the live acceptance subject, and are single-use for aggregated remediation DEV, never TEST authority.',
   },
   {
     name: 'artifact:findings.json',

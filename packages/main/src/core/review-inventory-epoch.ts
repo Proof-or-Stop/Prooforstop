@@ -48,7 +48,17 @@ export function reviewInventoryDigest(value: unknown): string {
 }
 
 /** Canonical acceptance/review subject shared by epoch writers and consumers. */
-export function reviewInventoryAcceptanceSubjectDigest(scopeContract: unknown, checklist: ChecklistData): string {
+export function reviewInventoryAcceptanceSubjectDigest(
+  scopeContract: unknown,
+  checklist: ChecklistData,
+  proofStoryContract: Record<string, unknown> | null = null,
+  scopeShrinkageDecision: Record<string, unknown> | null = null,
+): string {
+  const withoutVolatileTimestamps = (value: Record<string, unknown> | null): Record<string, unknown> | null => {
+    if (!value) return null;
+    const { createdAt: _createdAt, updatedAt: _updatedAt, ...semantic } = value;
+    return semantic;
+  };
   return reviewInventoryDigest({
     scopeContract,
     checklist: checklist.items.map(row => ({
@@ -64,7 +74,22 @@ export function reviewInventoryAcceptanceSubjectDigest(scopeContract: unknown, c
       verificationEvidence: row.verificationEvidence,
       userSeesSnapshot: row.userSeesSnapshot,
     })),
+    // ProofStory is a second acceptance-authority surface beside checklist.
+    // Bind its complete semantic contract plus the disposition decision; omit
+    // only volatile persistence timestamps so an exact idempotent retry does
+    // not manufacture acceptance drift.
+    proofStoryContract: withoutVolatileTimestamps(proofStoryContract),
+    scopeShrinkageDecision: withoutVolatileTimestamps(scopeShrinkageDecision),
   });
+}
+
+export function reviewInventoryAcceptanceSubjectDigestForStore(store: StoryStore, storyId: string): string {
+  return reviewInventoryAcceptanceSubjectDigest(
+    store.readScopeContract(storyId),
+    store.readChecklist(storyId),
+    store.readProofStoryContract(storyId) as unknown as Record<string, unknown> | null,
+    store.readScopeShrinkageDecision(storyId) as unknown as Record<string, unknown> | null,
+  );
 }
 
 export function reviewRunSequence(run: Pick<ReviewRun, 'reviewRunId'>): number | null {
@@ -581,6 +606,13 @@ export function consumeReviewInventoryReceipt(
     const gate = reviewInventoryRemediationGate(store, storyId, reviewRound);
     if (!gate.ok) throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: ${gate.reason}`);
     const pair = finalizedUnconsumedReviewInventory(store, storyId)!;
+    const currentAcceptanceSubjectDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
+    if (pair.epoch.scopeDigest !== currentAcceptanceSubjectDigest
+      || pair.receipt.scopeDigest !== currentAcceptanceSubjectDigest) {
+      throw new Error(
+        'REVIEW_INVENTORY_REMEDIATION_BLOCKED: effective ProofStory/checklist acceptance subject changed after finalize; begin a fresh inventory epoch',
+      );
+    }
     if (pair.receipt.cutoff.materialHash !== currentCutoff.materialHash
       || (pair.receipt.cutoff.storyFilesHash ?? '') !== (currentCutoff.storyFilesHash ?? '')) {
       throw new Error('REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material/storyFiles no longer match the finalized cutoff');
