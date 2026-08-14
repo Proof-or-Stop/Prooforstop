@@ -141,6 +141,49 @@
         "scanEscalationReason": null
       },
       "_hash": "27d9489df003d7f3001b01609601daea244e5a6919cbb394d4ed3d86f302348f"
+    },
+    {
+      "id": "B-9ff1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Confirmation round after 13 finding-fixes + main merge. envelope.ts + specificity.ts re-checked in full: still pure (grepped for fs/child_process/Date/Math.random/process.env, none found in either file). New branches (greenExempt presence-based, testCaseRefPattern R1-5, DRIVE_QUALIFIED_PREFIX, supplementaryArtifact:null, matcherSetEvaluable narrowed to bounded.length>0) are exhaustive over the closed enums and fail-closed. npx tsc --noEmit -p packages/main clean; no new any; every catch in touched files converts to a thrown Error or documented fallback, none swallow. Ran all 5 red-w2d-*.mjs tests directly: PASS/exit 0. Mutation-verified 2 fixtures by reverting fixes in place then restoring+rebuilding: (F-007) greenExempt truth-based revert makes red-w2d-rejection-matrix.mjs fail; (F-011) supplementaryArtifact:null-as-absent revert makes the same file fail on the exact rejection code (assertTagged checks code not just tag). File restored byte-identical (git diff clean) before continuing. Independently reproduced the child_process recorder mechanism in a standalone scratch script on this repo's node v22.13.0: require(node:child_process) via createRequire mutates the same exports object later ESM imports read from, and a wrong-order repro reproduces exactly the failure the negative control (spawns.length>0) is designed to catch -- recorder is sound, negative control not vacuous. Cross-checked both header adjudications against docs/requirements/decisions/red-evidence-subsystem-spec.md: value-bounds-scoped-to-literal-line is grounded in spec line 183/408 (not a self-exemption); policyDigest/assertionDigest-optional-on-a-candidate is grounded in spec lines 278-282 vs the pre-flight's purpose to compute the digest, both directions asserted and passing. findings.json: 13/13 prior findings resolved, strong evidence, none open. No new findings.",
+      "createdAt": "2026-08-14T02:23:31.101Z",
+      "reviewRound": "2026-08-14T02:11:09.416Z",
+      "reviewRunId": "B-9ff1:RR-007",
+      "envelopeId": "19a00565361e013f2b111fd8731bc1b9e8841d0d1f3d3f51ad2e8f54770b3c49",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8f15b6ef0b128aa33dc4b79b4b626907d1adaf38aaf60c1d58b8495e7098453"
     }
   ]
 }
