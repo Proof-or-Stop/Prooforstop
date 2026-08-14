@@ -896,6 +896,21 @@
       "_hash": "d948e0722bdfa31292d5ece6007b0525401fa65bcf9ddcca351e5db242d67d96",
       "signatureTag": "missing|unknown|process-integrity-tree",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-043",
+      "desc": "quality-cleanup: de-duplication is not fully finished — packages/main/src/core/global-agents.ts:244-246 is a pre-existing (not touched by this story's logic, only comments/prose edited) fifth site independently branching isModularReviewerRoleId(name) ? renderReviewerRunBootstrap(...) : renderAgentShim(...) rather than delegating to the consolidated renderPromptEntryForHost helper that the F-036 fix (commit 155e787d0c) unified the other four sites around. It is legitimately a different artifact (the always-thin GLOBAL ~/.claude/agents shim vs renderPromptEntryForHost's mode-selected PROJECT-LOCAL .claude/agents / .lattice-codex/agents mirror), so it is not a literal behavioral bug today, but it re-derives the same reviewer-vs-ordinary-role classification independently rather than through the one helper, which is exactly the shape that produced 4 prior divergences (per F-036's own commit message: 3 consolidated, a 4th found after declaring done). packages/main/src/tasks/global-agents-unit-smoke.ts:122-128 additionally hand-rolls the same branch a sixth time in test code (hardcoding role===\"lattice-review-concept\" as its reviewer sentinel instead of calling the real isModularReviewerRoleId), though this one is contained to a synthetic in-memory fixture and cannot diverge from real registry content the way F-036 did. Recommend: either have global-agents.ts:244 delegate through a shared classifier call (even if the render itself differs), or add an explicit cross-check test asserting global-agents.ts and renderPromptEntryForHost agree on which role IDs are reviewer roles, so a future change to MODULAR_REVIEWER role membership cannot silently diverge between the two independent branch sites.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T09:21:30.221Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-053",
+      "_hash": "42afc931b1e90eb54812ff3b3eafb025bcc6f4cf4bfb4a3a62e0298d19af719e",
+      "signatureTag": "missing|unknown|quality-cleanup-duplication",
+      "signatureTagSource": "auto"
     }
   ]
 }
