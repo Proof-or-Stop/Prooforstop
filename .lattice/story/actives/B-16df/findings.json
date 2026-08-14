@@ -70,7 +70,7 @@
       "desc": "CHK-002:H-002 (\"Diff of checklist.ts shows exactly 4 call sites ... changed ... No duplicated matching logic exists outside the one helper\"), CHK-002:H-003 (\"git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output\"), CHK-002:E-005 (\"tsc build succeeds ... Import graph is one-way\"), and CHK-001:happy:0 (\"npm --prefix packages/main run build exits 0\") are all bound (per their own verificationIntent.verification.command field in checklist.json) to node packages/main/dist/tasks/validate-command-timeout-smoke.js, NOT to git diff or npm run build. Running the smoke script never invokes git diff or npm run build, so it is circumstantial at best (it would not run if the build were broken) but does not mechanically verify \"git diff produces empty output\" for the two named files, nor \"exactly 4 call sites changed\" in checklist.ts, nor does it re-execute npm run build at evidence-capture time. This is the coarse-grained-sharing failure mode the story description explicitly asked to be scrutinized: the shared command is not, for these 4 intents, actually the operation the claim requires.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T12:30:38.307Z",
@@ -81,7 +81,11 @@
         "/Users/jek/Documents/Work/proofbound/.worktrees/B-16df/.lattice/story/actives/B-16df/checklist.json"
       ],
       "signatureTag": "missing|json|diff-checklist-shows",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "H-002/H-003 given real dedicated assertions (sections 13/12, commit cc9aa30579) rather than a mismatched command binding; E-005/CHK-001:happy:0 (build-success claims) resolved via honest waiver explaining build-success entailment (the pinned smoke script cannot run unless the build already succeeded). Independently re-verified by lattice-review-quality (live-reproduced sections 12/13 correctness) and lattice-review-test-coverage in REVIEW rounds 2-3.",
+      "resolvedAt": "2026-08-14T13:38:28.876Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-16df:F-005",
