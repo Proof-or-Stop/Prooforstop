@@ -1643,7 +1643,11 @@
           },
           {
             "desc": "Section 4.3 rollout severity table and any REGISTERED_CRITICAL_RUNTIME_CONSUMERS or ADVISORY_ONLY_RUNTIME_CONSUMERS prose in the doc do not list finding_resolve as blocking or critical, consistent with CHK-002 plan stating it must stay fully advisory non-blocking; WHY: the doc must not accidentally describe finding_resolve as having a severity class it does not have in code",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"deliberately absent from both \\`REGISTERED_CRITICAL_RUNTIME_CONSUMERS\\` and\\\") ? \\\"EXCLUDED_FROM_CRITICAL_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "EXCLUDED_FROM_CRITICAL_CONFIRMED"
+            }
           }
         ],
         "adversarial": [
@@ -1760,6 +1764,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:32.673Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"deliberately absent from both \\`REGISTERED_CRITICAL_RUNTIME_CONSUMERS\\` and\\\") ? \\\"EXCLUDED_FROM_CRITICAL_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The 4.3 annotation explicitly states finding_resolve is deliberately absent from both REGISTERED_CRITICAL_RUNTIME_CONSUMERS and ADVISORY_ONLY_RUNTIME_CONSUMERS so it can never become warn/blocking, matching the stays-fully-advisory claim in this intent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "08ec14028100fa79192da24715a77742b9aadb0c9234da27b208aa5dd74bab3f",
+            "outputTail": "EXCLUDED_FROM_CRITICAL_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:33.612Z"
+          },
+          "headHash": "26e50b15552e5daf38f6c3e1db3c19aedd229526",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:33.733Z"
         }
       ]
     }
