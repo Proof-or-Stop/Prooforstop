@@ -303,10 +303,30 @@
       "phase": "DEV",
       "headHash": "f4428eb9351bcec1fa6490c05202f4037b2b8507",
       "materialHash": "22d162f19daee36736fa26ea01605f60130279b62837969c20342a36bdb620c1"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F033-F036 require shared live-owner lock semantics, serialized scope acknowledgement, and the corresponding authoritative lease design documentation to prevent lost review evidence and stale frozen scope.",
+      "timestamp": "2026-08-14T20:50:51.838Z",
+      "paths": [
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/handlers/scope-contract.ts",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "a270f209e7da5f1b23efa473b5ba3e31ed50f4d8",
+      "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T19:41:06.457Z",
+  "updatedAt": "2026-08-14T20:50:51.838Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -374,6 +394,9 @@
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
     "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
-    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md": "docs/requirements/decisions/session-ownership-and-write-leases.md"
   }
 }
