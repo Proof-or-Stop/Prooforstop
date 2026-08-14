@@ -686,6 +686,40 @@
         "scanEscalationReason": null
       },
       "_hash": "cabde38b2e1993d9eaa3101f3300b89d8223a9b0eba4589323f9e43d4f0e9499"
+    },
+    {
+      "id": "B-cdf6:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind after F-046 fix (commit 5ea04e5e36). Verified fresh at HEAD 88950c57: working tree clean, only story-bookkeeping files changed vs d43cfb1147 (process-events.jsonl, prompt-envelopes.json, review-runs.json), no source touched. Reviewed the 13-file incremental delta plus re-inspected the F-046 diff directly: handlers/lattice-cli.ts:174 now calls configRepairCommandFor() instead of a hardcoded deprecated-bin string; :345 error message and :205 plus tasks/lattice-cli-migration-smoke.ts:253,256 config-doctor detail and test assertion corrected from the false only-lattice-bin claim to the true dual-bin state, matching the finding exactly with no regression. New core/brand-env.ts read-both write-both env compat helper is sound (presence-based precedence, canonical wins, deprecated always still read and written) and threads correctly into verifier.ts, managed-assets.ts, cli-init.ts. cli-init.ts wrapper-generation writes only canonical bin names for fresh projects while leaving pre-existing deprecated-named wrappers untouched. Mechanical checks fresh at this head: tsc clean across all 3 tsconfigs; finding_list shows 46 total findings, 0 open, 0 duplicate ids; global-agents-unit-smoke and global-agents-init-smoke PASS; flow-stability-smoke, rollout-check-smoke, decision-doc-promotion-smoke PASS after rebuilding dist (stale dist was my own artifact, not a code defect); verify-lattice-residue.mjs 3/3 PASS (koala, brand-prose, brand-exec) and self-test 38/38 PASS; verify-residue-inject-repro.mjs and verify-brand-gate-negative.mjs both PASS. Confirmed by direct source diff against main that prompt-token-cost-smoke (fails at extractLatticeBlock expected-lattice-managed-block, line untouched by this story) and lattice-cli-migration-smoke (fails at the literal lattice host status help-alias assertion, also untouched) are genuinely pre-existing failures identical on main, documented as such in the F-046 commit message itself. No new findings warranted; quality lane clear to pass at this head.",
+      "createdAt": "2026-08-14T12:21:35.564Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-065",
+      "envelopeId": "9a4b88ced9a29e92f0a4aca42cbaa62976b6d426c9e599f62eaeaa10736fb59d",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d0ee0b4d62e6343a460c54322041c670684da358e2f41c157ff7adb34fcbac5"
     }
   ]
 }
