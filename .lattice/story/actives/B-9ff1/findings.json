@@ -864,7 +864,7 @@
       "desc": "[codex host-B E3] Verified by main agent. Three story artifacts beyond the two already disclosed carry command-level wording with the older scoping: plan.md, understanding.json and proofstory.json. codex explicitly did not count background or decision statements whose subject is 'this story' or 'this leaf', which remain true as implementation-scoped claims. These are frozen at this phase, so they join the existing disclosure rather than being edited.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:20:24.165Z",
@@ -872,7 +872,11 @@
       "reviewRunId": "B-9ff1:RR-029",
       "_hash": "9c2cf652bf7609c3e178ff907f331018f4a95a1f9c9746a07aaf5bcde44a7fdd",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Not fixed, and deliberately so: plan.md, understanding.json and proofstory.json are frozen at this phase and cannot be edited. They join the existing disclosure in the TEST summary alongside scope-contract.json and checklist.json, so the record states plainly which artifacts still carry the superseded scoping rather than leaving a reader to assume they are current. The cross-vendor host explicitly excluded background and decision statements whose subject is 'this story' or 'this leaf', which remain true as implementation-scoped claims - I checked that distinction rather than taking it on faith.",
+      "resolvedAt": "2026-08-14T10:33:10.116Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-041",
