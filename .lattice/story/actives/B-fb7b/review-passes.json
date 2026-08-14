@@ -335,6 +335,31 @@
         "scanEscalationReason": null
       },
       "_hash": "74324c066edb3b994bc73df6b763bc2808015a87d9e12665e9c013bdcdec1fee"
+    },
+    {
+      "id": "B-fb7b:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 delta review. git diff 781a58650f4..c266c29696 (round-3 head -> current head), excluding .lattice/: exactly one material file changed, packages/main/tests/red/red-b49d4-harness-registration.mjs, +10/-0, matching commit 6bc5d2e824 (adds 2 entries to REGISTRATION_EXCLUSIONS Map). Read the full file (311 lines) plus both referenced RED harnesses (red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs) to check the 2 new entries against the file own conventions and rules. (1) Key/path template: both keys use POPULATION_DIR_REL + /red-fb7b-*.mjs, identical construction to the 3 pre-existing entries (red-b2aa7-chk001/chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs), and both named files verifiably exist in packages/main/tests/red/ so neither is stale. (2) Reason length: MIN_EXCLUSION_REASON_CHARS=40; both reasons are multi-clause paragraphs (~330-350 chars each), far over the floor, and both are substantive: pretest-builds-utils reason correctly states it runs a full npm run pretest rebuilding both packages/main and packages/utils dist trees (confirmed at file line 71, execFileSync npm run pretest with a 290000ms timeout) and is therefore unsafe as a concurrent validate command; guard-bite reason correctly states it uses isolated temp-fixture bite tests (confirmed: mkdtempSync-based makeFixture at lines 46-57, used by 5 biteCase calls) plus a lifecycle npm test check (confirmed: GB-LIFECYCLE-FIRES block at lines 160-176). Both reasons correctly name test-suite-utils-autobuild-smoke as the permanent validate.commands guard, verified present at lattice.config.json line 68. (3) B-49d4 derivation-artifact naming caution (file lines 109-114, the CAUTION comment immediately above REGISTRATION_EXCLUSIONS): grepped both new reason strings for the derivation artifact filename/story id; neither mentions red-b49d4-registration-derivation.mjs, B-49d4, or CHK-001/BLOCK-D by name, so the entries do not trip the self-removal trap the header warns about. (4) Executed the modified guard directly in isolation: node packages/main/tests/red/red-b49d4-harness-registration.mjs -> exit 0, OK line reports 39 population entries, 34 registered + 5 excluded (the 3 pre-existing plus the 2 new), non-vacuity checks (classifier + exclusion-audit synthetic cases) all still pass since only the Map literal grew. No dead code, no as-any, no swallowed catches, no I/O-shell-isolation concern introduced by this 10-line change. Not run: full lattice validate (races under concurrency per task instruction) and the derivation guard red-b49d4-registration-derivation.mjs (heavy sandboxed spawn test, out of scope for a 10-line registry-entry diff). Verdict: no quality regression, round-4 PASS.",
+      "createdAt": "2026-08-14T05:27:24.467Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-016",
+      "envelopeId": "9050b760bed082d078d31c728f6b421a2181505dd1f96d1d1a9d232e60f047cd",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae56347e28f32a0d424251ac6909d999a087ba0f4c6348169b2d198d0cf2b73c"
     }
   ]
 }
