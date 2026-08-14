@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3144",
+  "changes": "Aligned quorum_submit's duplicate-guard predicate with the review-escalation floor's drift-accept predicate (handlers/quorum-submit.ts assertNoStandingQuorum), so a redundant re-submit after a main-merge that moves materialHash but leaves storyFilesHash unchanged is refused with an informative error instead of silently poisoning the round as a duplicate host/session/key identity. Added a new quorum_prune recovery command (handlers/quorum-prune.ts, wired across all 5 integration points) for repairing already-poisoned historical process-events.jsonl logs from incidents that predate this guard, with dry-run/apply modes, timestamped backups, and fail-closed handling of non-pass/unrecoverable duplicate groups. Also fixed 6 independently-found security/correctness defects (F-024..F-029: laundering a failing verdict, path traversal in verdict-cache deletion, a data-loss race, non-atomic file installation, a TOCTOU race in the guard, and a materialDigest normalization hole) and one high-severity parity gap discovered during this session's own review (F-035: the guard was missing the floor's EMPTY_STORY_FILES_HASH no-signal exclusion).",
+  "usage": "lattice quorum_submit --storyId=<id> --hostA=<a> --hostB=<b> --rounds=3 (unchanged CLI surface; the guard now additionally refuses a drift-accept collision). Recovery: lattice quorum_prune --storyId=<id> --dryRun to preview poisoned duplicate groups, then --apply to prune with a timestamped backup.",
+  "expectedOutcome": "quorum_submit refuses a redundant resubmit after a main-merge with an informative drift-accept message; quorum_prune dry-run lists duplicate groups without mutating; quorum_prune apply removes losing verdicts, backs up the log, and the review-escalation floor returns to full-3x2.",
+  "actualTranscript": "Full smoke (quorum-submit-smoke.ts) 71/71 checks pass, including RED reproduction of the original B-bf52 poisoning, GREEN verification of the fix, all 11 quorum_prune scenarios, and a dedicated F-035 regression check. Full lattice validate (94 configured commands) passes clean. Full DONE-required root test suite passes.",
+  "outcomeDiff": "No difference -- all behaviors described above were verified directly against the built production code, not just asserted.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none -- fully covered for this story's own scope (aligning quorum_submit's guard with the review-escalation floor's drift-accept predicate, plus the quorum_prune recovery command). autopilot_review_submit is a separate command owned by its own future story; guarding it is a distinct, independently-scoped enhancement, not a piece cut from this one. Concurrent multi-host racing protection is a different, separately-scoped hardening effort by design (a filesystem lock cannot provide true cross-checkout mutual exclusion); the existing exact-byte transaction plus HEAD CAS already gives this story's target scenario (same-host sequential resubmission) full protection.",
+  "pitfalls": "This story required 6 full REVIEW rounds to close: (1) discovered the story's own test fixture had the exact synthetic-drift-material bug an unrelated independently-landed fix (B-f88e) now neutralizes, silently making 2 regression checks pass vacuously -- fixed by pinning to the real current material hash instead of a synthetic string; (2) a reviewer found the guard itself was missing a floor-parity exclusion (F-035) that its own code comment had explicitly warned about; (3) fixing an unrelated pre-existing smoke's stale fingerprint pin (caused by this story's own cli-engine.ts wiring shifting a whole-file structural hash) surfaced a SECOND independent stale reference to the same fingerprint in a completely different file (scripts/verify-process-fact-contract.mjs) that only showed up as two unrelated-looking validate failures -- lesson: when a structural/AST fingerprint pin needs updating, grep the whole repo for the OLD value, not just the one file found first; (4) hit the standard hot-main self-chasing-tail pattern repeatedly (each metadata auto-commit invalidating the prior evidence/review-pass Prompt Envelope) plus two convergence-breaker freezes from repeated DEV/REVIEW/DONE gate cycling, both cleared via story_resume --ack; (5) a done_required_validate run captured LATTICE_MAX_TIMEOUT_MS/LATTICE_IDLE_TIMEOUT_MS env-var overrides into its recorded effectiveEnvironmentDigest, which then mismatched story_advance's own recomputation without those vars -- fixed by rerunning without the extra env vars (the default timeout was generous enough for this specific 2-command check all along).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 250992
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46596
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2143730
+    },
+    "DEV": {
+      "count": 17,
+      "durationMs": 142181565
+    },
+    "REVIEW": {
+      "count": 17,
+      "durationMs": 1623348955
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 2296872
+    }
+  },
+  "totalDurationMs": 1770271881,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-14T07:20:24.595Z",
+  "updatedAt": "2026-08-14T07:50:38.611Z"
+}

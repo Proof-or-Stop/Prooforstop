@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "A producer guard must refuse exactly the set of inputs its consumer would accept as duplicates - predicate parity, not predicate approximation.",
+    "Never destroy standing evidence: a refusal that explains the standing quorum beats a write that invalidates it.",
+    "Recovery paths for append-only committed metadata must be official commands with dry-run defaults and backups, never manual file surgery.",
+    "Smallest change that closes the incident class; structural migrations (id schemes) only with their own story and migration plan."
+  ],
+  "drivers": [
+    "The B-bf52 incident: a redundant re-submit after git merge main silently dropped assurance from full-3x2 to ordinary review, with no recovery command (manual jsonl surgery, commit 255eefd289).",
+    "The floor's drift-accept predicate (eventsWithStoryFilesHashDowngrade, review-escalation.ts:948-969) is authoritative and explicitly excluded from change in this story.",
+    "Deterministic runIds (<storyId>-q-rN) and story+host-derived session/key identities are load-bearing for existing verdict history and smoke assertions - migration cost is real."
+  ],
+  "options": [
+    {
+      "name": "guard-predicate-alignment-plus-prune",
+      "pros": [
+        "Closes the poisoning path at the producer with a few-line predicate change mirroring the floor exactly",
+        "Refusal message teaches the operator the standing quorum is still valid (encodes the write-once-per-material rule into the tool)",
+        "quorum_prune formalizes the proven B-bf52 recovery (keep=newest-material matches commit 255eefd289) for already-poisoned stories",
+        "No id-scheme migration, no verdict-history rewrite, existing smoke assertions stay valid"
+      ],
+      "cons": [
+        "Guard must track the floor predicate in lockstep (documented in the guard comment; empty-hash corner deliberately mirrored per OQ-1 resolution)",
+        "quorum_prune rewrites an append-only committed file (contained by dry-run default, backup, pre-dirty refusal)"
+      ]
+    },
+    {
+      "name": "material-scoped-runIds",
+      "pros": [
+        "Structurally removes cross-material runId collisions forever",
+        "No guard/floor predicate coupling to maintain"
+      ],
+      "cons": [
+        "Requires migrating existing stories' verdict history and every -q-rN smoke/format assertion",
+        "Redundant resubmits become silently accepted extra rounds (drift-accepted old rounds + new rounds double-count) instead of a teaching refusal",
+        "Does not help already-poisoned stories at all (still needs a prune path)"
+      ]
+    },
+    {
+      "name": "supersede-events",
+      "pros": [
+        "Keeps the append-only log append-only during recovery",
+        "Full audit trail of what superseded what"
+      ],
+      "cons": [
+        "Every verdict consumer (floor, escalation, summaries, offline verifier) must learn supersede semantics - a trust-model change far larger than the incident class",
+        "Still needs the producer guard anyway to stop new poisonings; supersede alone only remediates"
+      ]
+    }
+  ],
+  "chosen": "guard-predicate-alignment-plus-prune",
+  "rationale": "The incident class is fully closed by making the producer refuse exactly what the consumer drift-accepts, and the one real historical poisoning already validated the prune recovery shape (keep newest-material). The alternatives cost a migration or a trust-model change and still need the guard anyway.",
+  "preMortem": [
+    {
+      "scenario": "Floor later gains the EMPTY_STORY_FILES_HASH no-signal guard while the quorum guard keeps mirroring the old predicate",
+      "trigger": "A future story hardens eventsWithStoryFilesHashDowngrade per review-run-binding-race.md",
+      "consequence": "Guard refuses a resubmit the floor would no longer drift-accept - over-blocking; the guard comment names this lockstep dependency so that story updates both, and the refusal message points at review_escalation_status which would reveal the mismatch.",
+      "mitigation": "The guard comment names the lockstep dependency on eventsWithStoryFilesHashDowngrade and the refusal message points at review_escalation_status, so any future floor hardening story finds and updates both predicates together."
+    },
+    {
+      "scenario": "quorum_prune removes the wrong verdict set on a story where the newest-material set is itself the erroneous one",
+      "trigger": "Operator poisoned a quorum by resubmitting at an OLD checkout (newest event is not the wanted one)",
+      "consequence": "Floor stays broken until re-pruned; contained by dry-run default listing both sets with digests before apply, the keep=oldest-material selector, and the timestamped backup enabling restore.",
+      "mitigation": "dryRun defaults on and lists both verdict sets with material digests before any mutation; keep=oldest-material selector covers the inverted case; a timestamped backup enables full restore."
+    },
+    {
+      "scenario": "Legacy verdict events without a storyFilesHash field meet the new guard",
+      "trigger": "Old stories created before storyFilesHash was written into verdicts run quorum_submit again",
+      "consequence": "Guard must not fabricate a collision from a blank field; blank storyFilesHash is treated as no-signal (no drift-accept claim), preserving pre-fix behavior for legacy history - covered by CHK-002:edge:0.",
+      "mitigation": "The guard treats a blank/absent storyFilesHash field as no-signal (no drift-accept claim), preserving pre-fix behavior for legacy verdict history; locked by CHK-002:edge:0."
+    },
+    {
+      "scenario": "quorum_prune apply races a concurrent lattice command writing process-events.jsonl",
+      "trigger": "Another host appends a verdict between prune's read and rewrite",
+      "consequence": "Lost append or corrupted jsonl; contained by running through the same lifecycle-metadata transaction machinery as quorum_submit (pre-dirty refusal + exact-append verification + rollback), which refuses when the tree or file moved.",
+      "mitigation": "quorum_prune runs through the same lifecycle-metadata transaction machinery as quorum_submit (pre-dirty refusal, exact-content verification, rollback on failure), refusing whenever the tree or the events file moved underneath it."
+    }
+  ],
+  "timestamp": "2026-07-24T20:41:39.711Z"
+}

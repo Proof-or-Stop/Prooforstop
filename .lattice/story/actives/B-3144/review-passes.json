@@ -1,0 +1,939 @@
+{
+  "passes": [
+    {
+      "id": "B-3144:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 targeted re-review. F-002/F-007 (round-1 backup-naming leftover-dirt bug) verified genuinely fixed: writeUniqueBackup (handlers/quorum-prune.ts:145-155) now names backups process-events.jsonl.<stamp>.bak with the collision counter placed BEFORE the .bak extension, so every candidate matches .gitignore:32 *.bak. Confirmed neither assertCleanPruneBaseline (quorum-prune.ts:124-135) nor assertCleanQuorumBaseline (quorum-submit.ts:219-227) was weakened -- both still run the identical unscoped git status --porcelain=v1 --untracked-files=all with zero file-specific exemption; the fix is purely nominal (matching the pre-existing ignore rule), not a predicate carve-out. Independently reproduced the exact regression scenario live in an isolated scratch git worktree (built dist copied read-only from the shared worktree, never modified) driving the real production CLI: quorum_prune apply then git status --porcelain clean with NO intervening git command then quorum_prune apply again immediately then reaches the correct semantic nothing-to-prune refusal (not the F-002 worktree/index-must-be-clean false refusal). Also live-verified F-008/F-009 (quorum_prune --help now prints Dry-run: default-on via --dryRun=true instead of the inverted always-on claim; --dryRun is a real schema field, honored, and refused when combined with apply:true). Read the full diffs of cli-engine.ts (F-001 quorum_prune exclusion, matches process-fact-contract pinned quorum_submit line), command-catalog.ts/command-policy.ts/config.ts/process-fact-levels.ts/lattice-cli.ts wiring, quorum-prune.ts in full, the quorum-submit.ts guard block, and the full quorum-submit-smoke.ts diff (roughly 1500 new lines: drift-accept refusal message content assertions for F-003, HEAD-unchanged assertion for F-005, independent storyOwnedDiffBlobs witness for F-006, DEFAULT_PHASE_TOOLS wiring with a negative control for F-004, plus the new twice-apply-no-intervening-git and production-CLI-under-codex checks for F-001/F-002/F-007). No dead code, no new unsafe as-any beyond the files pre-existing JSON-result-casting convention, no empty catches (the two catches in quorum-prune.ts are documented best-effort cleanup paths with comments, matching existing repo style), no I/O-shell-isolation violations, no new doc-promise-undelivered gaps (schema/help/handler tri-checked live against the real CLI). No genuine new findings in the round-2 diff. Note: the shared machine had heavy concurrent process load (up to 53 node processes observed) during this review, which made the full quorum-submit-smoke.js suite unreliable to run to completion in the shared worktree (killed/timed out at varying, unrelated pre-existing checks across attempts, never at a check touched by this diff); this is treated as environmental flakiness, not evidence of a regression, and the independent isolated-worktree live repro above substitutes for a full suite run for the specific finding under re-review.",
+      "createdAt": "2026-07-26T01:17:53.956Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-009",
+      "envelopeId": "dcabd83d78578a9df85b22ed167ee4049343cd373c0b7fc3fdb10cf785ba2528",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5b008ef67275b48dd370cf206575423d9b71acf5c7b91ca8fbe2dd89ce1ebc8"
+    },
+    {
+      "id": "B-3144:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 targeted re-review of F-001 fix + full quorum_prune wiring. Confirmed cli-engine.ts:1224-1232 now has a separate literal `if (entry.command 'quorum_prune') return;` statement (not merged with the pinned quorum_submit line verify-process-fact-contract.mjs checks literally at line 4453). Confirmed all 7 wiring points for quorum_prune are present and mutually consistent with no half-registered leftovers: handlers/quorum-prune.ts (handler + dryRun/apply conflict refusal + keep selector + backup/commit/rollback), handlers/lattice-cli.ts (batch-registered via createQuorumPruneHandlers), cli/command-catalog.ts (schema incl. real dryRun boolean field), core/command-policy.ts (storyScopedMutating, allowedPhases:all, no gateEvidence, matches CHK-003 rationale), core/config.ts (DEFAULT_PHASE_TOOLS[*] lists quorum_prune, consistent with allowedPhases:all), core/process-fact-levels.ts (L2 row), cli-engine.ts (the F-001 exclusion). tsc build compiles clean with zero errors. Directly read cli/flag-parser.ts and confirmed --dryRun resolves generically via the declared schema field (not special-cased). Directly read cli/help-renderer.ts dryRunHelpLine() regex logic and confirmed it correctly derives 'Dry-run: default-on via --dryRun=true' for quorum_prune (matches the dryRun field description text 'Default dry-run:...' and none of the always-on triggers match) instead of the pre-fix inverted 'always-on' claim. No CLAUDE.md/README changes in this diff, so no doc-promise-undelivered surface beyond the already-fixed CHK-003 userSees (F-008/F-009, both resolved). Cross-checked all 9 round-1 findings (F-001..F-009) via finding_list: all status=resolved, evidenceState=verified, resolveEvidenceStrength=strong, each resolvedReason citing commit f1bcba3885 and matching my independent code reading. Attempted full quorum-submit-smoke.js execution multiple times in this sandbox; discovered an unrelated concurrent process from a different session (transient scratch file packages/main/src/tasks/zz-mini-verify.ts appeared then self-deleted mid-review, plus a separate perl-alarm-wrapped smoke invocation in the sibling main repo checkout) sharing this machine and causing resource contention/non-clean kills unrelated to this story's code. All checks that did execute across those attempts (up to 37/62, including the full CHK-002 drift-accept guard suite) passed with zero failures; re-ran review_run_start after the stray file cleared itself and the working tree returned to only my own review-run metadata. No genuine new concept-residue or wiring gap found this round.",
+      "createdAt": "2026-07-26T01:18:14.490Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-010",
+      "envelopeId": "5c7ab3140cc3f248d84cccf6254b9d7f5e75654b711d842d39c7bf7d8e1c41d5",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/flag-parser.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/test-evidence.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84d06398cfaf3735a0f0e7686e04d9847ddb60d84c8300bbc8653a390eef333d"
+    },
+    {
+      "id": "B-3144:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 targeted re-review: all 5 round-1 findings (F-003,F-004,F-005,F-006,F-007) genuinely close the coverage gaps they identified, verified against current code and by a fresh live run of the smoke suite (61/61 checks pass, up from 58) plus scripts/verify-process-fact-contract.mjs (pass). F-003: CHK-002:edge:2 check now asserts the full refusal message content (all 3 standing runIds, older materialDigest, current storyFilesHash, literal review_escalation_status pointer) against handlers/quorum-submit.ts:519-526, not just a /drift-accept/ keyword match. F-005: same check now captures HEAD before the refusal and asserts it unchanged after, matching the sibling zero-state-leak checks. F-006: new storyOwnedDiffBlobs() helper (git diff --raw path/status/blob-id triples, merge-base(main,HEAD)..HEAD) gives CHK-001:edge:0 an independent witness that commitMainDrift touches zero story-owned blobs, sharing no code with the storyFilesHash digest equality assertion used for CHK-001:happy:1. F-004: CHK-003:happy:2 now behaviorally verifies DEFAULT_PHASE_TOOLS wiring by dispatching quorum_prune through the real built CLI plus a negative control (plan_set correctly phase-refused in REVIEW), so the exit-0 is not vacuous; confirmed config.ts:362 DEFAULT_PHASE_TOOLS[\"*\"] and command-policy.ts:480 entries both present. F-007: the writeUniqueBackup rename (counter before .bak extension, quorum-prune.ts:145-155) is exercised end-to-end by a real apply-twice-with-no-intervening-git check plus the *.bak .gitignore-pattern self-check. Re-audited all 25 verificationIntent/verificationEvidence pairs across CHK-001/002/003 against current handlers/quorum-submit.ts, handlers/quorum-prune.ts, cli-engine.ts (F-001 quorum_prune exclusion), help-renderer.ts (F-008/F-009 dryRun default-on branch), command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, review-escalation.ts (eventsWithStoryFilesHashDowngrade lockstep predicate), host-independence.ts — every intent has a genuine, non-vacuous, currently-passing evidence entry. No new coverage gaps found.",
+      "createdAt": "2026-07-26T01:30:38.326Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-006",
+      "envelopeId": "04867a10ef5c4b07426fab792e81dd64c09c23f207f44511c3db575ca45d665f",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/process-events.jsonl",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-independence.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a332deb1df4437986b429b5a5ea18533775f4bf5bd017894a149a680d1e9d533"
+    },
+    {
+      "id": "B-3144:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 verification of F-012 and F-011 fixes (commit e306cc7aad). F-012: the symmetric apply:false+dryRun:false conflict now refuses before any file I/O — verified live against the built CLI by enumerating the full apply/dryRun truth table (9 combinations: {true,true} and {false,false} both refuse with no mutation; {true,false}/{true,undefined}/{undefined,false} all execute; {false,true}/{false,undefined}/{undefined,true}/{undefined,undefined} all dry-run-project only) — no combination silently executes against an explicit refuse instruction or silently no-ops against an explicit execute instruction. F-011: all 5 previously-stale prose sites (quorum-prune.ts module comment + user-facing dry-run note, command-catalog.ts top-level description, process-fact-levels.ts rationale, command-policy.ts reason) now consistently name both apply:true and dryRun:false as executors; verified via git diff and live `lattice quorum_prune --help` output (top-level description and --dryRun flag description no longer contradict). Ran the full quorum-submit-smoke.js suite standalone (not via npm test) to isolate from shared-suite contention: 64/64 checks green including the two new checks added this round (refuses the symmetric apply:false+dryRun:false conflict; every quorum_prune apply/dryRun description states both executors). Confirmed no regressions in surrounding wiring (cli-engine.ts F-001 exclusion, config.ts DEFAULT_PHASE_TOOLS, lattice-cli.ts registration all intact). git status clean after testing, no stray artifacts. All 12 prior findings verified resolved; no new problems found.",
+      "createdAt": "2026-07-26T03:34:19.296Z",
+      "reviewRound": "2026-07-26T03:24:04.565Z",
+      "reviewRunId": "B-3144:RR-013",
+      "envelopeId": "bfa1591b55ea7ab9610e8ea014d890ab52647dfa068a4619bfb6cc23a3b61666",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c603d1e1b7e64a31ef5a013538df01fab2480ba0b6e71577c3bd08dd4df4ed6"
+    },
+    {
+      "id": "B-3144:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round-9 re-verification after 7 doc-consistency guard-churn commits (F-011..F-021) + the conflict-refusal-message text fix. Re-read guard predicate alignment in handlers/quorum-submit.ts (same-material + drift-accept branches, refusal message names standing runIds/materialDigest and points at review_escalation_status, matches CHK-002 userSees exactly). Re-read quorum-prune.ts end-to-end: dry-run/apply truth table (omit=dry-run, apply:true, dryRun:false, contradictory apply:true+dryRun:true and apply:false+dryRun:false both refuse), backup naming, lifecycle-metadata commit, matches CHK-003 userSees. Confirmed the specific behavioral fix: all 5 prose sites (catalog top-level description, dryRun describe(), apply describe(), process-fact rationale, command-policy reason) now name dryRun:false as an equivalent executor; old broken wording (\"apply:true to actually recover\" omitting dryRun:false) is fully gone from packages/main/src/. Verified live --help render for quorum_prune (node bin/lattice.js quorum_prune --help) shows correct default-on dry-run contract, not a stale always-on claim. Ran the full apply/dryRun truth table live via a real isolated worktree (killed stray leftover processes from a prior stalled attempt first): node packages/main/dist/tasks/quorum-submit-smoke.js in /private/tmp/.../scratchpad/rr021-iso (HEAD bab5a21f08, freshly built) -> exit 0, 64/64 checks green, zero failures (grep for FAIL/fail/✗ matched only test-name substrings like \"fail closed\"). This suite spawns the real built CLI via child_process for the --dryRun/--apply/--help/conflict cases, not just in-process calls, so it is a genuine live re-run of the truth table, not a reread of prior assertions. Also spot-checked the cli-engine.ts quorum_prune process-event-append exclusion (F-001) fix via its dedicated smoke check (production CLI leaves no process-event dirt after apply, follow-up call reaches the real nothing-to-prune refusal rather than a false pre-dirty refusal). Read docs/requirements/decisions/story-files-hash-material-drift.md in full: the drift-accept semantics implemented (mismatching materialHash + matching storyFilesHash = valid-with-advisory, never silently rebound) match the guard alignment exactly. No behavioral regression found across the 7 guard-churn commits; all are genuine documentation-consistency fixes with matching new smoke coverage (62->64 checks).",
+      "createdAt": "2026-07-26T07:04:33.548Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-022",
+      "envelopeId": "f147b9b12e938cdcde406e988147f2268bfa17faa7fe3ebf16ec3880f76b8af9",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cf3c7e43802d0d18b7a29ca1979809d74642b83053aa149349853be47e1e284f"
+    },
+    {
+      "id": "B-3144:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-021 fix verified by independent positive probe in an isolated scratch worktree: sweptFiles now unions scope-contract.json acknowledgements[].paths with allowedModify/allowedCreate, matching core/scope-contract.ts isAcknowledged (also keys off ack.paths, confirmed no field-name mismatch remains). Probe: planted a stale apply:true-only comment at cli-engine.ts:1232 (an acknowledged-scope file) -> smoke failed with the exact claimed message 'cli-engine.ts:1232 documents apply:true without naming dryRun:false as the equivalent executor'; restored the file, rebuilt, reran -> 64/64 green exit 0. Ran ONE PROCESS AT A TIME in a fresh git worktree at HEAD bab5a21 to avoid the resource-contention stall seen when the shared worktree ran validate concurrently (that stall/exit-1 was environmental, confirmed by the clean isolated rerun succeeding). Also reran scripts/verify-process-fact-contract.mjs in the same isolated worktree: verified, exit 0. CHK-001/002/003: all 25 verificationIntent entries have valid integration_test evidence naming the correct command and specific check name; the core deliverable (quorum-submit.ts drift-accept guard predicate, LOCKSTEP-commented against review-escalation.ts eventsWithStoryFilesHashDowngrade; quorum-prune.ts recovery command) is unchanged since round 1, unchallenged this round, and was read directly this round and confirmed sound. CONVERGENCE JUDGEMENT: F-011..F-021 are one family hardening a secondary documentation-consistency regression guard (the discovery sweep pairing apply:true with dryRun:false across the contract files). The two functional bugs it surfaced (F-010 silent no-op, F-012 dangerous apply:false+dryRun:false silent execution) are fixed and tested. Everything since F-013 has tested the test (site-list completeness, AST-parsing edges, scope-derivation completeness) rather than finding new operator-facing defects. I specifically looked for the next plausible escape (field-name mismatch between the sweep's ack.paths and the real isAcknowledged) and found none. No further iteration finding filed; this guard has converged. Coverage: 25/25 verificationIntent entries have valid pass evidence across CHK-001 (6), CHK-002 (9), CHK-003 (10); 0 must-gaps, 0 waivers. Smoke 64/64 green (isolated verification), process-fact contract verified.",
+      "createdAt": "2026-07-26T07:16:38.974Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-021",
+      "envelopeId": "e918658b8fba2173d6713c602276939bbb51e589b2561ba0c492a001ca625026",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f9c880dd8ce6ff4df3db90dbd1648d07dacd6c91e53f25abb146d4afe08b42bd"
+    },
+    {
+      "id": "B-3144:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-9 concept/wiring re-review at head 9432f4d. This story is additive (widen quorum_submit guard + new quorum_prune command), not a concept deletion/replacement, so no mass-residue grep was applicable -- confirmed by reading the full diff (git diff main...HEAD --stat + per-file diffs of handlers/quorum-submit.ts, cli-engine.ts, cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, handlers/lattice-cli.ts). Verified all quorum_prune wiring points intact and mutually consistent, no half-registered leftovers: handler, lattice-cli.ts batch-registration, command-catalog.ts schema entry, command-policy.ts policy row, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts L2 row, plus the cli-engine.ts process-event-append exclusion (F-001). Confirmed both config.ts and cli-engine.ts entered scope through properly recorded scope-contract.json acknowledgements[] (acknowledged-expansion, with reasons tracing directly to my own prior F-001 finding and to a legitimate 6th-wiring-point discovery), not scope violations. Repo-wide grep confirms the specific stale concept this round's guard-churn eliminated (the apply:true-required-to-mutate sole-trigger claim) has zero residue in production code; all prose sites (catalog description, dryRun/apply describe(), process-fact rationale, command-policy reason, quorum-prune.ts module comment/JSDoc/refusal messages) consistently name dryRun:false as an equivalent executor. Read the new AST-based prose-consistency guard in quorum-submit-smoke.ts in full (roughly lines 2557-2790): it derives its swept-file set from the story's own signed scope-contract.json unioned with acknowledgements[].paths (matching core/scope-contract.ts isAcknowledged), parses real TypeScript ASTs (ts is a genuine existing devDependency, not a stray import) folding string concatenations into one prose unit and splitting comment blocks by sentence, and anchors self-mention scoping to the enclosing syntactic entry (PropertyAssignment/VariableStatement/ExpressionStatement) rather than a fixed line-window. All F-013..F-021 RED narration in comments is correctly framed as past-tense incident history, not a misleading claim about current behavior. Read background.md and plan.md in full; the implemented guard-predicate alignment (CHK-002) and quorum_prune recovery command (CHK-003) match the plan's chosen tradeoff and root-cause analysis exactly, with no undocumented deviation. No CLAUDE.md/README changes in this diff, so no new doc-promise-undelivered surface (only the story's own plan.md changed among markdown files). Attempted a full live smoke run repeatedly: killed one stray leftover quorum-submit-smoke.js process (plus its zsh wrapper) left over from a prior session; then ran one-at-a-time in a freshly built isolated scratch clone at HEAD, per instructions. System is under heavy multi-tenant load this round (roughly 55-58 concurrent node/Electron processes from sibling review/dev sessions across other stories, load average about 3-4, well under 1GB free) and every attempt (worktree + three isolated-clone attempts) was silently terminated partway through (61/64, 21/64, 20/64, 14/64 checks) with zero assertion failures and no error or stack trace on any check that did execute -- consistent with external OOM or contention, not a code defect, and consistent with the identical pattern already documented by this same concept lane in round 2 (RP-002 at RR-010) on this same story. Corroborating evidence: git diff bab5a21f08..9432f4d0cc --stat -- packages/main/src is EMPTY (only metadata bookkeeping commits landed since), and RP-005 (behavior lane, RR-022) and RP-006 (test-coverage lane, RR-021) both independently completed a full isolated 64/64-green run at that byte-identical source, with RP-006 additionally running a positive adversarial probe (planted stale prose at cli-engine.ts, confirmed the guard fails with the exact expected message, restored the file, reran 64/64 green). No genuine operator-facing defect found this round; only diminishing-return hardening of a self-test guard since F-013. PASS.",
+      "createdAt": "2026-07-26T07:34:49.150Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-023",
+      "envelopeId": "3eb53d274706f8cdc4b5e38089d0ee747bf050504af6f938387b24b850cc0c4a",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b712c35f18c2632beb4f504f896424c4d4b2ffb6cc09aa4bd5de07ec4e517e8"
+    },
+    {
+      "id": "B-3144:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Round 10: verified since round-9 pass (RP-005 @ bab5a21f08) exactly one commit landed (687ca32583, F-022) touching ONLY packages/main/src/tasks/quorum-submit-smoke.ts plus .lattice metadata. git diff --stat bab5a21f08..31cd054bb0 confirmed zero production files changed; byte-for-byte sha256 comparison of all 8 production files in scope (quorum-submit.ts, quorum-prune.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, cli-engine.ts) confirmed IDENTICAL at both heads. The F-022 change only widens the smoke test's own internal namedNearby AST helper (used by a meta-check that pairs documented apply:true with dryRun:false prose) from innermost-enclosing-node to any-ancestor-naming-the-command — test-tooling logic, not user-facing CLI behavior. All 3 checklist items (CHK-001/002/003) remain done with unchanged userSees; all 22 findings remain resolved. Rebuilt from a fresh isolated scratch worktree (b3144-r10-behavior-iso) after killing stray leftover quorum-submit-smoke.js processes (own orphaned prior attempts); ran the smoke test ONE AT A TIME to completion: full run tail confirms `✓ quorum_submit smoke passed (64 checks)` with zero assertion errors, 64 individual ✓ lines. No genuine behavioral defect found; user-facing quorum_submit/quorum_prune CLI behavior at the new head is unchanged from the already-verified round-9 truth table.",
+      "createdAt": "2026-07-26T08:12:19.549Z",
+      "reviewRound": "2026-07-26T07:59:09.016Z",
+      "reviewRunId": "B-3144:RR-026",
+      "envelopeId": "c69cdbc7beb7c42e8f353165f5c7ea81f9e21df7591e405b965e23ba7e6e51b0",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1a6402e73016246d06ea01a4c3e59be084afeed5ac78ee3848ac4a2533ac1b94"
+    },
+    {
+      "id": "B-3144:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 11: independently re-verified F-023 (RR-025 finding, resolved by e7d9a961d3). Confirmed via git show that both e7d9a961d3 (F-023) and 687ca32583 (F-022) touch only packages/main/src/tasks/quorum-submit-smoke.ts plus .lattice metadata -- no production code changed, consistent with round-10 RP-008 8-file sha256 proof. Read the current namedNearby implementation (quorum-submit-smoke.ts:2748-2776): it walks ancestors for a ts.isPropertyAssignment node whose name equals quorum_prune (owning-KEY match), falling back to a physical-line check for array-element style. Extracted this exact function and ran it standalone (node, real typescript package) against the story files: command-policy.ts:155 (story_resume, keyed entry) -> false, :479 (quorum_submit, keyed entry) -> false, :480 (quorum_prune, keyed entry) -> true; config.ts DEFAULT_PHASE_TOOLS array-element style: line 340 sibling -> false, 361 quorum_submit -> false, 362 quorum_prune -> true, 363 sibling -> false; process-fact-levels.ts array-of-objects style: line 208 quorum_submit -> false, 209 quorum_prune -> true, 400 unrelated L4 fact -> false. Also directly reproduced the four probe shapes from the commit message (owned reason after cross-line reformat, unrelated sibling story_resume, sibling quorum_submit, array-element style) using a synthetic fixture, matching the keyMatch column claimed in the commit message. All 4 exact sites named in the F-023 finding text now behave as claimed. Ran the built smoke directly (node packages/main/dist/tasks/quorum-submit-smoke.js after npm run build): 64/64 checks green including the discovery-sweep assertions this fix protects. Ran scripts/verify-process-fact-contract.mjs: passed. Reviewed handlers/quorum-submit.ts drift-accept guard diff (CHK-002) and handlers/quorum-prune.ts (CHK-003, 455 lines) end-to-end: dry-run default, apply/dryRun contradiction refusals, backup-before-rewrite, group-by-(runId,hostId,sessionId,keyId) with newest/oldest-material selector, lifecycle-metadata transaction reuse, rollback-on-failure restoring exact pre-prune bytes -- matches checklist CHK-002/CHK-003 verificationIntent. Reviewed wiring diffs in cli-engine.ts (quorum_prune exclusion from generic codex_cli append, mirrors quorum_submit exclusion), lattice-cli.ts (createQuorumPruneHandlers spread into registry.registerBatch), command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts -- all 5 CHK-003 integration points wired consistently. No dead code, no unsafe as-any, no empty catch swallowing errors found in the reviewed diff (catch blocks in quorum-prune.ts are documented best-effort with comments explaining why). No proof/receipt/job.metadata/run.metadata dual-surface concern applies to this diff. Working tree left clean except this review run's own metadata writes. No blocking defect found; all 23 prior findings remain resolved.",
+      "createdAt": "2026-07-26T08:41:52.132Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-027",
+      "envelopeId": "dea9652bdda5098a31f2f5f93aaa95868756e67cfb07e2e981a0afe05d719d23",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f83057af988750224751723ea47c953234af64fb9d7cf52a361a04b3b0dbe7f9"
+    },
+    {
+      "id": "B-3144:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 re-audit since round-9 PASS (RP-006 at bab5a21f08). Confirmed via git show that the only two commits since then (687ca32583 F-022, e7d9a961d3 F-023) touch ONLY packages/main/src/tasks/quorum-submit-smoke.ts (namedNearby helper) plus .lattice metadata - no production code changed, matching round-10 8-file sha256 proof (RP-008) and round-11 quality re-verification (RP-009). Re-audited all 25 verificationIntent/verificationEvidence pairs (CHK-001:6, CHK-002:9, CHK-003:10=25): each evidence entry names a specific check in the smoke suite (e.g. quorum_prune dry-run/apply, drift-accept refusal, rollback byte-preservation); none reference namedNearby or the discovery-sweep meta-guard at all, so F-022/F-023 cannot invalidate any of the 25 pairs - coverage integrity holds, 0 must-gaps, 0 waivers. Independently re-verified namedNearby correctness for BOTH directions: extracted the current implementation (quorum-submit-smoke.ts:2748-2776, keyMatch on PropertyAssignment.name===quorum_prune with line-fallback) into a standalone probe using the real typescript package and ran it against the actual story files - command-policy.ts:480 (quorum_prune, owning entry) returns true, :479 (quorum_submit sibling) returns false, :155 (story_resume sibling) returns false, :481 (next sibling) returns false - matching the quality reviewer independent probe exactly. Also built a synthetic fixture reproducing BOTH historical bug shapes simultaneously (a quorum_prune entry reformatted across lines per F-022, plus a sibling quorum_submit entry whose own reason text contains apply:true per F-023) and confirmed the current implementation resolves both directions correctly at once: reformatted-owning-entry lines return true, sibling-with-apply:true-text returns false. Ran the smoke suite to completion in a genuinely isolated scratch worktree (b3144-r11-testcov-iso at c74280d, one process at a time, torn down after) after the shared worktree run stalled under host contention (environmental, consistent with prior rounds RP-006/RP-008 notes) - clean build, then node dist/tasks/quorum-submit-smoke.js printed all 64 individual check lines including quorum_prune dry-run/apply/rollback/backup/CLI-wiring checks, exit 0: quorum_submit smoke passed (64 checks). Verified 64 matches the literal check(...) call-site count in the source (grep count = 64). All 23 findings remain resolved (findings.json: 23/23 status=resolved). Noted config.ts and process-fact-levels.ts protect their quorum_prune prose only via the same-physical-line fallback (no AST key-anchor reaches their name:/comment-adjacent shapes) rather than the keyMatch anchor F-023 added for command-policy.ts - but this is a pre-existing property unchanged since round-9 PASS (not introduced by the two test-only commits under review), is not tied to any of the 25 charted verificationIntent/verificationEvidence pairs, and was already the subject of 13 prior fix rounds (F-011..F-023) hardening this exact test-internal helper; filing a 24th finding against a hypothetical future reformat of files this story does not touch would be exactly the meta-guard iteration this round was told to avoid. CONVERGENCE JUDGEMENT: story remains CONVERGED. PASS.",
+      "createdAt": "2026-07-26T08:52:08.120Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-028",
+      "envelopeId": "99da31729c51edc6be16b8fa724187a60e33d9563e29810d3e2dbde90c284831",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/review-passes.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/review-runs.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bee07b07d23455c62b21cbd563bc13750fafbab9cefe49a9c9614627ed624483"
+    },
+    {
+      "id": "B-3144:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 11: no concept deletion/replacement this round. Verified the two commits since round 9 (687ca32583 F-022, e7d9a961d3 F-023) touch only quorum-submit-smoke.ts test-internal namedNearby scoping helper plus .lattice metadata (index.json/process-events.jsonl/process-metrics.json) -- zero production-code lines changed, matching the round-10 8-file sha256 finding. Diffed all 6 quorum_prune wiring points (cli-engine.ts commit-transaction exclusion, command-catalog.ts schema, command-policy.ts ownershipClass, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts L2 entry, lattice-cli.ts createQuorumPruneHandlers registration) against main: all present, mutually consistent, no half-registered leftovers. Grepped whole repo for quorum_prune outside story metadata: every hit is either the handler itself, one of the 6 wiring points, or the smoke test -- no stray/orphaned references. Checked README.md/CLAUDE.md/docs for any newly-promised lattice quorum_prune examples: none touched this story, so no doc-promise-undelivered risk. Confirmed all 23 findings (F-001..F-023) resolved in findings.json. Rebuilt and ran quorum-submit-smoke.ts alone in an isolated sibling worktree (.worktrees/b3144-r11-concept-iso, detached at HEAD cd38e5bb6c) to avoid the concurrent lane already running on this host: 64/64 checks green, exit 0. Not iterating further on the test-internal namedNearby meta-guard per test-coverage lane convergence.",
+      "createdAt": "2026-07-26T09:05:48.429Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-029",
+      "envelopeId": "1bafbe704c5f60254b6e09c2e0e1b3717dcb5d4bb066ab36b1f51f698b75cb9f",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e8941a1a46478ce05007c805b30434b2099cd9f5a75d2aeda2da60682abe6f6"
+    },
+    {
+      "id": "B-3144:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted ~250 changed symbols from git diff main...HEAD (quorum-prune.ts + quorum-submit.ts + smoke tasks). Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for symbol references; assertNoStandingQuorum/eventsWithStoryFilesHashDowngrade/autopilot_review_submit hit docs/evidence-integrity-program-spec.md and docs/evidence-write-guard-spec.md; quorum_prune/QuorumPrune* symbols had 0 doc hits anywhere (fallback-2: no packages/main README, and this repo does not maintain an exhaustive CLI command catalog in README/CLAUDE.md -- 34 prior review-lane findings on this story never flagged the absence as a gap). Step3 compared the two hit paragraphs against the shipped assertNoStandingQuorum in quorum-submit.ts:530-561 and writeVerdict in verdict.ts:187-251. Re-review after commit 397b6e4f51 fixed F-030: verified line-by-line that the corrected docs now match shipped code -- throws informative Error (quorum-submit.ts:538-560), reimplements drift-accept predicate as a hand-synced LOCKSTEP mirror (quorum-submit.ts:541-548,502-509) rather than calling eventsWithStoryFilesHashDowngrade directly, and autopilot_review_submit/verdict.ts writeVerdict (187-251, cited range matches) has no guard call, confirming the docs Known-gap claim. Both docs mark pre-fix material as historical/design-proposal via clearly-labeled Delivered differently blockquote notes. No new doc-code drift found; no other .md files touched by this story diff besides these two plus plan.md.",
+      "createdAt": "2026-08-14T05:03:34.748Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-039",
+      "envelopeId": "c69a9c381dfaad2f666d66ed80a6a3b27dfdc6f5263d4a3cbf1005edef2a3cb5",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1df2b94338807fa7370a6f6dd8ed65c2cfc83ea16d76e9b22c8ac0fd3d3e5a22"
+    },
+    {
+      "id": "B-3144:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this diff (additive: new quorum_prune command + widened quorum_submit drift-accept guard). Verified F-031 fix by reading commit ffe7e5d697: both appendDuplicatesForRunId call sites now pin to currentMaterialHash instead of hardcoded synthetic drift strings; grep for the retired synthetic strings finds zero live-code hits. Spot-checked F-032 disposition by reading the shared check() block at quorum-submit-smoke.ts:1793-1879 directly: the 7 bound verificationIntent items each correspond to a distinct, independently-failing assert call -- agree the superseded resolution is correct. Confirmed all 5 quorum_prune wiring points present and F-030 doc updates honestly flag known gaps rather than over-claiming delivery. Spot-checked quorum-prune.ts dryRun/apply/keep/runIds schema fields against handler implementation -- all match. All 34 findings in findings.json now resolved.",
+      "createdAt": "2026-08-14T05:04:02.713Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-040",
+      "envelopeId": "1cedf3a09c59d2fca1a0c674a486dd156e882b3df76912ba33bf163291863152",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/findings.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7cb6704dd7f42d3539108d3bd9bb1cfdb1c2e16f3f5baf42dc04bb9cb153a7cc"
+    },
+    {
+      "id": "B-3144:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality pass at HEAD adbb0a3 (post F-030/F-031 fixes). Reviewed full diff main...HEAD across quorum-submit.ts, quorum-prune.ts (new, 713 lines), quorum-submit-smoke.ts, cli-engine.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, and the two corrected spec docs. Dead code: none -- every new helper/function is referenced; tsc --noEmit clean. Type safety: no `as any` introduced; every catch{} in the diff is either a JSON.parse-skip-malformed-line pattern matching pre-existing convention or an explicitly commented best-effort/PROBE cleanup, none silently swallow a real error path. I/O isolation: project has no bridge.ts pattern, N/A. F-031 fix judged correct and minimal: appendDuplicatesForRunId (used only by the F-024/F-025 quorum_prune regression checks at quorum-submit-smoke.ts:3017 and :3059) now pins to currentMaterialHash(fixture.root,'HEAD',fixture.root) captured immediately before the call instead of a hardcoded synthetic drift string; verified in core/evidence-freshness.ts that process-events.jsonl is excluded from the material-hash tree walk, so the pre-call snapshot equals the post-commit material, correctly reproducing a same-identity duplicate AT the live native material (the shape B-f88e's review-escalation.ts liveIdentities exclusion would otherwise silently neutralize under the old synthetic string) -- exactly mirrors the established fix pattern in injectPoisonedDuplicates (commit 5291d420dd), scoped to only the two call sites that needed it. Ran the full quorum-submit-smoke.js suite fresh (not relying on stored evidence): tsc build clean, 70/70 checks pass, plus targeted --grep reruns of the F-024/F-025/F-028/F-029 checks individually. Checked the F-030 doc corrections against the shipped assertNoStandingQuorum implementation: accurately describes the thrown-Error (not idempotent no-op) behavior and the hand-synced LOCKSTEP mirror vs direct eventsWithStoryFilesHashDowngrade call-through, and honestly flags autopilot_review_submit as a known unguarded gap rather than overclaiming -- no doc-promise-undelivered found. Traced a theoretical LOCKSTEP gap (the guard's drift-accept branch does not implement review-escalation's liveIdentities already-superseded exclusion) but confirmed analytically it cannot diverge in outcome: any state where that exclusion would matter already implies a native-material verdict exists for the runId, which the guard's independent same-material branch already refuses on its own -- not a real bug, no finding raised. No blocking issues found in this pass.",
+      "createdAt": "2026-08-14T05:14:11.178Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-041",
+      "envelopeId": "0b242bac96c44b59675e13fdc5a0e6691569109d228e20cdf685632c6e176a84",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b95e2ab7ba9ca19c37cfbab2215ec33f5e556a42747e22d721408d02093eb5d8"
+    },
+    {
+      "id": "B-3144:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed. Focused re-verification of the two most recent fixes: (1) F-031 appendDuplicatesForRunId now pins to real currentMaterialHash at both call sites (commit ffe7e5d697) - confirmed genuine via an instrumented before/after debug run: with the fix, collidingRunId is actually invalidated (duplicate host/session/key identity) immediately after appendDuplicatesForRunId and only becomes valid again after quorum_prune runs; with the old synthetic drift-material string, collidingRunId stays valid throughout (never poisoned), proving the pre-fix F-024/F-025 checks were vacuous and the fix is load-bearing. Full unfiltered smoke suite run confirms 70/70 checks pass including F-024 and F-025. (2) F-033 stripped absolute line-number citations from all 24 mechanical verificationEvidence notes in checklist.json - diffed commit ffe7e5d697 line-by-line and confirmed every one of the 24 note edits removed ONLY the line-citation substring, with zero loss of substantive claim text; spot-checked one citation against current source and confirmed it was indeed stale, validating the drift premise. The 25th (waiver, non-mechanical) note legitimately retains a line-citation to a different file, out of F-033's scope, and its own headHash/materialHash pin remains a valid ancestor commit. Minor non-blocking cosmetic observation: a handful of the 24 edited notes have a residual stray close-paren left over from removing a nested parenthetical; harmless, not a coverage gap. Verified overall checklist coverage: all 25 verificationIntent entries (CHK-001/002/003) across happy/edge/adversarial have matching verificationEvidence with result=pass or a justified waiver, all mechanical receipts pinned to current materialHash 56a9fe5e8385..., working tree clean, no code drift since the reviewed commit.",
+      "createdAt": "2026-08-14T05:14:53.227Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-042",
+      "envelopeId": "2505fb00fe78d39b7ef550f6f4da8f35be40d641d9a750bbc8ccbbaefe64faf8",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/process-events.jsonl",
+          ".lattice/story/actives/B-3144/review-runs.json",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68208da2b6ca1aca61f172afeb320c82066b61f6dcc722644b0173a14092032d"
+    },
+    {
+      "id": "B-3144:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Re-check confirming prior docs-lane pass (RR-039, head adbb0a3e9e) still holds. git diff adbb0a3e9e..f75b05c5da (current HEAD f75b05c5da) shows the two doc files (docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md), CLAUDE.md, README.md, and the code files previously compared (quorum-submit.ts, quorum-prune.ts, quorum-submit-smoke.ts) are byte-identical -- zero diff. Only source change since RR-039 is commit 2c3e327b72: repins PINNED_EXECUTABLE_SOURCE_FINGERPRINTS hash + its own inline comment for cli-engine.ts in retired-authority-vocabulary-guard-smoke.ts (no exported symbols added/changed, no doc content touched). The CHK-001:adversarial:1 waiver-to-mechanical-evidence swap is confined to .lattice/story/actives/B-3144/*.json metadata, not source or docs. No new doc-code drift found.",
+      "createdAt": "2026-08-14T05:39:42.814Z",
+      "reviewRound": "2026-08-14T05:37:34.971Z",
+      "reviewRunId": "B-3144:RR-047",
+      "envelopeId": "969ff937199114c118187def6a73ee934c4de2fa057390099a904a5b13b0ec33",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5179784d78651b01ade6a59b3fb3b5aa8fbeaa73cc77fa588a94585b68ca2bb1"
+    },
+    {
+      "id": "B-3144:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Step1 diff-symbol extraction on cfdf3df2a2 (F-035, code+test only, no doc files) yielded 12 symbols; 1 (assertNoStandingQuorum) had doc hits in docs/evidence-integrity-program-spec.md and docs/evidence-write-guard-spec.md, both read in full (148+136 lines) and compared against the new code. Both paragraphs describe the guard generically as a hand-synced LOCKSTEP mirror of eventsWithStoryFilesHashDowngrade with a standing risk that a future floor predicate change must be mirrored in the same story -- neither claims the mirror is currently complete/exact, so F-035 (closing exactly that flagged risk) introduces no drift; no update needed. Other 11 symbols are internal locals with 0 doc hits (no module README exists) and content is regex noise (unrelated const). No blocker.",
+      "createdAt": "2026-08-14T06:01:37.272Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-051",
+      "envelopeId": "bf6cbd09861198435f38029114f378a20b841702351cf6aeaa505a02128bcd5d",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fc36f8ce1138f2b501ffbf491499bb70698daa7de032bca59ea1ddef773855fd"
+    },
+    {
+      "id": "B-3144:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh pass after F-035 fix (cfdf3df2a2) fully landed; tree clean apart from expected .lattice review-run metadata. Re-verified: all 25 verificationIntent items (CHK-001/002/003, happy+edge+adversarial) have matching non-fail, non-waiver verificationEvidence at materialHash b17134cea015a172f25b748e2add1d0ebacba792075b5d4d713ab57aff7eca43 (evidence freshness confirmed: subsequent commits after evidence headHash 0695b01e26 are lattice-metadata-only, materialHash unchanged, matches current story materialHash). Re-confirmed CHK-001:adversarial:1 evidence reasoning (withFreshFixture builds an isolated tmpdir git repo per check and destroys it unconditionally in a finally block, structurally guaranteeing no leftover state across checks). Spot-checked the new F-035 regression check quorum-submit-smoke.ts:1917 by reading both sides of the mirror: quorum-submit.ts:553 (storyFilesHash===EMPTY_STORY_FILES_HASH ? [] : committedForGuard.filter(...)) exactly mirrors review-escalation.ts:975 (if (currentStoryFilesHash===EMPTY_STORY_FILES_HASH) return events), resolving finding B-3144:F-035. Traced the fixture: reverts index.ts to main content to force EMPTY_STORY_FILES_HASH, asserts the precondition, submits first quorum (6 verdicts), commitMainDrift, re-asserts still-empty precondition, then asserts the second submit succeeds with emittedCount===6 instead of being falsely refused. On reverted (unfixed) code the second call would instead throw the drift-accept refusal (driftAcceptEvents.length>0 since eventStoryFilesHash===EMPTY_STORY_FILES_HASH===storyFilesHash without the empty-set exclusion) -- an uncaught exception in the check body -- so the test genuinely fails if the fix is reverted, not just incidentally. No blocker found.",
+      "createdAt": "2026-08-14T06:03:51.618Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-050",
+      "envelopeId": "7050bf041568b7e0ec10325a2009a40bc18ed783801d3aaf84061374b076cd4f",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "624b7be4ddaa62831b91ec28767910cad718867829c4ba979033ae3a76d4436a"
+    },
+    {
+      "id": "B-3144:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept-lane recheck at head f038ecb (post-F-035). This round went stale mid-review once already: lattice-review-quality filed HIGH finding F-035 (EMPTY_STORY_FILES_HASH exclusion missing from the guard mirror) while I was mid-check under RR-043, DEV fixed it live (commit cfdf3df2a2), and the story re-entered REVIEW; I re-ran review_run_start fresh (RR-052) against the settled head rather than force a pass over the moving target. Full git diff main...HEAD --stat + content reviewed for concept deletion/replacement across the whole story diff: none found -- purely additive (new quorum_prune command, widened quorum_submit drift-accept guard predicate incl. the new F-035 EMPTY_STORY_FILES_HASH mirror, smoke expansion to 71 checks, honest doc reconciliation in evidence-integrity-program-spec.md/evidence-write-guard-spec.md). Verified F-035 itself: EMPTY_STORY_FILES_HASH is a real, already-exported sha256(empty-string) constant (core/evidence-freshness.ts:19), consumed correctly by the new guard branch and by the floor helper it mirrors; not a promised-but-undelivered stub. Rebuilt (npm run build, tsc clean) and reran both affected smokes fresh against this head: retired-authority-vocabulary-guard-smoke PASS, and the full quorum-submit-smoke suite PASS (71 checks, exit 0), confirming the fix and its new test are real and green. Independently re-verified the two pre-existing deltas noted at dispatch, both still hold at this head: (1) CHK-001:adversarial:1 waiver-to-real-evidence swap -- the RED check is genuinely wrapped in withFreshFixture (mkdtempSync isolated tmpdir + git init per call, unconditional rmSync in finally), reproduced the cited isolated grep command matching the receipt; deferred_gate_evidence remains a live concept used by many other stories (repo-wide grep), so this is not a concept deletion. (2) cli-engine.ts fingerprint repin in retired-authority-vocabulary-guard-smoke.ts -- independently recomputed canonicalAstFingerprint(cli-engine.ts) via ts.createPrinter+sha256 and got the exact pinned value ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f; the dynamic-import call site (line 809) is untouched by the diff. No concept residue found anywhere in the diff; no promised-but-undelivered doc/schema/env claims found.",
+      "createdAt": "2026-08-14T06:12:56.566Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-052",
+      "envelopeId": "e500992045e6a19084037b0cb280c02e6d7ad36eadf8b738911898441b553278",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json (diff for f08c8c0d0a evidence swap)",
+          ".lattice/story/actives/B-3144/findings.json (F-035 finding text)",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md (diff main...HEAD)",
+          "docs/evidence-write-guard-spec.md (diff main...HEAD)",
+          "packages/main/src/cli-engine.ts (diff main...HEAD)",
+          "packages/main/src/cli/command-catalog.ts (diff main...HEAD)",
+          "packages/main/src/core/command-policy.ts (diff main...HEAD)",
+          "packages/main/src/core/config.ts (diff main...HEAD)",
+          "packages/main/src/core/evidence-freshness.ts (EMPTY_STORY_FILES_HASH definition)",
+          "packages/main/src/core/process-fact-levels.ts (diff main...HEAD)",
+          "packages/main/src/handlers/lattice-cli.ts (diff main...HEAD)",
+          "packages/main/src/handlers/quorum-submit.ts (diff main...HEAD, incl. F-035 fix)",
+          "packages/main/src/tasks/quorum-submit-smoke.ts (withFreshFixture, makeFixture, targeted RED check, new F-035 check)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (diff main...HEAD + fingerprint function)"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/quorum-prune.ts (schema-field wiring grep + header comment; new file, previously reviewed in RP-013, unchanged this round)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b87b4f03b73398789c9237f692409c7d221fdb3022f7d5166580f0e8fae4919"
+    },
+    {
+      "id": "B-3144:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept-lane review, round 2 (post-F-035 fix, commit cfdf3df2a2). Diff main...HEAD --stat + full diff read for packages/main/src, docs/, and .lattice story metadata: this story is purely additive (new quorum_prune handler/CLI/policy/config/process-fact-level wiring across all 5 integration points) plus a predicate-widening fix to assertNoStandingQuorum in handlers/quorum-submit.ts (drift-accept branch + F-035 EMPTY_STORY_FILES_HASH exclusion) and a mechanical AST-fingerprint repin in retired-authority-vocabulary-guard-smoke.ts for the cli-engine.ts edit. No concept word was deleted or mass-replaced, so no residue grep applies. Independently re-derived: (1) the repinned canonical-AST fingerprint for cli-engine.ts via ts.createPrinter({removeComments:true}) + sha256 matches the pinned value exactly; (2) read eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948-984) side by side with the fixed assertNoStandingQuorum drift-accept branch -- the storyFilesHash===EMPTY_STORY_FILES_HASH early-return, the non-empty/non-current materialDigest check, and the non-empty/matching storyFilesHash check all match the floor predicate exactly; the floor's liveIdentities exclusion is provably unreachable from the guard's decision space since the same-material branch already refuses first for any current-material verdict on a planned runId. (3) Ran the built quorum-submit-smoke.js suite fresh: 71/71 checks pass, including the new regression check 'EMPTY_STORY_FILES_HASH current state allows resubmit instead of falsely drift-accepting (F-035)'. No blocker found for this concept-lane scope.",
+      "createdAt": "2026-08-14T06:15:45.332Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-048",
+      "envelopeId": "92b93ad5ac8f88175acd33c75be83bfbf0cb530ea06b6966ecd926d8d8ab53bd",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "675f48ed228a8be723100a88e12b8a775224774c48b903c198746496abe232ce"
+    },
+    {
+      "id": "B-3144:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "F-035 fix verified correct/minimal/complete: driftAcceptEvents forced to [] iff storyFilesHash===EMPTY_STORY_FILES_HASH, exact mirror of eventsWithStoryFilesHashDowngrade top-level guard (review-escalation.ts:975). Checked for further floor-vs-guard parity gaps in that predicate: the floor's other top-level guard (!currentStoryFilesHash) is unreachable in the guard's context (storyFilesHash already validated truthy at quorum-submit.ts:451-453); the floor's per-event liveIdentities exclusion (already-superseded-by-native-verdict) is structurally unreachable within driftAcceptEvents because branch (a) sameMaterialRunIds already throws before driftAcceptEvents runs whenever any planned-runId event exists at current material -- the precondition liveIdentities requires. review-assurance-floor.ts imports and reuses the SAME eventsWithStoryFilesHashDowngrade (no divergent copy); decision-doc-quorum.ts is an unrelated mechanism with no storyFilesHash drift-accept logic. No residual parity gap found. Rebuilt dist and ran the compiled quorum-submit smoke directly: 71/71 pass including check 33 (the new F-035 regression, EMPTY_STORY_FILES_HASH resubmit-allowed). Reviewed full story diff (quorum-submit.ts, quorum-prune.ts, 5-point wiring in cli-engine/command-catalog/command-policy/config/process-fact-levels/lattice-cli, and the two program-spec docs) for dead code, type safety, I/O isolation, and doc-promise-undelivered: none found -- the two doc edits honestly disclose the guard is a hand-synced mirror (not a direct eventsWithStoryFilesHashDowngrade call) and that autopilot_review_submit remains an explicitly out-of-scope known gap, matching plan.md's stated exclusion. Working tree clean, all 35 findings resolved.",
+      "createdAt": "2026-08-14T06:16:27.469Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-049",
+      "envelopeId": "e41068c754ef437895d106438fbab660649b23bcaa19acc3d139bc6ff9b26aa0",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-independence.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/decision-doc-quorum.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2499e61779c5cef3c3d7ba5c75869073b485aa99082b2f8dbea3b96c3e2e2cdc"
+    },
+    {
+      "id": "B-3144:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirm after prior clean pass. Step1: extracted ~200 changed identifiers from git diff main...HEAD (mostly internal quorum-prune.ts/quorum-submit.ts locals + test helpers); doc-relevant public symbols: assertNoStandingQuorum guard and new quorum_prune command. Step2: grepped README.md/CLAUDE.md/docs/**/*.md; hits in docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md, docs/CLI.md, docs/guide.md. Step3: docs/evidence-integrity-program-spec.md Step4 and evidence-write-guard-spec.md callouts accurately describe the LOCKSTEP hand-synced predicate in assertNoStandingQuorum (quorum-submit.ts:502) vs eventsWithStoryFilesHashDowngrade, and correctly flag autopilot_review_submit (verdict.ts:187-251) as still unguarded (verified: writeVerdict has no duplicate/drift check). quorum_prune has 0 doc hits in README/CLAUDE.md/docs/CLI.md; confirmed via git log this matches existing convention (other recent handler commands e.g. review_escalation_status, verification_evidence_refresh_stale not individually listed in docs/CLI.md either), so not drift. docs/CLI.md and docs/guide.md quorum_submit usage examples unchanged and remain accurate. Re-confirmed the single commit since last clean pass (bd2b6c8e03) touches only scripts/verify-process-fact-contract.mjs (one-line pinned-fingerprint literal) with no doc or behavior implication. No doc-code drift, no doc-promise-undelivered found.",
+      "createdAt": "2026-08-14T06:47:55.472Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-057",
+      "envelopeId": "3fb2ab89d14773fba750dd65f484d8602acce64300254feb2876d1fbee1fb586",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/guide.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a4be91acb987d813b8487002f6764f3dffc2a8d85bcb0b56f051febd35bb9ea"
+    },
+    {
+      "id": "B-3144:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept-lane pass at head ef0a14f, since last clean pass f038ecb. Only source-level delta in that range is commit bd2b6c8e03 (scripts/verify-process-fact-contract.mjs, 1 line): the STALE pre-quorum_prune cli-engine.ts fingerprint literal a2468ce5...abdbc0 in the expected-vocabulary array was replaced with ef1c4e96...ff050f. Verified this is a real, single-value, minimal, and complete fix: (1) grepped the OLD value repo-wide (excl. node_modules/dist/.git) -> zero remaining occurrences anywhere; (2) grepped the NEW value -> exactly two occurrences, this file and retired-authority-vocabulary-guard-smoke.ts PINNED_EXECUTABLE_SOURCE_FINGERPRINTS (the source of truth, repinned earlier this story per the F-030-adjacent scope_contract_acknowledge at head a284292); (3) extracted and diffed the full 8-entry fingerprint list from both files programmatically -> identical values in identical order, confirming no other stale entry slipped through and nothing else needs updating. Ran the two named smokes directly plus the full contract script: red-evidence-target-binding-smoke.js exit 0, red-w2b-wiring-contract.mjs exit 0, verify-process-fact-contract.mjs exit 0 (\"Process fact contract verified\"). scope_contract_acknowledge for this one out-of-scope file is present and correctly justified (scope-contract.json acknowledgements[4]). Re-swept the whole story diff (main...HEAD, 34 files) for concept deletion/replacement per role mandate: every packages/main/src + scripts + docs hunk is additive (new quorum_prune command/handler/CLI wiring, widened quorum_submit guard predicate assertNoStandingQuorum, smoke expansion) except this one repin; nothing renamed/deleted en masse, so no residue grep target exists. Doc diffs (evidence-integrity-program-spec.md, evidence-write-guard-spec.md) honestly reconcile design-vs-delivered gaps (explicitly flag assertNoStandingQuorum as NOT literally the proposed direct-call-through, and autopilot_review_submit as an explicit known-gap) -- no promised-but-undelivered claims found. Working tree clean; no console.log/debugger/TODO/FIXME residue in the diff. No blocker.",
+      "createdAt": "2026-08-14T06:48:26.453Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-054",
+      "envelopeId": "3d41df9a6b34bf7dee311880c1650fe76d28b88347474525a498343ab50b4652",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd90021bafd914e1836cf11228a4920232e13bb406ef3790bb8702a8bf6efbee"
+    },
+    {
+      "id": "B-3144:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Delta since last clean quality pass (RR-049, which already reviewed the full substantive diff: quorum-submit.ts, quorum-prune.ts, 5-point wiring, smoke, docs) is exactly commit bd2b6c8e03, a 1-line fix in scripts/verify-process-fact-contract.mjs updating its independent expected-vocabulary copy of the cli-engine.ts pinned fingerprint (a2468c...bdbc0 -> ef1c4e...f050f) to match the F-030-adjacent repin already in retired-authority-vocabulary-guard-smoke.ts's PINNED_EXECUTABLE_SOURCE_FINGERPRINTS map. Verified the fix is correct, not just cosmetically matching: independently recomputed canonicalAstFingerprint(cli-engine.ts) via ts.createPrinter with removeComments true plus sha256 against the current file and got ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f exactly, matching both the guard map and the now-fixed vocabulary-check literal. Ran both previously-failing checks fresh: scripts/red-evidence-target-binding-smoke.js (compiled at packages/main/dist/tasks) and packages/main/tests/red/red-w2b-wiring-contract.mjs, both exit 0. Also reran retired-authority-vocabulary-guard-smoke.js (PASS) and the full quorum-submit-smoke.js suite (71/71 checks pass, matching RR-049's baseline, confirming the unrelated mechanical fix did not regress the story's own tests). Confirmed compiled dist/tasks/retired-authority-vocabulary-guard-smoke.js contains the new hash and zero occurrences of the old one, so validate exercises the fixed code. Final check requested: repo-wide grep for the stale value a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0 across the whole tree excluding .git returns zero hits anywhere, no other landmine. Repo-wide search for every PINNED_EXECUTABLE_SOURCE_FINGERPRINTS / PINNED-FINGERPRINT-style map confirms only two live source files reference this fingerprint at all (retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs); both now hold the identical repinned value, so there is no third out-of-sync copy waiting to surprise a future validate run. Both files are properly recorded as acknowledged scope expansions in scope-contract.json with accurate reasons (F-030-adjacent repin necessity; second-location vocabulary mirror). No dead code, type issues, or promised-but-undelivered surface introduced by the 1-line diff. No blocker.",
+      "createdAt": "2026-08-14T06:54:31.547Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-055",
+      "envelopeId": "d410fbc3b386ad46b08b72b5bf07831bcb6fcfb8132da7ff0da18db714ca358f",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": "Repo-wide grep for the stale and new fingerprint values, and for every PINNED_EXECUTABLE_SOURCE_FINGERPRINTS-style map, to confirm no third out-of-sync reference exists anywhere in the tree."
+      },
+      "_hash": "a90d6449ed2606d73936095b892e11770b50a57fa4a94e889fc5c31030bbe442"
+    },
+    {
+      "id": "B-3144:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verification after the sole intervening commit, bd2b6c8e03 (1-line stale pinned-fingerprint literal in scripts/verify-process-fact-contract.mjs, unrelated to story logic). Confirmed via checklist.json: all 25 verificationIntent entries across CHK-001 (6: 2 happy/2 edge/2 adversarial), CHK-002 (8: 2/3/3), CHK-003 (11: 3/4/4) map 1:1 by intentRef to a verificationEvidence entry with result=pass, no gaps and no orphan refs. Every evidence entry carries the identical headHash f12144730a / materialHash ffb7ca1801... / storyFilesHash b22a5b40... triple, and f12144730a is one commit AFTER bd2b6c8e03 (git merge-base --is-ancestor confirms bd2b6c8e03 is an ancestor of the evidence headHash), so the recorded evidence already reflects the post-fix state -- not stale. Independently re-ran the full compiled suite fresh at current material (node packages/main/dist/tasks/quorum-submit-smoke.js, no --grep filter): 71/71 checks pass, covering RED repro (CHK-001), the widened drift-accept guard incl. F-035 EMPTY_STORY_FILES_HASH edge case (CHK-002), and quorum_prune dry-run/apply/backup/CLI-wiring/keep-selector/runIds-filter/dirty-tree-refusal/nothing-to-prune/triple-duplicate/interleaved-preservation/backup-never-overwrite (CHK-003). Also ran scripts/verify-process-fact-contract.mjs directly: exits clean (\"Process fact contract verified\"), confirming the mechanical fix actually resolved the fingerprint mismatch it targeted. No coverage gap found; no finding written.",
+      "createdAt": "2026-08-14T06:56:56.079Z",
+      "reviewRound": "2026-08-14T06:45:34.136Z",
+      "reviewRunId": "B-3144:RR-056",
+      "envelopeId": "6e40aee2f6d68f8fcd3fa272580b5f5d0d9467007fc36bc15c7e4053582d1571",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": "Ran full untargeted quorum-submit-smoke.js suite (no --grep) plus verify-process-fact-contract.mjs directly against current HEAD to independently confirm the 25/25 evidence-to-intent mapping derived from checklist.json, rather than trusting the JSON alone."
+      },
+      "_hash": "1483694aa28ddce793047d9d485d9ac30e7fb851f67f7af6f4353aa13f83ad63"
+    },
+    {
+      "id": "B-3144:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation pass, no source changed since last clean pass RP-023 (head ef0a14f). Verified: diff ef0a14f02a..4d833d0 (current head) is a large main-merge (other stories B-137a/B-c648/B-9812/B-74af/B-cdf6/B-fb7b landing to main) plus routine lifecycle-metadata commits; every B-3144 story-scoped file (handlers/quorum-submit.ts, handlers/quorum-prune.ts, tasks/quorum-submit-smoke.ts, cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, handlers/lattice-cli.ts, docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md) is byte-identical (0 diff lines) across that range. The only touched file adjacent to B-3144 scope, scripts/verify-process-fact-contract.mjs (7 lines), traces to commit 4af2f427a0 which is B-9812 work flowing through the main merge, not new B-3144 work; already acknowledged out-of-scope pattern from RP-023 continues to apply, no new B-3144-authored change to that file. Re-swept full story diff main...HEAD (36 files) for concept deletion/replacement per role mandate: story remains purely additive (new quorum_prune command/handler/CLI wiring + widened quorum_submit guard predicate); grepped remove/delete/rename/replace hits in the diff and all are intentional quorum_prune functional vocabulary (verdict removal/pruning), not a mass concept rename needing residue-grep. Confirmed packages/main/dist/handlers/quorum-prune.js build artifact present and fresh; working tree clean except this review run own metadata writes. No blocker.",
+      "createdAt": "2026-08-14T07:23:32.458Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-058",
+      "envelopeId": "82cea758ddc3344ce6483b52a98a084e5ad5318f02e77882e0568ef46812b1f1",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37e8f5e76b2d64f342f804720542690595b3db9605cdfc04c5dd755d04b1372b"
+    },
+    {
+      "id": "B-3144:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation: diff since RP-025 (headHash ef0a14f0 -> 4d833d02) touches only .lattice metadata (checklist.json receipt re-stamps with identical outputDigest/outputTail, review-runs/passes, prompt-envelopes, process-events, summary, index) plus unrelated other-story files pulled in by the main merge (B-c648, B-cdf6, B-fb7b, full-suite-runner, agent-liveness-policy, etc. -- none in B-3144 scope). Zero diff on all 8 scoped files (quorum-submit.ts, quorum-prune.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, quorum-submit-smoke.ts) confirmed via git diff. Rebuilt packages/main (npm run build, clean) and spot-reran 2 smoke checks (drift-accept refusal, quorum_prune apply/backup/recovery) -- both pass with same behavior. verificationIntent-to-evidence coverage (25/25 mapped in RP-025) stands unchanged: no blocker.",
+      "createdAt": "2026-08-14T07:24:21.858Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-060",
+      "envelopeId": "a155105471cf715d9516d3691e4d58207c16b929a6d69e3dccfdd0375b4f5263",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": "Diffed full working tree between last-pass headHash (ef0a14f0) and current headHash (4d833d02) to confirm zero change to all 8 story-scoped files; rebuilt dist and re-executed 2 smoke checks directly against current HEAD rather than trusting the JSON receipts alone."
+      },
+      "_hash": "69011c197e76149d007ab54f7210e75fd3571424b94ba38031eec99576297bc6"
+    },
+    {
+      "id": "B-3144:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation only: diffed all previously-reviewed files (packages/main/src/handlers/quorum-submit.ts, quorum-prune.ts, verdict.ts, packages/main/src/tasks/quorum-submit-smoke.ts, docs/evidence-integrity-program-spec.md, docs/evidence-write-guard-spec.md, CLAUDE.md, docs/CLI.md, docs/guide.md, README.md) between the RP-022 checkpoint commit (f1e13b1c67) and current HEAD (4d833d02ba): zero lines changed. Confirmed the intervening main-merge commit (6b5df0cd10) touched none of these files, and storyFilesHash/materialHash in the current dispatch context (4bcfedc796e6.../dcb49e1aa449...) match the values recorded at RP-022 exactly. Re-read background.md and plan.md (unchanged). No new symbols, no doc-code drift since RP-022s clean pass; carrying that verdict forward.",
+      "createdAt": "2026-08-14T07:24:29.881Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-061",
+      "envelopeId": "c1be4f3a5379910480fc4598fd87bc5e903b628887f3b6e9f2aff1e055b94a38",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "docs/guide.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "re-attestation round: zero-diff verified via git diff against RP-022 checkpoint commit, so prior full read stands unchanged"
+      },
+      "_hash": "b91895d98abdf6ebdef1c96d19cd7035fc9ff98e5b4a3e28d2d5af363e0805ca"
+    },
+    {
+      "id": "B-3144:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Pure re-attestation round (RP-024 was the last clean quality pass, head ef0a14f, RR-055). Story cycled TEST->DEV->REVIEW only because an unrelated large main-merge (6b5df0cd10) plus a story_advance/summary_set metadata commit invalidated the Prompt Envelope on all 4 reviewer lanes; no story-owned source edits were intended or made. Verified directly rather than trusting the narrative: diffed ef0a14f..4d833d0 (RP-024 head -> current RR-059 head) restricted to the 10 story scope-contract files (quorum-submit.ts, quorum-prune.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, quorum-submit-smoke.ts, retired-authority-vocabulary-guard-smoke.ts) plus the 2 docs -> byte-identical, zero diff, for 9 of 10; the 10th (scripts/verify-process-fact-contract.mjs) showed a raw-content delta, but tracing it (git log ef0a14f..HEAD -- that file) showed it came from an unrelated main commit (4af2f427a0, canonicalRoutineIncludes test:closeout-trust check) folded in by the same merge, not from any B-3144 edit; confirmed by re-diffing `git diff main...HEAD -- scripts/verify-process-fact-contract.mjs` now, which is still exactly the single-line fingerprint-repin hunk (a2468c...bdbc0 -> ef1c4e...f050f) RP-024 already reviewed line-for-line, nothing added. `git diff main...HEAD --name-only` (34 files: 22 .lattice/B-3144 metadata + 2 docs + 10 scope-contract-listed source/test files) matches RP-024/RR-055s reviewed footprint exactly; no other-story .lattice dirs or unrelated source files appear in the B-3144-owned diff (they only appear in a raw HEAD..RP-024-head range diff because that range spans the whole main-merge commit, which is expected and irrelevant to this storys scope). dist/ was absent in this shared worktree (another reviewer mid-build); hit one transient ENOTEMPTY on `npm --prefix packages/main run build` from the concurrent lattice-review-delivery process, retried once and it succeeded cleanly per the dispatch note. Reran the full quorum-submit-smoke.js suite fresh post-build: 71/71 checks pass (matches RP-024s 71/71 baseline exactly, same count). Reran retired-authority-vocabulary-guard-smoke.js: PASS. Reran scripts/verify-process-fact-contract.mjs standalone: PASS (Process fact contract verified). git status --short is clean after all runs. No dead code, type-safety regressions, I/O-isolation violations, or promised-but-undelivered surface introduced -- because nothing in the reviewed scope changed since RP-024s clean pass. No blocker.",
+      "createdAt": "2026-08-14T07:32:40.413Z",
+      "reviewRound": "2026-08-14T07:21:41.870Z",
+      "reviewRunId": "B-3144:RR-059",
+      "envelopeId": "36b12f5ac0018b108dc449eb1a9fe3f0df0e0453b58970b6951c86df497cbbed",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/review-runs.json",
+          ".lattice/story/actives/B-3144/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Diffed ef0a14f (RP-024 reviewed head) against 4d833d0 (current HEAD) restricted to all 10 scope-contract files plus 2 docs to prove zero-delta; for the one file with a raw delta, traced the introducing commit range to confirm it originated from an unrelated main commit folded in by the merge, then re-ran git diff main...HEAD on that file to confirm the story-owned hunk is unchanged from what RP-024 reviewed."
+      },
+      "_hash": "92dbf89d3cd4cf682dea7ab6c56abf151cddf5d1ca09b6f038bcd127b5056b86"
+    }
+  ]
+}
