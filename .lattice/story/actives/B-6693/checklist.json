@@ -303,9 +303,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T16:02:41.926Z",
-      "endTime": null,
+      "endTime": "2026-08-14T16:13:34.407Z",
       "userSees": "Two concurrent official validations no longer race: terminal B reports the active holder while waiting, then both terminal A and terminal B end with their own PASS evidence in order.",
       "excludes": [
         "Do not treat fail-fast lock contention as success.",
@@ -553,7 +553,14 @@
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
           "timestamp": "2026-08-14T16:13:10.928Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0128fffe2c16ec2573de2b0d761d723f494bec191b92455997817fd77f628866",
+        "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+        "headHash": "a22a59c4a3a12139dae57c475a12c9e71bca58f2",
+        "attestedAt": "2026-08-14T16:13:34.557Z",
+        "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c"
+      }
     },
     {
       "id": "CHK-003",
@@ -666,6 +673,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Record independent tool-executed wait-and-run and failure-path evidence",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-08-14T16:13:34.407Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "8/8 tool-executed full smoke receipts recorded; implementation and release-race follow-up committed",
       "agent": "main"
     }
   ]
