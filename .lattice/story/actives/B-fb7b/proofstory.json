@@ -22,20 +22,23 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "A root pretest script builds packages/main then packages/utils before the full suite, so npm test self-bootstraps packages/utils/dist and the full suite (including bin/lattice.js sub-tests) starts without the missing-utils bootstrap failure.",
-      "note": "Verified by the repro-first RED (node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) and a fast structural smoke wired into validate.commands. verificationIntentRefs added after the test-intent subagent runs."
+      "note": "Verified by repro-first RED node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (structural + invariant + behavioral) and a fast structural smoke wired into validate.commands."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-fb7b-001 has no verificationIntentRefs."
-    }
-  ],
+  "diagnosticGaps": [],
   "createdAt": "2026-08-14T03:12:16.545Z",
-  "updatedAt": "2026-08-14T03:12:16.545Z"
+  "updatedAt": "2026-08-14T03:16:20.145Z"
 }

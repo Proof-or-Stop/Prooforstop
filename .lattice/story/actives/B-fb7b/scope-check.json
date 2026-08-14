@@ -1,0 +1,107 @@
+{
+  "storyId": "B-fb7b",
+  "checkedAt": "2026-08-14T03:20:02.475Z",
+  "features": [
+    {
+      "feature": "Root package.json pretest builds packages/main then packages/utils before the full suite runs, self-bootstrapping npm test",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-fb7b/understanding.json (outcome, touchpoints); checklist.json CHK-001 happy[0], happy[2], edge[0]"
+    },
+    {
+      "feature": "Ordering constraint: packages/main build must run before packages/utils build inside pretest (utils tooling assumes main dist exists)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; checklist.json CHK-001 edge[0]"
+    },
+    {
+      "feature": "Idempotent rebuild: dist is gitignored, rebuilding pretest twice leaves the tree clean (no untracked/modified files)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; checklist.json CHK-001 edge[1]"
+    },
+    {
+      "feature": "Behavioral repro-first RED (packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) proves bootstrap-runner failure before the fix and recovery after via npm run pretest",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json touchpoints/unknowns(resolved #1); checklist.json CHK-001 happy[1]"
+    },
+    {
+      "feature": "Un-gameable guard: detects a no-op pretest (e.g. echo ok), a partial pretest (main-only build), and a removed pretest key as regressions",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints (\"un-gameable enough\"); checklist.json CHK-001 adversarial[0..2]"
+    },
+    {
+      "feature": "Fast structural invariant smoke (packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts) asserting the full chain (bootstrap-runner requires utils/dist + test invokes full-suite-runner + pretest builds both, main before utils) is registered in lattice.config.json validate.commands as the permanent regression guard",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "understanding.json touchpoints (\"packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts ... wired into validate.commands\", \"lattice.config.json — register the structural smoke in validate.commands\"); decision.json unknowns resolution #1 and #3 (\"register the fast structural smoke in validate.commands as the permanent guard\"); checklist.json CHK-001 verificationIntent has no happy/edge/adversarial item naming this file or asserting it appears as a validate.commands entry — only the single .mjs RED file is named explicitly"
+    },
+    {
+      "feature": "CHANGELOG.md log entry for this fix",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json touchpoints (standard closing hygiene touchpoint, not a distinct testable behavior)"
+    },
+    {
+      "feature": "Exclusion: no edits to packages/main/src/handlers/worktree.ts (worktree-creation bootstrapping stays out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[]; execution-boundary.json excludedPaths[]",
+      "source": ".lattice/story/actives/B-fb7b/scope-boundary.json; execution-boundary.json"
+    },
+    {
+      "feature": "Exclusion: no auto-build magic added to bin/bootstrap-runner.js; its human-facing recovery hint stays as-is",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[]; execution-boundary.json excludedPaths[]",
+      "source": ".lattice/story/actives/B-fb7b/scope-boundary.json; execution-boundary.json"
+    },
+    {
+      "feature": "The additive pretest rebuild of packages/main must not conflict with the existing doneRequiredCommands packages-main-build proof / materialHash freshness gate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json preMortem #3; verified against packages/main/src/core/done-required-validation.ts (materialHash is source-hash based, not dist-byte based, so a second deterministic rebuild with identical source cannot invalidate the proof binding) and lattice.config.json doneRequiredCommands"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-fb7b/background.md",
+      ".lattice/story/actives/B-fb7b/checklist.json",
+      ".lattice/story/actives/B-fb7b/decision.json",
+      ".lattice/story/actives/B-fb7b/execution-boundary.json",
+      ".lattice/story/actives/B-fb7b/gate-failure-counts.json",
+      ".lattice/story/actives/B-fb7b/index.json",
+      ".lattice/story/actives/B-fb7b/init-check.json",
+      ".lattice/story/actives/B-fb7b/intent-collision.json",
+      ".lattice/story/actives/B-fb7b/review.json",
+      ".lattice/story/actives/B-fb7b/scope-boundary.json",
+      ".lattice/story/actives/B-fb7b/understanding.json",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "lattice.config.json",
+      "package.json"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": "No candidateSpecSet artifact exists for B-fb7b (no decisions/ spec directory scoped to this story). Ran a tool-driven keyword scan (grep -ril) across the full docs/requirements/decisions/ corpus for pretest/utils-dist/bootstrap-runner references to check for a conflicting or authoritative spec before falling back to understanding_set + decision_set as authority; one match (done-full-test-gate-execution-plan.md) was found and read for its packages-main-build proof clauses to confirm no conflict with the new pretest."
+  },
+  "summary": {
+    "total": 10,
+    "covered": 7,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "931281f0dbed8d2ad3abaf1f6075377208859fd2318a96ac97b628a827197b85",
+  "openQuestions": []
+}
