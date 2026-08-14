@@ -124,6 +124,30 @@
       "_hash": "e24090f9caa081c60111958170fb37b9f12b607ea36b5682cc4dbd5e522ec301",
       "signatureTag": "adversarial|unknown|verified-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-008",
+      "desc": "Re-verified F-001 on current HEAD 847854aa (material unchanged since fix commit 8bdc42ffa8): CHK-001:adversarial:2 evidence is no longer byte-identical to adversarial:4.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "disproven",
+      "disprovenEvidence": {
+        "summary": "F-001 fix confirmed sound. packages/main/tests/red/red-fb7b-guard-bite.mjs now defines two distinct code paths: adversarial:4 (lines 123, GB-ADV4-BIT) still calls biteCase/runSmokeIn against a {test:...}-only fixture, asserting the COMPILED STRUCTURAL SMOKE exits non-zero. adversarial:2 (lines 127-135, GB-ADV2-BIT) was rewritten to call a new helper runRedIn(root), which spawns the actual repro-first RED (red-fb7b-pretest-builds-utils.mjs, copied into the isolated fixture by makeFixture) against the same no-pretest fixture and asserts the RED itself exits non-zero -- a genuinely different artifact and code path from adversarial:4, directly proving the intent claim (\"RED test must FAIL at the first structural assertion\") rather than re-proving what adversarial:4 already covers. Live-ran node packages/main/tests/red/red-fb7b-guard-bite.mjs on a freshly rebuilt dist (npm --prefix packages/main run build && npm --prefix packages/utils run build, both exit 0) -- all 9 selectors printed including both GB-ADV2-BIT and GB-ADV4-BIT distinctly, ending GB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold, exit 0. git diff --stat 8bdc42ffa8..847854aa -- . \":!.lattice\" is empty, confirming no non-bookkeeping code changed since the evidence-bound commit, so the recorded verificationEvidence (headHash 8bdc42ffa8031976ce6c9bafffe25d5e9f1602da, materialHash dbb8bfd9834bed030879081eeb6c3562890749aa1ad4a9ca312c02be54621aab) remains current. No blocking defect found in this area.",
+        "sourceRefs": [
+          "B-fb7b:F-001",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:61-68",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs:119-135"
+        ],
+        "reproCommand": "node packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      },
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T04:27:56.256Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-007",
+      "_hash": "5bbefc35a290dc3c57d7df70b5d169a11ead34beb1e85395780e8db06babc1c5",
+      "signatureTag": "adversarial|unknown|verified-current-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
