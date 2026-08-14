@@ -10,12 +10,46 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "Story in PLAN with no dev-memory-preflight-ack.json artifact -> call dev_memory_preflight_ack -> artifact written -> canStartDevGuard allows PLAN->DEV transition; WHY: confirms the primary happy path (ack exists -> gate opens)",
+            "type": "cli"
+          },
+          {
+            "desc": "evaluateDevMemoryPreflightGate returns true when a valid dev-memory-preflight-ack.json exists for the story, regardless of its packDigest/topHitIds content; WHY: existence-only check per plan (not hash/staleness-bound)",
+            "type": "cli"
+          },
+          {
+            "desc": "getGuardFailureReason for targetPhase=DEV includes missing_dev_memory_preflight_ack tag and actionable run-command hint when ack artifact is absent; WHY: confirms user-visible error message is helpful",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "Story re-entering DEV from REVIEW (canReenterDevGuard) with ack already present from first PLAN->DEV entry -> gate passes with zero added friction; WHY: ack persists for story lifetime, rollback doors must not re-prompt",
+            "type": "cli"
+          },
+          {
+            "desc": "Story skipping PLAN (canSkipPlanGuard) still requires the ack artifact and blocks without it; WHY: all four DEV doors must be gated, not just the PLAN->DEV path",
+            "type": "cli"
+          },
+          {
+            "desc": "dev_memory_preflight_ack writes artifact with correct schema (schemaVersion, storyId, packDigest, topHitIds, acknowledgedAt, acknowledgedBy) and is readable by evaluateDevMemoryPreflightGate; WHY: round-trip data integrity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "All four DEV-entry doors (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard from REVIEW, canReenterDevGuard from TEST) block when dev-memory-preflight-ack.json is absent; WHY: adversarial check that gate is wired into EVERY door, not just the primary PLAN->DEV path the story emphasizes",
+            "type": "cli"
+          },
+          {
+            "desc": "Deleting/truncating dev-memory-preflight-ack.json after it was written -> evaluateDevMemoryPreflightGate returns false (fail-closed, treats missing/corrupt as blocking); WHY: prevents bypass via file deletion or corruption",
+            "type": "cli"
+          },
+          {
+            "desc": "dev-memory-preflight-ack.json containing invalid JSON (e.g. truncated, empty object {}, wrong schemaVersion) -> evaluateDevMemoryPreflightGate treats it as absent (fail-closed); WHY: a corrupt or hand-crafted artifact must not satisfy the gate",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
