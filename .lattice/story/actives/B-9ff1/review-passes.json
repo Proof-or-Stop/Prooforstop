@@ -339,6 +339,27 @@
         "scanEscalationReason": null
       },
       "_hash": "258b44a56a760640dce1d379b58c44eea88e2756f4be013e5fe1b3b868962e4d"
+    },
+    {
+      "id": "B-9ff1:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 confirmation on the coverage question only. Re-read packages/main/tests/red/red-w2d-command-readonly.mjs and packages/main/src/tasks/red-evidence-envelope-smoke.ts after commits ee73b9f6 (F-015..F-022 repair) and 63a9092d (catalog/config/registry wording repair). The decision to defer a real CLI-boundary test to the follow-up (rather than assert the current defect as correct behaviour) is right: the direct-handler-call boundary is what this file can test today. Wording check: (1) both files now say, at the assertion-adjacent comment AND at the failing assertion message itself ('invoked directly as a handler' / 'the CLI wrapper is not exercised here'), that invocations never enter runCli. (2) Section 6a of red-w2d-command-readonly.mjs states BOTH reasons the activity-log row is invisible here, explicitly labels reason 1 (writeLog is local to runCli's inner run(), unreachable by a direct handler call, true regardless of fixture/env) as PRIMARY and controlling, and reason 2 (detectActiveStoryId requires a story/-prefixed branch; this fixture is a bare git init) as SECONDARY -- so a reader cannot conclude a better fixture would fix it. (3) No assertion message overclaims: the four-category claim (no artifact/process event/chain record/gate verdict) replaced the old unqualified 'writes nothing' in every touched call site, including the production-facing command-catalog.ts description, config.ts comment, and registry.ts comment (63a9092d), matching the same four-category scoping used in the test files. Coverage re-verified via evidence_plan --json: 108 total intent refs (98 logic_test + 8 manual_transcript + 2 documented waivers CHK-012:edge:1 and CHK-013:adversarial:0), 106 pass, 0 missing, 0 failed -- identical shape to the prior round, checklist 16/16 done, verification_evidence_present pass (not stale). Real transcripts: node packages/main/dist/tasks/red-evidence-envelope-smoke.js -> OK exit 0; all 5 packages/main/tests/red/red-w2d-*.mjs -> PASS exit 0 each (command-readonly shows 8 direct handler invocations / 32 read-only git spawns, matching the repaired claim exactly). All 23 story findings are resolved/dismissed; none open. Q4 (structural fix for the 4th recurrence of this defect class in one file): the only fix that actually closes the gap for good is a genuine CLI-level test exercising runCli with a forced uncooled stale warning or LATTICE_ACTIVITY_RECORD_READONLY=1 -- prose scoping can drift again on the next edit, a real positive/negative control cannot. That belongs to the follow-up story that owns the shared runCli/activity-log bypass, not here, so I filed nothing new. Housekeeping note: I mistakenly ran review_run_start once at the start of this session before re-reading the dispatch, creating a stray duplicate run B-9ff1:RR-024 (same class of mistake as RR-019); it is inert and unused, this pass and all findings this round are recorded only under RR-022 as instructed. Also rebuilt packages/main and packages/utils dist (gitignored, untracked) locally to unblock the CLI bootstrap after a worktree ENOTEMPTY race on first attempt; no source files were changed.",
+      "createdAt": "2026-08-14T04:02:17.799Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-022",
+      "envelopeId": "94578b86ece6b2e5ede1dbd71f015fd7a90a42a0a1058bc0c0fac3b435486e94",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "705d6c6c2dc562f580768ac423296344b3db51c49fab4767f0acbfa0fdc31953"
     }
   ]
 }
