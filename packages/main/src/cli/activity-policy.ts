@@ -20,9 +20,17 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_rollout_report_read',
   'acceptance_rollout_check',
   'topology_critic_receipt_check',
-  // W2d (B-9ff1): read-only RED assertion-envelope admissibility pre-flight. It
-  // must append NOTHING (no hook, no activity log, no process event), which is
-  // exactly what this membership guarantees at the CLI choke point.
+  // W2d (B-9ff1): read-only RED assertion-envelope admissibility pre-flight.
+  // Membership here makes shouldWriteActivityLog (this file) return false, so the
+  // command runs no hook, writes no process event, and records no activity row of
+  // its own. Membership is necessary but NOT sufficient: the writeLog call sites
+  // in cli-engine.ts OR in `staleWarnings.length > 0`, an independent path that
+  // appends one generic session row for any command — read-only included — while
+  // the story carries an uncooled stale warning (STALE_WARNING_COOLDOWN_MS, 30
+  // minutes, in core/stale-detector.ts). The command's formal contract in
+  // core/command-policy.ts (writes no artifact, no process event, no chain record,
+  // changes no gate verdict) holds unconditionally: activity.jsonl is generic CLI
+  // session telemetry, not one of those four categories.
   'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
