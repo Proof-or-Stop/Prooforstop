@@ -2633,17 +2633,15 @@
         },
         {
           "intentRef": "CHK-012:edge:1",
-          "kind": "logic_test",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
           "file": "packages/main/tests/red/red-w2d-command-readonly.mjs",
-          "command": "node packages/main/tests/red/red-w2d-command-readonly.mjs",
-          "result": "pass",
-          "note": "assert.throws(() => check({ storyId, assertionFile: envelope-broken.json }), /JSON|parse/i) on a file containing \"{ this is not json\"; the per-file SHA-256 snapshot of the whole .lattice tree taken before all seven invocations is then asserted equal, so a parse failure writes nothing either.",
-          "headHash": "2a01df278e178aa3baeb8ab4c5b30f261ee58a33",
-          "materialHash": "afa81bb4c922fbac27b79bf2d648ef4f701321616311a6d94b95c7ee31e02127",
-          "storyFilesHash": "de9c8a2f86bf8a9d9425dd09cf249a0533821140017f8e3bfcfaea0ea1abd6fd",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-13T20:45:39.168Z"
+          "note": "WAIVER — the behaviour IS proven; the immutable pin is not correctable. packages/main/tests/red/red-w2d-command-readonly.mjs asserts exactly this intent: an invalid-JSON envelope raises a parse error and the per-file SHA-256 snapshot of the whole .lattice tree is unchanged across every invocation; the test passes (exit 0). The pinned selector reads '.lattice tree byte-identical after 7 invocations', but the test body has ALWAYS performed EIGHT invocations - the pinned literal was factually wrong on the day it was authored, not made wrong by any later change. During REVIEW the test was corrected to print a derived count ('across 8 invocations'), so the stale pin can never match again. Per checklist.ts the pin is immutable by design (receipt_selector_mismatch), checklist_update rejects the verification key, and verification_intent_repair only backfills MISSING intents - so there is no sanctioned correction path. The two dishonest alternatives were rejected explicitly: printing a literal known to be false so the stale pin matches (the exact fabrication the pin mechanism exists to prevent), and wiping the pin to re-pin it (a fabrication surface anyone could use). Recorded as a visible, attributable waiver instead. The tooling gap is filed as its own task.",
+          "headHash": "68afd4c9677b6494a5318121c6cdcbeb45109125",
+          "materialHash": "50c6da03ce3795daebd06e04520e7efd21d18a04b46e58ff7e679263067f725a",
+          "storyFilesHash": "bcebf177782a6e4689e789d8d0608c4fa3b193809464792af7867917607ac03d",
+          "timestamp": "2026-08-14T02:10:37.033Z"
         },
         {
           "intentRef": "CHK-012:adversarial:0",
