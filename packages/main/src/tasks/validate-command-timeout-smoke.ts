@@ -19,12 +19,15 @@
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
  */
 
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   resolveCommandTimeoutMs,
   runValidationCommand,
   executeValidationPlan,
+  runSingleAllowlistedCommand,
 } from '../core/validation-executor.js';
 import type { ValidationCommand, ValidationPlan } from '../core/validation-types.js';
 
@@ -107,6 +110,33 @@ void (async () => {
     check('process-group kill attributed 124', tree.code === 124);
     // Settled well under "hang forever": timeoutMs(1000) + SIGKILL escalation(1000) + slop.
     check('process-group kill settled promptly (did not wait on the grandchild)', tree.durationMs < 6_000);
+
+    // 6. B-16df: runSingleAllowlistedCommand (the receipt path used by
+    //    verification_evidence_add / _batch_add / verification_run) MUST honor a
+    //    project's configured validate.commands[].timeoutMs override, exactly like
+    //    resolveCommandTimeoutMs does for the lattice-validate path exercised above. A
+    //    temp project root pins a ~1.5s command at a 700ms override via lattice.config.json;
+    //    calling runSingleAllowlistedCommand with the SAME command string and NO
+    //    options.timeoutMs must still be killed at ~700ms (timedOut, code 124), not run to
+    //    completion under the hardcoded 270s default. Currently RED: runSingleAllowlistedCommand
+    //    never reads lattice.config.json, so it always falls back to the 270s default and the
+    //    ~1.5s command completes normally (timedOut=false).
+    const pinnedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-'));
+    const pinnedCommand = 'node -e "setTimeout(() => {}, 1500)"';
+    writeFileSync(
+      join(pinnedRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node', args: ['-e', 'setTimeout(() => {}, 1500)'], timeoutMs: 700 },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const pinned = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, {});
+    check('configured validate.commands[].timeoutMs override honored (timedOut=true)', pinned.timedOut === true);
+    check('configured validate.commands[].timeoutMs override attributed 124', pinned.code === 124);
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
   } catch (e) {
