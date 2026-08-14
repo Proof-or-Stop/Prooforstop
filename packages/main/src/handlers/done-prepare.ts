@@ -2392,7 +2392,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const generatedPaths = generatedMetadataManifest.safePaths;
     const unsafePaths = generatedMetadataManifest.unsafePaths;
     const next = generatedPaths.length > 0 && unsafePaths.length === 0
-      ? `git add ${generatedPaths.map((file) => `"${file}"`).join(' ')} && git commit -m "lattice: prepare ${storyId} for DONE"`
+      ? `git add ${generatedPaths.map((file) => `"${file}"`).join(' ')} && git commit -m "proof-or-stop: prepare ${storyId} for DONE"`
       : generatedPaths.length > 0
         ? 'commit only the current-run generated metadata listed above; preserve or resolve unsafe/pre-existing dirty files separately, then rerun done_prepare'
         : 'inspect the unsafe/pre-existing dirty files listed above, then rerun done_prepare after the worktree is safe';

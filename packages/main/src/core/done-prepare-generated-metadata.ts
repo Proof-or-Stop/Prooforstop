@@ -800,7 +800,7 @@ export function commitImmutableMetadataTree(args: {
 }
 
 function commitMessage(storyId: string): string {
-  return `lattice: auto-close ${storyId} generated DONE metadata`;
+  return `proof-or-stop: auto-close ${storyId} generated DONE metadata`;
 }
 
 export function commitDonePrepareGeneratedMetadata(args: {

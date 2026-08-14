@@ -245,7 +245,7 @@ function buildPartialDone(root: string, storyId: string): string {
   const worktreeStore = new StoryStore(worktreePath);
   worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
   git(worktreePath, ['add', '.lattice/story/actives']);
-  git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`]);
+  git(worktreePath, ['commit', '-m', `proof-or-stop: mark ${storyId} DONE + clear worktree`]);
   return worktreePath;
 }
 
@@ -347,7 +347,7 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
     const worktreeStore = new StoryStore(worktreePath);
     worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE with conflict`]);
+    git(worktreePath, ['commit', '-m', `proof-or-stop: mark ${storyId} DONE with conflict`]);
 
     writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
     git(root, ['add', 'conflict.txt']);

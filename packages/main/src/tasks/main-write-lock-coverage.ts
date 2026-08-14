@@ -159,7 +159,7 @@ const EXCEPTIONS: readonly ExceptionEntry[] = [
   },
   {
     fileEndsWith: 'handlers/worktree.ts',
-    lineIncludes: 'commit -m "lattice: discard',
+    lineIncludes: 'commit -m "proof-or-stop: discard',
     crossFunctionLocked: true,
     reason: 'story_discard commitDiscardMetadata commit on main; lock acquired at the callsite (withReentrantMainWriteLock, label "story_discard metadata commit")',
   },
@@ -750,7 +750,7 @@ export function assertNegativeFixtureBites(): void {
   //     — no lock required, classified worktree-only (preMortem #1: by target).
   const bootstrapShape = [
     'function createScopedStoryBootstrapCommit(repoRoot: string, branch: string) {',
-    "  const commit = gitFile(['commit-tree', tree, '-p', head, '-m', 'lattice: init'], repoRoot);",
+    "  const commit = gitFile(['commit-tree', tree, '-p', head, '-m', 'proof-or-stop: init'], repoRoot);",
     "  gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);",
     '}',
   ].join('\n');

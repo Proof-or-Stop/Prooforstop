@@ -64,7 +64,35 @@ import {
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
  * across handlers + smoke (preMortem #3 anchor — CHK-003 / CHK-004).
  */
-export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committed:';
+export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ proof-or-stop metadata auto-committed:';
+
+/**
+ * B-cdf6:F-047 — canonical subject prefix for commits this runtime WRITES.
+ *
+ * These are new writes at commit time, not reads of stored evidence, so the
+ * corrected governing rule in docs/requirements/decisions/brand-rename-mapping.md
+ * puts them squarely in the RENAMED class: "any `lattice` that has no effect on the
+ * past evidence chain must be refactored". The surface had zero rows in that
+ * mapping table and is structurally invisible to verify-lattice-residue.mjs, whose
+ * detectors match `lattice <subcommand>` CLI-invocation syntax rather than a
+ * `lattice: <verb>` commit-message prefix — so nothing caught it until a reviewer
+ * read the story's own git log.
+ */
+export const COMMIT_SUBJECT_PREFIX = 'proof-or-stop:';
+
+/** Deprecated subject prefix, still RECOGNIZED so pre-rename history keeps parsing. */
+export const DEPRECATED_COMMIT_SUBJECT_PREFIX = 'lattice:';
+
+/**
+ * Read-both matcher for runtime-authored commit subjects. Writers emit the
+ * canonical prefix; readers must accept either, because a repository can contain
+ * commits written before this rename and those commits are exactly the past
+ * evidence the compatibility contract protects.
+ */
+export function matchesRuntimeCommitSubject(subject: string, body: string): boolean {
+  return subject === `${COMMIT_SUBJECT_PREFIX} ${body}`
+    || subject === `${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`;
+}
 
 /** Canonical literal path prefix the helper is allowed to stage. */
 export const AUTO_COMMIT_STORY_DIR_PREFIX = `${PROOF_OR_STOP_STORY_DIR}/`;
@@ -320,7 +348,7 @@ export function commitLifecycleMetadataTransaction(args: {
       gitCwd: args.gitCwd,
       paths: changedPaths,
       verifiedHashes: new Map(changedPaths.map((path) => [path, args.verifiedHashes.get(path)!])),
-      message: `lattice: record ${args.storyId} ${args.capture.kind} metadata`,
+      message: `${COMMIT_SUBJECT_PREFIX} record ${args.storyId} ${args.capture.kind} metadata`,
       testHooks: args.testHooks,
     });
     if (!committed.ok) return rollback(committed.reason || `${args.capture.kind} immutable metadata commit failed`);
@@ -378,7 +406,7 @@ export function commitValidationReuseMetadataTransaction(args: {
       reason: args.reason,
       artifactPaths: args.closeoutArtifactPaths,
     });
-    const subject = `lattice: record ${args.storyId} ${args.reason} metadata`;
+    const subject = `${COMMIT_SUBJECT_PREFIX} record ${args.storyId} ${args.reason} metadata`;
     const committed = commitImmutableMetadataTree({
       root: args.gitCwd,
       gitCwd: args.gitCwd,
@@ -581,7 +609,7 @@ export function autoCommitStoryMetadata(
     if (!staged) return '';
 
     // 8. commit
-    const subject = `lattice: record ${storyId} ${reason} metadata`;
+    const subject = `${COMMIT_SUBJECT_PREFIX} record ${storyId} ${reason} metadata`;
     execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject], {
       cwd: gitCwd,
       encoding: 'utf-8',

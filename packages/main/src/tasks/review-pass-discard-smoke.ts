@@ -427,7 +427,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
     git(root, ['add', '.lattice/story/actives']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
@@ -497,7 +497,7 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-purge']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
 
     const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
@@ -532,7 +532,7 @@ async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
     const storyId = 'B-buried';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-buried']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     const initCommit = git(root, ['rev-parse', 'HEAD']);
 
     // BURY the init commit under an unrelated later commit on main, so it is no

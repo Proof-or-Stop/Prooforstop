@@ -16,7 +16,7 @@
  *
  * The fix (CHK-002, packages/main/src/core/safe-init-commit.ts):
  *   At the end of `story_create` the CURRENT branch HEAD is advanced by a scoped
- *   `lattice: story <id> init` commit that tracks ONLY the new story's metadata
+ *   `proof-or-stop: story <id> init` commit that tracks ONLY the new story's metadata
  *   dir. A tracked git object is immune to `git clean -fd` / `-fdx`.
  *
  * Why this smoke is a GENUINE regression test (and the prior one was not):
@@ -196,7 +196,7 @@ function assertInitMetadataSurvivesConcurrentClean(): void {
       trackedInHead,
       true,
       `INIT-window data loss: ${indexRel} is NOT tracked in HEAD. story_create must commit a ` +
-        '"lattice: story <id> init" safe-init commit so the allowlisted-not-ignored metadata is ' +
+        '"proof-or-stop: story <id> init" safe-init commit so the allowlisted-not-ignored metadata is ' +
         'a tracked (clean-proof) object. Without that commit a concurrent git clean -fd wipes it.',
     );
 

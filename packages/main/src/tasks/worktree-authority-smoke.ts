@@ -1098,7 +1098,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
     const mergedLog = git(root, ['log', '--oneline', 'main']);
-    assert.match(mergedLog, new RegExp(`lattice: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
+    assert.match(mergedLog, new RegExp(`proof-or-stop: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
     assert.match(mergedLog, new RegExp(`merge: ${storyId}`), 'Step3 --no-ff merge commit must be present on main');
 
     // Terminal state: story DONE, worktree + branch gone.

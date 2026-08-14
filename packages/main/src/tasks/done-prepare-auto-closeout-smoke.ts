@@ -46,7 +46,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
 const NOW = '2026-07-09T00:00:00.000Z';
 const STORY_ID = 'B-done-prepare-auto-closeout';
-const AUTO_CLOSE_MESSAGE = `lattice: auto-close ${STORY_ID} generated DONE metadata`;
+const AUTO_CLOSE_MESSAGE = `proof-or-stop: auto-close ${STORY_ID} generated DONE metadata`;
 
 interface Fixture {
   root: string;
@@ -368,7 +368,11 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     // so observable reviewWindowSuiteExecutions is 0 alongside the blocking counter.
     assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=0 successfulCloseout=1$/m);
     assert.doesNotMatch(transcript, /^autoCloseGeneratedMetadata:/m, 'canonical validation writers converge without nested auto-closeout recursion');
-    assert.match(transcript, /lattice story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
+    // B-cdf6:F-047 follow-on — a stale brand assertion, same class as F-030/F-041:
+    // production done-prepare.ts:1720 emits `proof-or-stop story_advance ...`. It was
+    // masked until the commit-prefix fix let execution reach this line.
+    assert.match(transcript, /proof-or-stop story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
+    assert.doesNotMatch(transcript, /\blattice story_advance /);
     assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');
     assert.equal(git(root, ['status', '--porcelain']), '', 'auto-closeout leaves the worktree clean');
     assert.notEqual(git(root, ['log', '-1', '--pretty=%s']), AUTO_CLOSE_MESSAGE, 'one-pass closeout must not create the legacy synthetic auto-close commit');
@@ -419,7 +423,7 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
       'canonical validation transaction leaves no duplicate generated metadata for done_prepare to close',
     );
     assert.equal(git(root, ['status', '--porcelain']), '', 'reused-validation canonical transaction leaves the worktree clean');
-    assert.equal(git(root, ['log', '-1', '--pretty=%s']), `lattice: record ${storyId} validate metadata`);
+    assert.equal(git(root, ['log', '-1', '--pretty=%s']), `proof-or-stop: record ${storyId} validate metadata`);
     assert.deepEqual(
       git(root, ['diff', '--name-only', `${reuseHeadBefore}..HEAD`]).split('\n').filter(Boolean).sort(),
       [

@@ -1425,7 +1425,7 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
 // circularity. The supersede filter in collectReviewerEvidenceState used to
 // forgive a stale-bound TERMINAL finding only when its lane ALSO held
 // currently-valid evidence. Every remedy for staleness writes its own
-// `lattice: record ... metadata` commit, which advances HEAD and re-stales the
+// `proof-or-stop: record ... metadata` commit, which advances HEAD and re-stales the
 // bindings it just established; when a whole lane goes stale in one sweep its
 // passes never enter `valid`, so the lane is missing from
 // agentsWithCurrentValidEvidence and the forgiveness for its already-resolved
@@ -2806,14 +2806,14 @@ function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
       '-c', 'user.name=main-agent',
       '-c', 'user.email=main@example.test',
       'commit',
-      '-m', 'lattice: implement real code',
+      '-m', 'proof-or-stop: implement real code',
     ]);
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'fail');
     assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
     assert.match(result.summary, /cannot be used as author fallback/);
-    assert.match(result.details.join('\n'), /lattice: implement real code/);
+    assert.match(result.details.join('\n'), /proof-or-stop: implement real code/);
     assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -3241,10 +3241,10 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `auto-commit hint must start with the canonical prefix; got: ${JSON.stringify(out)}`);
-      assert.match(out, /lattice: record B-test1 finding_add metadata/);
+      assert.match(out, /proof-or-stop: record B-test1 finding_add metadata/);
       assert.match(out, /\([0-9a-f]{7}\)/, 'auto-commit hint must include short sha (7 hex chars)');
       assert.equal(gitCommitCount(root), commitsBefore + 1);
-      assert.match(gitLastSubject(root), /^lattice: record B-test1 finding_add metadata$/);
+      assert.match(gitLastSubject(root), /^proof-or-stop: record B-test1 finding_add metadata$/);
       assert.ok(!out.includes('untouched'), `no coexisting non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -3263,7 +3263,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       const commitsBefore = gitCommitCount(root);
       const out = autoCommitStoryMetadata(root, storyId, 'review_pass_set');
       assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), 'prefix must match');
-      assert.match(out, /lattice: record B-test1 review_pass_set metadata/);
+      assert.match(out, /proof-or-stop: record B-test1 review_pass_set metadata/);
       assert.match(out, /\(coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1[^)]*\)/);
       assert.equal(gitCommitCount(root), commitsBefore + 1);
       // material file still dirty
@@ -3436,8 +3436,8 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
         writeFakeMetadata(root, storyId, `{"reason":"${reason}"}`);
         const out = autoCommitStoryMetadata(root, storyId, reason);
         assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `reason=${reason} prefix mismatch`);
-        assert.match(out, new RegExp(`lattice: record B-test1 ${reason} metadata`));
-        assert.match(gitLastSubject(root), new RegExp(`^lattice: record B-test1 ${reason} metadata$`));
+        assert.match(out, new RegExp(`proof-or-stop: record B-test1 ${reason} metadata`));
+        assert.match(gitLastSubject(root), new RegExp(`^proof-or-stop: record B-test1 ${reason} metadata$`));
       } finally {
         rmSync(root, { recursive: true, force: true });
       }

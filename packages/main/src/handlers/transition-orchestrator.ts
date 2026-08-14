@@ -1515,7 +1515,7 @@ async function runStoryTransitionInner(
         );
       }
       if (committed.commitSha) {
-        metadataCommitReport = `\n✓ lattice metadata auto-committed: lattice: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
+        metadataCommitReport = `\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record ${args.storyId} test-transition metadata (${committed.commitSha.slice(0, 7)})`;
       }
     }
 

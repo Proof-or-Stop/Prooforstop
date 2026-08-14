@@ -663,7 +663,7 @@ function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId:
       );
     }
 
-    const commitMessage = `lattice: from-draft metadata ${storyId}`;
+    const commitMessage = `proof-or-stop: from-draft metadata ${storyId}`;
     gitCli(root, [
       '-c', 'commit.gpgsign=false',
       'commit',
