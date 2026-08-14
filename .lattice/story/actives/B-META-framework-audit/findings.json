@@ -549,6 +549,25 @@
         "packages/main/src/core/main-write-lock.ts"
       ],
       "_hash": "fd81350b185de82f10992cb305567d5e90b8a7f29f33b59b33aab8871eef139e"
+    },
+    {
+      "id": "B-META-framework-audit:F-030",
+      "desc": "THE BRAND GATE CANNOT SEE THE PLACE THE BRAND LEAKS MOST. scripts/verify-lattice-residue.mjs runs three checks; the two that detect bare `lattice <subcommand>` prose/exec usage are scoped to DOC_SCAN_ROOTS (README.md, CLAUDE.md, AGENTS.md, docs, packages/main/templates, .claude/agents, .lattice-codex/agents) and EXECUTABLE_SCAN_ROOTS (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src). NEITHER includes packages/main/src, which is scanned only for the older `koala` token. So a handler that PRINTS `lattice config repair ...` to a user is invisible to the gate.\n\nMEASURED CONSEQUENCE, not hypothetical: the gate reported 3/3 PASS on this branch while NINE user-facing sites in packages/main/src were live. They were found only by LLM reviewers reading code, across three separate rounds:\n  F-041/F-044 (5 sites): handlers/lattice-cli.ts configRepairCommandFor, handlers/verifier.ts:471,\n    handlers/story-review.ts:438, core/autopilot-executor.ts:224, tasks/global-agents-unit-smoke.ts:159\n  F-046 (4 sites): handlers/lattice-cli.ts:174 (ambiguous-gitRoot note), :345 (thrown Error text),\n    :205 plus tasks/lattice-cli-migration-smoke.ts:253,256 (a claim that became FACTUALLY FALSE - it said the\n    package 'exposes only the lattice bin' when package.json lists proof-or-stop primary + lattice alias)\n\nThat is the exact failure mode CLAUDE.md's two-layer process-fact contract exists to prevent: a rule enforced only by reviewer diligence, with no mechanical fallback. Each round I fixed what a reviewer pointed at and declared the sweep complete; the gate could not contradict me because it was not looking there.\n\nWHY IT CANNOT SIMPLY BE ADDED AS A GATED ROOT TODAY - measured before proposing: a conservative approximation of the brand-exec pattern over `git ls-files packages/main/src`, excluding comment-only lines, returns ~108 candidate hits. Most are legitimate and must NOT be rewritten: prose about the installed global binary ('global lattice still reports a legacy raw heartbeat identity'), the auto-commit marker '\\u2713 lattice metadata auto-committed:' whose exact text is asserted elsewhere, FROZEN story-metadata titles, and `.lattice-codex/` path fragments. Adding the root as a hard gate would fail closed on all of them. The file already documents the correct escalation path for exactly this situation - roots start 'counted' and are 'promoted to GATED once its detector count reached a measured 0' (see the EXECUTABLE_SCAN_ROOTS comment for packages/utils/src) - but there is NO code-level counted-roots mechanism, only that prose note, so nothing tracks the 108 or ratchets it downward.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-14T11:57:03.520Z",
+      "reviewRound": "",
+      "gapFingerprint": "feb98cc0bd7e35f0da1c05f121cae48322e82f55a3158fd7bf79cd589749b044",
+      "files": [
+        "scripts/verify-lattice-residue.mjs:139",
+        "scripts/verify-lattice-residue.mjs:175",
+        "CLAUDE.md#lattice-residue",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "_hash": "85b3d88ebda6be08bd1363a87890c931c829e1f3a12363f7ddff69a0a9799a66"
     }
   ]
 }
