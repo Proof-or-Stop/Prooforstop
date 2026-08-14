@@ -90,7 +90,69 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "An attempted material change during OPEN is rejected with the epoch ID, changed subject and recovery command; if drift bypasses an admission boundary, the next authoritative operation visibly invalidates the epoch instead of silently accepting stale reviews."
+      "userSees": "An attempted material change during OPEN is rejected with the epoch ID, changed subject and recovery command; if drift bypasses an admission boundary, the next authoritative operation visibly invalidates the epoch instead of silently accepting stale reviews.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-002-H1",
+            "desc": "While an epoch is OPEN, every authoritative handler, supported Codex or Claude mutation hook, commit guard and lifecycle transition rejects a change to source, tests, verifier, workflow policy, prompt contract or other review-subject material and reports epochId, changed subject, blocker code and an exact recovery command.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-H2",
+            "desc": "Before accepting each lane receipt, pass, finding, wave completion, finalization or transition, the consumer recomputes and compares the frozen material lineage; unchanged material proceeds and remains bound to the same epoch cutoff.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-H3",
+            "desc": "Explicit cancel safely releases the material barrier, records unfinished verdicts as advisory history only, and status directs the operator to start a fresh epoch or return to DEV without allowing the cancelled epoch to authorize remediation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-002-E1",
+            "desc": "A non-material metadata-only update classified by the canonical material registry does not spuriously invalidate the epoch, while any story-owned material or review-contract change does invalidate it; classification and lineage are visible in status.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-E2",
+            "desc": "Material drift that bypasses admission is detected at the next authoritative operation, atomically changes OPEN to INVALIDATED, rejects that operation, marks every prior verdict advisory, shows old and current lineage, and emits exactly one recovery command.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-E3",
+            "desc": "Concurrent receipt and mutation attempts at the cutoff boundary cannot produce a mixed state: exactly one wins under authoritative serialization and the other is rejected or invalidates the epoch with no partially accepted gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-002-A1",
+            "desc": "Direct filesystem edits, alternate write handlers, git commit paths, generated-file changes and unsupported hook bypasses cannot yield a valid current receipt; revalidation catches resulting material drift even when the preventative hook did not run.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-A2",
+            "desc": "A time-of-check/time-of-use mutation inserted after a successful precheck but before receipt persistence or transition consumption is rejected through an atomic or second lineage check and cannot leave a gate-valid stale artifact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B3F3D-002-A3",
+            "desc": "Forged old-cutoff passes, findings, duplicate dispositions or a manually restored hash cannot revive INVALIDATED or CANCELLED state, suppress the drift record, or authorize finalization or remediation DEV.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
