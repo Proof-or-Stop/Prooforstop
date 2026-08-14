@@ -293,7 +293,7 @@
       "desc": "concept-cleanup: retired round-number-driven review semantics deletion is incomplete. packages/main/src/core/guard-utils.ts:203-230 still exports a TEST gate mirror that requires all opt-in lanes only for round 1 and accepts any reviewer finding in later rounds; packages/main/src/tasks/flow-stability-smoke.ts:2136-2145 explicitly preserves that mirror. packages/main/src/core/review-incremental-context.ts:10-14 and packages/main/src/tasks/review-incremental-context-smoke.ts:10-38 still say the helper is only operator guidance, the framework skips nobody, and only Round 1 requires all lanes. These executable, test, and comment residues contradict the new current-material selected-lane gate and can reintroduce the retired shortcut if the exported mirror is rewired.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T16:48:58.759Z",
@@ -376,14 +376,15 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-retired",
       "signatureTagSource": "auto",
-      "clusterId": "CL-003"
+      "clusterId": "CL-003",
+      "resolvedBy": "CL-003@3323785"
     },
     {
       "id": "B-3f3d:F-010",
       "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:126-146 and packages/main/src/tasks/review-inventory-epoch-smoke.ts:451-563 — HIGH verification-coverage gap: 45 must-intent evidence rows for CHK-001..CHK-005 are bound to obsolete storyFilesHash 122782eb… while the current story-owned hash is 85c33bf8…, and the replacement real-handler smoke directly injects signed ReviewRun/ReviewPass rows with StoryStore before finalize/consume. It therefore bypasses review_run_start, finding_add, review_pass_set, and the actual story_advance transition it is supposed to prove. Concrete uncovered claims include B3F3D-002-E3/A2 concurrent or TOCTOU mutation-vs-receipt admission, B3F3D-004-H1/A1/A2 real REVIEW→DEV/TEST transition behavior and rejection of the historical round-2 any-one shortcut, and B3F3D-005-E3/A2 fail-closed behavior for missing or ambiguous baseline attribution and mutated reports. Current compiled focused smokes pass, but they do not make these stale/bypassed evidence rows valid. Add current-material tests through the real handler/gate/CLI paths (including negative controls), then re-record the affected verificationEvidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T16:49:18.446Z",
@@ -474,14 +475,15 @@
       ],
       "signatureTag": "missing|json|packages-main-tasks",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@3323785"
     },
     {
       "id": "B-3f3d:F-011",
       "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:257-264 states that after remediation final REVIEW again requires every current active lane. The implemented and accepted contract instead selects exactly impacted active lanes for a proven canonical dependency closure and falls back to the full set only when impact is unknown (packages/main/src/core/review-incremental-context.ts:275-294,297-429; packages/main/src/handlers/reviewer-list.ts:183-221). This lifecycle truth source therefore gives operators and future maintainers the wrong final-review requirement.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T16:49:32.013Z",
@@ -560,14 +562,15 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-005"
+      "clusterId": "CL-005",
+      "resolvedBy": "CL-005@3323785"
     },
     {
       "id": "B-3f3d:F-012",
       "desc": "doc-promise-undelivered: packages/main/src/handlers/review-inventory.ts:110 renders review_inventory_critic_set as the unique Next command without findingDispositions, and packages/main/src/handlers/story-dispatch.ts:527 repeats the same incomplete command. packages/main/src/cli/command-catalog.ts:647 makes findingDispositions mandatory; the printed command deterministically fails with `findingDispositions: Invalid input: expected array, received undefined`. Therefore the central completeness critic cannot follow the advertised executable path or finalize the epoch without undocumented manual schema repair.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T16:49:46.062Z",
@@ -652,14 +655,15 @@
       ],
       "signatureTag": "missing|ts|promise-undelivered-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-006"
+      "clusterId": "CL-006",
+      "resolvedBy": "CL-006@3323785"
     },
     {
       "id": "B-3f3d:F-013",
       "desc": "acceptance-rollout-proof-missing: the mandatory verifier-owned Wave-4 chain is not current for this candidate. acceptance_topology_check reports only diagnostic structural pass; pre_review_check_read reports status=inconclusive with PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE and PR_CUTOFF_UNBOUND and is bound to old HEAD 1797673c1d rather than current 0c9d7419df; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_MISSING, receipt=missing and quorum=degraded-or-missing. There is therefore no current signed PASS receipt or genuine 3 rounds x 2 hosts evidence, and prompt prose cannot substitute.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T16:50:44.010Z",
@@ -736,14 +740,15 @@
       ],
       "signatureTag": "missing|json|acceptance-rollout-proof",
       "signatureTagSource": "auto",
-      "clusterId": "CL-007"
+      "clusterId": "CL-007",
+      "resolvedBy": "CL-007@3323785"
     },
     {
       "id": "B-3f3d:F-014",
       "desc": "packages/main/src/core/review-inventory-epoch.ts:248-258 treats every disposition value other than verified_family or duplicate as valid whenever familyKey/canonicalFindingId are absent. The runtime therefore accepts an unknown value such as `garbage`, clears unresolvedFindingIds, produces zero families, and the same evaluator is reused by critic receipt validation. Repro against dist returned {unresolved:[],invalid:[],families:[],newFamilies:[]} for a signed verified finding plus disposition=garbage. The CLI Zod enum does not satisfy the required handler/runtime fail-closed boundary, so an in-process/alternate handler call can suppress a verified family and manufacture a clean wave.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T16:51:01.651Z",
@@ -827,14 +832,15 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-006"
+      "clusterId": "CL-006",
+      "resolvedBy": "CL-006@3323785"
     },
     {
       "id": "B-3f3d:F-015",
       "desc": "doc-code-drift: AGENTS.md:87, CLAUDE.md:776, docs/requirements/decisions/story-lifecycle.md:90, and docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:287/295/407/503 still instruct an operator to return directly from REVIEW to DEV after a finding. The current mandatory gate in packages/main/src/core/machine.ts:720-747 and receipt consumption in packages/main/src/handlers/transition-orchestrator.ts:1304-1318/1439-1443 reject every REVIEW-to-DEV transition without a fresh FINALIZED single-use ReviewInventoryReceipt. The actual session_brief for this round likewise printed the impossible direct rollback as its retry/fix guidance. Following the repository host instructions therefore deterministically adds a failed lifecycle attempt and bypasses the documented frozen-inventory workflow; update all canonical operator guides/readiness output to require begin, complete required lanes, topology critic with dispositions, finalize, then story_advance DEV.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T16:55:23.340Z",
@@ -902,14 +908,15 @@
       ],
       "signatureTag": "missing|md|code-drift-agents",
       "signatureTagSource": "auto",
-      "clusterId": "CL-008"
+      "clusterId": "CL-008",
+      "resolvedBy": "CL-008@3323785"
     },
     {
       "id": "B-3f3d:F-016",
       "desc": "packages/main/src/core/review-run.ts:541-547 only admits a current dispatch event whose targetKind is exactly `story-review`, but packages/main/src/handlers/story-dispatch.ts:964-975 records the mandatory lattice-review-topology-critic dispatch as targetKind=`topology-critic-review`. Because topology critic is now full-envelope, review_run_start always calls verifyCurrentReviewerDispatchBinding and therefore rejects the only canonical critic dispatch before a signed critic ReviewRun can be created. This is distinct from resolved F-008: the role is now allowlisted and dispatches, but its emitted binding kind is unconsumable, so no mandatory critic receipt or inventory finalization is reachable.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-14T17:01:17.528Z",
@@ -994,7 +1001,8 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-009"
+      "clusterId": "CL-009",
+      "resolvedBy": "CL-009@3323785"
     }
   ]
 }
