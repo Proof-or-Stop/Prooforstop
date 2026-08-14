@@ -49,7 +49,12 @@ import {
   evaluateReviewAssuranceFloor,
   renderReviewAssuranceGuidance,
 } from '../core/review-assurance-floor.js';
-import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
+import {
+  computeActiveReviewers,
+  computeFinalReviewRoster,
+  renderActiveReviewersText,
+  renderFinalReviewRoster,
+} from './reviewer-list.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
@@ -245,7 +250,8 @@ export function buildNextSteps(
     })(),
     REVIEW: (() => {
       // B-fdcf CHK-002: Dynamic echo by opt-in list (no longer fixed at 5 after channel LLM reviewer was retired).
-      let activeLine = 'Active reviewers: concept, quality (fallback: cannot resolve opt-in list, using baseline)';
+      let activeLine = 'Active reviewers: concept, quality, test-coverage (fallback: cannot resolve opt-in list, using baseline)';
+      let finalReviewLine = `Final-review lanes: lattice-review-concept, lattice-review-quality, lattice-review-test-coverage\nSelection: full-set (CURRENT_LINEAGE_UNAVAILABLE)\nNext: lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-concept"}'`;
       let agentLines = '';
       try {
         const story = store.readStory(storyId);
@@ -262,15 +268,17 @@ export function buildNextSteps(
           decisionForReview,
           touchpointsForReview,
         );
+        const roster = computeFinalReviewRoster(store, root, storyId, active);
         activeLine = renderActiveReviewersText(active);
-        agentLines = active.map(r =>
+        finalReviewLine = renderFinalReviewRoster(roster, storyId);
+        agentLines = roster.requiredReviewers.map(r =>
           `  Agent({ subagent_type: "lattice-review-${r.name}", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-${r.name}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
         ).join('\n');
       } catch {
         agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-concept\\"}' to get the standard story-level prompt, then follow it" })
   Agent({ subagent_type: "lattice-review-quality", prompt: "Run lattice dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
       }
-      let base = `→ ${activeLine}
+      let base = `→ ${activeLine}${finalReviewLine ? `\n${finalReviewLine}` : ''}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting

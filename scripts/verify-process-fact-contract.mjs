@@ -7145,6 +7145,22 @@ function assertParentRoadmapTotalityRuntime() {
     registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
   );
+  const postRemediationLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:post_remediation_review_selection_gate');
+  assert(postRemediationLevel?.level === 'L4', 'post-remediation review selection must remain L4');
+  for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute']) {
+    assert(postRemediationLevel?.rationale.includes(token), `post-remediation selection rationale missing trust boundary: ${token}`);
+  }
+  assert(postRemediationLevel?.gateConsumer.includes('storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate'), 'post-remediation selection must identify its REVIEW-to-TEST consumer');
+  assert(
+    registryFactText.includes("'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: post-remediation selection must remain a signed lane/freshness gate contract',
+  );
+  const postRemediationSource = read('packages/main/src/core/review-incremental-context.ts');
+  for (const token of ['POST_REMEDIATION_REVIEW_POLICY_VERSION', 'verifyCurrentPostRemediationReviewSelection', 'computeCanonicalDependencyClosure', 'UNTRACKED_OR_IGNORED_MATERIAL', 'UNSUPPORTED_RENAME_OR_DELETE', 'DEPENDENCY_CLOSURE_INCOMPLETE']) {
+    assert(postRemediationSource.includes(token), `post-remediation selection source missing fail-closed mechanism: ${token}`);
+  }
+  assert(read('packages/main/src/core/machine.ts').includes('computeFinalReviewRoster'), 'REVIEW gate must consume the canonical final-review roster');
+  assert(read('packages/main/src/handlers/reviewer-list.ts').includes('renderFinalReviewRoster'), 'operator status must project the canonical final-review roster');
   assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
   assert(
     registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),

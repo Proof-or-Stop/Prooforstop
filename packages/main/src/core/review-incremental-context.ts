@@ -21,6 +21,9 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { dirname, extname, relative, resolve } from 'node:path';
+import ts from 'typescript';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -57,6 +60,382 @@ import {
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { promptRoleContract } from './prompt-role-contract-registry.js';
 import { digestScopeContract } from './guard-session.js';
+import {
+  reviewInventoryDigest,
+  verifyReviewInventoryEpoch,
+  verifyReviewInventoryReceipt,
+} from './review-inventory-epoch.js';
+
+export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v1' as const;
+
+export type PostRemediationSelectionReason =
+  | 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE'
+  | 'NO_CONSUMED_INVENTORY_RECEIPT'
+  | 'RECEIPT_OR_EPOCH_INVALID'
+  | 'CURRENT_REVIEW_ROUND_MISSING_OR_UNCHANGED'
+  | 'CURRENT_LINEAGE_UNAVAILABLE'
+  | 'SOURCE_CUTOFF_NOT_ANCESTOR'
+  | 'SCOPE_OR_POLICY_CHANGED'
+  | 'NO_MATERIAL_REMEDIATION'
+  | 'DIRTY_MATERIAL'
+  | 'UNTRACKED_OR_IGNORED_MATERIAL'
+  | 'CHANGED_FILE_OUTSIDE_FROZEN_SCOPE'
+  | 'UNSUPPORTED_RENAME_OR_DELETE'
+  | 'POLICY_IMPACT_REQUIRES_FULL_SET'
+  | 'DEPENDENCY_CLOSURE_INCOMPLETE'
+  | 'EMPTY_IMPACT_SELECTION';
+
+export interface PostRemediationReviewSelection {
+  schemaVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
+  storyId: string;
+  reviewRound: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  sourceReceiptId: string | null;
+  sourceReviewRound: string | null;
+  sourceHeadHash: string | null;
+  activeLanes: string[];
+  selectedLanes: string[];
+  selection: 'dependency-closure' | 'full-set';
+  reason: PostRemediationSelectionReason;
+  reasonDetail: string;
+  changedFiles: string[];
+  closureFiles: string[];
+  scopeDigest: string;
+  requiredHostAssurance: 'unchanged';
+  policyVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
+  _hash: string;
+}
+
+export interface CanonicalDependencyClosure {
+  complete: boolean;
+  files: string[];
+  reason?: string;
+}
+
+function canonicalRepoPath(projectRoot: string, path: string): string | null {
+  const normalized = path.replace(/\\/g, '/').replace(/^\.\//, '').trim();
+  if (!normalized || normalized.startsWith('/') || normalized.split('/').includes('..')) return null;
+  const absolute = resolve(projectRoot, normalized);
+  const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+  return rel === normalized ? normalized : null;
+}
+
+function trackedFiles(projectRoot: string): string[] {
+  try {
+    return execFileSync('git', ['ls-files', '-z'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).split('\0').map(path => path.trim()).filter(Boolean).sort();
+  } catch {
+    return [];
+  }
+}
+
+function hasOpaqueDynamicLoad(source: ts.SourceFile): boolean {
+  let opaque = false;
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const dynamicImport = node.expression.kind === ts.SyntaxKind.ImportKeyword;
+      const commonJsRequire = ts.isIdentifier(node.expression) && node.expression.text === 'require';
+      if ((dynamicImport || commonJsRequire)
+        && (node.arguments.length !== 1 || !ts.isStringLiteralLike(node.arguments[0]))) opaque = true;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return opaque;
+}
+
+/**
+ * Build a deterministic, bidirectional source dependency component from the
+ * tracked TypeScript/JavaScript inventory. Walking both directions covers
+ * transitive dependencies and all dependants that share a changed module.
+ * Any unresolved relative import, opaque dynamic load, symlink, alias escape,
+ * or missing changed source makes the proof incomplete rather than narrow.
+ */
+export function computeCanonicalDependencyClosure(
+  projectRoot: string,
+  changedFilesInput: readonly string[],
+): CanonicalDependencyClosure {
+  const changedFiles = [...new Set(changedFilesInput)].sort();
+  const tracked = trackedFiles(projectRoot);
+  if (tracked.length === 0) return { complete: false, files: changedFiles, reason: 'tracked source inventory unavailable' };
+  const trackedSet = new Set(tracked);
+  const sourceExtensions = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
+  const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, projectRoot));
+  const sourceSet = new Set(sourceFiles);
+  const graph = new Map<string, Set<string>>(sourceFiles.map(path => [path, new Set<string>()]));
+  const realProjectRoot = realpathSync(projectRoot);
+  const configPath = ts.findConfigFile(projectRoot, ts.sys.fileExists);
+  let compilerOptions: ts.CompilerOptions = { moduleResolution: ts.ModuleResolutionKind.Node16 };
+  if (configPath) {
+    const config = ts.readConfigFile(configPath, ts.sys.readFile);
+    if (config.error) return { complete: false, files: changedFiles, reason: 'TypeScript config is unreadable' };
+    compilerOptions = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath)).options;
+  }
+  for (const path of sourceFiles) {
+    const absolute = resolve(projectRoot, path);
+    try {
+      if (lstatSync(absolute).isSymbolicLink() || relative(realProjectRoot, realpathSync(absolute)).startsWith('..')) {
+        return { complete: false, files: changedFiles, reason: `source inventory contains symlink escape: ${path}` };
+      }
+      const text = readFileSync(absolute, 'utf8');
+      const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+      if (hasOpaqueDynamicLoad(source)) {
+        return { complete: false, files: changedFiles, reason: `opaque dynamic dependency: ${path}` };
+      }
+      const imports = ts.preProcessFile(text, true, true).importedFiles.map(entry => entry.fileName);
+      for (const specifier of imports) {
+        const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys).resolvedModule;
+        if (!resolved) {
+          if (specifier.startsWith('.')) return { complete: false, files: changedFiles, reason: `unresolved relative dependency: ${path} -> ${specifier}` };
+          continue;
+        }
+        const target = canonicalRepoPath(projectRoot, relative(projectRoot, resolved.resolvedFileName));
+        if (!target || !sourceSet.has(target)) {
+          if (!resolved.isExternalLibraryImport && !resolved.resolvedFileName.includes('/node_modules/')) {
+            return { complete: false, files: changedFiles, reason: `dependency escapes tracked source inventory: ${path} -> ${specifier}` };
+          }
+          continue;
+        }
+        graph.get(path)!.add(target);
+        graph.get(target)!.add(path);
+      }
+    } catch {
+      return { complete: false, files: changedFiles, reason: `source inventory unreadable: ${path}` };
+    }
+  }
+  const sourceChanged = changedFiles.filter(path => sourceExtensions.has(extname(path)));
+  if (sourceChanged.some(path => !trackedSet.has(path) || !sourceSet.has(path))) {
+    return { complete: false, files: changedFiles, reason: 'changed source is not a canonical tracked inventory member' };
+  }
+  const closure = new Set(changedFiles);
+  const queue = [...sourceChanged];
+  while (queue.length > 0) {
+    const path = queue.shift()!;
+    for (const adjacent of graph.get(path) ?? []) {
+      if (closure.has(adjacent)) continue;
+      closure.add(adjacent);
+      queue.push(adjacent);
+    }
+  }
+  return { complete: true, files: [...closure].sort() };
+}
+
+function signPostRemediationSelection(
+  selection: Omit<PostRemediationReviewSelection, '_hash'>,
+): PostRemediationReviewSelection {
+  return {
+    ...selection,
+    _hash: domainSeparatedDigest(POST_REMEDIATION_REVIEW_POLICY_VERSION, selection),
+  };
+}
+
+export function verifyPostRemediationReviewSelection(selection: PostRemediationReviewSelection): boolean {
+  const { _hash, ...unsigned } = selection;
+  const uniqueActive = [...new Set(selection.activeLanes)];
+  const uniqueSelected = [...new Set(selection.selectedLanes)];
+  return selection.schemaVersion === POST_REMEDIATION_REVIEW_POLICY_VERSION
+    && selection.policyVersion === POST_REMEDIATION_REVIEW_POLICY_VERSION
+    && selection.requiredHostAssurance === 'unchanged'
+    && _hash === domainSeparatedDigest(POST_REMEDIATION_REVIEW_POLICY_VERSION, unsigned)
+    && selection.activeLanes.length === uniqueActive.length
+    && selection.selectedLanes.length === uniqueSelected.length
+    && selection.selectedLanes.length > 0
+    && selection.selectedLanes.every(lane => selection.activeLanes.includes(lane))
+    && selection.selectedLanes.every((lane, index) => lane === selection.activeLanes.filter(active => uniqueSelected.includes(active))[index]);
+}
+
+export function verifyCurrentPostRemediationReviewSelection(
+  store: StoryStore,
+  projectRoot: string,
+  storyId: string,
+  selection: PostRemediationReviewSelection,
+  active?: readonly { name: string; reason: string; forced?: boolean }[],
+): boolean {
+  if (!verifyPostRemediationReviewSelection(selection) || selection.storyId !== storyId) return false;
+  const story = store.readStory(storyId);
+  const checklist = store.readChecklist(storyId);
+  const scopeDigest = reviewInventoryDigest({
+    scopeContract: store.readScopeContract(storyId),
+    checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
+  });
+  const bindingMatches = story.currentReviewRound === selection.reviewRound
+    && currentGitHead(projectRoot) === selection.headHash
+    && currentMaterialHash(projectRoot, 'HEAD', projectRoot) === selection.materialHash
+    && currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) === selection.storyFilesHash
+    && scopeDigest === selection.scopeDigest;
+  if (!bindingMatches) return false;
+  return !active || postRemediationReviewSelection(store, projectRoot, storyId, active)._hash === selection._hash;
+}
+
+function impactedLanes(
+  closureFiles: readonly string[],
+  active: readonly { name: string; reason: string; forced?: boolean }[],
+): string[] {
+  const hasDocs = closureFiles.some(path => /(^|\/)(docs?|requirements)(\/|$)|\.(md|mdx|rst|adoc)$/i.test(path));
+  const hasSource = closureFiles.some(path => /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/i.test(path) && !/(^|\/)(tests?|__tests__)(\/|$)|\.(test|spec)\./i.test(path));
+  const hasTests = closureFiles.some(path => /(^|\/)(tests?|__tests__)(\/|$)|\.(test|spec)\./i.test(path));
+  return active.filter(reviewer => {
+    if (reviewer.forced) return true;
+    // A production-source repair can alter any active review concern. Without
+    // a canonical docs/behavior dependency edge, excluding those lanes would
+    // be a guess rather than a proven closure.
+    if (hasSource) return true;
+    if (reviewer.name === 'docs') return hasDocs;
+    if (reviewer.name === 'concept') return false;
+    if (reviewer.name === 'quality') return hasTests;
+    if (reviewer.name === 'test-coverage') return hasTests;
+    if (reviewer.name === 'behavior') return false;
+    return true;
+  }).map(reviewer => `lattice-review-${reviewer.name}`);
+}
+
+export function postRemediationReviewSelection(
+  store: StoryStore,
+  projectRoot: string,
+  storyId: string,
+  active: readonly { name: string; reason: string; forced?: boolean }[],
+): PostRemediationReviewSelection {
+  const story = store.readStory(storyId);
+  const headHash = currentGitHead(projectRoot) ?? '<unavailable>';
+  const materialHash = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? '<unavailable>';
+  const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? '<unavailable>';
+  const reviewRound = story.currentReviewRound ?? '<unavailable>';
+  const activeLanes = active.map(row => `lattice-review-${row.name}`);
+  const checklist = store.readChecklist(storyId);
+  const scopeDigest = reviewInventoryDigest({
+    scopeContract: store.readScopeContract(storyId),
+    checklist: checklist.items.map(row => ({ id: row.id, title: row.title, files: row.files })),
+  });
+  const data = store.readReviewInventoryEpochs(storyId);
+  const receipt = [...data.receipts].reverse().find(row => Boolean(row.consumedAt));
+  const fallback = (
+    reason: PostRemediationSelectionReason,
+    changedFiles: string[] = [],
+    closureFiles: string[] = [],
+    reasonDetail: string = reason,
+  ) =>
+    signPostRemediationSelection({
+      schemaVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+      storyId,
+      reviewRound,
+      headHash,
+      materialHash,
+      storyFilesHash,
+      sourceReceiptId: receipt?.receiptId ?? null,
+      sourceReviewRound: receipt?.reviewRound ?? null,
+      sourceHeadHash: receipt?.cutoff.headHash ?? null,
+      activeLanes,
+      selectedLanes: activeLanes,
+      selection: 'full-set',
+      reason,
+      reasonDetail,
+      changedFiles: [...new Set(changedFiles)].sort(),
+      closureFiles: [...new Set(closureFiles)].sort(),
+      scopeDigest,
+      requiredHostAssurance: 'unchanged',
+      policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+    });
+  if (!receipt) return fallback('NO_CONSUMED_INVENTORY_RECEIPT');
+  const epoch = data.epochs.find(row => row.epochId === receipt.epochId);
+  if (!verifyReviewInventoryReceipt(receipt) || !epoch || !verifyReviewInventoryEpoch(epoch)
+    || epoch.receiptId !== receipt.receiptId || !epoch.consumedAt) return fallback('RECEIPT_OR_EPOCH_INVALID');
+  if (!story.currentReviewRound || story.currentReviewRound === receipt.reviewRound) {
+    return fallback('CURRENT_REVIEW_ROUND_MISSING_OR_UNCHANGED');
+  }
+  if ([headHash, materialHash, storyFilesHash].some(value => value === '<unavailable>')) {
+    return fallback('CURRENT_LINEAGE_UNAVAILABLE');
+  }
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', receipt.cutoff.headHash, 'HEAD'], {
+      cwd: projectRoot,
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
+  } catch {
+    return fallback('SOURCE_CUTOFF_NOT_ANCESTOR');
+  }
+  if (receipt.scopeDigest !== scopeDigest) return fallback('SCOPE_OR_POLICY_CHANGED');
+  const changedFiles = materialOnly(changedFilesBetweenRenameAware(projectRoot, receipt.cutoff.headHash, 'HEAD'), projectRoot);
+  if (changedFiles.length === 0) return fallback('NO_MATERIAL_REMEDIATION');
+  const statuses = changedFileStatusesBetweenRenameAware(projectRoot, receipt.cutoff.headHash, 'HEAD');
+  if (Object.values(statuses).some(status => status.startsWith('R') || status.startsWith('C') || status === 'D')) {
+    return fallback('UNSUPPORTED_RENAME_OR_DELETE', changedFiles);
+  }
+  const declaredFiles = new Set(checklist.items.flatMap(row => {
+    if (Array.isArray(row.files)) return row.files;
+    if (!row.files || typeof row.files !== 'object') return [];
+    return [...(row.files.modify ?? []), ...(row.files.create ?? []), ...(row.files.test ?? [])];
+  }).map(path => canonicalRepoPath(projectRoot, path)).filter((path): path is string => Boolean(path)));
+  if (changedFiles.some(path => !declaredFiles.has(path))) {
+    return fallback('CHANGED_FILE_OUTSIDE_FROZEN_SCOPE', changedFiles);
+  }
+  try {
+    const rawDirty = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--ignored=matching'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const records = rawDirty.split('\0').filter(Boolean);
+    const materialDirty: Array<{ status: string; path: string }> = [];
+    for (let index = 0; index < records.length; index += 1) {
+      const record = records[index];
+      if (record.length < 3 || record[2] !== ' ') {
+        materialDirty.push({ status: '??', path: record });
+        continue;
+      }
+      const status = record.slice(0, 2);
+      const paths = [record.slice(3)];
+      if ((status.includes('R') || status.includes('C')) && records[index + 1]) paths.push(records[++index]);
+      for (const path of paths) {
+        if (!isMaterialExcludedPath(path, projectRoot)) materialDirty.push({ status, path });
+      }
+    }
+    if (materialDirty.some(row => row.status === '??' || row.status === '!!')) {
+      return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
+    }
+    if (materialDirty.length > 0) return fallback('DIRTY_MATERIAL', changedFiles);
+  } catch {
+    return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
+  }
+  const policy = classifyImpact({ changedFiles, declaredTestFiles: [], testIntentRefsByFile: {}, changedFileStatus: statuses });
+  if (policy.impacts.some(impact => ['public-contract', 'authority-or-permission', 'command-or-gate-policy', 'dependency-or-build', 'unsupported-rename', 'unknown'].includes(impact.category))) {
+    return fallback(
+      'POLICY_IMPACT_REQUIRES_FULL_SET',
+      changedFiles,
+      [],
+      policy.impacts.map(impact => `${impact.path}:${impact.reasonCode}`).sort().join(', '),
+    );
+  }
+  const closure = computeCanonicalDependencyClosure(projectRoot, changedFiles);
+  if (!closure.complete) return fallback('DEPENDENCY_CLOSURE_INCOMPLETE', changedFiles, closure.files, closure.reason);
+  const selectedLanes = impactedLanes(closure.files, active);
+  if (selectedLanes.length === 0) return fallback('EMPTY_IMPACT_SELECTION', changedFiles, closure.files);
+  return signPostRemediationSelection({
+    schemaVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+    storyId,
+    reviewRound,
+    headHash,
+    materialHash,
+    storyFilesHash,
+    sourceReceiptId: receipt.receiptId,
+    sourceReviewRound: receipt.reviewRound,
+    sourceHeadHash: receipt.cutoff.headHash,
+    activeLanes,
+    selectedLanes,
+    selection: 'dependency-closure',
+    reason: 'PROVEN_CANONICAL_DEPENDENCY_CLOSURE',
+    reasonDetail: `${changedFiles.length} changed file(s) close over ${closure.files.length} tracked dependency file(s)`,
+    changedFiles: [...changedFiles].sort(),
+    closureFiles: closure.files,
+    scopeDigest,
+    requiredHostAssurance: 'unchanged',
+    policyVersion: POST_REMEDIATION_REVIEW_POLICY_VERSION,
+  });
+}
 
 export interface ReviewIncrementalContext {
   /** The reviewer role this context was computed for (echoed back). */

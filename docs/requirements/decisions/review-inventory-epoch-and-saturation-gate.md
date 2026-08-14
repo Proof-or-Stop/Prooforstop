@@ -9,10 +9,25 @@ B-cdf6 reconstruction shows four lanes started on the same candidate
 (`RR-043..RR-046`, HEAD `73f42d07d1`), but F-036 returned before docs and
 test-coverage terminated. Commit `155e787d0c` changed the candidate at
 08:47:17Z; the unfinished results were then necessarily stale and the workflow
-created `RR-047..RR-051` (and later runs). See the evidence timeline in
-`claude-session-b-cdf6-review-convergence-analysis-and-optimization.md`, lines
-155-179 in the source analysis. The findings were useful; the missing boundary
-was “finish the inventory on one immutable subject before remediation.”
+created `RR-047..RR-051` (and later runs). This statement is anchored to
+tracked, immutable repository evidence rather than the excluded session-analysis
+document:
+
+- `B-cdf6:RR-043`, `B-cdf6:RR-045`, and `B-cdf6:RR-046` are recorded in
+  commit `8e9f72fc5424f499cb396ad92bc13558d88fb712` under
+  `.lattice/story/actives/B-cdf6/`;
+- `B-cdf6:RR-044` is recorded in
+  `57bbc87d5faba0610cca88e088af1b54a327c0ef`;
+- verified Finding `B-cdf6:F-036`, including its binding to `RR-043`, is
+  recorded in `26a30e6cd7f00672e2b399d5d8e7473a4cbb1360`; and
+- the material fix is the exact commit
+  `155e787d0c92612f16e9c2dd011531b0caa18ee6`.
+
+The handler smoke resolves every full commit and searches the corresponding
+commit-qualified tracked B-cdf6 records for each identifier, so an abbreviated
+or fabricated RR/Finding/commit cannot satisfy this provenance claim. The
+findings were useful; the missing boundary was “finish the inventory on one
+immutable subject before remediation.”
 
 B-9812 supplies the second failure shape: 53 verified findings over 10 finding
 rounds. A fixed smaller round count would merely hide late findings. Therefore
@@ -130,10 +145,23 @@ invalidate the epoch.
 
 After the receipt is consumed, remediation changes material and the receipt is
 historical. REVIEW-to-TEST never consumes it. The old “round 2+ has any one
-receipt” shortcut is removed: every final-review round requires the complete
-current active lane set. This is the conservative unknown-impact fallback;
-future narrowing is allowed only when a canonical dependency/impact closure can
-prove the affected set. Round number alone is never impact evidence.
+receipt” shortcut is removed. A signed post-remediation selection is recomputed
+from the current review round, HEAD, material hash, story-files hash, frozen
+scope digest, consumed receipt cutoff, changed-file status, impact policy, and
+the bidirectional transitive dependency closure of the tracked source inventory.
+A proven narrow repair requires exactly its impacted active lanes; forced lanes
+remain selected. Missing or changed scope/policy/lineage, rename/delete,
+untracked or ignored material, opaque or unresolved dependencies, and an empty
+selection all fail closed to the complete active lane set. The selection changes
+lane scheduling only: required host and escalation assurance remain unchanged.
+
+`reviewer_list` and REVIEW transition guidance project the same gate-consumed
+selection as three deterministic lines: ordered `Final-review lanes:`,
+`Selection: dependency-closure (...)` or `Selection: full-set (...)`, and one
+exact `Next:` command. A newly discovered dependency, regression, scope
+expansion, or current-material change invalidates the prior signature and forces
+recomputation; stale passes remain inadmissible. Round number alone is never
+impact evidence.
 
 ## Deterministic efficiency and quality acceptance
 

@@ -38,6 +38,11 @@ import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
+import {
+  postRemediationReviewSelection,
+  verifyPostRemediationReviewSelection,
+  type PostRemediationReviewSelection,
+} from '../core/review-incremental-context.js';
 
 export interface ActiveReviewer {
   /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
@@ -46,6 +51,12 @@ export interface ActiveReviewer {
   reason: string;
   /** whether forcibly attached via forceReviewer */
   forced?: boolean;
+}
+
+export interface FinalReviewRoster {
+  activeReviewers: ActiveReviewer[];
+  requiredReviewers: ActiveReviewer[];
+  selection: PostRemediationReviewSelection;
 }
 
 /** Keyword set that triggers the behavior reviewer when matched by riskSignal.category */
@@ -176,6 +187,37 @@ export function renderActiveReviewersText(reviewers: ActiveReviewer[]): string {
   return `Active reviewers: ${parts.join(', ')}`;
 }
 
+/** Shared gate/operator projection: one signed selection, one ordered roster. */
+export function computeFinalReviewRoster(
+  store: HandlerContext['store'],
+  root: string,
+  storyId: string,
+  activeReviewers: ActiveReviewer[],
+): FinalReviewRoster {
+  const selection = postRemediationReviewSelection(store, root, storyId, activeReviewers);
+  const selected = verifyPostRemediationReviewSelection(selection)
+    ? new Set(selection.selectedLanes.map(reviewerLaneShortName))
+    : new Set(activeReviewers.map(row => row.name));
+  const requiredReviewers = activeReviewers.filter(row => selected.has(row.name));
+  return {
+    activeReviewers,
+    requiredReviewers: requiredReviewers.length > 0 ? requiredReviewers : activeReviewers,
+    selection,
+  };
+}
+
+export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: string): string {
+  const lanes = roster.requiredReviewers.map(row => `lattice-review-${row.name}`);
+  const reason = roster.selection.selection === 'dependency-closure'
+    ? `dependency-closure (${roster.selection.reason}: ${roster.selection.reasonDetail})`
+    : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})`;
+  return [
+    `Final-review lanes: ${lanes.join(', ')}`,
+    `Selection: ${reason}`,
+    `Next: lattice dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
+  ].join('\n');
+}
+
 /** handler factory — keeps a structure consistent with other handlers */
 export function createReviewerListHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -216,6 +258,7 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
         touchpoints,
         forced,
       );
+      const finalReviewRoster = computeFinalReviewRoster(store, ctx.root, args.storyId, reviewers);
 
       // Audit: each forceReviewer call writes one reviewer_forced event, names[] expresses the full set added this time
       if (forced && forced.length > 0) {
@@ -244,10 +287,14 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
             reason: r.reason,
             ...(r.forced ? { forced: true } : {}),
           })),
+          finalReview: {
+            lanes: finalReviewRoster.requiredReviewers.map(row => `lattice-review-${row.name}`),
+            selection: finalReviewRoster.selection,
+          },
         });
       }
 
-      return renderActiveReviewersText(reviewers);
+      return `${renderActiveReviewersText(reviewers)}\n${renderFinalReviewRoster(finalReviewRoster, args.storyId)}`;
     },
   };
 }

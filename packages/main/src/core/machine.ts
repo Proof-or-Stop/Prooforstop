@@ -19,7 +19,7 @@ import { isTerminalChecklistStatus } from './checklist-status.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
 import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
@@ -815,11 +815,10 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
       const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
       {
-        // Every final-review round requires the complete active lane set. The former
-        // round-2+ single-receipt shortcut could call one lane sufficient after a
-        // remediation changed material; unknown impact therefore fails closed to all
-        // canonical active lanes. A future mechanically proven impact closure may
-        // narrow this set, but round number alone never can.
+        // The former round-2+ single-receipt shortcut could call one lane sufficient
+        // after remediation changed material. Consume only the current signed
+        // canonical impact closure; unknown impact fails closed to all active lanes.
+        // Round number alone never narrows the required set.
         let checklist: { items: unknown[] } = { items: [] };
         try { checklist = context.store.readChecklist(context.storyId); } catch {}
         let decision = null;
@@ -827,7 +826,13 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         const understanding = context.store.readUnderstanding(context.storyId);
         const touchpoints = understanding?.touchpoints
           ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
-        const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const optIn = computeFinalReviewRoster(
+          context.store,
+          context.projectRoot ?? process.cwd(),
+          context.storyId,
+          active,
+        ).requiredReviewers;
         const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
           e => findingAgentMatchesReviewer(e.agent, reviewer.name),
         ));
