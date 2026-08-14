@@ -84,10 +84,26 @@
       "phase": "DEV",
       "headHash": "a284292584ea11db9ced85b581772601647c90f9",
       "materialHash": "e8687f64fbd12474643ec3a3781804809166e2e32bd11d1deb83ac4e90a0c33f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Second location that independently lists the same cli-engine.ts pinned fingerprint value (as an expected-vocabulary string in its process-fact contract check); had to be updated to match the F-030-adjacent repin in retired-authority-vocabulary-guard-smoke.ts, or validate fails with an unrelated-looking process-fact-contract error.",
+      "timestamp": "2026-08-14T06:45:26.769Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aacec3c1395b4c170858eaed097ee4220b606e84",
+      "materialHash": "ffb7ca1801f91a853bcfcca0e2c7760b2e013c529b919ebd1f000ea051933ecc"
     }
   ],
   "createdAt": "2026-07-24T20:12:00.926Z",
-  "updatedAt": "2026-08-14T05:37:26.925Z",
+  "updatedAt": "2026-08-14T06:45:26.769Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -102,6 +118,7 @@
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "docs/evidence-integrity-program-spec.md": "docs/evidence-integrity-program-spec.md",
     "docs/evidence-write-guard-spec.md": "docs/evidence-write-guard-spec.md",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
