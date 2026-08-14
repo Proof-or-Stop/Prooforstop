@@ -736,6 +736,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-035",
+      "desc": "B-META-framework-audit:F-026 mischaracterizes the root cause of the red assertion at scripts/verify-entrypoints.mjs:551. F-026 claims check reports MISSING:17 because init deliberately does not write project-local .claude/agents/* under B-097f. That mechanism does not apply to this assertion: the SAME check block calls seedClaudeAgentMirror(tempDir) at line :519, which writes all 17 correctly host-rendered files into tempDir/.claude/agents via renderPromptEntryForHost(entry,'claude'), strictly before the check --json call at :550/:551; cleanupClaudeMirror() that removes the seed does not run until :620, well after the assertion at :551 has already executed. Reproduced with the real compiled init/check binaries plus the real seedClaudeAgentMirror logic: check --json at that point returns ok:false with STALE_SAFE:5 (not MISSING:17) for exactly the 5 MODULAR_COMPLEX_ROLE_IDS under .claude/agents:*, i.e. the live F-005 sibling bug documented in the companion finding on managed-assets.ts:902-916. I also ran the unmodified scripts/verify-entrypoints.mjs end to end and confirmed the assert at :551 does throw, so the assertion genuinely being red is correct, and F-026 is right that this is a real, reproducible, pre-existing-on-main defect, but F-026 is wrong about why, and its own recommended remediation path (relaxing check semantics or the assertion, both said to be owned by another plan) is therefore also wrong: the actual fix is extending the same isModularComplexRoleId branch that 8f18a193a1 already added to the .lattice-codex/agents mirror into the sibling .claude/agents mirror block a few lines below in the same file. This is exactly the recurring measurement-error shape named in the standing remit (reporting a plausible substitute for what was actually observed): F-026's author reported the MISSING:17 mechanism as the cause without instrumenting or reading the actual non-OK item list that check --json returns at that call site, when the seed call a few lines above it directly contradicts that mechanism.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T04:12:56.639Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-042",
+      "_hash": "a5179c4dc72254807c70439d8c46f89ce35254dec067ddb460bf8fed3251be97",
+      "files": [
+        "scripts/verify-entrypoints.mjs",
+        ".lattice/story/actives/B-META-framework-audit/findings.json"
+      ],
+      "signatureTag": "missing|mjs|meta-framework-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
