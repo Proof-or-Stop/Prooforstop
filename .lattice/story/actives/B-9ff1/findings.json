@@ -982,7 +982,7 @@
       "desc": "[lattice-review-quality] Verified by main agent. A thirteenth occurrence of the guarantee sits outside the declared ten-site set: handlers/red-evidence.ts carries a similar-but-different guarantee sentence, untouched by the propagation commit and without the not-exhaustive disclaimer. This is live evidence for the quality lane's recommendation that the canonical sentence be a single exported constant rather than ten hand-maintained copies - the family has already drifted once outside the declared set.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-14T10:46:48.892Z",
@@ -990,7 +990,11 @@
       "reviewRunId": "B-9ff1:RR-033",
       "_hash": "b835a7262a4df240fee5f4c30b744df98cb9fcc9d26c1da63a59d2c13a6365c0",
       "signatureTag": "missing|unknown|lattice-review-quality",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3d18a4ca022b5bdd7283f1fba3e4f1cfc8c546d5. The thirteenth statement was the ADMISSIBLE report footer, which restated the guarantee in its own words rather than copying and drifting - the success path is precisely where an operator is most likely to read read-only as nothing was written, and there was no canonical copy nearby. It now carries the canonical sentence plus the standard pointer, keeping the two facts the canonical sentence does not cover: the deliberate read-only git spawns, and that running the RED evidence is a separate step. The shared-constant recommendation was assessed and declined with reasons recorded in code: seven of the thirteen statements are comments, which no constant can deduplicate, so a constant would cover a minority while creating the impression of single-sourcing; three of the six strings are entries in registration data tables, two of which are block-scanned by a parser known to be fragile; and a constant would not have caught this finding anyway, since the site restated the guarantee rather than copying it. Instead the authoritative note now DECLARES the full site set by file and role, records that the constant was considered and rejected, and admits the residual hole - a new site restating the guarantee in its own words is caught by nothing today. A scanner is the natural follow-up.",
+      "resolvedAt": "2026-08-14T11:00:51.011Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
