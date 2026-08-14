@@ -1402,7 +1402,11 @@
           },
           {
             "desc": "The annotation does NOT claim or imply that DevMemoryEntry rows themselves can satisfy any gate (delivery_check_set, verification_evidence_add, review_pass_set, etc.) -- the existing Non-Goal and the Purpose section non-negotiable list remain intact and un-weakened; WHY: the annotation must clarify a distinction, not accidentally weaken the fundamental non-authoritative guarantee",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"This bullet\\x27s guarantee about entry CONTENT is unweakened\\\") ? \\\"UNWEAKENED_GUARANTEE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "UNWEAKENED_GUARANTEE_CONFIRMED"
+            }
           }
         ],
         "adversarial": [
@@ -1515,6 +1519,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:23.866Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\").includes(\\\"This bullet\\x27s guarantee about entry CONTENT is unweakened\\\") ? \\\"UNWEAKENED_GUARANTEE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The annotation's closing sentence explicitly states the bullet's guarantee about entry CONTENT is unweakened and no gate is satisfied by what a captured lesson says, confirming the annotation clarifies rather than weakens the existing non-authoritative guarantee.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "475fa6772c439aab22ed44b0f1d7fa45df3d855bf100d88c76f1353339b0d9a8",
+            "outputTail": "UNWEAKENED_GUARANTEE_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:24.810Z"
+          },
+          "headHash": "f659b50da5f8ff86f8307d42a4e1ee382f426825",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:24.946Z"
         }
       ]
     },
