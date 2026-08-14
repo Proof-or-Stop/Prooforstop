@@ -1,0 +1,105 @@
+{
+  "principles": [
+    "Serialize scarce workspace validation capacity at the official command boundary while preserving story-scoped evidence isolation.",
+    "Make contention observable and self-resolving: wait asynchronously, report the live holder, then run automatically.",
+    "Use one canonical git-common-dir lock and one fixed global-to-story acquisition order.",
+    "Keep proof budgets and command inventories unchanged; coordination must remove contention rather than weaken gates.",
+    "Fail closed on deadline, abort, malformed ownership, or unrecoverable lock state."
+  ],
+  "drivers": [
+    "Different-story and no-story official validations currently bypass one another because the existing lock key contains storyId.",
+    "Synchronous polling would block Node timers and can stale the active heartbeat in same-process or nested execution.",
+    "DONE-required and routine validation must retain distinct evidence artifacts, freshness rules, and configured timeout budgets."
+  ],
+  "options": [
+    {
+      "name": "A: Replace the story lock with one global fail-fast lock",
+      "pros": [
+        "Small surface change",
+        "Prevents concurrent official validation"
+      ],
+      "cons": [
+        "Fails the required wait-and-run UX",
+        "Conflates capacity coordination with story evidence ownership",
+        "Drops useful story-level defense"
+      ]
+    },
+    {
+      "name": "B: Re-key the current story lock globally and use synchronous lock polling",
+      "pros": [
+        "Reuses existing mkdir-lock wait support",
+        "Uses one lock path"
+      ],
+      "cons": [
+        "Can block heartbeat and abort timers",
+        "Changes all existing story-lock semantics",
+        "Makes reentrancy and diagnostics harder to reason about"
+      ]
+    },
+    {
+      "name": "C: Add an outer asynchronous workspace capacity lease and retain the inner story evidence lock",
+      "pros": [
+        "Covers story and no-story official validate entrypoints",
+        "Preserves current evidence isolation and stale classification",
+        "Supports bounded progress, cooperative abort, and automatic continuation",
+        "Keeps a mechanically enforceable global-to-story order"
+      ],
+      "cons": [
+        "Requires a small asynchronous acquisition loop",
+        "Requires focused cross-process smoke coverage"
+      ]
+    },
+    {
+      "name": "D: Also coordinate direct npm test through inherited environment tokens",
+      "pros": [
+        "Could cover every full-suite invocation"
+      ],
+      "cons": [
+        "Expands scope into arbitrary child-process and user-shell coordination",
+        "Risks deadlock when official validation itself invokes npm test",
+        "Violates the explicit bare npm test exclusion"
+      ]
+    }
+  ],
+  "chosen": "C: Add an outer asynchronous workspace capacity lease and retain the inner story evidence lock",
+  "rationale": "Option C fixes the actual capacity race at the two official product entrypoints, including validate without a story ID, while retaining the existing per-story evidence lock as an inner defense. Async acquisition keeps heartbeat and cancellation live, and the fixed global-to-story order avoids lock inversion without changing any proof budget.",
+  "preMortem": [
+    {
+      "scenario": "The waiter blocks the event loop while polling.",
+      "trigger": "Implementation calls synchronous acquireMkdirLock waiting mode or Atomics.wait.",
+      "consequence": "Holder heartbeat or timeout watchdog stops refreshing and a live lease is misclassified stale.",
+      "mitigation": "Attempt short fail-fast acquisitions and delay with an awaited timer; add a smoke proving heartbeat advances while a second caller waits."
+    },
+    {
+      "scenario": "A no-story lattice validate still competes with a story validation.",
+      "trigger": "Capacity wrapping is added only inside existing story-aware branches.",
+      "consequence": "The exact observed contention remains possible and canonical tests still time out.",
+      "mitigation": "Wrap the entire official validate execution regardless of story ID; keep only the inner evidence lock conditional on story ID."
+    },
+    {
+      "scenario": "Nested validation deadlocks on its own capacity lease.",
+      "trigger": "The outer lease does not inherit AsyncLocalStorage ownership.",
+      "consequence": "An official handler invoking a nested protected operation waits forever on itself.",
+      "mitigation": "Track capacity and story lock keys in the existing async owner context and prove same-context reentrancy."
+    },
+    {
+      "scenario": "Queue time silently weakens or expands timeout guarantees.",
+      "trigger": "The fix rewrites command timeout or deadline budgets to accommodate waiting.",
+      "consequence": "PASS evidence no longer represents the documented 120, 180, or 300 second gates.",
+      "mitigation": "Leave configured commands and budgets byte-for-byte unchanged; deadline/abort may stop waiting before callback entry."
+    },
+    {
+      "scenario": "A crash leaves every validation permanently queued.",
+      "trigger": "Capacity heartbeat stops and stale ownership is never reclaimed.",
+      "consequence": "Official validation cannot run without manual filesystem surgery.",
+      "mitigation": "Reuse pid, process-start, heartbeat, ownership-checked release, and stale classifier behavior; add dead-holder reclaim and throw-release proofs."
+    },
+    {
+      "scenario": "Bare npm test is incorrectly assumed to participate.",
+      "trigger": "Help text does not disclose the coordination boundary.",
+      "consequence": "Users run direct npm test beside official validation and recreate resource contention.",
+      "mitigation": "State in CLI help or diagnostics that only lattice validate and lattice done_required_validate acquire the lease and bare npm test must not run concurrently."
+    }
+  ],
+  "timestamp": "2026-08-14T15:15:14.191Z"
+}

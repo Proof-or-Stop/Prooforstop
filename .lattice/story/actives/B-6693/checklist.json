@@ -15,7 +15,16 @@
       "excludes": [
         "Do not protect a bare direct npm test invocation; the protected product entrypoints are lattice validate and lattice done_required_validate.",
         "Do not replace the existing per-story evidence serialization lock."
-      ]
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
