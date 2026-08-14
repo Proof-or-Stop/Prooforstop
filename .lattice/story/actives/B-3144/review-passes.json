@@ -515,6 +515,30 @@
         "scanEscalationReason": null
       },
       "_hash": "5179784d78651b01ade6a59b3fb3b5aa8fbeaa73cc77fa588a94585b68ca2bb1"
+    },
+    {
+      "id": "B-3144:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Step1 diff-symbol extraction on cfdf3df2a2 (F-035, code+test only, no doc files) yielded 12 symbols; 1 (assertNoStandingQuorum) had doc hits in docs/evidence-integrity-program-spec.md and docs/evidence-write-guard-spec.md, both read in full (148+136 lines) and compared against the new code. Both paragraphs describe the guard generically as a hand-synced LOCKSTEP mirror of eventsWithStoryFilesHashDowngrade with a standing risk that a future floor predicate change must be mirrored in the same story -- neither claims the mirror is currently complete/exact, so F-035 (closing exactly that flagged risk) introduces no drift; no update needed. Other 11 symbols are internal locals with 0 doc hits (no module README exists) and content is regex noise (unrelated const). No blocker.",
+      "createdAt": "2026-08-14T06:01:37.272Z",
+      "reviewRound": "2026-08-14T05:59:04.337Z",
+      "reviewRunId": "B-3144:RR-051",
+      "envelopeId": "bf6cbd09861198435f38029114f378a20b841702351cf6aeaa505a02128bcd5d",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fc36f8ce1138f2b501ffbf491499bb70698daa7de032bca59ea1ddef773855fd"
     }
   ]
 }
