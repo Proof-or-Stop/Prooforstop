@@ -1617,7 +1617,11 @@
           },
           {
             "desc": "A sweep of the entire doc file for other references that CHK-001/002/003 make stale (beyond the M8 and 4.3-bypass items already scoped to CHK-005) was performed and either (a) those references were updated in the same commit, or (b) an explicit note records that no other stale references were found; WHY: the audit sub-task is half the checklist item and must produce evidence it was done, not silently skipped",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"Doc-wide sweep performed for B-a7c5\\\") ? \\\"SWEEP_NOTE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "SWEEP_NOTE_CONFIRMED"
+            }
           }
         ],
         "edge": [
@@ -1691,6 +1695,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:29.262Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"Doc-wide sweep performed for B-a7c5\\\") ? \\\"SWEEP_NOTE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "The 4.3 annotation explicitly records that a doc-wide sweep for B-a7c5 was performed and states its result (no other stale RuntimeConsumer-count/blocking-consumer references found beyond the union and M8 section), producing durable evidence the audit sub-task was actually done, not silently skipped.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f5bce041671fac8a1ff10febb3237d52c3aab06d90cba3b7b60d8aaebc73c3f4",
+            "outputTail": "SWEEP_NOTE_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:30.295Z"
+          },
+          "headHash": "392393f0fc3f37f6fe9a14865845168f0fe9c5bb",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:30.457Z"
         }
       ]
     }
