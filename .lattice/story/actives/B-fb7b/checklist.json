@@ -21,7 +21,11 @@
           {
             "desc": "Run the RED test `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> prints PASS, exits 0; WHY: the repro-first guard itself validates structural, invariant-link, and behavioral correctness in one shot",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+              "selector": "PASS red-fb7b-pretest-builds-utils"
+            }
           },
           {
             "desc": "Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention",
@@ -333,6 +337,25 @@
           "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
           "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
           "timestamp": "2026-08-14T03:41:35.913Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "result": "pass",
+          "note": "the repro-first RED validates structural + invariant-link + behavioral correctness in one run",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "901a252482e2f63673d2602d18f121559590efb91414b69f2fbc6f9b8ea00c16",
+            "outputTail": "PASS red-fb7b-pretest-builds-utils: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T03:42:04.549Z"
+          },
+          "headHash": "1a274c18f95df4c38096abb4a68a26654551d0e4",
+          "materialHash": "c4d45bddb298d8d808dc71440241758aeecbad1597dd0fb6ed0cbf29669b8f2e",
+          "storyFilesHash": "7bd31d8253f68e4dd661c3f0deeea3085fafaa990ad396516e65486b3623a2c8",
+          "timestamp": "2026-08-14T03:42:04.824Z"
         }
       ]
     }
