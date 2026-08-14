@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document the Mechanism Placement Proof architecture and execution plan",
+      "context": "Define the exact pre-story contract, lifecycle placement, artifact schemas, gates, freshness, story-allocation stop behavior, rollout, tests, and the B-3783 worked example. Explicitly separate candidate intake proof from PLAN verificationIntent and REVIEW/TEST/DONE evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run independent Claude CLI and agy CLI architecture audits and reconcile findings",
+      "context": "Each CLI must independently review the complete draft for duplication, authority boundaries, bypasses, fail-closed behavior, freshness, process-fact registration, rollout safety, and test completeness. Incorporate accepted findings and record dispositions in the document.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
