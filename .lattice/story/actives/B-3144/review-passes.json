@@ -383,6 +383,42 @@
         "scanEscalationReason": null
       },
       "_hash": "1df2b94338807fa7370a6f6dd8ed65c2cfc83ea16d76e9b22c8ac0fd3d3e5a22"
+    },
+    {
+      "id": "B-3144:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this diff (additive: new quorum_prune command + widened quorum_submit drift-accept guard). Verified F-031 fix by reading commit ffe7e5d697: both appendDuplicatesForRunId call sites now pin to currentMaterialHash instead of hardcoded synthetic drift strings; grep for the retired synthetic strings finds zero live-code hits. Spot-checked F-032 disposition by reading the shared check() block at quorum-submit-smoke.ts:1793-1879 directly: the 7 bound verificationIntent items each correspond to a distinct, independently-failing assert call -- agree the superseded resolution is correct. Confirmed all 5 quorum_prune wiring points present and F-030 doc updates honestly flag known gaps rather than over-claiming delivery. Spot-checked quorum-prune.ts dryRun/apply/keep/runIds schema fields against handler implementation -- all match. All 34 findings in findings.json now resolved.",
+      "createdAt": "2026-08-14T05:04:02.713Z",
+      "reviewRound": "2026-08-14T04:57:10.068Z",
+      "reviewRunId": "B-3144:RR-040",
+      "envelopeId": "1cedf3a09c59d2fca1a0c674a486dd156e882b3df76912ba33bf163291863152",
+      "writerSessionId": "sess-0d82e590a6fb4bb6604707bf1e8c611e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/findings.json",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/evidence-write-guard-spec.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7cb6704dd7f42d3539108d3bd9bb1cfdb1c2e16f3f5baf42dc04bb9cb153a7cc"
     }
   ]
 }
