@@ -1354,6 +1354,17 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:18.330Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "docs_check",
+          "note": "Manually reviewed the M8 Delivered-differently annotation in playbook-runtime-memory-consumption-execution-plan.md end to end: the only decision values it names are captured, no-reusable-lesson, and defer-with-reason (matching FINISH_DECISION_VALUES in packages/main/src/core/playbook-runtime-memory.ts exactly), and no invented values such as skip, override, or ack appear anywhere in the annotation or the surrounding M8 section as decision values. A naive grep for the substring 'skip' is not reliable here since 'intentionally skipped' appears elsewhere in the doc's unrelated M8 deliverables prose (not as a decision value), so this was verified by reading the annotation's actual decision-value mentions rather than a blind absence-grep.",
+          "mechanical": false,
+          "nonMechanicalReason": "Verified by manual reading of the M8 annotation that only captured/no-reusable-lesson/defer-with-reason are named as decision values, matching the code's FINISH_DECISION_VALUES exactly; a mechanical grep for invented-value words like skip is unreliable since that word legitimately appears elsewhere in unrelated M8 prose, so a false-negative-prone keyword search was not used as the evidence basis.",
+          "headHash": "986f53245bd8e5d2bfadc9ae9e9439c45ebf45e9",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:34:09.074Z"
         }
       ]
     },
