@@ -29,6 +29,21 @@
       "_hash": "632118cea727d80d8bdefa649ab9b3f6794f06b65b9b57e70600ef9ca434c7e4",
       "signatureTag": "edge|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fb7b:F-003",
+      "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:45-46 and packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs:40-41: buildsMain and buildsUtils both OR-fall back to the SAME loose regex /\\bnpm\\s+run\\s+build\\b/, which matches any namespaced npm script whose token starts with \"build\" followed by a non-word char (e.g. build:post, build:fast) — not just an exact \"build\" script. Reproduced live: a fixture pretest of \"npm --prefix packages/main run build && npm run build:post\" (never builds packages/utils at all) makes the compiled smoke print PASS and exit 0 (verified against packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js from this worktree build). This is exactly the adversarial class CHK-001:adversarial:1 (\"pretest builds only packages/main, omits utils\") requires the guard to catch, and the guard-bite fixture (packages/main/tests/red/red-fb7b-guard-bite.mjs biteCase adversarial:1) only tests the literal string \"npm --prefix packages/main run build\" (no bare npm-run-build token), so it never exercises this loophole. Compounding: the RED step 4 (red-fb7b-pretest-builds-utils.mjs ~lines 62-66) calls execFileSync(pretest) then only existsSync(packages/utils/dist/index.js) with no delete/mtime/hash freshness check beforehand; since dist is gitignored and never cleaned, a stale pre-existing packages/utils/dist/index.js (present in this very worktree from an earlier real build) makes that assertion pass even when the pretest under test never touched utils, contradicting the file's own comment that this behavioral step is un-gameable. Net effect: the only guard actually wired into validate.commands (the structural smoke) can be defeated by a plausible future pretest edit using a namespaced build script, and the RED's behavioral check would not catch it either in a normal already-built dev/CI environment. Fix: tighten both regexes to require an exact script-name boundary (e.g. end-of-string/&&/; immediately after \"build\", not just a generic \\b) or drop the generic fallback and require the explicit --prefix packages/main|packages/utils forms; separately have the RED delete/rename packages/utils/dist before running pretest so its behavioral proof is actually fresh.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T03:51:45.028Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-004",
+      "_hash": "2e4ff5acd3ab0cb26f3b2b3b7c1daa48b8cb602eb21ea195181162a85f381870",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
