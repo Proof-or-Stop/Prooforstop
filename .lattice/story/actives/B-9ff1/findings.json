@@ -140,7 +140,7 @@
       "desc": "[codex host-B #4, orchestrator-verified against spec text] greenExempt:false on a non-present-in-red matcher is accepted; it must reject. Section 1.1 states greenExempt is 'legal ONLY on polarity present-in-red matchers (any other polarity CARRYING IT is rejected)' - the test is whether the field is PRESENT, not whether it is true. The implementer's documented ambiguity resolution 5 reasoned that false cannot change assertion identity under section 0.4 and therefore accepted it; that reasoning is wrong on this clause. Reject on presence regardless of value, and add the fixture.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T18:02:23.467Z",
@@ -150,7 +150,11 @@
         "packages/main/src/core/red-evidence/envelope.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the guard is now presence-based (else if polarity !== 'present-in-red'), matching section 1.1's 'any other polarity CARRYING IT is rejected' - the test is whether the field is present, not whether it is true. The implementer's earlier ambiguity note reasoning from section 0.4 identity was wrong on this clause and the header note was rewritten.",
+      "resolvedAt": "2026-08-14T02:12:21.588Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-008",
