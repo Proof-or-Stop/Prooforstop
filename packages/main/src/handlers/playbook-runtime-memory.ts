@@ -12,6 +12,7 @@ import {
   evaluateRuntimeMemoryConsumerPolicy,
   finishDecisionPath,
   renderMemoryFreshnessPackSummary,
+  type FinishDecision,
 } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
@@ -19,7 +20,6 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
-type FinishDecision = 'captured' | 'no-reusable-lesson' | 'defer-with-reason';
 
 function wantsJson(args?: FormatArgs): boolean {
   return args?.json === true || args?.format === 'json';
