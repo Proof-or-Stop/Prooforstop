@@ -1606,6 +1606,17 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:27.140Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "docs_check",
+          "note": "Manually read the actual gate implementations to cross-check the annotation's claim: evaluateDevMemoryPreflightGate (core/machine.ts) calls store.readDevMemoryPreflightAck, which reads only .lattice/story/actives/<id>/dev-memory-preflight-ack.json; readDevMemoryFinishDecision (core/playbook-runtime-memory.ts) reads only .lattice/dev-memory/finish-decisions/<id>.json via finishDecisionPath. Neither function references experience.jsonl or any DevMemoryEntry field (lesson/summary/trigger/gateEvidence/authority) anywhere in its body -- confirmed by reading both full function definitions line by line. This matches the annotation's claim exactly and was verified by direct source reading, not a mechanical grep (a reliable mechanical absence-of-reference proof across two function bodies embedded in larger files was not constructed for this run).",
+          "mechanical": false,
+          "nonMechanicalReason": "Verified by direct reading of evaluateDevMemoryPreflightGate and readDevMemoryFinishDecision's full function bodies (core/machine.ts and core/playbook-runtime-memory.ts) that neither reads experience.jsonl or any DevMemoryEntry field; both read only their own dedicated artifact file. This is a manual code-reading cross-check, not an automated function-scoped absence detector.",
+          "headHash": "974f8bd61d37e00b592bef77d4d80763a02421d8",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:34:11.204Z"
         }
       ]
     },
