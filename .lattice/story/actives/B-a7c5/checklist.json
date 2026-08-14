@@ -1669,7 +1669,11 @@
           },
           {
             "desc": "The audit-for-other-stale-references sub-task was skipped entirely -- no commit message mentions it, no inline comment, no checklist note, and no evidence artifact records that the sweep was performed -> detected as incomplete delivery; WHY: the most likely adversarial failure mode is that the implementer updates the union line and calls the item done without doing the sweep, leaving latent stale references for a future reader to hit",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"Doc-wide sweep performed for B-a7c5\\\") ? \\\"SWEEP_NOTE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "SWEEP_NOTE_CONFIRMED"
+            }
           },
           {
             "desc": "The doc change exists in the working tree but was never git-committed (git diff --name-only shows the file modified, git log --oneline on the branch shows no new commits touching docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md) -> detected as uncommitted work that will not survive branch switch or merge; WHY: an uncommitted doc update provides zero durable assurance and is invisible to reviewers",
@@ -1829,6 +1833,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:36.275Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:2",
+          "kind": "docs_check",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\").includes(\\\"Doc-wide sweep performed for B-a7c5\\\") ? \\\"SWEEP_NOTE_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "Same durable sweep-record text as CHK-007 happy:2, here evidencing the adversarial failure mode this intent guards against: the sweep note's presence in the committed doc means the audit sub-task is NOT silently skipped (no commit message needed since the doc itself carries the record).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f5bce041671fac8a1ff10febb3237d52c3aab06d90cba3b7b60d8aaebc73c3f4",
+            "outputTail": "SWEEP_NOTE_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:37.543Z"
+          },
+          "headHash": "3ac35fa907a794a949e4527b2f728d4dbd894dcf",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:37.711Z"
         }
       ]
     }
