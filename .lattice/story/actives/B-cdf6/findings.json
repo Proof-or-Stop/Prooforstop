@@ -1166,7 +1166,7 @@
       "desc": "doc-code-drift: packages/main/src/core/auto-commit-metadata.ts:25 docblock (preMortem #3 anchor, Vocabulary section) still reads \"User-visible prefix is the literal `\\n\\u2713 lattice metadata auto-committed:`\", but the exported constant it describes three lines below (line 67, AUTO_COMMIT_METADATA_PREFIX) has already been renamed to `\\n\\u2713 proof-or-stop metadata auto-committed:` by this story's own F-047 fix (commit 8f42f1113e). The comment explicitly claims to state the literal value (\"is the literal\"), so it is now a stale docs-vs-code claim inside the same file, in the exact vocabulary-pinning block this story's own preMortem says exists to keep callers/tests aligned on the real string.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T13:56:22.667Z",
@@ -1177,7 +1177,11 @@
         "packages/main/src/core/auto-commit-metadata.ts"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED. You found a stale claim in the one place it is least excusable: the docblock at auto-commit-metadata.ts:25 asserted the user-visible prefix 'is the literal `\\n\\u2713 lattice metadata auto-committed:`' while the exported constant 42 lines below had already been renamed to the canonical form by this story's own F-047 fix.\n\nThat block is titled 'Vocabulary (preMortem #3 anchor)' and its stated purpose is keeping that exact string synchronized across handlers and smokes. A pinning comment that contradicts the value it pins is worse than no comment - a reader trusting it would reintroduce the old string believing that was the invariant.\n\nI swept for siblings instead of fixing only the reported line, and found one more: flow-stability-smoke.ts:3415 quoted the same old prefix in a comment. Both fixed. The single remaining match is flow-stability-smoke.ts:3376, which MUST contain the deprecated string - it is the doesNotMatch guard added under F-049 asserting the failure warning never teaches the old brand.\n\nON YOUR OTHER OBSERVATION, which I am recording rather than deflecting: you noted the dispatch's '50 findings, 0 open' was stale on arrival and that this is the THIRD instance of that pattern (F-038, F-050, now this). You are right, and the mitigation I adopted after F-050 - quoting the count together with the HEAD it was read at - reduced the harm but did not remove the cause. The cause is that concurrent lanes keep writing findings while I compose briefs, so any number I state is a snapshot of a moving ledger. The durable fix is not more diligence on my side; it is B-META-framework-audit:F-029 (concurrent finding_add losing and re-aliasing records) plus not quoting counts at all - the same conclusion your F-051 reached about frozen numbers in F-030, which I applied there by replacing the figure with a reproduction command.\n\nVerified: tsc clean; flow-stability-smoke and all three lattice-residue checks exit 0.",
+      "resolvedAt": "2026-08-14T13:58:35.083Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
