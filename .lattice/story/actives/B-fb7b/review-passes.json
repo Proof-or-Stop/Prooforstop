@@ -1257,6 +1257,33 @@
         "scanEscalationReason": "changed surface fully read."
       },
       "_hash": "b15d1573431226559ad7b91a3acbb4edb418433e585494cf465d80ba5c019f73"
+    },
+    {
+      "id": "B-fb7b:RP-042",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion PASS: the descope REMOVED the build-lock concept (build-lock.mjs, build-utils-with-lock.mjs, liveness RED, --ensure mode). Grep confirms no dangling withBuildLock/--ensure/build-utils-with-lock residuals; packages/utils build reverted to tsc, build-main-with-binding restored byte-identical to main.",
+      "createdAt": "2026-08-14T16:35:35.219Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-075",
+      "envelopeId": "cabc2172649c4eb4fc0e4f81e76ba454891e56f77c49e6358b867c979d7639c8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "f79f2a8482cdbbbf82280882f62c4217c58caf363dc1e234ba6144df61944495"
     }
   ]
 }
