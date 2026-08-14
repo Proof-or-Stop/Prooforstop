@@ -1048,6 +1048,27 @@
       "_hash": "a5e2cf732fb7e315dfaef68d83671b99e912363326a1b539b19d841c8771628c",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-050",
+      "desc": "Ledger-vs-tree mismatch at review time: dispatch asserted 48 findings/0 open, but finding_list shows 49 findings with 1 OPEN (B-cdf6:F-049, severity=high, evidenceState=verified, agent=lattice-review-concept, reviewRound=2026-08-13T05:25:24.496Z, same round as this run). F-049 flags packages/main/src/core/version-bump.ts:385,394 writing commit subject chore: bump lattice cli to X (a colon-less miss my F-047-adjacent coverage check did not originally scope). I independently confirmed the CODE fix already landed in commit 477520541c (now HEAD): version-bump.ts:385/394 emit chore: bump proof-or-stop cli, with exact-string pinned test updates in artifact-release-ledger-smoke.ts:327, version-bump-smoke.ts:175, and a NEW doesNotMatch regression guard added at flow-stability-smoke.ts:3370 plus corrected byte-equal message at :3419 -- no weakened assertions, one strengthening. Re-ran the affected smokes fresh: version-bump-smoke, artifact-release-ledger-smoke, flow-stability-smoke, worktree-repair-smoke, done-prepare-auto-closeout-smoke all exit 0 on this HEAD. So the ENGINEERING is sound, but the finding ledger was never updated (finding_resolve was not called for F-049), meaning the process fact 0 open is false and a verified open high-severity finding is still live in this round. Per REVIEW gate rules a verified open high blocks in round 1/2; this must be finding_resolve'd with evidence before any lane can review_pass_set this round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T13:36:52.159Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-070",
+      "_hash": "6fca8231d97cc5fef289d567e1b5be6b51aaa30f919916c6fb643d5e56a5784e",
+      "files": [
+        "packages/main/src/core/version-bump.ts",
+        "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+        "packages/main/src/tasks/version-bump-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|ledger-tree-mismatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
