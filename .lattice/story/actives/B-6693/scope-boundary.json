@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6693",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Focused concurrency and integration proofs plus help/diagnostic boundary text",
+    "Global-before-story lock ordering, same-context reentrancy, stale dead-owner recovery, release safety",
+    "Wait-and-run contention UX with holder story/command and heartbeat age",
+    "Workspace-wide capacity lease for official lattice validate and lattice done_required_validate across story worktrees"
+  ],
+  "excluded": [
+    "Bare npm test/full-suite automatic locking",
+    "Changes to validation commands, test membership, member timeouts, total budgets, evidence freshness, or read-only commands",
+    "Remote publication or unrelated lifecycle behavior"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly said solve the stuck TEST issue without asking; product re-review confirmed wait-and-run and bare npm test boundary.",
+  "createdAt": "2026-08-14T15:11:29.478Z",
+  "updatedAt": "2026-08-14T15:11:29.478Z",
+  "_hash": "2bc47ceb884aa3c46ff77683e91f6c92ca6b77f8a8b47e4944b94cdac1a98c1b"
+}
