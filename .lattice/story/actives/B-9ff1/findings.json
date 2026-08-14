@@ -428,6 +428,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|repair-comment-itself",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-021",
+      "desc": "packages/main/src/tasks/red-evidence-envelope-smoke.ts overclaims CLI-wide read-only silence via a test that structurally cannot observe it. (a) Header item 8 ('The command is READ-ONLY: the .lattice tree is byte-identical after every invocation') and the closing console.log ('a byte-identical .lattice tree with no gate verdict change') claim this holds for 'every invocation', but section 7's fixture calls the registered handler directly (check!({...})) in-process -- it never goes through cli-engine.ts, so it structurally cannot exercise the shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0 OR-path (cli-engine.ts ~1416/1488) that appends a generic activity.jsonl row for this command under an uncooled stale warning (verified: 22 real rows exist for red_evidence_envelope_check). The byte-identical proof is real but scoped to direct handler invocation, not 'every invocation' of the actual lattice red_evidence_envelope_check CLI command. (b) Line ~472 assertion message 'so no hook/activity/process-event write fires' repeats the same unconditional overclaim just corrected in activity-policy.ts (commit b63dcad96b, F-014) -- it is checking static classification (READ_ONLY_COMMANDS membership + isReadOnlyCommand), which is necessary but not sufficient, as that same commit's repaired comment now states explicitly.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-14T03:41:54.351Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-018",
+      "_hash": "aa18ca0d668afa79599e24aaad450a29246606effb1e8737f0c58ea725256213",
+      "files": [
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
