@@ -179,6 +179,59 @@
         "test": [
           "packages/main/src/tasks/validate-execution-lock-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Run the hermetic lattice validate and lattice done_required_validate success paths through workspace capacity and assert their existing PASS result shapes and evidence files remain bound to the invoking story plus current HEAD, materialHash, and storyFilesHash. WHY: serialization is not permission to weaken or rewrite gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: node bin/lattice.js validate --help && node bin/lattice.js done_required_validate --help && rg -n \"bare npm test|workspace validation capacity|outside.*lease|not protected\" docs/CLI.md docs/requirements/decisions/testing-infra.md docs/requirements/decisions/done-full-test-gate-execution-plan.md. Expect both official entrypoints to describe shared capacity and the docs to state unambiguously that direct bare npm test bypasses it and must not run concurrently with official validation. WHY: users need an accurate coordination boundary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Snapshot configured validate and done-required command labels, args, and timeoutMs before contention and compare after both queued runs; assert identical inventories and unchanged 120-second member, 180-second member, and 300-second full-suite proof thresholds. WHY: fixing contention must not silently raise the gate ceiling or skip work.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. While capacity is held, run representative read-only commands session_brief, story_get, and checklist_get in the fixture and assert they complete without waiting or creating capacity-holder metadata. WHY: the lease is scoped to expensive official validation, not general CLI reads.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Produce fresh validation evidence, change story-owned material, and assert existing freshness readers still classify the prior evidence stale; rerun under capacity and assert only the fresh replacement passes. WHY: the lease must not act as an evidence freshness bypass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Inspect the root npm test dispatch and run a hermetic bare-test probe while a workspace lease is held; assert the bare probe does not acquire or wait on the Lattice capacity lease, while official validate does wait. WHY: the stated exclusion must be mechanically true rather than accidental documentation.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: git diff --exit-code main...HEAD -- lattice.config.json package.json packages/main/package.json packages/main/src/tasks/full-suite-runner.ts packages/main/src/tasks/full-suite-runner-smoke.ts. Expect no diff in validation inventory or full-suite budget sources for this Story, then run npm --prefix packages/main run build. WHY: the implementation must solve coordination without ad-hoc timeout overrides or test pruning.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Invoke both official handlers through their real CLI dispatch and assert a test sentinel fails if either reaches its callback while another holder is active; require both handler cases to pass when capacity is enabled. WHY: a helper that exists but is wired to only one entrypoint is not a solution.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only. Queue --json official validation and assert stdout remains parseable structured output with the same terminal result schema while all capacity wait progress is confined to stderr. WHY: new observability must preserve automation compatibility.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
