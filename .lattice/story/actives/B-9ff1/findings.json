@@ -930,6 +930,21 @@
       "_hash": "29739cb533bc24fc41dc5c7b7e4a96568aef2c8faebefed6dfed611d14112895",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-044",
+      "desc": "[codex host-B G2] DEFECT IN MY OWN ACCEPTANCE INSTRUMENT, second round of them, all three reproduced by the main agent before acting. scratchpad/check-selectors.py could still report OK where the lifecycle refuses: (a) it stripped general CSI sequences while stripAnsi in core/validation-executor.ts strips only SGR, so raw 'A ESC[2K B' matched selector 'AB' here and not there - also found independently by the quality lane with the counter-example MARK ESC[2C ER_OK; (b) it compared the 12000-char cap in Python code points while JavaScript length and slice use UTF-16 code units, so 6000 emoji plus PIN measured 6003 here and 12003 there, retaining a selector the lifecycle truncates away; (c) subprocess text mode normalized CRLF while Node's buffer capture keeps it, so raw 'A CR LF B' matched selector 'A LF B' here and not there. All three are fixed and each counter-example now evaluates the same way the lifecycle would. This is the second consecutive round in which the instrument I was using as a gate was itself defective.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-14T10:46:45.174Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-033",
+      "_hash": "ad0e688e843353b69c28eb296d89010cf53eeadc77facdcc20db5ba8939825d3",
+      "signatureTag": "missing|unknown|codex-host-defect",
+      "signatureTagSource": "auto"
     }
   ]
 }
