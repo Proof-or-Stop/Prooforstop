@@ -20,16 +20,20 @@
  * B-9ff1 F-002/F-012/F-013 — three reviewers independently observed that the
  * directory snapshot was being credited with more than it proves):
  *
- *   1. A per-file SHA-256 snapshot of the whole `.lattice/` tree, taken ONCE
- *      before the batch of invocations below and compared ONCE after it. This
- *      is an AGGREGATE comparison, not a per-invocation one. WHAT IT PROVES:
- *      across the DIRECT handler invocations this file makes, the `.lattice/`
- *      tree is NET byte-identical — no file survives as created, modified or
+ *   1. A per-file SHA-256 snapshot of the `.lattice/` tree, taken ONCE before
+ *      the batch of invocations below and compared ONCE after it. The snapshot
+ *      is a MANIFEST of non-directory paths plus their content hashes, and
+ *      nothing else. This is an AGGREGATE comparison, not a per-invocation one.
+ *      WHAT IT PROVES: across the DIRECT handler invocations this file makes,
+ *      that manifest is NET identical — no file survives as created, modified or
  *      removed — which covers the story record, the chain, evidence artifacts
  *      and process-event logs, because those all live there.
  *      WHAT IT CANNOT PROVE, even about those same files: that no SINGLE
  *      invocation created, modified and then restored one; an aggregate
  *      before/after comparison cannot distinguish that from never touching it.
+ *      IT ALSO CANNOT PROVE anything the manifest does not record: empty
+ *      directories, file modes and symlink identity are outside it, so "the tree
+ *      is unchanged" is a stronger claim than the one made here.
  *      IT ALSO CANNOT PROVE: anything about writes OUTSIDE `.lattice/`;
  *      anything about CHILD PROCESSES (a directory hash cannot see a spawn);
  *      and anything the CLI WRAPPER does, because these are direct
@@ -53,10 +57,17 @@
  *      write are suppressed for it — those three are gated on
  *      `isReadOnlyCommand` alone, with no second term.
  *      WHAT THEY DO NOT PROVE, (a): that NO hook runs. The `onError` call site
- *      in `cli-engine.ts` carries no read-only predicate at all — its only guard
- *      is `config0?.hooks?.onError` — so a configured onError hook runs whenever
- *      the command throws, and the inadmissible-envelope path throws BY DESIGN,
- *      making it this command's primary failure route rather than an edge case.
+ *      in `cli-engine.ts` carries no read-only predicate at all: the
+ *      `runHooks('onError', ...)` call there is UNCONDITIONAL, and
+ *      `config0?.hooks?.onError` guards only the informational stderr notice
+ *      printed just above it. The filtering happens inside `runHooks` in
+ *      `core/hooks.ts` (absent config, unknown stage, no exact/wildcard key
+ *      match, no resolved commands), so a CONFIGURED and MATCHING onError hook
+ *      runs whenever the command throws, and the inadmissible-envelope path
+ *      throws BY DESIGN, making it this command's primary failure route rather
+ *      than an edge case. That hook is arbitrary shell — `spawnHook` runs it via
+ *      `/bin/sh -c` in the project root — so it can itself write evidence,
+ *      append a process event or invoke a gate-mutating command.
  *      WHAT THEY DO NOT PROVE, (b): that the CLI writes no activity row.
  *      Classification is necessary but not sufficient there, and two paths break
  *      it: `shouldWriteActivityLog` returns true for a read-only command when
@@ -69,11 +80,20 @@
  *      `core/runtime-artifact-registry.ts` registers as the
  *      `runtime-activity-log` artifact, and the CLI catch path passes
  *      `e.message` into `writeLog`, which stores it in the row's `error` field.
+ *      Two further artifacts hang off that same path, so the list above is the
+ *      set known when this was written rather than an exhaustive one: resolving
+ *      session identity for the row can create or refresh the
+ *      `owner-session-token-store` artifact under
+ *      `.lattice/runtime/owner-session-tokens/`, and a persistence failure
+ *      appends a row to the health log via `reportHealthIssue` in
+ *      `core/health.ts`.
  *      So an unqualified "no artifact", "runs no hook" or "the verdict is
  *      recorded nowhere" would each be false. The contract asserted here is
- *      therefore the narrower one: no RED-evidence record, no chain record, no
- *      story or evidence artifact under the story directory, no process event,
- *      and no gate verdict change.
+ *      therefore the narrower one, scoped to the handler and the built-in CLI
+ *      persistence paths (a configured onError hook is arbitrary shell and is
+ *      outside it): no RED-evidence record, no chain record, no story or
+ *      evidence artifact under the story directory, no process event, and no
+ *      gate verdict change.
  *      These are declarations about wiring, NOT behavioural evidence, and are
  *      labelled as such below.
  *
@@ -156,9 +176,10 @@ assert.ok(MAIN_TOOLS.some((tool) => tool.name === COMMAND), `${COMMAND} must be 
 const policyEntry = getCommandPolicy(COMMAND);
 assert.ok(policyEntry, `${COMMAND} must have a CommandPolicy entry`);
 assert.equal(policyEntry.ownershipClass, 'readOnly',
-  `${COMMAND} is classified readOnly — it writes no RED-evidence record, chain record or story/evidence artifact `
-  + 'and emits no process event. That classification does NOT suppress the CLI onError hook or the '
-  + '.lattice/activity.jsonl runtime-activity-log row');
+  `${COMMAND} is classified readOnly — in the handler and the built-in CLI persistence paths it writes no `
+  + 'RED-evidence record, chain record or story/evidence artifact and emits no process event. That '
+  + 'classification does NOT suppress the CLI onError hook (arbitrary /bin/sh -c, so it can write any of those) '
+  + 'or the .lattice/activity.jsonl runtime-activity-log row');
 assert.equal(policyEntry.destructiveRisk, 'none', `${COMMAND} carries no destructive risk`);
 assert.notEqual(policyEntry.status, 'gateEvidence', `${COMMAND} is NOT gate evidence — it changes no gate verdict`);
 assert.notEqual(policyEntry.gateEvidence, true, `${COMMAND} must not declare gateEvidence`);
@@ -168,8 +189,9 @@ assert.equal(levelEntry.level, 'L0', `${COMMAND} is an L0 read-only/reporting fa
 assert.equal(levelEntry.gateConsumer, undefined, 'an L0 read-only checker declares no gateConsumer');
 assert.ok(READ_ONLY_COMMANDS.has(COMMAND), `${COMMAND} must be in the CLI READ_ONLY_COMMANDS class`);
 assert.equal(isReadOnlyCommand(COMMAND, {}), true,
-  'the CLI read-only predicate recognises the command, so its hook and process-event writes are suppressed; '
-  + 'the activity row is NOT settled by this predicate alone (LATTICE_ACTIVITY_RECORD_READONLY=1 and the '
+  'the CLI read-only predicate recognises the command, so its preCommand/postCommand hook and process-event '
+  + 'writes are suppressed — the onError hook is NOT, its call site being unconditional; '
+  + 'the activity row is NOT settled by this predicate alone either (LATTICE_ACTIVITY_RECORD_READONLY=1 and the '
   + 'stale-warning OR in cli-engine.ts each still append one generic session row)');
 
 // ── Fixture repo ─────────────────────────────────────────────────────────────
@@ -318,16 +340,20 @@ try {
     'a missing assertionFile argument fails closed');
 
   // ── 6a. WHAT THE DIRECTORY SNAPSHOT PROVES ────────────────────────────────
-  // Exactly this: the `.lattice/` tree is NET byte-identical across the WHOLE
-  // batch of invocations above — ONE snapshot taken before the batch, ONE
-  // comparison after it. No file survives as created, modified or removed. The
-  // story record, the red-evidence chain, evidence artifacts and process-event
-  // logs all live under `.lattice/`, so this covers those writes — and nothing
-  // else. Being an AGGREGATE comparison it cannot show that no SINGLE invocation
-  // created, modified and then restored a file; net byte equality across a batch
-  // is a weaker statement than per-invocation purity, and must not be reported
-  // as the stronger one. It also says NOTHING about child processes; section 6b
-  // is what carries that claim.
+  // Exactly this: the `.lattice/` MANIFEST — non-directory paths plus their
+  // content hashes, which is all `snapshotLattice` records — is NET identical
+  // across the WHOLE batch of invocations above, ONE snapshot taken before the
+  // batch, ONE comparison after it. No file survives as created, modified or
+  // removed. The story record, the red-evidence chain, evidence artifacts and
+  // process-event logs all live under `.lattice/`, so this covers those writes —
+  // and nothing else. It is a claim about paths and contents, NOT about the tree
+  // in every respect: empty directories, file modes and symlink identity are not
+  // in the manifest, so a change confined to those would not show up here. Being
+  // an AGGREGATE comparison it also cannot show that no SINGLE invocation
+  // created, modified and then restored a file; net equality across a batch is a
+  // weaker statement than per-invocation purity, and must not be reported as the
+  // stronger one. It says NOTHING about child processes either; section 6b is
+  // what carries that claim.
   //
   // AND IT CANNOT SEE THE CLI WRAPPER. Every invocation above is
   // `registeredCheck(args)` — the handler, called directly. The CLI's own
@@ -360,10 +386,11 @@ try {
   // `runtime-activity-log` artifact — and the CLI catch path stores the thrown
   // rejection report in its `error` field, so the verdict is recorded there.
   assert.equal(snapshotLattice(), before,
-    'red_evidence_envelope_check, invoked directly as a handler, left the .lattice/ tree NET byte-identical across '
-    + 'the whole batch of calls above (ONE before snapshot, ONE after: this proves no NET create/modify/remove, not '
-    + 'that no single call created and then restored a file) — so no story record, chain record, evidence artifact '
-    + 'or process event survives the batch, and no stored gate verdict moved');
+    'red_evidence_envelope_check, invoked directly as a handler, left the .lattice/ manifest of file paths and '
+    + 'content hashes NET identical across the whole batch of calls above (ONE before snapshot, ONE after: this '
+    + 'proves no NET create/modify/remove of a file, not that no single call created and then restored one, and '
+    + 'the manifest records no empty directories, file modes or symlink identity) — so no story record, chain '
+    + 'record, evidence artifact or process event survives the batch, and no stored gate verdict moved');
 
   // ── 6b. THE SPAWN SET, ASSERTED POSITIVELY ────────────────────────────────
   // The command IS expected to spawn: §1.1.3 requires the target binding to be
@@ -470,7 +497,7 @@ try {
   console.log('red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
-  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .lattice tree NET byte-identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; the CLI wrapper is not exercised here)`);
+  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)`);
   console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
   console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
 } finally {

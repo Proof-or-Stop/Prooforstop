@@ -351,27 +351,39 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      * operator pre-flight over a candidate file that is not evidence yet, so it
      * sits OUTSIDE the §5.5 fence.
      *
-     * READ-ONLY, mechanically: the handler reads config, the story record, the
-     * candidate file, and the COMMITTED bindings blob; it writes no RED-evidence
-     * record, no chain record and no story or evidence artifact under the story
-     * directory, emits no process event, changes no gate verdict, spawns no RED
-     * run, and never calls autoCommitStoryMetadata. `command-policy` classifies
-     * it `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
-     * READ_ONLY_COMMANDS, which suppresses exactly TWO of the CLI's own write
-     * surfaces — the `preCommand` and `postCommand` hooks, and
-     * `writeCodexProcessEvent`'s class-wide early return — because those are the
-     * ones gated on `isReadOnlyCommand` alone, with no second term.
+     * READ-ONLY, mechanically, AT THE HANDLER AND THE BUILT-IN CLI PERSISTENCE
+     * PATHS: the handler reads config, the story record, the candidate file, and
+     * the COMMITTED bindings blob; those paths write no RED-evidence record, no
+     * chain record and no story or evidence artifact under the story directory,
+     * emit no process event, change no gate verdict, spawn no RED run, and never
+     * call autoCommitStoryMetadata. That scope is deliberate: it excludes a
+     * configured `onError` hook, which is arbitrary shell (see 1 below).
+     * `command-policy` classifies the command `readOnly`/`destructiveRisk: none`
+     * and `cli/activity-policy` lists it in READ_ONLY_COMMANDS, which suppresses
+     * exactly TWO of the CLI's own write surfaces — the `preCommand` and
+     * `postCommand` hooks, and `writeCodexProcessEvent`'s class-wide early
+     * return — because those are the ones gated on `isReadOnlyCommand` alone,
+     * with no second term.
      *
-     * TWO SURFACES THAT CLASSIFICATION DOES NOT SETTLE. Stated plainly, because
-     * the guarantee above is easy to over-read into "this command causes no
-     * write at all", which is false:
+     * SURFACES THAT CLASSIFICATION DOES NOT SETTLE. Stated plainly, because the
+     * guarantee above is easy to over-read into "this command causes no write at
+     * all", which is false. This is the set known when it was written, not a
+     * proof of exhaustiveness:
      *   1. THE `onError` HOOK RUNS. Its call site in `cli-engine.ts` carries no
-     *      read-only predicate — its only guard is `config0?.hooks?.onError` —
-     *      so a configured onError hook runs whenever the command throws. This
-     *      command throws its rendered rejection report BY DESIGN, so that is
-     *      its primary failure route, not an edge case. Do not "fix" this by
-     *      adding a guard here: the onError call site is class-wide and belongs
-     *      to a separate change.
+     *      read-only predicate: the `runHooks('onError', ...)` call there is
+     *      UNCONDITIONAL, and `config0?.hooks?.onError` guards only the
+     *      informational stderr notice printed just above it. The filtering is
+     *      inside `runHooks` in `core/hooks.ts` — absent config, unknown stage,
+     *      and no exact/wildcard key match or no resolved commands each return
+     *      early — so a CONFIGURED and MATCHING onError hook runs whenever the
+     *      command throws. This command throws its rendered rejection report BY
+     *      DESIGN, so that is its primary failure route, not an edge case. Such
+     *      a hook is not bounded by anything above: `spawnHook` in
+     *      `core/hooks.ts` executes it through `/bin/sh -c` in the project root,
+     *      so it can write RED or story evidence, append a process event, or
+     *      invoke a gate-mutating command. Do not "fix" this by adding a guard
+     *      here: the onError call site is class-wide and belongs to a separate
+     *      change.
      *   2. ONE ACTIVITY ROW MAY BE APPENDED. The shared CLI entrypoint still
      *      appends one generic session row to `.lattice/activity.jsonl` when
      *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (the documented Codex heartbeat
@@ -383,6 +395,17 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      *      `e.message` into `writeLog`, which stores it in the row's `error`
      *      field — so when the row is written, the full rendered rejection
      *      verdict IS recorded there.
+     *   3. THE OWNER-SESSION TOKEN STORE. Before appending that row, `writeLog`
+     *      resolves session identity via `getSessionIdentity`
+     *      (`core/owner-session.ts`); under the generated-token adapter mode that
+     *      path reaches `readOrCreateOwnerSessionToken`, creating or refreshing a
+     *      file under `.lattice/runtime/owner-session-tokens/` — registered
+     *      SEPARATELY in `core/runtime-artifact-registry.ts` as the
+     *      `owner-session-token-store` artifact.
+     *   4. THE HEALTH LOG. When activity or hook persistence FAILS,
+     *      `reportHealthIssue` (`core/health.ts`) appends one JSONL row to the
+     *      health log — `~/.lattice/health.jsonl` by default, overridable via
+     *      `LATTICE_HEALTH_PATH` — outside the project tree.
      *
      * IT DOES SPAWN, and the set is enumerated here because a claim nobody can
      * check is worth nothing (the committed regression
@@ -474,7 +497,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
           `Matched binding: adapterId=${result.binding?.adapterId ?? '<none>'} testCaseRef=${result.binding?.testCaseRef ?? '<none>'} (committed tree, HEAD)`,
           `assertionDigest: ${result.assertionDigest}`,
           `policyDigest: ${policyResult.policyDigest}`,
-          'This check is read-only: it validated the envelope and executed nothing. Running the RED evidence is a separate step.',
+          'This check is read-only: it validated the envelope and executed no envelope and no RED run. It does spawn read-only git reads to resolve the workspace and read the committed binding. Running the RED evidence is a separate step.',
         ].join('\n');
       }
 

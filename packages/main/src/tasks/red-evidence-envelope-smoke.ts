@@ -485,7 +485,9 @@ try {
   assert.ok(READ_ONLY_COMMANDS.has(COMMAND) && isReadOnlyCommand(COMMAND, {}),
     `${COMMAND} is in the CLI read-only class, which suppresses the preCommand/postCommand hooks and the `
     + 'process event. It does NOT suppress the onError hook: that cli-engine.ts call site carries no read-only '
-    + 'predicate (its only guard is config.hooks.onError), and this command throws by design. The activity row '
+    + 'predicate and the runHooks call itself is unconditional (config.hooks.onError guards only the stderr '
+    + 'notice; the filtering is inside runHooks in core/hooks.ts), so a configured and matching hook runs, and '
+    + 'this command throws by design. The activity row '
     + 'additionally depends on LATTICE_ACTIVITY_RECORD_READONLY and the stale-warning path, so classification '
     + 'alone does not settle it either');
 
@@ -574,17 +576,22 @@ try {
     assert.throws(() => check!({ storyId, assertionFile: join(root, 'missing.json') }), /missing\.json/);
     assert.throws(() => check!({ storyId }), /assertionFile/);
 
-    // READ-ONLY at the handler boundary: the .lattice tree is NET byte-identical
-    // across the whole batch of DIRECT handler invocations above (ONE snapshot
-    // before, ONE comparison after — aggregate, not per-invocation), and no gate
-    // verdict moved. The CLI entrypoint is not exercised here, so its onError
-    // hook and its .lattice/activity.jsonl runtime-activity-log row are out of
-    // view.
+    // READ-ONLY at the handler boundary: the .lattice MANIFEST — the snapshot
+    // above, i.e. non-directory paths plus their content hashes, and nothing
+    // else — is NET identical across the whole batch of DIRECT handler
+    // invocations above (ONE snapshot before, ONE comparison after — aggregate,
+    // not per-invocation), and no gate verdict moved. What the manifest does not
+    // record it cannot compare: empty directories, file modes and symlink
+    // identity are outside it, so this is a claim about paths and contents, not
+    // about the tree in every respect. The CLI entrypoint is not exercised here,
+    // so its onError hook and its .lattice/activity.jsonl runtime-activity-log
+    // row are out of view.
     assert.equal(snapshotLattice(), before,
-      `${COMMAND}, invoked directly as a handler, left the .lattice/ tree NET byte-identical across the batch of `
-      + 'calls above (ONE before snapshot, ONE after: this proves no NET create/modify/remove, not that no single '
-      + 'call created and then restored a file) — so no RED-evidence record, chain record, story process event or '
-      + 'stored gate verdict survives the batch');
+      `${COMMAND}, invoked directly as a handler, left the .lattice/ manifest of file paths and content hashes NET `
+      + 'identical across the batch of calls above (ONE before snapshot, ONE after: this proves no NET '
+      + 'create/modify/remove of a file, not that no single call created and then restored one, and it says nothing '
+      + 'about empty directories, file modes or symlink identity, which the manifest does not record) — so no '
+      + 'RED-evidence record, chain record, story process event or stored gate verdict survives the batch');
     assert.equal(
       JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence),
       gateBefore,
@@ -613,9 +620,10 @@ try {
     'matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a ' +
     'two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, ' +
     'the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), ' +
-    'a NET byte-identical .lattice tree across the batch of DIRECT handler invocations (aggregate before/after, ' +
-    'not per-invocation; and the CLI entrypoint is not exercised here) ' +
-    'with no gate verdict change, and all three registry contracts pass.',
+    'a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the ' +
+    'batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a ' +
+    'manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not ' +
+    'recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.',
   );
 } finally {
   for (const root of roots) rmSync(root, { recursive: true, force: true });

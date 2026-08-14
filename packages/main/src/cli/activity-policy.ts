@@ -24,13 +24,22 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   // Membership here settles TWO of the CLI's own write surfaces outright, because
   // both are gated on isReadOnlyCommand alone with no second term: the preCommand
   // and postCommand hooks in cli-engine.ts, and the class-wide early return in
-  // writeCodexProcessEvent. It settles NEITHER surface below, and
-  // both are stated plainly because the guarantee is easy to over-read.
+  // writeCodexProcessEvent. It settles NONE of the surfaces below, and they are
+  // stated plainly because the guarantee is easy to over-read. Treat the list as
+  // the surfaces known when this was written, not as a proof of exhaustiveness.
   //   A. THE onError HOOK STILL RUNS. Its call site in cli-engine.ts carries no
-  //      read-only predicate at all — its only guard is `config0?.hooks?.onError`
-  //      — so a configured onError hook runs whenever the command throws. This
-  //      command throws its rendered rejection report BY DESIGN, so that is its
-  //      primary failure route, not an edge case.
+  //      read-only predicate at all: the `runHooks('onError', ...)` call there is
+  //      UNCONDITIONAL. `config0?.hooks?.onError` guards only the informational
+  //      stderr notice printed just above it, not the call. The filtering lives
+  //      inside runHooks in core/hooks.ts, which returns early on absent config,
+  //      on an unknown stage, and when resolveHookCommands matches no exact or
+  //      wildcard key or yields no commands — so a CONFIGURED and MATCHING
+  //      onError hook runs whenever the command throws. This command throws its
+  //      rendered rejection report BY DESIGN, so that is its primary failure
+  //      route, not an edge case. And such a hook is arbitrary: spawnHook in
+  //      core/hooks.ts executes it via /bin/sh -c in the project root, so it can
+  //      write RED or story evidence, append a process event, or invoke a
+  //      gate-mutating command. Nothing in this file constrains what it does.
   //   B. THE ACTIVITY LOG. Membership is necessary but not sufficient there, and
   //      each of the two remaining conditions has a real operating mode that
   //      breaks it:
@@ -52,11 +61,24 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      path the CLI catch block passes e.message into writeLog, which stores it
   //      in the row's `error` field — so under either bypass the full tagged
   //      rejection verdict IS recorded there.
+  //   C. THE OWNER-SESSION TOKEN STORE. Before it appends that row, writeLog
+  //      resolves session identity through getSessionIdentity
+  //      (core/owner-session.ts). Under the generated-token adapter mode that
+  //      path reaches readOrCreateOwnerSessionToken, which creates or refreshes a
+  //      file under .lattice/runtime/owner-session-tokens/ — registered
+  //      SEPARATELY in core/runtime-artifact-registry.ts as the
+  //      `owner-session-token-store` artifact, so it is a second .lattice write
+  //      the activity path can cause.
+  //   D. THE HEALTH LOG. When activity or hook persistence FAILS, reportHealthIssue
+  //      (core/health.ts) appends one JSONL row to the health log — ~/.lattice/health.jsonl
+  //      by default, overridable via LATTICE_HEALTH_PATH — outside the project tree.
   // What holds without qualification is the narrower contract in
-  // core/command-policy.ts: the command writes no RED-evidence record, no chain
-  // record and no story or evidence artifact under the story directory, emits no
-  // process event, changes no gate verdict, and runs no preCommand or postCommand
-  // hook.
+  // core/command-policy.ts, and it is scoped to the code paths this command owns:
+  // THE HANDLER AND THE BUILT-IN CLI PERSISTENCE PATHS write no RED-evidence
+  // record, no chain record and no story or evidence artifact under the story
+  // directory, emit no process event, change no gate verdict, and run no
+  // preCommand or postCommand hook. It says nothing about a configured onError
+  // hook, which is arbitrary shell and is bounded by the project config alone.
   'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
