@@ -712,6 +712,26 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-034",
+      "desc": "packages/main/src/core/managed-assets.ts:902-916 (Claude-host .claude/agents mirror inside listManagedAssetDefinitions) is a THIRD, unfixed copy of the exact F-005 bug: it branches on isModularReviewerRoleId but never isModularComplexRoleId, so it still emits the raw modular template (readFileSync(join(templates, file))) for the 5 MODULAR_COMPLEX_ROLE_IDS instead of the digest-pinned legacy reconstruction. Commit 8f18a193a1 only touched the .lattice-codex/agents mirror at managed-assets.ts:860-888 and cli-init.ts:968-996; this sibling Claude-host block a few lines below was never touched. REPRODUCED (real init + real check binaries, not simulated): fresh init --profile=all --asset-mode=full into a temp project, seed nothing extra, then check --json reports ok:false with status STALE_SAFE for exactly .claude/agents:lattice-evaluator.md, lattice-implementer.md, lattice-review-delivery.md, lattice-review-scope-plan.md, lattice-review-story-init.md -- the 5 MODULAR_COMPLEX_ROLE_IDS -- same shape as the pre-fix bug this story claims to have closed. This is also directly why scripts/verify-entrypoints.mjs:551 (assert(checkOk.ok === true, ...)) is red today: seedClaudeAgentMirror() at :519 populates .claude/agents with correctly-rendered files BEFORE the :550 check call (cleanupClaudeMirror() does not run until :620), so by the time check runs at :550 .claude/agents is NOT missing -- the failure at :551 is this live STALE_SAFE:5 defect, not a MISSING count (see companion finding on F-026 accuracy). This is the duplication risk (two hand-synced copies of one rule, already having drifted once) materializing for real: the isModularComplexRoleId branch is now copy-pasted in cli-init.ts and managed-assets.ts .lattice-codex block, and was simply forgotten in the third copy in the same file (managed-assets.ts .claude/agents block) a few lines below -- exactly the failure mode that produced F-005 in the first place, with no shared helper to prevent recurrence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-14T04:10:53.986Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-041",
+      "_hash": "9cfdf27ce29ca08dfa036ee06125d982f3e4095497a4285e0cbbc21cb65eab1b",
+      "files": [
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/cli-init.ts",
+        "scripts/verify-entrypoints.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
