@@ -1,0 +1,112 @@
+{
+  "storyId": "B-c648",
+  "checkedAt": "2026-08-14T03:34:17.467Z",
+  "features": [
+    {
+      "feature": "Create docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md defining the Mechanism Placement Proof normative contract, non-goals, intake sequence, applicability classifier, five mandatory research questions, immutable probe/review schemas, freshness hashes, draft binding, central no-ID gate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-001; plan.md#CHK-001 steps 1-3"
+    },
+    {
+      "feature": "Define PROCEED / NEEDS_RESEARCH / STOP_NO_STORY verdict semantics where unknown never becomes proceed",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "index.json#outcome; plan.md#CHK-001 step 4"
+    },
+    {
+      "feature": "Define handoff boundary into PLAN verificationIntent and independent acceptance-topology recomputation without treating candidate evidence as lifecycle proof",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json#facts; plan.md#CHK-001 step 5; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#4"
+    },
+    {
+      "feature": "Define implementation touchpoints, rollout dependencies, config, observability, migration, and tests, including that B-8de3 evidence-store integrity work blocks enforce mode while shadow/warn can start earlier",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json#preMortem[3]; plan.md#CHK-001 steps 6,8"
+    },
+    {
+      "feature": "Include a worked B-3783/B-fb7b trace showing rejected hypotheses and the selected root pretest hook",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md#Trigger Event; plan.md#CHK-001 step 7"
+    },
+    {
+      "feature": "Ensure gate fail-closed before nextStoryId across all story_create paths (direct/fromDraft/planner/story_create_from_repro)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json#constraints; decision.json#preMortem[0]; plan.md#CHK-001 step 3"
+    },
+    {
+      "feature": "Register the new gate-consumed process facts (verdict artifact, signature, no-ID stop) into the process-fact prompt+CLI/handler dual-layer contract and process-fact-registry, per AGENTS.md flow-fact two-layer contract section",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json#constraints; plan.md#CHK-002 step 3 (process-fact two-layer registration); AGENTS.md#流程事实双层契约"
+    },
+    {
+      "feature": "Run independent Claude CLI and Antigravity CLI (agy) audits against the same draft with the same rubric, preserving independence before each host produces its first verdict",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json#CHK-002; plan.md#CHK-002 steps 1,6; scope-boundary.json#allowed[1]"
+    },
+    {
+      "feature": "Reconcile audit findings and append a disposition record (host/version/verdict/findings/per-finding disposition), with a focused confirmation re-run if a material finding caused revision",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md#CHK-002 steps 4-5; index.json#outcome"
+    },
+    {
+      "feature": "No runtime handler, schema, prompt, registry, test, or enforcement implementation in this Story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md#Exclusions[0]; scope-boundary.json#excluded[2]; execution-boundary.json confirmationNote confirms doc-only scope",
+      "source": "plan.md#Exclusions"
+    },
+    {
+      "feature": "No change to the B-fb7b root npm test repair",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md#Exclusions[1]; scope-boundary.json#excluded[0]",
+      "source": "plan.md#Exclusions"
+    },
+    {
+      "feature": "No new lifecycle phase and no second canonical acceptance or evidence truth source",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md#Exclusions[2]; scope-boundary.json#excluded[1]; decision.json#rationale (option B rejected)",
+      "source": "plan.md#Exclusions"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/evidence/evidence-platform-architecture.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 12,
+    "covered": 9,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fe994e431c6bb895f0917c648d1783d78cf5fa11e7868f4ef6b15861daebf363",
+  "openQuestions": []
+}
