@@ -641,7 +641,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "result": "pass",
+          "note": "Independent , , and rg across docs/CLI.md, testing-infra.md, and done-full-test-gate-execution-plan.md all confirmed shared workspace capacity, wait-and-run, and bare npm test outside-lease wording.",
+          "mechanical": false,
+          "headHash": "fa4d1c2af897d3d7df19aed817fb87ad7daafbba",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:13:41.245Z"
+        }
+      ]
     }
   ],
   "auditLog": [
