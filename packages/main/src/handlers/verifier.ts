@@ -468,7 +468,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   // hint naming the repair command. Additive only — never alters coverage math
   // or allPass, so the hint can never become a pass condition.
   for (const h of legacyHints) {
-    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
+    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`proof-or-stop ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
   }
   const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
   return {

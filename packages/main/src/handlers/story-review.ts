@@ -435,7 +435,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                   type: 'missing_verification_intent',
                   severity: 'blocker',
                   itemId: item.id,
-                  message: `${baseMessage} Legacy state: verificationEvidence (${laneHit.intentRef}) exists but the intent was never authored — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent from that evidence (this is a schema repair, not a gate pass).`,
+                  message: `${baseMessage} Legacy state: verificationEvidence (${laneHit.intentRef}) exists but the intent was never authored — run \`proof-or-stop ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent from that evidence (this is a schema repair, not a gate pass).`,
                   legacyEvidenceWithoutIntent: true,
                   repairCommand: VERIFICATION_INTENT_REPAIR_COMMAND,
                 });

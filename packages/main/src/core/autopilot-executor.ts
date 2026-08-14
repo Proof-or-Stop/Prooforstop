@@ -221,7 +221,9 @@ function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunRes
 
 function displayCommand(request: AutopilotCommandRequest): string {
   if (request.executable === process.execPath && request.args[0]?.endsWith('/cli.js')) {
-    return `lattice ${request.args.slice(3).join(' ')}`;
+    // B-cdf6:F-041 — the 'Failing command:' line shown in repair prompts; sibling lines
+    // just below were rebranded while this one was missed.
+    return `proof-or-stop ${request.args.slice(3).join(' ')}`;
   }
   return [request.executable, ...request.args].join(' ');
 }

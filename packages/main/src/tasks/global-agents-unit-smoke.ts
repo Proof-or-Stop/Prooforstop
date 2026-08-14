@@ -156,7 +156,12 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
 // --- buildShimBody: references the CLI fetch command + no role body ---
 {
   const body = buildShimBody('lattice-implementer');
-  assert.match(body, /lattice agent_prompt --role=lattice-implementer/);
+  // B-cdf6:F-041/F-044 — pinned the PRE-rename bin name while production
+  // (core/global-agents.ts:164) emits `proof-or-stop agent_prompt --role=...`, so this
+  // failed BECAUSE the rename succeeded. Paired doesNotMatch keeps the shim body from
+  // regressing to the deprecated bin.
+  assert.match(body, /proof-or-stop agent_prompt --role=lattice-implementer/);
+  assert.doesNotMatch(body, /lattice agent_prompt --role=/);
   assert.match(body, /thin pointer/);
   assert.doesNotMatch(body, /FULL ROLE BODY/);
 }

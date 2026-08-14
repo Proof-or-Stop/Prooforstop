@@ -116,7 +116,10 @@ function listImmediateChildGitRoots(metadataRoot: string): string[] {
 }
 
 function configRepairCommandFor(gitRoot: string): string {
-  return `lattice config repair --set-git-root=${gitRoot} --confirm`;
+  // B-cdf6:F-041 — this string is printed TO THE USER as confirmCommand and in trailing
+  // prose, so it was actively teaching the deprecated bin name even though the command's
+  // own --help already advertises the `proof-or-stop config repair` alias.
+  return `proof-or-stop config repair --set-git-root=${gitRoot} --confirm`;
 }
 
 function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDiagnostics {
