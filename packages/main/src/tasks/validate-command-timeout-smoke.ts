@@ -151,6 +151,51 @@ void (async () => {
     check('configured validate.commands[].timeoutMs override honored via resolvePinnedCommandTimeoutMs (timedOut=true)', pinned.timedOut === true);
     check('configured validate.commands[].timeoutMs override attributed 124', pinned.code === 124);
 
+    // 7. B-16df CHK-003 (unmatched default): a pinned command with NO matching entry in
+    //    validate.commands[] must resolve to undefined (so the caller falls through to the
+    //    270s default), not a wrong non-matching entry's timeoutMs. Direct unit test of
+    //    resolvePinnedCommandTimeoutMs -- no real timed wait needed.
+    const unmatchedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-unmatched-'));
+    writeFileSync(
+      join(unmatchedRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const unmatchedCommand = 'node -e "process.exit(2)"';
+    const unmatchedResolved = checklistMod.resolvePinnedCommandTimeoutMs(unmatchedRoot, unmatchedCommand);
+    check('unmatched pinned command resolves to undefined (falls through to the default)', unmatchedResolved === undefined);
+
+    // 8. B-16df CHK-003 (args-based disambiguation): two configured commands sharing the same
+    //    executable ("node") but different args must NOT cross-match each other's timeoutMs --
+    //    matching must compare the full parsed args array, not just the executable.
+    const disambigRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-disambig-'));
+    writeFileSync(
+      join(disambigRoot, 'lattice.config.json'),
+      JSON.stringify({
+        validate: {
+          commands: [
+            { command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 700 },
+            { command: 'node', args: ['-e', 'process.exit(1)'], timeoutMs: 5_000 },
+          ],
+        },
+      }, null, 2),
+      'utf-8',
+    );
+    const commandA = 'node -e "process.exit(0)"';
+    const commandB = 'node -e "process.exit(1)"';
+    const resolvedA = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandA);
+    const resolvedB = checklistMod.resolvePinnedCommandTimeoutMs(disambigRoot, commandB);
+    check('args-disambiguated command A resolves to its own timeoutMs (700)', resolvedA === 700);
+    check('args-disambiguated command B resolves to its own timeoutMs (5000)', resolvedB === 5_000);
+    check('command A does NOT cross-match command B\'s timeoutMs', resolvedA !== 5_000);
+    check('command B does NOT cross-match command A\'s timeoutMs', resolvedB !== 700);
+
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
   } catch (e) {
     console.error(e instanceof Error ? e.message : String(e));
