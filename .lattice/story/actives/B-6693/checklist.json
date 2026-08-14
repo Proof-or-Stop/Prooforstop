@@ -594,7 +594,11 @@
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Run the hermetic lattice validate and lattice done_required_validate success paths through workspace capacity and assert their existing PASS result shapes and evidence files remain bound to the invoking story plus current HEAD, materialHash, and storyFilesHash. WHY: serialization is not permission to weaken or rewrite gate evidence.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           },
           {
             "desc": "Command: node bin/lattice.js validate --help && node bin/lattice.js done_required_validate --help && rg -n \"bare npm test|workspace validation capacity|outside.*lease|not protected\" docs/CLI.md docs/requirements/decisions/testing-infra.md docs/requirements/decisions/done-full-test-gate-execution-plan.md. Expect both official entrypoints to describe shared capacity and the docs to state unambiguously that direct bare npm test bypasses it and must not run concurrently with official validation. WHY: users need an accurate coordination boundary.",
@@ -616,7 +620,11 @@
           {
             "desc": "Command: npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js. Produce fresh validation evidence, change story-owned material, and assert existing freshness readers still classify the prior evidence stale; rerun under capacity and assert only the fresh replacement passes. WHY: the lease must not act as an evidence freshness bypass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+              "selector": "validate-execution-lock smoke passed: 16 assertion groups"
+            }
           }
         ],
         "adversarial": [
@@ -677,6 +685,44 @@
           "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
           "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
           "timestamp": "2026-08-14T16:14:03.570Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-003:happy:0: routine and DONE-required PASS evidence shapes, persistence under capacity, freshness behavior, and unchanged story evidence serialization.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:14:46.070Z"
+          },
+          "headHash": "4be92a41ace74cd61b669f2fac4656498e4d62c1",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:15:25.225Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Tool-executed full lock smoke covers CHK-003:edge:2: routine and DONE-required PASS evidence shapes, persistence under capacity, freshness behavior, and unchanged story evidence serialization.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
+            "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:15:25.054Z"
+          },
+          "headHash": "4be92a41ace74cd61b669f2fac4656498e4d62c1",
+          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
+          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
+          "timestamp": "2026-08-14T16:15:25.225Z"
         }
       ]
     }
