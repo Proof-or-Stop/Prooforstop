@@ -1601,7 +1601,11 @@
         "happy": [
           {
             "desc": "Section 4.3 RuntimeConsumer union in playbook-runtime-memory-consumption-execution-plan.md now lists exactly 9 members including finding_resolve, and the list byte-matches the real code union in packages/main/src/core/playbook-runtime-memory.ts lines 44-52 (same members, same order, same spelling); WHY: the primary deliverable is doc-code union parity after CHK-002 adds the 9th member",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\"); const docS=fs.readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const codeS=fs.readFileSync(\\\"packages/main/src/core/playbook-runtime-memory.ts\\\",\\\"utf8\\\"); function ext(t,a,b){const s=t.indexOf(a); const e=t.indexOf(b,s); const block=t.slice(s, e===-1?undefined:e); return block.split(String.fromCharCode(10)).filter(l=>/^\\\\s*\\\\|\\\\s*\\x27[a-z_]+\\x27/.test(l)).map(l=>l.match(/\\x27([a-z_]+)\\x27/)[1]);} const d=ext(docS,\\\"type RuntimeConsumer =\\\",\\\"The runtime must use an allowlist\\\"); const c=ext(codeS,\\\"export type RuntimeConsumer =\\\",\\\"export type MemoryFreshnessClass\\\"); console.log((d.length===9 && JSON.stringify(d)===JSON.stringify(c)) ? \\\"BYTE_MATCH_9_MEMBERS_SAME_ORDER_CONFIRMED\\\" : \\\"MISMATCH:\\\"+JSON.stringify(d)+\\\"|\\\"+JSON.stringify(c))\"",
+              "selector": "BYTE_MATCH_9_MEMBERS_SAME_ORDER_CONFIRMED"
+            }
           },
           {
             "desc": "A diff of the doc file against main branch shows finding_resolve was added to the section 4.3 union list as a new line, not replacing or removing any existing member; WHY: confirms additive change only, no accidental member deletion during edit",
@@ -1644,7 +1648,28 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); const docS=fs.readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const codeS=fs.readFileSync(\\\"packages/main/src/core/playbook-runtime-memory.ts\\\",\\\"utf8\\\"); function ext(t,a,b){const s=t.indexOf(a); const e=t.indexOf(b,s); const block=t.slice(s, e===-1?undefined:e); return block.split(String.fromCharCode(10)).filter(l=>/^\\\\s*\\\\|\\\\s*\\x27[a-z_]+\\x27/.test(l)).map(l=>l.match(/\\x27([a-z_]+)\\x27/)[1]);} const d=ext(docS,\\\"type RuntimeConsumer =\\\",\\\"The runtime must use an allowlist\\\"); const c=ext(codeS,\\\"export type RuntimeConsumer =\\\",\\\"export type MemoryFreshnessClass\\\"); console.log((d.length===9 && JSON.stringify(d)===JSON.stringify(c)) ? \\\"BYTE_MATCH_9_MEMBERS_SAME_ORDER_CONFIRMED\\\" : \\\"MISMATCH:\\\"+JSON.stringify(d)+\\\"|\\\"+JSON.stringify(c))\"",
+          "result": "pass",
+          "note": "Extracts the pipe-delimited union member list from both the doc's fenced code block and the real code union (packages/main/src/core/playbook-runtime-memory.ts:44-52/57), and confirms both lists have exactly 9 members in the identical order (...final_response_check, finding_resolve), a genuine byte-level parity check, not a human eyeball comparison.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "18ef12bb932ad125620743ff118a73f7f59867ef8e4650b192119ac054278325",
+            "outputTail": "BYTE_MATCH_9_MEMBERS_SAME_ORDER_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:28.084Z"
+          },
+          "headHash": "7bfd1fb9dd520c2d2a8f98809d5f233be8eea07f",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:28.206Z"
+        }
+      ]
     }
   ],
   "auditLog": [
