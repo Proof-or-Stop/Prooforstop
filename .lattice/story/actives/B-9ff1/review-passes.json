@@ -467,6 +467,39 @@
         "scanEscalationReason": null
       },
       "_hash": "a7b397e181786759c757adc809ce43337159790ca70b321235405654c1ebfc5e"
+    },
+    {
+      "id": "B-9ff1:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Confirmed repair commit 0954bda0c is text-only: diffed every added line and every non-comment addition is a description/reason/rationale field value, a thrown Error message, or an assert/console.log message string -- no matcher rule, tag routing, digest computation, READ_ONLY_COMMANDS/PROCESS_FACT_REQUIRED_SEMANTICS membership, or config value changed (all Set/array memberships and status/ownershipClass/level/gateConsumer fields are byte-identical to before).\n\nVerified clause-by-clause against source: (1) writeCodexProcessEvent early-returns on isReadOnlyCommand(entry.command, argsObject) alone at cli-engine.ts:1216, with no OR-bypass, so 'emits no process event' is correctly still stated unconditionally; (2) preCommand/postCommand hooks are gated on !isReadOnlyCommand at cli-engine.ts:1351/1457 with no bypass, so 'runs no preCommand or postCommand hook' is correctly still unconditional; (3) the handler (red-evidence.ts red_evidence_envelope_check) only reads (store.readStory, resolveAssertionFilePath/readFileSync, loadConfig, readCommittedBindingForTarget via git show) and never calls appendChainControl/autoCommitStoryMetadata/any write, so 'no RED-evidence record, chain record or story/evidence artifact' remains correctly unconditional; (4) onError's only guard is config0?.hooks?.onError at cli-engine.ts:1520-1523, no read-only predicate, confirming the corrected text's central claim.\n\nBuilt a throwaway fixture OUTSIDE this repo (fresh git init + lattice.config.json with hooks.onError wildcard entry appending to a log file), created a story + committed target binding via the dist StoryStore/target-bindings modules, then ran the real CLI (node bin/lattice.js red_evidence_envelope_check) against an INADMISSIBLE envelope: the onError hook fired (onerror-hook.log gained a line \"ONERROR-FIRED cmd=red_evidence_envelope_check err=<full thrown report>\") and exit code was 1. Under default env (no LATTICE_ACTIVITY_RECORD_READONLY, no stale warning) .lattice/activity.jsonl gained NO row for the command (only pre-existing story_create failure rows), confirming the activity-row guarantee is correctly stated as conditional, not absolute. Re-ran with LATTICE_ACTIVITY_RECORD_READONLY=1: a new activity.jsonl row appeared with tool=red_evidence_envelope_check, status=fail, and error field containing the exact thrown rejection report text verbatim -- matching the corrected claim precisely. Ran the admissible envelope too: exit 0, zero bytes changed anywhere in the fixture tree (including activity.jsonl and onerror-hook.log unchanged), confirming onError does not fire and no activity row is written on the success path either.\n\nRan the required transcripts for real: node packages/main/dist/tasks/red-evidence-envelope-smoke.js -> OK/exit 0; all six packages/main/tests/red/red-w2d-*.mjs files (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix with 142 fixtures, specificity-conjunction) -> all PASS/exit 0, including command-readonly's internal validate-pipeline invocation of the smoke.\n\nRead the operator-facing text for both admissible and inadmissible cases (command-catalog.ts description, and the live CLI stdout/stderr transcripts from the fixture): every sentence is true and appropriately hedged -- the inadmissible report explicitly discloses that a configured onError hook does run and that the CLI may record this text in the error field of a .lattice/activity.jsonl row, which is behaviorally verified true, while the four unconditional guarantees (no RED-evidence/chain/story artifact, no process event, no gate verdict change, no preCommand/postCommand hook) remain stated without qualification because they are genuinely unconditional. No overcorrection found: nowhere does the corrected text understate a guarantee that actually holds unconditionally. Nothing blocks.",
+      "createdAt": "2026-08-14T09:45:05.788Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-025",
+      "envelopeId": "13a2acbe749065db2eec135f6790a687c868c78fb2a8f73c735ec6f7346e7681",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/hooks.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db290147cedbe624180cce578d5ae2c2a9f875e240eaf3a393e46d36eeab6915"
     }
   ]
 }
