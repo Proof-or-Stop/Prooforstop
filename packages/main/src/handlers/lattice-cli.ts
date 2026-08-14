@@ -24,6 +24,7 @@ import {
   resetConfigCache,
 } from '../core/config.js';
 import { gitProbe } from '../core/git-probe.js';
+import { createQuorumPruneHandlers } from './quorum-prune.js';
 
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
@@ -525,6 +526,10 @@ function renderConduitExplainText(result: ReturnType<typeof buildConduitExplain>
 
 export function createLatticeCliHandlers(ctx: HandlerContext) {
   return {
+    // quorum_prune is the official B-bf52 recovery for poisoned host-verdict rounds. It is
+    // registered here (a registry.registerBatch batch) exactly as createQuorumSubmitHandlers is
+    // batch-registered, so the CLI resolves `lattice quorum_prune` without a bespoke wiring path.
+    ...createQuorumPruneHandlers(ctx),
     host_list(args: FormatArgs = {}) {
       const result = buildLatticeHostList();
       return wantsJson(args) ? result : renderLatticeHostListText(result);

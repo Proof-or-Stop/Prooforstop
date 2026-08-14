@@ -1219,7 +1219,18 @@ export async function runCli(opts?: {
     // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
     // Activity telemetry still records the invocation; the L4 command evidence
     // is the committed host_verdict batch itself.
+    // (Kept as its own literal statement: scripts/verify-process-fact-contract.mjs
+    // pins this exact line as the quorum_submit sole-ownership invariant.)
     if (entry.command === 'quorum_submit') return;
+    // B-3144 F-001: quorum_prune shares that same immutable-transaction reason.
+    // It commits through the IDENTICAL captureLifecycleMetadataTransaction /
+    // commitLifecycleMetadataTransaction machinery on the shared
+    // kind:'quorum-submit' path, which stages exactly <story>/process-events.jsonl
+    // and verifies its committed bytes. Without this matching exclusion the
+    // generic codex_cli append re-dirties the very file the handler just
+    // atomically committed, so the NEXT quorum_prune/quorum_submit pre-dirty-
+    // refuses on this tool's own leftover write instead of on real user dirt.
+    if (entry.command === 'quorum_prune') return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)

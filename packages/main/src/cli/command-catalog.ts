@@ -3058,6 +3058,15 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default) and, with apply:true or the equivalent dryRun:false, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Executing writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses, holding the shared process-events append lock and installing the rewritten log by atomic rename. Recovery is restricted to the canonical collision shape: every member of a pruned group must be a complete decision=pass host_verdict, so a group containing a non-pass or malformed row is refused, reported, and left intact rather than having a failing verdict deleted. Contradictory pairs (apply:true with dryRun:true, or apply:false with dryRun:false) are refused.', schema: {
+    storyId: z.string().describe('Canonical Story id'),
+    runIds: z.array(z.string()).optional().describe('Optional runId filter; only duplicates on these runIds are pruned, others are left untouched'),
+    dryRun: z.boolean().optional().describe('Default dry-run: list the duplicate host_verdict events that would be removed without writing a backup, rewriting, or committing. Default true; an explicit dryRun:false executes exactly like apply:true rather than being a silent no-op. Contradictory pairs are refused: dryRun:true with apply:true, and dryRun:false with apply:false.'),
+    apply: z.boolean().optional().describe('Actually back up, rewrite, and commit; omitted defaults to the dry-run that only lists what would be removed. apply:true and dryRun:false are equivalent executors. Contradictory pairs are refused: apply:true with dryRun:true, and apply:false with dryRun:false.'),
+    keep: z.enum(['newest-material', 'oldest-material']).optional().describe('Which duplicate survives per group; default newest-material keeps the later (newer-material) event, oldest-material keeps the earlier'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
   { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
     storyId: z.string().describe('Canonical Story id'),
     policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),
