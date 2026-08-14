@@ -28,7 +28,7 @@
       "desc": "CHK-012 read-only claim (packages/main/tests/red/red-w2d-command-readonly.mjs, packages/main/src/tasks/red-evidence-envelope-smoke.ts section 7): the handler doc comment on red_evidence_envelope_check (packages/main/src/handlers/red-evidence.ts ~line 349) asserts the command spawns no RED run and its only child processes are the W2b binding readers git rev-parse/git show. No committed test verifies this: the mechanism used (a per-file SHA-256 snapshot of .lattice/ taken before and after the call) can only detect writes under .lattice/; it does not intercept, mock, or otherwise observe child_process.spawn/exec/spawnSync calls, so a regression that caused the handler to shell out to run a test (e.g. code drifted toward the reserved-for-later runner leaf) would pass this regression undetected even though it violates the storys core before a run is ever spent safety property. Given this is the single most safety-critical claim of the whole command, the read-only regression should intercept/spy on child_process to positively prove no RED-run-shaped spawn occurs, not rely solely on directory-hash absence-of-evidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T17:58:55.772Z",
@@ -41,7 +41,11 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "missing|mjs|read-claim-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed together with F-012 and F-013 (same defect, three hosts converged). The snapshot claim is narrowed to exactly what it proves, AND a child_process recorder now asserts the real spawn set. The recorder falsified the old docstring enumeration: repository/worktree resolution also runs git rev-parse --show-toplevel, --git-common-dir and git worktree list --porcelain beyond the W2b rev-parse/show. All read-only; the git read is untouched and the docstring's narrow claim (spawns no RED run) was not weakened.",
+      "resolvedAt": "2026-08-14T02:12:14.333Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-003",
