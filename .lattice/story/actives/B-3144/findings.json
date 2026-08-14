@@ -492,14 +492,18 @@
       "desc": "HOST-B codex reported: the jsonl rewrite has a data-loss race with normal process-event appenders. packages/main/src/handlers/quorum-prune.ts:257 reads the source bytes BEFORE the clean checks and transaction capture, and prune never takes the mandatory append lock used at core/process-events.ts:39. An event appended between the read and the in-place rewrite (line 409) is silently overwritten; worse, when a concurrent append causes commit failure, line 440 restores the earlier snapshot and deletes the concurrent row. Fix: serialize read/validate/backup/rewrite/commit against appenders and bind them to the transaction captured bytes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T20:51:58.548Z",
       "reviewRound": "2026-07-26T08:30:56.241Z",
       "_hash": "57749e4713bd89a155f08656cf069f464f609e932d0775854f15a47aeeccdc50",
       "signatureTag": "adversarial|unknown|host-codex-reported",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: quorum_prune holds the shared append lock across the read-then-rewrite of process-events.jsonl, closing the data-loss race with normal process-event appenders. Verified by dedicated passing regression check 'quorum_prune holds the shared append lock across read and rewrite (F-026)' in packages/main/src/tasks/quorum-submit-smoke.ts, confirmed passing in a full 70/70 smoke run.",
+      "resolvedAt": "2026-08-14T04:32:10.614Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-027",
