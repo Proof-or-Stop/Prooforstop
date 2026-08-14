@@ -139,12 +139,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite confirms the smoke entry is registered in validate.commands",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:48.313Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -152,12 +158,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: echo-ok pretest makes the structural smoke fail (isolated fixture)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:49.218Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -165,12 +177,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: main-only pretest makes the structural smoke fail (isolated fixture)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:50.073Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -178,12 +196,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: missing pretest makes the guard fail at the first assertion (isolated fixture)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:50.959Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -191,12 +215,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: removing the validate.commands entry drops the smoke from dispatch",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:51.836Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -204,12 +234,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: missing pretest makes the structural smoke fail, independent of the RED",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:52.824Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -217,12 +253,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite: both dist trees are gitignored, so the pretest rebuild cannot dirty the tracked tree",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:47.015Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -230,12 +272,18 @@
           "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
           "result": "pass",
           "note": "compiled structural smoke runs directly and passes (the permanent validate.commands guard)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:45.978Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -243,12 +291,18 @@
           "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
           "result": "pass",
           "note": "structural smoke asserts pretest builds packages/main before packages/utils",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:46.208Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -256,12 +310,18 @@
           "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
           "result": "pass",
           "note": "structural smoke asserts pretest builds BOTH packages (main not regressed)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:47.265Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -269,18 +329,18 @@
           "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
           "result": "pass",
           "note": "RED behavioral step runs npm run pretest and asserts packages/utils/dist/index.js is produced",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "901a252482e2f63673d2602d18f121559590efb91414b69f2fbc6f9b8ea00c16",
             "outputTail": "PASS red-fb7b-pretest-builds-utils: root npm test self-bootstraps packages/utils via pretest\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T11:02:13.836Z"
+            "executedAt": "2026-08-14T11:30:24.884Z"
           },
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -288,12 +348,18 @@
           "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
           "result": "pass",
           "note": "the repro-first RED validates structural + invariant-link + behavioral correctness in one run",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "901a252482e2f63673d2602d18f121559590efb91414b69f2fbc6f9b8ea00c16",
+            "outputTail": "PASS red-fb7b-pretest-builds-utils: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:44.891Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -301,12 +367,18 @@
           "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
           "result": "pass",
           "note": "guard-bite proves a bare npm test auto-fires the pretest via the npm lifecycle hook in an isolated fixture (marker written by pretest, checked by test)",
-          "headHash": "75eb6c2c035df453f5b9410243d1ede27c27cc7c",
-          "materialHash": "6474c37e09d891d5a13f144bc665540bcba472dfc373dea847d2e0554c539ed3",
-          "storyFilesHash": "b11d4c9180d76f51921771c1ed950cb2dd2ed040cbcf5c8e1561a8b6e5fe3aa8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T11:02:28.249Z"
+          "headHash": "f391051ada7a292fdf90c3c11b3c178d620d7126",
+          "materialHash": "0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5",
+          "storyFilesHash": "a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a76f2ac558991d7e4e7adf92f55b3c770abcd9132ed4c7b512d87459d6b90ee5",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T11:30:45.704Z"
+          },
+          "timestamp": "2026-08-14T11:30:52.845Z"
         }
       ]
     }
