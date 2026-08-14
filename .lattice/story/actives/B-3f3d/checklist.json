@@ -1292,30 +1292,44 @@
             "desc": "A deterministic B-cdf6 RR-043-through-RR-046 replay records the baseline first-finding material mutation and at least five later reviewer redispatches RR-047-through-RR-051, then records exactly one frozen discovery epoch, zero accepted OPEN material commits, one aggregated remediation DEV transition and zero mutation-driven redispatches under the new flow.",
             "type": "cli",
             "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-B3F3D-REPLAY-REPORT",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-B3F3D-REPLAY-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+                  "expectedSymbolOrFact": "replay",
+                  "fileDeclarationRef": "CHK-005:files:test:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-B3F3D-REPLAY-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+                    "expectedSymbolOrFact": "runReplayAcceptance",
+                    "fileDeclarationRef": "CHK-005:files:test:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:review-inventory-efficiency-report"
+              }
+            ]
           },
           {
             "id": "B3F3D-005-H2",
             "desc": "With remediation introducing no regression, the replay completes in at most one fresh final-review epoch while required lane count, required host count and escalation policy equal the baseline and every historical critical/high defect is still detected.",
             "type": "logic",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           },
           {
             "id": "B3F3D-005-H3",
             "desc": "The reproducible report shows before/after discovery/remediation cycles, reviewer executions, mutation-driven redispatches and wall-time projection, and fails unless baseline redispatches are at least five, new redispatches are zero, and all declared quality-invariant counters remain zero.",
             "type": "cli",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           }
         ],
         "edge": [
@@ -1323,31 +1337,19 @@
             "id": "B3F3D-005-E1",
             "desc": "Replay variants for timeout, cancelled lane, unsupported host, duplicate identity and forged duplicate disposition remain blocked or explicitly adjudicated and never improve the efficiency result by being counted as successful coverage.",
             "type": "cli",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           },
           {
             "id": "B3F3D-005-E2",
             "desc": "Replay variants for scope expansion, related material drift, stale receipt and post-remediation regression require fresh appropriate review, preserve lane/host assurance, and do not count necessary regression work as eliminated mutation-driven redispatch.",
             "type": "logic",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           },
           {
             "id": "B3F3D-005-E3",
             "desc": "Repeated runs from the same fixture and configuration produce the same baseline and proposed counters, and any missing baseline event, ambiguous attribution or nonzero quality invariant makes the comparison inconclusive or failed rather than PASS.",
             "type": "cli",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           }
         ],
         "adversarial": [
@@ -1355,31 +1357,19 @@
             "id": "B3F3D-005-A1",
             "desc": "Reducing reviewer lanes, host diversity, evidence freshness, completeness-critic coverage or escalation requirements cannot satisfy the efficiency gate even if elapsed time or raw review count improves.",
             "type": "logic",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           },
           {
             "id": "B3F3D-005-A2",
             "desc": "Injected historical critical/high mutations, stale old-cutoff pass acceptance, post-cert source commit, escaped critical/high finding and historical mutation survival are each detected; every corresponding accepted or escaped counter must remain exactly zero.",
             "type": "cli",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           },
           {
             "id": "B3F3D-005-A3",
             "desc": "Wave-budget exhaustion, metric relabeling, excluding failed reviewers, merging multiple redispatches into one label, or using round reduction as a gate fact cannot manufacture PASS or the required at-least-five-to-zero result.",
             "type": "logic",
-            "priority": "must",
-            "verification": {
-              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
-              "selector": "\"result\": \"PASS\""
-            }
+            "priority": "must"
           }
         ]
       },

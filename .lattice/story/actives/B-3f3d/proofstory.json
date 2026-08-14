@@ -37,23 +37,223 @@
         "CHK-005"
       ],
       "verificationIntentRefs": [
-        "CHK-005:happy:0",
-        "CHK-005:happy:1",
-        "CHK-005:happy:2",
-        "CHK-005:edge:0",
-        "CHK-005:edge:1",
-        "CHK-005:edge:2",
-        "CHK-005:adversarial:0",
-        "CHK-005:adversarial:1",
-        "CHK-005:adversarial:2"
+        "B3F3D-005-H1",
+        "B3F3D-005-H2",
+        "B3F3D-005-H3",
+        "B3F3D-005-E1",
+        "B3F3D-005-E2",
+        "B3F3D-005-E3",
+        "B3F3D-005-A1",
+        "B3F3D-005-A2",
+        "B3F3D-005-A3"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "The B-cdf6 replay reduces mutation-driven reviewer redispatches from at least five to zero while accepted OPEN commits, stale acceptance, escaped critical/high findings, post-cert commits and assurance regressions remain zero.",
-      "note": "CHK-001 through CHK-004 establish the causal gate; CHK-005 verifies the falsifiable efficiency threshold and every quality non-regression invariant."
+      "note": "CHK-001 through CHK-004 establish the causal gate; CHK-005 verifies the falsifiable efficiency threshold and every quality non-regression invariant.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-REPLAY",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT",
+              "endpointRef": "EP-B3F3D-REPLAY-PRODUCER"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-REPLAY-ACCEPTANCE",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT",
+              "endpointRef": "EP-B3F3D-REPLAY-CONSUMER"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "PA-B3F3D-005-H1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-H1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "PA-B3F3D-005-H2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-H2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "PA-B3F3D-005-H3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-H3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "MC-B3F3D-005-E1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-E1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-005-E2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-E2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-005-E3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-E3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-005-A1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-A1"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-005-A2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-A2"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          },
+          {
+            "id": "MC-B3F3D-005-A3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B3F3D-005-A3"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "TA-BINDING",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "acceptance-binding:AB-B3F3D-EFFICIENCY-QUALITY"
+            },
+            "producerRefs": [
+              "P-REPLAY"
+            ],
+            "consumerRefs": [
+              "C-REPLAY-ACCEPTANCE"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_topology_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          }
+        ]
+      }
     }
   ],
   "diagnosticGaps": [],
-  "note": "Single acceptance claim binds the complete frozen-inventory mechanism to the deterministic B-cdf6 replay proof.",
+  "note": "The planned replay producer-to-consumer edge is verification-intent-owned; canonical process facts and verifier-reconciled static-call paths map the complete acceptance basis.",
   "createdAt": "2026-08-14T14:05:34.348Z",
-  "updatedAt": "2026-08-14T14:05:34.348Z"
+  "updatedAt": "2026-08-14T16:01:37.458Z"
 }
