@@ -31,6 +31,21 @@
       "_hash": "f12c0952c2ed7fd39a735d860242079b60aa77db64a79b4810cb77f26812a832",
       "signatureTag": "adversarial|unknown|checklist-json-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a7c5:F-003",
+      "desc": "checklist.json CHK-006:happy:1, CHK-006:edge:1, and CHK-006:adversarial:0 (intentRefs) all bind to the same command `git diff main...HEAD -- docs/requirements/decisions/dev-memory.md` with selectors lacking a +/- diff-line prefix (happy:1 and adversarial:0 use the identical selector text). Same non-discriminating mechanism as the CHK-005 finding: packages/main/src/handlers/checklist.ts:645s `run.output.includes(pinSelector)` matches the phrase whether it sits on a preserved context line or a removed `-` line, so none of these three checks can mechanically prove not deleted vs deleted. Unlike CHK-005 (which has a companion CHK-005:edge:0 readFileSync-based final-content check for the same claim), none of CHK-006s 9 verificationEvidence entries independently re-verifies via final-file content (readFileSync(...).includes(...)) that the original Non-Goal bullet (Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.) still exists in the current dev-memory.md -- the only evidence for that specific not deleted claim is this weak diff-substring pattern, duplicated identically across happy:1 and adversarial:0.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-14T13:50:44.108Z",
+      "reviewRound": "2026-08-14T13:41:16.096Z",
+      "reviewRunId": "B-a7c5:RR-003",
+      "_hash": "ad07cbe330f1fe6aa324a8e2b544367e492914954052c98be17aea72a59a97ab",
+      "signatureTag": "adversarial|unknown|checklist-json-happy",
+      "signatureTagSource": "auto"
     }
   ]
 }
