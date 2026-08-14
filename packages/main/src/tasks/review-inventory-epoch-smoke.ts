@@ -155,8 +155,11 @@ assert.match(beginText, /^Review inventory epoch: B-cdf6-replay:RI-001/m);
 assert.match(beginText, /^State: OPEN$/m);
 assert.match(beginText, /^Frozen cutoff: b{64}$/m);
 assert.equal((beginText.match(/^Next:/gm) ?? []).length, 1, 'begin exposes exactly one next command');
-const statusText = renderReviewInventoryStatus(initial);
+const emptyEvaluation = evaluateReviewInventoryWave({ epoch: initial, runs: [], passes: [], findings: [] });
+const statusText = renderReviewInventoryStatus(initial, { evaluation: emptyEvaluation });
 for (const lane of requiredLanes) assert.match(statusText, new RegExp(`Lane ${lane}: pending`));
+assert.match(statusText, /Blockers: REVIEW_INVENTORY_LANES_INCOMPLETE/);
+assert.match(statusText, /Next: lattice dispatch .*lattice-review-concept/);
 assert.equal((statusText.match(/^Next:/gm) ?? []).length, 1, 'status exposes exactly one next command');
 
 const firstRuns = requiredLanes.map((lane, index) => run(lane, index + 1));
@@ -171,6 +174,14 @@ const familyBeforeAuditTagChange = findingFamily(historical);
 assert.equal(findingFamily({ ...historical, signatureTag: 'attacker-renamed-audit-tag' }), familyBeforeAuditTagChange);
 const discovery = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, passes: firstPasses, findings: [historical] });
 assert.equal(discovery.newFamilies.length, 1);
+const lanesCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery });
+assert.match(lanesCompleteStatus, /Lane lattice-review-concept: finding/);
+assert.match(lanesCompleteStatus, /Lane lattice-review-quality: pass/);
+assert.match(lanesCompleteStatus, /Verified findings: 1/);
+assert.match(lanesCompleteStatus, /New verified findings: 1/);
+assert.match(lanesCompleteStatus, /Blockers: REVIEW_INVENTORY_CRITIC_INCOMPLETE/);
+assert.match(lanesCompleteStatus, /Next: lattice dispatch .*lattice-review-topology-critic/);
+assert.equal((lanesCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
 const firstWave = buildWave(initial, discovery, '2026-08-14T00:10:00.000Z');
 assert.equal(firstWave.saturated, false);
 
@@ -196,6 +207,16 @@ assert.equal(validateReviewInventoryCriticReceipt({
   passes: [...firstPasses, firstCritic.pass],
   findings: [historical],
 }).ok, true, 'critic authority is independently signed after required lanes terminate');
+const criticTerminalStatus = renderReviewInventoryStatus(initial, {
+  evaluation: discovery,
+  criticReviewRunId: firstCritic.run.reviewRunId,
+});
+assert.match(criticTerminalStatus, /Next: lattice review_inventory_critic_set/);
+assert.equal((criticTerminalStatus.match(/^Next:/gm) ?? []).length, 1);
+const criticCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery, criticComplete: true });
+assert.match(criticCompleteStatus, /Completeness critic: complete/);
+assert.match(criticCompleteStatus, /Next: lattice review_inventory_finalize/);
+assert.equal((criticCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.equal(validateReviewInventoryCriticReceipt({
   receipt: { ...firstCritic.receipt, aggregateFindingSetDigest: '0'.repeat(64) },
   epoch: initial,
@@ -253,6 +274,9 @@ const finalizedData: ReviewInventoryEpochData = {
   receipts: [receipt],
   criticReceipts: [firstCritic.receipt, secondCritic.receipt],
 };
+const finalizedStatus = renderReviewInventoryStatus(finalized, { criticComplete: true });
+assert.match(finalizedStatus, /Next: lattice story_advance --storyId=B-cdf6-replay --phase=DEV/);
+assert.equal((finalizedStatus.match(/^Next:/gm) ?? []).length, 1);
 const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
 assert.equal(reviewInventoryRemediationGate(mockStore as never, storyId, 'wrong-round').ok, false);
@@ -282,6 +306,9 @@ function replay(): Record<string, number> {
     events.push({ type: 'open-mutation', accepted: false });
   }
   assert.equal(attackStore.snapshot().epochs[0].state, 'INVALIDATED', 'stale mutation invalidates the OPEN epoch');
+  const invalidatedStatus = renderReviewInventoryStatus(attackStore.snapshot().epochs[0]);
+  assert.match(invalidatedStatus, /Next: lattice review_inventory_begin/);
+  assert.equal((invalidatedStatus.match(/^Next:/gm) ?? []).length, 1);
 
   events.push({ type: 'discovery-wave', host: hosts[0] });
   events.push({ type: 'saturation-wave', host: hosts[1] });
@@ -293,6 +320,9 @@ function replay(): Record<string, number> {
   consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff);
   phase = 'DEV';
   events.push({ type: 'remediation-transition', accepted: phase === 'DEV' });
+  const consumedStatus = renderReviewInventoryStatus(transitionStore.snapshot().epochs[0], { criticComplete: true });
+  assert.match(consumedStatus, /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/);
+  assert.match(consumedStatus, /Next: lattice review_inventory_begin/);
   assert.throws(
     () => consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff),
     /REVIEW_INVENTORY_REMEDIATION_BLOCKED/,
@@ -335,11 +365,17 @@ function replay(): Record<string, number> {
     findings: [],
   });
   assert.ok(duplicate.duplicateIdentities.length > 0, 'duplicate reviewer identity is rejected');
+  assert.match(renderReviewInventoryStatus(initial, { evaluation: duplicate }), /Next: lattice review_inventory_cancel/);
   const cancelled = epoch({ state: 'CANCELLED', cancelledAt: issuedAt, cancelReason: 'operator cancelled bounded review' });
   const cancelledStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [cancelled], receipts: [], criticReceipts: [] });
   assert.equal(reviewInventoryRemediationGate(cancelledStore as never, storyId, reviewRound).ok, false, 'cancel cannot grant DEV');
+  assert.match(renderReviewInventoryStatus(cancelled), /Next: lattice review_inventory_begin/);
   const exhausted = epoch({ waves: [firstWave, firstWave, firstWave], maxWaves: 3 });
   assert.equal(exhausted.waves.length >= exhausted.maxWaves && !exhausted.waves.at(-1)?.saturated, true, 'budget exhaustion cannot manufacture a receipt');
+  const exhaustedStatus = renderReviewInventoryStatus(exhausted, { evaluation: discovery });
+  assert.match(exhaustedStatus, /REVIEW_INVENTORY_BUDGET_EXHAUSTED/);
+  assert.match(exhaustedStatus, /Next: lattice review_inventory_cancel/);
+  assert.equal((exhaustedStatus.match(/^Next:/gm) ?? []).length, 1);
   const staleRuns = firstRuns.map(row => ({ ...row, materialHash: '9'.repeat(64) }));
   assert.equal(evaluateReviewInventoryWave({ epoch: initial, runs: staleRuns, passes: firstPasses, findings: [] }).missingLanes.length, requiredLanes.length,
     'stale runs cannot satisfy the frozen cutoff');

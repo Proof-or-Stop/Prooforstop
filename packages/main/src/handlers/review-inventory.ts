@@ -2,7 +2,7 @@ import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryReceipt } from '../core/types.js';
 import {
@@ -72,22 +72,43 @@ function persistInvalidationIfDrifted(ctx: HandlerContext, epoch: ReviewInventor
   return next;
 }
 
-export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, criticComplete = false): string {
+export interface ReviewInventoryStatusProjection {
+  evaluation?: ReturnType<typeof evaluateReviewInventoryWave>;
+  criticComplete?: boolean;
+  criticReviewRunId?: string;
+}
+
+export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, projection: ReviewInventoryStatusProjection = {}): string {
   const wave = epoch.waves.length + (epoch.state === 'OPEN' ? 1 : 0);
   const last = epoch.waves.at(-1);
+  const live = epoch.state === 'OPEN' ? projection.evaluation : undefined;
   const laneRows = epoch.requiredLanes.map(lane => {
-    const terminal = last?.lanes.find(row => row.lane === lane);
+    const terminal = live?.lanes.find(row => row.lane === lane) ?? last?.lanes.find(row => row.lane === lane);
     return `Lane ${lane}: ${terminal?.terminal ?? 'pending'}`;
   });
   const blockers: string[] = [];
   if (epoch.state === 'INVALIDATED') blockers.push('OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION');
   if (epoch.state === 'FINALIZED' && epoch.consumedAt) blockers.push('REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED');
   if (epoch.state === 'OPEN' && epoch.waves.length >= epoch.maxWaves && !last?.saturated) blockers.push('REVIEW_INVENTORY_BUDGET_EXHAUSTED');
+  if (epoch.state === 'OPEN' && live?.missingLanes.length) blockers.push('REVIEW_INVENTORY_LANES_INCOMPLETE');
+  if (epoch.state === 'OPEN' && live?.duplicateIdentities.length) blockers.push('REVIEW_INVENTORY_DUPLICATE_IDENTITY');
+  if (epoch.state === 'OPEN' && live && live.missingLanes.length === 0
+    && live.duplicateIdentities.length === 0 && !projection.criticComplete) blockers.push('REVIEW_INVENTORY_CRITIC_INCOMPLETE');
   let next: string;
   if (epoch.state === 'OPEN') {
-    next = blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')
-      ? `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="replan or decompose after wave budget exhaustion"`
-      : `lattice review_inventory_finalize --storyId=${epoch.storyId}`;
+    if (blockers.includes('REVIEW_INVENTORY_BUDGET_EXHAUSTED')) {
+      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="replan or decompose after wave budget exhaustion"`;
+    } else if (live?.missingLanes.length) {
+      next = `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"${live.missingLanes[0]}"}'`;
+    } else if (live?.duplicateIdentities.length) {
+      next = `lattice review_inventory_cancel --storyId=${epoch.storyId} --reason="re-dispatch independent reviewer identities"`;
+    } else if (live && !projection.criticComplete) {
+      next = projection.criticReviewRunId
+        ? `lattice review_inventory_critic_set --storyId=${epoch.storyId} --epochId=${epoch.epochId} --reviewRunId=${projection.criticReviewRunId} --agent=lattice-review-topology-critic`
+        : `lattice dispatch '{"storyId":"${epoch.storyId}","agentType":"lattice-review-topology-critic"}'`;
+    } else {
+      next = `lattice review_inventory_finalize --storyId=${epoch.storyId}`;
+    }
   } else if (epoch.state === 'FINALIZED') {
     next = epoch.consumedAt
       ? `lattice review_inventory_begin --storyId=${epoch.storyId}`
@@ -103,9 +124,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, criticC
     `Current wave: ${wave}/${epoch.maxWaves}`,
     `Required lanes: ${epoch.requiredLanes.join(', ')}`,
     ...laneRows,
-    `Verified findings: ${last?.verifiedFindingFamilies.length ?? 0}`,
-    `New verified findings: ${last?.newVerifiedFindingCount ?? 0}`,
-    `Completeness critic: ${criticComplete ? 'complete' : 'pending'}`,
+    `Verified findings: ${live ? reviewInventoryAggregateFamilies(epoch, live).length : (last?.verifiedFindingFamilies.length ?? 0)}`,
+    `New verified findings: ${live?.newFamilies.length ?? last?.newVerifiedFindingCount ?? 0}`,
+    `Completeness critic: ${projection.criticComplete ? 'complete' : 'pending'}`,
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
     `Next: ${next}`,
@@ -127,7 +148,7 @@ function criticReceiptForCurrentWave(ctx: HandlerContext, epoch: ReviewInventory
 }
 
 function currentCriticComplete(ctx: HandlerContext, epoch: ReviewInventoryEpoch): boolean {
-  if (epoch.state !== 'OPEN') return true;
+  if (epoch.state !== 'OPEN') return epoch.state === 'FINALIZED';
   const evaluation = evaluateCurrentWave(ctx, epoch);
   if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0) return false;
   return validateReviewInventoryCriticReceipt({
@@ -138,6 +159,37 @@ function currentCriticComplete(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
     passes: ctx.store.readReviewPasses(epoch.storyId).passes,
     findings: ctx.store.readFindings(epoch.storyId).findings,
   }).ok;
+}
+
+function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpoch, evaluation: ReturnType<typeof evaluateReviewInventoryWave>): string | undefined {
+  if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0) return undefined;
+  const passes = ctx.store.readReviewPasses(epoch.storyId).passes;
+  const findings = ctx.store.readFindings(epoch.storyId).findings;
+  const evidenceById = [...passes, ...findings];
+  const latestLaneEvidenceAt = Math.max(...evaluation.lanes.flatMap(lane => lane.evidenceIds.map(id =>
+    Date.parse(evidenceById.find(row => row.id === id)?.createdAt ?? ''),
+  )).filter(Number.isFinite));
+  const latest = ctx.store.readReviewRuns(epoch.storyId).runs
+    .filter(run => verifyReviewRun(run) && run.lane === 'lattice-review-topology-critic'
+      && run.reviewRound === epoch.reviewRound && run.materialHash === epoch.cutoff.materialHash
+      && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
+      && Date.parse(run.startedAt) > latestLaneEvidenceAt)
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
+  if (!latest) return undefined;
+  const terminal = [
+    ...passes.filter(row => row.reviewRunId === latest.reviewRunId && verifyReviewPass(epoch.storyId, row)),
+    ...findings.filter(row => row.reviewRunId === latest.reviewRunId && verifyFinding(epoch.storyId, row)),
+  ];
+  return terminal.some(row => Boolean(row.readManifest)) ? latest.reviewRunId : undefined;
+}
+
+function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch): string {
+  const evaluation = epoch.state === 'OPEN' ? evaluateCurrentWave(ctx, epoch) : undefined;
+  return renderReviewInventoryStatus(epoch, {
+    evaluation,
+    criticComplete: currentCriticComplete(ctx, epoch),
+    criticReviewRunId: evaluation ? currentCriticReviewRunId(ctx, epoch, evaluation) : undefined,
+  });
 }
 
 export function renderReviewInventoryBegin(epoch: ReviewInventoryEpoch): string {
@@ -175,7 +227,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const existing = currentOpenReviewInventory(ctx.store, args.storyId);
         if (existing) {
           const fresh = persistInvalidationIfDrifted(ctx, existing);
-          if (fresh.state === 'OPEN') return renderReviewInventoryStatus(fresh, currentCriticComplete(ctx, fresh));
+          if (fresh.state === 'OPEN') return renderProjectedStatus(ctx, fresh);
         }
         const checklist = ctx.store.readChecklist(args.storyId);
         let decision = null;
@@ -223,7 +275,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         if (!epoch) throw new Error(`review_inventory_status: no epoch for ${args.storyId}`);
         if (!verifyReviewInventoryEpoch(epoch)) throw new Error(`review_inventory_status: epoch ${epoch.epochId} signature mismatch`);
         if (epoch.state === 'OPEN') epoch = persistInvalidationIfDrifted(ctx, epoch);
-        return renderReviewInventoryStatus(epoch, currentCriticComplete(ctx, epoch));
+        return renderProjectedStatus(ctx, epoch);
       });
     },
 
@@ -239,7 +291,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
         if (!epoch || epoch.epochId !== args.epochId) throw new Error(`review_inventory_critic_set: OPEN epoch ${args.epochId} not found`);
         epoch = persistInvalidationIfDrifted(ctx, epoch);
-        if (epoch.state !== 'OPEN') throw new Error(renderReviewInventoryStatus(epoch));
+        if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
         const evaluation = evaluateCurrentWave(ctx, epoch);
         if (evaluation.missingLanes.length > 0) throw new Error(`REVIEW_INVENTORY_LANES_INCOMPLETE: ${evaluation.missingLanes.join(', ')}`);
         if (evaluation.duplicateIdentities.length > 0) throw new Error(`REVIEW_INVENTORY_DUPLICATE_IDENTITY: ${evaluation.duplicateIdentities.join(', ')}`);
@@ -298,7 +350,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         let epoch = currentOpenReviewInventory(ctx.store, args.storyId);
         if (!epoch) throw new Error(`review_inventory_finalize: no OPEN epoch for ${args.storyId}`);
         epoch = persistInvalidationIfDrifted(ctx, epoch);
-        if (epoch.state !== 'OPEN') throw new Error(renderReviewInventoryStatus(epoch));
+        if (epoch.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, epoch));
         if (epoch.waves.length >= epoch.maxWaves) {
           throw new Error(`REVIEW_INVENTORY_BUDGET_EXHAUSTED: ${epoch.epochId}; replan/decompose/escalate, never manufacture PASS`);
         }
@@ -325,7 +377,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           const next = signEpoch({ ...epoch, updatedAt: now, waves: [...epoch.waves, wave] });
           data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? next : row);
           ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-          return `${renderReviewInventoryStatus(next, false)}\nSaturation: new verified finding families require another full unchanged-material wave.`;
+          return `${renderProjectedStatus(ctx, next)}\nSaturation: new verified finding families require another full unchanged-material wave.`;
         }
         const aggregateFamilies = wave.verifiedFindingFamilies;
         const receiptId = `${epoch.epochId}:RCP-001`;
@@ -357,7 +409,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, true)}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true })}\nReceipt: ${receiptId}\nAuthority: inventory-completeness-only; authorizes TEST: false`;
       });
     },
 

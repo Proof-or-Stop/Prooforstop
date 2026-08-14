@@ -35,7 +35,13 @@ lattice review_inventory_finalize --storyId=B-xxxx
 `begin` prints the epoch ID, `State: OPEN`, frozen material cutoff and exactly
 one status command. `status` prints every required lane, current wave, verified
 and newly verified finding counts, blocker codes and exactly one `Next:`
-command. `cancel` is the explicit recovery path:
+command. For an OPEN epoch these are live projections from current signed
+ReviewRun/pass/finding evidence; they do not wait for `finalize` to append a
+wave. The unique next action progresses from the first missing lane, to the
+independent critic dispatch/receipt, to finalize. Duplicate identity or budget
+exhaustion directs cancellation/replanning; invalidated, cancelled, or a
+consumed-without-phase-write epoch directs a fresh begin. `cancel` is the
+explicit recovery path:
 
 ```bash
 lattice review_inventory_cancel --storyId=B-xxxx --reason="return to DEV and replace the frozen candidate"
