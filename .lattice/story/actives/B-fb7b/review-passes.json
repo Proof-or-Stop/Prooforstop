@@ -278,6 +278,36 @@
         "scanEscalationReason": null
       },
       "_hash": "7ff2bc10c4299449bf5c1354ba7bd15e8ff9a940fc1ff819ff7e0028f5c0f5c2"
+    },
+    {
+      "id": "B-fb7b:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3: all 13 CHK-001 verificationIntent refs (happy:4, edge:4, adversarial:5) have fresh command-backed verificationEvidence at current materialHash 10a846d1..7510429 (post F-006 fix fd8054daa6). Independently re-ran red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs (all 11 selectors incl new GB-ADVFAST-BIT/GB-ADVLAB-BIT), and test-suite-utils-autobuild-smoke.js in isolation: all PASS exit 0. Confirmed real root package.json pretest/test scripts match the anchored regex exactly and validate.commands still registers the smoke. No coverage gap; not a blocker.",
+      "createdAt": "2026-08-14T04:47:33.345Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-013",
+      "envelopeId": "70b5e4ffdef7cbdf79a8bf5419d4451729638cad8f5e9729f1beff8516fa68c9",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "bin/bootstrap-runner.js",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afe5419abd3fd686246f7e257ef655ac0cbec1fc2de0210e4eae091368732ced"
     }
   ]
 }
