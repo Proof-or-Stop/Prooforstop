@@ -1661,7 +1661,11 @@
           },
           {
             "desc": "Doc union list was updated but the members are in a different order than the code union (e.g. finding_resolve inserted alphabetically rather than appended after final_response_check matching the code position) -> detected as a byte-match failure; WHY: the requirement is byte-match including order, not set-equality",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const i1=s.indexOf(\\\"| \\x27final_response_check\\x27\\\"); const i2=s.indexOf(\\\"| \\x27finding_resolve\\x27;\\\"); const between=s.slice(i1,i2); const others=[\\\"host_handoff\\\",\\\"story_create\\\",\\\"story_advance\\\",\\\"done_prepare\\\",\\\"done_closure\\\"].filter(m=>between.includes(\\\"\\x27\\\"+m+\\\"\\x27\\\")); console.log((i1>=0 && i2>i1 && others.length===0) ? \\\"APPENDED_AT_CODE_POSITION_CONFIRMED\\\" : \\\"ORDER_MISMATCH\\\")\"",
+              "selector": "APPENDED_AT_CODE_POSITION_CONFIRMED"
+            }
           },
           {
             "desc": "The audit-for-other-stale-references sub-task was skipped entirely -- no commit message mentions it, no inline comment, no checklist note, and no evidence artifact records that the sweep was performed -> detected as incomplete delivery; WHY: the most likely adversarial failure mode is that the implementer updates the union line and calls the item done without doing the sweep, leaving latent stale references for a future reader to hit",
@@ -1806,6 +1810,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:34.958Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "docs_check",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const i1=s.indexOf(\\\"| \\x27final_response_check\\x27\\\"); const i2=s.indexOf(\\\"| \\x27finding_resolve\\x27;\\\"); const between=s.slice(i1,i2); const others=[\\\"host_handoff\\\",\\\"story_create\\\",\\\"story_advance\\\",\\\"done_prepare\\\",\\\"done_closure\\\"].filter(m=>between.includes(\\\"\\x27\\\"+m+\\\"\\x27\\\")); console.log((i1>=0 && i2>i1 && others.length===0) ? \\\"APPENDED_AT_CODE_POSITION_CONFIRMED\\\" : \\\"ORDER_MISMATCH\\\")\"",
+          "result": "pass",
+          "note": "Confirms finding_resolve appears immediately after final_response_check with no other union member text in between, i.e. appended at the exact same position as the code union (not resorted alphabetically to a different position such as before host_handoff), a real ordering check, not eyeballed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f7021127ae7fa402c38f76905b13e8013cfd335d242c4fd9144cf13f7c83663e",
+            "outputTail": "APPENDED_AT_CODE_POSITION_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:36.102Z"
+          },
+          "headHash": "b2aaa2658c6a74a6ff0ba473b134eb250dc3a047",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:36.275Z"
         }
       ]
     }
