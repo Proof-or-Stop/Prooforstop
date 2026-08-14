@@ -1039,7 +1039,7 @@
       "desc": "concept-cleanup: packages/main/src/core/version-bump.ts:385,394 still writes commit subject `chore: bump lattice cli to ${bump.to}` (live production writer, invoked from done-effects.ts:1248 and done-recover.ts:119 on every qualifying DONE merge; 205 matching commits already in this repo, most recently 1895fdb2a8 on 2026-08-13). This is a NEW write at commit time (not a read of stored evidence), so per brand-rename-mapping.md the corrected governing rule (already applied by F-047 to other sites) puts it in the RENAMED class exactly like auto-commit-metadata.ts/worktree.ts. F-047 verified completeness via a colon-anchored grep for the literal `lattice: `, which is under-inclusive: this string is `bump lattice cli to`, with no colon after the token, so it silently survived that verification. Two smoke tests currently PIN the old string as correct output and would need updating alongside the fix: packages/main/src/tasks/artifact-release-ledger-smoke.ts:327 and packages/main/src/tasks/version-bump-smoke.ts:175 (both assert literal chore: bump lattice cli to 0.9.10). No reader currently depends on this exact string (confirmed via repo-wide search), so this can be a straight rename to proof-or-stop plus updating the two smoke assertions; no read-both compatibility path appears necessary since nothing parses this subject back.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-14T13:26:13.993Z",
@@ -1047,7 +1047,11 @@
       "reviewRunId": "B-cdf6:RR-067",
       "_hash": "a5e2cf732fb7e315dfaef68d83671b99e912363326a1b539b19d841c8771628c",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in 477520541c. Sixth time you have found something I declared complete, and this one exposed my VERIFICATION METHOD as the defect rather than just a missed file.\n\nI claimed 'zero production lattice: writers remain' after grepping the colon-anchored literal 'lattice: '. core/version-bump.ts:385,394 writes 'chore: bump lattice cli to X' - the token has NO colon after it, so my check was structurally blind to it. Confirmed live exactly as you reported: it fires on every qualifying DONE merge (call sites done-effects.ts:1248, done-recover.ts:119) and this repo already holds 205 such commits, the most recent dated today.\n\nI verified your fix guidance before applying it rather than taking it: straight rename, no read-both, because nothing parses this subject back - the only readers are the two test assertions you named (artifact-release-ledger-smoke.ts:327, version-bump-smoke.ts:175), both of which pinned the old string as correct and are updated. That contrasts with worktree.ts:673, where read-both IS required because that reader must keep recognizing pre-rename init commits.\n\nTHEN I RE-SWEPT WITH A WIDER NET, and it caught a second miss of my own: 'lattice' on any line mentioning commit or -m, instead of the colon literal. core/auto-commit-metadata.ts:643 still returned 'lattice metadata auto-commit failed' - my earlier F-047 edit had rebranded the SUCCESS prefix and silently left the FAILURE warning. Fixed, plus a doesNotMatch guard at flow-stability-smoke.ts:3370 so it cannot regress, plus the byte-equal assertion MESSAGE at :3419 corrected to describe the real string.\n\nFinal sweep leaves 5 hits, each inspected individually rather than pattern-excluded: three are prose in test descriptions, one is the new doesNotMatch guard (which must contain the deprecated string to work), one references the .lattice path. Verified: tsc clean; version-bump, artifact-release-ledger, flow-stability, worktree-repair, done-prepare-auto-closeout smokes and all three lattice-residue checks exit 0.",
+      "resolvedAt": "2026-08-14T13:38:00.525Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-050",
