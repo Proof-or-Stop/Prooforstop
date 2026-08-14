@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a7c5",
+  "checkedAt": "2026-08-14T10:12:56.933Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "4f04f767be6014f4db2bd6a98306e46dc59a584b648e0c919edbbec45c698ac4",
+  "executionBoundaryHash": "0ccb0c47303d9e04e584d74d366ac1c67cec4fe2ca113e007fc78b698cb9525d",
+  "freshnessHash": "3299a23d0b3900a7cbf9e9509cef24d5710dd720b5da46d463741835fd30d0aa",
+  "effectiveExcludedKeywords": [
+    "Any change to playbooks.json / signature-registry.json or the global (~/.lattice) dev-memory scope",
+    "Changing dev_memory_capture/dev_memory_finish/dev_memory_preflight's existing core logic or schema beyond what is needed to add the acknowledgement/decision-tracking artifacts above",
+    "Making the finding_resolve reminder a hard gate (it must remain non-blocking per the explicit design tradeoff recorded in background.md)",
+    "Requiring a minimum COUNT or specific number of dev-memory captures per story (an honest no-reusable-lesson decision must remain a fully valid, non-blocking answer)",
+    "The broader document-context scaling architecture (thin entrypoints, task-scoped canonical document escalation, recall-risk controls) -- that is B-dcf9's separate, larger-scoped effort"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to playbooks.json / signature-registry.json or the global (~/.lattice) dev-memory scope",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to playbooks.json / signature-registry.json or the global (~/.lattice) dev-memory scope",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing dev_memory_capture/dev_memory_finish/dev_memory_preflight's existing core logic or schema beyond what is needed to add the acknowledgement/decision-tracking artifacts above",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing dev_memory_capture/dev_memory_finish/dev_memory_preflight's existing core logic or schema beyond what is needed to add the acknowledgement/decision-tracking artifacts above",
+      "excluded": true
+    },
+    {
+      "keyword": "Making the finding_resolve reminder a hard gate (it must remain non-blocking per the explicit design tradeoff recorded in background.md)",
+      "source": "scopeBoundary.excluded",
+      "text": "Making the finding_resolve reminder a hard gate (it must remain non-blocking per the explicit design tradeoff recorded in background.md)",
+      "excluded": true
+    },
+    {
+      "keyword": "Requiring a minimum COUNT or specific number of dev-memory captures per story (an honest no-reusable-lesson decision must remain a fully valid, non-blocking answer)",
+      "source": "scopeBoundary.excluded",
+      "text": "Requiring a minimum COUNT or specific number of dev-memory captures per story (an honest no-reusable-lesson decision must remain a fully valid, non-blocking answer)",
+      "excluded": true
+    },
+    {
+      "keyword": "The broader document-context scaling architecture (thin entrypoints, task-scoped canonical document escalation, recall-risk controls) -- that is B-dcf9's separate, larger-scoped effort",
+      "source": "scopeBoundary.excluded",
+      "text": "The broader document-context scaling architecture (thin entrypoints, task-scoped canonical document escalation, recall-risk controls) -- that is B-dcf9's separate, larger-scoped effort",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "56b49ec1a95f6933a08f65cc1e1aaa03b9323600c711dd03d39ae1df14155ace"
+}
