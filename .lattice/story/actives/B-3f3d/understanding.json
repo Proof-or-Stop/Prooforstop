@@ -14,22 +14,39 @@
     "Required reviewer lanes and two-host assurance cannot be reduced.",
     "Budget exhaustion cannot manufacture PASS; it must require replan, decomposition, escalation, or human adjudication.",
     "Do not implement PRE_CERT or atomic remediation closeout in this Story.",
-    "Do not weaken evidence freshness, signatures, material lineage, or TEST/DONE gates."
+    "Do not weaken evidence freshness, signatures, material lineage, or TEST/DONE gates.",
+    "The untracked cross-story analysis documents are intake evidence summarized in Story background, not runtime implementation dependencies.",
+    "The retired legacy Authority receipt guide is not normative; reuse only current local binding predicates from active lifecycle and evidence-integrity sources."
   ],
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/review-inventory-epoch.ts",
     "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
     "packages/main/src/handlers/review-run.ts",
     "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/reviewer-list.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/core/adversarial-review.ts",
+    "packages/main/src/core/adversarial-review-round.ts",
     "packages/main/src/core/machine.ts",
     "packages/main/src/handlers/transition-orchestrator.ts",
-    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/core/prewrite-guard-check.ts",
+    "packages/main/src/handlers/prewrite-guard.ts",
+    ".claude/hooks/lattice-scope-pretool.cjs",
+    ".codex/hooks/lattice-scope-pretool.cjs",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/prewrite-guard-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
   ],
-  "timestamp": "2026-08-14T13:50:40.406Z"
+  "timestamp": "2026-08-14T14:01:26.362Z"
 }

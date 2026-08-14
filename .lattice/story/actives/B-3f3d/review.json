@@ -82,6 +82,82 @@
         }
       ],
       "_hash": "7ac92e167c96392d41ea5d3dfb9a4dcc031ddc4bd50dc49bdec89e7f34176648"
+    },
+    {
+      "timestamp": "2026-08-14T14:03:58.097Z",
+      "issueCount": 9,
+      "blockerCount": 6,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Represent the frozen review-inventory epoch and its receipt as signed gate-consumed process facts + Enforce the OPEN-epoch material mutation barrier at every authoritative write boundary are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3f3d\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"High-risk PLAN must contain one executable plan section per CHK with touchpoint and verification mapping\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"All related truth sources used for baseline and acceptance must be available inside the Story checkout\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Understanding touchpoints must map existing reviewer orchestration, lane selection, completeness critic and incremental impact sources\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Understanding touchpoints must map every supported Codex or Claude mutation hook and Git commit guard promised by CHK-002\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: B3F3D-SQ-001 unresolved — \"Will the two untracked session analysis documents become versioned Story inpu...\". Please run `lattice scope_question_resolve --storyId=B-3f3d --oqId=B3F3D-SQ-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: B3F3D-SQ-002 unresolved — \"Should lifecycle-gate-receipt-consumption.md be removed from relatedDocs or e...\". Please run `lattice scope_question_resolve --storyId=B-3f3d --oqId=B3F3D-SQ-002 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "1950281f1371d858cd7ff79019e1902baa9c48712717e924a1f7b8a2e84a0a6e"
+    },
+    {
+      "timestamp": "2026-08-14T14:04:31.366Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Represent the frozen review-inventory epoch and its receipt as signed gate-consumed process facts + Enforce the OPEN-epoch material mutation barrier at every authoritative write boundary are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3f3d\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        }
+      ],
+      "_hash": "fd3ffea7e41ebe1a810282b27931b658dabb443fbcf729a6a53fe3b1bbc168a0"
     }
   ]
 }

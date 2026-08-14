@@ -9,8 +9,8 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-14T14:06:16.709Z",
       "endTime": null,
       "userSees": "After start, the terminal includes the exact fields \"Review inventory epoch: <id>\", \"State: OPEN\", \"Frozen cutoff: <hash>\" and \"Next: lattice review_inventory_status --storyId=<id>\"; status prints one row per required lane and exactly one \"Next:\" command.",
       "verificationIntent": {
@@ -458,6 +458,18 @@
           "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-14T14:06:16.709Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV implementation started by dispatched lattice-implementer",
+      "agent": "lattice-implementer"
     }
   ]
 }

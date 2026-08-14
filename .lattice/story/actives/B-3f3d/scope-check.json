@@ -1,168 +1,158 @@
 {
   "storyId": "B-3f3d",
-  "checkedAt": "2026-08-14T13:59:53.582Z",
+  "checkedAt": "2026-08-14T14:04:13.519Z",
   "features": [
     {
-      "feature": "Frozen review inventory epoch is a canonical signed gate-consumed fact bound to story, round, cutoff, scope, lanes, waves, host and prompt identities",
+      "feature": "Frozen review inventory epoch and receipt are canonical signed gate-consumed facts bound to story, review round, cutoff hashes, scope, lanes, waves, host and prompt identities",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md; understanding.json; CHK-001"
+      "source": "background.md; understanding.json; plan.md CHK-001; CHK-001"
     },
     {
-      "feature": "Operator can begin, inspect, finalize or cancel an epoch and status exposes blockers plus exactly one next command",
+      "feature": "Operator can begin, inspect, finalize and cancel an epoch with exact state, cutoff, lane progress, blockers and one executable next command",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json outcome; CHK-001 userSees and verificationIntent"
+      "source": "understanding.json outcome; plan.md CHK-001; CHK-001 userSees and verificationIntent"
     },
     {
-      "feature": "OPEN epoch blocks review-subject material mutation at handlers, supported host hooks, commit guards and lifecycle transitions",
+      "feature": "OPEN epoch blocks review-subject material mutation at handlers, supported Claude and Codex hooks, commit or prewrite guards and lifecycle transitions",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json constraints; CHK-002"
+      "source": "understanding.json constraints and touchpoints; plan.md CHK-002; CHK-002 files"
     },
     {
-      "feature": "Bypassed drift invalidates the epoch, makes old verdicts advisory and provides an auditable cancel or DEV recovery path",
+      "feature": "Bypassed material drift atomically invalidates the epoch, makes prior verdicts advisory and exposes exact cancel or DEV recovery",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-002 context and verificationIntent"
+      "source": "plan.md CHK-002; CHK-002 context and verificationIntent"
     },
     {
-      "feature": "All scope and risk selected lanes plus completeness critic must terminate on one unchanged cutoff with bounded read or coverage evidence",
+      "feature": "All scope and risk selected reviewer lanes plus completeness critic terminate on one unchanged cutoff with signed coverage or bounded read evidence",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md Key Insights; CHK-003"
+      "source": "background.md Key Insights; plan.md CHK-003; CHK-003"
     },
     {
-      "feature": "Only a zero-new-verified-finding saturation wave may finalize; timeout, missing output, duplicate identity or budget exhaustion cannot manufacture PASS",
+      "feature": "Only a zero-new-verified-finding saturation wave may finalize and timeout, missing output, duplicate identity or budget exhaustion cannot manufacture PASS",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md; CHK-003 edge and adversarial intents"
+      "source": "plan.md CHK-003; CHK-003 edge and adversarial intents"
     },
     {
-      "feature": "A finalized receipt authorizes exactly one aggregated remediation DEV transition and never authorizes TEST or certifies defective material",
+      "feature": "A finalized receipt authorizes exactly one aggregated REVIEW-to-remediation-DEV transition and never authorizes TEST or certifies defective material",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json outcome; CHK-004"
+      "source": "understanding.json outcome; plan.md CHK-004; CHK-004"
     },
     {
-      "feature": "Repaired material requires fresh dependency-closure impacted lanes, preserving full lane and host assurance when scope cannot be proven narrow",
+      "feature": "Repaired material requires fresh dependency-closure impacted lanes while unknown closure, scope or policy fails closed to full active lanes and preserves host escalation",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-004 context and verificationIntent"
+      "source": "plan.md CHK-004; CHK-004 verificationIntent"
     },
     {
-      "feature": "The historical round-2-plus one-receipt sufficiency shortcut must be removed wherever it can claim final review completeness",
+      "feature": "Historical round-2-plus one-receipt sufficiency is replaced wherever it could claim final review completeness",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json facts; packages/main/src/core/machine.ts:843-846"
+      "source": "understanding.json facts; plan.md CHK-004; packages/main/src/core/machine.ts current shortcut"
     },
     {
-      "feature": "B-cdf6 RR-043 through RR-051 replay must reduce mutation-driven redispatches from at least five to zero under explicit deterministic thresholds",
+      "feature": "B-cdf6 replay uses a falsifiable at-least-five-to-zero mutation-driven redispatch target with one inventory epoch and one remediation transition",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md Trigger Event; CHK-005"
+      "source": "background.md Trigger Event; plan.md CHK-005; CHK-005"
     },
     {
-      "feature": "Efficiency cannot reduce required reviewer lanes, host diversity, freshness, completeness critic or historical critical/high detection",
+      "feature": "Efficiency cannot reduce required reviewer lanes, host diversity, freshness, completeness critic coverage or historical critical/high detection",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json constraints; CHK-005 quality invariants"
+      "source": "understanding.json constraints; plan.md CHK-005; CHK-005 quality invariants"
     },
     {
-      "feature": "Every new gate fact must have both prompt guidance and mechanical handler or gate enforcement plus process-fact registry verification",
+      "feature": "Every new gate fact has both prompt guidance and mechanical handler, hook, transition, registry and contract-verifier enforcement",
       "covered_by": "CHK-001,CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "AGENTS.md process-fact dual contract; understanding.json constraints"
+      "source": "AGENTS.md process-fact dual contract; plan.md CHK-001 and CHK-002; checklist files"
+    },
+    {
+      "feature": "High-risk execution plan provides one implementation and verification section for every CHK plus explicit delivery order and safe rollback semantics",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md"
+    },
+    {
+      "feature": "Every understanding touchpoint maps to at least one checklist modify, create or test declaration, including reviewer orchestration, saturation, incremental impact, prewrite guard, host hooks and process-fact contracts",
+      "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json touchpoints; checklist files"
     },
     {
       "feature": "Atomic ReviewRemediation closeout is not part of this first Story",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicit Solution Tradeoffs and understanding constraint keep atomic remediation closeout as a follow-up",
+      "excluded_by": "Background and understanding explicitly retain it as a follow-up to keep one cohesive epoch deliverable",
       "source": "background.md Solution Tradeoffs; understanding.json constraints"
     },
     {
       "feature": "PRE_CERT scheduling is not part of this first Story",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly excluded to keep the epoch cohesive",
+      "excluded_by": "Explicitly excluded from this first epoch Story",
       "source": "background.md Solution Tradeoffs; understanding.json constraints"
     },
     {
       "feature": "Evidence cache redesign or freshness relaxation is not part of this Story",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Current freshness is a safety invariant and the source incident involved real material mutation",
-      "source": "CHK-005; external B-cdf6 analysis sections 5.6 and 15.1"
-    },
-    {
-      "feature": "Reducing reviewer count or required host count is not an allowed optimization",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Assurance floor and CHK-005 require unchanged lane and host coverage",
+      "excluded_by": "Freshness and material lineage are preserved safety invariants",
       "source": "understanding.json constraints; CHK-005"
     },
     {
-      "feature": "High-risk PLAN must contain one executable plan section per CHK with touchpoint and verification mapping",
+      "feature": "Reducing reviewer lanes or required host counts is not an allowed optimization",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "plan_get returned plan.md not found; story_review missing_plan_md blocker"
+      "status": "excluded",
+      "excluded_by": "Assurance coverage must remain unchanged",
+      "source": "understanding.json constraints; CHK-005"
     },
     {
-      "feature": "All related truth sources used for baseline and acceptance must be available inside the Story checkout",
+      "feature": "Untracked cross-story analysis documents are intake evidence rather than runtime or normative dependencies",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "CHK-001/003/005 reference claude-session-b-cdf6-review-convergence-analysis-and-optimization.md and CHK-005 references codex-session-performance-and-workflow-optimization-plan.md, but neither path exists or is tracked in the Story worktree"
+      "status": "excluded",
+      "excluded_by": "Their causal facts and thresholds are frozen in Story background, understanding and CHK-005; no current relatedDocs entry references them",
+      "source": "understanding.json constraints; current checklist relatedDocs"
     },
     {
-      "feature": "Understanding touchpoints must map existing reviewer orchestration, lane selection, completeness critic and incremental impact sources",
+      "feature": "Retired legacy Authority Server receipt semantics are not normative for the local inventory receipt",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "Missing packages/main/src/handlers/reviewer-batch.ts, reviewer-list.ts, core/adversarial-review.ts, core/adversarial-review-round.ts and core/review-incremental-context.ts from understanding.touchpoints"
-    },
-    {
-      "feature": "Understanding touchpoints must map every supported Codex or Claude mutation hook and Git commit guard promised by CHK-002",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "CHK-002 promises host hooks and commit checks, but understanding.touchpoints contains no .claude hook, .lattice-codex hook, core/hooks.ts or commit-guard surface"
-    },
-    {
-      "feature": "Receipt design must remain local Proofbound evidence and must not revive retired Authority Server semantics",
-      "covered_by": null,
-      "status": "drift",
-      "excluded_by": null,
-      "source": "CHK-002 relatedDocs includes lifecycle-gate-receipt-consumption.md, whose header marks Authority Server semantics retired and says not to use it as active implementation guidance"
+      "status": "excluded",
+      "excluded_by": "The retired guide was removed from relatedDocs and understanding explicitly permits only current local binding predicates from active sources",
+      "source": "understanding.json constraints; current checklist relatedDocs"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       "AGENTS.md",
       "docs/evidence-integrity-program-spec.md",
-      "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
       "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
-      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
       "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
       "docs/requirements/decisions/story-files-hash-material-drift.md",
       "docs/requirements/decisions/testing-completeness.md"
     ],
     "filesTriagedByName": [
-      "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
       "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
       "docs/requirements/decisions/story-lifecycle.md",
       "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
@@ -170,34 +160,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 21,
-    "covered": 12,
-    "excluded": 4,
-    "gaps": 4,
+    "total": 20,
+    "covered": 14,
+    "excluded": 6,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "597c1f9de8d480fae4266d7eeca3dc54cc9b6e6580f96b36addac5073f259cea",
-  "openQuestions": [
-    {
-      "id": "B3F3D-SQ-001",
-      "q": "Will the two untracked session analysis documents become versioned Story inputs, or should their evidence and numeric baseline be copied into a tracked decision or replay fixture?",
-      "evidence": "Both are named as relatedDocs, but git ls-files returns no entries and the Story worktree cannot open either path.",
-      "sourcePointers": [
-        "CHK-001 relatedDocs",
-        "CHK-003 relatedDocs",
-        "CHK-005 relatedDocs"
-      ]
-    },
-    {
-      "id": "B3F3D-SQ-002",
-      "q": "Should lifecycle-gate-receipt-consumption.md be removed from relatedDocs or explicitly limited to generic binding predicates so retired Authority Server semantics cannot enter the implementation?",
-      "evidence": "The document header states that Authority Server and server-backed receipt semantics are retired and must not be used as active implementation guidance.",
-      "sourcePointers": [
-        "CHK-002 relatedDocs",
-        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md:1"
-      ]
-    }
-  ]
+  "_hash": "9b988d470ffa9a442acfb33e5855f2c4ad866e5cd44b3d0adb9a513dc6cec602",
+  "openQuestions": []
 }
