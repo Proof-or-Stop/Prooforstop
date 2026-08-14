@@ -20,6 +20,7 @@ export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE = 'heartbeat.json';
 export const VALIDATION_CAPACITY_LOCK_REL = `${LATTICE_DIR}/locks/validation-capacity.lock`;
 export const VALIDATION_CAPACITY_WAIT_POLL_MS = 100;
 export const VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS = 30000;
+export const VALIDATION_CAPACITY_PROBE_DEADLINE_MS = -1;
 
 const heldValidationLockPaths = new Set<string>();
 const validationLockOwnerStore = new AsyncLocalStorage<Set<string>>();
@@ -403,6 +404,11 @@ function buildCapacityWaitMessage(options: ValidationCapacityLockOptions, lockPa
   return `waiting for workspace validation capacity: holder ${holderText}, ${heartbeatText}`;
 }
 
+function isRetryableCapacityProbeRace(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /\bEEXIST\b/.test(message);
+}
+
 /**
  * Acquire one capacity lease per git-common-dir without blocking the event
  * loop. Each mkdir probe is fail-fast; contention is retried with an awaited,
@@ -435,7 +441,10 @@ export async function withWorkspaceValidationCapacity<T>(
     try {
       lock = acquireMkdirLock(lockKey, {
         label: 'workspace validation capacity',
-        deadlineMs: 1,
+        // A negative deadline makes the fail-fast probe return immediately if
+        // an EEXIST entry vanishes between mkdir and stat. The outer async loop
+        // owns all retry timing; acquireMkdirLock must never reach sleepSync.
+        deadlineMs: VALIDATION_CAPACITY_PROBE_DEADLINE_MS,
         staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
         failFastIfHeld: true,
         holderInfo,
@@ -448,14 +457,16 @@ export async function withWorkspaceValidationCapacity<T>(
         },
       });
     } catch (error) {
-      if (!held) throw error;
-      const now = Date.now();
-      if (now - lastProgressAt >= progressIntervalMs) {
-        lastProgressAt = now;
-        try {
-          options.onWaitProgress?.(buildCapacityWaitMessage(options, lockKey));
-        } catch {
-          /* Progress is descriptive and must not change lock ownership. */
+      if (!held && !isRetryableCapacityProbeRace(error)) throw error;
+      if (held) {
+        const now = Date.now();
+        if (now - lastProgressAt >= progressIntervalMs) {
+          lastProgressAt = now;
+          try {
+            options.onWaitProgress?.(buildCapacityWaitMessage(options, lockKey));
+          } catch {
+            /* Progress is descriptive and must not change lock ownership. */
+          }
         }
       }
       await waitForCapacityRetry(options, pollMs);

@@ -32,6 +32,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
@@ -42,6 +43,7 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import {
   VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE,
+  VALIDATION_CAPACITY_PROBE_DEADLINE_MS,
   validationCapacityLockPath,
   validationExecutionLockPath,
   withOfficialValidationExecution,
@@ -805,6 +807,41 @@ async function assertCapacityStrictStaleClassifier(): Promise<void> {
   }
 }
 
+async function assertCapacityReleaseRaceRetriesAsynchronously(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-release-race-'));
+  const lockPath = validationCapacityLockPath(root);
+  try {
+    assert.ok(VALIDATION_CAPACITY_PROBE_DEADLINE_MS < 0,
+      'capacity probe deadline must stay pre-expired so acquireMkdirLock cannot enter synchronous polling');
+    mkdirSync(dirname(lockPath), { recursive: true });
+    // A dangling symlink deterministically produces mkdir=EEXIST followed by
+    // stat=ENOENT, the same observable sequence as a holder releasing between
+    // the probe's mkdir and stat. The timer cannot remove it until the probe
+    // yields, so the old deadlineMs=1 synchronous path fails this test.
+    symlinkSync(join(root, 'missing-capacity-holder'), lockPath, 'dir');
+    let releaseTimerFired = false;
+    setTimeout(() => {
+      rmSync(lockPath, { force: true });
+      releaseTimerFired = true;
+    }, 0);
+    let entered = false;
+    await withWorkspaceValidationCapacity({
+      root,
+      workspaceRoot: root,
+      command: 'validate',
+      pollMs: 15,
+      deadlineAt: Date.now() + 1000,
+    }, () => {
+      assert.equal(releaseTimerFired, true, 'release-race retry must yield to the event loop before callback entry');
+      entered = true;
+    });
+    assert.equal(entered, true, 'vanished-between-mkdir/stat race must retry and acquire');
+    assert.equal(existsSync(lockPath), false, 'release-race acquisition must release its successor lease');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-async-'));
   const options = {
@@ -926,11 +963,12 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
 void (async () => {
   try {
     await assertWorkspaceWaitAndRun();
+    await assertCapacityReleaseRaceRetriesAsynchronously();
     await assertCapacityStrictStaleClassifier();
     await assertCapacityAsyncWaitAbortReentrancyAndRelease();
     await assertCapacityRepositoryScopeAndSelectiveModes();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
-      console.log('validate-execution-lock workspace capacity contract passed: 4 assertion groups');
+      console.log('validate-execution-lock workspace capacity contract passed: 5 assertion groups');
       return;
     }
     await assertPostCommandPersistenceHoldsLock();
@@ -944,7 +982,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 15 assertion groups');
+    console.log('validate-execution-lock smoke passed: 16 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
