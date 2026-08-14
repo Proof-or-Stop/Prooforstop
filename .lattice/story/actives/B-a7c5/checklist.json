@@ -1153,7 +1153,11 @@
           },
           {
             "desc": "The doc references the actual mechanism names matching shipped code: dev_memory_finish_decision, captured, no-reusable-lesson, defer-with-reason, canFinishGuard -- not placeholder/generic names; WHY: doc-code name divergence is a known high-severity finding pattern (B-3144 F-030 stale spec)",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const names=[\\\"dev_memory_finish_decision\\\",\\\"canFinishGuard\\\",\\\"no-reusable-lesson\\\",\\\"defer-with-reason\\\"]; const missing=names.filter(n=>!s.includes(n)); console.log(missing.length===0 ? \\\"ALL_SHIPPED_NAMES_PRESENT\\\" : \\\"SOME_NAMES_MISSING:\\\"+missing.join(\\\",\\\"))\"",
+              "selector": "ALL_SHIPPED_NAMES_PRESENT"
+            }
           },
           {
             "desc": "The doc does NOT add new bypass mechanisms or new decision values beyond what the code ships (no invented values like \"skip\" or \"override\" that do not exist in the codebase) -- it only describes what is actually delivered; WHY: doc-code divergence creates false expectations for the next implementer reading the spec",
@@ -1274,6 +1278,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:15.071Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "docs_check",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md\\\",\\\"utf8\\\"); const names=[\\\"dev_memory_finish_decision\\\",\\\"canFinishGuard\\\",\\\"no-reusable-lesson\\\",\\\"defer-with-reason\\\"]; const missing=names.filter(n=>!s.includes(n)); console.log(missing.length===0 ? \\\"ALL_SHIPPED_NAMES_PRESENT\\\" : \\\"SOME_NAMES_MISSING:\\\"+missing.join(\\\",\\\"))\"",
+          "result": "pass",
+          "note": "A single script checks four real shipped mechanism names (dev_memory_finish_decision, canFinishGuard, no-reusable-lesson, defer-with-reason) are all present in the doc verbatim, not placeholder/generic names, only printing the confirm marker if every one is found.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d4eca735b1c0d4d73b7350eb80a06da09786a102fe4911dcc29f64406379db14",
+            "outputTail": "ALL_SHIPPED_NAMES_PRESENT\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:16.054Z"
+          },
+          "headHash": "1528c67f8fd3e3d90900b4030b8ca767ea422586",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:16.174Z"
         }
       ]
     },
