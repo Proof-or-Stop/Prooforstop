@@ -620,6 +620,27 @@
         "scanEscalationReason": null
       },
       "_hash": "e2f5651103e4b64b70502060f07531cb18ecf40d9a6534b7faf79ed01c8fe10f"
+    },
+    {
+      "id": "B-fb7b:RP-021",
+      "agent": "lattice-review-behavior",
+      "note": "Story-level behavior review of CHK-001 (root pretest self-bootstraps packages/utils). Code is byte-identical to pre-sync round-4 tip (de680a0769) for every B-fb7b-owned file (lattice.config.json, test-suite-utils-autobuild-smoke.ts, both red-fb7b-*.mjs); the sync only carried in other stories files (quorum-prune.ts, quorum-submit.ts, evidence-integrity docs, etc.) plus a root package.json version bump 0.3.253->0.3.254, verified via git diff. Reran full evidence set fresh at current material: red-fb7b-pretest-builds-utils.mjs PASS, red-fb7b-guard-bite.mjs GB-ALL-PASS (lifecycle-fires, edge1-clean, edge3-registered, adv0-4 all bite), compiled test-suite-utils-autobuild-smoke.js PASS, lattice.config.json validate.commands entry confirmed present, git status clean outside .lattice metadata after two pretest runs (dist gitignored, no tree dirt). Checked userSees-equivalent behavior against actual code: pretest correctly orders main-before-utils; bootstrap-runner.js and worktree handler intentionally untouched (confirmed via diff, matches CHANGELOG.md claim). Checked doc-promise-undelivered: CHANGELOG.md Unreleased entry for B-fb7b matches implementation exactly, no undelivered claims. Spec-boundary check: docs/requirements/decisions/done-full-test-gate-execution-plan.md requires a root pretest/equivalent build receipt before root npm test for self-host DONE-required proof -- this story directly implements that requirement. docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md cites B-fb7b as motivating incident and shows an illustrative (not mandated) alternative pretest=\"npm run build\"; doc explicitly disclaims pre-approving any patch, and the actual narrower pretest is correct because verify-full-suite-build-binding.mjs is already invoked independently inside full-suite-runner.ts (line 515) and packages-main-build freshness is separately proven by doneRequiredCommands, so omitting it from pretest is not a gap. No blockers found.",
+      "createdAt": "2026-08-14T09:43:40.918Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-027",
+      "envelopeId": "9970573ec686e2653d1a63c415d8acd7eb7c7607b2fa330e516fdd070cf10859",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2302c090c5f8ef65057a6d6fdd59b77abb6d73baa0ad6399d8e586ccffaac929"
     }
   ]
 }
