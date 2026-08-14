@@ -232,7 +232,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md M8 section now describes dev_memory_finish_decision as a blocking DONE-gate requirement (contains words like \"blocking\" or \"required\" in the context of DONE/canFinishGuard), not purely advisory; WHY: confirms the primary update was made -- the M8 section must reflect the actually-delivered escalation",
+            "type": "cli"
+          },
+          {
+            "desc": "The updated M8 section preserves the original advisory-only text as historical rationale (via a \"Delivered differently\" callout, \"Historical note\" block, or equivalent clearly-marked subsection), not deleted or overwritten; WHY: confirms the B-3144 \"Delivered differently\" pattern was followed as required by the plan",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc documents section 4.3 registered-blocking-consumer-with-bypass-path pattern being exercised for the first time by a dev-memory consumer, satisfied via the existing reason-required decision values (captured/no-reusable-lesson/defer-with-reason) with no new bypass mechanism introduced; WHY: confirms the 4.3 precedent documentation was added as the plan requires",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The original M8 acceptance test text (\"missing decision is visible in runbook/advisory output\") is still present somewhere in the document as historical context, not replaced or deleted; WHY: plan explicitly requires preserving original text -- a reviewer grepping for that exact phrase must still find it",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc references the actual mechanism names matching shipped code: dev_memory_finish_decision, captured, no-reusable-lesson, defer-with-reason, canFinishGuard -- not placeholder/generic names; WHY: doc-code name divergence is a known high-severity finding pattern (B-3144 F-030 stale spec)",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc does NOT add new bypass mechanisms or new decision values beyond what the code ships (no invented values like \"skip\" or \"override\" that do not exist in the codebase) -- it only describes what is actually delivered; WHY: doc-code divergence creates false expectations for the next implementer reading the spec",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The original M8 section advisory-only text is NOT deleted or overwritten -- diff the file against main branch to confirm the pre-existing advisory text (e.g. \"missing decision is visible in runbook/advisory output\") still appears in the file, possibly inside a historical-rationale block; WHY: user explicitly flagged losing/deleting the original rationale as an adversarial failure mode",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc update does NOT describe the DONE gate as advisory-only when the code makes it blocking, or describe it as blocking in contexts where it is actually advisory -- the doc description of blocking vs advisory behavior must match the actual canFinishGuard code path; WHY: user explicitly flagged contradicting the shipped code as an adversarial failure mode",
+            "type": "cli"
+          },
+          {
+            "desc": "The doc update is committed to the branch (git log --oneline --diff-filter=M -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md shows at least one commit on the branch touching this file), not merely described in chat output; WHY: user explicitly flagged not-actually-committed as an adversarial failure mode",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
