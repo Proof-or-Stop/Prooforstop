@@ -162,7 +162,11 @@
           },
           {
             "desc": "handlers/playbook-runtime-memory.ts dev_memory_finish_decision writer imports finishDecisionPath from core module instead of defining it locally; WHY: single source of truth for the path, no duplicate definitions",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/handlers/playbook-runtime-memory.js\\\",\\\"utf8\\\").includes(\\\"finishDecisionPath, renderMemoryFreshnessPackSummary, } from \\x27../core/playbook-runtime-memory.js\\x27;\\\") ? \\\"HANDLERS_IMPORT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+              "selector": "HANDLERS_IMPORT_CONFIRMED"
+            }
           },
           {
             "desc": "canFinishGuard checks finish-decision AFTER existing test-evidence check (lines 877-882 pattern), so a story missing test evidence still fails on test-evidence first, not on finish-decision; WHY: guard ordering must not mask more fundamental blockers",
@@ -207,6 +211,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:24:49.078Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e \"console.log(require(\\\"fs\\\").readFileSync(\\\"packages/main/dist/handlers/playbook-runtime-memory.js\\\",\\\"utf8\\\").includes(\\\"finishDecisionPath, renderMemoryFreshnessPackSummary, } from \\x27../core/playbook-runtime-memory.js\\x27;\\\") ? \\\"HANDLERS_IMPORT_CONFIRMED\\\" : \\\"NOT_FOUND\\\")\"",
+          "result": "pass",
+          "note": "handlers/playbook-runtime-memory.ts's dev_memory_finish_decision writer imports finishDecisionPath from ../core/playbook-runtime-memory.js rather than defining its own local path-builder, matching the single-source-of-truth claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6f8b1b5647115fd4f0d16c8b15953f65e78be1093caecfa9d6472c327ec62c22",
+            "outputTail": "HANDLERS_IMPORT_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:24:56.430Z"
+          },
+          "headHash": "59f4b1f9abfa46ae9604c71c51d84995c91726d2",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:24:56.702Z"
         }
       ]
     },
