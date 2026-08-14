@@ -709,6 +709,39 @@
         "scanEscalationReason": null
       },
       "_hash": "83ac47ca5151c31000644e52698e2efe1cf761effca7f60681007698e5777eab"
+    },
+    {
+      "id": "B-9ff1:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 re-audit, three items. (1) Inertness of 8aa435b089: full diff read line-by-line across all 10 files; every changed line is a comment, docstring, description/reason/rationale string field, or a thrown/assertion-message string -- no control flow, signature, export, or behavior changed. tsc --noEmit -p packages/main: clean, exit 0, no output. (2) Durability of the canonical sentence: wrote a normalizer (strip // and * comment leaders and JS string-concat plumbing per line, collapse whitespace, then substring-match) and confirmed the exact 240-char sentence is byte-identical at all 12 occurrences across the 10 files (red-evidence.ts and the test file each carry it twice: once in a doc comment, once in the actual runtime string/assertion message); the test file's concatenation was verified to evaluate to the identical string via a live node -e check, not just visual inspection. On duplication-vs-constant: recommend a single exported constant (or at minimum a documented single source-of-truth pointer, which activity-policy.ts already gestures at) over continuing hand-copied prose, because this exact family has ALREADY drifted once outside the declared ten-file set: handlers/red-evidence.ts:238-242 (untouched by this commit, a catch-block error for a COMMITTED-target-binding git-read failure) states a similar but non-identical guarantee (past tense, no story-evidence-writers framing, no owner-session-token-store/health-log mention, no not-exhaustive disclaimer). It is not part of the ten sites and this round did not require touching it, but it is live proof that copy-paste-a-sentence is not self-healing across a file that already contains it in one place: nine rounds have now been spent catching staleness in the ten declared sites (F-037/038/039 this round; F-032/033 last round); an 11th sibling this close to the family shows the failure mode recurs even without a strict textual match. Not filed as a new finding (out of this commit's declared ten-file scope, pre-existing, and not required for F-037-039), but flagged because the question was asked directly and the counter-evidence exists at a knowable location. (3) Acceptance instrument: ran check-selectors.py for real -- 108 pinned selectors, 106 checked, 2 permanently waived (CHK-012:edge:1, CHK-013:adversarial:0), 7 distinct commands, all exit 0, all selectors present, largest at 89.0% of the 12000-char cap (red-w2d-rejection-matrix.mjs), OK exit 0. Verified against source: MAX_OUTPUT_CHARS=12000 and DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270000 in core/validation-executor.ts match the script's constants; checklist.ts enforceAndStampEvidence really does exitOk=run.code===0&&!run.timedOut plus selectorMatched=run.output.includes(pinSelector), matching the script's logic exactly; the real pin executor is runSingleAllowlistedCommand->parseAllowlistedCommand+runValidationCommand (allowlisted executable+argv, no shell, normalized env via effectiveValidationCommandEnvironment), confirming gap 1 as stated. The two disclosed gaps are the right ones to keep undone: both are honestly scoped, both are proven not to bite today (no current pin needs shell metacharacters; all 7 distinct commands are deterministic node test scripts with stable exit codes), and fixing either is real engineering disproportionate to a scratchpad audit aid. BUT there IS a third, undisclosed gap: the script's ANSI stripper (general CSI final-byte regex) is broader than production's stripAnsi in validation-executor.ts (SGR-only regex, m-terminated). Proved this is exploitable, not theoretical: constructed raw output with a non-SGR CSI code splitting a selector -- production's stripAnsi leaves the escape bytes in place so containment is false (receipt refused), while the script's broader regex deletes them and reports the selector present (false OK). This is exactly the failure mode asked about: the checker can say OK while the lifecycle would refuse. Checked whether it bites today: grepped all 7 current pinned commands actual stdout+stderr for ESC bytes -- zero in all seven, so today's OK stands correct, but the header's claim of exactly two remaining gaps is incomplete. Recommend either replacing the script's ANSI regex with the exact production regex (a one-line fix, strictly narrows what gets stripped, cannot make new false-OKs) or adding this as a disclosed third gap in the header. Not blocking this round since it does not affect the actual OK verdict for the current pin set, but it is real and should not be discovered by a future output that happens to include a non-color CSI code. (4) node scripts/verify-process-fact-contract.mjs: Process fact contract verified, exit 0, real 446-entry registry dump inspected in full. All five red-w2d-*.mjs (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix, specificity-conjunction): PASS, exit 0 each, real transcripts captured. dist/tasks/red-evidence-envelope-smoke.js: OK, exit 0. Minor correction to the implementer self-report: the new text is not fully apostrophe-free -- one possessive apostrophe survives in the red-evidence.ts JSDoc block comment (commands rejection report); harmless (block comments do not care about quote balance, tsc is clean, and the contract script passed with no drift flag), and the 12 actual canonical-sentence occurrences ARE apostrophe-free, but the blanket claim overstates it by one word. Nothing blocks.",
+      "createdAt": "2026-08-14T10:44:16.884Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-034",
+      "envelopeId": "b2f6376ce7ab87cc23967aabe090d35f50e196d4d69aaa7455719e87b90ba010",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5642b99a9e58db90e17bfc11828516191b035276aed07461b14fe9ade4d9743"
     }
   ]
 }
