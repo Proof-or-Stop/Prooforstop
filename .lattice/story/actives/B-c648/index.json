@@ -4,7 +4,7 @@
   "title": "Define a pre-story Mechanism Placement Proof gate for Proof-or-Stop",
   "description": "Write an audited architecture decision for a mandatory focused-research proof before Story ID allocation. Extend existing STORY_INTAKE and ProofStory mechanisms instead of introducing a parallel lifecycle. Define fail-closed verdicts, freshness and binding rules, rollout, implementation touchpoints, and a B-3783/root-npm-test worked example, then incorporate independent Claude CLI and agy CLI audits.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "pre-story",
@@ -33,6 +33,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-14T03:23:22.947Z",
+      "branch": "story/B-c648",
+      "user": "Harmonygo",
+      "sessionId": "sess-b8e739b8fd2495eddbb5351aaabd7221",
       "agent": "main"
     }
   ],

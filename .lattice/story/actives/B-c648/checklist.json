@@ -12,7 +12,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect pre-story Mechanism Placement Proof architecture document -> contract, lifecycle placement, artifact schemas, gate definitions, freshness rules, stop behavior, rollout steps, test definitions, and B-3783 worked example are fully documented; WHY: Ensures complete pre-story proof specification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Check boundary handling between pre-story intake proof vs PLAN verificationIntent and REVIEW/TEST/DONE phase evidence -> intake proof artifact remains strictly separated from post-allocation phase verification evidence; WHY: Prevents lifecycle stage confusion and evidence leakage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simulate missing or unverified pre-story proof artifact during story allocation attempt -> story allocation fails closed with explicit stop behavior; WHY: Guarantees Proof-or-Stop enforcement when mandatory proof is missing or invalid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
