@@ -264,9 +264,9 @@
           "packages/main/src/handlers/verifier.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-14T11:51:37.882Z",
-      "endTime": "2026-08-14T12:56:17.840Z",
+      "endTime": "2026-08-14T13:25:11.235Z",
       "excludes": [
         "packages/main/src/core/validation-executor.ts is read-only for this story: runSingleAllowlistedCommand already accepts options.timeoutMs, and resolveCommandTimeoutMs/executeValidationPlan/runValidationCommand are explicitly out of scope per scope-boundary.json - no modification, only imported (parseAllowlistedCommand) and invoked (runSingleAllowlistedCommand) as-is.",
         "packages/main/src/handlers/verifier.ts is read-only for this story: configuredValidationCommands is reused exactly as-is via a new import from checklist.ts; no modification to verifier.ts."
