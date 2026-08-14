@@ -21,6 +21,22 @@
   wired into `validate.commands`; `scripts/verify-process-fact-contract.mjs` now
   tracks the git-command tokens in the shared module.
 
+- **Root `npm test` now self-bootstraps `packages/utils` (B-fb7b).** Added a root
+  `pretest` script that builds `packages/main` then `packages/utils` before the
+  full suite runs. Previously `validate.commands` auto-built only `packages/main`,
+  so a worktree without `packages/utils/dist` ran the full suite (via
+  done_required's `npm test`) with utils absent, and any sub-test that spawns
+  `bin/lattice.js` aborted in `bootstrap-runner.js` with
+  `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires
+  through the npm lifecycle, closing the gap at the exact point utils is needed;
+  `dist` is gitignored and the build is deterministic, so the rebuild neither
+  dirties the tree nor conflicts with the `packages-main-build` proof (materialHash
+  is source-based). A fast structural guard (`test-suite-utils-autobuild-smoke`,
+  wired into `validate.commands`) plus a behavioral repro-first RED
+  (`packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs`) keep the pretest
+  from regressing. The worktree handler and `bootstrap-runner.js` are intentionally
+  left untouched (their human recovery hint stays).
+
 ## Proofbound 0.3.251 - 2026-07-31
 
 Dependency-security maintenance round: clears every high-severity advisory
