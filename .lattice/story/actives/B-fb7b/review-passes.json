@@ -592,6 +592,34 @@
         "scanEscalationReason": null
       },
       "_hash": "ffd26ee3458cb1cbac18f59556f24ab80d4a2a4d81d0a1aa968b4196c7c657e4"
+    },
+    {
+      "id": "B-fb7b:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Step1: git diff main...HEAD symbol extraction yielded 28 internal test/task-local symbols (RED_ABS, RED_REL, SMOKE_ABS, SMOKE_REL, mainIdx, utilsIdx, buildsMain, buildsUtils, etc. from the new smoke task and RED/guard-bite test files) -- none are doc-facing API names. Step2: grep of README.md/CLAUDE.md/docs/**/*.md for those symbols plus fallback-2 term search (pretest, test-suite-utils-autobuild-smoke, packages/utils/dist) found 0 symbol hits and 2 relevant paragraphs: the new CHANGELOG.md B-fb7b entry and the pre-existing docs/CLI.md:1049 manual utils-build recovery note (unmodified in this diff). Step3: compared both -- CHANGELOG.md entry (pretest builds main then utils, dist gitignored, structural smoke wired into validate.commands, behavioral RED guard) matches the code diff exactly (package.json pretest script line, lattice.config.json test-suite-utils-autobuild-smoke wiring, new packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts + red-fb7b-pretest-builds-utils.mjs + red-fb7b-guard-bite.mjs); docs/CLI.md:1049 is an unrelated global-CLI manual-recovery path, untouched and still accurate, no conflict with the new automated pretest. No doc-code drift, no promised-but-undelivered doc claims (Closing Self-Check). No blocker.",
+      "createdAt": "2026-08-14T09:42:39.148Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-024",
+      "envelopeId": "98cfe7ff6b48fdae215df489dcce7ed67f57d8348c32937957c8a94334048ef8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2f5651103e4b64b70502060f07531cb18ecf40d9a6534b7faf79ed01c8fe10f"
     }
   ]
 }
