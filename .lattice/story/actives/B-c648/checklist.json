@@ -47,7 +47,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execute independent Claude CLI and agy CLI architecture audits against draft document -> both CLI audits evaluate duplication, authority boundaries, bypasses, fail-closed behavior, freshness, process-fact registration, rollout safety, and test completeness; WHY: Verifies multi-agent architectural review.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reconcile conflicting audit findings between Claude CLI and agy CLI -> all accepted findings are incorporated into the document with clear disposition records for rejected findings; WHY: Ensures complete reconciliation and audit trail integrity.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to finalize architecture document with un-reconciled CLI audit findings or missing disposition records -> document verification fails validation; WHY: Prevents bypassing independent audit reconciliation controls.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
