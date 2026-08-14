@@ -22,7 +22,7 @@
       "desc": "checklist.json CHK-005:adversarial:0 (intentRef) evidence: verification command is `git diff main...HEAD -- docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md`, selector `\"missing decision is visible in runbook/advisory output\"` (no +/- diff-line prefix). The gate mechanism (packages/main/src/handlers/checklist.ts:645, `selectorMatched = run.output.includes(pinSelector)`) is a raw substring match over the entire diff output, so it cannot distinguish the phrase appearing on a preserved context line from it appearing on a removed `-` line. If the original M8 advisory text had actually been deleted (the exact adversarial scenario this intent claims to test: user explicitly flagged losing/deleting the original rationale as an adversarial failure mode), this same command+selector would still report pass, because a git-diff deletion still contains the phrase as substring text on the `-` line. The evidence note correctly reasons that todays diff has zero removed lines, but that reasoning is human-authored prose, not something the pinned command mechanically verifies going forward. A robust version of the same claim already exists at CHK-005:edge:0 (readFileSync(...).includes(...) against final file content) -- that pattern was not reused for adversarial:0.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-14T13:50:33.780Z",
@@ -30,7 +30,9 @@
       "reviewRunId": "B-a7c5:RR-003",
       "_hash": "f12c0952c2ed7fd39a735d860242079b60aa77db64a79b4810cb77f26812a832",
       "signatureTag": "adversarial|unknown|checklist-json-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed the reviewer's diagnosis: CHK-005:adversarial:0's pinned git-diff-substring command cannot discriminate preserved-vs-deleted (a removed - line still contains the substring). Attempted to re-bind stronger evidence to the same intentRef (verification_evidence_add refused: receipt-command-mismatch, the pin is immutable) and to a fresh custom intentRef (refused: intent_ref_unresolved, custom refs must still resolve to an authored verificationIntent -- there is no open slot to add a new mechanical check post-authoring). Given the tool does not support strengthening an already-pinned weak check, I independently re-verified the underlying claim directly: node -e reading the live file confirms 'missing decision is visible in runbook/advisory output' IS still present in docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md (M8_ORIGINAL_TEXT_PRESENT). This is also the exact same discriminating check already pinned and passing at CHK-005:edge:0, so the checklist item's overall claim is soundly proven by a sibling intent even though this one specific entry's evidence is weaker than ideal.",
+      "resolvedAt": "2026-08-14T13:53:19.099Z"
     },
     {
       "id": "B-a7c5:F-003",
