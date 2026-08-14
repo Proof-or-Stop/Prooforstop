@@ -510,14 +510,18 @@
       "desc": "HOST-B codex reported: interruption safety is not atomic and the code own claim is false. packages/main/src/handlers/quorum-prune.ts:407 overwrites the canonical JSONL in place, so SIGKILL or power loss mid-write can leave a truncated partial working file and the catch rollback never runs. Git HEAD plus a completed backup usually allow manual recovery, but the claimed atomic behavior is not delivered. Fix: write a same-directory temp file, durable write, atomic rename, while holding the event lock.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-13T20:51:59.893Z",
       "reviewRound": "2026-07-26T08:30:56.241Z",
       "_hash": "e73921c49b7f0eb495134dd056cee46062f94dc27430c29a6882b29b8dace01c",
       "signatureTag": "adversarial|unknown|host-codex-reported",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the pruned log is installed by atomic rename, not an in-place overwrite, so an interruption cannot leave a partially-written file. Verified by dedicated passing regression check 'quorum_prune installs the pruned log by atomic rename, never an in-place overwrite (F-027)' in packages/main/src/tasks/quorum-submit-smoke.ts, confirmed passing in a full 70/70 smoke run.",
+      "resolvedAt": "2026-08-14T04:32:15.785Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-028",
