@@ -4,7 +4,7 @@
   "title": "Freeze REVIEW candidates and require bounded multi-lane finding saturation before remediation DEV",
   "description": "B-cdf6 proved that four reviewer lanes were launched against one cutoff, but the first returned finding triggered a material commit before the remaining lanes terminated; later verdicts were bound to the old material and the Story re-entered REVIEW repeatedly. B-9812 reached 53 verified findings across 10 finding rounds, while B-74af re-entered DEV and REVIEW four times despite zero findings, so round count alone is neither completeness proof nor a safe optimization target. Implement one gate-consumed Frozen Review Inventory Epoch that binds a candidate to exact headHash, materialHash, storyFilesHash, scope and required lanes; runs independent discovery lenses plus the completeness critic; verifies raw findings and duplicate dispositions; and finalizes an inventory receipt only after all required lanes are terminal and one complete saturation wave adds zero new verified findings. An OPEN epoch must mechanically reject product, test, verifier and policy material mutation at the real write and commit boundaries. TIMEOUT, FAILED, CANCELLED, missing read or coverage evidence, duplicate reviewer identity, or a raw absence of output must never count as a clean wave. If the bounded wave budget is exhausted while new finding families continue, the lifecycle must require replan, decomposition, root-cause escalation or explicit human adjudication, never manufacture PASS. Finalization authorizes one remediation DEV entry with the aggregated finding inventory; it does not certify the old defective candidate, and any remediation material change requires fresh final review on the new material before TEST. Preserve all current required reviewer lanes, finding severity and evidence-state behavior, freshness rules, final validation, delivery and independent-host quorum. Explicit non-goals are atomic remediation closeout, PRE_CERT heavy-certification scheduling, evidence cache relaxation, lowering reviewer or host counts, and claiming absolute absence of all conceivable bugs.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -20,6 +20,15 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-08-14T13:42:11.866Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T13:48:36.037Z",
       "branch": "main",
       "user": "Pan Qi",
       "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
