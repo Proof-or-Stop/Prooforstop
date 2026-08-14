@@ -360,6 +360,42 @@
         "scanEscalationReason": null
       },
       "_hash": "705d6c6c2dc562f580768ac423296344b3db51c49fab4767f0acbfa0fdc31953"
+    },
+    {
+      "id": "B-9ff1:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Confirmed diff f0500c0e2d..HEAD (7 files: activity-policy.ts, command-catalog.ts, config.ts, red-evidence.ts, registry.ts, red-evidence-envelope-smoke.ts, red-w2d-command-readonly.mjs) is text/comment/assertion-message-only -- verified with a python filter over every added/removed diff line rejecting anything not a comment/string-literal edit; no matcher rule, validation logic, tag routing, digest, registration-set or config value moved. Traced every new factual claim to source: hook suppression (cli-engine.ts:1348/1351/1454/1457, both AND-gated on !isReadOnlyCommand with no OR escape) and writeCodexProcessEvent's early return (cli-engine.ts:1216, single-condition) are genuinely unconditional on isReadOnlyCommand; LATTICE_ACTIVITY_RECORD_READONLY is baked into GLOBAL_CODEX_FALLBACK_COMMAND (core/codex-adapter-checks.ts:57) and the generated Codex wrapper (init-assets.ts), confirmed a real mode not a test knob; STALE_WARNING_COOLDOWN_MS=30min in stale-detector.ts and the story/-branch precondition in detectActiveStoryId both check out; command-policy.ts's own red_evidence_envelope_check entry already reads 'writes no artifact/process event/chain record' so the new comments quote the source of truth verbatim. Read the full handler body (lines 378-467): readFileSync/store.readStory/git-read-only spawns only, zero write calls, so the four-category contract holds unconditionally at the handler level too -- confirms new text is not an overcorrection/hedge on something actually unconditional. Built dist fresh (build-main-with-binding.mjs) and ran real transcripts: node dist/tasks/red-evidence-envelope-smoke.js -> OK exit 0; all 5 tests/red/red-w2d-*.mjs -> PASS exit 0 each. Built a real fixture git repo+config+committed target-binding outside the repo and ran the ACTUAL node bin/lattice.js CLI end-to-end (not just direct handler calls): admissible envelope prints the ADMISSIBLE report with assertionDigest/binding/policyDigest and 'validated the envelope and executed nothing'; inadmissible prints 'NOT ADMISSIBLE' + tagged R1-2 rejections + 'No artifact, process event or chain record was written and no gate verdict changed' -- both true as an operator would read them (narrowly scoped, not a blanket nothing-at-all claim). Empirically confirmed the activity-row bypass claim itself: same fixture, same command, default env -> activity.jsonl untouched across two envelope-check calls; re-run with LATTICE_ACTIVITY_RECORD_READONLY=1 -> one new activity.jsonl row appended, exactly as the corrected comment describes. Also ran the real red_evidence_envelope_check CLI against this project's own root with an inadmissible envelope at a tmp path outside the repo (fail-closed on missing project-level redEvidence policy -- a real, distinct, already-accurate error path, not part of this diff). Swept for the defect class: grep for 'writes nothing' anywhere in packages/main/{src,tests,dist} returns zero hits scoped to red_evidence_envelope_check (all other hits belong to unrelated pre-existing commands in the same file, e.g. red_evidence_quarantine/recover's 'Nothing written.' lines, out of this story's surface); grep for nothing/never writes/no writes/guarantees across the 8 changed files shows every remaining absolute either belongs to a different command/function or is non-claim prose (comments explaining what a test file does NOT observe). No blocking findings; the repair correctly narrowed every claim to the true four-category contract without weakening the genuinely-unconditional hook/process-event suppression.",
+      "createdAt": "2026-08-14T04:05:00.441Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-020",
+      "envelopeId": "fb8f81a58ab4c6c5f92edeb8eb7f9be0a2eed0ecc2e84540f8cfbed185610c25",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88274d8c3cec89592a45f5f4c27c22c38a9e544dbd4101bb6b059044327003ca"
     }
   ]
 }
