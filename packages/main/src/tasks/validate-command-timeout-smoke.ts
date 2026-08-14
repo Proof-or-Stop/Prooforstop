@@ -111,16 +111,11 @@ void (async () => {
     // Settled well under "hang forever": timeoutMs(1000) + SIGKILL escalation(1000) + slop.
     check('process-group kill settled promptly (did not wait on the grandchild)', tree.durationMs < 6_000);
 
-    // 6. B-16df: runSingleAllowlistedCommand (the receipt path used by
-    //    verification_evidence_add / _batch_add / verification_run) MUST honor a
-    //    project's configured validate.commands[].timeoutMs override, exactly like
-    //    resolveCommandTimeoutMs does for the lattice-validate path exercised above. A
-    //    temp project root pins a ~1.5s command at a 700ms override via lattice.config.json;
-    //    calling runSingleAllowlistedCommand with the SAME command string and NO
-    //    options.timeoutMs must still be killed at ~700ms (timedOut, code 124), not run to
-    //    completion under the hardcoded 270s default. Currently RED: runSingleAllowlistedCommand
-    //    never reads lattice.config.json, so it always falls back to the 270s default and the
-    //    ~1.5s command completes normally (timedOut=false).
+    // 6. B-16df: the receipt path used by verification_evidence_add / _batch_add /
+    //    verification_run (checklist.ts's 4 runSingleAllowlistedCommand call sites) MUST
+    //    honor a project's configured validate.commands[].timeoutMs override, exactly like
+    //    resolveCommandTimeoutMs does for the lattice-validate path exercised above. A temp
+    //    project root pins a ~1.5s command at a 700ms override via lattice.config.json.
     const pinnedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-'));
     const pinnedCommand = 'node -e "setTimeout(() => {}, 1500)"';
     writeFileSync(
@@ -134,8 +129,26 @@ void (async () => {
       }, null, 2),
       'utf-8',
     );
-    const pinned = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, {});
-    check('configured validate.commands[].timeoutMs override honored (timedOut=true)', pinned.timedOut === true);
+
+    // 6a. PERMANENT characterization (stays true before AND after CHK-002): calling
+    //     runSingleAllowlistedCommand directly, bypassing checklist.ts's resolver, is
+    //     documented/by-design to keep using the 270s default -- this is not the bug being
+    //     fixed and must NOT be asserted as timedOut === true.
+    const direct = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot);
+    check('direct runSingleAllowlistedCommand call (no options.timeoutMs) keeps the 270s default (timedOut=false)', direct.timedOut === false);
+
+    // 6b. The real red->green assertion: exercises the actual fixed surface --
+    //     checklist.ts's resolvePinnedCommandTimeoutMs combined with
+    //     runSingleAllowlistedCommand, mirroring exactly what the 4 real call sites do.
+    //     Dynamic import (not a static top-level import) so this file still compiles even
+    //     before CHK-002 adds the export. Currently RED before CHK-002: the export does not
+    //     exist yet, so runSingleAllowlistedCommand is never given the configured override and
+    //     the ~1.5s command completes normally.
+    const checklistMod: any = await import('../handlers/checklist.js');
+    check('checklist.ts exports resolvePinnedCommandTimeoutMs', typeof checklistMod.resolvePinnedCommandTimeoutMs === 'function');
+    const resolved = checklistMod.resolvePinnedCommandTimeoutMs(pinnedRoot, pinnedCommand);
+    const pinned = await runSingleAllowlistedCommand(pinnedCommand, pinnedRoot, { timeoutMs: resolved });
+    check('configured validate.commands[].timeoutMs override honored via resolvePinnedCommandTimeoutMs (timedOut=true)', pinned.timedOut === true);
     check('configured validate.commands[].timeoutMs override attributed 124', pinned.code === 124);
 
     console.log(`validate-command-timeout smoke passed: ${passed} assertions`);
