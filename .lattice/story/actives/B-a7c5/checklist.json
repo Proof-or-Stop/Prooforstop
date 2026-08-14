@@ -1386,7 +1386,11 @@
         "edge": [
           {
             "desc": "The annotation references the correct mechanism names matching shipped code: dev-memory-preflight-ack (or dev_memory_preflight_ack) for CHK-001 and dev_memory_finish_decision for CHK-003 -- not placeholder or generic names; WHY: doc-code name divergence is a known high-severity finding pattern (B-3144 F-030 stale spec), the annotation must name the actual artifacts",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\"); const names=[\\\"dev-memory-preflight-ack.json\\\",\\\"dev_memory_preflight_ack\\\",\\\"dev_memory_finish_decision\\\"]; const missing=names.filter(n=>!s.includes(n)); console.log(missing.length===0 ? \\\"MECHANISM_NAMES_CONFIRMED\\\" : \\\"SOME_NAMES_MISSING:\\\"+missing.join(\\\",\\\"))\"",
+              "selector": "MECHANISM_NAMES_CONFIRMED"
+            }
           },
           {
             "desc": "The annotation does NOT introduce new Non-Goals, remove existing Non-Goals, or modify the other four Non-Goal bullet points (lines 160-162, 164) -- only the gate-checks bullet (line 163) gains the annotation; WHY: the change is scoped to one specific Non-Goal line, not a general Non-Goals rewrite",
@@ -1469,6 +1473,25 @@
           "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
           "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
           "timestamp": "2026-08-14T13:33:21.655Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "docs_check",
+          "command": "node -e \"const s=require(\\\"fs\\\").readFileSync(\\\"docs/requirements/decisions/dev-memory.md\\\",\\\"utf8\\\"); const names=[\\\"dev-memory-preflight-ack.json\\\",\\\"dev_memory_preflight_ack\\\",\\\"dev_memory_finish_decision\\\"]; const missing=names.filter(n=>!s.includes(n)); console.log(missing.length===0 ? \\\"MECHANISM_NAMES_CONFIRMED\\\" : \\\"SOME_NAMES_MISSING:\\\"+missing.join(\\\",\\\"))\"",
+          "result": "pass",
+          "note": "Checks all three real shipped artifact/command names (dev-memory-preflight-ack.json, dev_memory_preflight_ack, dev_memory_finish_decision) are present verbatim in the annotation, not placeholder names.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4e9a02f95e209a68cf35b69e6d32f4de5bc5f12bebd6896875ad2f3250125695",
+            "outputTail": "MECHANISM_NAMES_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T13:33:22.589Z"
+          },
+          "headHash": "41146cccc5a7fa64ee33b5f14ee5a540e562b9d4",
+          "materialHash": "bea7c45af8d42ef5c89400ffc14c84c9d640cbf197fed8b6de12d7ba1ae1b5b2",
+          "storyFilesHash": "9dd255b564f83dd032c92aee8acfb655b1072ed0e57dc35ef4a1dee6db176dc7",
+          "timestamp": "2026-08-14T13:33:22.709Z"
         }
       ]
     },
