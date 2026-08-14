@@ -23,7 +23,7 @@
       "userSees": "verification_evidence_add / _batch_add / verification_run against a pinned command with a configured timeoutMs override now respect that budget instead of always capping at 270s; commands with no configured override keep today's 270s default unchanged; the CHK-001 smoke passes.",
       "files": {
         "modify": [
-          "packages/main/src/core/validation-executor.ts"
+          "packages/main/src/handlers/checklist.ts"
         ],
         "create": [],
         "test": [

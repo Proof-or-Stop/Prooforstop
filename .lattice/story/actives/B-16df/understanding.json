@@ -1,0 +1,33 @@
+{
+  "task": "Make runSingleAllowlistedCommand (used by verification_evidence_add/_batch_add/verification_run) honor lattice.config.json's per-command validate.commands[].timeoutMs override instead of always capping at the 270s DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS.",
+  "outcome": "Running verification_evidence_add against node packages/main/dist/tasks/quorum-submit-smoke.js (configured in lattice.config.json at timeoutMs: 1200000) with result:pass no longer fails at [270.4s]. The command runs to completion (~356-360s) and the tool reports a normal mechanical receipt bound to the checklist item, instead of today's: verification evidence refused: pinned command exited 124 (timed out) but result:pass was claimed [receipt_exit_nonzero]. A pinned command with NO configured override still gets refused at exactly 270s as before (no behavior change for the common case).",
+  "facts": [
+    "runSingleAllowlistedCommand (validation-executor.ts:584-596) hardcodes timeoutMs: options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) and never reads lattice.config.json",
+    "All 4 call sites in checklist.ts (lines 1557, 1648, 1779, 1858) call runSingleAllowlistedCommand(command, root, { cwd }) and never pass timeoutMs",
+    "resolveCommandTimeoutMs (validation-executor.ts:72-80) is the only place that reads command.timeoutMs today, used by runValidationCommand/executeValidationPlan (the lattice validate path, lines 311 and 625) which already works correctly",
+    "configuredValidationCommands (handlers/verifier.ts:224-258) already normalizes both validate.commands[] config shapes (bare string vs {command,args,timeoutMs,...}) into ValidationCommand[] with .command/.args/.timeoutMs resolved",
+    "lattice.config.json:85 configures quorum-submit-smoke.js at timeoutMs: 1200000; commit c15e6dc864 documents a measured 617s runtime under load that justified the raise",
+    "validate-command-timeout-smoke.ts already covers resolveCommandTimeoutMs and the lattice validate path in depth but never references runSingleAllowlistedCommand, so this gap has zero regression coverage today",
+    "INIT review (lattice-review-story-init) flagged that verifier.ts already imports 5 exports from validation-executor.ts, so validation-executor.ts importing configuredValidationCommands back from verifier.ts would create a two-way circular import; checklist.ts already imports both and is imported by neither"
+  ],
+  "constraints": [
+    "Must not modify resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand) - out of scope per scope-boundary.json",
+    "Must not raise DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS globally - out of scope per scope-boundary.json",
+    "Must not require every caller to pass timeoutMs explicitly per call site - out of scope per scope-boundary.json",
+    "Must not change any configured timeoutMs value in lattice.config.json itself - out of scope per scope-boundary.json",
+    "A pinned command with no matching validate.commands[] entry must keep today's 270s default unchanged (no regression for the common case)",
+    "Must not introduce a circular import between core/validation-executor.ts and handlers/verifier.ts"
+  ],
+  "unknowns": [
+    "Exact module home for the new matching/lookup logic given the circular-import constraint: checklist.ts (imports both, imported by neither) vs a lazy/dynamic import inside validation-executor.ts vs a new shared module",
+    "Matching key: strict {command,args} array equality only, or also allow label-based matching (background.md flags this as an open design decision)",
+    "Whether configuredValidationCommands(root) should be invoked once per runSingleAllowlistedCommand call or reused from a value the caller already loaded elsewhere in checklist.ts"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/validation-executor.ts (runSingleAllowlistedCommand, lines 584-606)",
+    "packages/main/src/handlers/checklist.ts (4 call sites: 1557, 1648, 1779, 1858)",
+    "packages/main/src/handlers/verifier.ts (configuredValidationCommands, line 224)",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts (regression coverage)"
+  ],
+  "timestamp": "2026-08-14T11:27:38.620Z"
+}
