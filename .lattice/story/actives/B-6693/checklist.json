@@ -153,19 +153,19 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh mechanical receipt after final selector and concurrency fix.",
+          "note": "Current focused 15-group capacity contract after generation-token and direct validate deadline repair",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
+            "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T11:59:23.821Z"
+            "executedAt": "2026-08-15T13:24:53.054Z"
           },
-          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T11:59:23.968Z"
+          "headHash": "b16b3d181cc9095de38cf4090fa4a88f55ead454",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:24:53.212Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
