@@ -248,19 +248,19 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Current focused 15-group capacity contract after generation-token and direct validate deadline repair",
+          "note": "Current focused exact-15 contract with exact-12 child-process capacity stress",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0c5747715d2a0f64a8f10f7e95b3c8d37ad7e79408d8f2d8f70afe741b96a5d7",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 15 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T13:28:27.577Z"
+            "executedAt": "2026-08-15T19:52:58.811Z"
           },
-          "headHash": "7e1289a0cca29a46e5b0915644b8afb89e6e62a9",
-          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
-          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
-          "timestamp": "2026-08-15T13:28:27.726Z"
+          "headHash": "8721cd59b9dc7efa3666f6470f36b3b7314146ef",
+          "materialHash": "1f680ddd994dd4e9b2cd2c8eab56f8bc3083f8022b08574dc5ae53e0b7a21ad4",
+          "storyFilesHash": "dbd0e09f2c51e1f7bfa2cfe3ab04656560d91b5910fc00a347c680fc28350f59",
+          "timestamp": "2026-08-15T19:52:58.949Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
