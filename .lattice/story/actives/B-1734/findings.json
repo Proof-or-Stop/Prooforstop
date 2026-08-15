@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-1734:F-001",
+      "desc": "scripts/build-lock.mjs:19-23 BUILD_LOCK_OPTIONS retries={retries:120,minTimeout:200,maxTimeout:1000,factor:1} — with factor:1 the node `retry` package computes timeout=minTimeout*factor^attempt=minTimeout for EVERY attempt (verified via retry.timeouts(): 120 entries of exactly 200ms, sum=24000ms), so the real max wait for a contending builder is ~24s, NOT the ~120s implied by the code comment (\"retries make a concurrent builder wait (up to ~120 * 1s)\") and NOT scaled by maxTimeout (never reached). Neither withBuildLock (build-lock.mjs:44-53) nor either call site (scripts/build-main-with-binding.mjs:23, scripts/build-utils-with-binding.mjs:22) wraps `await withBuildLock(...)` in try/catch, so when lockfile.lock() exhausts retries it rejects with an uncaught ELOCKED error that crashes the waiter process (exit 1). Empirically reproduced: held the lock 26s (2s past the real 24s budget) in one process while a second called withBuildLock on the same key — the second process crashed with an unhandled `Error: Lock file is already being held { code: ELOCKED }` traceback, exit code 1. This repo's own clean two-package build already measures ~12.4s locally with no contention (timed via `time node scripts/ensure-dist.mjs`), leaving only ~2x margin against the true 24s budget (not the ~10x margin the ~120s comment implies) — a slower CI runner, larger future source tree, or genuine lock contention (main+utils share ONE lock by design) can plausibly exceed it, crashing a legitimate concurrent `npm test` instead of it waiting-then-succeeding. This is exactly the outcome CHK-001:adversarial:0 forbids (\"both must complete successfully\"). No test asserts the retry TIME budget — packages/main/tests/red/red-1734-lock-liveness.mjs:64-67 only checks retryCount >= 10, not the derived wait window given minTimeout/factor, so this gap is untested.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:58:30.222Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-003",
+      "_hash": "4de67f26fa0f46de96dab02b824d81c07e8cf958e152bfe15faa9bcd10a90dc4",
+      "signatureTag": "adversarial|unknown|scripts-build-lock",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
