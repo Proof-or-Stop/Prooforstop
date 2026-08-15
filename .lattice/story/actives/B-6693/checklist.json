@@ -706,12 +706,12 @@
           "kind": "docs_check",
           "file": "docs/CLI.md",
           "result": "pass",
-          "note": "Independent validate help, done-required help, and rg across docs/CLI.md, testing-infra.md, and done-full-test-gate-execution-plan.md confirmed shared workspace capacity, wait-and-run, and bare npm test outside-lease wording.",
+          "note": "Rechecked the final documentation and help boundary: official validate commands serialize; bare npm test remains outside the capacity lease.",
           "mechanical": false,
-          "headHash": "c73a4b5e91ef26c21407dd1027cbd490efd6d8e7",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:13:50.020Z"
+          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:28:40.872Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -753,60 +753,60 @@
         },
         {
           "intentRef": "CHK-003:edge:2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-003:edge:2: routine and DONE-required PASS evidence shapes, persistence under capacity, freshness behavior, and unchanged story evidence serialization.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:15:25.054Z"
+            "executedAt": "2026-08-15T00:29:59.777Z"
           },
-          "headHash": "4be92a41ace74cd61b669f2fac4656498e4d62c1",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:15:25.225Z"
+          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:29:59.944Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-003:edge:0: unchanged timeout/inventory inputs, unlocked representative reads, explicit bare-test boundary, both official handlers wired, and JSON stderr-only wait diagnostics.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:15:51.297Z"
+            "executedAt": "2026-08-15T00:29:01.340Z"
           },
-          "headHash": "a6c44f5cded5e0a5d97e7c01bd3f1437fb37688c",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:17:14.313Z"
+          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:29:01.454Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-003:edge:1: unchanged timeout/inventory inputs, unlocked representative reads, explicit bare-test boundary, both official handlers wired, and JSON stderr-only wait diagnostics.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:16:11.628Z"
+            "executedAt": "2026-08-15T00:29:21.920Z"
           },
-          "headHash": "a6c44f5cded5e0a5d97e7c01bd3f1437fb37688c",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:17:14.313Z"
+          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:29:22.034Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
