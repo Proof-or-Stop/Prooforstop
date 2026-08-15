@@ -8,6 +8,7 @@
     "packages/main/src/handlers/verdict.ts",
     "packages/main/src/tasks/validate-execution-lock-smoke.ts",
     "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
     "docs/CLI.md",
     "docs/requirements/decisions/testing-infra.md",
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
@@ -29,10 +30,10 @@
     "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
   ],
-  "scopeChangeReason": "REVIEW found a live production evidence writer in handlers/verdict.ts bypassing the workspace capacity layer; extend scope by exactly this file so all official story-validation writers share the global-to-story lock order and the live-owner regression is mechanically covered.",
+  "scopeChangeReason": "F-008 exposed that the managed checklist_update CLI cannot round-trip existing VerificationIntentPin values because command-schemas.ts omits the verification field that core/types.ts and stored checklist intents already support. Add exactly this schema file so PLAN can repair obsolete exact selectors through the authorized interface, never by direct Story JSON edits.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T15:29:58.959Z",
-  "updatedAt": "2026-08-15T10:45:13.086Z",
+  "updatedAt": "2026-08-15T11:51:50.629Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -54,6 +55,7 @@
     "packages/main/src/Direct bare npm test interception or wrapping": "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts"
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts"
   }
 }
