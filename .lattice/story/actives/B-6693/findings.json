@@ -646,7 +646,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:1875 — concept-cleanup verified HIGH: F-017 repinned the retired-authority guard from ef1c4e… to c38c840… in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, but the canonical process-fact verifier still requires the deleted ef1c4e… fingerprint. Repro: `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exits 0, while `node scripts/verify-process-fact-contract.mjs` exits 1 with `retired vocabulary guard must enforce narrow compatibility usage: ef1c4e...`. The repair is incomplete and canonical validation remains red; synchronize the verifier token to the independently audited c38c840… fingerprint and extend scope to this script before returning to REVIEW.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T21:47:35.145Z",
@@ -658,7 +658,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|mjs|scripts-verify-process",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 19422b0ccbe882272573ed4f53968e5acce19c56. Independent original repro `node scripts/verify-process-fact-contract.mjs` exited 0 and ended with `Process fact contract verified`. The verifier now expects the already-audited cli-engine canonical AST fingerprint c38c8402e4ae4a4ab38fe3dfeb69a99461c4a528ffbf76a1313c53b1912c8754; the benign runCli/initPath/import callsite is unchanged, and only the test-side whole-file fingerprint expectation changed. Production semantics are unchanged.",
+      "resolvedAt": "2026-08-15T22:23:48.192Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
