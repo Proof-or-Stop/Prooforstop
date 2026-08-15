@@ -92,6 +92,20 @@ function readMetaFindings(root: string): FindingData {
   return new StoryStore(root).readFindings(META_STORY_ID);
 }
 
+function seedLargeCommittedLegacyMetaHistory(root: string): string {
+  runGapLog(root, VALID);
+  const store = new StoryStore(root);
+  const data = store.readFindings(META_STORY_ID) as FindingData & { historyPadding?: string };
+  data.historyPadding = 'x'.repeat(1_400_000);
+  store.writeFindings(META_STORY_ID, data);
+  rmSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH), { force: true });
+  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'seed large legacy B-META history']);
+  const artifact = join(root, GAP_LOG_ARTIFACT_PATH);
+  assert.ok(readFileSync(artifact).length > 1024 * 1024, 'large legacy B-META artifact exceeds the default child-process buffer');
+  return artifact;
+}
+
 /**
  * Direct handler invocation that bypasses the CLI Zod schema.
  * CLAUDE.md "Handler coding conventions" requires runtime guards to reject even when callers
@@ -411,6 +425,33 @@ function assertNoWorktreeRequired(): void {
       'gap_log must succeed from a plain main project with no worktree');
     console.log('✓ gap-log-7: gap_log runs with no story worktree');
   } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
+  {
+    const root = createMainProject('lattice-gaplog-large-extension-');
+    try {
+      seedLargeCommittedLegacyMetaHistory(root);
+      const out = runGapLog(root, { ...VALID, evidence: 'large committed legacy history remains safely extendable' });
+      assert.match(out, /Gap logged: B-META-framework-audit:F-/, 'valid >1MiB committed history can be extended');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+  {
+    const root = createMainProject('lattice-gaplog-large-missing-worktree-');
+    try {
+      const artifact = seedLargeCommittedLegacyMetaHistory(root);
+      const beforeHead = git(root, ['rev-parse', 'HEAD']);
+      rmSync(artifact);
+      const out = runGapLogExpectFail(root, { ...VALID, evidence: 'missing worktree artifact must not become fresh genesis' });
+      assert.match(
+        out,
+        /committed B-META history could not be read|history is not extendable|require exact committed HEAD history/i,
+      );
+      assert.equal(existsSync(artifact), false, 'failed large-history genesis check writes no replacement artifact');
+      assert.equal(git(root, ['rev-parse', 'HEAD']), beforeHead, 'failed large-history genesis check writes no commit');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+  console.log('✓ gap-log large committed history: valid extension passes; missing worktree fails closed');
 }
 
 // ── 8: identical gap twice -> one canonical finding (B-f60c CHK-003 in-lock dedup) ──
@@ -944,6 +985,7 @@ function assertWrapperRootAuthorityParity(): void {
   assertBlankEvidenceRejected();
   assertContainerBootstrap();
   assertNoWorktreeRequired();
+  assertLargeLegacyHistoryIsFailClosedAndExtendable();
   assertIdenticalGapDeduped();
   assertDifferentGapsNotFalselyMerged();
   assertResolvedGapCanBeReLogged();

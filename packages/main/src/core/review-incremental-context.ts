@@ -38,6 +38,7 @@ import {
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
 import { verifyReviewRun } from './review-run.js';
+import { readGitBlobAt, type GitBlobReadResult } from './git-blob-reader.js';
 import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -591,22 +592,15 @@ function materialOnly(files: string[], projectRoot: string): string[] {
   return files.filter((file) => !isMaterialExcludedPath(file, projectRoot));
 }
 
-function gitFileAt(gitCwd: string, ref: string, path: string): string | null {
-  try {
-    return execFileSync('git', ['show', `${ref}:${path}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-  } catch {
-    return null;
-  }
+function gitFileAt(gitCwd: string, ref: string, path: string): GitBlobReadResult {
+  return readGitBlobAt(gitCwd, ref, path);
 }
 
-function fixtureCases(raw: string | null): Array<Record<string, unknown>> | null {
-  if (raw === null) return [];
+function fixtureCases(raw: GitBlobReadResult): Array<Record<string, unknown>> | null {
+  if (raw.status === 'missing') return [];
+  if (raw.status === 'error') return null;
   try {
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = JSON.parse(raw.content.toString('utf8')) as unknown;
     if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as { cases?: unknown }).cases)) return null;
     const cases = (parsed as { cases: unknown[] }).cases;
     if (!cases.every(value => value && typeof value === 'object' && !Array.isArray(value))) return null;

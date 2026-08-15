@@ -2,9 +2,9 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
@@ -616,6 +616,16 @@ try {
     store.writeStory(storyId, reviewStory);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'prepare actual cohort review fixture']);
+    const processEventsPath = join(store.storyDirPath(storyId), 'process-events.jsonl');
+    appendFileSync(processEventsPath, `${JSON.stringify({
+      type: 'plan_updated',
+      timestamp: '2026-07-23T12:30:00.000Z',
+      padding: 'x'.repeat(1_400_000),
+    })}\n`);
+    git(root, ['add', relative(root, processEventsPath)]);
+    git(root, ['commit', '-m', 'seed large immutable rollout history']);
+    assert.ok(readFileSync(processEventsPath).length > 1024 * 1024,
+      'acceptance rollout immutable quorum commit must exceed the default child-process buffer');
     const reviewLanes = [
       'lattice-review-concept',
       'lattice-review-quality',

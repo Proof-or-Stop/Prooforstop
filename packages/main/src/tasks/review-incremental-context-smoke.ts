@@ -1106,6 +1106,36 @@ function runFixtureDuplicateIdentityCases(): void {
   }
 }
 
+function runLargeFixtureReadFailureCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-large-read-'));
+  const storyId = 'B-large-fixture';
+  const fixturePath = 'cases.json';
+  const intentRef = `${storyId}:CHK-001:happy:0`;
+  try {
+    write(root, fixturePath, JSON.stringify({
+      cases: [{ _id: 'large-case', intentRef, expect: true, padding: 'x'.repeat(1_100_000) }],
+    }));
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed large fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, fixturePath, JSON.stringify({
+      cases: [{ _id: 'large-case', expect: false, padding: 'y'.repeat(1_100_000) }],
+    }));
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'change large fixture without intent binding']);
+    assert.equal(
+      fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+      false,
+      'large before/after read failures must not collapse to equal empty fixture sets',
+    );
+    console.log(`${MARKER} LARGE FIXTURE: >1MiB changed unbound case fails closed`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Case (d): GATE-UNCHANGED ASSERTION over deterministic git-free fixtures.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1737,6 +1767,7 @@ function runScheduleMutationTrial(): {
 function run(): void {
   runPolicyCases();
   runFixtureDuplicateIdentityCases();
+  runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
   const cutoffStarted = performance.now();

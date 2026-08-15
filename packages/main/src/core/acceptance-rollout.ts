@@ -9,6 +9,7 @@ import {
   verifyCanonical,
 } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 import {
   checkEvidenceFreshnessForGit,
   currentGitHead,
@@ -359,10 +360,11 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     throw new Error('acceptance rollout observation: restored control did not rerun PASS');
   }
   const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
-  const committedEvents = execFileSync('git', hardenedGitArgs(['show', `${quorum.metadataCommitSha}:${storyPath}`]), {
-    cwd: args.evidenceGitCwd,
-    encoding: 'utf8',
-  }).trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
+  const committedRead = readGitBlobAt(args.evidenceGitCwd, quorum.metadataCommitSha, storyPath);
+  if (committedRead.status !== 'ok') {
+    throw new Error(`acceptance rollout observation: immutable quorum process-events ${committedRead.status === 'missing' ? 'are missing' : `could not be read (${committedRead.reason})`}`);
+  }
+  const committedEvents = committedRead.content.toString('utf8').trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
   const committedVerdicts = committedEvents.filter(event => event.type === 'host_verdict');
   const committedById = new Map(committedVerdicts.map(event => [String(event.verdictId), event]));
   if (evidence.hostVerdicts.length !== 6

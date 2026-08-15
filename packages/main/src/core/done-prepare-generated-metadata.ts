@@ -6,6 +6,7 @@ import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
 import { classifySharedLifecycleMetadata } from './lifecycle-registry.js';
+import { BOUNDED_GIT_BLOB_MAX_BYTES } from './git-blob-reader.js';
 
 export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-generated-metadata.v1' as const;
 
@@ -565,15 +566,13 @@ function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string)
 // Lifecycle metadata can legitimately exceed Node's 1 MiB child-process
 // default (process-events.jsonl is append-only). Keep capture bounded while
 // allowing current large histories; exceeding this ceiling remains fail-closed.
-const IMMUTABLE_METADATA_BLOB_MAX_BUFFER = 16 * 1024 * 1024;
-
 function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): string | null {
   try {
     const content = childProcess.execFileSync('git', ['show', `:${path}`], {
       cwd: gitCwd,
       env: { ...process.env, GIT_INDEX_FILE: indexFile },
       stdio: ['pipe', 'pipe', 'pipe'],
-      maxBuffer: IMMUTABLE_METADATA_BLOB_MAX_BUFFER,
+      maxBuffer: BOUNDED_GIT_BLOB_MAX_BYTES,
     });
     return sha256(content);
   } catch {
@@ -591,7 +590,7 @@ function treeBlobHash(gitCwd: string, tree: string, path: string): string | null
     const content = childProcess.execFileSync('git', ['show', `${tree}:${path}`], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
-      maxBuffer: IMMUTABLE_METADATA_BLOB_MAX_BUFFER,
+      maxBuffer: BOUNDED_GIT_BLOB_MAX_BYTES,
     });
     return sha256(content);
   } catch {

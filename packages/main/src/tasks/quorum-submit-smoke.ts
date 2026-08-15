@@ -1786,6 +1786,16 @@ try {
       assert.equal(result.emittedCount, 6);
       assert.equal(hostVerdictEventCount(fixture.store), 6);
       assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'large immutable metadata tree is installed atomically');
+      const committedHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const beforeRetryEvents = hostVerdictEventCount(fixture.store);
+      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /quorum_submit refuses: verdicts already exist for runId/,
+        'the committed >1MiB process-events log remains the duplicate authority after cache deletion',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), committedHead, 'large same-material retry writes no commit');
+      assert.equal(hostVerdictEventCount(fixture.store), beforeRetryEvents, 'large same-material retry writes no event');
     });
   });
 
