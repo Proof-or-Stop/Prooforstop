@@ -377,7 +377,11 @@
             "id": "INT-CHK004-EDGE",
             "desc": "If a fixture is newly registered into validate.commands and/or test:serial-reference, the corresponding aggregate command (lattice validate and/or root npm test) still completes cleanly afterward with no new flakiness/timeout",
             "type": "cli",
-            "priority": "should"
+            "priority": "should",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -409,6 +413,25 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:52:15.442Z"
+        },
+        {
+          "intentRef": "INT-CHK004-EDGE",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "The one fixture actually registered into validate.commands (proofstory-acceptance-basis-smoke.js) still passes cleanly on its own; confirms registering it does not introduce flakiness. The two deferred fixtures were deliberately NOT registered, so no aggregate-command regression risk from them.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1fab61fa1f38ec6dcd8677d6b07de043761108e83720195276b25d2cf539fd39",
+            "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T21:08:16.033Z"
+          },
+          "headHash": "cd6d235543d9918697b7eeee416b63bdf07b91f2",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T21:08:16.161Z"
         }
       ]
     }
