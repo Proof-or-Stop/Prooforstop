@@ -234,6 +234,28 @@
         "scanEscalationReason": null
       },
       "_hash": "4b632412129994ad28886d72dd4f13bedf4868f04d36b903897b283cd54ad404"
+    },
+    {
+      "id": "B-3434:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Verified commit cd7372f15c (1 file, 4+/2-, docs/requirements/decisions/validation-evidence-artifact-growth.md) against the RR-040 finding it answers. (1) Internal consistency: read all three F-036 locations together -- the 'named change' paragraph (line 102: 'therefore sequenced after the boundary rather than independent of it'), the F-036 deferred-table row (line 117: 'not core/store.ts-free either ... so it is sequenced after the boundary'), and the post-table sizing paragraph (line 120, unchanged, discusses cost only and makes no scope claim). All three agree; no contradiction. (2) Read the new remedy back against the document's own F-033 section (lines 56-77): the F-033 defect is a second hand-typed copy of store.ts's formula compared against a third hand-typed copy in the smoke. The new remedy explicitly declines measurePersistedEvidenceBytes ('Not measurePersistedEvidenceBytes, and not a second copy of the formula') and instead prescribes one shared measure-only entry point (measureCanonicalBytes) used by both the search loop and the terminal check -- it does not reintroduce a duplicated-copy shape. (3) Verified the committed guard-paragraph counts against the committed file, two ways: grep of all four ids across the whole document, and a node script that deletes each deferred-table row and re-checks string containment (matching validation-evidence-buffer-smoke.ts's actual check, which is a plain rationaleText.includes(id) with no row-scoping). Result: F-033=2 other lines (73, 102), F-036=1 other line (102), F-037=5 other lines (54, 100, 102, 126, 128), F-035=0 other lines (row is its sole full-id mention, so deleting it fails) -- exact match to the committed '2, 1 and 5' and the F-035 fail claim; no off-by-one. Also confirmed the paragraph itself uses short-form ids ('F-033' not 'B-3434:F-033') so it does not inflate its own counts, matching the implementer's reported self-catch. (4) Residual-claim scan of the new text: grepped for the three declined pulls (routing-through-one-entry-point-implies-agreement phrasing, 'would have caught' language, and a closing 'F-035 is protected' claim) -- absent. Looked for a fourth: none found; the only pre-existing 'measured is the number written'-shaped sentences (lines 14 and 98) predate this diff and are unchanged by it. No new absolute claim introduced. (5) Ran real output: node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> validation-evidence-buffer-smoke: PASS (rationale bytes=18205, findingIdsNamed includes B-3434:F-033,F-034,F-035,F-036,F-037); node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> red-b3434-blob-buffer-ceiling: PASS. No source changed, dist untouched, both green. No blockers.",
+      "createdAt": "2026-08-15T23:01:50.678Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-041",
+      "envelopeId": "912d144d6e7c4c6d068cf8f891e233e445abf1a2eb3d8b732dba881e68a578cf",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d3e1571f2c14c0b7bafad39b6f451a5a7f730603f521736f5b0a9b84e91287ba"
     }
   ]
 }
