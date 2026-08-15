@@ -19,51 +19,95 @@
         "happy": [
           {
             "desc": "npm --prefix packages/main run build exits 0 — TypeScript compiles cleanly with the new case added to validate-command-timeout-smoke.ts.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Section 6 (6a/6b) exists in validate-command-timeout-smoke.ts: 6a calls runSingleAllowlistedCommand directly with a configured 700ms override and no options.timeoutMs, asserting timedOut===false (documenting the primitive's permanent direct-call default behavior); 6b dynamically imports checklist.js's resolvePinnedCommandTimeoutMs, resolves the same configured override, and calls runSingleAllowlistedCommand with it, asserting timedOut===true and code===124 (proving the config override reaches the spawn through the real fixed call path).",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Section 6b's genuine red-to-green history is formally recorded: red_evidence.json binds a live-reproduced pre-fix failure (baseline head ce9f57f, runSingleAllowlistedCommand ignoring the config, timedOut=false) to this story's acceptance target; the smoke's current passing run at section 6b is the recorded green counterpart of that same red state, independently confirmed by two stash-based reproductions during REVIEW (the CHK-001-correction implementer and lattice-review-concept).",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The commanded process runtime (~1.5s) is strictly above the configured timeoutMs (~700ms) but far below 270_000ms, so the test completes fast in BOTH the red state (command finishes in ~1.5s, well under 270s default) and the future green state (killed at ~700ms). No test path ever waits anywhere near 270 seconds.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "The test is hermetic: it writes lattice.config.json to a fresh os.tmpdir()-based projectRoot; no real project config or git-status side effects leak in or out.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Sections 1-5 (pre-existing resolveCommandTimeoutMs/lattice-validate-path coverage) and section 6a (the permanent direct-call characterization) all currently pass together in the same run as section 6b - the fix does not regress the pre-existing coverage this smoke already had before this story.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "The lattice.config.json written to the tmpdir is syntactically valid JSON and structurally correct for configuredValidationCommands to parse (object-form entry with command, args, and timeoutMs fields) — the config is real, not malformed; the bug is that runSingleAllowlistedCommand never consults it.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "The new case does NOT pass options.timeoutMs (or timeoutMs in any options object) to runSingleAllowlistedCommand. If it did, the configured-override bug would be bypassed and the test would be meaninglessly green on main — a false-green RED test.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "The new case calls runSingleAllowlistedCommand specifically — NOT runValidationCommand or executeValidationPlan (those paths already honor timeoutMs and are covered by sections 3-5). The test must exercise the exact function the evidence tools use.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Section 6b's current PASS is attributable specifically to the timedOut===true/code===124 assertions succeeding (not merely not-throwing) - confirmed by reading the assertion source directly, and by the red_evidence.json record showing the pre-fix failure was exactly this same assertion (not a config parse failure, allowlist rejection, import error, or missing temp file).",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "The command string passed to runSingleAllowlistedCommand uses a bare allowlisted executable (e.g. node) as its first token so it passes parseAllowlistedCommand allowlist check — the test must not fail at the allowlist gate.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "No new entry is added to the project-root lattice.config.json (the smoke is already registered there per its docstring); the temp config is written only to the ephemeral tmpdir projectRoot.",
@@ -81,116 +125,212 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch (see other waivers on this story). Build-success entailment: the pinned smoke script structurally cannot produce a passing receipt unless npm --prefix packages/main run build already succeeded (dist/ must exist and be current). Independently, this exact build command ran clean many times across this stories DEV rounds.",
-          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "note": "npm --prefix packages/main run build exits 0 — TypeScript compiles cleanly with the new case added to validate-command-timeout-smoke.ts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:04.840Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:36:29.102Z"
+          "timestamp": "2026-08-15T11:00:31.557Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Intent text describes the pre-correction single-assertion design; plan.md CORRECTION note (## CHK-001) documents that design could never turn green after CHK-002 and was replaced by the actually-implemented 6a/6b split (commit 63ecf79d5b), which fulfills the intents underlying goal even though the literal mechanism described in the frozen intent text differs.",
-          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "note": "Section 6 (6a/6b) exists in validate-command-timeout-smoke.ts: 6a calls runSingleAllowlistedCommand directly with a configured 700ms override and no options.timeoutMs, asserting timedOut===false (documenting the primitive's permanent direct-call default behavior); 6b dynamically imports checklist.js's resolvePinnedCommandTimeoutMs, resolves the same configured override, and calls runSingleAllowlistedCommand with it, asserting timedOut===true and code===124 (proving the config override reaches the spawn through the real fixed call path).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:11.557Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:36:29.102Z"
+          "timestamp": "2026-08-15T11:00:31.557Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Describes RED (pre-fix) behavior on current main - inherently cannot be evidenced by any CURRENT command run. Genuinely observed and formally recorded: red_evidence.json bound to baseline head ce9f57f; the CHK-001-correction implementers stash-based reproduction; and the lattice-review-concept reviewers independent stash-based re-reproduction during REVIEW round 1.",
-          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "note": "Section 6b's genuine red-to-green history is formally recorded: red_evidence.json binds a live-reproduced pre-fix failure (baseline head ce9f57f, runSingleAllowlistedCommand ignoring the config, timedOut=false) to this story's acceptance target; the smoke's current passing run at section 6b is the recorded green counterpart of that same red state, independently confirmed by two stash-based reproductions during REVIEW (the CHK-001-correction implementer and lattice-review-concept).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:18.319Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:36:29.102Z"
+          "timestamp": "2026-08-15T11:00:31.557Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The commanded process runtime (~1.5s) is strictly above the configured timeoutMs (~700ms) but far below 270_000ms, so the test completes fast in BOTH the red state (command finishes in ~1.5s, well under 270s default) and the future green state (killed at ~700ms). No test path ever waits anywhere near 270 seconds.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:24.998Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.557Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The test is hermetic: it writes lattice.config.json to a fresh os.tmpdir()-based projectRoot; no real project config or git-status side effects leak in or out.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:31.785Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Same red-state limitation as CHK-001:happy:2 (see that entry) - evidenced by red_evidence.json plus two independent stash-based reproductions, not by any current-state command run.",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Sections 1-5 (pre-existing resolveCommandTimeoutMs/lattice-validate-path coverage) and section 6a (the permanent direct-call characterization) all currently pass together in the same run as section 6b - the fix does not regress the pre-existing coverage this smoke already had before this story.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:38.508Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The lattice.config.json written to the tmpdir is syntactically valid JSON and structurally correct for configuredValidationCommands to parse (object-form entry with command, args, and timeoutMs fields) — the config is real, not malformed; the bug is that runSingleAllowlistedCommand never consults it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:45.271Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The new case does NOT pass options.timeoutMs (or timeoutMs in any options object) to runSingleAllowlistedCommand. If it did, the configured-override bug would be bypassed and the test would be meaninglessly green on main — a false-green RED test.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:51.983Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The new case calls runSingleAllowlistedCommand specifically — NOT runValidationCommand or executeValidationPlan (those paths already honor timeoutMs and are covered by sections 3-5). The test must exercise the exact function the evidence tools use.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:57:58.682Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Same red-state limitation as CHK-001:happy:2 (see that entry) - evidenced by red_evidence.json plus two independent stash-based reproductions, not by any current-state command run.",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Section 6b's current PASS is attributable specifically to the timedOut===true/code===124 assertions succeeding (not merely not-throwing) - confirmed by reading the assertion source directly, and by the red_evidence.json record showing the pre-fix failure was exactly this same assertion (not a config parse failure, allowlist rejection, import error, or missing temp file).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:05.324Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The command string passed to runSingleAllowlistedCommand uses a bare allowlisted executable (e.g. node) as its first token so it passes parseAllowlistedCommand allowlist check — the test must not fail at the allowlist gate.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:11.976Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -235,71 +375,123 @@
           {
             "id": "H-001",
             "desc": "Configured timeoutMs flows to runSingleAllowlistedCommand: build succeeds (npm --prefix packages/main run build) and CHK-001 RED case now passes (node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0). The 700ms-configured command that sleeps ~1.5s yields timedOut===true and code===124, proving the config override was threaded through all the way to the spawn.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "H-002",
             "desc": "All 4 call sites route through the single shared resolvePinnedCommandTimeoutMs helper. Diff of checklist.ts shows exactly 4 call sites (~lines 1557, 1648, 1779, 1858) changed from (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }) to include timeoutMs: resolvePinnedCommandTimeoutMs(root, command). No duplicated matching logic exists outside the one helper.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "H-003",
             "desc": "validation-executor.ts and verifier.ts are byte-for-byte unmodified: git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output. resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, and configuredValidationCommands are all reused read-only.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "H-004",
             "desc": "Unmatched commands preserve the 270s default. resolvePinnedCommandTimeoutMs returns match?.timeoutMs. When no configuredValidationCommands entry matches by exact {command,args}, match is undefined so the return is undefined. This feeds into runSingleAllowlistedCommand options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) at line 595, preserving today s behavior for unconfigured commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "edge": [
           {
             "id": "E-001",
             "desc": "Bare-string config entries (no args/timeoutMs object) do not inject a spurious timeout. configuredValidationCommands handles bare strings via commandFromString which never sets timeoutMs. resolvePinnedCommandTimeoutMs finds a match but match.timeoutMs is undefined, so it returns undefined and runSingleAllowlistedCommand falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. No behavioral change for bare-string configured commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "E-002",
             "desc": "Parsing parity between tokenizeCommandString (used by parseAllowlistedCommand on the pinned command) and splitShellWords (used by commandFromString on bare-string config entries). For allowlist-legal commands (no shell metacharacters — blocked by VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and SHELL_META_RE), both tokenizers produce identical {executable, args}. Verify no divergence for quoting or whitespace in allowlist-legal commands.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "E-003",
             "desc": "Shell-style config entries (shell:true) cannot false-positive-match pinned commands. configuredValidationCommands sets shell:true and stores the entire raw string in .command with empty .args for entries containing shell metacharacters. parseAllowlistedCommand rejects shell metacharacters via the allowlist. Therefore no pinned command can ever have an executable matching a shell-style entry. The strict {command,args} match correctly returns undefined.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "E-004",
             "desc": "Config entry with timeoutMs:0 or negative value. configuredValidationCommands passes through typeof entry.timeoutMs === number entries verbatim. resolvePinnedCommandTimeoutMs returns that value. runSingleAllowlistedCommand sets options.timeoutMs to 0 (not nullish). But resolveCommandTimeoutMs (line 76) rejects non-positive values and falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The existing safety net handles this — no new vulnerability introduced.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "E-005",
             "desc": "Import does not create a circular dependency. tsc build succeeds (npm --prefix packages/main run build). Import graph is one-way: checklist.ts imports from verifier.ts (new edge for configuredValidationCommands) and from validation-executor.ts (existing edge, now also parseAllowlistedCommand). Neither verifier.ts nor validation-executor.ts imports from checklist.ts.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "adversarial": [
           {
             "id": "A-001",
             "desc": "Attacker crafts a pinned command with extra whitespace or quoting to evade timeout matching. parseAllowlistedCommand normalizes via tokenizeCommandString (strips quotes, collapses whitespace). configuredValidationCommands normalizes via splitShellWords (identical behavior for allowlist-legal inputs). Both produce the same canonical {executable, args} for equivalent commands. Extra whitespace or redundant quoting is stripped during tokenization — an attacker cannot use formatting tricks to dodge a configured timeout because matching operates on parsed tokens, not raw strings.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "A-002",
             "desc": "Attacker pins a command sharing only the executable (same node binary, different args) to steal a high-timeout config entry budget. resolvePinnedCommandTimeoutMs matches by strict equality on BOTH c.command === executable AND full args array (length + element-wise ===). A command sharing only the executable but differing in any single arg returns no match, falling back to the 270s default. CHK-003 adds explicit regression coverage for this disambiguation case.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "A-003",
             "desc": "Attacker modifies lattice.config.json to inject a very large timeoutMs hoping to hang evidence collection indefinitely. Not a new attack surface — lattice.config.json is already trusted project configuration (same trust boundary as validate.commands used by lattice validate). resolveCommandTimeoutMs already clamps to MAX_NODE_TIMER_DELAY_MS. The fix reuses the identical code path (runValidationCommand -> resolveCommandTimeoutMs) that already enforces this ceiling. No new unbounded timeout vector.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "id": "A-004",
             "desc": "TOCTOU architectural claim confirmed by direct source reading (not by a dynamic race-simulation test, since a single deterministic run cannot demonstrate a race's absence): resolvePinnedCommandTimeoutMs and runSingleAllowlistedCommand's call sites in checklist.ts read config synchronously via loadConfig then capture the resolved value in a local variable before the async spawn - byte-for-byte the same pattern as the pre-existing lattice-validate path (runValidationCommand -> resolveCommandTimeoutMs), independently confirmed by two REVIEW-phase reviewers reading the actual source.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ]
       },
@@ -313,138 +505,250 @@
       "verificationEvidence": [
         {
           "intentRef": "H-001",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 6a/6b, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Configured timeoutMs flows to runSingleAllowlistedCommand: build succeeds (npm --prefix packages/main run build) and CHK-001 RED case now passes (node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0). The 700ms-configured command that sleeps ~1.5s yields timedOut===true and code===124, proving the config override was threaded through all the way to the spawn.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:18.657Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "H-002",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely, mechanically covered by validate-command-timeout-smoke.ts section 13 (commit cc9aa30579), which runs on every `lattice validate` invocation and currently passes.",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "All 4 call sites route through the single shared resolvePinnedCommandTimeoutMs helper. Diff of checklist.ts shows exactly 4 call sites (~lines 1557, 1648, 1779, 1858) changed from (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }) to include timeoutMs: resolvePinnedCommandTimeoutMs(root, command). No duplicated matching logic exists outside the one helper.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:25.289Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "H-003",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely, mechanically covered by validate-command-timeout-smoke.ts section 12 (commit cc9aa30579), which runs on every `lattice validate` invocation and currently passes.",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "validation-executor.ts and verifier.ts are byte-for-byte unmodified: git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output. resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, and configuredValidationCommands are all reused read-only.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:31.902Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "H-004",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 7, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Unmatched commands preserve the 270s default. resolvePinnedCommandTimeoutMs returns match?.timeoutMs. When no configuredValidationCommands entry matches by exact {command,args}, match is undefined so the return is undefined. This feeds into runSingleAllowlistedCommand options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) at line 595, preserving today s behavior for unconfigured commands.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:38.537Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "E-001",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch (see other 31 waivers on this story for full context). CORRECTED per REVIEW finding B-16df:F-008: section 9 originally used a fixture that accidentally took the shell-style code path (same as section 10/E-003), not the plain bare-string path. Fixed in commit 97b03047c0 - the fixture is now node --version (no shell metacharacters), genuinely exercising the non-shell branch and confirmed via a new structural check. Passes as part of the 45-assertion suite.",
-          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "note": "Bare-string config entries (no args/timeoutMs object) do not inject a spurious timeout. configuredValidationCommands handles bare strings via commandFromString which never sets timeoutMs. resolvePinnedCommandTimeoutMs finds a match but match.timeoutMs is undefined, so it returns undefined and runSingleAllowlistedCommand falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. No behavioral change for bare-string configured commands.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:45.181Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:25:57.604Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "E-002",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: this claim (tokenizeCommandString/splitShellWords parsing parity) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 15: a bare-string config entry with irregular whitespace/quoting is matched against the canonical pinned command form, proving both tokenizers normalize equivalently for allowlist-legal input. Passes as part of the 45-assertion suite.",
-          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "note": "Parsing parity between tokenizeCommandString (used by parseAllowlistedCommand on the pinned command) and splitShellWords (used by commandFromString on bare-string config entries). For allowlist-legal commands (no shell metacharacters — blocked by VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and SHELL_META_RE), both tokenizers produce identical {executable, args}. Verify no divergence for quoting or whitespace in allowlist-legal commands.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:51.818Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:25:57.604Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "E-003",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 10, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Shell-style config entries (shell:true) cannot false-positive-match pinned commands. configuredValidationCommands sets shell:true and stores the entire raw string in .command with empty .args for entries containing shell metacharacters. parseAllowlistedCommand rejects shell metacharacters via the allowlist. Therefore no pinned command can ever have an executable matching a shell-style entry. The strict {command,args} match correctly returns undefined.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:58:58.463Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "E-004",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 11, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Config entry with timeoutMs:0 or negative value. configuredValidationCommands passes through typeof entry.timeoutMs === number entries verbatim. resolvePinnedCommandTimeoutMs returns that value. runSingleAllowlistedCommand sets options.timeoutMs to 0 (not nullish). But resolveCommandTimeoutMs (line 76) rejects non-positive values and falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The existing safety net handles this — no new vulnerability introduced.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:05.125Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "E-005",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Build-success + import-graph entailment: same build-success entailment as CHK-001:happy:0. The no-circular-dependency half is covered directly by H-002 (section 13, exact-4-call-site check) plus the smokes own section 6b dynamic import of checklist.js resolving cleanly at runtime.",
-          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "note": "Import does not create a circular dependency. tsc build succeeds (npm --prefix packages/main run build). Import graph is one-way: checklist.ts imports from verifier.ts (new edge for configuredValidationCommands) and from validation-executor.ts (existing edge, now also parseAllowlistedCommand). Neither verifier.ts nor validation-executor.ts imports from checklist.ts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:11.758Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:36:29.102Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "A-001",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: this claim (whitespace/quoting evasion resistance) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 15 (same case as E-002): extra whitespace/quoting around an otherwise-plain command still resolves to the correct timeoutMs, proving formatting tricks cannot evade matching. Passes as part of the 45-assertion suite.",
-          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "note": "Attacker crafts a pinned command with extra whitespace or quoting to evade timeout matching. parseAllowlistedCommand normalizes via tokenizeCommandString (strips quotes, collapses whitespace). configuredValidationCommands normalizes via splitShellWords (identical behavior for allowlist-legal inputs). Both produce the same canonical {executable, args} for equivalent commands. Extra whitespace or redundant quoting is stripped during tokenization — an attacker cannot use formatting tricks to dodge a configured timeout because matching operates on parsed tokens, not raw strings.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:18.387Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:25:57.604Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "A-002",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Attacker pins a command sharing only the executable (same node binary, different args) to steal a high-timeout config entry budget. resolvePinnedCommandTimeoutMs matches by strict equality on BOTH c.command === executable AND full args array (length + element-wise ===). A command sharing only the executable but differing in any single arg returns no match, falling back to the 270s default. CHK-003 adds explicit regression coverage for this disambiguation case.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:25.022Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "A-003",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely, mechanically covered by validate-command-timeout-smoke.ts section 14 (commit cc9aa30579), which runs on every `lattice validate` invocation and currently passes.",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Attacker modifies lattice.config.json to inject a very large timeoutMs hoping to hang evidence collection indefinitely. Not a new attack surface — lattice.config.json is already trusted project configuration (same trust boundary as validate.commands used by lattice validate). resolveCommandTimeoutMs already clamps to MAX_NODE_TIMER_DELAY_MS. The fix reuses the identical code path (runValidationCommand -> resolveCommandTimeoutMs) that already enforces this ceiling. No new unbounded timeout vector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:31.681Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "A-004",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER: evidence pin permanently locked to a stale selector from a premature earlier batch. Design-reasoning claim (TOCTOU race window identical to the pre-existing lattice-validate path) not mechanically testable by a single deterministic assertion - a races absence cannot be proven by one run. Architectural justification: both the new resolvePinnedCommandTimeoutMs path and the pre-existing lattice-validate path read config synchronously via loadConfig then capture the value in a local before an async spawn - identical risk profile, no new exposure.",
-          "headHash": "2105b905e6ab6693707f096c848736841ab76aac",
+          "note": "TOCTOU architectural claim confirmed by direct source reading (not by a dynamic race-simulation test, since a single deterministic run cannot demonstrate a race's absence): resolvePinnedCommandTimeoutMs and runSingleAllowlistedCommand's call sites in checklist.ts read config synchronously via loadConfig then capture the resolved value in a local variable before the async spawn - byte-for-byte the same pattern as the pre-existing lattice-validate path (runValidationCommand -> resolveCommandTimeoutMs), independently confirmed by two REVIEW-phase reviewers reading the actual source.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:38.300Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:36:29.102Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         }
       ]
     },
@@ -467,39 +771,71 @@
         "happy": [
           {
             "desc": "Write a temp lattice.config.json to a fresh tmpdir projectRoot with two validate.commands[] entries sharing the same executable (node) but with different args arrays and different timeoutMs values (e.g. 700 and 5000). For each entry, call resolvePinnedCommandTimeoutMs(root, pinnedCommandString) where pinnedCommandString parses to the exact same {executable, args} as that config entry. Assert each call returns that entry's own exact timeoutMs value, not the other's. WHY: proves the matching logic compares the full {command, args} tuple and returns the correct per-entry budget.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "The full smoke suite (sections 1-5 from prior CHK items plus CHK-001's section 6) still passes after adding the new CHK-003 assertions — the total assertion count logged on the final 'passed: N assertions' line increases but no pre-existing assertion regresses. WHY: ensures CHK-003's additions are purely additive and do not break earlier coverage.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "All new assertions are pure synchronous calls to resolvePinnedCommandTimeoutMs against a temp lattice.config.json — no real timed subprocess waits — so the test completes in sub-second time regardless of the timeoutMs values declared in config. WHY: CHK-003's intent is unit-level coverage of the matching logic; adding wall-clock waits would make the smoke slow and fragile.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Unmatched-default: the temp config has one or more configured validate.commands[] entries, but the pinned command string parses to an {executable, args} pair that matches NONE of them (different args or entirely different executable). Assert resolvePinnedCommandTimeoutMs returns undefined — not zero, not the first entry's timeoutMs, not DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The undefined return is the signal for the caller to fall through to the 270s default via the existing options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS path. WHY: the common case (a pinned command with no config override) must remain unchanged.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Args-length mismatch: config entry has args [a, b] with timeoutMs X; pinned command has the same executable but only args [a] (a strict prefix of the config entry's args). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: must not partial-match on a prefix of the args array — the args.length guard fires before element comparison.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "Args-content mismatch: config entry has args [-e, foo] with timeoutMs X; pinned command has the same executable and same args length but different content ([-e, bar]). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: element-wise string equality is required, not just length equality; proves the every() comparator fires.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Cross-match by executable alone: temp config has TWO entries with the same executable (node) but distinct args arrays and distinct timeoutMs values. For each of the two corresponding pinned command strings, assert resolvePinnedCommandTimeoutMs returns that specific entry's own timeoutMs — never the other entry's value. A naive implementation that matches by executable alone (or returns the first match regardless of args) would return the wrong budget for one of the two commands. WHY: this is the exact cross-match-by-executable-alone defect the plan's title warns about.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           },
           {
             "desc": "No silent wrong match: when the pinned command's executable matches a config entry's command field but the args differ, the helper must return undefined rather than returning the wrong entry's timeoutMs. Assert that for a pinned command whose executable exists in config but whose args match no entry, the return value is strictly undefined (=== undefined). This distinguishes a clean 'no match' (caller safely falls through to 270s) from a silent 'wrong match' (caller unknowingly applies another command's budget — a latent timeout bug that could either truncate a legitimate long-running receipt or over-extend a budget for a command that should be killed sooner). WHY: undefined is the only safe sentinel; any numeric return from an unmatched lookup is a potential misattribution.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
           }
         ]
       },
@@ -513,84 +849,155 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Write a temp lattice.config.json to a fresh tmpdir projectRoot with two validate.commands[] entries sharing the same executable (node) but with different args arrays and different timeoutMs values (e.g. 700 and 5000). For each entry, call resolvePinnedCommandTimeoutMs(root, pinnedCommandString) where pinnedCommandString parses to the exact same {executable, args} as that config entry. Assert each call returns that entry's own exact timeoutMs value, not the other's. WHY: proves the matching logic compares the full {command, args} tuple and returns the correct per-entry budget.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:44.909Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section whole-file (assertion count), part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "The full smoke suite (sections 1-5 from prior CHK items plus CHK-001's section 6) still passes after adding the new CHK-003 assertions — the total assertion count logged on the final 'passed: N assertions' line increases but no pre-existing assertion regresses. WHY: ensures CHK-003's additions are purely additive and do not break earlier coverage.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:51.530Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 7/8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "All new assertions are pure synchronous calls to resolvePinnedCommandTimeoutMs against a temp lattice.config.json — no real timed subprocess waits — so the test completes in sub-second time regardless of the timeoutMs values declared in config. WHY: CHK-003's intent is unit-level coverage of the matching logic; adding wall-clock waits would make the smoke slow and fragile.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T10:59:58.171Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 7, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Unmatched-default: the temp config has one or more configured validate.commands[] entries, but the pinned command string parses to an {executable, args} pair that matches NONE of them (different args or entirely different executable). Assert resolvePinnedCommandTimeoutMs returns undefined — not zero, not the first entry's timeoutMs, not DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The undefined return is the signal for the caller to fall through to the 270s default via the existing options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS path. WHY: the common case (a pinned command with no config override) must remain unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:00:04.800Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): evidence pin permanently locked to a stale selector from a premature earlier batch. CORRECTED per REVIEW finding B-16df:F-008: args-length strict-prefix mismatch (distinct from edge:2's equal-length content mismatch) previously had zero dedicated assertion. Fixed in commit 97b03047c0, section 16: a pinned command using only a strict prefix of a configured entry's args correctly resolves to undefined, not a partial match. Passes as part of the 45-assertion suite.",
-          "headHash": "b36ae7e37a0f2ec2ca3b7aacb8f6adf7e6234221",
+          "note": "Args-length mismatch: config entry has args [a, b] with timeoutMs X; pinned command has the same executable but only args [a] (a strict prefix of the config entry's args). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: must not partial-match on a prefix of the args array — the args.length guard fires before element comparison.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:00:11.421Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
           "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
           "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
-          "timestamp": "2026-08-14T13:25:57.604Z"
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Args-content mismatch: config entry has args [-e, foo] with timeoutMs X; pinned command has the same executable and same args length but different content ([-e, bar]). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: element-wise string equality is required, not just length equality; proves the every() comparator fires.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:00:18.076Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Cross-match by executable alone: temp config has TWO entries with the same executable (node) but distinct args arrays and distinct timeoutMs values. For each of the two corresponding pinned command strings, assert resolvePinnedCommandTimeoutMs returns that specific entry's own timeoutMs — never the other entry's value. A naive implementation that matches by executable alone (or returns the first match regardless of args) would return the wrong budget for one of the two commands. WHY: this is the exact cross-match-by-executable-alone defect the plan's title warns about.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:00:24.732Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "PIN-UNSATISFIABLE WAIVER (not an unverified claim): this intentRef's evidence pin was set by a premature first-round batch submission to a selector embedding the smoke file's assertion count (\"27 assertions\"), before all checklist items' code and review-driven coverage additions landed. Per the evidence tool's own design (core of this story's subject matter), a pin's command+selector are permanently immutable once set, and non-mechanical attestations never grant coverage for executable intents - so this intentRef can never again earn a matching mechanical receipt even though the underlying claim is genuinely true and checkable right now. Genuinely covered by validate-command-timeout-smoke.ts section 7/8, part of the 40-assertion suite that currently passes cleanly (`node packages/main/dist/tasks/validate-command-timeout-smoke.js` exits 0).",
-          "headHash": "18e9d33183f519ae1320ebf5edd42da78d07a879",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
-          "timestamp": "2026-08-14T12:59:09.699Z"
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "No silent wrong match: when the pinned command's executable matches a config entry's command field but the args differ, the helper must return undefined rather than returning the wrong entry's timeoutMs. Assert that for a pinned command whose executable exists in config but whose args match no entry, the return value is strictly undefined (=== undefined). This distinguishes a clean 'no match' (caller safely falls through to 270s) from a silent 'wrong match' (caller unknowingly applies another command's budget — a latent timeout bug that could either truncate a legitimate long-running receipt or over-extend a budget for a command that should be killed sooner). WHY: undefined is the only safe sentinel; any numeric return from an unmatched lookup is a potential misattribution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2",
+            "outputTail": "validate-command-timeout smoke passed: 45 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:00:31.390Z"
+          },
+          "headHash": "68cc40cecc00d0fefbd226fa9a67a891b9ef26ac",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:00:31.558Z"
         }
       ]
     },
