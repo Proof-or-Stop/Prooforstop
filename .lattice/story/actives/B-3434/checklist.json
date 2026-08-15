@@ -245,9 +245,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T11:09:45.192Z",
-      "endTime": null,
+      "endTime": "2026-08-15T11:09:46.132Z",
       "userSees": "When the serialised artifact passes the warning fraction, validate prints an advisory naming the measured size and the configured limit, and the pass or fail verdict is unchanged",
       "files": {
         "modify": [
@@ -261,6 +261,13 @@
         "test": [
           "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5bc8e373ca44e1c182febe2d6353b587ea6d39cf90b4047f1da9ee45ce9c19de",
+        "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+        "headHash": "53bb23cd4b37c359fd1a0938083a4ffae302186c",
+        "attestedAt": "2026-08-15T11:09:46.327Z",
+        "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
       }
     }
   ]
