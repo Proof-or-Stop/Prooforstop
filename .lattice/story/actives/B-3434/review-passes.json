@@ -71,6 +71,36 @@
         "scanEscalationReason": null
       },
       "_hash": "2a4ead68b8bbd0192b197ad3e46038a3894b546b3627caf2ac5b7ed3fe4c1ea6"
+    },
+    {
+      "id": "B-3434:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 10, judging the CHK-004 outcome-B deferral rather than re-hunting the bounding machinery. Read docs/requirements/decisions/validation-evidence-artifact-growth.md in full and independently re-verified it rather than accepting it: re-ran validation-evidence-buffer-smoke.js and red-b3434-blob-buffer-ceiling.mjs fresh from the current dist (both PASS, dist mtimes postdate src), and every number I spot-checked against that live output matched the doc exactly (2,520,038/2,520,038 unmodified; 38,878,838->19,617,036 quote-heavy reduction; 148,987 with 300/250,200 elisions; 16,029,894 with 180,001 details kept; 53,489,880 refused; 25,165,823-vs-refused across the 232-byte hash-field window). Went further than reading: wrote two independent scratch scripts against a real StoryStore (never the worktree) to test the doc's central and riskiest claim - that fileBytes and the on-disk write agree today. Confirmed it holds for fresh unmodified/reduced/verdict_only fixtures of my own construction (on-disk bytes == reported fileBytes in every case), and independently reproduced the disclosed failure mode: polluting Object.prototype.toJSON after measurement made a 138-byte-reported record write 30,000,017 bytes to disk, matching the document's inherited-toJSON transcript in kind. Confirmed core/store.ts's writeJsonFile is exactly  as quoted, and traced writeTestEvidence -> writeJson -> writeJsonFile to confirm the second-stringify claim is about the real write path, not a hypothetical one. Diffed commit a586100e89 line by line: the false format-pin sentence F-033 named is gone, snapshotPersistedRecord's unconditional claim is replaced with the disclosed does-not-survive-inherited-toJSON language, and grepped both touched files for always/never/cannot/guarantee/the-only outside the diff - every remaining instance is a pre-existing, mechanically-true structural claim (e.g. finish()'s null-forces-refused ternary), not a new absolute layered onto the deferred guarantee. Confirmed scope: only validation-executor.ts, verifier.ts (both allowedModify) and the decision doc (allowedCreate) changed; none of the four explicitExcludes files were touched; smoke section 13 now requires the document to exist (inverted from requiring its absence) and pins its single Disposition line verbatim. Judgment on the one site left alone: verifier.ts:968-969 ('this exact record is measured, gated and written. No second computation exists to diverge from it') is literally true - there is one call site, not two - and F-037's mutation attack doesn't add a second computation, it mutates the one result in place, which is a narrower and more specific gap than the sentence's plain reading suggests. Leaving it is defensible under the stopping rule: re-opening that docstring is exactly the pattern that produced round 9's six findings, and the document's 'What does not ship' section already names verifier.ts as route 3 and points to F-037, so a reader of the hand-off is not misled. Filed one new low finding, F-038 (non-blocking): section 13's required-substring list checks the document for F-033/F-035/F-036 by id but not F-037, so a future edit could drop the F-037 table row without failing any assertion, even though the F-037 finding_resolve note itself already discloses exactly this gap. Recommend closing it for symmetry in the follow-up story or a small smoke-only edit, but it does not touch the bounding algorithm and does not make the deferral dishonest as it stands. Net: the deferral is honest. What ships is real and its numbers check out under independent re-execution, not just re-reading; what does not ship is disclosed with reproducible transcripts (one of which I reproduced myself, not just re-read); the one sentence left unnarrowed is truthful about its own narrow claim and the document closes the gap it leaves open; scope was respected. No blockers.",
+      "createdAt": "2026-08-15T21:40:13.083Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-033",
+      "envelopeId": "aea74495682a0380809c160d032131ac8613ca78bfd179ad6a511f8ee03a28da",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62d6799bfa11ea19e34b4e3c01797de1e9cbf03955f4985269513b08b216e077"
     }
   ]
 }
