@@ -1247,6 +1247,24 @@
       "resolvedAt": "2026-08-14T15:36:44.700Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-059",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:264 still reads `TEST/lattice validate FAIL -> ... -> TEST/lattice validate PASS` in the Required sequence code block, using the deprecated bin name as if it were the current command. This is NOT a frozen/historical file: this story's own diff already normalized 11 sibling Proofbound->Proof-or-Stop occurrences in this exact file (including the adjacent Validation table row at line ~doc-table which now correctly reads `proof-or-stop validate`), and the file header already declares `Status: execution plan for real Proof-or-Stop lifecycle proof` (i.e. this is an active, currently-maintained execution-plan doc, not an archived record). CHK-003's active-docs sweep missed this one sibling occurrence in an otherwise-thoroughly-normalized file. A reader following only this Required-sequence line would invoke a deprecated alias believing it is the canonical command.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T07:26:11.389Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-082",
+      "_hash": "3df8745f4ff24ae7759d9df892f7791e17060a60d9532fd2f72cd7c18b3e692b",
+      "files": [
+        "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
