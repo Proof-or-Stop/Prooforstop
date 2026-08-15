@@ -729,6 +729,32 @@
       ],
       "signatureTag": "edge|ts|double-serialization-divergence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-032",
+      "desc": "Builder-catch-scope escape: an unconditionally-throwing buildRecord escapes boundPersistedValidationEvidence entirely, contradicting its own docstring. First surfaced by the cross-vendor host-B reviewer (codex) under its own findings scope (which cannot gate: cross-host findings currently file under 'main', which has no registered reviewer lane); I independently re-verified it myself, by execution, before filing. Repro (against the built dist, no code edited): buildRecord = (output) => { throw new Error('verificationCoverage getter escaped'); } -- unconditional, regardless of output. Calling boundPersistedValidationEvidence({result: {provider,status,allPass,commands:[],details:[],warnings:[]}, buildRecord}) THROWS OUT of the function itself: 'THREW OUT OF boundPersistedValidationEvidence: verificationCoverage getter escaped (call #4, output=\"\")', buildRecord invoked 4 times before the escape. Same result (2 calls) for a non-object string result. Traced the exact escape point in validation-executor.ts: measureWith (~line 659-666) catches a throw from args.buildRecord(output) and, in its own catch body, calls args.buildRecord('') AGAIN with no guard around that second call -- if the builder throws unconditionally this second call also throws, uncaught inside measureWith. That escapes to whichever caller invoked measureWith. THREE of the FOUR internal call sites are outside any try/catch: call site 1 (line ~673, the non-object-result branch) and call site 4 (line 706, 'const fallback = measureWith(verdictOnlyRecord(...))', which sits AFTER the try/catch block that ends at line 704) are both unguarded; only call sites 2 and 3 (inside boundValidationEvidenceOutput's measure callback and the immediately following 'const reduced = measureWith(bounded.output)') are inside the try, and that try's own catch (line 701-704) is what routes execution to the unguarded call site 4, where the SAME throwing builder throws again and escapes for real. I also traced the caller chain: handlers/verifier.ts persistStoryValidationEvidence calls boundEvidence(hashes) at line 966 with NO surrounding try/catch, and its own caller decorateAndMaybePersistStoryValidation (line ~1081) also does not wrap that call -- so nothing between boundPersistedValidationEvidence and at least two caller frames up catches this exception. Direct contradiction of the function's own docstring ('Total by construction: every serialisation goes through safeJsonStringify and every read of caller data through safeScalarRead, so a cyclic, BigInt or throwing-accessor input yields a bounded record or an honest refusal rather than an exception') -- I have shown by execution that a throwing-accessor-shaped input (a throwing builder) yields an EXCEPTION, not a bounded record or a refusal. The smoke's own section 9 (cyclic/BigInt/always-throwing-getter/throwing-proxy) only exercises throws sourced from args.result's own property reads during safeJsonStringify/boundValidationEvidenceOutput; it never constructs a throwing buildRecord, so this exact escape path is untested. REACHABILITY: NOT reachable from any current production call site. Grepped both production buildRecord closures (verifier.ts evidenceRecord at ~line 873 and the reuse-path closure at ~line 723): both read only plain properties (command/output/result/timestamp/hashes/result.verificationCoverage/commandExecution/disposition/identity) off objects that are always constructed as plain object literals in this codebase today (verificationCoverage assignment sites at verifier.ts:485,663,731 are all plain '=' object-literal fields, never getters) -- none of them can throw under any input this codebase actually constructs. SEVERITY: I judge this MEDIUM, not the blocker codex filed it as. It is a real, execution-verified violated invariant (the docstring's own unconditional 'rather than an exception' claim is false for this input class), and if ever triggered it fails LOUD (an uncaught exception, at minimum 3 frames deep with no found catch) rather than silently corrupting data -- unlike CLAIM A/F-031, an operator would see a crash, not a false pass, which argues this down from F-031's severity. It requires a builder that throws unconditionally, which no current call site constructs, so it is not release-blocking today.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-15T19:57:57.589Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe12b85a01e667eea1038114d9f9d8036bd8ff0728a39e78dde4959f5e770d4a",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "edge|ts|builder-catch-scope",
+      "signatureTagSource": "auto"
     }
   ]
 }
