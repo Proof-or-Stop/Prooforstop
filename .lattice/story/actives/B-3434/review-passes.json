@@ -47,6 +47,30 @@
         "scanEscalationReason": null
       },
       "_hash": "f5aca16b0336f64ec63a406c881fab9408dbc53c8066f4fed9ef2d972cd2a0d6"
+    },
+    {
+      "id": "B-3434:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Converted pass-only finding_add record: measurePersistedEvidenceBytes docstring (validation-executor.ts:650-653, new prose in 036d69edb3) claims: \"This duplicates a format owned by core/store.ts, which is outside this storys allowed scope. The coupling is real and is the weak point of this design: if store.ts changes its serialisation, this measurement drifts low and the bound silently loosens. The smoke pins the format so the drift fails a test rather than a phase gate.\" The final sentence is false as written: no test in the repository exercises core/store.ts serialization at all. validation-evidence-buffer-smoke.ts never imports StoryStore or core/store.js (grep confirms zero references); its two readFileSync calls (lines 532, 671) read handlers/verifier.ts source text only, for unrelated wiring checks. Section 3 (lines 220-227), the only test touching measurePersistedEvidenceBytes format fidelity, computes its own `expected` value via `Buffer.byteLength(`${JSON.stringify(record, null, 2)}\\n`, utf8)` -- the SAME literal formula duplicated (not derived from store.ts) inside the test file itself -- then asserts measurePersistedEvidenceBytes(record) equals that independently-derived number. This is a self-consistency check between two hardcoded copies of the same formula (one in core/validation-executor.ts, one in the smoke), not a pin against store.ts. grep for measurePersistedEvidenceBytes, VALIDATION_EVIDENCE_BOUND_BYTES and VALIDATION_EVIDENCE_READ_CEILING_BYTES across packages/main/src and packages/main/tests confirms these symbols are referenced only by validation-executor.ts, verifier.ts and the smoke -- no test anywhere writes a record through the real StoryStore.writeTestEvidence and compares the resulting on-disk byte length to this prediction. If core/store.ts core/store.ts:163 (`JSON.stringify(data, null, 2) + \\n`) ever changes its serialisation, both the source formula and the smokes independently-hardcoded expected formula would drift together and stay equal to each other, so every existing assertion would continue to pass while the real file on disk silently diverges from what boundPersistedValidationEvidence counted -- exactly the \"measurement drifts low and the bound silently loosens\" failure the same docstring names one sentence earlier, with no test catching it. This is not a behavioural defect today (the byte count is currently accurate, verified by running validation-evidence-buffer-smoke.js and red-b3434-blob-buffer-ceiling.mjs, both PASS), and it is candidly disclosed as an accepted out-of-scope coupling elsewhere in the same docstring and in the round-8 commit message (\"core/store.ts is out of scope, so the stability comes from the value rather than the writer\"). The defect is narrowly the closing sentence overstating what protection exists: it should say the smoke pins this modules OWN duplicated formula for internal self-consistency, and that a drift in store.ts real serialisation is caught by nothing in this repository today (only by a later phase-gate wedge, which is the exact outcome the sentence claims is avoided).",
+      "createdAt": "2026-08-15T20:50:36.218Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-027",
+      "envelopeId": "d90d95b8cf8baaf304b5e8140ea7577d441e42b105c8da9efbba64e9a7bd248a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2a4ead68b8bbd0192b197ad3e46038a3894b546b3627caf2ac5b7ed3fe4c1ea6"
     }
   ]
 }
