@@ -171,6 +171,55 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "2fea5d89172600f1c20eca7915223b968f3c0516fcd43a86391cd4ba4a02ece8"
+    },
+    {
+      "id": "B-a7c5:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-binding pass only: story_advance auto-synced 209 unrelated main commits (merge 288fd2596b) invalidating round-2 review-pass bindings. Confirmed git log 288fd2596b..HEAD touches only .lattice/ bookkeeping (dev-memory finish-decision, dispatch telemetry, review/delivery-check metadata) -- zero commits touch packages/, docs/, bin/, or lattice.config.json. git diff main...HEAD --name-only confirms the same 23 code files round 2 already fully reviewed (evaluateDevMemoryPreflightGate fail-open fix confirmed correct, 0 findings on dead code / type safety / I-O isolation / proof-metadata checks). No new findings this round; re-affirming round-2 pass against current post-merge HEAD.",
+      "createdAt": "2026-08-15T11:21:00.265Z",
+      "reviewRound": "2026-08-15T11:17:03.901Z",
+      "reviewRunId": "B-a7c5:RR-008",
+      "envelopeId": "47d73ca316d45f6826a9fee3f73e7177f4ca1d339594bb7779b7a4ef66a46743",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md"
+        ],
+        "filesTriagedByName": [
+          "bin/lattice.js",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "packages/main/tests/milestone-status.test.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "0c9dfc383fbca30baf46f970067ea8f95b5ebd0bfbdb1fd29df9b8ea2231d9d8"
     }
   ]
 }
