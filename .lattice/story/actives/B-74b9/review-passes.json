@@ -1,0 +1,34 @@
+{
+  "passes": [
+    {
+      "id": "B-74b9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed git diff main...HEAD --stat and full diff for packages/main/src/tasks/{field-regression-cli-smoke,proofstory-acceptance-basis-smoke,worktree-authority-smoke}.ts, lattice.config.json, and the three new RED scripts under packages/main/tests/red/. No concept deletion or mass replacement occurred this round: all edits are additive fixture repairs (stub two new synthetic files for the acceptance-rollout-report.json process-fact source-ref closure; pass a required readManifest object on 5 pre-existing review_pass_set calls now that command-catalog.ts marks it required; add a writeVersionSyncFiles helper that scaffolds the pre-existing VERSION_SYNC_FILES sync points into 2 synthetic mkdtemp git roots; register proofstory-acceptance-basis-smoke.js in validate.commands) plus 3 new RED reproduction scripts and story metadata artifacts. Confirmed no production/concept files were touched (empty diff for acceptance-topology.ts, transition-orchestrator.ts, handlers/proofstory.ts, registry.ts, process-fact-registry.ts, acceptance-discovery-adapters.ts, version-bump.ts, done-recover.ts -- all referenced in checklist context/scope but none actually modified). Wave-4 acceptance-rollout-gate concept-boundary check confirmed not applicable: the diff introduces no changes to the acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check chain or proofStory.acceptanceRolloutGateMode; the acceptance-rollout-report.json / acceptance_topology_check strings appearing in the diff are all within .lattice/story/actives/B-74b9/*.json story-metadata artifacts (this story's own generated acceptance-basis snapshot), not code. No blocker.",
+      "createdAt": "2026-08-15T21:25:21.997Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-003",
+      "envelopeId": "4ba6eaca8a17ead6c3327443d7583729d5ef0dcb0e1dbb0ed3a9b340584a8f0b",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f4cdd0c7f934b66bfcc60fdcbb3eba416e45037f586c4cfea4fae96fa9b7c8b"
+    }
+  ]
+}
