@@ -31,24 +31,25 @@
     }
   ],
   "originalIntentRequestHash": "sha256:2b558d68ebc0794c5a9ccaf316d9f0251f742fa0019f3c3fd8c7ecc59deb31a1",
-  "acceptanceBindings": [],
-  "diagnosticGaps": [
+  "acceptanceBindings": [
     {
-      "code": "missing_acceptance_binding",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs."
-    },
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
+      "id": "AB-001",
+      "checklistRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-005:happy:0"
+      ],
+      "milestoneIds": []
     }
   ],
+  "diagnosticGaps": [],
+  "note": "Single acceptance binding: the snapshot acceptanceClaim is proven by the above-limit regression plus the adversarial intents that reject a cosmetic repair - a ceiling on only one of three helpers, a reworded but non-diagnostic message, and a fail-open comparison.",
   "createdAt": "2026-08-15T10:49:04.305Z",
-  "updatedAt": "2026-08-15T10:49:04.305Z"
+  "updatedAt": "2026-08-15T10:50:09.352Z"
 }
