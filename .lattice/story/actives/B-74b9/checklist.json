@@ -285,7 +285,21 @@
         "headHash": "bda8fe134a1afb66c38b122588f321a219dd7a35",
         "attestedAt": "2026-08-15T20:45:45.536Z",
         "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "INT-CHK003-RED",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Directly observed on the pre-fix tree: node packages/main/dist/tasks/worktree-authority-smoke.js threw 'DONE post-merge version bump failed before any commit: ENOENT ... package.json' from bumpVersionOnDoneMerge. Independently reproduced via red-B-74b9-chk003-version-bump.mjs before the fix landed.",
+          "mechanical": false,
+          "nonMechanicalReason": "RED proves a pre-fix historical state; the fix has now landed so re-running would legitimately no longer show this ENOENT, by design of repro-first evidence.",
+          "headHash": "b1e6b29f07384ee28028b4bc5d44ba04c22cee83",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:51:06.140Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
