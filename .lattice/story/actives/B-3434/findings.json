@@ -701,6 +701,34 @@
       ],
       "signatureTag": "edge|ts|confirmation-array-case",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-031",
+      "desc": "Double-serialization divergence (double-measurement postcondition is not structurally guaranteed). First surfaced by the cross-vendor host-B reviewer (codex) under its own findings scope (which cannot gate: cross-host findings currently file under 'main', which has no registered reviewer lane); I independently re-verified it myself, by execution, before filing. Repro (against the built dist, no code edited): buildRecord returns the SAME singleton record object on every call; its toJSON() returns a tiny stub for the first 2 calls (which is what boundPersistedValidationEvidence itself consumes while measuring) and a ~36MB payload from the 3rd call onward. Result: boundPersistedValidationEvidence({result, buildRecord}) reports fileBytes=82, withinBound=true, disposition=unmodified. I then took bound.record and passed it through the REAL production packages/main/dist/core/store.js StoryStore.writeTestEvidence(storyId, bound.record) against a real temp story dir -- not a simulation -- and stat'd the resulting test-evidence.json: 36,000,077 bytes on disk, vastly over VALIDATION_EVIDENCE_BOUND_BYTES=25,165,824. Root cause: measurePersistedEvidenceBytes / boundPersistedValidationEvidence measure JSON.stringify(record,null,2) at measurement time and trust that number; store.ts:163 writeJsonFile independently calls JSON.stringify(data,null,2) a SECOND time, later, on the SAME live object reference -- byte-identical only for plain, idempotent-toJSON data. Postcondition claim vs enforcement: PersistedValidationEvidenceBound.fileBytes is documented (validation-executor.ts:594) as 'Measured byte length of the FILE StoryStore will write' and measurePersistedEvidenceBytes is documented (line ~604-605) as reproducing 'the bytes that reach disk... exactly' -- both claims are about the bytes ON DISK, unconditionally, and I have now shown by direct execution against the real StoryStore class that the claim is false for this input class, independent of whether the input is realistic. REACHABILITY (the question that decides severity): NOT reachable from any data the validation executor actually produces today. Every production buildRecord/evidenceRecord closure in handlers/verifier.ts (persistStoryValidationEvidence, reusedStoryValidationResult) builds a fresh PLAIN object literal each call (command/output/result/timestamp/hashes/verificationCoverage/commandExecution/disposition, all plain strings/booleans/plain nested objects) -- grepped the whole of packages/main/src for 'toJSON' and confirmed none of the objects that flow into these buildRecord closures define one. So this requires a hand-built adversarial toJSON, exactly as codex's probe and mine both used. SEVERITY: I judge this MEDIUM, not the blocker codex filed it as. It is a real, execution-verified violation of a size-safety postcondition in the exact artifact class (test-evidence.json vs the 32MiB git-read ceiling) this story exists to bound, and it is silent (withinBound=true) rather than loud, which is the worse failure direction for a safety bound -- that argues up from low. But it is unreachable from any current production call site without a separate, independent defect first putting a stateful toJSON into the object graph, which argues down from blocker/critical. Not filing as a blocker; filing as a verified, currently-latent contract gap.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-15T19:57:35.262Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d75c636953c118cc6ed64778fcfc0e609de1fa38efe8bf18210bca5828f32579",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "edge|ts|double-serialization-divergence",
+      "signatureTagSource": "auto"
     }
   ]
 }
