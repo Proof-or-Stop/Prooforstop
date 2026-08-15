@@ -337,6 +337,38 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "2311ae86dba0bf8e1e2353f01bd7440b3e23b9c5687e93b41cda25a5265e47d6"
+    },
+    {
+      "id": "B-a7c5:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5: verified F-006 and F-007 fixes (commit 0b8aa7319b) introduce no new coverage gaps and require no new checklist-item binding. F-006: dev-memory-lifecycle-gates-smoke.ts now git-commits the finish-decision file before re-checking currentMaterialHash (2 new assertions: CHK-003 F-006 x2), making the regression check genuinely discriminating -- independently reran the compiled smoke test fresh after a clean rebuild, confirmed 79/79 assertions pass (up from 74, exactly the delta the commit message and CHK-004:happy:0 permanent waiver anticipate). F-007: delivery-check-freshness-smoke.ts comment corrected to no longer claim the dev-memory write counts toward materialHash (it is materialHash-excluded since F-005); comment-only change, no assertions added/removed, verified delivery-check-freshness-smoke.js still passes clean. Both fixes stay entirely within CHK-003/CHK-004 existing scope (elaborating the pre-existing F-005 regression check and its adjoining fixture comment, not introducing new testable behavior), so no new checklist item is warranted -- reaffirms my own round-4 judgment (RP-007) that REVIEW-round finding-fix work of this kind falls under CHK-004s existing scope and its permanent waiver on the fragile assertion-count-pinned selector. Checked: all 7 checklist items status=done, all 7 findings (F-001..F-007) status=resolved, working tree clean, fresh npm build clean, both affected smoke tests pass from a clean rebuild.",
+      "createdAt": "2026-08-15T12:37:55.352Z",
+      "reviewRound": "2026-08-15T12:29:13.708Z",
+      "reviewRunId": "B-a7c5:RR-014",
+      "envelopeId": "a16d1bf2e050a2413608c9404902c1ed0d9279008e730ec04aa090078e835d5e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/review-passes.json",
+          ".lattice/story/actives/B-a7c5/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "b32638303a3f2e0bc0c44b33b75954bca73b3d2c1ce24aaa208b9d59d0d28d37"
     }
   ]
 }
