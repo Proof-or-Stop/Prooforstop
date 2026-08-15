@@ -375,7 +375,7 @@
       "desc": "[codex host-B J4] Verified by main agent. Maintenance assessment: relative to main the five files add 759 production and 1150 test lines, with complexity concentrated in a six-stage generic reducer while the real safety boundary is the final StoryStore serialisation. Stale or inaccurate claims remaining: that the returned output is always below the bound, that the last-resort replacement cannot fail, that test-evidence.json has an aggregate bound, and that the advisory leaves the verdict unchanged even on the refusal path. The smoke also claims no filesystem and pure functions while reading verifier source with readFileSync and existsSync. Suggested direction: a typed canonical validation result, one input-independent bounded fallback, and a postcondition over the complete persisted file. The metadata read and failure taxonomy is clear and does not need simplification.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-15T12:54:24.660Z",
@@ -383,7 +383,11 @@
       "reviewRunId": "B-3434:RR-011",
       "_hash": "9f626d3bf1b7406f11723a066262d0189db9c11c13c5b49519dfc8bbaf76dfc6",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The maintenance question was answered by the F-014 repair rather than by a separate change, and the answer was measured rather than asserted: moving the post-condition to the writer boundary made stages five and six and the reducer-internal fallback into guarantees about an intermediate value, so they were deleted along with capLabel, droppedKeys, truncatedKeys and the verdict-key machinery. Net minus 159 lines, with the smoke shrinking from 624 to 403 lines. The test-coverage lane verified this was a genuine simplification and not silent coverage loss, checking each of the six properties that had each cost a review round to find. What remains, and is recorded rather than closed: the quality lane's judgement that this is still two mechanisms - a content reducer and a byte-boundary enforcer - joined by a try/catch, and that the seam between them is exactly where F-026 lives. That seam is the open finding, so the maintenance concern is not fully discharged; it is narrowed to one joint.",
+      "resolvedAt": "2026-08-15T13:46:10.734Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-018",
