@@ -602,6 +602,21 @@
       "resolvedAt": "2026-08-15T20:10:33.649Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-017",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 — verified integration regression: B-6693 edits packages/main/src/cli-engine.ts but leaves its pinned canonical AST fingerprint at ef1c4e..., so the approved runCli → import(`file://${initPath}`) call is rejected as an unapproved non-literal dynamic load (current digest c38c840...). Repro: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 1. Re-audit the unchanged loader call and repin the canonical guard fingerprint; canonical validation cannot pass until this member is restored.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:54:11.628Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-029",
+      "_hash": "7e3a9d2e2bf3452ac90e12b63e0adb781aa2748514861c907943df80331d8020",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
