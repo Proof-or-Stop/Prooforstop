@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-3f3d",
   "mode": "observe",
-  "cutoffAt": "2026-08-14T21:05:18.780Z",
-  "planBasisDigest": "sha256:a5dc24ef96c96caaabfca6ebb03aee14ac543fa4528f25629c1d63126453e8c5",
+  "cutoffAt": "2026-08-15T00:02:20.615Z",
+  "planBasisDigest": "sha256:7c87d0b32b0b8018faee83c0477bd1dfe5feae90f135649f4af09491872b1807",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-3f3d",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:a5dc24ef96c96caaabfca6ebb03aee14ac543fa4528f25629c1d63126453e8c5",
+      "priorPlanBasisDigest": "sha256:7c87d0b32b0b8018faee83c0477bd1dfe5feae90f135649f4af09491872b1807",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -43,11 +43,11 @@
           "provenanceRefs": [
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:packages/main/src/cli/command-catalog.ts:sha256:f329d4799229b8c3f7922513b4daa4dfd53c6386406e63a7221a8925bc84e0bb",
-            "source-file:packages/main/src/handlers/finding.ts:sha256:f6ac51d28c7d3a1364ce9942e2ba0d3d5760ff2dea6a7d6a558847c5723e7181",
+            "source-file:packages/main/src/handlers/finding.ts:sha256:8a170ef5378b7c7b73212d4972cb4398e5df8050d6b302965e61f0295adc6eca",
             "source-file:packages/main/src/handlers/prewrite-guard.ts:sha256:f0f6edbbaa3ae456bf689a6e08b2071cd9d4b0dc463949c556f41a3c1fa16bad",
-            "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
-            "source-file:packages/main/src/handlers/review-inventory.ts:sha256:3cb3d3984e3c5495287d51c4107983c59e0c524bb6c1c6e325b19fa14f58e665",
-            "source-file:packages/main/src/handlers/review-run.ts:sha256:ff938d921eba8e634e8804e48f0d4de3d5aee3386f65d5e53f565d4fb8008711",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:9ab2eabbd2bf109399d77c03af57ac9858463f113ae44bd1f7f7710943ad32e3",
+            "source-file:packages/main/src/handlers/review-inventory.ts:sha256:06f223980b330c5ef796280c455a5ead9e0f2a3ccd171396db1733d19fd8d223",
+            "source-file:packages/main/src/handlers/review-run.ts:sha256:b69bafbf11c493a7f2bf67c3b66935f59cafcc7c73348f86de67612f11b76f39",
             "source-file:packages/main/src/handlers/reviewer-batch.ts:sha256:0538cec6bb2a327c0a003b1eddc10eabdc33c45de613934009557aa337869cab",
             "source-file:packages/main/src/handlers/reviewer-list.ts:sha256:ca5347eb989b33c4d7bb786e8f87a20ee007de0abe66bb9547c423a6d9b63b95",
             "source-file:packages/main/src/registry.ts:sha256:4393babcf9801d367488411a2a84d5ed129a20b617086ef35f8efd44d776cafd"
@@ -91,7 +91,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:d3714824e73c8f5be844c196c111df31bc650ea378ab15f6e8950efa585bfec3"
+          "resultDigest": "sha256:4768dcb005df05f0bc5d4a2d8f2a5fb269ca91df326ba8e14ce193a9cf109034"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -120,11 +120,11 @@
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:168821c01771a8c9a151efbe15f0eee5b7bc2b1fcb0fa05c526932329b2c04b9",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
-            "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:9ab2eabbd2bf109399d77c03af57ac9858463f113ae44bd1f7f7710943ad32e3",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:38bdee6108612a8deb82a617e999d85913daf79e2e879cb7c4be2a5ba1e2f232",
             "source-file:packages/main/src/registry.ts:sha256:4393babcf9801d367488411a2a84d5ed129a20b617086ef35f8efd44d776cafd",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:b3f8e3ce154bd608419bc7aed169973d35d323666fe3429e9b4d09ac6ca9c2f8"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:129a28f748b2e81193655f55eeea304d89bd19ccc7f5f6b52fb1d4a42fbaf5c6"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -165,7 +165,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:2e9cff759130b1df14036aa63ed10add05c002311be0694613fef6479eb904d6"
+          "resultDigest": "sha256:752c5665b60a83ebf5e35b45de88a9150b452d23da6e802d3a608ac30a2aa077"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -263,7 +263,7 @@
             "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
             "scope:file:scripts/verify-process-fact-contract.mjs",
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-            "source-file:packages/main/src/tasks/review-inventory-epoch-smoke.ts:sha256:65e2a6094279c02a301ae2a1d34abcd621bdf84f2cafe382d7c89eab89586e17"
+            "source-file:packages/main/src/tasks/review-inventory-epoch-smoke.ts:sha256:dbde1ecf9bc7ecb34f260f48438ba61a4ae5263ecd55b9eff21a7b5792f1e733"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -304,7 +304,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:827465ead8356b25a1cf769bc4d74cb914d81515e3c551529a6b33b262cb3d55"
+          "resultDigest": "sha256:51d795880c3aff745632a301c0be3e459811cc74f9a777340a16e810e5ccca7d"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -335,7 +335,7 @@
           "provenanceRefs": [
             "source-file:.claude/hooks/lattice-scope-pretool.cjs:sha256:68077249a318b4024bbe96bc9541c3f2a9f9f935b4f33a90ac9d0a16204b1c96",
             "source-file:.codex/hooks/lattice-scope-pretool.cjs:sha256:f91e9e1a6bcdf5fb12f733e7d8330e292b2dfdc4fdf2c3ffd18996b7ecfbd28a",
-            "source-file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:sha256:fe5d42da574824cd81e06597380832792f408a6b0e0698c59f0feca19378ebae",
+            "source-file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:sha256:0ff75d9fe440251e13ecffb3da08fefd62f54eb08fa3e54d771570c0ef3f312d",
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:packages/main/src/cli/command-catalog.ts:sha256:f329d4799229b8c3f7922513b4daa4dfd53c6386406e63a7221a8925bc84e0bb",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
@@ -347,25 +347,25 @@
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
             "source-file:packages/main/src/core/prewrite-guard-check.ts:sha256:5f96b2ddadba905a0acb4a0fbed624c92a3faad6df98dceaf3a013cfbebd744b",
             "source-file:packages/main/src/core/prewrite-guard.ts:sha256:4c6a6c2832e9a03cd507d1881aec376b568b3ad93426b1d95d21c752c715cb11",
-            "source-file:packages/main/src/core/process-fact-levels.ts:sha256:f79b20c657972af074544478842999fbbd23105295d5e38fe14f43f55a28a1b2",
-            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:4b9a89617980aa31d253787589897771447c6c1955468f69388861e5b32df02f",
-            "source-file:packages/main/src/core/review-incremental-context.ts:sha256:5f6308d5cb66453250179182b4448946e8392df85796a7d2008603250cccfe71",
-            "source-file:packages/main/src/core/review-inventory-epoch.ts:sha256:eee508cd2597bd3e963dfad214777776cfe3aa7be96f34fe737f0309612becc8",
+            "source-file:packages/main/src/core/process-fact-levels.ts:sha256:982fe0d569c781e580e8c809074c585c87923cf5fd86ccee76eea0929bb96efa",
+            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:42b7990e2485f07de51b3b5c5ea1862c19e8649b15533620bc7defcc4d3b6d03",
+            "source-file:packages/main/src/core/review-incremental-context.ts:sha256:ab1c3d1740e86a0e890481f30861f4365e734c446c5fcc2f87a618bab1e110d0",
+            "source-file:packages/main/src/core/review-inventory-epoch.ts:sha256:16db62b70bab4ee8c52dbb0b0ee0c4e37ef756b6f3974e3ec40d5e86b4f196c6",
             "source-file:packages/main/src/core/store.ts:sha256:f4bf59c5e4a3d2ab3d15050d2c4a182d2c5e36d7c8e2bd96c69c13c165a7cfb3",
-            "source-file:packages/main/src/core/types.ts:sha256:7744023c9631cb4041a31ce2ac98bc1e45349fe48914dc31dfcdc87f534ed10b",
-            "source-file:packages/main/src/handlers/finding.ts:sha256:f6ac51d28c7d3a1364ce9942e2ba0d3d5760ff2dea6a7d6a558847c5723e7181",
+            "source-file:packages/main/src/core/types.ts:sha256:ca6480795cae95b987b7054d659172fb67ff75a06fd1375014cf9b77c41c844b",
+            "source-file:packages/main/src/handlers/finding.ts:sha256:8a170ef5378b7c7b73212d4972cb4398e5df8050d6b302965e61f0295adc6eca",
             "source-file:packages/main/src/handlers/prewrite-guard.ts:sha256:f0f6edbbaa3ae456bf689a6e08b2071cd9d4b0dc463949c556f41a3c1fa16bad",
-            "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
-            "source-file:packages/main/src/handlers/review-inventory.ts:sha256:3cb3d3984e3c5495287d51c4107983c59e0c524bb6c1c6e325b19fa14f58e665",
-            "source-file:packages/main/src/handlers/review-run.ts:sha256:ff938d921eba8e634e8804e48f0d4de3d5aee3386f65d5e53f565d4fb8008711",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:9ab2eabbd2bf109399d77c03af57ac9858463f113ae44bd1f7f7710943ad32e3",
+            "source-file:packages/main/src/handlers/review-inventory.ts:sha256:06f223980b330c5ef796280c455a5ead9e0f2a3ccd171396db1733d19fd8d223",
+            "source-file:packages/main/src/handlers/review-run.ts:sha256:b69bafbf11c493a7f2bf67c3b66935f59cafcc7c73348f86de67612f11b76f39",
             "source-file:packages/main/src/handlers/reviewer-batch.ts:sha256:0538cec6bb2a327c0a003b1eddc10eabdc33c45de613934009557aa337869cab",
             "source-file:packages/main/src/handlers/reviewer-list.ts:sha256:ca5347eb989b33c4d7bb786e8f87a20ee007de0abe66bb9547c423a6d9b63b95",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:38bdee6108612a8deb82a617e999d85913daf79e2e879cb7c4be2a5ba1e2f232",
             "source-file:packages/main/src/registry.ts:sha256:4393babcf9801d367488411a2a84d5ed129a20b617086ef35f8efd44d776cafd",
             "source-file:packages/main/src/tasks/prewrite-guard-smoke.ts:sha256:e2b3e5d188fcae09f019549b66cbafd30f0e57f680a7b23557334e506a8842bc",
-            "source-file:packages/main/src/tasks/review-inventory-epoch-smoke.ts:sha256:65e2a6094279c02a301ae2a1d34abcd621bdf84f2cafe382d7c89eab89586e17",
+            "source-file:packages/main/src/tasks/review-inventory-epoch-smoke.ts:sha256:dbde1ecf9bc7ecb34f260f48438ba61a4ae5263ecd55b9eff21a7b5792f1e733",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:b3f8e3ce154bd608419bc7aed169973d35d323666fe3429e9b4d09ac6ca9c2f8"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:129a28f748b2e81193655f55eeea304d89bd19ccc7f5f6b52fb1d4a42fbaf5c6"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -406,7 +406,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:192e9ae0201779ff74ac65964249aaabbd45f7f42684885091371b947cf41082"
+          "resultDigest": "sha256:11aa64533b5c4b641ac5cc72f49e285db4c07447ade3a2cc45159da89743103a"
         }
       ],
       "scopeRefs": [
@@ -600,7 +600,7 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:6b7cba069528c2312d8d697acfa910fb08bb42a0977bbaa24ba5bfb3d25ddd8c",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:b4554841c9703a21b4eb8bf40bd0f075fc32ebe8cbd54b2806246c92c6acd716",
+        "sourceSnapshotDigest": "sha256:a84f0db5bff26e2545e79fc494ec99dd9122187be892a3dd8e8743d90a5bcad6",
         "sourceSnapshotCount": 797,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
         "status": "partial",
@@ -636,423 +636,423 @@
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
           }
         ],
-        "sealDigest": "sha256:2ef361578f43b85fbfc6c617ee8019a0b35e5a20c39a8ec2b869cfeca2f54784"
+        "sealDigest": "sha256:9b1d8ab6b93664c572a06befeb6ae939c33a48ef1fd3c721c4c7f396c56e48fc"
       },
       "binding": {
-        "headHash": "9a59aa19c3184dee8c87c71186f2832277eba65d",
-        "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-        "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
+        "headHash": "569d0413a9effebacb1fbc43b219262ed4e75a0b",
+        "materialHash": "132e35b4b916a213fc99c95ff9840e10b1a4bf02f672b16a6425bb6a95604d23",
+        "storyFilesHash": "8e3744c36ffbf7701cec3085256947a3f248af517b146d53260591232fc0dc70",
         "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-        "scopeContractDigest": "sha256:7f8ee1d12938a9e35e973ef4b91c8b34b74deb76cd7959b7fd7cb926e3d05b0b",
-        "closureFilesHash": "sha256:396c8f9b03fc0ea5e4fb110529b29664d5eaa80afec30fd42be05979730773fe"
+        "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
+        "closureFilesHash": "sha256:95486be3765e1ad2d0eb084e385eb1575f862a13f46199ebc2c24562bb1638cb"
       },
-      "receiptRef": "receipt:coverage-basis:B-3f3d:pre_review:b12f9e09fc24c225",
-      "basisDigest": "sha256:c9a526804224ad63630d936b459cabc015ab23cd88d30ecce632124ba716d9eb"
+      "receiptRef": "receipt:coverage-basis:B-3f3d:pre_review:36c38b1cb9dbbfde",
+      "basisDigest": "sha256:4513cd84572613478e9643212c1b9b6992f4c30446152f6ea188edf65ef4fb66"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-3f3d:pre_review:b12f9e09fc24c225",
+      "receiptRef": "receipt:coverage-basis:B-3f3d:pre_review:36c38b1cb9dbbfde",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-3f3d",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:c9a526804224ad63630d936b459cabc015ab23cd88d30ecce632124ba716d9eb",
+      "basisDigest": "sha256:4513cd84572613478e9643212c1b9b6992f4c30446152f6ea188edf65ef4fb66",
       "topologyDigest": "sha256:953a6feae56496191f0b31e99cdf5b17f0170e3c095d3631b02c081de31e804f",
       "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-      "scopeContractDigest": "sha256:7f8ee1d12938a9e35e973ef4b91c8b34b74deb76cd7959b7fd7cb926e3d05b0b",
-      "headHash": "9a59aa19c3184dee8c87c71186f2832277eba65d",
-      "materialHash": "704614412f71b7ba501a97ad6cfea4df171dcd34526217fecfbd7202cadc0ead",
-      "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
-      "closureFilesHash": "sha256:396c8f9b03fc0ea5e4fb110529b29664d5eaa80afec30fd42be05979730773fe",
-      "sealDigest": "sha256:2ef361578f43b85fbfc6c617ee8019a0b35e5a20c39a8ec2b869cfeca2f54784",
+      "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
+      "headHash": "569d0413a9effebacb1fbc43b219262ed4e75a0b",
+      "materialHash": "132e35b4b916a213fc99c95ff9840e10b1a4bf02f672b16a6425bb6a95604d23",
+      "storyFilesHash": "8e3744c36ffbf7701cec3085256947a3f248af517b146d53260591232fc0dc70",
+      "closureFilesHash": "sha256:95486be3765e1ad2d0eb084e385eb1575f862a13f46199ebc2c24562bb1638cb",
+      "sealDigest": "sha256:9b1d8ab6b93664c572a06befeb6ae939c33a48ef1fd3c721c4c7f396c56e48fc",
       "workspaceIdentityDigest": "sha256:af78c718535c90b7d3c93b8c44569e29a75b5a901fc359538d75b515ee58b6ad",
-      "signature": "ZrxHhvquu3/MyL9YSBeWEArVe36zAWFdDW7TO4idGAMRreqmiVT321ZQjYw7SRVFaZ/66VSwuR9JIY3hQe5mDQ=="
+      "signature": "SKdXBzh5dQ1oJAj/UldRPxljccdg0WOG6E6SpbSLS+gTpozDAOqieAOxJXmMmrd2KNrMvIzh2NqFAijNUKVkBA=="
     }
   },
   "topologyDigest": "sha256:953a6feae56496191f0b31e99cdf5b17f0170e3c095d3631b02c081de31e804f",
   "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-  "scopeContractDigest": "sha256:7f8ee1d12938a9e35e973ef4b91c8b34b74deb76cd7959b7fd7cb926e3d05b0b",
-  "storyFilesHash": "61e94fca884555ed3370056496eaa2d0b399f5fc7a7ec07cbf14a58fd4aeeee9",
-  "closureFilesHash": "sha256:396c8f9b03fc0ea5e4fb110529b29664d5eaa80afec30fd42be05979730773fe",
+  "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
+  "storyFilesHash": "8e3744c36ffbf7701cec3085256947a3f248af517b146d53260591232fc0dc70",
+  "closureFilesHash": "sha256:95486be3765e1ad2d0eb084e385eb1575f862a13f46199ebc2c24562bb1638cb",
   "evidenceRefs": [
     {
       "intentRef": "B3F3D-001-A1",
       "itemId": "CHK-001",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:ba87fdeba6bb46e4391be05dd1b713f85ca4da81da788b984a2be5955f2fc36a"
+      "evidenceDigest": "sha256:425dc35b0791143128ead44736dfa247f3edcbaed8a5ff09b311c5a6f2c22783"
     },
     {
       "intentRef": "B3F3D-001-A2",
       "itemId": "CHK-001",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:ebd6add662da37a37c7e43f72202d47fd0c0a093fede71fed705c2a4de51e166"
+      "evidenceDigest": "sha256:fd4e77bc9ac6ca27bf5a414a92dfc77519f5f148975878b2ed64574f9435c4f2"
     },
     {
       "intentRef": "B3F3D-001-A3",
       "itemId": "CHK-001",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:04697610ffbc5e36f1a1e927d275af188d50023df9c7c1df02c1321c73b4d55d"
+      "evidenceDigest": "sha256:9969c2a80b5d49b6c1585662ab29bc2f659a5650455ffba4be355de55b1396d0"
     },
     {
       "intentRef": "B3F3D-001-E1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:5e0ee58ae50d3a220586fd9c437b6d2ed84639a8fe176bacc6dacafbb8c9ad9b"
+      "evidenceDigest": "sha256:59656d56786a1da3dfbb83a86f05b707adf3ac85fc49b7af05960744afe5acb8"
     },
     {
       "intentRef": "B3F3D-001-E2",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:2b4bdc39595df9f3f6df91d270a0f113d884e729097e429c4f07a9f0d268a4f1"
+      "evidenceDigest": "sha256:e9c5c639faf2938fbb7c82fbaa6e69dd19a7e2e5dd7532d8dde8c467d72910fe"
     },
     {
       "intentRef": "B3F3D-001-E3",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d13b58d4e28fcca31923b4ccefd21f06c5941c13fe1a320f9f873ce745ab057c"
+      "evidenceDigest": "sha256:1fc15c73a6ced88d128d5a6cda70ffee236874f653646282946a1af3085d066e"
     },
     {
       "intentRef": "B3F3D-001-H1",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:0bad292148a761193fa8a061e8e876685a6f9e4c2486978656bc96bd87651ea1"
+      "evidenceDigest": "sha256:8d8a6ef39f6166c4faa036642b9f1e45418c16b72469621782b4e334068b3414"
     },
     {
       "intentRef": "B3F3D-001-H2",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:a393858a1a910df10f9c143958a465a97042bb7554455d207a3b337e8c043938"
+      "evidenceDigest": "sha256:cd53ba20b62ca371809ca9fe229a60f67b7cde64cc1272d7abf192d759d079ca"
     },
     {
       "intentRef": "B3F3D-001-H3",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:493e7fbe8055f412378326d5b6fc0a860d0e7e8df03bd42937c19ecfb8e51628"
+      "evidenceDigest": "sha256:89084a6d8e6a513effb26b35e3e733473d89a5bd0ac07c44c24a11f84c81bf1a"
     },
     {
       "intentRef": "B3F3D-002-A1",
       "itemId": "CHK-002",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:0ffeecf1db2f597616414255bc556cd010f0f05b0ee306e38b6ebd7a0dfb3a51"
+      "evidenceDigest": "sha256:c89e55b6156b0078c8f1621d0cffa34d5e6ef95626cd1d50bb24e2f3042607a4"
     },
     {
       "intentRef": "B3F3D-002-A2",
       "itemId": "CHK-002",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:14b838ae1486a3cbc34311f2990b94c8142d8aa3a2a6fdff66d1c7bd5005dd8b"
+      "evidenceDigest": "sha256:c469e89684e61e7b07cbbb19367ebe2785c3f0e76bd5bd43178bb0b5b15bd331"
     },
     {
       "intentRef": "B3F3D-002-A3",
       "itemId": "CHK-002",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:8b78e0b1916dc045ea5e4ea2ab36ad187c2fcc34b619b7c96a563c9366d57bf0"
+      "evidenceDigest": "sha256:9bb083ad050a03e625dd9f4355db5cfc576d2cb58dae72ed1e484517badd015c"
     },
     {
       "intentRef": "B3F3D-002-E1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:3f31bb30d6a992b6248997949cd4c220bfb8c4b2c90fbb64c375bdb49fcdb12e"
+      "evidenceDigest": "sha256:b16c20c564a564caaa626ae5cd012551aebc2eedcfba9476a23eb3ba4676c197"
     },
     {
       "intentRef": "B3F3D-002-E2",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:083d658b1dfa54542b7bb2403a33802ca868fd868144a4d8ca599cb4535904f9"
+      "evidenceDigest": "sha256:3d4c868e1bec69ff00f4d3beb137452d1fea91f9477c02ecc0e75c7497b552de"
     },
     {
       "intentRef": "B3F3D-002-E3",
       "itemId": "CHK-002",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:12d4d0453f6a6e1d0e7ca0d2624df853d9709a0e31920f8b1806770e36e72b56"
+      "evidenceDigest": "sha256:b58c3a4e83a5a2b82b18a9ddb21351b7d47a97b7bd251f282f1f49a3643b9ac5"
     },
     {
       "intentRef": "B3F3D-002-H1",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:34bc5d0d6aee40e7bdd131bf3f276f647910dce2a90e16482a04e6eeeec871fd"
+      "evidenceDigest": "sha256:3bfb506017c4ceec478d93d9c9bb50c2120cbac47c708659ae6ec6704e59277b"
     },
     {
       "intentRef": "B3F3D-002-H2",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:972264bbe195ff360043c6c20fdc99ab860558b3b8ef3f2b0fb112a7becdcc1e"
+      "evidenceDigest": "sha256:d734facefca4df7b45542a23039fb4b92e43f98a27ffffb1f75abe46901430d8"
     },
     {
       "intentRef": "B3F3D-002-H3",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:22004f6ff5da0ee8b44bc9cdda9ce73a91d719547c4a3bd36372c048d4d946fe"
+      "evidenceDigest": "sha256:63a6d12198e47652bd1212459be4ba06217822171b95cb5f991bc399ea615c14"
     },
     {
       "intentRef": "B3F3D-003-A1",
       "itemId": "CHK-003",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:70d71491478d1edaecd2a4d64fecfc5c11d55a8c5f55f5b9d9367456522cfa05"
+      "evidenceDigest": "sha256:137cb07a03b0860fd06c8f9b1d7974b5a221fa53811e44d99c3b24b36e0fe2bc"
     },
     {
       "intentRef": "B3F3D-003-A2",
       "itemId": "CHK-003",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b852575b3c30eb3b95aac7a439847c906ff874a9f9c4d05513e91b80f6acad37"
+      "evidenceDigest": "sha256:7673e69f09e36dd9d45ab02ae2bbf5a80a503ec865a9a17e4d9c472b1124e7c9"
     },
     {
       "intentRef": "B3F3D-003-A3",
       "itemId": "CHK-003",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b8b87b8f7bf9a772579e4e0ee89627577c53c9f947841d44aff0e308e09c8053"
+      "evidenceDigest": "sha256:2536a240c95bf33b88cdf08b005d7cec89385ecb12ef14160a09e84a3dfebae7"
     },
     {
       "intentRef": "B3F3D-003-E1",
       "itemId": "CHK-003",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:8ed001ae12b48ff378c42f87c36a1a8f0ce7066eb1fac013fe2dadd7ba3b7e7d"
+      "evidenceDigest": "sha256:7dad882cc263a50cd91eb140f6f30bcdb197881ea52bab5d72e36d3053517466"
     },
     {
       "intentRef": "B3F3D-003-E2",
       "itemId": "CHK-003",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:c9b66152a96692451f1984129f541329e1c860dadfcb8b67cc1b3918ad4bfa9d"
+      "evidenceDigest": "sha256:4e0ccdae6e08903c9245767539e3e2c59dfeaaa110eb2c17fd7864318f49fefb"
     },
     {
       "intentRef": "B3F3D-003-E3",
       "itemId": "CHK-003",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:1664f80a3b058cebe8e642378fc2be92b88d08e783a42dea8ed48a658994b906"
+      "evidenceDigest": "sha256:52172a8cc4ffcf1c4ddbbfe1914782a63b63493b7e5b1f3eb5b1b77de8444dce"
     },
     {
       "intentRef": "B3F3D-003-H1",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:21474da4083d277f4be278177d9a7ea056f794800b8db73aa02d2b9bc19497a1"
+      "evidenceDigest": "sha256:46f49b56fdd5e684769771fd79e13999f3d218d8e9c2c30024223a033aea3cfa"
     },
     {
       "intentRef": "B3F3D-003-H2",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:6a9b38b45d31dd55913e5f322585e1cc84559ab7f5108b42480d3f4bc3fa33f4"
+      "evidenceDigest": "sha256:389582828d8118bba6ea704af984dd79deeba45a92713401d22fb14806461c36"
     },
     {
       "intentRef": "B3F3D-003-H3",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:3728007d89ddf14760ae658ebe431a1fa3346847ba0c3a478781e7f2713adf06"
+      "evidenceDigest": "sha256:426581555f39df809593ff769020bd7db253c7c907b65f214653d161081af586"
     },
     {
       "intentRef": "B3F3D-004-A1",
       "itemId": "CHK-004",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:6411177593f1c46594705543e8efc9bd29c58c851ae3bccacea6865a6ef467e8"
+      "evidenceDigest": "sha256:023c2887ce492959ab2e62aa0262a4aa8ecc269ddfa50473e1131f7cc04a1728"
     },
     {
       "intentRef": "B3F3D-004-A2",
       "itemId": "CHK-004",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b89a2350c425e67ac9780f0ac2eec6ed8cc47daa5db59feded06ceca61e9e218"
+      "evidenceDigest": "sha256:a0fe88b4061a6bc7e481685fd487257e504678388d5009c105f83146cfb736c5"
     },
     {
       "intentRef": "B3F3D-004-A3",
       "itemId": "CHK-004",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:66c5c75585c6750b3db42bb9a17f1cd937a98906515e29679a662af5b486d2b1"
+      "evidenceDigest": "sha256:f337fed1068d8b1f2bca53af520917685dbb19659660bc2ad1fb0c88ec583f95"
     },
     {
       "intentRef": "B3F3D-004-E1",
       "itemId": "CHK-004",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:575eca0837631156b91578d4e060f1ad9bb0286f6340ed0c613417b266a9f316"
+      "evidenceDigest": "sha256:34933469f886951971f3cbef63f4773d2a4fda0b4219d64d7c525b561532a73c"
     },
     {
       "intentRef": "B3F3D-004-E2",
       "itemId": "CHK-004",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:4a80d664743e20ac759116c9533960815b31c702c1542cabf82be4d63d507d2d"
+      "evidenceDigest": "sha256:94c88e45098b24fdebf820a5f86541bc270c57fc153bf6ccac392e28113f9f86"
     },
     {
       "intentRef": "B3F3D-004-E3",
       "itemId": "CHK-004",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:1cdd85a15be35348756808c24add6a76a1aec77d574163c5850d4b451b6213c9"
+      "evidenceDigest": "sha256:74d37f620ee5e3256a1f4c0fd46ff5923aefc4a93df7574b88c7aa5c02db8435"
     },
     {
       "intentRef": "B3F3D-004-H1",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b89bec110ea722d6daab461a0203c9e7ebe31bda3df5b694dfbb8ece1f98bd1c"
+      "evidenceDigest": "sha256:693c2ba6ba32387fea3af08df135295844532e80a7b7d937c11cd46fd9e93737"
     },
     {
       "intentRef": "B3F3D-004-H2",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:054ed709577206a0f6fafa261206bd10a63d0d77f3ce8b129563a03e28eec297"
+      "evidenceDigest": "sha256:1579301fea9ead7f17467ba02271d8091fa0c6655bb8706f5babd0ef24600642"
     },
     {
       "intentRef": "B3F3D-004-H3",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:ec8040d1c5f2d4c0fe01051091bfbb130426118c8b92ba694e22e32336620588"
+      "evidenceDigest": "sha256:e351dcf6c6fbae85911545cf37a36916156d65edd84491df157e683eaa8ed00e"
     },
     {
       "intentRef": "B3F3D-005-A1",
       "itemId": "CHK-005",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:2857027daffbc7a252943466b874cc53bd6659937aa7b9a4eda3f9894cbb9e76"
+      "evidenceDigest": "sha256:6d97a769ec0dd00f18252fafd32e0e234ff04c4c929aa51e4582940784e0a315"
     },
     {
       "intentRef": "B3F3D-005-A2",
       "itemId": "CHK-005",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a6e798796f0b4fbf7435b844f240545770827b6d3231537abcedce247097193f"
+      "evidenceDigest": "sha256:2ea597d73d6316b03c10f1c2c10acac52ba396efbb02561a6933300f3421a5e8"
     },
     {
       "intentRef": "B3F3D-005-A3",
       "itemId": "CHK-005",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f720231a9ad3b1bb9cfa7b9304f36eec7b978a8b4bed19714460ea4ffe546947"
+      "evidenceDigest": "sha256:52415225ad4aa7ad268fba5aa9efd32f053e5a62c45cb35cf6e58e7f90356cb5"
     },
     {
       "intentRef": "B3F3D-005-E1",
       "itemId": "CHK-005",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:9f0b48de461bc78db8b64c2807d5b2c9104185766d77788bc0f1c298742ec107"
+      "evidenceDigest": "sha256:0ae0058331b1d893b07d617e324b40ed4f002f162a0ce66784e33d763c5d4ce8"
     },
     {
       "intentRef": "B3F3D-005-E2",
       "itemId": "CHK-005",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b2da133740acc0bb82b7929655d9179c109546c17dfca893184c065ddf3535ad"
+      "evidenceDigest": "sha256:414fdddbaa10d7eef18d3fc863f8ce75907962858dc5a153409da75a763eae9d"
     },
     {
       "intentRef": "B3F3D-005-E3",
       "itemId": "CHK-005",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:17795676054f5c4fe478e9927b594b6957a75f8d3e5c9711b309689da40c5219"
+      "evidenceDigest": "sha256:c6a7af1f69a49a4fce54fc02004e61ece9dce4da35c0f2c1ae0e70cb24007bd1"
     },
     {
       "intentRef": "B3F3D-005-H1",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:f0e221de6976540a5983b1806fd7c37fca50d5dd929ac24a2eec8b277d0727bb"
+      "evidenceDigest": "sha256:e47cd41464075eff7de1e6ace6b55b8f3a8e3342ef08c05df92ee3307fa2e993"
     },
     {
       "intentRef": "B3F3D-005-H2",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:de907adc01e058d7eff44f2a7f0c525abb2538c39b8b0794e490c917c732c940"
+      "evidenceDigest": "sha256:0521e945bf730c48c186803d9a0d1bdd1a32f557df9d526562bfb7e8cf864d6a"
     },
     {
       "intentRef": "B3F3D-005-H3",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b34c0c1f8315a1e47bde1a14eeb74fdc9471786261d81a808b088a9e6cf838be"
+      "evidenceDigest": "sha256:9b7656f04ddea033f97af3f2695aea67de119c7fc3f1ae0956e99ea57c8a32db"
     },
     {
       "intentRef": "B3F3D-006-A1",
       "itemId": "CHK-006",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6229cb02e81b25c44593f1c65752db98d3a5dae42e041f21dbf30292052bcda4"
+      "evidenceDigest": "sha256:5d5db07429f5e30018e50eecd348423ce80ba9b38dbeba1b9dbf7437d9715195"
     },
     {
       "intentRef": "B3F3D-006-A2",
       "itemId": "CHK-006",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:a369fecbe32fdafd6448f9a32517bb04d0054578b639fc8c694b7920546b868c"
+      "evidenceDigest": "sha256:b7d79212d58fc3dc8d4f519695ecd33fc5e06016456be2fd0afa71a4d7d1b20b"
     },
     {
       "intentRef": "B3F3D-006-A3",
       "itemId": "CHK-006",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6d1602e83bf0c5f9238f1d708f91906c9bb8806e888c4e2d53a6f2f06dcb0c14"
+      "evidenceDigest": "sha256:5bfcfea680a2a1e5d79c117c1c8a930ee98fc6a73b702f8951301a29ca9afa28"
     },
     {
       "intentRef": "B3F3D-006-E1",
       "itemId": "CHK-006",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:284d3384975c999213c036f42b73e8d8ece868e0d6a8ed74fc3e3e09d1c9ab32"
+      "evidenceDigest": "sha256:cf922596ab83231a3e432660119444c0ee70df4a76d7e213d36e54a4bf5e2e1b"
     },
     {
       "intentRef": "B3F3D-006-E2",
       "itemId": "CHK-006",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4508e39dec323b8a910a8462f48ca46f949e433cb154d14f7f4fb0252f00e322"
+      "evidenceDigest": "sha256:22a42da24f0006b0bbaedb8c7ca36caee8044be55b61b269d8649fd11c0c4cbe"
     },
     {
       "intentRef": "B3F3D-006-E3",
       "itemId": "CHK-006",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:7469e9467e7a718caa1d61b9e4aa42490ca0794a5efd13e66f7ea1484a8dceb5"
+      "evidenceDigest": "sha256:67e0b3f4a8a9157ed8c08df0442719ba2181c052b7d762c6d27fc954ce7c8167"
     },
     {
       "intentRef": "B3F3D-006-H1",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:e036e620628cbe0ed1bf3204109195fe5c6f43249b258fe06efee054cead44ca"
+      "evidenceDigest": "sha256:cffbc5da3724ea80c9a9520fd01ffdba73f3a1fdf42df2141dda4e0611194c2e"
     },
     {
       "intentRef": "B3F3D-006-H2",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:781a64e5e051e5690f3103efa57ebb9137644bcf5242e08c2105cd8d299d4960"
+      "evidenceDigest": "sha256:094e04b6013ba6fb8f68c9e06e12b44866ee52c932df4b7df498968ebe7bf91e"
     },
     {
       "intentRef": "B3F3D-006-H3",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:24390efad453c261013167a733931d0d3ff463662bce2836aba3b15b355d59ca"
+      "evidenceDigest": "sha256:5f6e65809925abbfc0e42541cef73fd8b26ff18398b87a147aa33b937d12693a"
     }
   ],
   "executableProof": {
@@ -1086,7 +1086,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-14T21:05:18.780Z",
+  "issuedAt": "2026-08-15T00:02:20.615Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "dUjQX7cRqLlpvUOArhxxOVQn/0emhyy1kYOnwmp5/3eQ3Bqi+c9m/WZ4l+014Wmw1GkrxjUa8YqQ1o3VxLGQCA=="
+  "signature": "IMSExFO+ul8eV2Hzwmn6IOMAa6/FqpewnrtcFzRY/rOgi7js9buW8o1rYsCsLfInBOX4nghG45Eg39GduAmICw=="
 }
