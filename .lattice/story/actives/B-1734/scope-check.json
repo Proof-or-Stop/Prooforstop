@@ -358,9 +358,12 @@
       "q": "scope-boundary.json excludes 'changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)', but scope-contract.json allowedModify explicitly names packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, a file physically under packages/main/src. Is this file smoke-test/registration infrastructure (consistent with the exclusion's intent) or product feature source (a contradiction with the stated exclusion)?",
       "evidence": "scope-boundary.json excluded[2] vs scope-contract.json allowedModify[8]=packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
       "sourcePointers": [
-        ".lattice/story/actives/B-1734/scope-boundary.json",
-        ".lattice/story/actives/B-1734/scope-contract.json"
-      ]
+        "scope-boundary.json (product-source exclusion)",
+        "scope-contract.json (allowedModify: test-suite-utils-autobuild-smoke.ts)",
+        "CHK-002 (content-bound build behavior the smoke guards)"
+      ],
+      "resolution": "No conflict. scope-boundary.json's exclusion 'No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)' targets product LOGIC (CLI/handlers/core), not test or build-guard infrastructure. packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts is a STRUCTURAL BUILD-GUARD SMOKE (it lives in src/tasks alongside the other *-smoke guards and is wired into validate.commands) that pins the pretest/build-script invariants; it is not product feature source. scope-contract.json legitimately lists it in allowedModify because B-1734 changes the build behavior the smoke guards (the pretest's ensure-dist becomes content-bound via verifyBuildBinding rather than existence-based), so the smoke's assertions must be updated to pin the new behavior. Both artifacts are consistent: the boundary excludes product logic, the contract allows the build-guard smoke.",
+      "resolvedAt": "2026-08-15T11:54:42.762Z"
     }
   ]
 }
