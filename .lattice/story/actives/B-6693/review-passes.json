@@ -636,6 +636,54 @@
       },
       "readDiagnostics": [],
       "_hash": "10ace3e4810618af67c02529d0c312f6dbdaace01a5e73d3d443e4270765af99"
+    },
+    {
+      "id": "B-6693:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 test coverage passed: 29/29 must intents current, 0 waivers/gaps, dry-run no stale; 28 mechanical receipts plus one docs check. Exact focused15/full26 pins remain 14/10. All three CHK-004 live-proof receipts are mechanical exit-0 selector matches at current material/storyFiles under the frozen 12-record, 6-pair baseline/candidate cohort with codex-cli+claude-cli full-3x2. Canonical process-fact verifier passes and registers the acceptance topology/pre-review/rollout commands, artifacts, and current CLI fingerprint contract.",
+      "createdAt": "2026-08-15T22:25:55.875Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-035",
+      "envelopeId": "9b758e9feb9352dd0c1a182b5333f700b569dece88199d24b22db8c9153dae39",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "88b8ae5bb23ca4acad1cc9e90586790af159ed144615151a900506887701bb31"
     }
   ]
 }
