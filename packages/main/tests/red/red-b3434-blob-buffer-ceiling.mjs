@@ -261,7 +261,10 @@ section('an absent blob and an unreadable blob are distinct, diagnostic, and nev
     'absent',
     `RED: a blob that is genuinely missing from the index must classify as absent, got ${JSON.stringify(absent)}`,
   );
-  assert.ok(String(absent.error).length > 0, 'the absent classification still carries the underlying git message');
+  // The claim is that the ORIGINAL error survives, so assert the original error, not its length.
+  assert.match(String(absent.error), /exit 128/, 'the absent classification carries the exit status git reported');
+  assert.match(String(absent.error), /fatal:/, 'the absent classification carries the git diagnostic verbatim');
+  assert.match(String(absent.error), /not-staged\.json/, 'the absent classification names the path git could not find');
 
   // An infrastructure failure that is not "the path is missing": git cannot operate here at all.
   const notARepo = mkdtempSync(join(tmpdir(), 'b3434-notrepo-'));
@@ -274,10 +277,22 @@ section('an absent blob and an unreadable blob are distinct, diagnostic, and nev
     `RED: an infrastructure failure must classify as unreadable, not as a missing blob and not as a `
       + `digest change, got ${JSON.stringify(unreadable)}`,
   );
-  assert.ok(
-    String(unreadable.error).length > 0,
+  assert.match(
+    String(unreadable.error),
+    /not a git repository/i,
     'RED: the underlying error must survive; the pre-fix `catch { return null }` discarded it entirely',
   );
+  assert.match(String(unreadable.error), /exit 128/, 'the unreadable classification carries the exit status too');
+  // Cross-compare the two texts directly: "textually distinct" is a claim about the pair, and an
+  // assertion on each one separately cannot establish it.
+  assert.notEqual(String(unreadable.error), String(absent.error), 'the two failure texts are not the same string');
+  assert.ok(
+    !String(unreadable.error).includes(String(absent.error))
+      && !String(absent.error).includes(String(unreadable.error)),
+    'neither failure text contains the other, so a reader cannot confuse the two classes',
+  );
+  assert.doesNotMatch(String(unreadable.error), /does not exist/i, 'an infrastructure failure is never described as a missing path');
+  assert.doesNotMatch(String(absent.error), /not a git repository/i, 'a missing path is never described as an infrastructure failure');
 
   // Fail-closed: an unreadable or absent read can never be reported as a match, for ANY expectation,
   // including the digest of the real content and the digest a caller might supply by accident.
@@ -352,6 +367,96 @@ section('a genuine post-verification change still reports "verified metadata cha
     'verified metadata changed after manifest verification',
     `RED: a genuine digest change must keep its own distinct message, got "${result.reason}"`,
   );
+});
+
+// ── 9. Above the ceiling the reader gets a DIAGNOSTIC, never the content. ────────────────────────
+section('a read above the ceiling reports the ceiling and the captured size, never blob content', () => {
+  const root = makeRepo('over-ceiling');
+  const ceiling = metadata.METADATA_BLOB_READ_MAX_BUFFER_BYTES;
+  const size = ceiling + 1_000_000;
+  // process-events.jsonl is the realistic carrier here: it is append-only and never truncated, so
+  // unlike test-evidence.json it has no aggregate bound and will reach the ceiling in time.
+  const staged = stageOversizedBlob(root, 'process-events.jsonl', size, 0x3434_0008);
+  const indexFile = join(root, '.git', 'index');
+  const read = metadata.isolatedBlobHash(root, indexFile, 'process-events.jsonl');
+  assert.equal(read.ok, false, 'a read above the ceiling cannot succeed');
+  assert.equal(read.kind, 'unreadable', 'a read above the ceiling is an infrastructure failure, not a missing blob');
+  console.log(`    over-ceiling read: ceiling=${ceiling} blob=${size} errorChars=${String(read.error).length}`);
+  console.log(`    over-ceiling error: ${read.error}`);
+  assert.ok(
+    String(read.error).length < 500,
+    `RED: the reader must get a diagnostic, not content. The pre-fix describer returned the partial `
+      + `stdout capture, which is the blob itself (got ${String(read.error).length} chars).`,
+  );
+  assert.match(String(read.error), /ENOBUFS/, 'the diagnostic names the failure class');
+  assert.match(String(read.error), new RegExp(String(ceiling)), 'the diagnostic names the ceiling that was exceeded');
+  assert.match(String(read.error), /\d+ bytes were captured/, 'the diagnostic names how much was captured before the ceiling');
+  // Content-shaped assertion: high-entropy fixture bytes are overwhelmingly non-ASCII, and a
+  // diagnostic is ASCII prose. This fails loudly if any capture leaks back in.
+  assert.doesNotMatch(String(read.error), /[^\x20-\x7E]/, 'the diagnostic is printable ASCII prose with no captured bytes in it');
+  assert.ok(!String(read.error).includes(staged.content.subarray(0, 32).toString('binary')), 'the diagnostic contains no prefix of the blob');
+
+  // The blast radius: this text becomes the commitImmutableMetadataTree reason, which becomes the
+  // done_prepare step/blocked text the CLI prints. It must stay bounded all the way out.
+  const result = metadata.commitImmutableMetadataTree({
+    root,
+    gitCwd: root,
+    paths: ['process-events.jsonl'],
+    verifiedHashes: new Map([['process-events.jsonl', staged.digest]]),
+    message: 'red-b3434: over-ceiling metadata',
+  });
+  assert.equal(result.ok, false, 'an unreadable oversized blob fails closed');
+  console.log(`    commit reason chars: ${String(result.reason).length}`);
+  assert.ok(
+    String(result.reason).length < 2_000,
+    `RED: the commit reason travels to the done_prepare block text, so it must stay bounded `
+      + `(got ${String(result.reason).length} chars)`,
+  );
+  assert.match(String(result.reason), /ENOBUFS/, 'the commit reason names the failure class');
+  assert.match(String(result.reason), new RegExp(String(ceiling)), 'the commit reason names the ceiling');
+  assert.doesNotMatch(String(result.reason), /[^\x20-\x7E]/, 'the commit reason carries no captured bytes');
+});
+
+// ── 10. RED-before-GREEN, provable from this file alone. ─────────────────────────────────────────
+section('the pre-fix helper returns null for the same fixture that the shipped helper reads', () => {
+  // The pre-fix implementation, reproduced verbatim from the shape this story replaced: no
+  // maxBuffer, and a bare catch that returns null. Keeping it here makes the RED-before-GREEN
+  // property checkable from committed artefacts alone, with no dependency on rebuilding an older
+  // tree or on an ephemeral scratch script.
+  const preFixIsolatedBlobHash = (gitCwd, indexFile, path) => {
+    try {
+      const content = execFileSync('git', ['show', `:${path}`], {
+        cwd: gitCwd,
+        env: { ...process.env, GIT_INDEX_FILE: indexFile },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return sha256(content);
+    } catch {
+      return null;
+    }
+  };
+
+  const root = makeRepo('differential');
+  const staged = stageOversizedBlob(root, 'test-evidence.json', 1_400_000, 0x3434_0009);
+  const indexFile = join(root, '.git', 'index');
+
+  const before = preFixIsolatedBlobHash(root, indexFile, 'test-evidence.json');
+  assert.equal(
+    before,
+    null,
+    'the pre-fix helper returns null for a blob above the Node default: this is the defect, reproduced here',
+  );
+  // And this is why the operator saw the wrong sentence: null is then compared against the expected
+  // digest, and an unequal comparison was reported as a change.
+  assert.notEqual(before, staged.digest, 'the pre-fix null compares unequal to the verified digest');
+
+  const after = metadata.isolatedBlobHash(root, indexFile, 'test-evidence.json');
+  assert.equal(after.ok, true, 'the shipped helper reads the identical fixture');
+  assert.equal(after.hash, staged.digest, 'the shipped helper produces the correct digest');
+
+  // Same fixture, same call site, opposite outcomes: the regression cannot pass vacuously.
+  const control = preFixIsolatedBlobHash(root, indexFile, 'base.txt');
+  assert.equal(control.length, 64, 'the pre-fix helper still works BELOW the ceiling, so the difference is the size and nothing else');
 });
 
 cleanup();

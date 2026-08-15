@@ -21,9 +21,15 @@ export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-gene
  *
  * 32 MiB is 32x the Node default, far above any observed artifact, and cheap: Node grows the pipe
  * buffer on demand, so a high ceiling costs nothing until content actually arrives. The evidence
- * writer in core/validation-executor.ts derives its own warning and bounding thresholds from THIS
- * constant, which keeps the invariant that a bounded evidence artifact is always readable by the
- * very read whose ceiling bounds it.
+ * writer in core/validation-executor.ts derives its warning and bounding thresholds from THIS
+ * constant so the two cannot drift apart.
+ *
+ * What this ceiling does NOT promise: that every managed file stays under it. Only
+ * `test-evidence.json` has an aggregate bound. `process-events.jsonl` is append-only and never
+ * truncated, and `done-required-evidence.json` is written by other paths entirely, so either can
+ * reach the ceiling in time. That is why a read above the ceiling must fail DIAGNOSTICALLY - see
+ * describeContentReadFailure, which names the ceiling and the measured capture and never returns
+ * content - rather than being assumed unreachable.
  */
 export const METADATA_BLOB_READ_MAX_BUFFER_BYTES = 32 * 1024 * 1024;
 
@@ -373,7 +379,7 @@ function gitMaybe(gitCwd: string, args: string[]): { ok: true; output: string } 
   try {
     return { ok: true, output: git(gitCwd, args) };
   } catch (err: any) {
-    return { ok: false, error: String(err?.stderr || err?.stdout || err?.message || err).trim() };
+    return { ok: false, error: describeContentReadFailure(err) };
   }
 }
 
@@ -491,7 +497,7 @@ export function rollbackDonePrepareGeneratedMetadataTransaction(args: {
       restoreIndexEntries(args.gitCwd, state.path, state.indexEntries);
       restoreWorktreeContent(args.root, state.path, state.worktreeContent);
     } catch (err: any) {
-      errors.push(`${state.path}: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`);
+      errors.push(`${state.path}: ${describeDiagnosticStreamFailure(err)}`);
     }
   }
   return {
@@ -597,23 +603,83 @@ function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string)
 }
 
 /**
- * Render a child-process failure without losing the operator-relevant part.
+ * Hard cap on any rendered diagnostic.
  *
- * The nuance that matters: on ENOBUFS Node populates `code` with the string "ENOBUFS" and leaves
- * `stderr` an EMPTY BUFFER, which is truthy. A naive `stderr || stdout || message` therefore
- * selects the empty buffer and renders the empty string, discarding the only useful fact. Pick the
- * first NON-EMPTY candidate instead, and always prefix the code or exit status.
+ * A failure description travels: blob read failure to commitImmutableMetadataTree reason to
+ * commitDonePrepareGeneratedMetadata reason to the done_prepare step/blocked text the CLI prints.
+ * Nothing along that path bounds it, so an unbounded description is an unbounded artifact blocking
+ * a phase transition - the exact shape of the defect this module was repaired for. The cap makes
+ * the bound a property of the renderer rather than an assumption about the source.
  */
-function describeChildProcessFailure(err: any): string {
-  const streams = [err?.stderr, err?.stdout]
-    .map((value) => (value === undefined || value === null ? '' : String(value).trim()))
-    .filter(Boolean);
-  const message = String(err?.message ?? err ?? '').trim();
-  const code = typeof err?.code === 'string' && err.code
-    ? err.code
-    : Number.isInteger(err?.status) ? `exit ${err.status}` : '';
-  const detail = streams[0] || message || 'no diagnostic output';
-  return code ? `${code}: ${detail}` : detail;
+const MAX_DIAGNOSTIC_CHARS = 2000;
+
+function capDiagnostic(text: string): string {
+  if (text.length <= MAX_DIAGNOSTIC_CHARS) return text;
+  return `${text.slice(0, MAX_DIAGNOSTIC_CHARS)}...[diagnostic truncated ${text.length - MAX_DIAGNOSTIC_CHARS} chars]`;
+}
+
+function streamText(value: unknown): string {
+  return value === undefined || value === null ? '' : String(value).trim();
+}
+
+function streamByteLength(value: unknown): number {
+  if (value === undefined || value === null) return 0;
+  if (Buffer.isBuffer(value)) return value.length;
+  return Buffer.byteLength(String(value), 'utf8');
+}
+
+function failureCode(err: any): string {
+  if (typeof err?.code === 'string' && err.code) return err.code;
+  return Number.isInteger(err?.status) ? `exit ${err.status}` : '';
+}
+
+/** Node raises ENOBUFS when a captured stream passes maxBuffer, and keeps the partial capture. */
+function isBufferCeilingFailure(err: any): boolean {
+  return err?.code === 'ENOBUFS' || /maxBuffer/i.test(String(err?.message ?? ''));
+}
+
+function bufferCeilingDiagnostic(err: any): string {
+  const partial = Math.max(streamByteLength(err?.stdout), streamByteLength(err?.stderr));
+  return `ENOBUFS: output exceeded the ${METADATA_BLOB_READ_MAX_BUFFER_BYTES}-byte read ceiling`
+    + (partial > 0 ? `; ${partial} bytes were captured before the ceiling and discarded` : '');
+}
+
+/**
+ * Describe a failure of a command whose STDOUT IS CONTENT, not diagnostics - anything of the
+ * `git show` / `git rev-parse` / `git diff --cached` family.
+ *
+ * Why this is a separate helper rather than one describer used everywhere: for such a command the
+ * partial stdout captured before a buffer failure is a slice of the blob, so treating stdout as a
+ * fallback diagnostic hands the reader tens of millions of characters of file content in place of
+ * an explanation. The stream that carries the explanation here is stderr, and above the ceiling
+ * there is no explanation to carry - Node failed before git wrote one - so the diagnostic has to be
+ * synthesised from the ceiling and the measured capture instead.
+ */
+function describeContentReadFailure(err: any): string {
+  if (isBufferCeilingFailure(err)) return bufferCeilingDiagnostic(err);
+  const detail = streamText(err?.stderr) || String(err?.message ?? err ?? '').trim() || 'no diagnostic output';
+  const code = failureCode(err);
+  return capDiagnostic(code ? `${code}: ${detail}` : detail);
+}
+
+/**
+ * Describe a failure of a command whose stdout is genuinely diagnostic - a commit hook, which
+ * commonly prints its reason to stdout, or index plumbing that emits no content at all.
+ *
+ * The ENOBUFS branch still runs first: a buffer failure never renders a partial stream, whichever
+ * stream it came from.
+ *
+ * Unlike describeContentReadFailure this does NOT prefix a plain exit status. A hook that failed
+ * has already explained itself in the text it printed, so `exit 1: ` in front of it adds noise and
+ * nothing else; the operator-facing wording of these reasons is depended on elsewhere. A Node-level
+ * code such as ENOBUFS or EPERM is different - there the code IS the diagnostic - so it is kept.
+ */
+function describeDiagnosticStreamFailure(err: any): string {
+  if (isBufferCeilingFailure(err)) return bufferCeilingDiagnostic(err);
+  const streamDetail = streamText(err?.stderr) || streamText(err?.stdout);
+  const detail = streamDetail || String(err?.message ?? err ?? '').trim() || 'no diagnostic output';
+  const nodeLevelCode = typeof err?.code === 'string' && err.code ? err.code : '';
+  return capDiagnostic(nodeLevelCode ? `${nodeLevelCode}: ${detail}` : detail);
 }
 
 /**
@@ -622,7 +688,7 @@ function describeChildProcessFailure(err: any): string {
  * infrastructure failure and must never be mistaken for a missing blob.
  */
 function classifyMetadataBlobReadFailure(err: any): { kind: MetadataBlobReadFailureKind; error: string } {
-  const error = describeChildProcessFailure(err);
+  const error = describeContentReadFailure(err);
   const nodeLevelFailure = typeof err?.code === 'string' && err.code.length > 0;
   const absent = !nodeLevelFailure
     && (/fatal:\s+path\s+.+\s+does not exist/i.test(error)
@@ -756,7 +822,7 @@ function runCommitHook(
     });
     return { ok: true };
   } catch (err: any) {
-    return { ok: false, error: String(err?.stderr || err?.stdout || err?.message || err).trim() };
+    return { ok: false, error: describeDiagnosticStreamFailure(err) };
   }
 }
 
@@ -952,7 +1018,7 @@ export function commitImmutableMetadataTree(args: {
       return {
         ok: false,
         files: paths,
-        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
+        reason: `real index refresh after isolated commit failed: ${describeContentReadFailure(err)}`
           + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
       };
     }
@@ -962,7 +1028,7 @@ export function commitImmutableMetadataTree(args: {
     return {
       ok: false,
       files: paths,
-      reason: `isolated metadata commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`,
+      reason: `isolated metadata commit failed: ${describeContentReadFailure(err)}`,
     };
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

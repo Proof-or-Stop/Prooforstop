@@ -134,9 +134,22 @@ function trimOutput(output: string): string {
  * Raising that read ceiling alone only moves the cliff, so the ceiling is the ANCHOR here rather
  * than an independent number: both thresholds below are fractions of
  * METADATA_BLOB_READ_MAX_BUFFER_BYTES, the ceiling core/done-prepare-generated-metadata.ts applies
- * to the very read that consumes this artifact. That keeps one invariant true by construction: a
- * bounded artifact is always readable by the read whose ceiling bounds it, because
- * VALIDATION_EVIDENCE_BOUND_BYTES is strictly below VALIDATION_EVIDENCE_READ_CEILING_BYTES.
+ * to the very read that consumes this artifact.
+ *
+ * What is guaranteed, and what is not - stated precisely, because an earlier revision of this
+ * comment claimed an invariant that the code did not enforce:
+ *
+ *   GUARANTEED, as an enforced post-condition of boundValidationEvidenceOutput: the string it
+ *   returns is strictly smaller than VALIDATION_EVIDENCE_BOUND_BYTES. It is enforced by measuring
+ *   the real encoding after every stage and by a last-resort replacement that cannot fail, not by
+ *   the two constants standing in the right order.
+ *
+ *   NOT GUARANTEED: that test-evidence.json as a FILE is under the ceiling. That file also carries
+ *   verificationCoverage, commandExecution and routineValidationIdentity, written by
+ *   persistStoryValidationEvidence outside this string. The 25 percent gap between the bound and
+ *   the ceiling is the headroom those fields spend, and it is headroom rather than a proof. A read
+ *   above the ceiling must therefore still fail diagnostically, which is what
+ *   describeContentReadFailure in core/done-prepare-generated-metadata.ts is for.
  */
 export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
 /**
@@ -172,6 +185,19 @@ export interface ValidationEvidenceSizing {
   elidedCommandOutputs: number;
   /** Command entries dropped from the array, always reported as a count, never silently. */
   elidedCommandEntries: number;
+  /**
+   * Detail lines replaced by a marker. executeValidationPlan copies every captured output line
+   * into `details`, so this is the SECOND copy of the same bytes and is usually the larger one.
+   */
+  elidedDetailLines: number;
+  /** Warning entries dropped from the array, reported as a count. */
+  elidedWarnings: number;
+  /**
+   * Top-level fields removed by the last-resort stage, named rather than counted. Any field can
+   * appear here: the bound is a post-condition over the whole object, not a list of fields the
+   * author happened to think of.
+   */
+  droppedKeys: string[];
 }
 
 export interface BoundedValidationEvidenceOutput extends ValidationEvidenceSizing {
@@ -213,15 +239,63 @@ export function formatValidationEvidenceAdvisory(sizing: ValidationEvidenceSizin
     return `${head} The artifact grows with the number of lattice.config.json validate.commands entries; `
       + `it is bounded at ${formatBytes(sizing.boundBytes)}.`;
   }
+  const dropped = sizing.droppedKeys.length > 0
+    ? ` Top-level field(s) removed: ${sizing.droppedKeys.join(', ')}.`
+    : '';
   return `${head} It reached the ${formatBytes(sizing.boundBytes)} bound, so it was serialised at `
     + `${formatBytes(sizing.serializedBytes)} with ${sizing.elidedCommandOutputs} command output(s) `
-    + `replaced by a marker and ${sizing.elidedCommandEntries} command entry(ies) summarised by count. `
-    + `Per-command output remains available in the validate console output.`;
+    + `replaced by a marker, ${sizing.elidedDetailLines} detail line(s) replaced by a marker, `
+    + `${sizing.elidedWarnings} warning(s) and ${sizing.elidedCommandEntries} command entry(ies) `
+    + `summarised by count.${dropped} Per-command output remains available in the validate console output.`;
 }
 
 function elisionMarker(originalChars: number): string {
   return `[evidence bound: ${originalChars} chars of captured output omitted so the aggregate artifact `
     + `stays under ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+function detailElisionMarker(lines: number, chars: number): string {
+  return `  [evidence bound: ${lines} detail line(s), ${chars} chars, omitted so the aggregate artifact `
+    + `stays under ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+function countElisionMarker(kind: string, omitted: number): string {
+  return `[evidence bound: ${omitted} further ${kind} omitted so the aggregate artifact stays under `
+    + `${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+/**
+ * Collapse the duplicated command output out of `details` while keeping the index a reader scans.
+ *
+ * executeValidationPlan pushes one status line per command (`✓ label: command`) and then pushes
+ * every line of that command captured output indented by two spaces. The indented run is the
+ * duplicate; the status lines are the navigable index. So each contiguous run of continuation
+ * lines collapses to a single marker naming how many lines and characters went, and every status
+ * line survives.
+ */
+function collapseDetailContinuationRuns(details: string[]): { details: string[]; elidedLines: number } {
+  const collapsed: string[] = [];
+  let runLines = 0;
+  let runChars = 0;
+  let elidedLines = 0;
+  const flush = (): void => {
+    if (runLines === 0) return;
+    collapsed.push(detailElisionMarker(runLines, runChars));
+    elidedLines += runLines;
+    runLines = 0;
+    runChars = 0;
+  };
+  for (const line of details) {
+    if (typeof line === 'string' && line.startsWith('  ')) {
+      runLines += 1;
+      runChars += line.length;
+      continue;
+    }
+    flush();
+    collapsed.push(line);
+  }
+  flush();
+  return { details: collapsed, elidedLines };
 }
 
 /**
@@ -231,10 +305,17 @@ function elisionMarker(originalChars: number): string {
  * artifact is rejected as output_invalid_json and blocks the phase gate), so the result stays valid
  * JSON and keeps allPass / allPassed / status exactly as given. Nothing is discarded silently:
  *
- *   tier 1 - replace captured per-command output with a visible marker naming the omitted length,
- *            largest first, stopping as soon as the artifact fits; every entry is retained.
- *   tier 2 - only if tier 1 is not enough, cap the entry count and record how many were omitted in
- *            the evidenceBound block, so the loss is stated as a number rather than vanishing.
+ *   stage 1 - replace captured per-command output with a visible marker naming the omitted length,
+ *             largest first; every entry is retained.
+ *   stage 2 - collapse the DUPLICATE of that same output that executeValidationPlan copies into
+ *             `details`, keeping the per-command status lines that make details navigable.
+ *   stage 3 - cap `warnings`, then stage 4 caps `commands` entries, each with a stated count.
+ *   stage 5 - last resort: drop the largest remaining top-level fields, NAMING each one. This is
+ *             what makes the bound a post-condition over the whole object rather than a promise
+ *             about the fields listed above; bulk in a field added later is bounded too.
+ *
+ * The verdict-bearing fields (allPass, allPassed, status, failureKind, summary) are preserved at
+ * every stage, and the input object is never mutated.
  */
 export function boundValidationEvidenceOutput(result: unknown): BoundedValidationEvidenceOutput {
   const serialized = JSON.stringify(result);
@@ -253,71 +334,192 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
       bounded: false,
       elidedCommandOutputs: 0,
       elidedCommandEntries: 0,
+      elidedDetailLines: 0,
+      elidedWarnings: 0,
+      droppedKeys: [],
       output: serialized ?? 'null',
     };
   }
 
   const source = result as Record<string, unknown>;
-  const commands = Array.isArray(source.commands) ? [...(source.commands as any[])] : [];
-  const order = commands
-    .map((command, index) => ({ index, length: typeof command?.output === 'string' ? command.output.length : 0 }))
-    .sort((a, b) => (b.length - a.length) || (a.index - b.index));
+  const carried: Record<string, unknown> = { ...source };
+  let commands = Array.isArray(source.commands) ? [...(source.commands as any[])] : [];
+  let details = Array.isArray(source.details) ? [...(source.details as any[])] : [];
+  let warnings = Array.isArray(source.warnings) ? [...(source.warnings as any[])] : [];
   let elidedCommandOutputs = 0;
   let elidedCommandEntries = 0;
+  let elidedDetailLines = 0;
+  let elidedWarnings = 0;
+  const droppedKeys: string[] = [];
+
   const render = (): string => JSON.stringify({
-    ...source,
-    commands,
+    ...carried,
+    ...(Array.isArray(source.commands) ? { commands } : {}),
+    ...(Array.isArray(source.details) ? { details } : {}),
+    ...(Array.isArray(source.warnings) ? { warnings } : {}),
     evidenceBound: {
       measuredBytes,
       boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
       ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
       elidedCommandOutputs,
       elidedCommandEntries,
+      elidedDetailLines,
+      elidedWarnings,
+      droppedKeys,
     },
   });
+  const measure = (): number => Buffer.byteLength(render(), 'utf8');
+  const fits = (): boolean => measure() < VALIDATION_EVIDENCE_BOUND_BYTES;
 
-  // Serialising a multi-megabyte artifact is not free, so each elision adjusts an EXACT byte
-  // delta (replacing one JSON string value changes the encoding by exactly the difference of the
-  // two encoded lengths) and the object is re-rendered only to confirm, never per elision.
+  // Stage 1. Serialising a multi-megabyte artifact is not free, so elisions inside a stage adjust
+  // an EXACT byte delta (replacing one JSON string value changes the encoding by exactly the
+  // difference of the two encoded lengths) and the object is re-rendered once per stage.
   const encodedLength = (value: unknown): number => Buffer.byteLength(JSON.stringify(value) ?? 'null', 'utf8');
-  let output = render();
-  let bytes = Buffer.byteLength(output, 'utf8');
-  for (const entry of order) {
-    if (bytes < VALIDATION_EVIDENCE_BOUND_BYTES) break;
-    if (entry.length === 0) continue;
-    const previous = commands[entry.index]?.output;
-    const marker = elisionMarker(entry.length);
-    commands[entry.index] = { ...commands[entry.index], output: marker };
-    elidedCommandOutputs += 1;
-    bytes -= encodedLength(previous) - encodedLength(marker);
+  let bytes = measure();
+  if (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    const order = commands
+      .map((command, index) => ({ index, length: typeof command?.output === 'string' ? command.output.length : 0 }))
+      .sort((a, b) => (b.length - a.length) || (a.index - b.index));
+    for (const entry of order) {
+      if (bytes < VALIDATION_EVIDENCE_BOUND_BYTES) break;
+      if (entry.length === 0) continue;
+      const previous = commands[entry.index]?.output;
+      const marker = elisionMarker(entry.length);
+      commands[entry.index] = { ...commands[entry.index], output: marker };
+      elidedCommandOutputs += 1;
+      bytes -= encodedLength(previous) - encodedLength(marker);
+    }
+    bytes = measure();
   }
-  if (elidedCommandOutputs > 0) {
-    output = render();
-    bytes = Buffer.byteLength(output, 'utf8');
+
+  // Stage 2. The second copy of the same bytes, and usually the larger one: executeValidationPlan
+  // indents every captured output line into `details`, so `details` alone can exceed the ceiling.
+  if (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES && details.length > 0) {
+    const collapsed = collapseDetailContinuationRuns(details as string[]);
+    details = collapsed.details;
+    elidedDetailLines += collapsed.elidedLines;
+    bytes = measure();
+    // Whatever survives the collapse is structural rather than duplicated output, so it is capped
+    // from the end with a stated count instead of being collapsed further.
+    while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES && details.length > 1) {
+      const removed = details.pop();
+      elidedDetailLines += 1;
+      bytes -= encodedLength(removed) + 1;
+    }
+    if (elidedDetailLines > 0 && details.length > 0) {
+      details.push(countElisionMarker('detail line(s)', elidedDetailLines));
+    }
+    bytes = measure();
   }
-  const overBound = bytes >= VALIDATION_EVIDENCE_BOUND_BYTES;
+
+  // Stage 3.
+  while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES && warnings.length > 0) {
+    const removed = warnings.pop();
+    elidedWarnings += 1;
+    bytes -= encodedLength(removed) + 1;
+  }
+  if (elidedWarnings > 0) {
+    warnings.push(countElisionMarker('warning(s)', elidedWarnings));
+    bytes = measure();
+  }
+
+  // Stage 4.
   while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES && commands.length > 0) {
     const removed = commands.pop();
     elidedCommandEntries += 1;
     bytes -= encodedLength(removed) + 1;
   }
-  if (overBound) output = render();
-  // Confirm against the real encoding rather than the running estimate: the evidenceBound counters
-  // themselves grow by a digit as they climb, so the estimate can sit a few bytes optimistic.
-  while (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES && commands.length > 0) {
-    commands.pop();
-    elidedCommandEntries += 1;
+  bytes = measure();
+
+  // Stage 5. Anything still oversized lives in a field this function does not model. Drop the
+  // largest remaining non-verdict field, name it, and re-measure, until the bound holds.
+  const verdictKeys = new Set(['allPass', 'allPassed', 'status', 'failureKind', 'summary', 'provider', 'timestamp', 'headSha']);
+  while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    const candidates = Object.keys(carried)
+      .filter((key) => !verdictKeys.has(key) && key !== 'commands' && key !== 'details' && key !== 'warnings')
+      .map((key) => ({ key, length: encodedLength(carried[key]) }))
+      .sort((a, b) => (b.length - a.length) || a.key.localeCompare(b.key));
+    if (candidates.length === 0) break;
+    delete carried[candidates[0].key];
+    droppedKeys.push(candidates[0].key);
+    bytes = measure();
+  }
+
+  // Stage 6. The guarantee itself. Only pathological input reaches here - a multi-megabyte summary
+  // string, for instance - and the post-condition still has to hold, so fall back to a fixed-size
+  // record that preserves the verdict and states what happened.
+  let output = render();
+  if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    for (const key of Object.keys(carried)) {
+      if (typeof carried[key] === 'string' && (carried[key] as string).length > 1000) {
+        carried[key] = `${(carried[key] as string).slice(0, 1000)}${countElisionMarker('char(s) of this field', (carried[key] as string).length - 1000)}`;
+        if (!droppedKeys.includes(key)) droppedKeys.push(key);
+      }
+    }
+    commands = [];
+    details = [];
+    warnings = [];
     output = render();
   }
+  if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    output = verdictOnlyRecord(source, measuredBytes, droppedKeys);
+  }
+
+  // THE POSTCONDITION, measured rather than inferred. Everything above is a reduction strategy and
+  // any strategy can be defeated by a shape nobody modelled - `details` was exactly that. So the
+  // guarantee does not rest on the strategies having run; it rests on this measurement, with a
+  // final record whose size does not depend on the input at all.
+  if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    output = verdictOnlyRecord(source, measuredBytes, droppedKeys);
+  }
+  const serializedBytes = Buffer.byteLength(output, 'utf8');
 
   return {
     ...base,
-    serializedBytes: Buffer.byteLength(output, 'utf8'),
+    serializedBytes,
     bounded: true,
     elidedCommandOutputs,
     elidedCommandEntries,
+    elidedDetailLines,
+    elidedWarnings,
+    droppedKeys,
     output,
   };
+}
+
+/**
+ * The last-resort artifact, sized independently of the input.
+ *
+ * Every value it carries is either a short scalar or a truncated one, so its serialised length has
+ * a fixed upper bound of a few hundred bytes no matter what arrives. It still satisfies the
+ * consumer contract that matters at the phase gate: valid JSON carrying allPass / allPassed /
+ * status, which is what evaluateValidationEvidenceAdmissibility in
+ * core/validation-evidence-admissibility.ts parses. And it says of itself that it is a replacement,
+ * so a reader is never left thinking this is the whole evidence.
+ */
+function verdictOnlyRecord(
+  source: Record<string, unknown>,
+  measuredBytes: number,
+  droppedKeys: string[],
+): string {
+  const scalar = (value: unknown): unknown =>
+    typeof value === 'string' ? value.slice(0, 200) : (typeof value === 'boolean' || typeof value === 'number' ? value : undefined);
+  return JSON.stringify({
+    provider: scalar(source.provider),
+    status: scalar(source.status),
+    allPass: scalar(source.allPass),
+    allPassed: scalar(source.allPassed),
+    failureKind: scalar(source.failureKind),
+    summary: scalar(source.summary),
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+      replacedWithVerdictOnlyRecord: true,
+      reason: 'known reductions were insufficient; the full result is available in the validate console output',
+      droppedKeys: droppedKeys.slice(0, 20),
+    },
+  });
 }
 
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
