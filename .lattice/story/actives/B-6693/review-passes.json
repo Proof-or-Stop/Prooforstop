@@ -596,6 +596,46 @@
       },
       "readDiagnostics": [],
       "_hash": "1365935adce3716e252059383dddb32f3fcfbbf00bef0caaedb187935f32c25a"
+    },
+    {
+      "id": "B-6693:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 8 docs review PASS: extracted 186 full-story changed declaration symbols and compared 13 load-bearing documentation paragraphs/sections across the workspace-capacity and pre-story Mechanism Placement Proof documents. F-019 commit 19422b0ccb changes only scripts/verify-process-fact-contract.mjs, replacing the obsolete cli-engine canonical AST fingerprint with the same c38c8402 value already pinned by retired-authority-vocabulary-guard-smoke and documenting that watchdog cancellation/result classification split; no docs, production source, registry semantics, config, or protected file changed. Scope show/check places this single path only in allowedTest and reports zero violations, while the Proof-or-Stop document remains accurately marked audited proposal/documentation-only with no runtime enforcement claim.",
+      "createdAt": "2026-08-15T22:25:31.589Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-037",
+      "envelopeId": "ace03401905e7f0224f1d909afbcdabc23dcad4aeebdbd59626893e7a72085ca",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c3b4e38ffe3cf775d08b707721013d7744e0c6e49f114036ccf504f10798704"
+      },
+      "readDiagnostics": [],
+      "_hash": "10ace3e4810618af67c02529d0c312f6dbdaace01a5e73d3d443e4270765af99"
     }
   ]
 }
