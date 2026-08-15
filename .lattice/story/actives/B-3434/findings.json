@@ -639,6 +639,40 @@
       ],
       "signatureTag": "doc-code-drift|ts|comments-touched-commit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-029",
+      "desc": "F-027's fix (a4d8971f4f) in persistStoryValidationEvidence (packages/main/src/handlers/verifier.ts:838-978) replaced two divergent boundPersistedValidationEvidence calls (one hash-less gate, one hash-bearing write) with a single boundEvidence(hashes) call at line 966 that both gates and writes. This is a real structural fix -- there is now exactly one call site, so the two-measurement divergence class cannot recur by construction. But the fix's own justification, recorded verbatim in findings.json's resolvedReason for F-027 (\"Measured: the hash fields add 232 bytes, so a record sitting in that window passed a gate computed without them\"), is a number from a one-off hand-run measurement, not from any committed test. I confirmed by exhaustive search (grep for boundEvidence|persistedBound|232|hash-field|hash-bearing across packages/main/src/tasks/*.ts and packages/main/tests/**/*.mjs) that no executable test constructs a record sized so that inclusion of the three hash fields is what tips the gate from pass to refuse, and none of the a4d8971f4f-modified validation-evidence-buffer-smoke.ts sections pass buildRecord functions with varying/absent hash fields (buildRecord at buffer-smoke.ts:47-59 always includes fixed-length hash placeholders, so it cannot exercise a with/without-hashes boundary at all -- it only unit-tests boundPersistedValidationEvidence in isolation, never persistStoryValidationEvidence's two-stage hashless-then-hashed record construction). Every reuse-smoke.ts scenario that exercises persistStoryValidationEvidence writes ordinary, far-from-boundary-sized evidence, so the single-computation gate change is exercised functionally but never at the specific near-limit window the finding was about. Net effect: the class of bug is eliminated by construction (verifiable by code reading), but the specific reachability claim that justified closing F-027 as resolved rests on prose, not on a regression test that would catch a future refactor reintroducing a second computation site.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T19:48:45.075Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65b957e3e4d9f2feabe6275f56dd4b7736616fe0ca008f01c452098af0f43a5f",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|a4d8971f4f-persiststoryvalidationevidence-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
