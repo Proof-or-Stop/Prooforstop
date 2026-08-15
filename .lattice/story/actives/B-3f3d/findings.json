@@ -3386,7 +3386,7 @@
       "desc": "packages/main/src/handlers/story-create.ts:340-374, packages/main/src/handlers/checklist.ts:1012-1048,1189-1207, packages/main/src/handlers/english-artifact-gate.ts:29-38, and packages/main/src/core/command-policy.ts:171-173 — HIGH distinct late English-artifact/recovery trap. A mechanical runEnglishArtifactGate on the unchanged current cutoff returns ok=false solely for checklist.json:328 (`AGENTS.md#流程事实双层契约`), while `git log main..HEAD` contains no CJK. The shift-left storyCreateAuthoringFields contract checks title/description/background/checklist title/context/userSees but omits relatedDocs, and checklist_add/checklist_update accept relatedDocs without the shared English authoring predicate. The CLI can therefore persist an author-controlled value that the later REVIEW→TEST english-artifacts gate rejects. Once in REVIEW, checklist_update is phase-blocked, so the supported repair requires recording a blocking finding, completing/finalizing the inventory, consuming REVIEW→DEV remediation authority, and only then updating relatedDocs in DEV; recover_evidence cannot repair author prose. Add same-predicate author-time validation for every author-controlled field scanned later (at minimum relatedDocs on story_create/checklist_add/checklist_update), add a round-trip smoke proving accepted author input cannot fail the later gate, and expose/document an exact supported recovery for already-persisted stories without direct metadata edits.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T01:03:02.852Z",
@@ -3436,7 +3436,11 @@
         "packages/main/src/tasks/english-early-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Critic-confirmed concept manifestation of canonical F-049; commit 1c06405426 fixes the shared writer-admission versus final-gate root.",
+      "resolvedAt": "2026-08-15T01:41:22.499Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
