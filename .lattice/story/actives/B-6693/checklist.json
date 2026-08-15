@@ -432,19 +432,19 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-002:happy:0: ordered wait-and-run, separate routine/DONE evidence, complete persistence critical section, release/throw/dead owner, bounded waiters, context-only reentrancy, and legacy story-lock compatibility.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:08:40.059Z"
+            "executedAt": "2026-08-15T00:20:10.362Z"
           },
-          "headHash": "a35a3ad293564a3ffeba00bb6ba113a1a7f2cb5f",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:10:33.392Z"
+          "headHash": "dd7d11df72b988f66154902b4a4f3790862e1f99",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:20:10.553Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
