@@ -431,6 +431,57 @@
         "scanEscalationReason": null
       },
       "_hash": "5c7832971fe47dd8f46dbbf5239b18ed79b7c716b2a667fb356b04dccfd23a26"
+    },
+    {
+      "id": "B-6693:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 29/29 must intents have unique current evidence, 0 waivers/gaps; exact focused 15, full 26, rollout 58, direct CLI watchdog, exact-12 child-process stress, detached-generation isolation, build and protected-file diff all pass.",
+      "createdAt": "2026-08-15T20:17:11.012Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-027",
+      "envelopeId": "5092177dec2cadf4b1af4488a339c169ca3df840d3592f540f122e97719481ce",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eb39adb57afcf414b0a80774007fcb993ae8574341b7fb3bec71a141a197ebfd"
+      },
+      "readDiagnostics": [],
+      "_hash": "789652bb3dc55c56d1929b694ac2b76569762163a2c3447bbbd80a7e2a91a725"
     }
   ]
 }
