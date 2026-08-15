@@ -78,6 +78,40 @@
         "scanEscalationReason": null
       },
       "_hash": "c9e8d7926fa3383a072f5cb6088b7ff1482916d1bb2fa1d3e2858f01a15716b3"
+    },
+    {
+      "id": "B-1734:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion scan: recoverOrphanedPromotion (+ private helpers buildLockFresh, safe) fully removed in dedf7c6eb4. git grep recoverOrphanedPromotion repo-wide returns only CHANGELOG.md:127 documentary prose explaining the revert, zero code/test residue. bin/bootstrap-runner.js imports only ../scripts/build-lock-target.mjs; scripts/promote-dist.mjs retains only promoteDist (node:fs builtins only); scripts/package-desktop.mjs asset manifest lists build-lock-target.mjs but not promote-dist.mjs. Reader-race test cases readerrace:5/6 (the reverted recovery tests) removed in lockstep. Ran red-1734-bootstrap-depfree, red-1734-desktop-asset-manifest, red-1734-reader-race -- all PASS with expected post-revert case counts. No blocker.",
+      "createdAt": "2026-08-15T23:50:13.582Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-006",
+      "envelopeId": "894c6ddf2d4f2bf62a67333098ffdebced3d21fa29faded9bdef24667089c2b0",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1734/background.md",
+          ".lattice/story/actives/B-1734/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/package-desktop.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c340f6edd2ff57c4c0f0230baaf84ee88afd4f2a33d17a41c8b5b757f39615b"
     }
   ]
 }
