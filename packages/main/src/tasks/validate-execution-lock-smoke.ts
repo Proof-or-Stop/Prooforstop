@@ -909,6 +909,89 @@ async function assertCapacityAtomicStaleQuarantineStress(): Promise<void> {
         .filter(name => name.endsWith('.ticket') || name.endsWith('.choosing') || name.endsWith('.quarantine'));
       assert.deepEqual(leftovers, [], `round ${round}: no ticket/quarantine may leak after release`);
     }
+
+    // Repeat the stale-reclaim race across independent processes. The earlier
+    // Promise cohort proves separate async contexts in one process; this cohort
+    // makes the filesystem publication/quarantine boundary genuinely concurrent.
+    const helper = join(root, 'capacity-child-stress.mjs');
+    const events = join(root, 'child-events.log');
+    const overlap = join(root, 'child-overlap.log');
+    const critical = join(root, 'child-critical');
+    writeFileSync(helper, `
+import { appendFileSync, mkdirSync, rmSync } from 'node:fs';
+import { setTimeout as delay } from 'node:timers/promises';
+import { withWorkspaceValidationCapacity } from ${JSON.stringify(join(repoRoot(), 'packages/main/dist/core/validation-execution-lock.js'))};
+const [root, label, events, overlap, critical] = process.argv.slice(2);
+await withWorkspaceValidationCapacity({
+  root,
+  workspaceRoot: root,
+  command: \`child-stress-\${label}\`,
+  pollMs: 5,
+  deadlineAt: Date.now() + 10000,
+}, async () => {
+  let ownsCritical = false;
+  try {
+    mkdirSync(critical);
+    ownsCritical = true;
+  } catch {
+    appendFileSync(overlap, \`overlap:\${label}\\n\`);
+  }
+  appendFileSync(events, \`start:\${label}\\n\`);
+  await delay(15);
+  appendFileSync(events, \`end:\${label}\\n\`);
+  if (ownsCritical) rmSync(critical, { recursive: true, force: true });
+});
+`, 'utf8');
+
+    for (let round = 0; round < 3; round += 1) {
+      rmSync(events, { force: true });
+      rmSync(overlap, { force: true });
+      rmSync(critical, { recursive: true, force: true });
+      writeCapacityOwner(root, {
+        lockId: `dead-child-seed-${round}`,
+        pid: 999_999_999,
+        hostname: hostname(),
+        command: `dead child seed ${round}`,
+        acquiredAt: new Date().toISOString(),
+        processStartTimeMs: processStartTimeMs() - 60_000,
+      });
+      const children = Array.from({ length: 8 }, (_, index) => new Promise<ChildResult>((resolveChild) => {
+        const child = spawn(process.execPath, [helper, root, `${round}-${index}`, events, overlap, critical], {
+          cwd: root,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        let output = '';
+        child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
+        child.stderr?.on('data', (chunk: Buffer) => { output += chunk.toString(); });
+        child.on('error', (error) => resolveChild({ code: null, output: `${output}\n${error.message}` }));
+        child.on('close', (code) => resolveChild({ code, output }));
+      }));
+      const results = await Promise.all(children);
+      for (const [index, result] of results.entries()) {
+        assert.equal(result.code, 0, `child stress round ${round} waiter ${index}: ${result.output}`);
+      }
+      const eventLines = readFileSync(events, 'utf8').trim().split('\n').filter(Boolean);
+      let concurrent = 0;
+      let maxConcurrency = 0;
+      let starts = 0;
+      for (const event of eventLines) {
+        if (event.startsWith('start:')) {
+          starts += 1;
+          concurrent += 1;
+          maxConcurrency = Math.max(maxConcurrency, concurrent);
+        } else if (event.startsWith('end:')) {
+          concurrent -= 1;
+          assert.ok(concurrent >= 0, `child stress round ${round}: end cannot precede start`);
+        }
+      }
+      assert.equal(starts, 8, `child stress round ${round}: every process must enter`);
+      assert.equal(concurrent, 0, `child stress round ${round}: every process must exit`);
+      assert.equal(maxConcurrency, 1, `child stress round ${round}: maxConcurrency must remain one`);
+      assert.equal(existsSync(overlap), false, `child stress round ${round}: critical section must have zero overlap`);
+      const leftovers = readdirSync(validationCapacityLockPath(root))
+        .filter(name => name.endsWith('.ticket') || name.endsWith('.choosing') || name.endsWith('.quarantine'));
+      assert.deepEqual(leftovers, [], `child stress round ${round}: no queue artifact may leak`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1040,6 +1123,59 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     assert.equal(siblingEntered, true, 'queued sibling must enter automatically after release');
     assert.equal(existsSync(validationExecutionLockPath(root, 'B-owner')), false,
       'same-story nested owner must release the inner lock exactly once');
+
+    const assertDetachedGenerationIsolation = async (mode: 'capacity' | 'official'): Promise<void> => {
+      const storyId = `B-detached-${mode}`;
+      const run = async <T>(command: string, fn: () => Promise<T> | T): Promise<T> => mode === 'official'
+        ? await withOfficialValidationExecution({ ...options, command, storyId }, fn)
+        : await withWorkspaceValidationCapacity({ ...options, command, storyId }, fn);
+      let startDetached!: () => void;
+      const detachedGate = new Promise<void>(resolveGate => { startDetached = resolveGate; });
+      let detachedTask!: Promise<void>;
+      let concurrent = 0;
+      let maxConcurrency = 0;
+      let detachedEntered = false;
+
+      await run(`${mode}-owner-a`, async () => {
+        // This async task captures owner A's ALS generation and intentionally
+        // outlives A. It must not inherit a later owner B merely because B uses
+        // the same canonical lock path.
+        detachedTask = (async () => {
+          await detachedGate;
+          await run(`${mode}-detached-a`, async () => {
+            detachedEntered = true;
+            concurrent += 1;
+            maxConcurrency = Math.max(maxConcurrency, concurrent);
+            await sleep(15);
+            concurrent -= 1;
+          });
+        })();
+      });
+
+      let ownerBReady!: () => void;
+      const ownerBEntered = new Promise<void>(resolveReady => { ownerBReady = resolveReady; });
+      let releaseOwnerB!: () => void;
+      const ownerBRelease = new Promise<void>(resolveRelease => { releaseOwnerB = resolveRelease; });
+      const ownerB = run(`${mode}-owner-b`, async () => {
+        concurrent += 1;
+        maxConcurrency = Math.max(maxConcurrency, concurrent);
+        ownerBReady();
+        await ownerBRelease;
+        concurrent -= 1;
+      });
+      await ownerBEntered;
+      startDetached();
+      await sleep(75);
+      const enteredWhileBHeld = detachedEntered;
+      releaseOwnerB();
+      await Promise.all([ownerB, detachedTask]);
+      assert.equal(enteredWhileBHeld, false,
+        `${mode}: detached owner A context must queue behind later owner B's acquisition token`);
+      assert.equal(maxConcurrency, 1,
+        `${mode}: stale ALS generation must not overlap the later owner (maxConcurrency=1)`);
+    };
+    await assertDetachedGenerationIsolation('capacity');
+    await assertDetachedGenerationIsolation('official');
 
     let releaseAbortOwner: () => void = () => {};
     let abortOwnerEntered = false;
@@ -1366,6 +1502,67 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
       rmSync(root, { recursive: true, force: true });
     }
   }
+
+  const cliFixture = setupFixture({ storyId: 'B-capacity-cli-watchdog' });
+  let releaseCliOwner: () => void = () => {};
+  let cliOwner: Promise<void> | null = null;
+  try {
+    let ownerReady!: () => void;
+    const ready = new Promise<void>(resolveReady => { ownerReady = resolveReady; });
+    const held = new Promise<void>(resolveRelease => { releaseCliOwner = resolveRelease; });
+    cliOwner = withWorkspaceValidationCapacity({
+      root: cliFixture.root,
+      workspaceRoot: cliFixture.root,
+      requireGitIdentity: true,
+      command: 'cli-watchdog-owner',
+    }, async () => {
+      ownerReady();
+      await held;
+    });
+    await ready;
+
+    const waiter = spawnValidate(cliFixture.root, cliFixture.storyId, 'cli-watchdog-waiter', {
+      LATTICE_MAX_TIMEOUT_MS: '250',
+      LATTICE_IDLE_TIMEOUT_MS: '5000',
+    });
+    assert.equal(await waitForCapacityTicketCount(cliFixture.root, 2), true,
+      'real validate CLI must publish one queued ticket behind the active workspace owner');
+    assert.equal(enteredCount(cliFixture.root), 0,
+      'queued validate CLI must not enter the configured validation callback');
+    assert.equal(existsSync(validationExecutionLockPath(cliFixture.root, cliFixture.storyId)), false,
+      'queued validate CLI must not enter the inner story lock before capacity');
+    const result = await waitChild(waiter, 5000);
+    assert.equal(result.code, 1, result.output);
+    assert.match(waiter.stderr(), /validate failed: CLI max timeout exceeded 250ms/,
+      `direct validate watchdog must terminate through the structured deadline channel: ${waiter.stderr()}`);
+    assert.equal(waiter.stdout().trim(), '', 'timed-out --json validate must not emit a partial stdout payload');
+    assert.equal(enteredCount(cliFixture.root), 0,
+      'watchdog cancellation must stop before callback entry');
+    assert.equal(existsSync(validationExecutionLockPath(cliFixture.root, cliFixture.storyId)), false,
+      'watchdog cancellation must never acquire the inner story lock');
+    assert.equal(capacityTicketPaths(cliFixture.root).length, 1,
+      'structured cancellation must remove the waiter ticket and leave only the live owner');
+
+    releaseCliOwner();
+    await cliOwner;
+    cliOwner = null;
+    assert.equal(capacityTicketPaths(cliFixture.root).length, 0,
+      'owner release after CLI cancellation must leave no ticket requiring successor reclaim');
+    let successorEntered = false;
+    await withWorkspaceValidationCapacity({
+      root: cliFixture.root,
+      workspaceRoot: cliFixture.root,
+      requireGitIdentity: true,
+      command: 'cli-watchdog-successor',
+      deadlineAt: Date.now() + 1000,
+    }, () => { successorEntered = true; });
+    assert.equal(successorEntered, true,
+      'successor must acquire directly after watchdog cleanup without first recovering a leaked waiter');
+  } finally {
+    releaseCliOwner();
+    if (cliOwner) await cliOwner.catch(() => undefined);
+    rmSync(cliFixture.root, { recursive: true, force: true });
+  }
 }
 
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
@@ -1517,7 +1714,7 @@ function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
     }],
     verification: {
       command: 'node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only',
-      selector: 'validate-execution-lock workspace capacity contract passed: 14 assertion groups',
+      selector: 'validate-execution-lock workspace capacity contract passed: 15 assertion groups',
     },
   };
   const parsed = verificationIntentSchema.parse({ happy: [pinnedIntent], edge: [], adversarial: [] });
@@ -1560,7 +1757,7 @@ void (async () => {
     assertCapacityReclaimImplementationIsIdentityStable();
     assertManagedVerificationIntentPinSchemaRoundTrip();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
-      console.log('validate-execution-lock workspace capacity contract passed: 14 assertion groups');
+      console.log('validate-execution-lock workspace capacity contract passed: 15 assertion groups');
       return;
     }
     await assertPostCommandPersistenceHoldsLock();
@@ -1574,7 +1771,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 25 assertion groups');
+    console.log('validate-execution-lock smoke passed: 26 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

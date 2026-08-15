@@ -32,8 +32,13 @@ export const VALIDATION_CAPACITY_LOCK_REL = `${LATTICE_DIR}/locks/validation-cap
 export const VALIDATION_CAPACITY_WAIT_POLL_MS = 100;
 export const VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS = 30000;
 
-const heldValidationLockPaths = new Set<string>();
-const validationLockOwnerStore = new AsyncLocalStorage<Set<string>>();
+// A path alone is not an ownership identity. Detached async work retains its
+// AsyncLocalStorage snapshot after its original owner releases; if a later
+// owner acquires the same path, a path-only reentrancy check would let that
+// stale context enter as the new owner. Bind both the process-visible active
+// owner and the async context to the acquisition's never-reused lockId.
+const activeValidationLockTokens = new Map<string, string>();
+const validationLockOwnerStore = new AsyncLocalStorage<Map<string, string>>();
 
 interface ValidationLockHeartbeatInfo {
   lockId: string;
@@ -85,14 +90,22 @@ export function storyRuntimeLockPath(
 }
 
 function currentContextOwns(lockKey: string): boolean {
-  return validationLockOwnerStore.getStore()?.has(lockKey) ?? false;
+  const activeToken = activeValidationLockTokens.get(lockKey);
+  return activeToken !== undefined
+    && validationLockOwnerStore.getStore()?.get(lockKey) === activeToken;
 }
 
-function extendedOwnerSet(lockKey: string): Set<string> {
+function extendedOwnerTokens(lockKey: string, acquisitionToken: string): Map<string, string> {
   const current = validationLockOwnerStore.getStore();
-  const next = current ? new Set(current) : new Set<string>();
-  next.add(lockKey);
+  const next = current ? new Map(current) : new Map<string, string>();
+  next.set(lockKey, acquisitionToken);
   return next;
+}
+
+function clearActiveValidationLockToken(lockKey: string, acquisitionToken: string): void {
+  if (activeValidationLockTokens.get(lockKey) === acquisitionToken) {
+    activeValidationLockTokens.delete(lockKey);
+  }
 }
 
 function currentProcessStartTimeMs(): number {
@@ -574,7 +587,7 @@ export async function withWorkspaceValidationCapacity<T>(
   const command = String(options.command ?? '').trim() || 'validate';
   const storyId = String(options.storyId ?? '').trim();
   const lockKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
-  if (heldValidationLockPaths.has(lockKey) && currentContextOwns(lockKey)) return await fn();
+  if (currentContextOwns(lockKey)) return await fn();
 
   const holderInfo: MkdirLockHolderInfo = {
     lockId: randomUUID(),
@@ -636,20 +649,24 @@ export async function withWorkspaceValidationCapacity<T>(
     throw error;
   }
 
-  heldValidationLockPaths.add(lockKey);
+  const acquisitionToken = holderInfo.lockId!;
+  activeValidationLockTokens.set(lockKey, acquisitionToken);
   const heartbeat = startHeartbeat({ lockDir: ticketPath, release: () => undefined }, holderInfo);
   let callbackFailed = false;
   let callbackError: unknown;
   let callbackResult: T | undefined;
   try {
     assertCapacityWaitActive(options);
-    callbackResult = await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
+    callbackResult = await validationLockOwnerStore.run(
+      extendedOwnerTokens(lockKey, acquisitionToken),
+      async () => await fn(),
+    );
   } catch (error) {
     callbackFailed = true;
     callbackError = error;
   }
   clearInterval(heartbeat);
-  heldValidationLockPaths.delete(lockKey);
+  clearActiveValidationLockToken(lockKey, acquisitionToken);
   let releaseError: unknown;
   try {
     await releaseValidationCapacityTicket(ticketPath, holderInfo);
@@ -690,7 +707,7 @@ export async function withValidationExecutionLock<T>(
   if (!storyId) throw new Error('withValidationExecutionLock: storyId is required');
   const lockKey = validationExecutionLockPath(options.root, storyId);
 
-  if (heldValidationLockPaths.has(lockKey) && currentContextOwns(lockKey)) {
+  if (currentContextOwns(lockKey)) {
     return await fn();
   }
 
@@ -722,13 +739,17 @@ export async function withValidationExecutionLock<T>(
       holderAgeMs,
     }),
   });
-  heldValidationLockPaths.add(lockKey);
+  const acquisitionToken = holderInfo.lockId!;
+  activeValidationLockTokens.set(lockKey, acquisitionToken);
   const heartbeat = startHeartbeat(lock, holderInfo);
   try {
-    return await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
+    return await validationLockOwnerStore.run(
+      extendedOwnerTokens(lockKey, acquisitionToken),
+      async () => await fn(),
+    );
   } finally {
     clearInterval(heartbeat);
-    heldValidationLockPaths.delete(lockKey);
+    clearActiveValidationLockToken(lockKey, acquisitionToken);
     lock.release();
   }
 }
