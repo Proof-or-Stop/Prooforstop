@@ -441,7 +441,7 @@ Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout �
 
 ### English authoring and legacy relatedDocs recovery
 
-`story_create`、`checklist_add`、`checklist_update` 在写入前检查 checklist author prose。若 `title`、`context`、`userSees`、`relatedDocs`、`verificationIntent.desc` 或 evidence `note` 含 CJK，命令返回 `[english_artifact_cjk_authoring]` 且不产生部分写入。所有可复制 payload 的这些字段必须使用英文。
+`story_create`、`checklist_add`、`checklist_update` 在写入前检查 author-controlled payload。规范边界是该 payload 子树中 **all recursively scanned string leaves**；字段名列表只能作为非穷举（non-exhaustive）示例，不能当成 allowlist。该边界包括 `title`、`context`、`userSees`、`relatedDocs`、`excludes`、`files`、`reason`、`verificationIntent` 和完整 `verificationEvidence`（包括 `note`、`file`、`command`、`selector` 等）的所有嵌套字符串。任一字符串叶子含 CJK 时，命令返回 `[english_artifact_cjk_authoring]` 且不产生部分写入；所有可复制 author payload 使用英文。runtime identity / lifecycle 字段不属于传给此检查器的 author-controlled 子树。
 
 旧 story 的 CJK `relatedDocs` 不通过直接编辑 story 文件或重开 INIT 修复。先在 REVIEW 完成 finding 对应的冻结 review inventory、达到 zero-new-finding saturation，并调用 `review_inventory_finalize` 取得 signed receipt；再由 story owner 执行 REVIEW→DEV。receipt 被消费且 phase 为 DEV 后运行：
 

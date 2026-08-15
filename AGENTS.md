@@ -311,7 +311,7 @@ lattice aux_sync --direction=extract    # 从源码注释提取到 task.json
 
 ### English authoring and legacy relatedDocs recovery
 
-`story_create`、`checklist_add`、`checklist_update` 会在写入前拒绝 checklist author prose 中的 CJK，返回 `[english_artifact_cjk_authoring]`，且不产生部分写入。`title`、`context`、`userSees`、`relatedDocs`、`verificationIntent.desc` 及 evidence `note` 均使用英文；CJK 只可出现在明确允许的非 author 数据中。
+`story_create`、`checklist_add`、`checklist_update` 会在写入前拒绝 author-controlled payload 中的 CJK，返回 `[english_artifact_cjk_authoring]`，且不产生部分写入。规范边界是 author-controlled payload 子树中 **all recursively scanned string leaves**；下面的字段只是非穷举（non-exhaustive）示例，不是 allowlist：`title`、`context`、`userSees`、`relatedDocs`、`excludes`、`files`、`reason`、`verificationIntent` 和完整 `verificationEvidence`（包括 `note`、`file`、`command`、`selector` 等）。这些字符串叶子均使用英文；明确不属于 author-controlled payload 的 runtime identity / lifecycle 字段不在此 author-time 扫描边界内。
 
 旧 story 若已有 CJK `relatedDocs`，不要直接编辑 story 文件，也不要重开 INIT。在 REVIEW 中先完成 finding 所属的冻结 review inventory、达到 zero-new-finding saturation，并通过 `review_inventory_finalize` 取得当前 signed receipt；随后由 story owner 执行 REVIEW→DEV。receipt 被消费、phase 已回到 DEV 后再执行：
 

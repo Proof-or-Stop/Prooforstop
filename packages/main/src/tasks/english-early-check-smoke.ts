@@ -37,6 +37,7 @@ import {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
+const repositoryRoot = resolve(packageRoot, '../../..');
 const STORY_DIR = '.lattice/story/actives';
 
 function cp(...points: number[]): string {
@@ -347,4 +348,21 @@ function assertRefused(res: { status: number; output: string }, expected: string
   console.log('ok: early authoring check and english-artifact gate agree on containsCJK');
 }
 
+// F-054: the agent-facing contract must describe the recursive runtime boundary,
+// not accidentally narrow it to a small illustrative field list.
+for (const docName of ['AGENTS.md', 'CLAUDE.md']) {
+  const doc = readFileSync(join(repositoryRoot, docName), 'utf8');
+  const heading = '### English authoring and legacy relatedDocs recovery';
+  const sectionStart = doc.indexOf(heading);
+  assert.ok(sectionStart >= 0, `${docName}: English-authoring guidance section must exist`);
+  const paragraphStart = sectionStart + heading.length;
+  const paragraphEnd = doc.indexOf('\n\n', paragraphStart + 2);
+  const contract = doc.slice(paragraphStart, paragraphEnd >= 0 ? paragraphEnd : undefined);
+  assert.match(contract, /all recursively scanned string leaves/, `${docName}: recursive authoring boundary must stay explicit`);
+  assert.match(contract, /non.?exhaustive/, `${docName}: field examples must stay explicitly non-exhaustive`);
+  for (const field of ['excludes', 'files', 'reason', 'verificationEvidence']) {
+    assert.ok(contract.includes(`\`${field}\``), `${docName}: recursive-boundary guidance must name ${field}`);
+  }
+}
+console.log('ok: agent docs preserve the recursive English-authoring boundary');
 console.log('english-early-check smoke passed');
