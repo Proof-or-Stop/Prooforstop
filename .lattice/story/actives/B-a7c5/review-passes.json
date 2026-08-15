@@ -531,6 +531,41 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "5cdbbe8e36898682336f7d98c920a882ce36693ef5640ccb5e2053523bdddc02"
+    },
+    {
+      "id": "B-a7c5:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 concept-lane: reviewed the 3 post-round-6 fix commits in full for concept residue/dead code. 860e94cbe0 (F-009 fix, done-premerge-mainsha-recheck-smoke.ts) and e162c5c270 (F-010, closeout-trust-smoke.ts + worktree-authority-smoke.ts, 4 call sites) each cleanly add a satisfying dev_memory_finish_decision write with an accurate, non-stale comment; no leftover debug instrumentation, no dead/duplicate code. cc8fd5f27e correctly repins closeout-trust-smoke.ts's structural fingerprint in BOTH required locations (retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs) -- grepped whole repo for the old hash (235d6921...): zero remaining references anywhere; grepped repo for all PINNED_EXECUTABLE_SOURCE_FINGERPRINTS-maintaining files: confirmed exactly these 2, no third location missed; confirmed the 2 other touched files (done-premerge-mainsha-recheck-smoke.ts, worktree-authority-smoke.ts) are correctly NOT in either pinned-fingerprint list so did not need repinning. Ran directly, from a fresh build: retired-authority-vocabulary-guard-smoke.js PASS, verify-process-fact-contract.mjs PASS, done-premerge-mainsha-recheck-smoke.js PASS (14/14), closeout-trust-smoke.js PASS, dev-memory-lifecycle-gates-smoke.js PASS (79/79). worktree-authority-smoke.js fails only on the pre-existing unrelated version-bump ENOENT (assertDoneRecoverRunsPostMergeBuildForRuntimeChanges) -- independently reproduced this identical failure, plus field-regression-cli-smoke.ts's missing --readManifest failure, on a clean untouched main checkout (commit 8dbfac8809, fresh rebuild in the separate /Users/jek/Documents/Work/proofbound worktree), confirming both are genuinely pre-existing and unrelated to this story. Ran full root npm test myself: 47/47 passed, exit 0 (the 'full-suite identity drift' line was informational only, caused by my own concurrent lattice validate background process committing metadata, not a test failure). Cross-checked canFinishGuard's dev-memory-finish-decision check placement (core/machine.ts ~945, message ~1419-1422) against plan.md's CHK-003 spec: matches. Cross-referenced the independent lattice-review-quality round-7 pass (RR-020/RP-012, same review round 2026-08-15T14:53:25.129Z): identical methodology, identical 5-checks-green result, identical two-unrelated-issues-reproduced-on-same-main-commit result -- fully corroborating. No blockers.",
+      "createdAt": "2026-08-15T15:09:13.014Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-019",
+      "envelopeId": "432c08218faa3e01851a948d3ce88b775b791a16435581cf97afeede50d6f3e2",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl (added entry, e162c5c270)",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json (F-001..F-009 records)",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/review-passes.json (prior rounds + RR-020 quality pass)",
+          "packages/main/src/core/machine.ts (canFinishGuard / getGuardFailureReason dev-memory-finish-decision check sites)",
+          "packages/main/src/tasks/bd37ddd3d6 diff (proofstory-intent-hardening-smoke.ts, F-008 precedent fix, for pattern comparison)",
+          "packages/main/src/tasks/closeout-trust-smoke.ts (full commit diff, e162c5c270)",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts (full commit diff, 860e94cbe0)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (fingerprint repin diff, cc8fd5f27e)",
+          "packages/main/src/tasks/worktree-authority-smoke.ts (full commit diff, e162c5c270)",
+          "scripts/verify-process-fact-contract.mjs (fingerprint repin diff, cc8fd5f27e)"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json (validate.commands registration check)",
+          "package.json (test:process-fact-contract script)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94552a9a36f4014f84f0cccb816b5d27a4a2ac2c8bfbae4a10136a59810938a3"
     }
   ]
 }
