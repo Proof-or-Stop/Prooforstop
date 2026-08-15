@@ -122,9 +122,9 @@
       "id": "CHK-003",
       "title": "Fix worktree-authority-smoke.ts done_recover post-merge version-bump ENOENT (RED then GREEN)",
       "context": "assertDoneRecoverRunsPostMergeBuildForRuntimeChanges's synthetic mkdtemp root has no package.json, but done_recover now also runs bumpVersionOnDoneMerge (core/version-bump.ts) which requires root/package.json and the other version sync points to exist, throwing ENOENT before the stubbed build runner is ever reached. Write a RED script proving the current ENOENT, then fix the fixture's root scaffold to include the version sync-point files done_recover's post-merge path now needs, confirm GREEN.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-15T20:45:45.366Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/worktree-authority-smoke.ts",
@@ -170,7 +170,14 @@
           }
         ]
       },
-      "userSees": "node packages/main/dist/tasks/worktree-authority-smoke.js prints its pass output and exits 0 (no ENOENT package.json error)."
+      "userSees": "node packages/main/dist/tasks/worktree-authority-smoke.js prints its pass output and exits 0 (no ENOENT package.json error).",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f317b8e286db7e91c7cd6597f1e73695d5b7fdd8943f6c148a6e5f53c02beed5",
+        "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+        "headHash": "bda8fe134a1afb66c38b122588f321a219dd7a35",
+        "attestedAt": "2026-08-15T20:45:45.536Z",
+        "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
+      }
     },
     {
       "id": "CHK-004",
