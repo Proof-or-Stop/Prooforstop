@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-3f3d",
   "mode": "observe",
-  "cutoffAt": "2026-08-15T00:44:38.705Z",
-  "planBasisDigest": "sha256:af1a7b72eb1a256f809fc62d26404209248894a1b9e1e95e78582503e53c67ee",
+  "cutoffAt": "2026-08-15T01:38:33.067Z",
+  "planBasisDigest": "sha256:bb6d1a809daea920e487d7b98442859a0cc97e05cc2ad82f85cf59bc878e1ced",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-3f3d",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:af1a7b72eb1a256f809fc62d26404209248894a1b9e1e95e78582503e53c67ee",
+      "priorPlanBasisDigest": "sha256:bb6d1a809daea920e487d7b98442859a0cc97e05cc2ad82f85cf59bc878e1ced",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -600,7 +600,7 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:6b7cba069528c2312d8d697acfa910fb08bb42a0977bbaa24ba5bfb3d25ddd8c",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:fe874b27561374f18078600204068f7b540888655379b0ef2078478f9c474c40",
+        "sourceSnapshotDigest": "sha256:93cfc22acaac5801391e24126b16de3795813ca72000ac6b4f094c07225427d4",
         "sourceSnapshotCount": 797,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
         "status": "partial",
@@ -636,18 +636,18 @@
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
           }
         ],
-        "sealDigest": "sha256:157db4d752639644a54da3c298ab2acbacd8b2670e5469938c98f04d1590a4c1"
+        "sealDigest": "sha256:6c91ec50ed1377f9693e61e76e2820298cda3675bf46a102b0a7d019f66a64d1"
       },
       "binding": {
-        "headHash": "951b43933e14d601b5406776f0f978539ebb56c2",
-        "materialHash": "66dec085c78040cb39b33e61621fa42c6531216ef65199e2465a8219c54662ba",
-        "storyFilesHash": "b5583e18c78659694ddcb9aa753414196e35292de49c61e16150402fc0f50824",
+        "headHash": "210331befc8c0c3f32628b2e4356f59255ee50c3",
+        "materialHash": "2d99f41a6ba9ebd03a3c9100b9375e891ab4c73ec680b7e3baba68452a946376",
+        "storyFilesHash": "f1b548d7ab776f223b29001150816f9b7da07114772fb34dacd204fda3fdcd43",
         "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-        "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
+        "scopeContractDigest": "sha256:45757ecb6771f9baac5a88f1af3499a5ae98556a4cdd4f9d6b29bd8636ff1728",
         "closureFilesHash": "sha256:0c4c61584d36b4b34236bd754b46fa37c700a2a3d374f6aa4f0156d55e5269df"
       },
       "receiptRef": "receipt:coverage-basis:B-3f3d:pre_review:64cd5ec1cf7b2c21",
-      "basisDigest": "sha256:703fb89f4faa9f04b58545f96a1e9caf7e23e8d53d46e35c440a5ba4790fd672"
+      "basisDigest": "sha256:936bede40d1926bbc861314468a129cb2b3ffc88ad0bae20b23940fcd7c096d3"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -657,23 +657,23 @@
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-3f3d",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:703fb89f4faa9f04b58545f96a1e9caf7e23e8d53d46e35c440a5ba4790fd672",
+      "basisDigest": "sha256:936bede40d1926bbc861314468a129cb2b3ffc88ad0bae20b23940fcd7c096d3",
       "topologyDigest": "sha256:953a6feae56496191f0b31e99cdf5b17f0170e3c095d3631b02c081de31e804f",
       "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-      "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
-      "headHash": "951b43933e14d601b5406776f0f978539ebb56c2",
-      "materialHash": "66dec085c78040cb39b33e61621fa42c6531216ef65199e2465a8219c54662ba",
-      "storyFilesHash": "b5583e18c78659694ddcb9aa753414196e35292de49c61e16150402fc0f50824",
+      "scopeContractDigest": "sha256:45757ecb6771f9baac5a88f1af3499a5ae98556a4cdd4f9d6b29bd8636ff1728",
+      "headHash": "210331befc8c0c3f32628b2e4356f59255ee50c3",
+      "materialHash": "2d99f41a6ba9ebd03a3c9100b9375e891ab4c73ec680b7e3baba68452a946376",
+      "storyFilesHash": "f1b548d7ab776f223b29001150816f9b7da07114772fb34dacd204fda3fdcd43",
       "closureFilesHash": "sha256:0c4c61584d36b4b34236bd754b46fa37c700a2a3d374f6aa4f0156d55e5269df",
-      "sealDigest": "sha256:157db4d752639644a54da3c298ab2acbacd8b2670e5469938c98f04d1590a4c1",
+      "sealDigest": "sha256:6c91ec50ed1377f9693e61e76e2820298cda3675bf46a102b0a7d019f66a64d1",
       "workspaceIdentityDigest": "sha256:af78c718535c90b7d3c93b8c44569e29a75b5a901fc359538d75b515ee58b6ad",
-      "signature": "9RQTr6nP38havESi2/zVyDsE82aScDm0vBQuUtLi53FdCpe9wbVDYmmJHuLErRksXjN7/e/pZMJqVS6MXw8cCg=="
+      "signature": "jZMo8aXfqsmcB31XbSlCPlYEuXlkqpR5wMvYm3gtsbjBfngTwt3PxjmGIkD4bzLN+2jlSJMfw/KWBTILcb+4BA=="
     }
   },
   "topologyDigest": "sha256:953a6feae56496191f0b31e99cdf5b17f0170e3c095d3631b02c081de31e804f",
   "scopeCheckDigest": "sha256:3a4ffbeb97c40122fb2ac7aa6713b04e6e6b93476fa35f4b86d7675f8e5e71bd",
-  "scopeContractDigest": "sha256:c946fdafc5ddef4e4adbbdde6a013f312738420c565b024ed8d8c0cffb8a37c6",
-  "storyFilesHash": "b5583e18c78659694ddcb9aa753414196e35292de49c61e16150402fc0f50824",
+  "scopeContractDigest": "sha256:45757ecb6771f9baac5a88f1af3499a5ae98556a4cdd4f9d6b29bd8636ff1728",
+  "storyFilesHash": "f1b548d7ab776f223b29001150816f9b7da07114772fb34dacd204fda3fdcd43",
   "closureFilesHash": "sha256:0c4c61584d36b4b34236bd754b46fa37c700a2a3d374f6aa4f0156d55e5269df",
   "evidenceRefs": [
     {
@@ -681,378 +681,378 @@
       "itemId": "CHK-001",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:0688b6b03cdc82b58542864a2ea34c878bf44b738b4bdc64a9490623d0920c39"
+      "evidenceDigest": "sha256:fcb86a7a0a8d1728ba972aa1805da3b035a35ea6c149164a2ed8ea15c918a43c"
     },
     {
       "intentRef": "B3F3D-001-A2",
       "itemId": "CHK-001",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:51704265c60f0caaed62b3c0ef6986bf4873804052c43a5d3ff8dd4139408dbf"
+      "evidenceDigest": "sha256:80ae33020bc9e33b48c986db93669ba0e787d8884f47ea03b1c3c224c8679822"
     },
     {
       "intentRef": "B3F3D-001-A3",
       "itemId": "CHK-001",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d877ca8d75054915b6e884b10610a9bf2a589eba4cd24a637f1e759b9b8328db"
+      "evidenceDigest": "sha256:c8335f841d0554b15c631482ec69a57d2cce7d9918bf5037164e53c458f384d6"
     },
     {
       "intentRef": "B3F3D-001-E1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d49c7193b1cbe5ae85a84c8d4b0c898beadf68316e7fe94c1b7733eb4aca5d15"
+      "evidenceDigest": "sha256:cd4b89af3b9193f6a1d01025c0f0b7e32ddcaca3e15360e433b5864902994117"
     },
     {
       "intentRef": "B3F3D-001-E2",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:5aeb9d20b29321126b7e14d81f7807190253c33c4dc1e2105bc1b08a9af00369"
+      "evidenceDigest": "sha256:24fdb568840cd708b025921da540d217c16c378c5de11300686882a733ef713f"
     },
     {
       "intentRef": "B3F3D-001-E3",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:c6f2b3d7a019133ee17fc0041b5e6c1b174d6c93364ed6e15b516b4c55fc5983"
+      "evidenceDigest": "sha256:a312ac4d0165348fafc2929368d60cc4e955481956960d0546a325625bfa1197"
     },
     {
       "intentRef": "B3F3D-001-H1",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:6ff6c7f08b2b8be31005aaa2156adcf8780493e104f1197475dc07151e8fbba3"
+      "evidenceDigest": "sha256:bfb89fb78de020c879428cfc9336f80729a30fefafcf9cc9089a9aa215d4f40d"
     },
     {
       "intentRef": "B3F3D-001-H2",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:f3bb8c1bd31b406e7951a57dbc89bf79a934a54d4c8eb397b5d48cca0142949a"
+      "evidenceDigest": "sha256:9a969cf21315a83dddf54d911fed413e82b2bb303105ffed4f458f0a0232fca9"
     },
     {
       "intentRef": "B3F3D-001-H3",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:a06d256a53afc25064caa234b537274adeae408bd67fc77c0291472d9a7cc1e4"
+      "evidenceDigest": "sha256:89effabeb149249d6051e2ec8067ddafe5c79aee982adca97f8df95f3c674b9f"
     },
     {
       "intentRef": "B3F3D-002-A1",
       "itemId": "CHK-002",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:349045b4f2b14fac5574d2aa3f403cd2f50b6d7915e7e879e55c074d15d4e2af"
+      "evidenceDigest": "sha256:fff14341e8ef0ed948bbcb5b68df07f70eee28e9e6373b5ea98535c34ce7de23"
     },
     {
       "intentRef": "B3F3D-002-A2",
       "itemId": "CHK-002",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:8a551625491624952c6b78be86329366223dba2ae4195c1c075dc262155cab69"
+      "evidenceDigest": "sha256:bdf6ce4acee7a0cf5f3c46f166529350648299e3d9e469991d5016f5ab0b8a53"
     },
     {
       "intentRef": "B3F3D-002-A3",
       "itemId": "CHK-002",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:21ef111533439ea6fb8cb77496d0fb27bb893f81be23ef347cff64682539fc61"
+      "evidenceDigest": "sha256:a34a8969de780eddbf677769636ea4f3eacd32aec627830c9deebff6bfc96d56"
     },
     {
       "intentRef": "B3F3D-002-E1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d80a1cde523f13e76c9c2889b033cce79b533c7499c6bf8a0fc66f773fcd83c7"
+      "evidenceDigest": "sha256:eecd19084af834fd559a44410b0f7375bc1686d9e2fcc7551ab747b2bf4462d8"
     },
     {
       "intentRef": "B3F3D-002-E2",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:488f076d3d4d0c004cab6496a1416d6d5b198cd5c75081be165690ee6e6b9670"
+      "evidenceDigest": "sha256:a1df59b5df8a491933661b5d2ba398a07b9f7938cbccaebeb2bea2525589593b"
     },
     {
       "intentRef": "B3F3D-002-E3",
       "itemId": "CHK-002",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:7ec48b8123a8507e22019897404d306ef8818fe1a9aa07639c9bf120460fda11"
+      "evidenceDigest": "sha256:2485b7e0940a650e7793a188c2deb6c38cde6affbd063c4963d6d2a961f08521"
     },
     {
       "intentRef": "B3F3D-002-H1",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:483cd30a864353c24ec58253683ce49ac8565390cfe3efc75231cdf538c2d893"
+      "evidenceDigest": "sha256:7b32e342d3736f2cbbf2e3331c4472fda77013755544a4599a57e25d38c13dbf"
     },
     {
       "intentRef": "B3F3D-002-H2",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:f1c188ff7fccd8ecfa83cb8c10c05558e7211f056519f0ce5d11a5f2cc2bf811"
+      "evidenceDigest": "sha256:19f9c931b123a92e3926f351401f04268b0ca2fa9b88f95bd8fa619aab980d24"
     },
     {
       "intentRef": "B3F3D-002-H3",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:c419af28e981d7c61d6788902ad437c8b4dc6175e8073491dcca5032e665d9c1"
+      "evidenceDigest": "sha256:3220987246dad5cc7efd72c46c7a136acb660a663624716014c6ea24157c8323"
     },
     {
       "intentRef": "B3F3D-003-A1",
       "itemId": "CHK-003",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d4f66187b0e43f9e41631294eaac7b79c5c3938eff8f5f83851d318d7e0036b7"
+      "evidenceDigest": "sha256:cc7dcff32ebc5e126afa0c5c462566c8d0d4c346eb81a17915f43bc6e71cef7f"
     },
     {
       "intentRef": "B3F3D-003-A2",
       "itemId": "CHK-003",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:26289cf36e8cb004cd92fe930481dc97220f5de835bda0e4f823acd288016e79"
+      "evidenceDigest": "sha256:7648369ad7e79ab0e8bb8e0233a13c89739881680a10b2b84ebf4a60dddecbca"
     },
     {
       "intentRef": "B3F3D-003-A3",
       "itemId": "CHK-003",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:88a823937ab5c43495672d0207f00addf68473c1d84667a0f9944f6ec73099cb"
+      "evidenceDigest": "sha256:3ecef817cdfd77721b54a7e51e5c4d2a9d073fff45a0310ec3253af418272191"
     },
     {
       "intentRef": "B3F3D-003-E1",
       "itemId": "CHK-003",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:8a9fd48501b0ebb5a4f206d6549a36153e286f69a3334284a4281df068272484"
+      "evidenceDigest": "sha256:0140be7b0c0c87d744f637ff5c0cb4089205e3f188c758e8c56c7ab0b1c17bb9"
     },
     {
       "intentRef": "B3F3D-003-E2",
       "itemId": "CHK-003",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:dff02ec582c1c2bd345d4763eb4cce950616a9cc348dcfecd810b5e36411db6e"
+      "evidenceDigest": "sha256:59d6c82a4eabd0e69bde879f511e6b1607dee57d6516c6aa583212220cb12c26"
     },
     {
       "intentRef": "B3F3D-003-E3",
       "itemId": "CHK-003",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:fe99e6ed6c902c279b022d15e276f36daa0df1a44f1b43d900504fa425341924"
+      "evidenceDigest": "sha256:d7a570dfaa659a767b8aeb32bd755283e053e1ef1344d0b1caeb4b3c25ac7d12"
     },
     {
       "intentRef": "B3F3D-003-H1",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:c7956da0c627f155da1db68ee3f0191e0ad872b90549dc82e33b086673bb2cff"
+      "evidenceDigest": "sha256:3beef17714ee3f5a8d49075ed0f0706ccfc40a19578395fa902b911ad8134d5c"
     },
     {
       "intentRef": "B3F3D-003-H2",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:50ea6dab5aa54254a3277b1e5655a256d6085497cdf99459d92452ffba699269"
+      "evidenceDigest": "sha256:af1237fe12f0615dbcd9c074924422787e900756c080a63cd4f8c180ff1396d9"
     },
     {
       "intentRef": "B3F3D-003-H3",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:931e725aa6ce3e41eb7706674b43edfb08ee8c31d1fc43b09f0282069eabcf7d"
+      "evidenceDigest": "sha256:f9cdb2530d021fb139f16aa256de916d947869439708a0781c91fc3171761e7b"
     },
     {
       "intentRef": "B3F3D-004-A1",
       "itemId": "CHK-004",
       "evidenceIndex": 6,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:7d7897f5eeeed90769876194b2f4e3270345bc4fc063fc9c8b63b8756cd37ffd"
+      "evidenceDigest": "sha256:388167a2d87bd5d2d709196ab1360077085edbf984a776118c171f56fdc184e4"
     },
     {
       "intentRef": "B3F3D-004-A2",
       "itemId": "CHK-004",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:ce11bcd4b33667b84f54b9b5fb1aefcb95e2a7bd9bd9f0ad1839ff342112d482"
+      "evidenceDigest": "sha256:686b96fced3424fe1c97c27e1130e75bc2b5b4473745f4bfd1621773a0478052"
     },
     {
       "intentRef": "B3F3D-004-A3",
       "itemId": "CHK-004",
       "evidenceIndex": 8,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:1073647d5328b01afec7ce12e8632cfcdac0d31e0966021b76afc130b6d9c134"
+      "evidenceDigest": "sha256:188b24707d3e2a21294b41b51a67dae4c5ca190a074a77c5cae03641f8ca095b"
     },
     {
       "intentRef": "B3F3D-004-E1",
       "itemId": "CHK-004",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:07c2ee1b0953ede7161479215d93e8588588bc50e666eedae3e61d91a77a4114"
+      "evidenceDigest": "sha256:64aba9ea75bdcafacea1de8a281c30a0d5ce7d92214628f00df7834cbe1683f1"
     },
     {
       "intentRef": "B3F3D-004-E2",
       "itemId": "CHK-004",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:c3bf40d53459ebea68524725db004d15e6db01153a4559a0a96c5fca3936fd37"
+      "evidenceDigest": "sha256:bc84413bc85ce5afbd3e241dedb1d892ac1c5c3af2e9e62e47e2ed1ac65b3a41"
     },
     {
       "intentRef": "B3F3D-004-E3",
       "itemId": "CHK-004",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:2b7a77e536ae464f7a24169f0811cce84cedf103576db3489ce984e506ed62cc"
+      "evidenceDigest": "sha256:9237f7885ddf7b9a894dfeef68d501d816fb038056bdb9eb7e8a226e797bc9d5"
     },
     {
       "intentRef": "B3F3D-004-H1",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:f5fdf534ab123171d168ba2e344f74a760c2f14cce47edad6429cb09d20ea278"
+      "evidenceDigest": "sha256:70c3e319e948d99e37e163890b20cc1b994cf66c79d877b9844b92797dc6b5fc"
     },
     {
       "intentRef": "B3F3D-004-H2",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:4399ccef2f1f57888e87102979aeac27750107b85abd15915a34c803e0074883"
+      "evidenceDigest": "sha256:e83d89a1ffe99a2cd6a8b0c0da51e3fda9772f82bede1068104a10172a9b6960"
     },
     {
       "intentRef": "B3F3D-004-H3",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:a17a1cb318f4a9f0abfd6191be9da9ad50fb8d8819667493d83c559de8d2899b"
+      "evidenceDigest": "sha256:3384d94b94568a122b5684f73872e2e7ffac42dd12064ac2524e00e791db46dd"
     },
     {
       "intentRef": "B3F3D-005-A1",
       "itemId": "CHK-005",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:0a77681518e00ccf6800a308fdc3bb589b1f963f102ad1a8d13693a6320e1531"
+      "evidenceDigest": "sha256:8d8895b4440a5173bfb9d900d11a200e2f9e5c0b001dc9089a5d58ae16aaeb13"
     },
     {
       "intentRef": "B3F3D-005-A2",
       "itemId": "CHK-005",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5f851ce2f9163462b96abd78d371939f19278e05ac6ea43875cd8b8f966a4b0b"
+      "evidenceDigest": "sha256:06f8b47e72868e93a4268197406ca3bdb01f8bbde9131d367943e3a7257f065d"
     },
     {
       "intentRef": "B3F3D-005-A3",
       "itemId": "CHK-005",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1d32680f9182b78b50e05c460a1337368e62faeb6438ec05819afb40111ccda0"
+      "evidenceDigest": "sha256:34b400493829c3cd261cf1bd33af6128eff11081cdbdcae2d2d7b926c10eda33"
     },
     {
       "intentRef": "B3F3D-005-E1",
       "itemId": "CHK-005",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:cf4d49eaa50f1d57f5ff923afa1b886f5816e727edec17968cf011b61c68d25d"
+      "evidenceDigest": "sha256:e4a034fa208c3a3cb24fd5c42ce021b6c3af0bc8f167d8d8437d62f979101c81"
     },
     {
       "intentRef": "B3F3D-005-E2",
       "itemId": "CHK-005",
       "evidenceIndex": 4,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b6624b2e188b2a16149f76109322dc4e82e980e3c13d6959cb60259f1deab5cc"
+      "evidenceDigest": "sha256:27555421f14d54baa22ab0b836235b50a4d8fbc734b1d6f26558a477819df4cc"
     },
     {
       "intentRef": "B3F3D-005-E3",
       "itemId": "CHK-005",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:5428734e67052c9ae3b75971de6a40607e6c75ae39e5037bc553820541b6fd87"
+      "evidenceDigest": "sha256:98d6030e5a21e12eaa49092e0d74968011de39fa7d6a9740defeeae7e450e152"
     },
     {
       "intentRef": "B3F3D-005-H1",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:cea71185604391a439e5ec15f34a52b99e73fa8cfbdcc20d7c4a8d05c0626a9f"
+      "evidenceDigest": "sha256:9e57658e49c81c49d17408a753c8e6a009a5381b9ed8910c70d0114d2a236350"
     },
     {
       "intentRef": "B3F3D-005-H2",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:71899b70f6c7792ed1145ee31cee1fb7b4d6fc0c2305cff2326d0ccd5203b381"
+      "evidenceDigest": "sha256:abccd551ece665456161106e118b06607ae9260446a39d3f7dd78f8f488c6986"
     },
     {
       "intentRef": "B3F3D-005-H3",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:1dc7dcc92c9fcd172ca7107dc4a53faa933fd5c5c9ccdd3c6b1fe9392c5fc440"
+      "evidenceDigest": "sha256:6e79e005386794be98b4413e76e175221a1cef28e2a2366dc76eb29efb353d28"
     },
     {
       "intentRef": "B3F3D-006-A1",
       "itemId": "CHK-006",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6fb79d65ba855e8d832a55a20ea70a24fe8e56cdabb50865f74c2996e31b6071"
+      "evidenceDigest": "sha256:0cb26ba5bb165f902843a03202aca9ffc2d1a06cee74bab89b75c6c0e228d73e"
     },
     {
       "intentRef": "B3F3D-006-A2",
       "itemId": "CHK-006",
       "evidenceIndex": 7,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:b2d4a5e43d6b1b8d785e87070f5724ca28f3ebb815e3739aa7ed7d5651790e5c"
+      "evidenceDigest": "sha256:07453866a2f85ad766442ef9e48c8be852ad1f9edd822214ba68183688cb088a"
     },
     {
       "intentRef": "B3F3D-006-A3",
       "itemId": "CHK-006",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:22189b2c5db9c8e56ed3e48cc6f4a3e1fa16db99ed44e2b0a277464e291140e2"
+      "evidenceDigest": "sha256:0c5bed731d1224959b5b0dcd4c47cbfbce6a7eaafd31b260b8e44a6afe084035"
     },
     {
       "intentRef": "B3F3D-006-E1",
       "itemId": "CHK-006",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:9d68fd0d1702be9c6a85b990f79a5a306b5537afd44d6a767fc450ac6b29f130"
+      "evidenceDigest": "sha256:69fada919641969c1928b7c0af0049730dedddb3645e57561d6dd1c64ff820c7"
     },
     {
       "intentRef": "B3F3D-006-E2",
       "itemId": "CHK-006",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f34f48644ca239b58b63119f42465309409f00ab6d4f8017d6ddca48b3d63a5b"
+      "evidenceDigest": "sha256:b724acf1a86db9933ca3a13f1d76d0b9bef485bce527d9e848a00475254d3dc3"
     },
     {
       "intentRef": "B3F3D-006-E3",
       "itemId": "CHK-006",
       "evidenceIndex": 5,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:25558292224a3e3e4d5cdf6209f7b286bae4adee394d85d95a04ecb39cb518b1"
+      "evidenceDigest": "sha256:43e72214314c095a2330d3dfb8879cec44bba54b8a28116c33e50225d3a8e3af"
     },
     {
       "intentRef": "B3F3D-006-H1",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:04169e5e822180abbd236c34944ba87ead7947f7ba603b6a998e2efe2007b25c"
+      "evidenceDigest": "sha256:84d4669c2b1317cc2e84032ab6c06e2c9f0b0fd463fdd11b8ca771bbfa464e61"
     },
     {
       "intentRef": "B3F3D-006-H2",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d7595f9aa62760f6a6ce7fd2bfe9b01de1771f6ee1f29a78911f4356b3bb9583"
+      "evidenceDigest": "sha256:21454049ebcf943cdab00517b352e796aed6c7421b54fa40f345831b6a7cf126"
     },
     {
       "intentRef": "B3F3D-006-H3",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:cccda66a6251e3833cf8fbc2a4cd8dbd5e383c1305bfc492aff4481afaba0f3f"
+      "evidenceDigest": "sha256:9fa0fadcf0140d58c2c5ef90b3c097bbde1f5d1c07819b8dd8a2557dc29e3a91"
     }
   ],
   "executableProof": {
@@ -1086,7 +1086,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-15T00:44:38.705Z",
+  "issuedAt": "2026-08-15T01:38:33.067Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "L8V2QzAFMMy5yUS289u20NqWUCMErkee0fyhp6aKM+i+TE+L6G7O0X1V0G/q/msdM143/h+6mavt7oQuTjDMAg=="
+  "signature": "bg1MFE3Uf1UpoTIfi1aEGaf02ekVpBjRy82D/b6932+8IZ7509SHj7tcERzx3I2aleIAySCOyh8R7o9vg/5pAg=="
 }
