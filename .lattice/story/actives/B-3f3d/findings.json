@@ -4500,7 +4500,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:833-838 [HIGH] Post-remediation focused-suite checkout-coupling regression distinct from F063-F067. The smoke now passes the earlier F065 provenance negatives but fails at its final assertion because it concatenates `git diff --name-only main...HEAD` with the dirty diff and globally asserts that `packages/main/src/core/machine.ts` is absent. B-3f3d intentionally and in-scope modifies machine.ts for CHK-004 lifecycle gating, so the reusable acceptance-topology smoke deterministically fails on the current clean story candidate even though the topology behavior under test has passed. Repro: `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` exits 1 with `Wave 1 and its fixes do not modify lifecycle machine or phase gates`; flow-stability, proofstory-acceptance-basis, and tool-executed-evidence-receipt smokes all exit 0, isolating this stale repository-diff assertion. Remove checkout-wide main...HEAD coupling from the focused task or replace it with an isolated fixture/behavior assertion that expresses the actual topology boundary without rejecting unrelated or explicitly planned lifecycle changes; retain the earlier F065/F067 regression controls.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T13:12:15.999Z",
@@ -4573,14 +4573,18 @@
         "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
       ],
       "signatureTag": "focused-smoke-checkout-diff-coupling",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 9d251a380c isolates topology acceptance smoke invariants inside the fixture CLI root, removes checkout-wide main...HEAD coupling, and proves real machine mutation changes the fixture-local digest before restoration. Focused topology smoke and contracts pass.",
+      "resolvedAt": "2026-08-15T14:47:58.588Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-069",
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:838 retains the obsolete assertion that Wave 1 and its fixes must not modify packages/main/src/core/machine.ts. The current B-3f3d implementation legitimately changes machine.ts for the signed inventory remediation gate, so `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` deterministically fails at dist line 740 before completing the focused topology controls. This is distinct from F-063 partial-vs-complete acceptance-basis expectation: here the fixture changed-file boundary is stale. Replace the historical whole-story diff assertion with a fixture-local invariant that still bites unauthorized lifecycle/gate edits without rejecting this story intended machine change.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T13:12:47.083Z",
@@ -4615,14 +4619,18 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate manifestation of F-068, resolved by commit 9d251a380c with the same fixture-local invariant and mutation/restore regression.",
+      "resolvedAt": "2026-08-15T14:47:59.670Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-070",
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:151-181 and the real gate path [HIGH] acceptance-completeness fixture closure drift remains after F064 was resolved. This is distinct from current F068/F069 checkout-diff coupling, while matching the historical F064 family at a second fixture. writeDiscoveryRegistration still seeds only the older topology source set, so acceptance_basis_generate reports partial with snapshot_missing for acceptance-rollout.ts, machine.ts, pre-review-live-proof.ts, review-inventory-epoch.ts, review-inventory.ts, and both rollout/live-proof scripts. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js exits 1 at dist line 344 because false !== true after AT_COVERAGE_BASIS_PARTIAL. Update this dedicated gate fixture to seed the complete canonical closure and retain a true complete control; then rerun the focused smoke.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T13:32:03.993Z",
@@ -4661,7 +4669,62 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 9d251a380c updates both acceptance topology gate and topology critic discovery fixtures to materialize the current canonical acceptance closure sources. The gate smoke passes and the critic smoke clears the formerly partial basis assertion.",
+      "resolvedAt": "2026-08-15T14:48:00.711Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-071",
+      "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:267-270 [HIGH] topology-critic-smoke-thin-bootstrap-mirror-expectation-drift. The focused smoke still requires both .claude and .lattice-codex reviewer assets to be byte-equal to the full canonical template. The authoritative current contract intentionally uses role-specific body-free bootstrap mirrors that call review_run_start and consume its selected role body, while packages/main/templates/agents/lattice-review-topology-critic.md remains the full canonical body. Repro: node packages/main/dist/tasks/proofstory-topology-critic-smoke.js exits 1 at dist line 249 with Claude prompt mirror is exact; actual is the thin bootstrap and expected is the full modular role body. node scripts/verify-process-fact-contract.mjs passes and reports Prompt drift scan: 35 reviewer prompt files checked, proving the runtime-selected prompt contract is coherent. Replace byte-equality assertions with contract-aware checks: validate bootstrap frontmatter and body-free review_run_start delegation for host assets, validate the canonical template body independently, and retain the process-fact drift scan.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T14:51:42.143Z",
+      "reviewRound": "2026-08-15T14:47:41.330Z",
+      "reviewRunId": "B-3f3d:RR-266",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "475d6e86f55e99908f7b64b78293906602c81e60c7256e7146d3ba27ca899971",
+      "files": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        ".claude/agents/lattice-review-topology-critic.md",
+        ".lattice-codex/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "topology-critic-smoke-thin-bootstrap-mirror-expectation-drift",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
