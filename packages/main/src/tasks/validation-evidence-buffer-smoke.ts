@@ -293,32 +293,80 @@ function validationResult(
   console.log('✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction');
 }
 
-// ── 9. Inputs that make JSON.stringify THROW are bounded, not propagated. ────────────────────────
+// ── 9. Inputs that make property access or JSON.stringify THROW are bounded, not propagated. ────
 {
-  // The claim this replaces said degenerate inputs "never crash" while sitting on a call that
-  // throws on cycles, BigInt and any getter that raises. These are the shapes that used to escape.
+  // The claim this replaces said degenerate inputs "never crash" while sitting on calls that throw
+  // on cycles, BigInt and any accessor that raises. The getter fixture below throws on EVERY read,
+  // not on the third: a fixture that survives the first two reads never reaches the fallback, which
+  // is exactly why the earlier version of this section missed an uncaught throw there.
   const cyclic: any = { provider: 'p', status: 'pass', allPass: true, commands: [], details: [], warnings: [] };
   cyclic.self = cyclic;
   const withBigInt: any = { provider: 'p', status: 'pass', allPass: true, commands: [], details: [], warnings: [], big: BigInt(1) };
-  let reads = 0;
-  const throwingGetter: any = {
+  const alwaysThrows: any = {
     provider: 'p', status: 'pass', allPass: true, commands: [], details: [], warnings: [],
-    get summary() {
-      reads += 1;
-      if (reads > 2) throw new Error('getter refuses on the third read');
-      return Array.from({ length: 200_000 }, (_, index) => index);
-    },
+    get summary() { throw new Error('summary getter always throws'); },
   };
-  for (const [label, value] of [['cyclic', cyclic], ['BigInt', withBigInt], ['throwing getter', throwingGetter]] as Array<[string, unknown]>) {
+  const proxied: any = new Proxy(
+    { provider: 'p', status: 'pass', allPass: true, commands: [], details: [], warnings: [] },
+    { get(target, key) { if (key === 'status') throw new Error('proxy refuses status'); return (target as any)[key]; } },
+  );
+  for (const [label, value] of [
+    ['cyclic', cyclic],
+    ['BigInt', withBigInt],
+    ['always-throwing getter', alwaysThrows],
+    ['throwing proxy trap', proxied],
+  ] as Array<[string, unknown]>) {
     let bound!: ReturnType<typeof persist>;
     assert.doesNotThrow(() => { bound = persist(value); }, `${label}: a degenerate input is bounded, not thrown`);
     assertFlagAgreesWithMeasurement(bound);
     assert.equal(bound.withinBound, true, `${label}: a degenerate input still produces a writable record`);
     assert.doesNotThrow(() => JSON.parse((bound.record as any).output), `${label}: the output field stays valid JSON`);
     assert.notEqual((bound.record as any).output, 'null', `${label}: an unserialisable result is never persisted as a bare null, which reads as a silent not-a-pass`);
+    const parsed = JSON.parse((bound.record as any).output);
+    assert.equal(parsed.evidenceBound.replacedWithVerdictOnlyRecord, true, `${label}: the replacement names itself`);
     console.log(`    ${label}: disposition=${bound.disposition} withinBound=${bound.withinBound}`);
   }
-  console.log('✓ cyclic, BigInt and throwing-getter inputs are bounded rather than propagated');
+  console.log('✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated');
+}
+
+// ── 9b. A non-object oversized input is REFUSED, not replaced by an invented record. ─────────────
+{
+  // Substituting a verdict-only record here would invent fields the input never had: a string has
+  // no allPass and no status to carry, so the artifact would assert neither while reporting success.
+  const bound = persist('x'.repeat(30 * MIB));
+  assertFlagAgreesWithMeasurement(bound);
+  assert.equal(bound.withinBound, false, 'an unreducible oversized non-object reports withinBound false');
+  assert.equal(bound.disposition, 'refused', 'and is refused rather than replaced');
+  assert.ok(bound.fileBytes >= VALIDATION_EVIDENCE_BOUND_BYTES, 'the refusal rests on a real measurement');
+  console.log('✓ an oversized non-object input is refused rather than given an invented verdict record');
+  console.log(`    fileBytes=${bound.fileBytes} disposition=${bound.disposition}`);
+}
+
+// ── 9c. F-020: a successfully reduced artifact is never discarded for the stub. ─────────────────
+{
+  // Heterogeneous density: quote-heavy continuation lines expand x2 on the outer stringify while
+  // plain status lines expand x1, so no single expansion ESTIMATE describes the artifact. The old
+  // writer estimated one, made a single corrective attempt, and on a miss threw away a perfectly
+  // good reduced artifact for a several-hundred-byte stub. The reduction is now driven by a
+  // predicate that measures the file, so a miss is not a thing that can happen: it keeps reducing.
+  const details: string[] = [];
+  for (let index = 0; index < 120_000; index += 1) {
+    details.push(`✓ cmd-${index}: node packages/main/dist/tasks/example.js`);
+    if (index % 2 === 0) details.push(`  ${'"'.repeat(400)}`);
+  }
+  const bound = persist(validationResult([], { details }));
+  assertFlagAgreesWithMeasurement(bound);
+  assert.equal(bound.withinBound, true, 'the heterogeneous artifact is brought under the bound');
+  assert.notEqual(
+    bound.disposition,
+    'verdict_only',
+    'a reducible artifact must be REDUCED, never discarded for the fallback stub',
+  );
+  const parsed = JSON.parse((bound.record as any).output);
+  assert.ok(Array.isArray(parsed.details) && parsed.details.length > 100, `real evidence survives (${parsed.details?.length ?? 0} detail lines kept)`);
+  assert.ok(parsed.details.some((line: string) => line.startsWith('✓ cmd-')), 'the surviving lines are the navigable per-command index');
+  console.log('✓ heterogeneous density is reduced to fit rather than discarded for the stub');
+  console.log(`    disposition=${bound.disposition} fileBytes=${bound.fileBytes} detailsKept=${parsed.details.length}`);
 }
 
 // ── 10. An unmeetable bound is refused, and the text says refusal rather than reassurance. ───────

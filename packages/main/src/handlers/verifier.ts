@@ -737,10 +737,21 @@ function reusedStoryValidationResult(args: {
   const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
   if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
   if (!reusedBound.withinBound) {
-    throw new Error(
-      `reused validation evidence file could not be reduced under the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte `
-      + `bound (file measures ${reusedBound.fileBytes} bytes; disposition=${reusedBound.disposition})`,
-    );
+    // Structured refusal, matching every sibling failure in this function. A raw throw here made
+    // one condition surface differently from the identical condition in
+    // persistStoryValidationEvidence, which returns a result the caller can render and classify.
+    return externalResult({
+      provider: 'lattice-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because its evidence file exceeds the persisted size bound',
+      details: [
+        'canonical-pass-persistence-failed: reused evidence file could not be reduced under the bound',
+        `boundBytes=${VALIDATION_EVIDENCE_BOUND_BYTES} fileBytes=${reusedBound.fileBytes} disposition=${reusedBound.disposition}`,
+      ],
+      warnings: [],
+      commands: [],
+    });
   }
   args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
   const commitResult = commitValidationReuseMetadataTransaction({
@@ -879,31 +890,19 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
-  const evidence = (hashes: {
+  // ONE computation gates and writes. The gate used to run without the hashes and the write with
+  // them, discarding the second measurement - two artifacts, one measured, the other stored. The
+  // hash fields add a measurable ~232 bytes, so a record sitting in that window passed a gate it
+  // would have failed. That is the F-014 shape again at a smaller scale, and the repair is the same
+  // one: measure the artifact you are about to write, not a near relative of it.
+  const boundEvidence = (hashes: {
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
-  } = {}): TestEvidenceData => boundPersistedValidationEvidence({
+  } = {}) => boundPersistedValidationEvidence({
     result,
     buildRecord: (output) => evidenceRecord(output, hashes),
-  }).record;
-  // Measured against the hash-bearing record, which is the one actually written.
-  const persistedBound = boundPersistedValidationEvidence({
-    result,
-    buildRecord: (output) => evidenceRecord(output),
   });
-  const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
-  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
-  // withinBound is measured over the file, so it can genuinely say no. Storing a file the metadata
-  // blob read cannot consume is the original defect: it would commit, then fail every later read
-  // with ENOBUFS and block the phase gate with a message about something else.
-  if (!persistedBound.withinBound) {
-    return persistenceFailure(
-      `serialised validation evidence file could not be reduced under the `
-      + `${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound (file measures ${persistedBound.fileBytes} bytes; `
-      + `disposition=${persistedBound.disposition})`,
-    );
-  }
 
   let gitCwd: string;
   let storyRel: string;
@@ -946,7 +945,15 @@ function persistStoryValidationEvidence(
     // PASS and never append a terminal/receipt without a git-backed boundary.
     if (!allPass && /not a git repository/i.test(reason)) {
       try {
-        ctx.store.writeTestEvidence(storyId, evidence());
+        // Same rule on the degraded path: gate and write the SAME computation.
+        const fallbackBound = boundEvidence();
+        if (!fallbackBound.withinBound) {
+          return persistenceFailure(
+            `${reason}; non-git FAIL evidence exceeds the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound `
+            + `(file measures ${fallbackBound.fileBytes} bytes)`,
+          );
+        }
+        ctx.store.writeTestEvidence(storyId, fallbackBound.record);
       } catch (fallbackError: any) {
         return persistenceFailure(`${reason}; non-git FAIL evidence fallback failed: ${String(fallbackError?.message || fallbackError)}`);
       }
@@ -954,8 +961,21 @@ function persistStoryValidationEvidence(
     return persistenceFailure(reason);
   }
 
+  // Computed once, with the hashes, AFTER they are known: this exact record is measured, gated and
+  // written. No second computation exists to diverge from it.
+  const persistedBound = boundEvidence(hashes);
+  const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
+  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
+  if (!persistedBound.withinBound) {
+    return persistenceFailure(
+      `serialised validation evidence file could not be reduced under the `
+      + `${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound (file measures ${persistedBound.fileBytes} bytes; `
+      + `disposition=${persistedBound.disposition})`,
+    );
+  }
+
   try {
-    ctx.store.writeTestEvidence(storyId, evidence(hashes));
+    ctx.store.writeTestEvidence(storyId, persistedBound.record);
     recordValidationTerminal(ctx, storyId, gitCwd, result, identity);
   } catch (error: any) {
     const rollback = rollbackDonePrepareGeneratedMetadataTransaction({

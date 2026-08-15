@@ -136,30 +136,19 @@ function trimOutput(output: string): string {
  * METADATA_BLOB_READ_MAX_BUFFER_BYTES, the ceiling core/done-prepare-generated-metadata.ts applies
  * to the very read that consumes this artifact.
  *
- * What is guaranteed, and what is not - stated precisely, because an earlier revision of this
- * comment claimed an invariant the code did not enforce, and the revision after it kept the claim
- * while the code moved underneath: the honest withinBound=false path was added nine lines below
- * this paragraph without the paragraph being revisited. A sentence about behaviour has to be
- * re-read whenever the behaviour changes, or it becomes the most confident wrong thing in the file.
+ * This constant is a THRESHOLD, not a promise. Deliberately, no guarantee about bounding behaviour
+ * is restated here.
  *
- *   GUARANTEED for an input the reduction can act on - an object, which is what the only
- *   production caller passes: boundValidationEvidenceOutput returns a string strictly smaller than
- *   VALIDATION_EVIDENCE_BOUND_BYTES. It is enforced by measuring the real encoding after every
- *   stage and by a last-resort record capped by construction, not by the two constants standing in
- *   the right order.
+ * The paragraph that used to sit at this spot described what boundValidationEvidenceOutput
+ * guaranteed, and it was wrong three separate times - not because anyone wrote it carelessly, but
+ * because it restated behaviour owned three hundred lines away, and each time that behaviour moved
+ * the sentence stayed. Its own text advised re-reading a sentence whenever the behaviour changes,
+ * and it then became the third counterexample to that advice.
  *
- *   NOT GUARANTEED for an input with no structure to reduce - a multi-megabyte primitive, say.
- *   There is no field to elide and no entry to cap, so the function returns the oversized
- *   serialisation and reports withinBound: false. It does not pretend: the flag is measured on that
- *   path like every other, and persistStoryValidationEvidence refuses the write rather than storing
- *   an artifact the metadata read cannot consume. An unreduceable input is reported, not absorbed.
- *
- *   NOT GUARANTEED: that test-evidence.json as a FILE is under the ceiling. That file also carries
- *   verificationCoverage, commandExecution and routineValidationIdentity, written by
- *   persistStoryValidationEvidence outside this string. The 25 percent gap between the bound and
- *   the ceiling is the headroom those fields spend, and it is headroom rather than a proof. A read
- *   above the ceiling must therefore still fail diagnostically, which is what
- *   describeContentReadFailure in core/done-prepare-generated-metadata.ts is for.
+ * So the durable fix is not a more careful sentence. It is to stop duplicating the claim: the
+ * guarantee lives with the code that enforces it, in the doc comment on
+ * boundPersistedValidationEvidence, which is also the only function that can measure it. A pointer
+ * cannot go stale, because it does not restate anything.
  */
 export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
 /**
@@ -235,9 +224,14 @@ function formatBytes(bytes: number): string {
 }
 
 /**
- * The operator-facing advisory. Deliberately worded as information: no failure vocabulary, no
- * cross or warning glyph, and an explicit statement that the validate verdict is untouched, so a
- * reader scanning output cannot mistake it for a failing check.
+ * The operator-facing size text.
+ *
+ * On the advisory paths it is deliberately worded as information - no failure vocabulary, no cross
+ * or warning glyph - so a reader scanning output cannot mistake it for a failing check. The refusal
+ * path is NOT one of those: there the evidence write does not happen, and the text says so plainly
+ * rather than reassuring. Which wording applies is decided by `disposition` below; this comment
+ * does not enumerate the cases, because the last three defects in this file were sentences that
+ * enumerated something the code then changed.
  */
 export function formatValidationEvidenceAdvisory(persisted: PersistedValidationEvidenceBound): string | null {
   if (persisted.state === 'within_budget') return null;
@@ -287,6 +281,15 @@ const VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS = [
   'failureKind',
   'summary',
 ] as const;
+
+/**
+ * How much of an array to keep, from the measured overshoot. Clamped well below 1 so every step is
+ * a real reduction, and floored so a wild overshoot does not collapse the array in one go when two
+ * cheap steps would have kept more evidence.
+ */
+function targetRatio(bytes: number, budget: number): number {
+  return Math.max(0.1, Math.min(0.9, (budget * 0.85) / Math.max(1, bytes)));
+}
 
 function elisionMarker(originalChars: number): string {
   return `[evidence bound: ${originalChars} chars of captured output omitted so the aggregate artifact `
@@ -338,31 +341,49 @@ function collapseDetailContinuationRuns(details: string[]): { details: string[];
 }
 
 /**
- * Serialise a validation result for the evidence artifact, bounded at VALIDATION_EVIDENCE_BOUND_BYTES.
+ * Reduce a validation result for the evidence artifact until a caller-supplied predicate is
+ * satisfied.
  *
  * Bounding is structural, never a string truncation: consumers parse this field (an unparseable
  * artifact is rejected as output_invalid_json and blocks the phase gate), so the result stays valid
- * JSON and keeps allPass / allPassed / status exactly as given. Nothing is discarded silently:
+ * JSON and keeps allPass / allPassed / status exactly as given. Nothing is discarded silently.
  *
- *   stage 1 - replace captured per-command output with a visible marker naming the omitted length,
- *             largest first; every entry is retained.
- *   stage 2 - collapse the DUPLICATE of that same output that executeValidationPlan copies into
+ * The `fits` predicate is the whole design. This function does NOT know what the caller is trying
+ * to fit into: boundPersistedValidationEvidence passes a predicate that builds the full
+ * TestEvidenceData and measures the FILE, so the reduction is driven by the bytes that reach disk
+ * rather than by this string, which the outer serialisation escapes again. An earlier revision
+ * estimated that expansion factor and made one corrective attempt; a heterogeneous artifact whose
+ * realised expansion differed from the estimate then had a perfectly good reduced artifact thrown
+ * away for a stub. Estimation is gone. Each stage is applied whole and then MEASURED.
+ *
+ *   stage 1 - replace every captured per-command output with a marker naming the omitted length.
+ *   stage 2 - collapse the DUPLICATE of that output that executeValidationPlan copies into
  *             `details`, keeping the per-command status lines that make details navigable.
- *   stage 3 - cap `warnings`, then stage 4 caps `commands` entries, each with a stated count.
+ *   stage 3 - replace `warnings` with a counted marker.
+ *   stage 4 - halve the `details` tail until it fits, then stage 5 halves `commands` the same way.
  *
- * There is deliberately no stage that makes this string total for arbitrary input. That guarantee
- * belongs to boundPersistedValidationEvidence, over the file this string ends up inside.
+ * Halving rather than measuring per entry is a deliberate cost trade: it converges in O(log n)
+ * measurements instead of O(n), at the price of removing up to twice as much as strictly needed on
+ * the final step. It never removes anything without counting it.
  *
- * The input object is never mutated, and the verdict fields are untouched by every stage.
- *
- * `outputWithinBound` is computed from Buffer.byteLength of the string actually returned. It is
- * honest about this string and says nothing about the file; read `withinBound` on the persisted
- * result for that.
+ * The input object is never mutated. `outputWithinBound` reports this string against the module
+ * bound and is not the guarantee; boundPersistedValidationEvidence owns that.
  */
 export function boundValidationEvidenceOutput(
   result: unknown,
-  budgetBytes: number = VALIDATION_EVIDENCE_BOUND_BYTES,
+  options: { measure?: (output: string) => number | null; budgetBytes?: number } = {},
 ): BoundedValidationEvidenceOutput {
+  const budget = options.budgetBytes ?? VALIDATION_EVIDENCE_BOUND_BYTES;
+  // The predicate returns a SIZE, not a boolean, so the array stages can size their next step from
+  // the measurement instead of stepping blindly. Every step is still decided by a real measurement
+  // and every step makes progress, so a step that lands short costs one more iteration - it never
+  // discards what has already been reduced, which is the failure this replaced.
+  const measure = options.measure ?? ((output: string) => Buffer.byteLength(output, 'utf8'));
+  const sizeOf = (output: string): number => {
+    const measured = measure(output);
+    return measured === null ? Number.MAX_SAFE_INTEGER : measured;
+  };
+  const fits = (output: string): boolean => sizeOf(output) < budget;
   const serialized = safeJsonStringify(result);
   const measuredBytes = Buffer.byteLength(serialized ?? 'null', 'utf8');
   const base = {
@@ -372,27 +393,22 @@ export function boundValidationEvidenceOutput(
     boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
     state: classifyValidationEvidenceSize(measuredBytes),
   };
-  if (measuredBytes < budgetBytes || !result || typeof result !== 'object') {
-    // Note the second half of that condition: a non-object carrying bulk (a multi-megabyte string)
-    // has no structure to reduce, so this path can legitimately return withinBound=false. That is
-    // the honest answer, and the caller is expected to act on it rather than store the artifact.
-    const output = serialized ?? 'null';
-    const serializedBytes = Buffer.byteLength(output, 'utf8');
+  const unreduced = serialized ?? 'null';
+  if (!result || typeof result !== 'object' || fits(unreduced)) {
     return {
       ...base,
-      serializedBytes,
+      serializedBytes: Buffer.byteLength(unreduced, 'utf8'),
       reduced: false,
-      outputWithinBound: serializedBytes < budgetBytes,
+      outputWithinBound: Buffer.byteLength(unreduced, 'utf8') < VALIDATION_EVIDENCE_BOUND_BYTES,
       elidedCommandOutputs: 0,
       elidedCommandEntries: 0,
       elidedDetailLines: 0,
       elidedWarnings: 0,
-      output,
+      output: unreduced,
     };
   }
 
   const source = result as Record<string, unknown>;
-  const carried: Record<string, unknown> = { ...source };
   let commands = Array.isArray(source.commands) ? [...(source.commands as any[])] : [];
   let details = Array.isArray(source.details) ? [...(source.details as any[])] : [];
   let warnings = Array.isArray(source.warnings) ? [...(source.warnings as any[])] : [];
@@ -401,8 +417,8 @@ export function boundValidationEvidenceOutput(
   let elidedDetailLines = 0;
   let elidedWarnings = 0;
 
-  const render = (): string => JSON.stringify({
-    ...carried,
+  const render = (): string => safeJsonStringify({
+    ...source,
     ...(Array.isArray(source.commands) ? { commands } : {}),
     ...(Array.isArray(source.details) ? { details } : {}),
     ...(Array.isArray(source.warnings) ? { warnings } : {}),
@@ -415,88 +431,71 @@ export function boundValidationEvidenceOutput(
       elidedDetailLines,
       elidedWarnings,
     },
-  });
-  const measure = (): number => Buffer.byteLength(render(), 'utf8');
+  }) ?? unreduced;
 
-  // Stage 1. Serialising a multi-megabyte artifact is not free, so elisions inside a stage adjust
-  // an EXACT byte delta (replacing one JSON string value changes the encoding by exactly the
-  // difference of the two encoded lengths) and the object is re-rendered once per stage.
-  const encodedLength = (value: unknown): number => Buffer.byteLength(JSON.stringify(value) ?? 'null', 'utf8');
-  let bytes = measure();
-  if (bytes >= budgetBytes) {
-    const order = commands
-      .map((command, index) => ({ index, length: typeof command?.output === 'string' ? command.output.length : 0 }))
-      .sort((a, b) => (b.length - a.length) || (a.index - b.index));
-    for (const entry of order) {
-      if (bytes < budgetBytes) break;
-      if (entry.length === 0) continue;
-      const previous = commands[entry.index]?.output;
-      const marker = elisionMarker(entry.length);
-      commands[entry.index] = { ...commands[entry.index], output: marker };
+  let output = render();
+
+  // Stage 1.
+  if (!fits(output)) {
+    for (let index = 0; index < commands.length; index += 1) {
+      const captured = commands[index]?.output;
+      if (typeof captured !== 'string' || captured.length === 0) continue;
+      commands[index] = { ...commands[index], output: elisionMarker(captured.length) };
       elidedCommandOutputs += 1;
-      bytes -= encodedLength(previous) - encodedLength(marker);
     }
-    bytes = measure();
+    output = render();
   }
 
-  // Stage 2. The second copy of the same bytes, and usually the larger one: executeValidationPlan
-  // indents every captured output line into `details`, so `details` alone can exceed the ceiling.
-  if (bytes >= budgetBytes && details.length > 0) {
+  // Stage 2.
+  if (!fits(output) && details.length > 0) {
     const collapsed = collapseDetailContinuationRuns(details as string[]);
     details = collapsed.details;
     elidedDetailLines += collapsed.elidedLines;
-    bytes = measure();
-    // Whatever survives the collapse is structural rather than duplicated output, so it is capped
-    // from the end with a stated count instead of being collapsed further.
-    while (bytes >= budgetBytes && details.length > 1) {
-      const removed = details.pop();
-      elidedDetailLines += 1;
-      bytes -= encodedLength(removed) + 1;
-    }
-    if (elidedDetailLines > 0 && details.length > 0) {
-      details.push(countElisionMarker('detail line(s)', elidedDetailLines));
-    }
-    bytes = measure();
+    output = render();
   }
 
   // Stage 3.
-  while (bytes >= budgetBytes && warnings.length > 0) {
-    const removed = warnings.pop();
-    elidedWarnings += 1;
-    bytes -= encodedLength(removed) + 1;
-  }
-  if (elidedWarnings > 0) {
-    warnings.push(countElisionMarker('warning(s)', elidedWarnings));
-    bytes = measure();
+  if (!fits(output) && warnings.length > 0) {
+    elidedWarnings += warnings.length;
+    warnings = [countElisionMarker('warning(s)', elidedWarnings)];
+    output = render();
   }
 
-  // Stage 4.
-  while (bytes >= budgetBytes && commands.length > 0) {
-    const removed = commands.pop();
-    elidedCommandEntries += 1;
-    bytes -= encodedLength(removed) + 1;
+  // Stage 4. Size the step from the measurement, then re-measure. `keep` is always at least one
+  // element smaller than the current length, so the loop cannot stall.
+  let bytes = sizeOf(output);
+  // The marker is appended ONCE, after the loop. Appending it per iteration made the array length
+  // unchanged whenever the step was a single element - slice off one, push one - so the loop spun
+  // forever on any artifact whose remaining bulk was not in `details`. Progress is now structural:
+  // `keep` is strictly less than the current length and nothing is added back inside the loop.
+  while (bytes >= budget && details.length > 0) {
+    const keep = Math.max(0, Math.min(details.length - 1, Math.floor(details.length * targetRatio(bytes, budget))));
+    elidedDetailLines += details.length - keep;
+    details = details.slice(0, keep);
+    output = render();
+    bytes = sizeOf(output);
   }
-  bytes = measure();
+  if (elidedDetailLines > 0) {
+    details.push(countElisionMarker('detail line(s)', elidedDetailLines));
+    output = render();
+    bytes = sizeOf(output);
+  }
 
-  // No stage 5 or 6 here any more, and that is the point. Those stages existed to make this INNER
-  // string total for arbitrary input, which is a guarantee about the wrong value: StoryStore
-  // stringifies this string again into test-evidence.json, escaping every character a second time,
-  // so an inner string under the bound can still produce a file roughly twice that size. The
-  // postcondition therefore lives at the writer, over the whole serialised record - see
-  // boundPersistedValidationEvidence, which owns the measurement and the bounded fallback.
-  //
-  // What stays here is what earns its place: reducing the one dimension that actually grows - the
-  // number of configured commands, in both the copies the producer writes - while keeping per
-  // command evidence readable. This is best effort, and it says so.
-  const output = render();
+  // Stage 5.
+  while (bytes >= budget && commands.length > 0) {
+    const keep = Math.max(0, Math.min(commands.length - 1, Math.floor(commands.length * targetRatio(bytes, budget))));
+    elidedCommandEntries += commands.length - keep;
+    commands = commands.slice(0, keep);
+    output = render();
+    bytes = sizeOf(output);
+  }
+
   const serializedBytes = Buffer.byteLength(output, 'utf8');
-
   return {
     ...base,
     serializedBytes,
     reduced: true,
-    // Measured, not asserted - but note what it is measured over: the inner string only.
-    outputWithinBound: serializedBytes < budgetBytes,
+    outputWithinBound: serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
     elidedCommandOutputs,
     elidedCommandEntries,
     elidedDetailLines,
@@ -506,24 +505,41 @@ export function boundValidationEvidenceOutput(
 }
 
 /**
+ * Read one property without trusting the object it comes from.
+ *
+ * A getter or a proxy trap can throw on property access, so every read of caller data inside the
+ * fallback goes through here. This is the repair for a fallback whose own comment claimed it "reads
+ * only scalars and cannot depend on the reduction having worked" while reading properties off the
+ * original object outside any try.
+ */
+function safeScalarRead(source: Record<string, unknown>, key: string): unknown {
+  let value: unknown;
+  try {
+    value = source[key];
+  } catch {
+    return undefined;
+  }
+  if (typeof value === 'string') return value.slice(0, 200);
+  return typeof value === 'boolean' || typeof value === 'number' ? value : undefined;
+}
+
+/**
  * The last-resort output field, sized by construction rather than by the input.
  *
- * Every value passes a cap, so its serialised length has a computable ceiling in the low hundreds
- * of bytes whatever arrives. It satisfies the consumer contract that matters at the phase gate:
- * valid JSON carrying allPass / allPassed / status, which is what outputPassState in
- * core/validation-evidence-admissibility.ts parses. And it names itself a replacement, so a reader
- * is never left thinking it is the whole evidence.
+ * Every value passes a cap and every read is defensive, so this cannot throw and its serialised
+ * length has a computable ceiling in the low hundreds of bytes whatever arrives. It satisfies the
+ * consumer contract that matters at the phase gate: valid JSON carrying allPass / allPassed /
+ * status, which is what outputPassState in core/validation-evidence-admissibility.ts parses. And it
+ * names itself a replacement, so a reader is never left thinking it is the whole evidence.
  */
 function verdictOnlyRecord(source: unknown, measuredBytes: number): string {
   const record = source && typeof source === 'object' ? source as Record<string, unknown> : {};
-  const scalar = (value: unknown): unknown =>
-    typeof value === 'string' ? value.slice(0, 200) : (typeof value === 'boolean' || typeof value === 'number' ? value : undefined);
   const carried: Record<string, unknown> = {};
   for (const key of VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS) {
-    const value = scalar(record[key]);
+    const value = safeScalarRead(record, key);
     if (value !== undefined) carried[key] = value;
   }
-  return JSON.stringify({
+  const rendered = safeJsonStringify({
     ...carried,
     evidenceBound: {
       measuredBytes,
@@ -532,6 +548,17 @@ function verdictOnlyRecord(source: unknown, measuredBytes: number): string {
       replacedWithVerdictOnlyRecord: true,
       reason: 'the reduced result did not fit inside the persisted record; the full result is available in the validate console output',
       carriedFields: [...VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS],
+    },
+  });
+  // The constant floor: no input-derived value at all. Reached only if the capped scalars above are
+  // themselves unserialisable, which nothing in JSON can be - but the floor costs one line and
+  // removes the last "cannot happen" from this path.
+  return rendered ?? JSON.stringify({
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      replacedWithVerdictOnlyRecord: true,
+      reason: 'the result could not be serialised at all; the full result is available in the validate console output',
     },
   });
 }
@@ -590,23 +617,25 @@ export function measurePersistedEvidenceBytes(record: unknown): number | null {
 /**
  * THE POSTCONDITION, at the boundary it is claimed about.
  *
- * The reducer measures the inner `output` string. That is not what has to fit: StoryStore
+ * The reducer produces an inner `output` string. That is not what has to fit: StoryStore
  * stringifies the whole TestEvidenceData a SECOND time, escaping every character of that string
  * again, so quote-heavy captured output roughly doubles on the way to disk - measured at x1.99 with
- * 400 commands. A 19.5 MB inner string became a 38.8 MB file, over the 32 MiB read ceiling, while
- * the reducer reported success and never engaged. The immutable metadata commit then failed on the
- * blob ceiling and the gate wedged: the exact outcome this story exists to prevent.
+ * 400 commands. Bounding the inner string alone left a reachable wedge where an in-bound string
+ * produced an out-of-bound file, the metadata commit failed on the blob ceiling, and no story could
+ * persist evidence.
  *
- * So the guarantee is enforced here, over the fully serialised record, in three steps:
+ * So the reduction is DRIVEN by a predicate that measures the file, and the result is measured
+ * again before it is returned. Three outcomes, all measured:
  *
- *   1. reduce the result with boundValidationEvidenceOutput, build the record, MEASURE THE FILE;
- *   2. if that does not fit, replace `output` with verdictOnlyRecord and measure again;
- *   3. if it still does not fit, the remaining bulk is in fields this function must not mangle -
- *      verificationCoverage is read by the phase gate - so report withinBound: false and let the
- *      caller refuse the write.
+ *   reduced / unmodified - the record fits; write it.
+ *   verdict_only         - reduction could not fit an OBJECT result, so the output field is
+ *                          replaced by a record sized by construction.
+ *   refused              - it still does not fit, or the input had no structure to reduce. The
+ *                          caller must not write this; withinBound is false and says so.
  *
- * Total by construction: every serialisation goes through safeJsonStringify, so a cyclic, BigInt or
- * throwing-getter input yields the bounded fallback or a refusal rather than an exception.
+ * Total by construction: every serialisation goes through safeJsonStringify and every read of
+ * caller data through safeScalarRead, so a cyclic, BigInt or throwing-accessor input yields a
+ * bounded record or an honest refusal rather than an exception.
  */
 export function boundPersistedValidationEvidence<T>(args: {
   result: unknown;
@@ -627,53 +656,59 @@ export function boundPersistedValidationEvidence<T>(args: {
     state: classifyValidationEvidenceSize(fileBytes),
     sizing,
   });
+  const measureWith = (output: string): { record: T; bytes: number | null } => {
+    try {
+      const record = args.buildRecord(output);
+      return { record, bytes: measurePersistedEvidenceBytes(record) };
+    } catch {
+      return { record: args.buildRecord('') as T, bytes: null };
+    }
+  };
+
+  // A non-object result has no structure to reduce, and substituting a verdict-only record for it
+  // would be an invention rather than a reduction: there are no verdict fields on a string to
+  // carry, so the artifact would claim neither allPass nor status. Report it honestly instead - an
+  // unreducible oversized input is refused, which is the contract the smoke has always asserted.
+  if (!args.result || typeof args.result !== 'object') {
+    const plain = measureWith(serializedResult ?? 'null');
+    if (plain.bytes === null) return finish(plain.record, Number.MAX_SAFE_INTEGER, 'refused', null);
+    return finish(
+      plain.record,
+      plain.bytes,
+      plain.bytes < VALIDATION_EVIDENCE_BOUND_BYTES ? 'unmodified' : 'refused',
+      null,
+    );
+  }
 
   let sizing: ValidationEvidenceSizing | null = null;
-  let reducedRecord: T | null = null;
-  let reducedBytes: number | null = null;
-  // An unserialisable result (a cycle, a BigInt, a throwing getter) has no reduction to attempt.
-  // Skipping straight to the fallback matters for a reason beyond tidiness: the reducer would
-  // otherwise serialise it as the literal `null`, which a consumer parses as valid JSON that simply
-  // is not allPass - a silent not-a-pass rather than a stated replacement.
+  // An object that cannot be serialised at all - a cycle, a BigInt, a throwing accessor - has no
+  // reduction to attempt. Routing it straight to the fallback matters beyond tidiness: the reducer
+  // would otherwise emit the literal `null`, which a consumer parses as valid JSON that simply is
+  // not allPass. That is a silent not-a-pass where a stated replacement belongs.
   try {
     if (serializedResult === null) throw new Error('result is not serialisable');
-    const bounded = boundValidationEvidenceOutput(args.result);
+    // The predicate is what makes the reduction converge on the FILE rather than on an estimate of
+    // it: every stage boundary inside the reducer measures the record this callback builds.
+    const bounded = boundValidationEvidenceOutput(args.result, {
+      measure: (output) => measureWith(output).bytes,
+      budgetBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+    });
     sizing = bounded;
-    reducedRecord = args.buildRecord(bounded.output);
-    reducedBytes = measurePersistedEvidenceBytes(reducedRecord);
-    if (reducedBytes !== null && reducedBytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
-      return finish(reducedRecord, reducedBytes, bounded.reduced ? 'reduced' : 'unmodified', sizing);
-    }
-
-    // The file is over even though the inner string was inside its own budget: escaping expanded
-    // it. Re-reduce against an inner budget derived from the MEASURED expansion, so quote-heavy
-    // output keeps its per-command evidence instead of collapsing straight to the fallback.
-    if (reducedBytes !== null && bounded.serializedBytes > 0) {
-      const expansion = reducedBytes / bounded.serializedBytes;
-      const innerBudget = Math.max(1, Math.floor((VALIDATION_EVIDENCE_BOUND_BYTES * 0.9) / Math.max(1, expansion)));
-      const retried = boundValidationEvidenceOutput(args.result, innerBudget);
-      const retriedRecord = args.buildRecord(retried.output);
-      const retriedBytes = measurePersistedEvidenceBytes(retriedRecord);
-      if (retriedBytes !== null && retriedBytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
-        return finish(retriedRecord, retriedBytes, 'reduced', retried);
-      }
+    const reduced = measureWith(bounded.output);
+    if (reduced.bytes !== null && reduced.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+      return finish(reduced.record, reduced.bytes, bounded.reduced ? 'reduced' : 'unmodified', sizing);
     }
   } catch {
-    // A throwing getter or proxy can raise anywhere in the reduction. Fall through to the
-    // fallback, which reads only scalars and cannot depend on the reduction having worked.
+    // A throwing accessor can raise anywhere in the reduction or in buildRecord. Fall through to
+    // the fallback, which reads nothing without a guard.
   }
 
-  const fallbackRecord = args.buildRecord(verdictOnlyRecord(args.result, measuredBytes));
-  const fallbackBytes = measurePersistedEvidenceBytes(fallbackRecord);
-  if (fallbackBytes === null) {
-    // The record itself cannot be serialised - the bulk is not the problem, the shape is. Refuse
-    // with the measurement we have rather than pretending to a size we could not take.
-    return finish(fallbackRecord, Number.MAX_SAFE_INTEGER, 'refused', sizing);
+  const fallback = measureWith(verdictOnlyRecord(args.result, measuredBytes));
+  if (fallback.bytes === null) return finish(fallback.record, Number.MAX_SAFE_INTEGER, 'refused', sizing);
+  if (fallback.bytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
+    return finish(fallback.record, fallback.bytes, 'verdict_only', sizing);
   }
-  if (fallbackBytes < VALIDATION_EVIDENCE_BOUND_BYTES) {
-    return finish(fallbackRecord, fallbackBytes, 'verdict_only', sizing);
-  }
-  return finish(fallbackRecord, fallbackBytes, 'refused', sizing);
+  return finish(fallback.record, fallback.bytes, 'refused', sizing);
 }
 
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {
