@@ -966,7 +966,10 @@ function persistStoryValidationEvidence(
   }
 
   // Computed once, with the hashes, AFTER they are known: this exact record is measured, gated and
-  // written. No second computation exists to diverge from it.
+  // written, and nothing on this path computes it a second time. That is a statement about the count
+  // and not about what reaches the writer: the gate below and the write that follows read the same
+  // mutable record, so a line inserted between them that mutates it in place diverges the written
+  // bytes from the measured ones without adding a second computation (B-3434:F-037).
   const persistedBound = boundEvidence(hashes);
   const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
   if (sizingAdvisory) ctx.log?.(sizingAdvisory);

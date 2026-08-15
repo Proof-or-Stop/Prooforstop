@@ -720,6 +720,7 @@ function validationResult(
     'B-3434:F-033',
     'B-3434:F-035',
     'B-3434:F-036',
+    'B-3434:F-037',
   ]) {
     assert.ok(
       rationaleText.includes(required),
