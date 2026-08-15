@@ -684,6 +684,40 @@
       },
       "readDiagnostics": [],
       "_hash": "88b8ae5bb23ca4acad1cc9e90586790af159ed144615151a900506887701bb31"
+    },
+    {
+      "id": "B-6693:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 concept re-review found no blocker. Commit 19422b0 changes only scripts/verify-process-fact-contract.mjs, replacing the stale ef1c4e fingerprint with the already-audited c38c840 fingerprint; production capacity, loader, CLI, handler, and documentation semantics are byte-unchanged from the prior reviewed state. The process-fact verifier and retired-authority guard both pass, repository residue scan finds only the two matching c38c840 contract sites and no old fingerprint, scope includes the verifier only as allowedTest, and Lattice reports no stale evidence across 29/29 intent receipts including three mechanical canonical cohort receipts.",
+      "createdAt": "2026-08-15T22:26:41.595Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-034",
+      "envelopeId": "1f527156e2c7a666debfe3fa11348810ef87edabe53e76dd9470cf2ee3572118",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91af51fcd9d47c34e8240a88e13eae4ccd0aa0e170e2dd3d79e6ff019a96aa0a"
     }
   ]
 }
