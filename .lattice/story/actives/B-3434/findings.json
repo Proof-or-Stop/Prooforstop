@@ -318,7 +318,7 @@
       "desc": "[codex host-B J1] Verified by main agent with an independent construction. The reducer measures the INNER JSON.stringify(result) string, but StoryStore places that string into TestEvidenceData.output and stringifies again, escaping it a second time; the 25 percent headroom cannot bound that expansion. My reproduction with 400 commands each carrying 12000 quote characters, duplicated into details as the producer does: inner output 19217147 bytes with withinBound true and reduced false - the reducer never engages - while the persisted file is 38422033 bytes, above the 33554432 read ceiling. So the refusal does not fire, the oversized file IS written, the immutable commit then hits the blob ceiling, the transaction rolls back, and that validation configuration can never persist evidence. The reuse path bypasses the reducer entirely via reusedStoryValidationResult. This is the story's own defect one layer out: measuring one thing and asserting it about another, which is the same shape as F-010. Fix by measuring the fully serialised TestEvidenceData at the writer boundary, escaping and outer fields included, and applying the bounded fallback there, reuse path included.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-15T12:54:21.915Z",
@@ -326,7 +326,11 @@
       "reviewRunId": "B-3434:RR-011",
       "_hash": "f25be0eebe4e489a1f716089eae169df8f3b75438f2090e707cf0e4eb7312f8a",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e1afeb346a and independently re-verified. Superseded by B-3434:F-023, which the quality lane filed under its own reviewer lane after reproducing the pre-fix defect itself - a 38422033-byte file from a 19.2 MB in-bound inner string - and then verifying the fix by writing a real test-evidence.json through StoryStore.writeTestEvidence and stat-ing the actual file: 22555544 bytes measured, 22555544 on disk, exact match. The re-file matters because a finding recorded under the main agent gates nothing: isReviewerAgent requires a registered reviewer lane and main has none, so this high-severity defect blocked nothing when first recorded. That structural gap is filed as its own work.",
+      "resolvedAt": "2026-08-15T13:46:05.031Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-015",
