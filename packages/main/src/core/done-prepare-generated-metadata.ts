@@ -562,12 +562,18 @@ function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string)
   return sortedUnique(raw.split('\0').filter(Boolean));
 }
 
+// Lifecycle metadata can legitimately exceed Node's 1 MiB child-process
+// default (process-events.jsonl is append-only). Keep capture bounded while
+// allowing current large histories; exceeding this ceiling remains fail-closed.
+const IMMUTABLE_METADATA_BLOB_MAX_BUFFER = 16 * 1024 * 1024;
+
 function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): string | null {
   try {
     const content = childProcess.execFileSync('git', ['show', `:${path}`], {
       cwd: gitCwd,
       env: { ...process.env, GIT_INDEX_FILE: indexFile },
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: IMMUTABLE_METADATA_BLOB_MAX_BUFFER,
     });
     return sha256(content);
   } catch {
@@ -585,6 +591,7 @@ function treeBlobHash(gitCwd: string, tree: string, path: string): string | null
     const content = childProcess.execFileSync('git', ['show', `${tree}:${path}`], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: IMMUTABLE_METADATA_BLOB_MAX_BUFFER,
     });
     return sha256(content);
   } catch {
@@ -771,18 +778,37 @@ export function commitImmutableMetadataTree(args: {
         reason: `HEAD changed before isolated metadata commit CAS: ${cas.error}`,
       };
     }
-    const realIndexBefore = indexEntriesForPaths(args.gitCwd, paths);
+    let realIndexBefore: DonePrepareGeneratedMetadataIndexEntry[] | null = null;
     try {
+      realIndexBefore = indexEntriesForPaths(args.gitCwd, paths);
       updateRealIndexFromTree(args.gitCwd, tree, paths);
     } catch (err: any) {
-      for (const path of paths) {
-        restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter((entry) => entry.path === path));
+      const refreshError = String(err?.stderr || err?.stdout || err?.message || err).trim();
+      const restoreErrors: string[] = [];
+      let rollbackRef: ReturnType<typeof gitMaybe>;
+      try {
+        if (realIndexBefore) {
+          for (const path of paths) {
+            try {
+              restoreIndexEntries(args.gitCwd, path, realIndexBefore.filter((entry) => entry.path === path));
+            } catch (restoreErr: any) {
+              restoreErrors.push(`${path}: ${String(restoreErr?.stderr || restoreErr?.stdout || restoreErr?.message || restoreErr).trim()}`);
+            }
+          }
+        } else {
+          restoreErrors.push('real index baseline capture failed before refresh');
+        }
+      } finally {
+        // HEAD was already advanced by the successful CAS. Its rollback is an
+        // independent mandatory cleanup step: an index restore failure must
+        // never skip this compare-and-swap attempt.
+        rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
       }
-      const rollbackRef = gitMaybe(args.gitCwd, ['update-ref', targetRef, oldHead, commitSha]);
       return {
         ok: false,
         files: paths,
-        reason: `real index refresh after isolated commit failed: ${String(err?.stderr || err?.stdout || err?.message || err).trim()}`
+        reason: `real index refresh after isolated commit failed: ${refreshError}`
+          + (restoreErrors.length > 0 ? `; real index restore failed: ${restoreErrors.join(' | ')}` : '')
           + (rollbackRef.ok ? '' : `; HEAD rollback CAS failed: ${rollbackRef.error}`),
       };
     }
