@@ -82,6 +82,19 @@ function treeDigest(root: string): string {
   return hash.digest('hex');
 }
 
+const lifecycleFixtureFiles = [
+  'packages/main/src/core/machine.ts',
+  'packages/main/src/handlers/phase-gates.ts',
+] as const;
+
+function lifecycleFixtureDigest(root: string): string {
+  const hash = createHash('sha256');
+  for (const file of lifecycleFixtureFiles) {
+    hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0');
+  }
+  return hash.digest('hex');
+}
+
 function story(phase: StoryInfo['phase'] = 'PLAN'): StoryInfo {
   return {
     storyId,
@@ -759,6 +772,8 @@ try {
   git(cliRoot, ['config', 'user.name', 'Topology Smoke']);
   write(cliRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
   write(cliRoot, 'README.md', 'acceptance topology smoke\n');
+  write(cliRoot, lifecycleFixtureFiles[0], 'export const lifecycleMachineFixture = true;\n');
+  write(cliRoot, lifecycleFixtureFiles[1], 'export const lifecyclePhaseGateFixture = true;\n');
   resetConfigCache();
   const store = new StoryStore(cliRoot);
   store.writeStory(storyId, story());
@@ -770,6 +785,7 @@ try {
   git(cliRoot, ['add', '.']);
   git(cliRoot, ['commit', '-m', 'seed topology story']);
 
+  const lifecycleDigestBefore = lifecycleFixtureDigest(cliRoot);
   const phaseBefore = store.readStory(storyId).phase;
   const transitionBefore = canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', cliRoot);
   const digestBefore = treeDigest(cliRoot);
@@ -826,15 +842,15 @@ try {
   }
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.missing, 'valid and missing topology preserve PLAN→DEV and DEV→REVIEW decisions');
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.malformed, 'valid and malformed topology preserve PLAN→DEV and DEV→REVIEW decisions');
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'topology diagnostics do not modify fixture-local lifecycle sources');
+
+  const machineFixture = readFileSync(join(cliRoot, lifecycleFixtureFiles[0]), 'utf8');
+  write(cliRoot, lifecycleFixtureFiles[0], `${machineFixture}export const unauthorizedTopologyMutation = true;\n`);
+  assert.notEqual(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'fixture-local lifecycle invariant bites an unauthorized machine mutation');
+  write(cliRoot, lifecycleFixtureFiles[0], machineFixture);
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'restoring the fixture-local lifecycle source restores the invariant');
 } finally {
   rmSync(cliRoot, { recursive: true, force: true });
 }
-
-const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const lifecycleSourceDiff = [
-  execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }),
-  execFileSync('git', ['diff', '--name-only'], { cwd: repositoryRoot, encoding: 'utf8' }),
-].join('\n');
-assert.doesNotMatch(lifecycleSourceDiff, /packages\/main\/src\/(?:core\/machine|handlers\/phase-gates)\.ts/, 'Wave 1 and its fixes do not modify lifecycle machine or phase gates');
 
 console.log('ProofStory acceptance topology Wave 1 smoke passed');

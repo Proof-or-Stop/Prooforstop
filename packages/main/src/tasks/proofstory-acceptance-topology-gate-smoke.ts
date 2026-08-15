@@ -170,12 +170,26 @@ function writeDiscoveryRegistration(root: string): void {
     'export const acceptanceTopologyDispatch = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-check.ts',
     'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts',
+    'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs',
+    'export const preReviewLiveProofRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts',
     'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts',
     'export const evaluateAcceptanceTopologyForContext = () => "acceptance_topology_check";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs',
     'export const acceptance_topology_check = "acceptance_basis acceptance_basis_generate transition-orchestrator PLAN to DEV structural gate";\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts',
+    'export const acceptanceRollout = "acceptance_rollout_report verifier-owned signed flat-project rollout report";\n');
+  write(root, 'packages/main/src/core/machine.ts',
+    'export const machine = "acceptance basis lifecycle consumer";\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts',
+    'export const reviewInventoryEpoch = "acceptance basis review inventory binding";\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts',
+    'export const reviewInventory = "acceptance basis review inventory handler";\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
+    'export const acceptanceRolloutCohortRunner = true;\n');
 }
 
 function parseJsonOutput(output: string): any {

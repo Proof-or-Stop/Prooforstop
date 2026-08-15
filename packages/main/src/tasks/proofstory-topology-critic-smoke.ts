@@ -165,6 +165,11 @@ function writeDiscoveryRegistration(root: string): void {
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  write(root, 'packages/main/src/core/machine.ts', 'export const machine=true;\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch=true;\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory=true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner=true;\n');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
