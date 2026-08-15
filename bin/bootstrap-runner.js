@@ -15,11 +15,6 @@ import { fileURLToPath, pathToFileURL } from 'url';
 // which is absent in a fresh checkout without node_modules and would throw
 // ERR_MODULE_NOT_FOUND at module-init here, before we could print the recovery hint.
 import { BUILD_LOCK_STALE_MS, buildLockTarget } from '../scripts/build-lock-target.mjs';
-// recoverOrphanedPromotion lives in promote-dist.mjs, which — like build-lock-target.mjs — imports ONLY
-// node: built-ins (never proper-lockfile), so importing it here keeps bootstrap loadable in a fresh
-// checkout without node_modules. It self-heals a promotion that crashed BETWEEN promote-dist's two
-// renames (dist evicted to an orphaned dist.trash-* but never replaced), which no in-process catch can.
-import { recoverOrphanedPromotion } from '../scripts/promote-dist.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const binDir = dirname(__filename);
@@ -99,8 +94,14 @@ export const IMPORT_WAIT_MAX_MS = 20 * 60 * 1000;
 // with the recovery hint — no wait.
 async function importDistModules() {
   const startedAt = Date.now();
-  let recoveryAttempted = false;
   for (;;) {
+    // KNOWN LIMITATION / FOLLOW-UP (B-1734 #1, deferred to a build-concurrency infra story): reader-lease
+    // TOCTOU. We check `!buildInProgress()` and THEN import, without holding a read lease. A builder can
+    // acquire the lock and promote (rename dist) in the gap between this check and the import(). The
+    // atomic single-rename swap makes the window astronomically small (one rename syscall) and the wait
+    // loop below covers a build that is already in progress, but it does NOT eliminate the check-then-import
+    // race. Fully closing it needs a proper reader/writer lease (or the immutable-versioned-dir + atomic
+    // current-pointer redesign tracked for the same follow-up), which is out of scope here.
     if (existsSync(MAIN_DIST) && existsSync(UTILS_DIST) && !buildInProgress()) {
       return await Promise.all([
         import(pathToFileURL(MAIN_DIST).href),
@@ -117,18 +118,11 @@ async function importDistModules() {
     const distPresent = existsSync(MAIN_DIST) && existsSync(UTILS_DIST);
     const keepWaiting = buildInProgress() || distPresent;
     if (keepWaiting && Date.now() - startedAt < IMPORT_WAIT_MAX_MS) { await sleep(250); continue; }
-    // About to give up on an absent dist. Before failing, self-heal a promotion that crashed BETWEEN
-    // promote-dist's two renames (old dist evicted to an orphaned dist.trash-*, staging→dist never ran):
-    // restore the orphan so bootstrap recovers instead of bricking until the next build. Only when no
-    // build is active (buildInProgress() false → the lock is stale/absent, so no live builder owns those
-    // siblings; recoverOrphanedPromotion re-checks the same freshness gate). Attempt once, then re-loop:
-    // if it restored dist the top-of-loop import succeeds; otherwise we fail fast with the recovery hint.
-    if (!recoveryAttempted && !buildInProgress()) {
-      recoveryAttempted = true;
-      recoverOrphanedPromotion(join(repoRoot, 'packages', 'main'), repoRoot);
-      recoverOrphanedPromotion(join(repoRoot, 'packages', 'utils'), repoRoot);
-      continue;
-    }
+    // Give up: dist is absent AND no build is active (a genuine never-built repo, or a build that crashed
+    // and let its lock go stale), or we exceeded the wait ceiling. A promotion that crashed BETWEEN
+    // promote-dist's two renames leaves dist absent here; it is NOT cross-process self-healed (that
+    // recovery ran without the build lock and could delete a live builder's staging — reverted, B-1734).
+    // The next build rebuilds dist from source (its fast-path verify fails on absent dist → full rebuild).
     printBootstrapFailure(); process.exit(1);
   }
 }

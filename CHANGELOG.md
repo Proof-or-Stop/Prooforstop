@@ -120,25 +120,55 @@
   RED `red-1734-desktop-asset-manifest` computes bootstrap's transitive static import
   graph and asserts every `scripts/` module in it is shipped by the manifest, catching
   this and any future drift; it is wired into `validate.commands`.
-  (D3) the promotion was not process-crash-safe: a SIGKILL/host crash AFTER
+  (D3) the promotion is not process-crash-safe: a SIGKILL/host crash AFTER
   `renameSync(dist, trash)` but BEFORE `renameSync(staging, dist)` bypasses the
-  in-process catch and leaves `dist` absent INDEFINITELY. The full fix (immutable
-  versioned output + atomic pointer) stays deliberately DESCOPED (cross-platform-risky,
-  same follow-up as the C2(b) microsecond gap). The bounded self-healing part is
-  implemented: `scripts/promote-dist.mjs` gains `recoverOrphanedPromotion(packageRoot,
-  repoKey)` (node:-only, so it stays importable in a fresh checkout), which at
-  build/bootstrap startup restores the newest orphaned `dist.trash-*` when `dist` is
-  absent and best-effort clears leftover swap siblings — so `dist` is never absent
-  longer than until the next build/bootstrap. It is gated on build-lock freshness so
-  it never disturbs a concurrent LIVE build (whose live heartbeat, now kept alive by
-  D2's async `tsc`, keeps its lock fresh and its `dist.staging`/`dist.trash-<pid>`
-  off-limits). Both build scripts call it before deciding anything, and
-  `bin/bootstrap-runner.js` calls it before giving up on an absent `dist`.
-  `red-1734-reader-race` gains `readerrace:5` (a crash-orphaned `dist.trash-*` is
-  restored complete with no stray siblings) and `readerrace:6` (recovery is a no-op
-  while a build lives). `red-1734-bootstrap-depfree` now copies bootstrap's whole
-  static graph into its fresh-checkout fixture and gains `depfree:3` (the entire graph,
-  including `promote-dist.mjs`, is third-party-free).
+  in-process catch and leaves `dist` absent until the NEXT build rebuilds it from
+  source (that build's fast-path verify fails on an absent `dist`, forcing a full
+  rebuild). A cross-process self-heal (`recoverOrphanedPromotion`) that restored the
+  orphaned `dist.trash-*` at build/bootstrap startup was implemented and then
+  **REVERTED** in the convergence round below: its freshness check and its
+  restore/delete ran WITHOUT holding the build lock, so a builder that acquired the
+  lock immediately after the check could have its live `dist.staging` deleted by
+  recovery — a NEW cross-process race. Only the sound parts are kept:
+  `scripts/promote-dist.mjs` retains the in-process crash-restore (C2), and each
+  build's LOCKED section best-effort sweeps stray `dist.staging` / `dist.trash-*`
+  siblings from a prior crash (safe precisely because the held lock excludes every
+  other builder). `bin/bootstrap-runner.js` no longer imports `promote-dist.mjs`; it
+  again imports ONLY the dependency-free `scripts/build-lock-target.mjs`, and
+  `scripts/promote-dist.mjs` was removed from the desktop asset manifest.
+  `red-1734-reader-race`'s crash-orphan-restore / recovery-no-op cases
+  (`readerrace:5`, `readerrace:6`) were removed with the revert (`readerrace:3`, the
+  retained in-process C2 crash-restore, stays); `red-1734-bootstrap-depfree`'s
+  `depfree:3` now asserts bootstrap's whole static graph (bootstrap-runner.js +
+  build-lock-target.mjs) is third-party-free. The residual mid-promotion crash window
+  is documented under Known limitations / follow-up below.
+
+**Known limitations / follow-up (B-1734)**
+
+The build mutex + content-bound skip + atomic staging-swap close the four B-fb7b
+concurrency findings for the common builder-vs-builder and reader-vs-builder cases,
+but four deep concurrency residuals are deliberately **DEFERRED** to a dedicated
+build-concurrency infrastructure follow-up story (full reader/writer leasing +
+crash-safe promotion + routing every build call-site through the lock — e.g. an
+immutable versioned-dir + atomic current-pointer design). Each residual is marked
+with an anchoring comment at its site in the source:
+
+- **Reader-lease TOCTOU (#1).** `bin/bootstrap-runner.js` checks `!buildInProgress()`
+  and THEN imports `dist` without holding a read lease, so a builder can acquire the
+  lock and promote in the gap between the check and the import. The single-rename
+  atomic swap makes this astronomically unlikely but does not eliminate it.
+- **Binding-vs-source TOCTOU (#3).** `scripts/build-main-with-binding.mjs` hashes
+  source into the manifest AFTER `tsc` already read it; a source file edited between
+  the two can leave the manifest pairing a new source digest with output compiled from
+  old source. Inherent to editing source mid-build.
+- **Desktop packaging bypasses the mutex (#4).** `scripts/package-desktop.mjs`
+  `buildPackages()` runs `tsc` directly against the shared `dist`, outside
+  `withBuildLock` + the staging-swap — a 4th build call-site not yet routed through the
+  lock.
+- **Crash between the two promotion renames.** A SIGKILL/host crash between
+  `scripts/promote-dist.mjs`'s two renames leaves `dist` absent until the next build
+  rebuilds it from source. The earlier cross-process auto-restore was reverted because
+  it could delete a concurrent live builder's staging (see D3 above).
 
 ## Proofbound 0.3.254 - 2026-08-14
 

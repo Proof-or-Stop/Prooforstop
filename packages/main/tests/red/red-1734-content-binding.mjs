@@ -3,10 +3,13 @@
  * RED (repro-first) for B-1734 CHK-002 — the content-bound skip gate (verifyBuildBinding /
  * verifyUtilsBuildBinding), which replaces the mtime/existence checks Codex flagged on B-fb7b.
  *
- * The build scripts SKIP iff their verify passes and REBUILD iff it throws, so proving the verify
- * gate is sensitive to each hazard IS proving the build rebuilds on it. Covers EACH of the 14
- * CHK-002 verificationIntent cases and prints a distinct `VI-OK CHK-002:<sub>:<n>` marker ONLY after
- * that case's real assertion passes (a broken gate still fails, and no marker is emitted):
+ * The build scripts SKIP iff their verify passes and REBUILD iff it throws. The happy/edge/adversarial
+ * cases below prove the verify gate is SENSITIVE to each hazard against isolated temp fixtures; the
+ * rebuild:* cases then close Codex #5 by exercising the REAL build end-to-end — after inducing a hazard on
+ * the actual (gitignored) worktree dist they run `scripts/build-main-with-binding.mjs` and assert it
+ * rebuilds a dist that then VERIFIES (and, for the orphan case, that the stray .js is gone). Each case
+ * prints a distinct `VI-OK CHK-002:<sub>:<n>` marker ONLY after that case's real assertion passes (a
+ * broken gate still fails, and no marker is emitted):
  *   happy:0        clean build from ABSENT dist → manifest written, verify passes
  *   happy:1        subsequent run, no change → verify passes AND dist is byte-unchanged (skip)
  *   happy:2        utils binding covers utils/src + main/dist → verify passes, re-verify skips
@@ -21,11 +24,18 @@
  *   adversarial:3  absent manifest → verify throws (ENOENT), treated as "not verified" → rebuild
  *   adversarial:4  code: ensure-dist is content-bound (no existsSync) and both build scripts verify
  *   adversarial:5  code: build-main-with-binding.mjs uses verifyBuildBinding as its skip gate
+ *   rebuild:0      REAL build: orphan stray dist .js → verify throws → build removes it → verify passes
+ *   rebuild:1      REAL build: missing non-index dist .js (partial) → build restores it → verify passes
+ *   rebuild:2      REAL build: tampered dist .js → build overwrites from source → verify passes
+ *   rebuild:3      REAL build: absent manifest → build rewrites it → verify passes
  *
- * Every destructive case runs against an ISOLATED temp fixture (never the shared worktree dist).
+ * Every happy/edge/adversarial destructive case runs against an ISOLATED temp fixture; the rebuild:* cases
+ * run the REAL build against the actual worktree dist (gitignored, so the tree stays clean) and always
+ * restore a clean, verifying dist at the end (try/finally).
  */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -222,4 +232,83 @@ withFixture(root => {
   console.log('VI-OK CHK-002:adversarial:5');
 }
 
-console.log('PASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift');
+// ── rebuild:* (Codex #5) — the REAL build rebuilds a verifying dist end-to-end after each core hazard ─
+// The cases above prove verifyBuildBinding is SENSITIVE to each hazard against isolated fixtures, but a
+// build SKIPS iff verify passes and REBUILDS iff it throws — so the true end-to-end guarantee is that
+// after a real hazard the ACTUAL build (scripts/build-main-with-binding.mjs) produces a dist that then
+// VERIFIES. These cases induce each core hazard on the REAL worktree dist (dist + the binding manifest
+// are gitignored, so `git status` stays clean throughout), run the real build, and assert (a) it rebuilds
+// and (b) verifyBuildBinding then PASSES (and, for the orphan case, the stray .js is gone). Wrapped in a
+// try/finally that always rebuilds both packages, so a clean, verifying dist is restored even on failure.
+{
+  const mainDist = join(repoRoot, 'packages/main/dist');
+  const runMainBuild = () => execFileSync(process.execPath, ['scripts/build-main-with-binding.mjs'], { cwd: repoRoot, stdio: 'pipe' });
+  const runUtilsBuild = () => execFileSync(process.execPath, ['scripts/build-utils-with-binding.mjs'], { cwd: repoRoot, stdio: 'pipe' });
+  // Pick a non-index, non-entrypoint dist .js to delete/tamper (a genuine "partial build" victim).
+  const pickVictim = () =>
+    readdirSync(mainDist, { recursive: true })
+      .map(String)
+      .find(rel => rel.endsWith('.js') && !rel.endsWith('index.js') && !rel.includes('cli-engine'));
+
+  // Precondition: the real dists are present and verifying (build them if a prior step left them stale).
+  runMainBuild();
+  runUtilsBuild();
+  assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'precondition: the real main dist must verify before the rebuild cases');
+
+  try {
+    // rebuild:0 — orphan: a stray dist .js with no source → verify throws → the fresh-staging build removes it.
+    {
+      const orphan = join(mainDist, '__b1734_orphan__.js');
+      writeFileSync(orphan, 'export const ORPHAN = 1;\n');
+      throws(() => verifyBuildBinding(repoRoot), 'a stray orphan dist .js must change distDigest → verify throws (pre-rebuild)');
+      runMainBuild();
+      assert.ok(!existsSync(orphan), 'rebuild:0: the fresh-staging rebuild must REMOVE the orphan dist .js (dist is rebuilt from source only)');
+      assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'rebuild:0: the real build must rebuild a verifying dist after the orphan is induced');
+      console.log('VI-OK CHK-002:rebuild:0');
+    }
+
+    // rebuild:1 — partial: a missing non-index dist .js → verify throws → the real build restores it.
+    {
+      const victimRel = pickVictim();
+      assert.ok(victimRel, 'rebuild:1: expected a non-index dist .js to delete (partial-build induction)');
+      const victim = join(mainDist, victimRel);
+      rmSync(victim);
+      throws(() => verifyBuildBinding(repoRoot), 'a missing non-index dist .js (partial build) must change distDigest → verify throws (pre-rebuild)');
+      runMainBuild();
+      assert.ok(existsSync(victim), 'rebuild:1: the real build must RESTORE the missing dist file');
+      assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'rebuild:1: the real build must rebuild a verifying dist after a partial build is induced');
+      console.log('VI-OK CHK-002:rebuild:1');
+    }
+
+    // rebuild:2 — tamper: a mutated dist .js → verify throws → the real build overwrites it from source.
+    {
+      const victimRel = pickVictim();
+      assert.ok(victimRel, 'rebuild:2: expected a non-index dist .js to tamper');
+      const victim = join(mainDist, victimRel);
+      writeFileSync(victim, `${readFileSync(victim, 'utf8')}\n// b1734 tamper\n`);
+      throws(() => verifyBuildBinding(repoRoot), 'a tampered dist .js must change distDigest → verify throws (pre-rebuild)');
+      runMainBuild();
+      assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'rebuild:2: the real build must rebuild a verifying dist after tampering (fresh staging overwrites the tamper)');
+      console.log('VI-OK CHK-002:rebuild:2');
+    }
+
+    // rebuild:3 — absent manifest: the build's own skip trigger → verify throws → the real build rewrites it.
+    {
+      rmSync(join(repoRoot, BUILD_MANIFEST), { force: true });
+      throws(() => verifyBuildBinding(repoRoot), 'an absent binding manifest must make verify throw (pre-rebuild)');
+      runMainBuild();
+      assert.ok(existsSync(join(repoRoot, BUILD_MANIFEST)), 'rebuild:3: the real build must rewrite the binding manifest');
+      assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'rebuild:3: the real build must rebuild a verifying dist after the manifest is removed');
+      console.log('VI-OK CHK-002:rebuild:3');
+    }
+  } finally {
+    // Restore a clean built dist + verifying bindings regardless of outcome (dist/manifest are gitignored,
+    // so the tree stays clean; utils folds main/dist, so rebuild it too in case main/dist bytes shifted).
+    runMainBuild();
+    runUtilsBuild();
+  }
+  assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'the rebuild cases must leave the main dist verifying (clean worktree)');
+  assert.doesNotThrow(() => verifyUtilsBuildBinding(repoRoot), 'the rebuild cases must leave the utils dist verifying (clean worktree)');
+}
+
+console.log('PASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard');

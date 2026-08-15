@@ -5,12 +5,12 @@
  * ERR_MODULE_NOT_FOUND at bootstrap module-init.
  *
  * bin/bootstrap-runner.js is the desktop pkg entrypoint (scripts/package-desktop.mjs's pkg-entry copies
- * it into the runtime and imports it). It statically imports node:-only helpers under scripts/
- * (build-lock-target.mjs; promote-dist.mjs, which in turn imports build-lock-target.mjs). Those live
- * under scripts/, NOT packages/<pkg>/dist, so NONE of package-desktop.mjs's listFiles() spreads ship them —
- * they must be listed EXPLICITLY in the writeAssetManifest `files` array. Pre-fix the manifest listed
- * bin/bootstrap-runner.js WITHOUT scripts/build-lock-target.mjs, so the packaged runtime threw
- * ERR_MODULE_NOT_FOUND resolving `../scripts/build-lock-target.mjs` before it could run.
+ * it into the runtime and imports it). It statically imports the node:-only helper under scripts/
+ * (build-lock-target.mjs). That lives under scripts/, NOT packages/<pkg>/dist, so NONE of
+ * package-desktop.mjs's listFiles() spreads ship it — it must be listed EXPLICITLY in the
+ * writeAssetManifest `files` array. Pre-fix the manifest listed bin/bootstrap-runner.js WITHOUT
+ * scripts/build-lock-target.mjs, so the packaged runtime threw ERR_MODULE_NOT_FOUND resolving
+ * `../scripts/build-lock-target.mjs` before it could run.
  *
  * This test is drift-proof: it computes bin/bootstrap-runner.js's TRANSITIVE static import graph and
  * asserts every scripts/ module reachable from it is present as a literal in the package-desktop.mjs

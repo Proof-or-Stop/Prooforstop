@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { readdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { verifyUtilsBuildBinding, writeUtilsBuildBinding } from './full-suite-build-binding.mjs';
 import { withBuildLock } from './build-lock.mjs';
-import { promoteDist, recoverOrphanedPromotion } from './promote-dist.mjs';
+import { promoteDist } from './promote-dist.mjs';
 
 // tsc runs as an AWAITED ASYNC child (D2), NOT execFileSync: a synchronous compile BLOCKS the Node event
 // loop for the whole ~15s+ emit, so proper-lockfile's heartbeat (setInterval, 10s) cannot fire and a
@@ -18,14 +18,6 @@ const execFileAsync = promisify(execFile);
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = join(projectRoot, 'packages/utils');
 const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
-
-// D3 SELF-HEAL (before deciding anything): a promotion killed BETWEEN promote-dist's two renames leaves
-// dist absent + an orphaned dist.trash-* sibling that no in-process catch recovers. Restore it up front
-// so dist is never absent longer than until this build. Gated on build-lock freshness so it never
-// disturbs a concurrent LIVE build (which owns its dist.staging/dist.trash-<pid>). The residual window
-// between a mid-promotion crash and this next build/bootstrap is the same versioned-pointer follow-up as
-// the C2(b) microsecond gap.
-recoverOrphanedPromotion(packageRoot, projectRoot);
 
 // NO PRE-LOCK FAST-PATH (C1): unlike build-main-with-binding.mjs, the utils binding
 // folds in an EXTERNAL mutable input — packages/main/dist — which a concurrent MAIN
@@ -53,8 +45,14 @@ await withBuildLock(projectRoot, async () => {
   // → MODULE_NOT_FOUND. Build into a dist SIBLING (same filesystem → rename is
   // atomic) and promote by rename: a reader sees the old-complete or new-complete
   // dist. A fresh staging each build preserves the clean-build proof.
-  rmSync(staging, { recursive: true, force: true });
-  rmSync(trash, { recursive: true, force: true });
+  //
+  // In-lock orphan tidy (identical to build-main-with-binding.mjs): the held lock excludes every OTHER
+  // builder, so any dist.staging / dist.trash-* siblings present now are prior-crash debris. Sweep them
+  // all — safe precisely BECAUSE it is inside the held-lock section (the cross-process orphan recovery
+  // that swept these WITHOUT the lock was reverted; B-1734).
+  for (const name of readdirSync(packageRoot)) {
+    if (/^dist\.(staging|trash-)/.test(name)) rmSync(join(packageRoot, name), { recursive: true, force: true });
+  }
   // AWAITED ASYNC tsc (D2, identical to build-main-with-binding.mjs): the event loop stays free so the
   // proper-lockfile heartbeat keeps refreshing the lock during the seconds-long compile (a live build is
   // never age-stolen). On failure the rejected promise propagates out of withBuildLock — whose finally

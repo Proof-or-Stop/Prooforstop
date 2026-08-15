@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { readdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { verifyBuildBinding, writeBuildBinding } from './full-suite-build-binding.mjs';
 import { withBuildLock } from './build-lock.mjs';
-import { promoteDist, recoverOrphanedPromotion } from './promote-dist.mjs';
+import { promoteDist } from './promote-dist.mjs';
 
 // tsc runs as an AWAITED ASYNC child (D2), NOT execFileSync: a synchronous compile BLOCKS the Node event
 // loop for the whole ~15s+ emit, so proper-lockfile's heartbeat (setInterval, 10s) cannot fire and a
@@ -18,14 +18,6 @@ const execFileAsync = promisify(execFile);
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = join(projectRoot, 'packages/main');
 const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
-
-// D3 SELF-HEAL (before deciding anything): a promotion killed BETWEEN promote-dist's two renames leaves
-// dist absent + an orphaned dist.trash-* sibling that no in-process catch recovers. Restore it up front
-// so dist is never absent longer than until this build. Gated on build-lock freshness so it never
-// disturbs a concurrent LIVE build (which owns its dist.staging/dist.trash-<pid>). The residual window
-// between a mid-promotion crash and this next build/bootstrap is the same versioned-pointer follow-up as
-// the C2(b) microsecond gap.
-recoverOrphanedPromotion(packageRoot, projectRoot);
 
 // FAST-PATH (no lock): the binding is the content-hash purity check — sha256 over
 // all src+config and all dist. If it verifies, dist content-matches source, so
@@ -53,8 +45,16 @@ await withBuildLock(projectRoot, async () => {
   // and promote by rename: a reader sees the old-complete or new-complete dist. A
   // fresh staging each build preserves the clean-build proof (every emitted file
   // came from this tsc invocation).
-  rmSync(staging, { recursive: true, force: true });
-  rmSync(trash, { recursive: true, force: true });
+  //
+  // In-lock orphan tidy: the held lock excludes every OTHER builder, so any dist.staging /
+  // dist.trash-* siblings present now are prior-crash debris (no live builder owns them). Sweep them all
+  // so a mid-promotion crash's stranded siblings don't accumulate. This is safe precisely BECAUSE it is
+  // inside the held-lock section — the cross-process orphan recovery that swept these WITHOUT the lock
+  // was reverted (it could delete a concurrent live builder's staging; B-1734). Any real crash-restore of
+  // dist itself is left to promoteDist's in-process catch plus the next full rebuild (see promote-dist.mjs).
+  for (const name of readdirSync(packageRoot)) {
+    if (/^dist\.(staging|trash-)/.test(name)) rmSync(join(packageRoot, name), { recursive: true, force: true });
+  }
   // AWAITED ASYNC tsc (D2): the event loop stays free so the proper-lockfile heartbeat keeps refreshing
   // the lock during the seconds-long compile (a live long-running build is never age-stolen). On failure
   // the rejected promise propagates out of withBuildLock — whose finally still releases the lock — so the
@@ -80,5 +80,12 @@ await withBuildLock(projectRoot, async () => {
   // Manifest lands AFTER the code is fully in place. Readers import code, not the
   // manifest, so this ordering never exposes MODULE_NOT_FOUND; a concurrent fast-
   // path verify that briefly sees no manifest simply fails closed to a lock wait.
+  //
+  // KNOWN LIMITATION / FOLLOW-UP (B-1734, deferred to a build-concurrency infra story). writeBuildBinding
+  // re-reads every src file to hash it, but tsc already read those files earlier in this same build. If a
+  // source file is edited AFTER tsc reads it but BEFORE this hashing, the manifest pairs the NEW source
+  // digest with output compiled from the OLD source — a stale-but-"verifying" dist. This binding-vs-source
+  // TOCTOU is inherent to editing source mid-build; the mutex serializes builders but cannot freeze an
+  // external editor, so it is out of scope here and tracked for the same follow-up.
   writeBuildBinding(projectRoot);
 });

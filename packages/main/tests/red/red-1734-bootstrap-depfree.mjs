@@ -103,18 +103,18 @@ async function main() {
   }
 
   // ── depfree:3 — TRANSITIVE: bootstrap's WHOLE static graph is third-party-free (loads sans node_modules) ─
-  // bootstrap now also imports promote-dist.mjs (recoverOrphanedPromotion, B-1734 D3), which imports
-  // build-lock-target.mjs. Guard the ENTIRE reachable graph, not just bootstrap's direct imports: no
-  // first-party module in it may import a bare/third-party specifier (that needs node_modules and
-  // reintroduces the proper-lockfile-class fresh-checkout crash). This future-proofs any new dep-free
-  // scripts/ helper bootstrap picks up.
+  // bootstrap's only scripts/ dependency is the dep-free build-lock-target.mjs (the D3 promote-dist import
+  // was reverted). Guard the ENTIRE reachable graph, not just bootstrap's direct imports: no first-party
+  // module in it may import a bare/third-party specifier (that needs node_modules and reintroduces the
+  // proper-lockfile-class fresh-checkout crash). This future-proofs any new dep-free scripts/ helper
+  // bootstrap picks up.
   {
     const graph = collectStaticGraph(join(repoRoot, BOOTSTRAP_REL));
     const scriptModules = [...graph].map(toRepoRel).filter(r => r.startsWith('scripts/'));
     assert.ok(scriptModules.includes(TARGET_REL), `bootstrap's static graph must include ${TARGET_REL}`);
     assert.ok(
-      scriptModules.length >= 2,
-      `bootstrap now depends on more than one dep-free scripts/ module (build-lock-target + promote-dist); got ${JSON.stringify(scriptModules)}`,
+      scriptModules.length >= 1,
+      `bootstrap must depend on at least the dep-free build-lock-target.mjs scripts/ module; got ${JSON.stringify(scriptModules)}`,
     );
     const thirdPartyImports = [];
     for (const file of graph) {
@@ -159,9 +159,9 @@ async function main() {
       mkdirSync(join(base, 'bin'), { recursive: true });
       mkdirSync(join(base, 'scripts'), { recursive: true });
       // Copy EVERY first-party module in bootstrap's static import graph (bootstrap-runner.js +
-      // build-lock-target.mjs + promote-dist.mjs + …) so the fixture is a faithful fresh checkout whose
-      // ONLY missing piece is node_modules. If bootstrap gains a new dep-free scripts/ module this keeps
-      // copying it, so the test stays honest that module-init loads without node_modules.
+      // build-lock-target.mjs + …) so the fixture is a faithful fresh checkout whose ONLY missing piece is
+      // node_modules. If bootstrap gains a new dep-free scripts/ module this keeps copying it, so the test
+      // stays honest that module-init loads without node_modules.
       for (const abs of collectStaticGraph(join(repoRoot, BOOTSTRAP_REL))) {
         const dest = join(base, toRepoRel(abs));
         mkdirSync(dirname(dest), { recursive: true });
