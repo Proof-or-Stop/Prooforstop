@@ -779,6 +779,32 @@
         "scanEscalationReason": null
       },
       "_hash": "df7b2eb613947cfd8db806ed1bb41f83c79407450b075c418cee63fc61eb0ee8"
+    },
+    {
+      "id": "B-cdf6:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind after F-057/F-058 repin (commit 0be3fbd206), bound to head 627f492d5b. Mechanically re-verified rather than trusted: (1) cli-engine.ts diff main...HEAD contains zero import()/require() touches (grep on the diff itself is empty); the two actual dynamic-loader call sites (init's `file://${initPath}` and dashboard's `./dashboard.js`) are byte-identical to main -- confirmed by direct git show comparison. So the repin (61136cc5...->34a45a75...) is a justified re-approval, not a rubber stamp; ran retired-authority-vocabulary-guard-smoke directly and it passes (exit 0, builds=782). (2) The reworded done-prepare-auto-closeout-smoke.ts comment no longer places the word production immediately before DONE: anywhere -- read the exact lines; the new wording note describes the past trigger in third person and does not reproduce the pattern; guard confirms clean. (3) Independently reproduced the corrected disclosure of exactly three genuinely-red-on-main smokes using a clean detached worktree of main (abe666af4f) with its own build: prompt-token-cost-smoke (assertion: expected lattice managed block, still absent on main), lattice-cli-migration-smoke and proofstory-acceptance-topology-smoke both fail via their compiled dist/tasks/*.js on genuine pre-rename assertions unrelated to B-cdf6. tsc -p packages/main is clean. Diff since my prior RP-025 (head 2001b46106) touches only these two smoke files plus story-tracking JSON/metadata -- no other source changed, so no new dead-code/type-safety/swallowed-error/guard-substitution surface to audit beyond what was already reviewed. B-META-framework-audit:F-032 (dist/ freeze-discipline gap) is correctly filed at the cross-story meta level, not as a B-cdf6 finding -- it describes a framework evidence-binding blind spot (git-hash staleness detection cannot see gitignored dist/ mutation), not a defect in this story's diff; no duplicate finding needed here. No blocker.",
+      "createdAt": "2026-08-15T07:21:10.341Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-085",
+      "envelopeId": "fb569be8eda28f1dbe981a5dffad2f76c5c72241a3e6fd797f0b20dbbe1cdeed",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          ".lattice/story/actives/B-cdf6/review-runs.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e29799d997d43aad1730b8d8878af4bb9e9f346fc21ca44631846f814abb3b5b"
     }
   ]
 }
