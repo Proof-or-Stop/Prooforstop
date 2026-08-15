@@ -81,6 +81,17 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:49:17.210Z"
+        },
+        {
+          "intentRef": "INT-CHK001-ADV",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "The two new stub lines follow the exact same minimal one-liner pattern as every other stub in writeCanonicalAcceptanceRegistration (e.g. acceptance-topology.ts's 'export const acceptanceTopology = \"acceptance_basis acceptance_basis_generate\";'). deriveAcceptanceCoverageBasis's snapshot mechanism only checks presence+digest stability of closure files, not semantic content match against the real implementation -- confirmed by reading acceptance-coverage-basis.ts's blindSpot logic -- so a minimal stub is the correct, established pattern here, not a shortcut.",
+          "mechanical": false,
+          "headHash": "9f477366129a864782a07fc3ba889916b4c03c9f",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:49:18.792Z"
         }
       ]
     },
