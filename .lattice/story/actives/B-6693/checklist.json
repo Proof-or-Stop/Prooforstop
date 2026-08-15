@@ -153,171 +153,171 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh representative positive receipt after the final CHK-004 source commit and acceptance-path closure.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fix.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:53:14.984Z"
+            "executedAt": "2026-08-15T11:59:23.821Z"
           },
-          "headHash": "3c00453e775028067a9298cfa3b79a8fe3bc0da2",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-14T16:53:15.120Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T11:59:23.968Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:07:50.633Z"
+            "executedAt": "2026-08-15T12:00:44.480Z"
           },
-          "headHash": "a4ac1181513e7379d804b6ed0343cff2e40af123",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:07:50.793Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:00:44.724Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:08:12.367Z"
+            "executedAt": "2026-08-15T12:01:27.930Z"
           },
-          "headHash": "c7b955d886da7608cd0caba9160b9f6b0bfba0b7",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:08:12.500Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:01:28.222Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:08:34.155Z"
+            "executedAt": "2026-08-15T12:02:11.723Z"
           },
-          "headHash": "6b67943664e3a69943cfc1a4f68b2b6e6d364807",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:08:34.289Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:02:11.994Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:08:55.874Z"
+            "executedAt": "2026-08-15T12:02:57.516Z"
           },
-          "headHash": "e39840f0fa77e52267a69b9c59aa4063d3e38a1b",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:08:56.009Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:02:57.794Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh representative mutation receipt after the final CHK-004 source commit and acceptance-path closure.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:53:37.153Z"
+            "executedAt": "2026-08-15T12:03:41.683Z"
           },
-          "headHash": "0f364a25fcaabf48be74424a24096cd4e221170a",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-14T16:53:37.297Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:03:41.934Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:18:45.931Z"
+            "executedAt": "2026-08-15T12:04:24.583Z"
           },
-          "headHash": "cc5826c865df04a548242d417b74d8e566857e78",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:18:46.088Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:04:24.882Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:19:07.639Z"
+            "executedAt": "2026-08-15T12:05:03.242Z"
           },
-          "headHash": "39646fd38e88cfa1c53c5f8b0d41c8b5ef61017b",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:19:07.798Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:05:03.461Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:19:29.259Z"
+            "executedAt": "2026-08-15T12:05:42.510Z"
           },
-          "headHash": "15a505e6bf8abd159b05c35b7a8db6950bef987f",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:19:29.398Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:05:42.757Z"
         }
       ]
     },
@@ -775,95 +775,95 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:29:01.340Z"
+            "executedAt": "2026-08-15T12:06:22.067Z"
           },
-          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:29:01.454Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:06:22.265Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:29:21.920Z"
+            "executedAt": "2026-08-15T12:06:59.812Z"
           },
-          "headHash": "a365cb2f4eb07b16332da736de233ff207f5d8b6",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:29:22.034Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:06:59.984Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:30:31.555Z"
+            "executedAt": "2026-08-15T12:07:36.590Z"
           },
-          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:30:31.667Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:07:36.858Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:31:01.291Z"
+            "executedAt": "2026-08-15T12:08:19.571Z"
           },
-          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:31:01.401Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:08:19.842Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Fresh pinned receipt after final Story-owned file set.",
+          "note": "Fresh mechanical receipt after final selector and concurrency fixes.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
-            "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
+            "outputDigest": "f8d7d2278855e86128e18869c626def91145b314df8770ad69f9d816d5852bf8",
+            "outputTail": "validate-execution-lock workspace capacity contract passed: 14 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T00:31:21.835Z"
+            "executedAt": "2026-08-15T12:09:02.082Z"
           },
-          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
-          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
-          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
-          "timestamp": "2026-08-15T00:31:21.945Z"
+          "headHash": "9d18e3dc785d1fc3ee162a86cec85b21b328e0eb",
+          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
+          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
+          "timestamp": "2026-08-15T12:09:02.378Z"
         }
       ],
       "userSeesSnapshot": {
