@@ -5,6 +5,7 @@
     "packages/main/src/core/validation-execution-lock.ts",
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verdict.ts",
     "packages/main/src/tasks/validate-execution-lock-smoke.ts",
     "packages/main/src/cli/command-catalog.ts",
     "docs/CLI.md",
@@ -28,10 +29,10 @@
     "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
   ],
-  "scopeChangeReason": "Add only the canonical pre-review smoke file after its stale 57-versus-58 assertion contract directly blocked the registered B-6693 live proof.",
+  "scopeChangeReason": "REVIEW found a live production evidence writer in handlers/verdict.ts bypassing the workspace capacity layer; extend scope by exactly this file so all official story-validation writers share the global-to-story lock order and the live-owner regression is mechanically covered.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T15:29:58.959Z",
-  "updatedAt": "2026-08-14T16:35:22.646Z",
+  "updatedAt": "2026-08-15T10:45:13.086Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -52,6 +53,7 @@
     "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
     "packages/main/src/Direct bare npm test interception or wrapping": "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts"
   }
 }
