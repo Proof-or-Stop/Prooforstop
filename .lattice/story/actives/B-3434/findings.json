@@ -182,6 +182,24 @@
       ],
       "signatureTag": "adversarial|ts|bounded-true-property",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-009",
+      "desc": "Minor wording inaccuracy in formatValidationEvidenceAdvisory: the \"bounded\" branch renders `Top-level field(s) removed: ${sizing.droppedKeys.join(', ')}` (validation-executor.ts ~L242-244), but droppedKeys is populated by two different stages with different semantics. Stage 5 (L438-446) genuinely deletes the key from `carried`. Stage 6 (L453-457) TRUNCATES a long string field in place (keeps the key, replaces the value with a 1000-char prefix plus a countElisionMarker) and pushes the SAME key onto droppedKeys via `if (!droppedKeys.includes(key)) droppedKeys.push(key)`. So a stage-6 field is reported to the operator as \"removed\" when it is actually still present in the artifact, truncated.\n\nVerified directly: `boundValidationEvidenceOutput({ status: 'pass', allPass: true, summary: 'S'.repeat(50_000_000) })` returns parsed output with `summary` present (truncated to a 1000-char prefix + marker) while `evidenceBound.droppedKeys` contains \"summary\" and formatValidationEvidenceAdvisory renders \"Top-level field(s) removed: summary.\"\n\nThis is not a silent-loss defect -- the reader who opens the artifact sees the field is present with an inline \"...omitted so...\" marker stating the truncated char count, so nobody is misled about content actually disappearing. It is purely an advisory-text accuracy issue: \"removed\" overclaims for the truncation case. Low severity; recommend either renaming the shared array (e.g. `affectedKeys`) or splitting stage-5 deletions from stage-6 truncations so the advisory can say \"removed\" only for the former and \"truncated\" for the latter.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T12:06:09.399Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-008",
+      "_hash": "884eb7effb78e6ee2db18975597f4e05eeb9356fab346003d6276b618d091902",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|minor-wording-inaccuracy",
+      "signatureTagSource": "auto"
     }
   ]
 }
