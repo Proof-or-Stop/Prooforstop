@@ -19,6 +19,7 @@ import {
   normalizeReviewerReadLogEvidence,
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 
 const FINDING_SALT = 'lattice-finding-integrity-v1';
 const REVIEW_PASS_SALT = 'lattice-review-pass-integrity-v1';
@@ -186,16 +187,19 @@ function expectedReceiptHash(gitCwd: string, receipt: Omit<GapLogProvenanceRecei
   return createHmac('sha256', readFileSync(keyPath)).update(receiptPayload(receipt)).digest('hex');
 }
 
-function committedArtifactDigest(gitCwd: string, commit: string): string | null {
+function committedArtifactDigest(gitCwd: string, commit: string):
+  | { status: 'ok'; digest: string }
+  | { status: 'missing' }
+  | { status: 'error'; reason: string } {
+  const blob = readGitBlobAt(gitCwd, commit, GAP_LOG_ARTIFACT_PATH);
+  if (blob.status !== 'ok') return blob;
   try {
-    const text = execFileSync('git', ['show', `${commit}:${GAP_LOG_ARTIFACT_PATH}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return digestGapLogArtifact(JSON.parse(text) as FindingData);
-  } catch {
-    return null;
+    return {
+      status: 'ok',
+      digest: digestGapLogArtifact(JSON.parse(blob.content.toString('utf8')) as FindingData),
+    };
+  } catch (error: any) {
+    return { status: 'error', reason: `invalid committed JSON: ${error?.message ?? String(error)}` };
   }
 }
 
@@ -242,7 +246,11 @@ export function verifyGapLogArtifactBinding(
   if (receipts.length === 0) return { trusted: false, reason: 'missing_binding' };
   let previous = '';
   let priorPost = receipts[0].preArtifactDigest;
-  const firstCommittedDigest = committedArtifactDigest(gitCwd, receipts[0].parentHead);
+  const firstCommitted = committedArtifactDigest(gitCwd, receipts[0].parentHead);
+  if (firstCommitted.status === 'error') {
+    return { trusted: false, reason: 'invalid_binding_shape', findingId: receipts[0].findingId };
+  }
+  const firstCommittedDigest = firstCommitted.status === 'ok' ? firstCommitted.digest : null;
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
     (firstCommittedDigest !== null && firstCommittedDigest !== receipts[0].preArtifactDigest)

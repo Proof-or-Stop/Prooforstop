@@ -17,6 +17,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -432,8 +433,43 @@ function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
     const root = createMainProject('lattice-gaplog-large-extension-');
     try {
       seedLargeCommittedLegacyMetaHistory(root);
-      const out = runGapLog(root, { ...VALID, evidence: 'large committed legacy history remains safely extendable' });
-      assert.match(out, /Gap logged: B-META-framework-audit:F-/, 'valid >1MiB committed history can be extended');
+      const store = new StoryStore(root);
+      const appended = appendGapFinding(store, {
+        category: 'missing',
+        severity: 'medium',
+        desc: 'large committed legacy history remains safely extendable',
+        evidenceState: 'suspected',
+        uncertaintyReason: 'focused primitive regression for bounded committed artifact verification',
+      }, META_STORY_ID, { projectRoot: root });
+      assert.equal(appended.bindingStatus, 'valid', 'appendGapFinding extends valid >1MiB committed history');
+      const data = readMetaFindings(root);
+      assert.equal(
+        verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        true,
+        'the just-appended >1MiB legacy history verifies immediately through the committed reader',
+      );
+      const mutated: FindingData = { ...data, findings: data.findings.slice(0, -1) };
+      assert.equal(
+        verifyGapLogArtifactBinding(mutated, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        false,
+        'content mutation remains untrusted',
+      );
+
+      const ledgerPath = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+      const receipt = JSON.parse(readFileSync(ledgerPath, 'utf8').trim());
+      const { integrityHash: _oldHash, ...unsigned } = receipt;
+      unsigned.parentHead = '0'.repeat(40);
+      const key = readFileSync(join(root, '.git', 'lattice-gap-log-provenance.key'));
+      const authenticReadErrorReceipt = {
+        ...unsigned,
+        integrityHash: createHmac('sha256', key).update(JSON.stringify(unsigned)).digest('hex'),
+      };
+      writeFileSync(ledgerPath, `${JSON.stringify(authenticReadErrorReceipt)}\n`);
+      assert.equal(
+        verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        false,
+        'an authentic receipt whose committed tree cannot be read must fail closed',
+      );
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
   {
