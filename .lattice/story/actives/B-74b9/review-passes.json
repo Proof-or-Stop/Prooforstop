@@ -131,6 +131,38 @@
         "scanEscalationReason": null
       },
       "_hash": "83750d9c5a877b7420067ad460f35dc08f12754cefa5dac91b833ee34ea4b3a8"
+    },
+    {
+      "id": "B-74b9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused confirmation on the single new commit a93476fd6f since the prior thorough round: adds 3 REGISTRATION_EXCLUSIONS entries to red-b49d4-harness-registration.mjs plus refreshed verificationEvidence hashes/notes for the 3 permanent RED waivers. Verified: (1) git diff a93476fd6f^..HEAD restricted to src/tasks + tests/red shows only the 14-line harness-registration.mjs addition; all 3 fixture files and all 3 CHK-00x RED scripts are byte-identical to the already-reviewed prior round. (2) Temporarily checked out the pre-commit harness-registration.mjs in place, reproduced the exact FAIL it caught (undecided: the 3 new RED scripts), restored via git checkout, confirmed git status clean. (3) Ran the post-fix guard directly: OK, 42/42 accounted for. (4) The prior full validate run had exactly two failing commands, [72] this guard and [73] red-b49d4-registration-derivation.mjs (which cascades from the same root cause via its BLOCK 0 dependency on this guard passing on the untouched tree); ran the derivation guard directly post-fix: 0 RED / 26 GREEN, exit 0, confirming both are now green and nothing else was failing. (5) verification_evidence_refresh_stale --dryRun=true: no stale evidence. (6) scope_contract_check: pass, 0 unacknowledged violations (contract correctly widened via a documented DEV reopen). (7) intent_coverage_check: pass. (8) Diffed the 3 evidence-refresh commits: only checklist.json hash/timestamp fields plus an appended refresh note on the 3 waiver entries changed, no intent/evidence-mapping content changed. Re-confirmed per-item coverage: all 15 verificationIntent entries (happy/edge/adversarial present on all 4 items) map 1:1 to verificationEvidence; all 8 must-priority intents have valid non-fail evidence, 3 of which are permanent waivers with clear specific notes; should-priority evidence is concrete, not vacuous. No coverage gap introduced by this commit. No blocking findings.",
+      "createdAt": "2026-08-15T22:14:01.924Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-006",
+      "envelopeId": "ad94d27f62802a81e231bca72557c45733b6412de9f082f959bce19aa769cd95",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/index.json",
+          ".lattice/story/actives/B-74b9/process-events.jsonl",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          ".lattice/story/actives/B-74b9/test-evidence.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5d03aa90a18b575715d4cb654af1145ec090dc0bc51f93186379907df4cce6f"
     }
   ]
 }
