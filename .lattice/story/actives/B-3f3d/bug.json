@@ -3,9 +3,74 @@
     {
       "id": "BUG-001",
       "title": "proofstory intent hardening smoke omits frozen review inventory precondition",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-08-15T17:01:27.559Z",
-      "fixedAt": null
+      "fixedAt": "2026-08-15T18:28:33.019Z",
+      "evidence": {
+        "symptom": "proofstory-intent-hardening smoke was blocked by missing frozen review inventory before reaching its intended ProofStory assertion",
+        "reproSteps": [
+          "Build packages/main",
+          "Run proofstory-intent-hardening-smoke before bf414af78b and observe no frozen review inventory epoch"
+        ],
+        "hypothesis": "Fixture omitted the newer signed remediation prerequisite",
+        "rootCause": "REVIEW fixture had no current FINALIZED unconsumed review inventory receipt",
+        "fixEvidence": "bf414af78b builds the signed current-round/cutoff/acceptance-bound fixture; focused smoke passes twice and root npm test later passes",
+        "reproTest": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      }
+    },
+    {
+      "id": "BUG-002",
+      "title": "topology critic modular prompt rollout is absent from approved baseline manifest",
+      "status": "fixed",
+      "foundAt": "2026-08-15T18:28:05.631Z",
+      "fixedAt": "2026-08-15T18:28:36.238Z",
+      "evidence": {
+        "symptom": "proof-or-stop prompt baseline verifier reported topology critic approved hash 7db4... but collected legacy entry 077d...",
+        "reproSteps": [
+          "Run scripts/verify-proof-or-stop-prompt-baseline.mjs before e37703f4ed",
+          "Observe topology critic manifest hash mismatch"
+        ],
+        "hypothesis": "Topology critic joined the modular registry without joining the approved rollout manifest",
+        "rootCause": "APPROVED_ROLE_BODY_ROLLOUT_MANIFEST still contained only the prior five reviewers, causing legacy fallback",
+        "fixEvidence": "e37703f4ed adds the complete sixth reviewer approval tuple and regenerates canonical baselines; focused baseline, registry, topology critic and process-fact checks pass",
+        "reproTest": "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      }
+    },
+    {
+      "id": "BUG-003",
+      "title": "incremental review Git reads use metadata project root instead of authoritative Git root",
+      "status": "fixed",
+      "foundAt": "2026-08-15T18:28:09.265Z",
+      "fixedAt": "2026-08-15T18:28:39.314Z",
+      "evidence": {
+        "symptom": "gitroot-cwd-contract found three bare Git calls in review-incremental-context and wrapper-root routing was incorrect",
+        "reproSteps": [
+          "Run the Git-root cwd contract before 15ee61146e",
+          "Observe violations in review-incremental-context.ts"
+        ],
+        "hypothesis": "Metadata projectRoot was incorrectly reused as Git cwd",
+        "rootCause": "Incremental review entrypoints did not resolve authoritative Git root before hash/diff/blob/dependency operations",
+        "fixEvidence": "15ee61146e resolves Git cwd once while retaining project root for metadata scope; contract reports 822 files and zero violations and wrapper-root smoke passes",
+        "reproTest": "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      }
+    },
+    {
+      "id": "BUG-004",
+      "title": "full-suite liveness aggregate is cyclic and four-worker lower bound exceeds performance budget",
+      "status": "fixed",
+      "foundAt": "2026-08-15T18:28:12.371Z",
+      "fixedAt": "2026-08-15T18:28:42.462Z",
+      "evidence": {
+        "symptom": "root npm test printed flow stability PASS but timed out at 120 seconds and the 47-test suite exceeded its 300-second budget",
+        "reproSteps": [
+          "Run npm test before a2d7c9dbe1",
+          "Observe component-to-aggregate recursion and jobs=4 total worker-time lower bound 307.95 seconds"
+        ],
+        "hypothesis": "Cyclic suite composition and insufficient bounded worker capacity are independent causes",
+        "rootCause": "Four component smokes called their aggregate, which called the components again; after removing back-edges, 1231.8 worker-seconds still made jobs=4 mathematically unable to meet 300 seconds",
+        "fixEvidence": "a2d7c9dbe1 makes the aggregate acyclic, adds structural negative checks, uses a bounded five-worker pool allowed by resource policy, and npm test passes 47/47 in 288.9 seconds with no timeout",
+        "reproTest": "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      }
     }
   ]
 }

@@ -14240,6 +14240,138 @@
       },
       "readDiagnostics": [],
       "_hash": "a80565bb636b752e2c3c21a6f3978be56914c6ee8b0fadf876531011789a7c3a"
+    },
+    {
+      "id": "B-3f3d:RP-224",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review found no distinct verified finding. The ProofStory fixture now establishes a signed FINALIZED inventory prerequisite while preserving the production gate; the topology critic rollout is bound by the approved 17-role prompt manifest; incremental review resolves every Git operation through gitRoot while retaining metadata projectRoot semantics; liveness composition has one aggregate-to-children direction with an import back-edge guard; and the canonical full-suite runner uses a bounded default of five workers while preserving resource serialization and the 300-second budget. Focused evidence passed: proof-or-stop prompt baseline, global-agents unit smoke, ProofStory intent hardening smoke, review incremental context smoke including wrapper-root and concurrency cases, and full-suite-runner smoke with 147 assertions. Scope acknowledgement 23 covers all remediation paths.",
+      "createdAt": "2026-08-15T18:39:57.150Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-285",
+      "envelopeId": "ded74a606a7d1cc92db05a6a2b08df64da01b9ab282c6f47279ffc53950eee79",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "package.json",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "d9111b30f08844ca4dda9817dc84b90b6a172818016ba4045d50c8d678b184f1"
+    },
+    {
+      "id": "B-3f3d:RP-225",
+      "agent": "lattice-review-test-coverage",
+      "note": "No distinct verified coverage finding. Reviewed remediation commits bf414af78b, e37703f4ed, 15ee61146e, a2d7c9dbe1 and the signed 15-path scope acknowledgement. Current focused executions passed: proofstory intent hardening RED and restored GREEN mutations; prompt baseline exact 17-role manifest and mutation restoration; incremental context including real non-git wrapper-root negative; acyclic liveness aggregate; and full-suite-runner scheduler with default jobs=5, resource serialization, 300000 ms boundary, serial oracle, and failure/mutation controls. The current signed acceptance rollout reader is PASS/full-3x2/current. Story metadata contains all 54 verificationEvidence records; their old binding is transparently reported stale after later metadata/material movement, so this review does not misstate them as current. The implementer-owned isolated canonical root evidence reports 47/47 PASS and was used instead of launching another heavy root suite during concurrent reviewer load. No missing consumer or adjacent negative-test family was found.",
+      "createdAt": "2026-08-15T18:42:42.644Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-286",
+      "envelopeId": "153459a00906122e027cc11e0a48bf3e6318c27920bb354b523f911ccf593e1b",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "package.json",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b219527731eb9bd451461aa070ebfb33ee6bdd2c9298e0074161dbe3ba0e1c4"
     }
   ]
 }
