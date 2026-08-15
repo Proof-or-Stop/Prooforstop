@@ -141,6 +141,20 @@ const REGISTRATION_EXCLUSIONS = new Map([
     + 'pretest variant via isolated temp-fixture bite tests plus a lifecycle `npm test`; it is pinned as verification '
     + 'evidence, not a standing validate guard. The permanent fast structural guard test-suite-utils-autobuild-smoke is '
     + 'registered in validate.commands.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk001-acceptance-basis.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-001, unlike the b2aa7/b49d4 receipts above it does not print '
+    + 'nothing and exit 0 on the finished tree -- it actively THROWS an AssertionError once the fix lands, because it '
+    + 'asserts the pre-fix snapshot_missing/partial signature is present. Registering it in validate.commands would '
+    + 'make every future validate run fail permanently on a fixed bug. It is pinned as verification_evidence_add '
+    + 'waiver evidence (INT-CHK001-RED) instead, documenting the historical repro before the fix.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk002-readmanifest.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-002, same shape as the CHK-001 entry above: it throws once the '
+    + 'fix lands (asserts the pre-fix readManifest argument-validation mismatch is present), so registering it would '
+    + 'make validate fail permanently. Pinned as verification_evidence_add waiver evidence (INT-CHK002-RED) instead.'],
+  [`${POPULATION_DIR_REL}/red-B-74b9-chk003-version-bump.mjs`,
+    'PRE-FIX historical attestation for B-74b9 CHK-003, same shape as the CHK-001/002 entries above: it throws once '
+    + 'the fix lands (asserts the pre-fix ENOENT package.json signature is present), so registering it would make '
+    + 'validate fail permanently. Pinned as verification_evidence_add waiver evidence (INT-CHK003-RED) instead.'],
 ]);
 
 /** A reason must actually be a reason; an empty string is not a decision. */

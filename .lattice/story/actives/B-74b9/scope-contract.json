@@ -8,7 +8,7 @@
     "packages/main/src/core/version-bump.ts",
     "packages/main/src/handlers/done-recover.ts",
     "lattice.config.json",
-    "packages/main/src/plan.md"
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
   ],
   "allowedCreate": [
     "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
@@ -22,10 +22,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Init scope contract from PLAN checklist files for B-74b9 (3 fixture fixes + validate.commands registration decision).",
+  "scopeChangeReason": "Widen to allow modifying red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS map -- a necessary consequence of adding 3 new packages/main/tests/red/ scripts: that meta-guard requires every red/ file to be either registered in validate.commands or explicitly excluded with a reason, and it correctly caught that my 3 new historical RED scripts were neither.",
   "acknowledgements": [],
   "createdAt": "2026-08-15T20:16:11.306Z",
-  "updatedAt": "2026-08-15T20:16:11.306Z",
+  "updatedAt": "2026-08-15T22:04:45.292Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -38,6 +38,7 @@
     "packages/main/src/plan.md": "plan.md",
     "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs": "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
     "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs": "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
-    "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs": "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+    "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs": "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs"
   }
 }
