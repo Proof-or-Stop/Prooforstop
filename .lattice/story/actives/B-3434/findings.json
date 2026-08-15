@@ -357,6 +357,21 @@
       "_hash": "4a8b6c11383f231cf2a77cef8a52805704a53dbbb6aa18359f927191189ffc53",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-017",
+      "desc": "[codex host-B J4] Verified by main agent. Maintenance assessment: relative to main the five files add 759 production and 1150 test lines, with complexity concentrated in a six-stage generic reducer while the real safety boundary is the final StoryStore serialisation. Stale or inaccurate claims remaining: that the returned output is always below the bound, that the last-resort replacement cannot fail, that test-evidence.json has an aggregate bound, and that the advisory leaves the verdict unchanged even on the refusal path. The smoke also claims no filesystem and pure functions while reading verifier source with readFileSync and existsSync. Suggested direction: a typed canonical validation result, one input-independent bounded fallback, and a postcondition over the complete persisted file. The metadata read and failure taxonomy is clear and does not need simplification.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-15T12:54:24.660Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-011",
+      "_hash": "9f626d3bf1b7406f11723a066262d0189db9c11c13c5b49519dfc8bbaf76dfc6",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
