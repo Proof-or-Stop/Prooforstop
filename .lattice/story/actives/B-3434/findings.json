@@ -608,6 +608,37 @@
       "resolvedAt": "2026-08-15T15:10:08.100Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-028",
+      "desc": "Two doc comments touched by this very fix commit (VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS at line 274 and verdictOnlyRecord at line 529) claim the last-resort record has a computable ceiling in the low hundreds of bytes whatever arrives. Measured directly against the shipped boundPersistedValidationEvidence with a minimal wrapper (isolating verdictOnlyRecord own output from the outer TestEvidenceData fields): the smoke's own ASCII fixtures (unknown field / key name / verdict-bearing scalar, each forcing the fallback) produce inner output strings of 452-633 bytes already past low hundreds, and a worst-case carried scalar (a provider field packed with 200 multi-byte characters, still within the 200-char safeScalarRead slice) pushes the inner string to 1431 bytes -- low thousands, not low hundreds. This is why the smoke itself budgets the wrapped record at bound.fileBytes < 4_000 rather than at a few hundred: the author's own test tolerance already disagrees with the doc comment's number. No safety or admissibility defect -- withinBound is still derived from a real measurement every time, comfortably below the 25 MiB bound regardless of this figure -- but it is an inaccurate quantitative claim in the exact function this commit already touched for a related over-claim (F-018/F-026, the throwing-accessor fix), and this story has now corrected the same class of over-precise prose four times (F-011, F-019, and this). Fix: either say hundreds to low thousands of bytes, or state the true worst case (4 scalar fields, each up to 200 UTF-16 units of a 4-byte character, gives a ~2KB ceiling, not hundreds).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T19:45:45.998Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "56e418f791245ed65d8248c8e910a6c2a4c0f7d47af367e8ba219eece809a82a",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|comments-touched-commit",
+      "signatureTagSource": "auto"
     }
   ]
 }
