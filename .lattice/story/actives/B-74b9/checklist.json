@@ -179,8 +179,22 @@
             "priority": "must"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "id": "INT-CHK004-EDGE",
+            "desc": "If a fixture is registered into validate.commands, lattice validate still completes successfully afterward (no new flakiness/timeout introduced)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "INT-CHK004-ADV",
+            "desc": "The decision is not a default blanket register-all-or-register-none -- each of the three fixtures gets an independent, justified decision referencing its own runtime/isolation profile",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
