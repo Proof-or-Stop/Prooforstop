@@ -460,7 +460,7 @@
       "desc": "In reusedStoryValidationResult, the new F-014 bound check does: `if (!reusedBound.withinBound) { throw new Error(...) }`. Every other \"cannot proceed\" branch in this same function - missing prior commandExecution, preexisting dirty managed metadata - returns `externalResult({ provider: 'lattice-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure', ... })`, a structured, catchable result the rest of the pipeline (decorateAndMaybePersistStoryValidation, renderExternalResult, --json output) knows how to render. The parallel executed-path equivalent in persistStoryValidationEvidence (the function this commit is otherwise symmetric with) also returns a structured value: `return persistenceFailure(...)`, not a throw.\n\nMechanically this is not a lock leak - withValidationExecutionLock releases via try/finally regardless of how fn() exits - so it is not a correctness blocker. But it means the identical condition (evidence file cannot be reduced under the bound; refuse the write) surfaces two different ways depending only on which of the two near-duplicate code paths hit it: a clean \"Validation FAIL: <reason>\" result on the executed path, and an uncaught exception on the reuse path, which - absent a catch somewhere further up the CLI/handler chain that the story did not add and that lives outside allowedModify (cli-engine.ts is explicitly excluded from this story's scope) - most likely renders as a raw stack trace rather than the operator-facing message the identical executed-path condition produces.\n\nSuggested fix: mirror persistenceFailure's shape (or literally reuse it) in reusedStoryValidationResult rather than throwing, so the two paths this commit made symmetric for the bounding logic are also symmetric for the resulting failure surface.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T13:35:42.306Z",
@@ -471,7 +471,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|reusedstoryvalidationresult-bound-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a4d8971f4f, and the implementer labelled it a patch rather than a structural change, which is accurate. The reuse path's bound refusal now returns a structured externalResult matching its siblings instead of throwing a raw Error, so the same condition no longer has two different failure surfaces.",
+      "resolvedAt": "2026-08-15T15:10:09.533Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-022",
