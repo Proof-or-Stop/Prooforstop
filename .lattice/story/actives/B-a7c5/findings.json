@@ -107,7 +107,7 @@
       "desc": "packages/main/src/tasks/delivery-check-freshness-smoke.ts:33-44 (satisfyDevMemoryFinishDecision) comment is now factually wrong: it asserts \"`.lattice/dev-memory/` ... this write DOES count toward materialHash\" to justify an explicit git-add+commit-before-delivery_check_set workaround. That was true when this helper was added (commit 9aa65cf0b9, predating F-005), but commit 4a7f2aa540 (this story, F-005) registers `.lattice/dev-memory/finish-decisions/` in RUNTIME_ARTIFACT_REGISTRY with materialHash:'exclude', so committing the finish-decision.json this helper writes no longer perturbs materialHash (empirically verified: identical materialHash before/after committing it, using the built dist). Not a functional break -- the extra commit is harmless since materialHash is unchanged either way -- but the comment misrepresents the exact git-tracked-vs-materialHash-included invariant this story's own F-005 fix exists to decouple, and risks a future maintainer copying this now-obsolete commit-dance elsewhere under a false premise. Was not touched by the F-005 fix commit (which only edited runtime-artifact-registry.ts + dev-memory-lifecycle-gates-smoke.ts).",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:01:13.218Z",
@@ -115,7 +115,9 @@
       "reviewRunId": "B-a7c5:RR-011",
       "_hash": "779e49957bbbc1ca6909fd1bae4fe33ff8bb73f26a9e249c60d4e56aefd7bd54",
       "signatureTag": "edge|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: updated the stale comment in delivery-check-freshness-smoke.ts's satisfyDevMemoryFinishDecision to state the accurate current reason for committing the file (fixture tidiness / matching the pre-F-005 baseline), removing the now-false claim that the write 'DOES count toward materialHash' (it is materialHash-excluded since the F-005 fix).",
+      "resolvedAt": "2026-08-15T12:28:38.049Z"
     }
   ]
 }
