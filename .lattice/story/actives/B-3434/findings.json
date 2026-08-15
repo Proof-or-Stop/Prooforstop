@@ -841,6 +841,24 @@
       ],
       "signatureTag": "cleanup|ts|satisfied-every-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-036",
+      "desc": "The disclosed cost (smoke wall-clock 9.9s -> 18.5s, +50ms per measurement at a 24 MiB record) is paid on measurements whose results are never returned, and the stated reason for paying it does not hold under the code's own structure. measureWith is used two ways: (1) as the options.measure predicate passed into boundValidationEvidenceOutput, where it is invoked repeatedly inside the reduction's stage-1..5 loops purely to decide whether/how far to keep shrinking — every one of these calls discards .record and keeps only .bytes; (2) as the terminal call whose .record IS what gets returned (const reduced = measureWith(bounded.output) after the loop converges; likewise the plain-input and fallback branches). The two are already independent: the terminal call re-invokes args.buildRecord and re-runs snapshotPersistedRecord from scratch on bounded.output, it does not reuse anything the search loop computed. So the correctness property F-031 established — that the record handed back and the byte count describing it come from ONE stringify — is fully guaranteed by the terminal call alone, regardless of how the search loop measured its throwaway candidates. Using the cheap, pre-F-031 measurePersistedEvidenceBytes (one stringify, no parse-back) as options.measure for the exploratory loop, while keeping the expensive snapshot only for the handful of terminal measureWith calls whose .record is actually returned, would preserve every guarantee this story's findings established while eliminating essentially all of the measured cost — the search loop's iterations (stage 4/5 in boundValidationEvidenceOutput, a geometric-convergence loop that can run many rounds on a large artifact) are exactly where the multiplicative cost comes from, and none of those intermediate records are ever consumed by anything. The resolvedReason recorded against F-031/F-032 states the uniform choice was made because 'the cheaper split would have separated the value measured during the search from the value returned, which is the exact shape of this story's recurring defect' — but that separation already exists in the current design (search and terminal are already two different measureWith invocations against two different freshly-built objects); making the search cheap does not introduce a NEW separation, it just stops paying full price for a guarantee the terminal call already provides on its own. This is not a live bug — behavior and disposition are unaffected either way (verified: all fixtures already show byte-identical fileBytes/disposition per the commit's own claim) — but it is over-correction: real, measured, disclosed cost paid for a uniformity property that is not load-bearing given the terminal-remeasurement pattern already in place.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:52:36.226Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-025",
+      "_hash": "c75cbdb50c29b44e45e6c2bef585013c5aebffbb39dbc8b0f1a01bb71b531f9a",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "cleanup|ts|disclosed-cost-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
