@@ -118,6 +118,16 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "The committed regression that stages a file above the one-mebibyte boundary and exercises the isolated commit path reports PASS",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ]
       }
     },
     {
