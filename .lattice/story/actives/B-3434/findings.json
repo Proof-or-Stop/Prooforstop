@@ -775,6 +775,36 @@
       "resolvedAt": "2026-08-15T20:33:45.416Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-033",
+      "desc": "measurePersistedEvidenceBytes docstring (validation-executor.ts:650-653, new prose in commit 036d69edb3) claims: \"This duplicates a format owned by core/store.ts, which is outside this storys allowed scope. The coupling is real and is the weak point of this design: if store.ts changes its serialisation, this measurement drifts low and the bound silently loosens. The smoke pins the format so the drift fails a test rather than a phase gate.\" The closing sentence overstates what exists: no executable check anywhere in the repository exercises core/store.ts real serialisation. validation-evidence-buffer-smoke.ts never imports StoryStore or core/store.js -- zero references confirmed by grep. Its two readFileSync calls (smoke lines 532, 671) read handlers/verifier.ts source text only, for the unrelated F-029 wiring check and the CHK-004 disposition check. Section 3 of the smoke (lines 220-227), the only test touching measurePersistedEvidenceBytes format fidelity, computes its own `expected` value by re-typing the identical literal formula `Buffer.byteLength(JSON.stringify(record, null, 2) + newline, utf8)` directly inside the test -- a second hardcoded copy of the same formula that lives in core/validation-executor.ts, not a value derived from calling store.ts. It then asserts the two hardcoded copies agree with each other. Repo-wide grep for measurePersistedEvidenceBytes, VALIDATION_EVIDENCE_BOUND_BYTES and VALIDATION_EVIDENCE_READ_CEILING_BYTES across packages/main/src and packages/main/tests shows these symbols referenced only by validation-executor.ts, verifier.ts and the smoke; no test anywhere calls the real StoryStore.writeTestEvidence and compares the resulting on-disk file size to this prediction. Concrete consequence: if core/store.ts line 163 (JSON.stringify(data, null, 2) + newline) ever changes its serialisation format, both hardcoded copies of the formula drift together and stay equal to each other, so every existing assertion keeps its current result while the real file on disk silently diverges from what boundPersistedValidationEvidence counted -- the exact \"measurement drifts low and the bound silently loosens\" failure the same docstring names one sentence earlier, and nothing in this repository would flag it. I confirm this is not a live behavioural regression as of this commit -- both validation-evidence-buffer-smoke and the committed red test currently exit zero when I ran them directly -- and it is candidly disclosed elsewhere in the same docstring and the round-8 commit message as an accepted out-of-scope coupling (\"core/store.ts is out of scope, so the stability comes from the value rather than the writer\"). The defect is narrowly the final sentence claiming a protective test exists when it does not: it should instead say the smoke pins this modules OWN duplicated formula for internal self-consistency only, and that drift in store.ts actual serialisation is caught by nothing in this repository today.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T20:51:51.408Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b20cf60df961d05154c220a71b791c1b878162ddd1295193a4fa889cbe22a695",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|measurepersistedevidencebytes-docstring-validation",
+      "signatureTagSource": "auto"
     }
   ]
 }
