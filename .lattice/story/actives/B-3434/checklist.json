@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Give every execFileSync blob and tree read in done-prepare-generated-metadata an explicit maxBuffer",
+      "context": "isolatedBlobHash reads a staged blob with execFileSync and no maxBuffer, so Node's 1 MiB default applies and a larger blob throws ENOBUFS. Audit the whole module for sibling helpers reading blob or tree content the same way - isolatedGit and treeBlobHash are the likely candidates - and give each an explicit generous maxBuffer rather than fixing only the one observed to fail.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Stop the catch from turning an unreadable blob into a silent digest mismatch and surface the real cause",
+      "context": "The catch currently returns null, which the caller compares against the expected digest and reports as verified metadata changed after manifest verification. Distinguish blob genuinely absent from blob could not be read, keep the fail-closed posture, and make the surfaced reason name the underlying error so the next person does not spend hours attributing it to concurrency.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a committed regression test that stages a file larger than one mebibyte and asserts the commit path still succeeds",
+      "context": "The regression must fail on the pre-fix tree. Stage a blob above 1048576 bytes, drive the same commit path, and assert success; a fixture below the limit proves nothing because that is exactly the size at which the defect is invisible.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Evaluate and record whether test-evidence.json should store a digest and bounded tail instead of the complete captured output",
+      "context": "packages/main/src/handlers/verifier.ts writes output as JSON.stringify of every configured command's full output, so the artifact grows with the suite and the suite grew from 56 to 100 commands in one day. Decide deliberately whether to bound it here or to record why not; an unexamined growth cliff is what produced this defect.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
