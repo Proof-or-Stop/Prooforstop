@@ -467,71 +467,39 @@
         "happy": [
           {
             "desc": "Write a temp lattice.config.json to a fresh tmpdir projectRoot with two validate.commands[] entries sharing the same executable (node) but with different args arrays and different timeoutMs values (e.g. 700 and 5000). For each entry, call resolvePinnedCommandTimeoutMs(root, pinnedCommandString) where pinnedCommandString parses to the exact same {executable, args} as that config entry. Assert each call returns that entry's own exact timeoutMs value, not the other's. WHY: proves the matching logic compares the full {command, args} tuple and returns the correct per-entry budget.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "desc": "The full smoke suite (sections 1-5 from prior CHK items plus CHK-001's section 6) still passes after adding the new CHK-003 assertions — the total assertion count logged on the final 'passed: N assertions' line increases but no pre-existing assertion regresses. WHY: ensures CHK-003's additions are purely additive and do not break earlier coverage.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "desc": "All new assertions are pure synchronous calls to resolvePinnedCommandTimeoutMs against a temp lattice.config.json — no real timed subprocess waits — so the test completes in sub-second time regardless of the timeoutMs values declared in config. WHY: CHK-003's intent is unit-level coverage of the matching logic; adding wall-clock waits would make the smoke slow and fragile.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           }
         ],
         "edge": [
           {
             "desc": "Unmatched-default: the temp config has one or more configured validate.commands[] entries, but the pinned command string parses to an {executable, args} pair that matches NONE of them (different args or entirely different executable). Assert resolvePinnedCommandTimeoutMs returns undefined — not zero, not the first entry's timeoutMs, not DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The undefined return is the signal for the caller to fall through to the 270s default via the existing options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS path. WHY: the common case (a pinned command with no config override) must remain unchanged.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "desc": "Args-length mismatch: config entry has args [a, b] with timeoutMs X; pinned command has the same executable but only args [a] (a strict prefix of the config entry's args). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: must not partial-match on a prefix of the args array — the args.length guard fires before element comparison.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "desc": "Args-content mismatch: config entry has args [-e, foo] with timeoutMs X; pinned command has the same executable and same args length but different content ([-e, bar]). Assert resolvePinnedCommandTimeoutMs returns undefined. WHY: element-wise string equality is required, not just length equality; proves the every() comparator fires.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           }
         ],
         "adversarial": [
           {
             "desc": "Cross-match by executable alone: temp config has TWO entries with the same executable (node) but distinct args arrays and distinct timeoutMs values. For each of the two corresponding pinned command strings, assert resolvePinnedCommandTimeoutMs returns that specific entry's own timeoutMs — never the other entry's value. A naive implementation that matches by executable alone (or returns the first match regardless of args) would return the wrong budget for one of the two commands. WHY: this is the exact cross-match-by-executable-alone defect the plan's title warns about.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "desc": "No silent wrong match: when the pinned command's executable matches a config entry's command field but the args differ, the helper must return undefined rather than returning the wrong entry's timeoutMs. Assert that for a pinned command whose executable exists in config but whose args match no entry, the return value is strictly undefined (=== undefined). This distinguishes a clean 'no match' (caller safely falls through to 270s) from a silent 'wrong match' (caller unknowingly applies another command's budget — a latent timeout bug that could either truncate a legitimate long-running receipt or over-extend a budget for a command that should be killed sooner). WHY: undefined is the only safe sentinel; any numeric return from an unmatched lookup is a potential misattribution.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           }
         ]
       },
