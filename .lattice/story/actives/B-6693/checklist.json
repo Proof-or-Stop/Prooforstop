@@ -546,19 +546,19 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Current full 26-group validation lock and workspace capacity contract after final reliability repairs",
+          "note": "Current full exact-26 contract with exact-12 child-process capacity stress",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "247a4ac852aba88001d392f15be100301436c5b37a6122a82cff7f161b90e74a",
             "outputTail": "validate-execution-lock smoke passed: 26 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T13:42:50.874Z"
+            "executedAt": "2026-08-15T20:03:51.799Z"
           },
-          "headHash": "63a166ee163d024b4796958bf1d365b31736dcd6",
-          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
-          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
-          "timestamp": "2026-08-15T13:42:51.011Z"
+          "headHash": "c06fce33cc07c9e8a564bd48f0e448f991484724",
+          "materialHash": "1f680ddd994dd4e9b2cd2c8eab56f8bc3083f8022b08574dc5ae53e0b7a21ad4",
+          "storyFilesHash": "dbd0e09f2c51e1f7bfa2cfe3ab04656560d91b5910fc00a347c680fc28350f59",
+          "timestamp": "2026-08-15T20:03:51.916Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
