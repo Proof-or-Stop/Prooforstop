@@ -132,6 +132,131 @@
       },
       "readDiagnostics": [],
       "_hash": "33c5218ed3582020568e258dd6e44298022b4be1ed7547ca3d4f04377ecdd687"
+    },
+    {
+      "id": "B-6693:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed 158 extracted changed symbols and 10 directly relevant documentation/operations paragraphs plus the validate, done_required_validate, and derived-verdict help surfaces. No blocker: F-007 is accurately closed across all three docs with marker-success mechanical successor recovery after the underlying isolation fault is repaired, marker-failure fail-closed repair semantics, successful-callback release failure reporting, and original callback/abort/deadline error precedence over secondary cleanup failure. Docs also match canonical git-common-dir capacity, configured gitRoot fail-closed behavior, official validate/done-required/--deriveBindings coverage, wait diagnostics, bare npm exclusion, and unchanged inventory and 120/180/300-second budgets without overstating Proof-or-Stop recovery authority.",
+      "createdAt": "2026-08-15T12:44:03.722Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-019",
+      "envelopeId": "7eaa87e0b571323d77341606dc32229750d77fcf7b746e6d169f46f2e74bfda0",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "227082aae52f0b9bb1df842fd2524052727dd0d3b5480faa04bd68295562171a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b51f90742863d240144f1c7af2ce063471efb2b6bf678f50018cd1c873cbc5a"
+    },
+    {
+      "id": "B-6693:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 29/29 must intents covered, 0 gaps, 0 waivers. Exact selector inventory is 14 focused + 10 full plus current build/docs/3 live-proof receipts; every evidence row is bound to current materialHash 440f1e47 and storyFilesHash c5c33a5, and stale dry-run reports none. Independently passed build, focused 14 groups, full 25 groups, protected inventory/timeouts, registered 12-record frozen cohort, and canonical exact-58 live proof. Source assertions discriminate linked-worktree serialization, reverse validate/done ordering and both artifacts, killed owner/prepublication, 12 waiters/maxConcurrency=1, reentrancy/sibling exclusion, abort/deadline no-inner, bare npm/read-only bypass, configured wrapper Git-root fail-closed, owner and queued-waiter permission-fault release recovery, JSON stderr, and derived verdict capacity.",
+      "createdAt": "2026-08-15T12:48:11.487Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-015",
+      "envelopeId": "f2cfdf2a9b8cb198bb5ff1f9733ac0f12557323cdaff6ddea3dc3e642720ac4e",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c761f1a54e9ab051e1f26597c300347966a1e395678aee4158d7cf9ee96ffddf"
+    },
+    {
+      "id": "B-6693:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review at HEAD 559e8d41871de23ae7b24349fa10f2d58ddae96d independently verified F-001/F-002/F-005/F-009 closure: canonical git-common workspace identity, configured gitRoot fail-closed before capacity/callback, fixed workspace-to-story acquisition order, AsyncLocal context-only reentrancy, UUID exact-ticket quarantine, abort/deadline cleanup recovery, original error precedence, and genuine non-Git project-root fallback. Managed verification pin schema round-trips only strict command/selector data while preserving alias normalization and planned-path declarations. Build, focused 14-group contract, exact-58 terminal contract, and targeted cleanup/non-Git probes passed; no residual or promised-but-undelivered blocker found.",
+      "createdAt": "2026-08-15T12:49:21.230Z",
+      "reviewRound": "2026-08-15T12:35:26.980Z",
+      "reviewRunId": "B-6693:RR-014",
+      "envelopeId": "2f08996edf4dc18304547b827e34e765ff621ebe44d488cb84e153e9955269cf",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d41c43f09a37befe490c373edae1adc9196d8b09debcd4cb33b85091b3752f0"
     }
   ]
 }
