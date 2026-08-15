@@ -306,6 +306,35 @@
         "scanEscalationReason": null
       },
       "_hash": "7c196edb3689ecf4faaedd0fcae8ff64a4f49f75bb103a3f64914f8cfd8df7d3"
+    },
+    {
+      "id": "B-3434:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "RP-009: confirmed the one commit since RP-008 (cd7372f15c) is doc-only. git diff 2717839123 HEAD -- packages/main/ is empty; git diff --stat excluding .lattice/ bookkeeping shows only docs/requirements/decisions/validation-evidence-artifact-growth.md (+4/-2), and the diff content is pure prose (F-036 sequencing note + row-level guard caveat), no code/scripts embedded - read the full doc to confirm. Dist freshness verified via the project's own build-binding digest (scripts/full-suite-build-binding.mjs verifyBuildBinding), recomputed live against current source and matched against packages/main/dist/full-suite-build-binding.json - no rebuild needed. Ran real commands: npx tsc --noEmit -p packages/main (clean, exit 0); red-b3434-blob-buffer-ceiling.mjs (PASS, all assertions incl. absent-vs-unreadable distinction and ceiling-exceeded diagnostics); validation-evidence-buffer-smoke.js (PASS, all 20 assertions incl. CHK-004 disposition check); done-prepare-auto-closeout-smoke.js (PASS); validation-evidence-reuse-smoke.js (PASS, 86s). Spot-confirmed the 32 MiB ceiling deliverable live against real git blobs in a fresh scratch repo via treeBlobHash: 5 MiB blob read correctly (hash matched independently computed sha256), 40 MiB blob failed as unreadable with byte counts (ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded), missing path reported absent (fatal: path 'nope.bin' does not exist in 'HEAD'). No findings.",
+      "createdAt": "2026-08-15T23:08:58.593Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-038",
+      "envelopeId": "4e20658eac81d1b9943b5debde8ae8267b17b20839fcb3366dae29f84824770e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/tsconfig.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/dist/tasks/validation-evidence-reuse-smoke.js",
+          "packages/main/package.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27654fe4590954280937daadaf0676ec10cc0f2fb12f20855a509ab8450d8de3"
     }
   ]
 }
