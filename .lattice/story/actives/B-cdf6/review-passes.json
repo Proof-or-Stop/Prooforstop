@@ -879,6 +879,27 @@
         "scanEscalationReason": null
       },
       "_hash": "973a1e71f0f772acaf42104b15505acd6844b3766716fe571a1fdbdef657a760"
+    },
+    {
+      "id": "B-cdf6:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Re-bound docs-lane pass, superseding RP-028 (frozen material HEAD 2ededfa090; RR-089 head hash differs only due to framework .lattice/ metadata auto-commit from a prior review_run_start/review_pass_set attempt, not a story-owned material change). review_incremental_context confirmed exactly one material file changed since RP-028: unlock-layer3-real-execution-udm-baseline.md, matching resolved F-059 (TEST/lattice validate -> TEST/proof-or-stop validate at the UDM-REAL-REPAIR sequence line). Direct diff confirms the fix and the file self-identifies as the actively-maintained execution plan for real Proof-or-Stop lifecycle proof. Checked the scope boundary on legacy-to-lattice-role-naming-execution-plan.md: its own opening paragraph explicitly self-declares as the documented historical exception for the B-ffa2 rename map, so leaving its lattice validate references untouched is correct on the files own stated terms. Cross-checked finding_list: 59 total, 0 open, matching the stated ledger. Spot-checked honesty-boundary claims (three red smokes exist as named smoke tasks; CHK-002 deferred_gate_evidence waiver note present and consistent) against repo artifacts; no misrepresentation found. No blocking issue.",
+      "createdAt": "2026-08-15T18:43:42.274Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-089",
+      "envelopeId": "f9c1e2a5f28de8475c0c17f90b092fe2b5b615d152ff95c00c7f51d0ee3b45c4",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2f4f11dd6201d9d480ad0017cad6302163d1309ff72e6064264bfbea1c75fdf"
     }
   ]
 }
