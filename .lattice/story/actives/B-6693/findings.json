@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/validation-execution-lock.ts:177-191 and packages/main/src/core/mkdir-lock.ts:279-286 — HIGH: workspace-capacity stale recovery is not identity-conditional. acquireMkdirLock reads holder A, then classifyValidationCapacityLock re-reads heartbeat from the mutable fixed path; if A releases and live successor B acquires between those reads, the A/B mismatch is classified stale and rmSync(lockDir,{recursive:true}) deletes B. A waiter can then acquire alongside B, violating the one-official-validation invariant. Use an identity-stable unique-ticket/compare-and-delete reclaim (or revalidate the same ownership token atomically) and add an ABA successor race regression; static mismatch fixtures do not cover this interleaving.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T00:38:00.807Z",
@@ -18,14 +18,18 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: fixed-path capacity reclaim was replaced by never-reused UUID bakery tickets with atomic exact-ticket quarantine; stale A cleanup cannot delete successor B. Covered by 20-round 12-waiter ABA stress with maxConcurrency=1.",
+      "resolvedAt": "2026-08-15T11:20:38.748Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-002",
       "desc": "packages/main/src/core/validation-execution-lock.ts:207-225,238-241,421-424; packages/main/src/handlers/verifier.ts:1066-1077 — the capacity key is derived from options.root even though the handler already passes the resolved signed git workspace as workspaceRoot. In a supported bare metadataRoot/configured-gitRoot layout, git -C options.root fails and resolveSharedLockRoot silently falls back to the metadata wrapper, so the lease is not keyed by the repository git-common-dir as docs/CLI.md:907 and testing-infra.md:55 promise; separate wrappers over one repository can run official validations concurrently, and a transient git-probe failure similarly splits linked-worktree locks. Separate capacityRoot/workspaceRoot from the legacy story-evidence root, fail closed on an expected-git identity resolution failure, and add a wrapper-root/common-dir regression.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T00:38:23.634Z",
@@ -41,14 +45,18 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "spec-boundary|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: workspace capacity identity is derived from the supplied workspaceRoot git-common-dir; official callers requireGitIdentity and fail closed in wrapper/non-git ambiguity. Linked-worktree and wrapper regressions pass.",
+      "resolvedAt": "2026-08-15T11:20:39.932Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-003",
       "desc": "packages/main/src/core/validation-execution-lock.ts:453 — stale-capacity takeover is not ownership-atomic. withWorkspaceValidationCapacity passes classifyValidationCapacityLock into acquireMkdirLock, whose stale branch classifies the observed holder and then recursively removes the shared path without atomically isolating/revalidating that exact ownership token (packages/main/src/core/mkdir-lock.ts:285-286). With multiple waiters, one waiter can reclaim the dead holder, a successor can acquire, and another waiter that already classified the old holder stale can delete the successor's live lease, breaking maxConcurrency=1. Reproduced against built HEAD with 12 worker threads and a mechanically dead seed: after 159 rounds, overlaps=1 and errors=8. Replace classify-then-rm with atomic stale-directory/token isolation before deletion and add a simultaneous multi-waiter stale-recovery regression.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T00:38:55.215Z",
@@ -98,14 +106,18 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: classify-then-recursive-delete was removed from capacity acquisition; atomic rename isolates the exact UUID candidate before deletion, and failed rename remains active. Mechanical 12-waiter stress now passes with zero overlap.",
+      "resolvedAt": "2026-08-15T11:20:41.224Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-004",
       "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:288-340,563-584,845-915,921-954,963-984 — HIGH: verificationEvidence records PASS for all 29 must intents, mostly by reusing the 5-group focused smoke, but the executable cases do not discriminate at least these required claims: CHK-001:happy:0 and CHK-001:adversarial:2 never run contending validators from two linked worktrees (only same-root handlers plus lock-path equality); CHK-001:edge:1 has abort coverage but no active-owner deadline case proving neither callback nor inner story lock is entered; CHK-002:happy:1 covers only validate -> done_required_validate, not the reverse order or both evidence artifacts; CHK-002:edge:1 never kills a live child owner with a queued successor; CHK-002:edge:2 never queues three waiters or asserts maxConcurrency=1/eventual entry; CHK-002:adversarial:0 only observes lock presence during persistence without a competing story or overwrite check; CHK-002:adversarial:1 does not integrate same-story official nesting with an independent queued process; CHK-003:happy:0 never validates DONE-required evidence hash bindings; CHK-003:edge:0/edge:1/edge:2 and CHK-003:adversarial:0 have no inventory+120/180/300 snapshot, read-only-command bypass, stale-evidence replacement, or bare-npm-test bypass cases. CHK-003:adversarial:1 additionally records only `npm --prefix packages/main run build`, omitting its required protected-file `git diff --exit-code` command. Therefore these regressions can survive while the focused command and 29/29 receipts remain green. Independent review reproduced focused PASS, protected-file zero diff, and exact-58 terminal PASS; the blocker is missing discriminating evidence, not an asserted implementation defect.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T00:39:31.127Z",
@@ -146,7 +158,11 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6c85b1143c: expanded discriminating coverage includes linked worktrees, wrapper fail-closed identity, reverse validate/done evidence, killed owner and killed-before-publication, 12 waiters, reentrancy/sibling exclusion, deadline/abort no-inner, verdict writer capacity, bare/read-only bypass, and protected inventory/timeout zero diff. Full lock smoke passes 22 groups.",
+      "resolvedAt": "2026-08-15T11:20:42.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
