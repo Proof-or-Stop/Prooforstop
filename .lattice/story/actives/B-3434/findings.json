@@ -583,7 +583,7 @@
       "desc": "NEW, my own discovery, informational/low-confidence. In persistStoryValidationEvidence (verifier.ts), the go/no-go gate at 'if (!persistedBound.withinBound) return persistenceFailure(...)' is evaluated on persistedBound = boundPersistedValidationEvidence({result, buildRecord: (output) => evidenceRecord(output)}) -- built WITHOUT headHash/materialHash/storyFilesHash, computed early (before the git calls that produce those hashes) so a doomed write can be refused without doing that work. But the record actually written at ctx.store.writeTestEvidence(storyId, evidence(hashes)) comes from a SEPARATE, later call to boundPersistedValidationEvidence (via the evidence() closure) that DOES include the three hash fields, and that second call's own .withinBound is discarded -- only .record is read. So the outer gate is checked against an object that is not byte-identical to what gets written, which is exactly the class of bug (measure X, persist Y) this story exists to eliminate; the dispatcher's own review brief asked me to check for precisely this pattern. I tried to make this observable: I reproduced the two-call pattern directly against the built dist with a 2,000,000-entry single-character warnings array sized to land the reduction close to the bound, then compared the hash-less and hash-bearing computations. In every configuration I tried the hash-bearing computation's own reduce-then-remeasure-with-margin logic (the 0.9 safety-factor retry in boundPersistedValidationEvidence) absorbed the ~170-byte addition from three hex hash strings and still returned withinBound:true, so I could not force actual divergence despite deliberately searching for a near-boundary case. I am filing this as suspected rather than verified because I have a real structural gap (confirmed by reading the code) but not a demonstrated harmful outcome, and do not want to overstate the risk. Fix direction if this is worth doing: check evidence(hashes).withinBound (not just persistedBound.withinBound) before the final writeTestEvidence call, or fold the hashes into the SAME boundPersistedValidationEvidence invocation used for the gate so there is exactly one measured record, not two.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Traced a genuine architecture gap (checked-record != written-record) but tried and failed to construct an input where it actually changes the outcome; the story's own retry-with-margin logic appears to self-correct every case I tried, so I cannot say this is reachable, only that it is structurally unguarded.",
       "agent": "lattice-review-quality",
@@ -595,7 +595,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "edge|ts|discovery-informational-confidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed structurally in a4d8971f4f, and the finding was REACHABLE after all. The quality lane filed it as suspected rather than verified because it could not construct a diverging case, and was right to file it that way and right about the shape. Measured: the hash fields add 232 bytes, so a record sitting in that window passed a gate computed without them. Gate and write are now a single computation taken after the hashes are known, so there is no second measurement to diverge from. This was the F-014 shape once more - gate on one measurement, write a different artifact - and it is the last instance of it in this story.",
+      "resolvedAt": "2026-08-15T15:10:08.100Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
