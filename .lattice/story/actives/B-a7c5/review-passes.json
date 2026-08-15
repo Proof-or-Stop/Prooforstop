@@ -615,6 +615,33 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "5dbe5dab18d21624e61d570a0c5ce6adaac4dd8a5f0952afc9071997e4f3bd95"
+    },
+    {
+      "id": "B-a7c5:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 rebinding pass. Confirmed the only change since round 7 (clean 3-lane zero-finding pass) is commit d3baf12167, a 1-line --help description fix in command-catalog.ts for dev_memory_finish_decision, correcting stale text (was: not gate evidence) to reflect CHK-003s existence-only DONE-gate requirement while lesson content stays non-gating. Verified diff 78961ee33c..HEAD touches only that one non-.lattice file/line. Verified the corrected wording against the actual gate implementation in machine.ts:938 and :1417-1423 (existence-only check, matches doc). No concept-scope regression: no functional/logic code changed, no residual references to the old wording remain, checklist CHK-001..CHK-007 all done.",
+      "createdAt": "2026-08-15T15:50:28.255Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-022",
+      "envelopeId": "09107c6a6422a9fb79c2b4eda633aa62360ae22c8284cc985392dc0adc3eaea1",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/review-runs.json",
+          "packages/main/src/core/machine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "231451df30471287829067bfd17fb104d626f63ad5a9b2817033bbdb79a59364"
     }
   ]
 }
