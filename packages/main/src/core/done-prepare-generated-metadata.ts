@@ -669,17 +669,26 @@ function describeContentReadFailure(err: any): string {
  * The ENOBUFS branch still runs first: a buffer failure never renders a partial stream, whichever
  * stream it came from.
  *
- * Unlike describeContentReadFailure this does NOT prefix a plain exit status. A hook that failed
- * has already explained itself in the text it printed, so `exit 1: ` in front of it adds noise and
- * nothing else; the operator-facing wording of these reasons is depended on elsewhere. A Node-level
- * code such as ENOBUFS or EPERM is different - there the code IS the diagnostic - so it is kept.
+ * Unlike describeContentReadFailure this does not prefix a plain exit status ONTO TEXT THE PROCESS
+ * PRINTED. A hook that wrote a message has already explained itself, so `exit 1: ` in front of it
+ * adds noise, and the operator-facing wording of these reasons is depended on elsewhere.
+ *
+ * But that reasoning holds only while there IS printed text. A hook can exit non-zero having
+ * written nothing to either stream - `#!/bin/sh` and `exit 7` is enough - and for that shape Node
+ * puts the status in `err.status` and nowhere else: `message` is only "Command failed: <path>".
+ * With no streams the status is the sole surviving cause, so it must appear. Silence is a case, not
+ * an impossibility, which is what the earlier wording of this comment assumed.
  */
 function describeDiagnosticStreamFailure(err: any): string {
   if (isBufferCeilingFailure(err)) return bufferCeilingDiagnostic(err);
-  const streamDetail = streamText(err?.stderr) || streamText(err?.stdout);
-  const detail = streamDetail || String(err?.message ?? err ?? '').trim() || 'no diagnostic output';
   const nodeLevelCode = typeof err?.code === 'string' && err.code ? err.code : '';
-  return capDiagnostic(nodeLevelCode ? `${nodeLevelCode}: ${detail}` : detail);
+  const streamDetail = streamText(err?.stderr) || streamText(err?.stdout);
+  if (streamDetail) {
+    return capDiagnostic(nodeLevelCode ? `${nodeLevelCode}: ${streamDetail}` : streamDetail);
+  }
+  const detail = String(err?.message ?? err ?? '').trim() || 'no diagnostic output';
+  const code = nodeLevelCode || failureCode(err);
+  return capDiagnostic(code ? `${code}: ${detail}` : detail);
 }
 
 /**
@@ -797,7 +806,13 @@ function verifyMetadataBlobDigests(
   return {
     changed,
     failed,
-    ...(sentences.length > 0 ? { reason: sentences.join(' | ') } : {}),
+    // Each per-path error is already capped, but N of them concatenated is an aggregate nobody
+    // caps. Today N is the small fixed lifecycle-metadata manifest, so the worst case is a few
+    // kilobytes and this is not load-bearing - it is here because commitImmutableMetadataTree is
+    // exported and takes an arbitrary `paths` array, and "the current callers pass a small set" is
+    // an assumption about callers rather than a property of this function. The whole story is about
+    // not resting on that kind of assumption, and the cost is one call.
+    ...(sentences.length > 0 ? { reason: capDiagnostic(sentences.join(' | ')) } : {}),
   };
 }
 

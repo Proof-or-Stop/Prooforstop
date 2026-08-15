@@ -37,6 +37,31 @@ import {
 
 const MIB = 1024 * 1024;
 
+/**
+ * The check that the whole F-008 class turns on: the reported flag must agree with a fresh
+ * measurement of the string actually returned.
+ *
+ * Every bounded case calls this. The defect it exists for was a `bounded: true` literal at a return
+ * statement - every fixture passed while the flag was structurally incapable of saying no, because
+ * no assertion ever compared the flag against the bytes.
+ */
+function assertFlagAgreesWithMeasurement(bounded: ReturnType<typeof boundValidationEvidenceOutput>): void {
+  const actualBytes = Buffer.byteLength(bounded.output, 'utf8');
+  assert.equal(bounded.serializedBytes, actualBytes, 'serializedBytes is a measurement of the returned string');
+  assert.equal(
+    bounded.withinBound,
+    actualBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+    `withinBound must be derived from the measurement (flag=${bounded.withinBound}, `
+      + `actual=${actualBytes}, bound=${VALIDATION_EVIDENCE_BOUND_BYTES})`,
+  );
+  for (const label of [...bounded.droppedKeys, ...bounded.truncatedKeys]) {
+    assert.ok(
+      label.length <= 160,
+      `every embedded label is capped, including key names (got ${label.length} chars)`,
+    );
+  }
+}
+
 const OUTPUT_LINE_CHARS = 120;
 
 /** Captured output as the executor actually captures it: many lines, not one long run. */
@@ -160,7 +185,8 @@ function validationResult(
   const bounded = boundValidationEvidenceOutput(result);
   assert.ok(bounded.measuredBytes > MIB, `the realistic artifact is genuinely past 1 MiB (${bounded.measuredBytes})`);
   assert.equal(bounded.state, 'within_budget', 'a 100-command artifact is within budget under the new ceiling');
-  assert.equal(bounded.bounded, false, 'nothing is bounded at the current command count');
+  assert.equal(bounded.reduced, false, 'no reduction runs at the current command count');
+  assertFlagAgreesWithMeasurement(bounded);
   assert.equal(bounded.output, JSON.stringify(result), 'an unbounded artifact serialises byte-identically to before');
   assert.equal(formatValidationEvidenceAdvisory(bounded), null, 'an artifact below the advisory fraction prints no advisory');
   // The stable sentence carries no runtime number: a selector pinned to a measured byte count is
@@ -178,12 +204,14 @@ function validationResult(
     advisoryBytes: VALIDATION_EVIDENCE_ADVISORY_BYTES,
     boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
     state: 'advisory' as const,
-    bounded: false,
+    reduced: false,
+    withinBound: true,
     elidedCommandOutputs: 0,
     elidedCommandEntries: 0,
     elidedDetailLines: 0,
     elidedWarnings: 0,
     droppedKeys: [],
+    truncatedKeys: [],
   };
   const advisory = formatValidationEvidenceAdvisory(sizing);
   assert.ok(advisory, 'an artifact past the advisory fraction produces an advisory');
@@ -210,7 +238,8 @@ function validationResult(
     `the fixture must genuinely exceed the bound (${bounded.measuredBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
   assert.equal(bounded.state, 'bounded', 'an artifact past the bound classifies as bounded');
-  assert.equal(bounded.bounded, true, 'the bound is ENFORCED, not merely declared');
+  assert.equal(bounded.reduced, true, 'a reduction ran');
+  assertFlagAgreesWithMeasurement(bounded);
   const serializedBytes = Buffer.byteLength(bounded.output, 'utf8');
   assert.equal(serializedBytes, bounded.serializedBytes, 'the reported serialised size is the real one');
   assert.ok(
@@ -267,7 +296,8 @@ function validationResult(
   const result = validationResult(Array.from({ length: 300 }, (_, index) => commandResult(`cmd-${index}`, 0, 100_000)));
   const bounded = boundValidationEvidenceOutput(result);
   assert.ok(bounded.measuredBytes >= VALIDATION_EVIDENCE_BOUND_BYTES, 'the fixture exceeds the bound');
-  assert.equal(bounded.bounded, true, 'the bound is enforced even when no captured output can be elided');
+  assert.equal(bounded.reduced, true, 'a reduction runs even when no captured output can be elided');
+  assertFlagAgreesWithMeasurement(bounded);
   assert.ok(
     Buffer.byteLength(bounded.output, 'utf8') < VALIDATION_EVIDENCE_BOUND_BYTES,
     'the artifact is brought under the bound',
@@ -317,6 +347,7 @@ function validationResult(
       + `(${serializedBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
   assert.ok(bounded.elidedDetailLines > 0, 'the elided detail lines are counted');
+  assertFlagAgreesWithMeasurement(bounded);
   const parsed = JSON.parse(bounded.output);
   assert.equal(parsed.allPass, true, 'bounding details preserves the pass verdict');
   assert.ok(Array.isArray(parsed.details), 'details remains an array of strings');
@@ -355,6 +386,7 @@ function validationResult(
     serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
     `the bound holds for bulk in unknown fields too (${serializedBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
+  assertFlagAgreesWithMeasurement(bounded);
   const parsed = JSON.parse(bounded.output);
   assert.equal(parsed.allPass, true, 'the verdict survives even the last-resort bounding');
   assert.equal(parsed.status, 'pass', 'the status survives even the last-resort bounding');
@@ -383,13 +415,18 @@ function validationResult(
     `the postcondition holds when no modelled reduction can help (${serializedBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
   assert.equal(bounded.serializedBytes, serializedBytes, 'the reported size is the measured size, not an estimate');
+  assertFlagAgreesWithMeasurement(bounded);
   const parsed = JSON.parse(bounded.output);
   assert.equal(parsed.allPass, true, 'the bounded artifact still carries allPass, which is what the phase gate parses');
   assert.equal(parsed.status, 'pass', 'the bounded artifact still carries status');
   // Assert the PROPERTY, not the mechanism: whichever stage got there, the loss must be stated.
+  const statedLabels = [
+    ...parsed.evidenceBound.droppedKeys,
+    ...(parsed.evidenceBound.truncatedKeys ?? []),
+  ];
   const lossStated = parsed.evidenceBound.replacedWithVerdictOnlyRecord === true
-    || parsed.evidenceBound.droppedKeys.includes('summary')
-    || parsed.evidenceBound.droppedKeys.includes('provider');
+    || statedLabels.includes('summary')
+    || statedLabels.includes('provider');
   assert.ok(lossStated, 'whichever reduction got under the bound, the artifact states what it lost');
   console.log('✓ postcondition holds even when the bulk is in verdict-bearing fields');
   console.log(`    measured=${bounded.measuredBytes} serialised=${serializedBytes} droppedKeys=${parsed.evidenceBound.droppedKeys.join(',')}`);
@@ -409,7 +446,8 @@ function validationResult(
     serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
     `the last-resort record satisfies the postcondition (${serializedBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
-  assert.ok(serializedBytes < 2_000, `the last-resort record is sized independently of the input (${serializedBytes} bytes)`);
+  assert.ok(serializedBytes < 4_000, `the last-resort record is sized by construction, not by the input (${serializedBytes} bytes)`);
+  assertFlagAgreesWithMeasurement(bounded);
   const parsed = JSON.parse(bounded.output);
   assert.equal(parsed.evidenceBound.replacedWithVerdictOnlyRecord, true, 'the record says of itself that it is a replacement');
   assert.ok(String(parsed.evidenceBound.reason).length > 0, 'the record states why it replaced the full artifact');
@@ -435,9 +473,78 @@ function validationResult(
       `${commandCount} commands must serialise under the read ceiling (${serializedBytes})`,
     );
     assert.equal(JSON.parse(bounded.output).allPass, true, 'the verdict survives at this scale');
+    assertFlagAgreesWithMeasurement(bounded);
     console.log(`    ${commandCount} commands: measured=${bounded.measuredBytes} serialised=${serializedBytes}`);
   }
   console.log('✓ the scales that defeated the commands-only bounding are under the bound');
+}
+
+// ── 8d. Bulk in a KEY NAME, and the flag that must agree with the measurement. ───────────────────
+{
+  // The dimension none of the other fixtures carry. The reduction drops the field, but the key
+  // NAME is input-derived bulk too, so an uncapped label re-embeds the payload under droppedKeys -
+  // and the flag reported success at 30,000,328 bytes because it was a literal, not a measurement.
+  const hugeKey = 'k'.repeat(30_000_000);
+  const result = validationResult([], { [hugeKey]: 1 });
+  const bounded = boundValidationEvidenceOutput(result);
+  const actualBytes = Buffer.byteLength(bounded.output, 'utf8');
+  assertFlagAgreesWithMeasurement(bounded);
+  assert.equal(
+    bounded.withinBound,
+    true,
+    `bulk carried in a key NAME must be reduced under the bound (${actualBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
+  );
+  assert.ok(actualBytes < VALIDATION_EVIDENCE_BOUND_BYTES, 'the artifact is genuinely under the bound');
+  const parsed = JSON.parse(bounded.output);
+  const labels = [...parsed.evidenceBound.droppedKeys, ...parsed.evidenceBound.truncatedKeys];
+  for (const label of labels) {
+    assert.ok(String(label).length <= 160, `the embedded key name is capped (got ${String(label).length} chars)`);
+  }
+  assert.ok(labels.some((label: string) => label.includes('...[+')), 'the capped label says how much of the name it dropped');
+  assert.equal(parsed.allPass, true, 'the verdict survives');
+  console.log('✓ bulk in a key name is capped and the flag agrees with the measurement');
+  console.log(`    measured=${bounded.measuredBytes} serialised=${actualBytes} withinBound=${bounded.withinBound}`);
+}
+
+// ── 8e. When the bound genuinely cannot be met, the caller is told rather than reassured. ────────
+{
+  // A non-object result carrying bulk has no structure to reduce. The honest answer is withinBound
+  // false with the measured size; the alternative - a success flag on an oversized artifact - is
+  // the `catch { return null }` shape one layer up.
+  const bounded = boundValidationEvidenceOutput('x'.repeat(30 * MIB));
+  const actualBytes = Buffer.byteLength(bounded.output, 'utf8');
+  assertFlagAgreesWithMeasurement(bounded);
+  assert.equal(bounded.withinBound, false, 'an irreducible oversized input reports withinBound=false');
+  assert.equal(bounded.reduced, false, 'no reduction was possible, and the flag says so separately');
+  assert.ok(actualBytes >= VALIDATION_EVIDENCE_BOUND_BYTES, 'the measurement backing that report is real');
+  assert.equal(bounded.serializedBytes, actualBytes, 'the reported size is the measured size');
+  const advisory = formatValidationEvidenceAdvisory(bounded);
+  assert.ok(advisory, 'an unmet bound still produces operator-facing text');
+  assert.match(advisory!, /could NOT be reduced under the bound/, 'the advisory states plainly that the bound was not met');
+  assert.ok(advisory!.includes(String(bounded.serializedBytes)), 'the advisory names the measured size');
+  console.log('✓ an unmet bound is reported honestly instead of being flagged as success');
+  console.log(`    measured=${bounded.measuredBytes} serialised=${actualBytes} withinBound=${bounded.withinBound}`);
+}
+
+// ── 8f. Removed and truncated are different dispositions and are worded as such. ─────────────────
+{
+  // Sized so BOTH dispositions fire: dropping the non-verdict field alone leaves the artifact over
+  // the bound, so the verdict-bearing field must then be truncated in place.
+  const result = validationResult([], { summary: 's'.repeat(30 * MIB), extraPayload: 'e'.repeat(5 * MIB) });
+  const bounded = boundValidationEvidenceOutput(result);
+  assertFlagAgreesWithMeasurement(bounded);
+  const parsed = JSON.parse(bounded.output);
+  assert.ok(bounded.droppedKeys.includes('extraPayload'), 'a non-verdict field is REMOVED and named in droppedKeys');
+  assert.ok(!('extraPayload' in parsed), 'a removed field is genuinely absent from the artifact');
+  assert.ok(bounded.truncatedKeys.includes('summary'), 'a verdict-bearing field is KEPT and named in truncatedKeys');
+  assert.ok('summary' in parsed, 'a truncated field is still present in the artifact');
+  assert.match(String(parsed.summary), /\[evidence bound:/, 'the truncated field carries its inline marker');
+  assert.ok(!bounded.droppedKeys.includes('summary'), 'a field that was kept is not reported as removed');
+  const advisory = formatValidationEvidenceAdvisory(bounded);
+  assert.match(advisory!, /removed entirely: [^.]*extraPayload/, 'the advisory reports the removed field as removed');
+  assert.match(advisory!, /kept but truncated in place[^.]*summary/, 'the advisory reports the truncated field as kept');
+  console.log('✓ removed and truncated fields are reported as the different dispositions they are');
+  console.log(`    droppedKeys=${bounded.droppedKeys.join(',')} truncatedKeys=${bounded.truncatedKeys.join(',')}`);
 }
 
 // ── 9. The advisory is log-only: bounding never touches the verdict or the caller's object. ──────
@@ -493,7 +600,8 @@ function validationResult(
 {
   for (const value of [null, undefined, 0, 'plain', { allPass: true }, { allPass: true, commands: [] }]) {
     const bounded = boundValidationEvidenceOutput(value);
-    assert.equal(bounded.bounded, false, `a small ${typeof value} artifact needs no bounding`);
+    assert.equal(bounded.reduced, false, `a small ${typeof value} artifact needs no reduction`);
+    assertFlagAgreesWithMeasurement(bounded);
     assert.equal(bounded.state, 'within_budget', 'a small artifact is within budget');
     assert.doesNotThrow(() => JSON.parse(bounded.output), 'the serialised artifact is always valid JSON');
   }

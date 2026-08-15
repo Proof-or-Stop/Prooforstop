@@ -24,7 +24,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -457,6 +457,76 @@ section('the pre-fix helper returns null for the same fixture that the shipped h
   // Same fixture, same call site, opposite outcomes: the regression cannot pass vacuously.
   const control = preFixIsolatedBlobHash(root, indexFile, 'base.txt');
   assert.equal(control.length, 64, 'the pre-fix helper still works BELOW the ceiling, so the difference is the size and nothing else');
+});
+
+// ── 11. A hook that fails SILENTLY still surfaces its cause. ─────────────────────────────────────
+section('a hook that exits non-zero with both streams empty still reports its exit status', () => {
+  // Every other fixture here and in done-prepare-auto-closeout-smoke writes to stderr before
+  // failing, so none of them exercises this shape. For a silent non-zero exit Node puts the status
+  // in err.status and nowhere else - message is only "Command failed: <path>" - so a describer that
+  // declines to render a plain exit status loses the only cause that exists.
+  const root = makeRepo('silent-hook');
+  const hookPath = join(root, 'no-hooks', 'pre-commit');
+  writeFileSync(hookPath, '#!/bin/sh\nexit 7\n');
+  chmodSync(hookPath, 0o755);
+
+  // The shape itself, asserted rather than assumed.
+  let observed = null;
+  try {
+    execFileSync(hookPath, [], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  } catch (error) {
+    observed = error;
+  }
+  assert.ok(observed, 'the silent hook fails');
+  assert.equal(observed.status, 7, 'the hook exits 7');
+  assert.equal(observed.code, undefined, 'there is no Node-level code for this shape');
+  assert.equal(String(observed.stderr ?? ''), '', 'stderr is empty');
+  assert.equal(String(observed.stdout ?? ''), '', 'stdout is empty');
+  assert.doesNotMatch(String(observed.message), /\b7\b/, 'Node message does not carry the exit status either');
+
+  const staged = stageOversizedBlob(root, 'test-evidence.json', 2_000, 0x3434_000a);
+  const result = metadata.commitImmutableMetadataTree({
+    root,
+    gitCwd: root,
+    paths: ['test-evidence.json'],
+    verifiedHashes: new Map([['test-evidence.json', staged.digest]]),
+    message: 'red-b3434: silent hook',
+  });
+  assert.equal(result.ok, false, 'a failing pre-commit hook fails closed');
+  console.log(`    silent-hook reason: ${result.reason}`);
+  assert.match(
+    String(result.reason),
+    /\b7\b/,
+    `RED: with both streams empty the exit status is the only surviving cause and must appear, got "${result.reason}"`,
+  );
+  assert.match(String(result.reason), /pre-commit hook failed/, 'the reason still names which hook failed');
+  assert.ok(String(result.reason).length < 2_000, 'the reason stays bounded');
+});
+
+// ── 12. A hook that DOES print keeps its message unprefixed. ─────────────────────────────────────
+section('a hook that prints its reason is reported verbatim, without an exit-status prefix', () => {
+  // The other half of the distinction: this wording is depended on by
+  // done-prepare-auto-closeout-smoke and quorum-submit-smoke, so the silent-hook repair must not
+  // start prefixing text that already explains itself.
+  const root = makeRepo('talking-hook');
+  const hookPath = join(root, 'no-hooks', 'pre-commit');
+  writeFileSync(hookPath, '#!/bin/sh\necho "failing pre-commit" >&2\nexit 1\n');
+  chmodSync(hookPath, 0o755);
+  const staged = stageOversizedBlob(root, 'test-evidence.json', 2_000, 0x3434_000b);
+  const result = metadata.commitImmutableMetadataTree({
+    root,
+    gitCwd: root,
+    paths: ['test-evidence.json'],
+    verifiedHashes: new Map([['test-evidence.json', staged.digest]]),
+    message: 'red-b3434: talking hook',
+  });
+  assert.equal(result.ok, false, 'a failing pre-commit hook fails closed');
+  console.log(`    talking-hook reason: ${result.reason}`);
+  assert.match(
+    String(result.reason),
+    /git pre-commit hook failed: failing pre-commit/,
+    'a hook that printed its reason is quoted verbatim with no exit-status prefix',
+  );
 });
 
 cleanup();

@@ -842,6 +842,16 @@ function persistStoryValidationEvidence(
   const boundedOutput = boundValidationEvidenceOutput(result);
   const sizingAdvisory = formatValidationEvidenceAdvisory(boundedOutput);
   if (sizingAdvisory) ctx.log?.(sizingAdvisory);
+  // withinBound is measured, so it can genuinely say no. Storing an artifact that the metadata
+  // blob read cannot consume is the original defect: it would commit, then fail every later read
+  // with ENOBUFS and block the phase gate with a message about something else. Refusing here is
+  // fail-closed and names both numbers.
+  if (!boundedOutput.withinBound) {
+    return persistenceFailure(
+      `serialised validation evidence could not be reduced under the ${boundedOutput.boundBytes}-byte bound `
+      + `(measured ${boundedOutput.measuredBytes} bytes, serialised ${boundedOutput.serializedBytes} bytes)`,
+    );
+  }
   const evidence = (hashes: {
     headHash?: string;
     materialHash?: string;

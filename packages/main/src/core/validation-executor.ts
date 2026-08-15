@@ -180,7 +180,14 @@ export interface ValidationEvidenceSizing {
   advisoryBytes: number;
   boundBytes: number;
   state: ValidationEvidenceSizingState;
-  bounded: boolean;
+  /** True when a reduction was applied. Says work happened; says NOTHING about the result size. */
+  reduced: boolean;
+  /**
+   * The postcondition, DERIVED from the final measurement of the returned string - never asserted
+   * by a code path having run. It is a separate field from `reduced` precisely because the two can
+   * disagree: a reduction can run and still not get under the bound, and that must be reportable.
+   */
+  withinBound: boolean;
   /** Command entries kept, but with their captured output replaced by a visible marker. */
   elidedCommandOutputs: number;
   /** Command entries dropped from the array, always reported as a count, never silently. */
@@ -193,11 +200,16 @@ export interface ValidationEvidenceSizing {
   /** Warning entries dropped from the array, reported as a count. */
   elidedWarnings: number;
   /**
-   * Top-level fields removed by the last-resort stage, named rather than counted. Any field can
-   * appear here: the bound is a post-condition over the whole object, not a list of fields the
-   * author happened to think of.
+   * Top-level fields REMOVED entirely, named rather than counted. Any field can appear here: the
+   * bound is a postcondition over the whole object, not a list of fields the author thought of.
+   * Names are individually length-capped, because a key name is itself a place bulk can hide.
    */
   droppedKeys: string[];
+  /**
+   * Top-level fields KEPT but truncated in place, each carrying a visible marker in the artifact.
+   * Separate from droppedKeys because "removed" and "shortened" are different things to a reader.
+   */
+  truncatedKeys: string[];
 }
 
 export interface BoundedValidationEvidenceOutput extends ValidationEvidenceSizing {
@@ -239,14 +251,42 @@ export function formatValidationEvidenceAdvisory(sizing: ValidationEvidenceSizin
     return `${head} The artifact grows with the number of lattice.config.json validate.commands entries; `
       + `it is bounded at ${formatBytes(sizing.boundBytes)}.`;
   }
+  // Removed and truncated are rendered as the different dispositions they are: a field that is
+  // still present with an inline marker has not been removed, and saying so was inaccurate.
   const dropped = sizing.droppedKeys.length > 0
-    ? ` Top-level field(s) removed: ${sizing.droppedKeys.join(', ')}.`
+    ? ` Top-level field(s) removed entirely: ${sizing.droppedKeys.join(', ')}.`
     : '';
+  const truncated = sizing.truncatedKeys.length > 0
+    ? ` Top-level field(s) kept but truncated in place, each with an inline marker: ${sizing.truncatedKeys.join(', ')}.`
+    : '';
+  // The honest case: reduction ran and still could not satisfy the bound.
+  const unmet = sizing.withinBound
+    ? ''
+    : ` The artifact could NOT be reduced under the bound and measures `
+      + `${formatBytes(sizing.serializedBytes)}; the evidence write refuses it rather than storing an `
+      + `artifact the metadata read cannot consume.`;
   return `${head} It reached the ${formatBytes(sizing.boundBytes)} bound, so it was serialised at `
     + `${formatBytes(sizing.serializedBytes)} with ${sizing.elidedCommandOutputs} command output(s) `
     + `replaced by a marker, ${sizing.elidedDetailLines} detail line(s) replaced by a marker, `
     + `${sizing.elidedWarnings} warning(s) and ${sizing.elidedCommandEntries} command entry(ies) `
-    + `summarised by count.${dropped} Per-command output remains available in the validate console output.`;
+    + `summarised by count.${dropped}${truncated}${unmet} `
+    + `Per-command output remains available in the validate console output.`;
+}
+
+/**
+ * Cap any label before it is embedded in the artifact.
+ *
+ * A key NAME is a place bulk can hide, and it was the one this function did not cap: a field
+ * dropped because its name was enormous had that same name re-embedded under droppedKeys, so the
+ * reduction reproduced the payload it had just removed. Capping values and entry counts is not
+ * enough while any input-derived string reaches the output uncapped.
+ */
+const MAX_EMBEDDED_LABEL_CHARS = 120;
+
+function capLabel(label: string): string {
+  const text = String(label);
+  if (text.length <= MAX_EMBEDDED_LABEL_CHARS) return text;
+  return `${text.slice(0, MAX_EMBEDDED_LABEL_CHARS)}...[+${text.length - MAX_EMBEDDED_LABEL_CHARS} chars]`;
 }
 
 function elisionMarker(originalChars: number): string {
@@ -316,6 +356,11 @@ function collapseDetailContinuationRuns(details: string[]): { details: string[];
  *
  * The verdict-bearing fields (allPass, allPassed, status, failureKind, summary) are preserved at
  * every stage, and the input object is never mutated.
+ *
+ * `withinBound` is computed from Buffer.byteLength of the string actually returned, on every path
+ * including the ones that do no work. It is never set from the fact that a stage ran: a flag that
+ * cannot report failure turns a failure into an assurance, which is the `catch { return null }`
+ * shape this story exists to remove.
  */
 export function boundValidationEvidenceOutput(result: unknown): BoundedValidationEvidenceOutput {
   const serialized = JSON.stringify(result);
@@ -328,16 +373,23 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
     state: classifyValidationEvidenceSize(measuredBytes),
   };
   if (measuredBytes < VALIDATION_EVIDENCE_BOUND_BYTES || !result || typeof result !== 'object') {
+    // Note the second half of that condition: a non-object carrying bulk (a multi-megabyte string)
+    // has no structure to reduce, so this path can legitimately return withinBound=false. That is
+    // the honest answer, and the caller is expected to act on it rather than store the artifact.
+    const output = serialized ?? 'null';
+    const serializedBytes = Buffer.byteLength(output, 'utf8');
     return {
       ...base,
-      serializedBytes: measuredBytes,
-      bounded: false,
+      serializedBytes,
+      reduced: false,
+      withinBound: serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
       elidedCommandOutputs: 0,
       elidedCommandEntries: 0,
       elidedDetailLines: 0,
       elidedWarnings: 0,
       droppedKeys: [],
-      output: serialized ?? 'null',
+      truncatedKeys: [],
+      output,
     };
   }
 
@@ -351,6 +403,7 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
   let elidedDetailLines = 0;
   let elidedWarnings = 0;
   const droppedKeys: string[] = [];
+  const truncatedKeys: string[] = [];
 
   const render = (): string => JSON.stringify({
     ...carried,
@@ -366,10 +419,10 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
       elidedDetailLines,
       elidedWarnings,
       droppedKeys,
+      truncatedKeys,
     },
   });
   const measure = (): number => Buffer.byteLength(render(), 'utf8');
-  const fits = (): boolean => measure() < VALIDATION_EVIDENCE_BOUND_BYTES;
 
   // Stage 1. Serialising a multi-megabyte artifact is not free, so elisions inside a stage adjust
   // an EXACT byte delta (replacing one JSON string value changes the encoding by exactly the
@@ -441,19 +494,21 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
       .sort((a, b) => (b.length - a.length) || a.key.localeCompare(b.key));
     if (candidates.length === 0) break;
     delete carried[candidates[0].key];
-    droppedKeys.push(candidates[0].key);
+    // capLabel, because the key NAME is itself input-derived bulk: without it a field dropped for
+    // being enormous is re-embedded here at its original size under a new label.
+    droppedKeys.push(capLabel(candidates[0].key));
     bytes = measure();
   }
 
-  // Stage 6. The guarantee itself. Only pathological input reaches here - a multi-megabyte summary
-  // string, for instance - and the post-condition still has to hold, so fall back to a fixed-size
-  // record that preserves the verdict and states what happened.
+  // Stage 6. Truncate remaining oversized string values IN PLACE, which is a different disposition
+  // from stage 5 removal and is recorded separately so the advisory can say which happened.
   let output = render();
   if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
     for (const key of Object.keys(carried)) {
       if (typeof carried[key] === 'string' && (carried[key] as string).length > 1000) {
         carried[key] = `${(carried[key] as string).slice(0, 1000)}${countElisionMarker('char(s) of this field', (carried[key] as string).length - 1000)}`;
-        if (!droppedKeys.includes(key)) droppedKeys.push(key);
+        const label = capLabel(key);
+        if (!truncatedKeys.includes(label)) truncatedKeys.push(label);
       }
     }
     commands = [];
@@ -461,39 +516,46 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
     warnings = [];
     output = render();
   }
-  if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
-    output = verdictOnlyRecord(source, measuredBytes, droppedKeys);
-  }
 
-  // THE POSTCONDITION, measured rather than inferred. Everything above is a reduction strategy and
-  // any strategy can be defeated by a shape nobody modelled - `details` was exactly that. So the
-  // guarantee does not rest on the strategies having run; it rests on this measurement, with a
-  // final record whose size does not depend on the input at all.
+  // THE POSTCONDITION. Everything above is a reduction strategy, and any strategy can be defeated
+  // by a dimension nobody modelled - `details` was one, a multi-megabyte KEY NAME was the next. So
+  // the guarantee is not that the stages ran; it is this measurement of the string being returned,
+  // with one fallback whose size is capped by construction rather than by the input.
   if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
-    output = verdictOnlyRecord(source, measuredBytes, droppedKeys);
+    output = verdictOnlyRecord(source, measuredBytes, droppedKeys, truncatedKeys);
   }
   const serializedBytes = Buffer.byteLength(output, 'utf8');
+  const withinBound = serializedBytes < VALIDATION_EVIDENCE_BOUND_BYTES;
 
   return {
     ...base,
     serializedBytes,
-    bounded: true,
+    reduced: true,
+    // Derived from the measurement immediately above, on this path and every other one. If some
+    // input defeats even verdictOnlyRecord, this reports false and the caller refuses the write -
+    // it does not hand back an oversized artifact wearing a success flag.
+    withinBound,
     elidedCommandOutputs,
     elidedCommandEntries,
     elidedDetailLines,
     elidedWarnings,
     droppedKeys,
+    truncatedKeys,
     output,
   };
 }
 
 /**
- * The last-resort artifact, sized independently of the input.
+ * The last-resort artifact, sized by construction rather than by the input.
  *
- * Every value it carries is either a short scalar or a truncated one, so its serialised length has
- * a fixed upper bound of a few hundred bytes no matter what arrives. It still satisfies the
- * consumer contract that matters at the phase gate: valid JSON carrying allPass / allPassed /
- * status, which is what evaluateValidationEvidenceAdmissibility in
+ * Every string it embeds passes through a cap - scalars at 200 characters, labels at
+ * MAX_EMBEDDED_LABEL_CHARS, and at most twenty labels of each kind - so its serialised length has a
+ * computable ceiling in the low kilobytes whatever arrives. An earlier revision claimed that
+ * independence while splicing raw key names into droppedKeys, which is exactly how a 30,000,000
+ * character key reappeared in a record advertised as fixed-size.
+ *
+ * It still satisfies the consumer contract that matters at the phase gate: valid JSON carrying
+ * allPass / allPassed / status, which is what evaluateValidationEvidenceAdmissibility in
  * core/validation-evidence-admissibility.ts parses. And it says of itself that it is a replacement,
  * so a reader is never left thinking this is the whole evidence.
  */
@@ -501,6 +563,7 @@ function verdictOnlyRecord(
   source: Record<string, unknown>,
   measuredBytes: number,
   droppedKeys: string[],
+  truncatedKeys: string[],
 ): string {
   const scalar = (value: unknown): unknown =>
     typeof value === 'string' ? value.slice(0, 200) : (typeof value === 'boolean' || typeof value === 'number' ? value : undefined);
@@ -517,7 +580,8 @@ function verdictOnlyRecord(
       ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
       replacedWithVerdictOnlyRecord: true,
       reason: 'known reductions were insufficient; the full result is available in the validate console output',
-      droppedKeys: droppedKeys.slice(0, 20),
+      droppedKeys: droppedKeys.slice(0, 20).map(capLabel),
+      truncatedKeys: truncatedKeys.slice(0, 20).map(capLabel),
     },
   });
 }
