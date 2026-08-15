@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Fix proofstory-acceptance-basis-smoke.ts snapshot_missing false-negative (RED then GREEN)",
       "context": "writeCanonicalAcceptanceRegistration's synthetic pureRoot never stubs packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs, which PROCESS_FACT_REGISTRY's artifact:acceptance-rollout-report.json entry now pulls into the required snapshot closure alongside handlers/proofstory.ts (acceptance-discovery-adapters.ts buildBoundedSourceGraph, line ~1092). Write a RED script under packages/main/tests/red/ proving the fixture fails on current main, then fix the fixture to stub both files, confirm GREEN.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-15T20:45:43.060Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
@@ -50,7 +50,14 @@
           }
         ]
       },
-      "userSees": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js prints its pass output and exits 0 (no assert.equal partial-vs-complete error)."
+      "userSees": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js prints its pass output and exits 0 (no assert.equal partial-vs-complete error).",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9f9fd4c9cd7ea70f38af9a387e16f9f834afba5de26ab44594dd51c48061c2c0",
+        "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+        "headHash": "f5849c09caf653a8ab7552a25aad4a74e29326ca",
+        "attestedAt": "2026-08-15T20:45:43.257Z",
+        "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
+      }
     },
     {
       "id": "CHK-002",
