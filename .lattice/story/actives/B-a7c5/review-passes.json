@@ -288,6 +288,55 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "1ebfb5c5ad910ddab566290af0a7e74a09269940273a3402b022a5202bf62ea5"
+    },
+    {
+      "id": "B-a7c5:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept-residue re-scan of git diff main...HEAD (25 non-.lattice files) plus targeted read of commit 0b8aa7319b (the F-006/F-007 fix). F-006/F-007 changed test-assertion strength and a comment in dev-memory-lifecycle-gates-smoke.ts/delivery-check-freshness-smoke.ts only -- no concept word deleted/replaced; grepped repo-wide for the old stale claim (DOES count toward materialHash), only hit is the historical finding text describing the pre-fix state, not live code. Re-confirmed the one true relocation from earlier rounds (FinishDecision type + finishDecisionPath, handlers->core/playbook-runtime-memory.ts, F-001) still has a single canonical definition with clean import, zero duplicate residue. Re-verified new command/artifact registration consistency: dev_memory_preflight_ack present in command-catalog.ts, command-policy.ts, process-fact-levels.ts, and its artifact filename in lifecycle-registry.ts; dev-memory-finish-decision RUNTIME_ARTIFACT_REGISTRY entry (materialHash exclude, correct prefix) matches committed HEAD. No autoCommitDevMemoryFinishDecision or reverted-approach residue found in any tracked file. Closing self-check: no new lattice command/ENV/handler-schema field is doc-promised without a matching implementation. Note: while reading source directly (not via git diff/show) I observed transient, uncommitted, self-resolving edits to core/runtime-artifact-registry.ts and core/evidence-freshness.ts in this shared worktree, almost certainly a sibling reviewer lane exercising the same break/restore discriminating-power check F-006 documents; git diff main...HEAD stat/line-counts and a SHA-256 of the code-only diff were re-verified identical before and after, confirming the actual committed/reviewable diff was never altered. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-15T12:37:18.956Z",
+      "reviewRound": "2026-08-15T12:29:13.708Z",
+      "reviewRunId": "B-a7c5:RR-013",
+      "envelopeId": "b6e90575ddc36662c63107543a8552ababfbbf48ce4623698c68e49e61ac5888",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "2311ae86dba0bf8e1e2353f01bd7440b3e23b9c5687e93b41cda25a5265e47d6"
     }
   ]
 }
