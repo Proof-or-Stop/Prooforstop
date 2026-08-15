@@ -389,7 +389,7 @@
       "desc": "packages/main/src/core/validation-execution-lock.ts:35-36,87-95,577 — HIGH concurrency defect: reentrancy ownership is keyed only by lock path, not the current acquisition lockId/generation. A timer created inside owner A retains A AsyncLocalStorage after A returns; when owner B later holds the same path, heldValidationLockPaths is true again and detached A is falsely treated as B reentrancy, bypassing capacity. Current-dist deterministic repro produced {detachedEntered:true,overlap:true}. Bind global and ALS ownership to the same acquisition token and add a detached-old-context versus new-owner regression; the same path-only pattern in the inner story lock must also be audited.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:57:25.448Z",
@@ -401,14 +401,18 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 binds both workspace-capacity and per-story active ownership to never-reused acquisition tokens; reentrancy requires exact ALS/current-token equality. Checked-in detached owner-A versus owner-B regressions for capacity and official capacity plus story lock prove maxConcurrency=1.",
+      "resolvedAt": "2026-08-15T13:52:23.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-011",
       "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:1547-1577 — HIGH proof-count defect: the focused prefix invokes 15 distinct assertion-group functions but prints and pins 14; the full path then invokes 11 more (26 total) but prints and pins 25. Exact 14/25 selectors therefore certify a manually stale undercount, and removal of one real group could remain green without changing the pinned terminal text. Derive/verify the count mechanically or correct both terminal counts and managed selectors/evidence together.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:57:27.567Z",
@@ -420,14 +424,18 @@
         "packages/main/src/cli/command-schemas.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 corrects actual terminal counts to focused 15 and full 26. Managed commit c2c48c835b migrates exactly 24 pins with old14/old25 zero; all 14 focused and 10 full pinned receipts were independently reexecuted with selectorMatched=true and stale dry-run is zero.",
+      "resolvedAt": "2026-08-15T13:52:24.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-012",
       "desc": "packages/main/src/cli-engine.ts:1062-1087 and packages/main/src/handlers/verifier.ts:1079-1088 — HIGH production cleanup defect: direct validate is excluded from structuredWatchdog, so args.abortSignal/deadlineAt are undefined and watchdog timeout calls process.exit(2) instead of aborting the capacity waiter through F-009 cleanup. A real CLI probe held workspace capacity and ran validate with LATTICE_MAX_TIMEOUT_MS=250: it logged aborting with structured result but exited 2 with empty stdout, left two tickets while owner held and one dead waiter ticket after owner release; only a later successor reclaimed it. Include validate in structured cancellation/deadline propagation and add a real CLI contention watchdog regression asserting classified output and zero waiter ticket immediately after timeout.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:57:29.688Z",
@@ -441,14 +449,18 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 includes direct validate in structured watchdog propagation while keeping done-result classification separate. Real child CLI contention regression proves classified max-timeout exit 1, callback zero, no inner story lock, waiter cleanup, and successor direct acquisition; current focused/full receipts all pass.",
+      "resolvedAt": "2026-08-15T13:52:25.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-013",
       "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:877-910 — MEDIUM regression-quality gap: the checked-in 12-waiter ABA stress uses Promise.all in one Node event loop while all filesystem classification/rename/remove operations are synchronous, so it cannot create the parallel Worker/process interleaving that originally exposed F-003. External Worker stress has passed, but that proof is not retained by the suite and a future fixed-path classify-then-delete regression could escape. Add a checked-in worker_threads or child-process stale-reclaim stress with an overlap sentinel and exact ticket-leak assertions.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:58:16.730Z",
@@ -460,7 +472,11 @@
         "packages/main/src/core/validation-execution-lock.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit fe96056b33 upgrades the stale/ABA stress to checked-in cross-process contenders while preserving the existing assertion group, proving 12 waiters, maxConcurrency=1, zero overlap/errors, and zero ticket leak.",
+      "resolvedAt": "2026-08-15T13:52:26.824Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
