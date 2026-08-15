@@ -933,6 +933,24 @@
       ],
       "signatureTag": "missing|ts|section-required-substring",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-039",
+      "desc": "The comment directly above the persistedBound gate (verifier.ts:968-969, 'Computed once, with the hashes, AFTER they are known: this exact record is measured, gated and written. No second computation exists to diverge from it.') sits unmodified at the exact call site B-3434:F-037 reproduced a divergence at: verifier.ts:972-981 (line numbers shifted slightly by this round's comment edits, same statements), where persistedBound.record.output += 'x'.repeat(60*1024*1024) mutates the already-gated record before ctx.store.writeTestEvidence(storyId, persistedBound.record) writes it, with zero tsc errors and validation-evidence-buffer-smoke: PASS unaffected. The sentence is narrowly true (there is only one CALL to boundEvidence(hashes), so no second COMPUTATION happens) but a reader has no way to know it means only that; read plainly it promises what F-037 disproved, that the gated record cannot diverge from the written one. This is the same shape as the F-033 sentence this round deleted from validation-executor.ts ('The smoke pins the format so the drift fails a test rather than a phase gate') -- an absolute claim next to code that does not enforce it -- except this instance is new, undisclosed in any finding or in docs/requirements/decisions/validation-evidence-artifact-growth.md, and sits inside verifier.ts, the file a future editor of this exact function reads directly (not validation-executor.ts, where every comparable sentence this round was in fact downgraded and cross-referenced to F-035/F-036/F-037 by name). Unlike the deferred bounding-algorithm findings, correcting this does not require crossing into core/store.ts or touching boundPersistedValidationEvidence: it is a same-shape, comment-only edit to two lines in an allowedModify file, the same cost class as B-3434:F-034, which this round did fix under the reasoning 'it is two lines and touches no bounding logic.' Suggested correction: state what is actually true (one CALL gates and writes) and name the open gap (a mutation of persistedBound.record between the gate and the write still diverges; see B-3434:F-037), matching the pattern already applied to every sibling docstring in validation-executor.ts this round.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T21:47:38.913Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-031",
+      "_hash": "8ab98b5182ecb2d9aa98ffd91ce17381a4f204e1ec9533679f25cfbcadd624ba",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|comment-directly-above",
+      "signatureTagSource": "auto"
     }
   ]
 }
