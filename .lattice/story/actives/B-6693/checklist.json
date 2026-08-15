@@ -715,22 +715,22 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Tool-executed clean build passed after an independent git diff --exit-code proved no Story diff in lattice.config.json, package manifests, or full-suite runner budget sources.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f11dff53bab5a474393955bef714e7fec1c2bc5750e847e0ac964346a5e97cd3",
             "outputTail": "\n> @lattice/core@0.3.254 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:14:03.439Z"
+            "executedAt": "2026-08-15T00:30:40.645Z"
           },
-          "headHash": "77be2daf06eb29f3804f1ccde1722499627fb417",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:14:03.570Z"
+          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:30:40.762Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -813,57 +813,57 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-003:adversarial:0: unchanged timeout/inventory inputs, unlocked representative reads, explicit bare-test boundary, both official handlers wired, and JSON stderr-only wait diagnostics.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:16:32.452Z"
+            "executedAt": "2026-08-15T00:30:31.555Z"
           },
-          "headHash": "a6c44f5cded5e0a5d97e7c01bd3f1437fb37688c",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:17:14.313Z"
+          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:30:31.667Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-003:adversarial:2: unchanged timeout/inventory inputs, unlocked representative reads, explicit bare-test boundary, both official handlers wired, and JSON stderr-only wait diagnostics.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:16:53.123Z"
+            "executedAt": "2026-08-15T00:31:01.291Z"
           },
-          "headHash": "a6c44f5cded5e0a5d97e7c01bd3f1437fb37688c",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:17:14.313Z"
+          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:31:01.401Z"
         },
         {
           "intentRef": "CHK-003:adversarial:3",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Tool-executed capacity contract covers CHK-003:adversarial:3: unchanged timeout/inventory inputs, unlocked representative reads, explicit bare-test boundary, both official handlers wired, and JSON stderr-only wait diagnostics.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:17:14.172Z"
+            "executedAt": "2026-08-15T00:31:21.835Z"
           },
-          "headHash": "a6c44f5cded5e0a5d97e7c01bd3f1437fb37688c",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:17:14.313Z"
+          "headHash": "eebe59b37b392502af62a0ed624763c49ab989c2",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:31:21.945Z"
         }
       ],
       "userSeesSnapshot": {
