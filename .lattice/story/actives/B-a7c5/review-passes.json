@@ -491,6 +491,46 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "7e9be05d208b2330dde3e043708b1211f98afe345f20b72d437ba0958e4976d6"
+    },
+    {
+      "id": "B-a7c5:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 test-coverage review: confirmed F-009 fix (done-premerge-mainsha-recheck-smoke.ts, commit 860e94cbe0) and the 3 follow-up collateral fixes (closeout-trust-smoke.ts + worktree-authority-smoke.ts finish-decision writes in e162c5c270; retired-authority-vocabulary-guard-smoke.ts + verify-process-fact-contract.mjs fingerprint repin in cc8fd5f27e) leave all 67 checklist verificationIntent entries bound 1:1 to passing verificationEvidence (0 fail, 0 missing-evidence intents, 0 orphan evidence) -- re-verified via checklist.json + a fresh dev-memory-lifecycle-gates-smoke.js run (79/79 assertions). None of the 5 fixed collateral files (closeout-trust-smoke.ts, worktree-authority-smoke.ts, done-premerge-mainsha-recheck-smoke.ts, retired-authority-vocabulary-guard-smoke.ts, verify-process-fact-contract.mjs) appear as a verificationEvidence command anywhere in checklist.json -- consistent with rounds 4-6 judgment, fixture-only fixes to these pre-existing, non-checklist-scoped test files need no new checklist binding. Independently confirmed the sweep's two 'genuinely unrelated pre-existing' claims by reproducing both failures byte-identical at the merge-base commit (a15ae19707, before any B-a7c5 diff): worktree-authority-smoke.ts's assertDoneRecoverRunsPostMergeBuildForRuntimeChanges ENOENT (version-bump.ts reading a nonexistent package.json in the fixture's mkdtemp root -- version-bump.ts/done-recover.ts are not in this story's scope contract) and field-regression-cli-smoke.ts's missing --readManifest arg. `lattice validate` ran all 96 mechanical commands with 0 failures; the 'fail'/missingRequired=66 status it reported is checklist verificationEvidence headHash staleness (pinned to 1c150d07f3, current HEAD e91ac90ecd after the 4 round-7 commits) -- the well-established EVIDENCE STALE = main-drift-not-failure pattern, not a coverage gap, and outside this review lane's remit to remediate (role boundary: review only, no evidence/checklist mutation).",
+      "createdAt": "2026-08-15T15:06:02.563Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-021",
+      "envelopeId": "4fb63557d4128e40efe3f9cd7c1e9f3f9a10e7a0cd068836fe82f67de4b840be",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "5cdbbe8e36898682336f7d98c920a882ce36693ef5640ccb5e2053523bdddc02"
     }
   ]
 }
