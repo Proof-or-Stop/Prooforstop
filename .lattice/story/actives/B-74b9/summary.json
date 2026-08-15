@@ -1,0 +1,56 @@
+{
+  "storyId": "B-74b9",
+  "changes": "proofstory-acceptance-basis-smoke.ts: stubbed 2 missing files (acceptance-rollout.ts, run-proofstory-acceptance-rollout-cohort.mjs) in writeCanonicalAcceptanceRegistration, fixing a snapshot_missing/partial false failure. field-regression-cli-smoke.ts: passed a valid --readManifest at all 6 review_pass_set call sites, fixing argument-validation failures that masked staleness/binding checks. worktree-authority-smoke.ts: added the five version sync-point stub files (package.json etc.) to two synthetic mkdtemp roots, fixing a bumpVersionOnDoneMerge ENOENT crash. lattice.config.json: registered the now-clean proofstory-acceptance-basis-smoke.js into validate.commands. red-b49d4-harness-registration.mjs: registered the 3 new RED scripts as permanently-excluded (they are historical pre-fix attestations, not standing regression guards). Added 3 new RED scripts under packages/main/tests/red/ proving each pre-fix defect.",
+  "usage": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js and node packages/main/dist/tasks/field-regression-cli-smoke.js and node packages/main/dist/tasks/worktree-authority-smoke.js now run without the three fixed defects; lattice validate now also exercises proofstory-acceptance-basis-smoke.js automatically.",
+  "expectedOutcome": "Each of the three fixtures exits 0 with no assertion errors related to the fixed defect when run directly, and each has a committed RED script under packages/main/tests/red/ that fails on the pre-fix tree and no longer reproduces on the post-fix tree.",
+  "actualTranscript": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js prints 'ProofStory acceptance coverage basis Wave 1A smoke passed' and exits 0. field-regression-cli-smoke.js and worktree-authority-smoke.js both progress cleanly past every readManifest/version-bump-related assertion (confirmed via dedicated grep-style selectors: READMANIFEST_FIX_CONFIRMED, VERSION_BUMP_FIX_CONFIRMED) and now fail ONLY on two confirmed-unrelated, separately-tracked pre-existing bugs further down each file (a retired channel reviewer lane; a concurrent-DONE-race index.json ENOENT), each independently reproduced on a clean untouched main checkout and flagged as its own follow-up task (task_9f6b2322, task_a8d49518).",
+  "outcomeDiff": "No difference for the three fixed defect classes themselves. The only gap is that field-regression-cli-smoke.ts and worktree-authority-smoke.ts still cannot reach a clean whole-file exit 0, because of the two confirmed-unrelated pre-existing bugs noted above -- explicitly out of this story's scope per decision.json and CHK-004's registration decision.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Every claim was verified by direct reproduction (pre-fix RED, post-fix GREEN, and for two fixtures an isolated clean-main repro of the unrelated downstream bug that blocks a full clean exit). field-regression-cli-smoke.ts and worktree-authority-smoke.ts were deliberately NOT registered into lattice.config.json validate.commands, since doing so would make lattice validate fail repo-wide on the two separately-tracked, unrelated bugs (task_9f6b2322, task_a8d49518) rather than this story's own fixed defects -- this is a documented, deliberate CHK-004 decision, not an oversight.",
+  "pitfalls": "Root cause investigation for all three bugs required reading production source directly (PROCESS_FACT_REGISTRY/buildBoundedSourceGraph for CHK-001, command-catalog.ts's required readManifest for CHK-002, core/version-bump.ts's unconditional readFileSync assumptions for CHK-003) rather than trusting surface symptoms. Two RED scripts initially failed to capture their target signature because execFileSync's pipe-based stdio capture silently truncates large synchronous crash dumps at 8192 bytes on macOS -- fixed by switching to spawnSync with a real file descriptor (captured as a new dev-memory lesson, id 8445435). Fixing CHK-002 and CHK-003 each unmasked a DIFFERENT unrelated pre-existing bug further down the same file (the same class of masking issue documented in B-a7c5's dev-memory lesson 6d3f770) -- each was verified via isolated reproduction (temporary scratch-skip / clean-main worktree) rather than assumed unrelated, then correctly excluded from scope and flagged as its own follow-up. A separate meta-guard (red-b49d4-harness-registration.mjs) caught that the 3 new RED scripts needed either registration or an explicit exclusion reason, requiring one extra DEV->REVIEW round. A stale ws@8.20.0 dependency resolution in this worktree's node_modules (vs the correct ws@8.21.1 in packages/main's own lockfile) caused an unrelated tsc lint failure at the REVIEW->TEST gate, fixed by reinstalling packages/main's dependencies directly.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 325003
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 41918
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2108754
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3237317
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 4884475
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 2676148
+    }
+  },
+  "totalDurationMs": 13274110,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-15T23:31:21.292Z",
+  "updatedAt": "2026-08-15T23:31:21.292Z"
+}
