@@ -8,11 +8,11 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
-  DEFAULT_JOBS, FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
+  DEFAULT_JOBS, DEFAULT_PROCESS_LIFECYCLE_ADAPTER, FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
-  type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
+  type FullSuiteEntry, type FullSuiteResult, type ProcessLifecycleAdapter, type ResourceClaim,
 } from './full-suite-runner.js';
 
 const checks: string[] = [];
@@ -36,6 +36,10 @@ function createFixtureBuildBinding(root: string): void {
 const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', durationMs: 1, output: '' });
 const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): ResourceClaim => ({ class: 'fixed-path', key, access, canonicalKey: `fixed-path:${key}` });
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
+function pidIsAlive(pid: number): boolean {
+  try { process.kill(pid, 0); return true; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false; throw error; }
+}
 
 async function main(): Promise<void> {
   const observations = {
@@ -335,6 +339,133 @@ async function main(): Promise<void> {
     await new Promise((done) => setTimeout(done, 100));
     assert(readFileSync(completionHeartbeat, 'utf8').length === completionBefore, 'normal parent completion kills complete descendant process group');
     observations.lifecycle.normalCompletionGrandchild = readFileSync(completionHeartbeat, 'utf8').length === completionBefore;
+    const completionDetachedPidPath = join(root, 'detached-completion.pid');
+    const completionDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(completionDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(completionDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(completionDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(completionDetachedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
+    const completedWithDetachedGrandchild = await runEntry(entry('test:normal-completion-detached-grandchild'), root, process.execPath);
+    const completionDetachedPid = Number(readFileSync(completionDetachedPidPath, 'utf8'));
+    let completionDetachedAlive = false;
+    try { process.kill(completionDetachedPid, 0); completionDetachedAlive = true; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
+    if (completionDetachedAlive) {
+      try { process.kill(-completionDetachedPid, 'SIGKILL'); } catch { try { process.kill(completionDetachedPid, 'SIGKILL'); } catch {} }
+    }
+    assertWithDetail(completedWithDetachedGrandchild.status === 'PASS', 'normal completion with a detached descendant remains PASS after verified cleanup', `${completedWithDetachedGrandchild.status}: ${completedWithDetachedGrandchild.reason ?? 'no reason'}`);
+    assertWithDetail(!completionDetachedAlive, 'normal completion terminal waits for detached descendant PID to disappear', `live PID ${completionDetachedPid}`);
+
+    const nonzeroDetachedPidPath = join(root, 'detached-nonzero.pid');
+    const nonzeroDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(nonzeroDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(nonzeroDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(nonzeroDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(nonzeroDetachedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);process.exit(7);\n`);
+    const failedWithDetachedGrandchild = await runEntry(entry('test:nonzero-completion-detached-grandchild'), root, process.execPath);
+    const nonzeroDetachedPid = Number(readFileSync(nonzeroDetachedPidPath, 'utf8'));
+    assertWithDetail(failedWithDetachedGrandchild.status === 'FAIL' && failedWithDetachedGrandchild.reason === 'exit code 7', 'nonzero completion preserves exit failure after verified detached cleanup', `${failedWithDetachedGrandchild.status}: ${failedWithDetachedGrandchild.reason ?? 'no reason'}`);
+    assertWithDetail(!pidIsAlive(nonzeroDetachedPid), 'nonzero completion terminal waits for detached descendant PID to disappear', `live PID ${nonzeroDetachedPid}`);
+
+    const reusedParentPidPath = join(root, 'reused-parent.pid');
+    const reuseOwnedPidPath = join(root, 'reuse-owned.pid');
+    const reuseOwnedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(reuseOwnedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    const shortProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(reusedParentPidPath)},String(process.pid));setTimeout(()=>{},80)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');spawn(process.execPath,['-e',${JSON.stringify(shortProgram)}],{stdio:'ignore'});const owned=spawn(process.execPath,['-e',${JSON.stringify(reuseOwnedProgram)}],{detached:true,stdio:'ignore'});owned.unref();for(let i=0;i<100&&(!fs.existsSync(${JSON.stringify(reusedParentPidPath)})||!fs.existsSync(${JSON.stringify(reuseOwnedPidPath)}));i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(reusedParentPidPath)})||!fs.existsSync(${JSON.stringify(reuseOwnedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);\n`);
+    let sawShortLivedChild = false;
+    let foreignReuseSignalled = false;
+    const foreignPid = 987_654;
+    const pidReuseAdapter: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      inspect: () => {
+        const rows = DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect();
+        const shortPid = existsSync(reusedParentPidPath) ? Number(readFileSync(reusedParentPidPath, 'utf8')) : 0;
+        if (rows.some(row => row.pid === shortPid)) sawShortLivedChild = true;
+        if (sawShortLivedChild && shortPid > 0 && !rows.some(row => row.pid === shortPid)) rows.push({ pid: foreignPid, ppid: shortPid, pgid: foreignPid });
+        return rows;
+      },
+      signal: (pid, signal) => {
+        if (pid === -foreignPid) { foreignReuseSignalled = true; throw new Error('foreign reused-PID process group was targeted'); }
+        if (pid === foreignPid) return;
+        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
+      },
+      probe: (pid) => Math.abs(pid) === foreignPid ? false : DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
+    };
+    const pidReuseResult = await runEntry(entry('test:pid-reuse-contamination'), root, process.execPath, undefined, { adapter: pidReuseAdapter, retryIntervalMs: 10 });
+    const reuseOwnedPid = Number(readFileSync(reuseOwnedPidPath, 'utf8'));
+    if (pidIsAlive(reuseOwnedPid)) { try { process.kill(-reuseOwnedPid, 'SIGKILL'); } catch { try { process.kill(reuseOwnedPid, 'SIGKILL'); } catch {} } }
+    assertWithDetail(sawShortLivedChild, 'PID reuse fixture captures the original short-lived owned child', `short PID was never observed from ${reusedParentPidPath}`);
+    assertWithDetail(pidReuseResult.status === 'PASS' && !foreignReuseSignalled, 'historical PID reuse cannot contaminate ownership or signal a foreign process group', `${pidReuseResult.status}/${foreignReuseSignalled}: ${pidReuseResult.reason ?? 'no reason'}`);
+    assertWithDetail(!pidIsAlive(reuseOwnedPid), 'PID reuse reconciliation still removes the genuinely owned detached descendant', `live PID ${reuseOwnedPid}`);
+
+    const lifecycleFixture = async (label: string, adapter: ProcessLifecycleAdapter, cleanupBudgetMs = 500) => {
+      const pidPath = join(root, `${label}.pid`);
+      const program = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(pidPath)},String(process.pid));setInterval(()=>{},1000)`;
+      writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(program)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(pidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(pidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
+      const result = await runEntry(entry(`test:${label}`), root, process.execPath, undefined, { adapter, cleanupBudgetMs, retryIntervalMs: 10 });
+      const pid = Number(readFileSync(pidPath, 'utf8'));
+      assertWithDetail(!pidIsAlive(pid), `${label} terminal waits for detached descendant PID to disappear`, `live PID ${pid}`);
+      return result;
+    };
+
+    let initialInspections = 0;
+    const initialInspectionFailure: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      inspect: () => { if (initialInspections++ === 0) throw new Error('injected initial inspection failure'); return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect(); },
+    };
+    const initialInspectionResult = await lifecycleFixture('initial-inspection-failure', initialInspectionFailure);
+    assertWithDetail(initialInspectionResult.status === 'FAIL' && initialInspectionResult.reason?.includes('injected initial inspection failure'), 'initial inspection failure remains fail-closed after verified cleanup', `${initialInspectionResult.status}: ${initialInspectionResult.reason ?? 'no reason'}`);
+
+    let reinspectionCalls = 0;
+    const reinspectionFailure: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      inspect: () => { if (reinspectionCalls++ === 1) throw new Error('injected reinspection failure'); return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect(); },
+    };
+    const reinspectionResult = await lifecycleFixture('reinspection-failure', reinspectionFailure);
+    assertWithDetail(reinspectionResult.status === 'FAIL' && reinspectionResult.reason?.includes('injected reinspection failure'), 'reinspection failure remains fail-closed after verified cleanup', `${reinspectionResult.status}: ${reinspectionResult.reason ?? 'no reason'}`);
+
+    let pollFailureInjected = false;
+    const pollFailure: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      probe: (pid) => { if (!pollFailureInjected) { pollFailureInjected = true; throw new Error('injected liveness poll failure'); } return DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid); },
+    };
+    const pollFailureResult = await lifecycleFixture('poll-failure', pollFailure);
+    assertWithDetail(pollFailureResult.status === 'FAIL' && pollFailureResult.reason?.includes('injected liveness poll failure'), 'liveness poll failure remains fail-closed after verified cleanup', `${pollFailureResult.status}: ${pollFailureResult.reason ?? 'no reason'}`);
+
+    let signalFailureInjected = false;
+    const signalFailure: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      signal: (pid, signal) => {
+        if (!signalFailureInjected && signal === 'SIGKILL') { signalFailureInjected = true; throw new Error('injected signal failure'); }
+        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
+      },
+    };
+    const signalFailureResult = await lifecycleFixture('signal-failure', signalFailure);
+    assertWithDetail(signalFailureResult.status === 'FAIL' && signalFailureResult.reason?.includes('injected signal failure'), 'signal failure is negative but publishes only after verified cleanup', `${signalFailureResult.status}: ${signalFailureResult.reason ?? 'no reason'}`);
+
+    let survivorPolls = 0;
+    const persistentSurvivor: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      probe: (pid) => survivorPolls++ < 30 || DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
+    };
+    const survivorStarted = performance.now();
+    const persistentSurvivorResult = await lifecycleFixture('persistent-survivor', persistentSurvivor, 50);
+    assertWithDetail(persistentSurvivorResult.status === 'FAIL' && persistentSurvivorResult.reason?.includes('exceeded 50ms cleanup budget') && performance.now() - survivorStarted >= 50, 'persistent survivor quarantines past budget before negative terminal', `${persistentSurvivorResult.status}/${(performance.now() - survivorStarted).toFixed(1)}ms: ${persistentSurvivorResult.reason ?? 'no reason'}`);
+
+    writeFileSync(join(root, 'run'), 'process.exit(0);\n');
+    const reuseAfterInspectionFailure = await runEntry(entry('test:reuse-after-inspection-failure'), root, process.execPath);
+    assert(reuseAfterInspectionFailure.status === 'PASS', 'scheduler reuse follows only after injected lifecycle failures have no residual PID');
+
+    const synchronousInterruptMarker = join(root, 'synchronous-interrupt-started');
+    writeFileSync(join(root, 'run'), `require('fs').writeFileSync(${JSON.stringify(synchronousInterruptMarker)},'started');setInterval(()=>{},1000);\n`);
+    const synchronousInterruptStarted = performance.now();
+    const synchronousInterrupt = await runEntry({ ...entry('test:synchronous-onspawn-interrupt'), timeoutMs: 10_000 }, root, process.execPath, () => interruptForTest('SIGTERM'));
+    assertWithDetail(synchronousInterrupt.status === 'INTERRUPTED' && performance.now() - synchronousInterruptStarted < 2_000, 'synchronous onSpawn interrupt terminates promptly through pre-registered terminator', `${synchronousInterrupt.status}/${(performance.now() - synchronousInterruptStarted).toFixed(1)}ms: ${synchronousInterrupt.reason ?? 'no reason'}`);
+    assert(!existsSync(synchronousInterruptMarker), 'synchronous onSpawn interrupt permits zero child execution or descendants');
+    resetInterruptForTest();
+
+    const presetInterruptMarker = join(root, 'preset-interrupt-started');
+    writeFileSync(join(root, 'run'), `require('fs').writeFileSync(${JSON.stringify(presetInterruptMarker)},'started');setInterval(()=>{},1000);\n`);
+    interruptForTest('SIGTERM');
+    const presetInterrupt = await runEntry({ ...entry('test:preset-interrupt'), timeoutMs: 10_000 }, root, process.execPath);
+    assertWithDetail(presetInterrupt.status === 'INTERRUPTED', 'already-set interrupt immediately uses the registered terminator', `${presetInterrupt.status}: ${presetInterrupt.reason ?? 'no reason'}`);
+    assert(!existsSync(presetInterruptMarker), 'already-set interrupt permits zero child execution or descendants');
+    resetInterruptForTest();
+
     const heartbeat = join(root, 'heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     let launches = 0;

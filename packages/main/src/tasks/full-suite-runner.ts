@@ -355,7 +355,17 @@ export function killProcessTree(pid: number | undefined, kill: Kill = process.ki
   }
 }
 
-interface ProcessRow { pid: number; ppid: number; pgid: number }
+export interface ProcessRow { pid: number; ppid: number; pgid: number }
+export interface ProcessLifecycleAdapter {
+  inspect(): ProcessRow[];
+  signal(pid: number, signal: NodeJS.Signals): void;
+  probe(pid: number): boolean;
+}
+export interface RunEntryLifecycleOptions {
+  adapter?: ProcessLifecycleAdapter;
+  cleanupBudgetMs?: number;
+  retryIntervalMs?: number;
+}
 const TERMINATION_VERIFY_TIMEOUT_MS = 2_000;
 const TERMINATION_VERIFY_INTERVAL_MS = 20;
 const PROCESS_INSPECTION_TIMEOUT_MS = 500;
@@ -367,21 +377,158 @@ function readProcessRows(): ProcessRow[] {
   }).filter(row => Number.isInteger(row.pid) && row.pid > 0 && Number.isInteger(row.ppid) && Number.isInteger(row.pgid));
 }
 
-function processTreeRows(rootPid: number, rows: ProcessRow[]): ProcessRow[] {
-  const descendants = new Set([rootPid]);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const row of rows) if (descendants.has(row.ppid) && !descendants.has(row.pid)) {
-      descendants.add(row.pid); changed = true;
-    }
-  }
-  return rows.filter(row => descendants.has(row.pid));
-}
-
 function signalIgnoringMissing(pid: number, signal: NodeJS.Signals): void {
   try { process.kill(pid, signal); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
+}
+
+export const DEFAULT_PROCESS_LIFECYCLE_ADAPTER: ProcessLifecycleAdapter = Object.freeze({
+  inspect: readProcessRows,
+  signal: signalIgnoringMissing,
+  probe(pid: number): boolean {
+    try { process.kill(pid, 0); return true; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false; throw error; }
+  },
+});
+
+class ProcessTreeLifecycle {
+  private readonly known = new Map<number, ProcessRow>();
+  private readonly errors: Error[] = [];
+  private monitor: ReturnType<typeof setInterval> | undefined;
+  private terminating = false;
+  private exceededBudget = false;
+  private ownPgid: number | undefined;
+
+  constructor(
+    private readonly rootPid: number,
+    private readonly adapter: ProcessLifecycleAdapter,
+    private readonly cleanupBudgetMs: number,
+    private readonly retryIntervalMs: number,
+  ) {
+    this.known.set(rootPid, { pid: rootPid, ppid: 0, pgid: rootPid });
+  }
+
+  private record(error: unknown): void { this.errors.push(error as Error); }
+
+  private capture(): number {
+    const rows = this.adapter.inspect();
+    const before = this.known.size;
+    this.ownPgid = rows.find(row => row.pid === process.pid)?.pgid ?? this.ownPgid;
+    const root = rows.find(row => row.pid === this.rootPid);
+    if (root) this.known.set(root.pid, root);
+    const activeParents = new Set(rows.filter(row => this.known.get(row.pid)?.pgid === row.pgid).map(row => row.pid));
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const row of rows) if (activeParents.has(row.ppid) && !activeParents.has(row.pid)) {
+        this.known.set(row.pid, row);
+        activeParents.add(row.pid);
+        changed = true;
+      }
+    }
+    return this.known.size - before;
+  }
+
+  async prepare(): Promise<boolean> {
+    while (!this.terminating) {
+      try { this.capture(); return true; }
+      catch (error) { this.record(error); await new Promise(resolveWait => setTimeout(resolveWait, this.retryIntervalMs)); }
+    }
+    return false;
+  }
+
+  startMonitoring(): void {
+    if (this.monitor || this.terminating) return;
+    this.monitor = setInterval(() => {
+      try { this.capture(); } catch (error) { this.record(error); }
+    }, this.retryIntervalMs);
+  }
+
+  private stopMonitoring(): void {
+    if (this.monitor) clearInterval(this.monitor);
+    this.monitor = undefined;
+  }
+
+  private signalKnown(signal: NodeJS.Signals): boolean {
+    let allSucceeded = true;
+    const groups = new Map<number, number[]>();
+    for (const row of this.known.values()) {
+      if (row.pgid <= 0) continue;
+      const members = groups.get(row.pgid) ?? [];
+      members.push(row.pid);
+      groups.set(row.pgid, members);
+    }
+    for (const [pgid, members] of groups) {
+      if (pgid === this.ownPgid) {
+        for (const pid of members) {
+          try { this.adapter.signal(pid, signal); }
+          catch (error) { this.record(new Error(`${signal} pid ${pid}: ${(error as Error).message}`)); allSucceeded = false; }
+        }
+        continue;
+      }
+      try { this.adapter.signal(-pgid, signal); }
+      catch (groupError) {
+        this.record(new Error(`${signal} group ${pgid}: ${(groupError as Error).message}`));
+        for (const pid of members) {
+          try { this.adapter.signal(pid, signal); }
+          catch (error) { this.record(new Error(`${signal} pid ${pid}: ${(error as Error).message}`)); allSucceeded = false; }
+        }
+      }
+    }
+    return allSucceeded;
+  }
+
+  private liveTargetIds(): number[] {
+    // A process-group probe can report EPERM for a group containing only
+    // unreaped zombies on macOS. The stable frozen snapshots above guarantee
+    // that every owned group member is captured, so captured PIDs are the
+    // portable terminal-liveness authority; PGIDs remain termination targets.
+    const ids = new Set<number>(this.known.keys());
+    const live: number[] = [];
+    for (const id of ids) {
+      try { if (this.adapter.probe(id)) live.push(id); }
+      catch (error) { this.record(error); live.push(id); }
+    }
+    return live;
+  }
+
+  async terminateAndVerify(): Promise<void> {
+    if (this.terminating) throw new Error('process-tree termination re-entered without shared promise');
+    this.terminating = true;
+    this.stopMonitoring();
+    const deadline = performance.now() + this.cleanupBudgetMs;
+    let stableInspections = 0;
+
+    // Quarantine the known tree, then require two stable successful snapshots.
+    // Inspection failures keep the promise pending and therefore keep scheduler
+    // ownership; they never publish a terminal result with an unknown child.
+    while (stableInspections < 2) {
+      const frozen = this.signalKnown('SIGSTOP');
+      try {
+        const added = this.capture();
+        stableInspections = frozen && added === 0 ? stableInspections + 1 : 0;
+      } catch (error) { this.record(error); stableInspections = 0; }
+      if (performance.now() >= deadline) this.exceededBudget = true;
+      if (stableInspections < 2) await new Promise(resolveWait => setTimeout(resolveWait, this.retryIntervalMs));
+    }
+
+    this.signalKnown('SIGKILL');
+    while (true) {
+      const live = this.liveTargetIds();
+      if (!live.length) break;
+      for (const id of live) {
+        try { this.adapter.signal(id, 'SIGKILL'); } catch (error) { this.record(new Error(`SIGKILL target ${id}: ${(error as Error).message}`)); }
+      }
+      if (performance.now() >= deadline) this.exceededBudget = true;
+      await new Promise(resolveWait => setTimeout(resolveWait, this.retryIntervalMs));
+    }
+
+    if (this.errors.length || this.exceededBudget) {
+      const budget = this.exceededBudget ? `; exceeded ${this.cleanupBudgetMs}ms cleanup budget` : '';
+      const details = [...new Set(this.errors.map(error => error.message))].join('; ');
+      throw new AggregateError(this.errors, `process-tree cleanup recovered fail-closed after ${this.errors.length} lifecycle error(s)${budget}${details ? `: ${details}` : ''}`);
+    }
+  }
 }
 
 /**
@@ -390,7 +537,7 @@ function signalIgnoringMissing(pid: number, signal: NodeJS.Signals): void {
  * terminate every captured process group (including children that called
  * setsid), and verify that no captured PID remains before returning.
  */
-export async function terminateProcessTreeAndVerify(pid: number | undefined, platform = process.platform): Promise<void> {
+export async function terminateProcessTreeAndVerify(pid: number | undefined, platform = process.platform, options: RunEntryLifecycleOptions = {}): Promise<void> {
   if (!pid) return;
   if (platform === 'win32') {
     killProcessTree(pid);
@@ -403,56 +550,14 @@ export async function terminateProcessTreeAndVerify(pid: number | undefined, pla
     throw new Error(`live process remains after Windows tree termination: ${pid}`);
   }
 
-  let initialRows: ProcessRow[];
-  let captured: ProcessRow[];
-  try { initialRows = readProcessRows(); captured = processTreeRows(pid, initialRows); }
-  catch (error) {
-    try { killProcessTree(pid); } catch {}
-    throw new Error(`unable to inspect process tree ${pid}: ${(error as Error).message}`);
-  }
-  if (!captured.some(row => row.pid === pid)) return;
-  const ownPgid = initialRows.find(row => row.pid === process.pid)?.pgid;
-
-  // Freeze known descendants before the second snapshot so the wrapper chain
-  // cannot fork or re-parent a process between discovery and termination.
-  const signalErrors: Error[] = [];
-  for (const row of captured) {
-    try { signalIgnoringMissing(row.pid, 'SIGSTOP'); }
-    catch (error) { signalErrors.push(error as Error); }
-  }
-  let expanded: ProcessRow[];
-  try { expanded = processTreeRows(pid, readProcessRows()); }
-  catch (error) {
-    const capturedGroups = new Set(captured.map(row => row.pgid).filter(pgid => pgid > 0 && pgid !== ownPgid));
-    for (const pgid of capturedGroups) try { signalIgnoringMissing(-pgid, 'SIGKILL'); } catch {}
-    for (const row of captured) try { signalIgnoringMissing(row.pid, 'SIGKILL'); } catch {}
-    throw new Error(`unable to re-inspect frozen process tree ${pid}: ${(error as Error).message}`);
-  }
-  const targets = new Map([...captured, ...expanded].map(row => [row.pid, row]));
-  const groups = new Set([...targets.values()].map(row => row.pgid).filter(pgid => pgid > 0 && pgid !== ownPgid));
-
-  for (const pgid of groups) {
-    try { signalIgnoringMissing(-pgid, 'SIGKILL'); }
-    catch (error) { signalErrors.push(error as Error); }
-  }
-  for (const targetPid of targets.keys()) {
-    try { signalIgnoringMissing(targetPid, 'SIGKILL'); }
-    catch (error) { signalErrors.push(error as Error); }
-  }
-
-  const deadline = performance.now() + TERMINATION_VERIFY_TIMEOUT_MS;
-  while (performance.now() < deadline) {
-    const liveRows = readProcessRows();
-    const survivors = liveRows.filter(row => targets.has(row.pid) || groups.has(row.pgid));
-    if (!survivors.length) {
-      if (signalErrors.length) throw new AggregateError(signalErrors, `process-tree termination reported ${signalErrors.length} signal error(s)`);
-      return;
-    }
-    await new Promise(resolveWait => setTimeout(resolveWait, TERMINATION_VERIFY_INTERVAL_MS));
-  }
-  const liveRows = readProcessRows();
-  const survivors = liveRows.filter(row => targets.has(row.pid) || groups.has(row.pgid));
-  throw new Error(`live descendants remain after process-tree termination: ${survivors.map(row => `${row.pid}/pgid:${row.pgid}`).join(', ')}`);
+  const lifecycle = new ProcessTreeLifecycle(
+    pid,
+    options.adapter ?? DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+    options.cleanupBudgetMs ?? TERMINATION_VERIFY_TIMEOUT_MS,
+    options.retryIntervalMs ?? TERMINATION_VERIFY_INTERVAL_MS,
+  );
+  await lifecycle.prepare();
+  await lifecycle.terminateAndVerify();
 }
 
 function requestInterrupt(signal: NodeJS.Signals): void {
@@ -462,7 +567,7 @@ function requestInterrupt(signal: NodeJS.Signals): void {
 export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal); }
 export function resetInterruptForTest(): void { interruptSignal = undefined; interruptError = undefined; }
 
-export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void): Promise<FullSuiteResult> {
+export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, lifecycleOptions: RunEntryLifecycleOptions = {}): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
@@ -481,15 +586,30 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
-    onSpawn?.();
+    const lifecycleAdapter = lifecycleOptions.adapter ?? DEFAULT_PROCESS_LIFECYCLE_ADAPTER;
+    const lifecycle = process.platform === 'win32' || !child.pid ? undefined : new ProcessTreeLifecycle(
+      child.pid,
+      lifecycleAdapter,
+      lifecycleOptions.cleanupBudgetMs ?? TERMINATION_VERIFY_TIMEOUT_MS,
+      lifecycleOptions.retryIntervalMs ?? TERMINATION_VERIFY_INTERVAL_MS,
+    );
     let output = '';
     const append = (chunk: unknown) => { output = (output + String(chunk)).slice(-MAX_OUTPUT_BYTES); };
     child.stdout?.on('data', append); child.stderr?.on('data', append);
     let settled = false;
     let terminationPromise: Promise<void> | undefined;
-    const ensureTerminated = () => terminationPromise ??= terminateProcessTreeAndVerify(child.pid);
+    const ensureTerminated = () => terminationPromise ??= lifecycle
+      ? lifecycle.terminateAndVerify()
+      : terminateProcessTreeAndVerify(child.pid, process.platform, lifecycleOptions);
     activeTerminators.set(child, ensureTerminated);
     activeChildren.add(child);
+    let launchFreezeError: Error | undefined;
+    if (lifecycle && child.pid) {
+      try { lifecycleAdapter.signal(-child.pid, 'SIGSTOP'); }
+      catch (error) { launchFreezeError = error as Error; }
+    }
+    if (interruptSignal || schedulerCancellationReason) void ensureTerminated().catch(error => { interruptError ??= error as Error; });
+    onSpawn?.();
     const done = (result: FullSuiteResult) => {
       if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child); activeTerminators.delete(child);
       result = {
@@ -514,12 +634,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
     child.on('exit', async (code, signal) => {
       let completionCleanupError: Error | undefined;
-      if (terminationPromise) {
-        try { await terminationPromise; } catch (error) { completionCleanupError = error as Error; }
-      } else if (!interruptSignal && !schedulerCancellationReason) {
-        try { killProcessTree(child.pid); }
-        catch (error) { completionCleanupError = error as Error; }
-      }
+      try { await ensureTerminated(); } catch (error) { completionCleanupError = error as Error; }
       const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
       const cpuMatch = timing.match(/^real\s+[0-9.]+\s*\nuser\s+([0-9.]+)\s*\nsys\s+([0-9.]+)\s*$/);
       const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
@@ -546,6 +661,28 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       inventorySource: marker ? 'explicit-marker+output-signature' : 'output-signature',
     });
     });
+    void (async () => {
+      if (!lifecycle) return;
+      if (launchFreezeError) {
+        try { await ensureTerminated(); } catch {}
+        return;
+      }
+      if (terminationPromise || interruptSignal || schedulerCancellationReason) {
+        if (!terminationPromise) void ensureTerminated().catch(error => { interruptError ??= error as Error; });
+        return;
+      }
+      const prepared = await lifecycle.prepare();
+      if (!prepared || terminationPromise || interruptSignal || schedulerCancellationReason) {
+        if (!terminationPromise && (interruptSignal || schedulerCancellationReason)) void ensureTerminated().catch(error => { interruptError ??= error as Error; });
+        return;
+      }
+      try {
+        lifecycleAdapter.signal(-child.pid!, 'SIGCONT');
+        lifecycle.startMonitoring();
+      } catch (error) {
+        void ensureTerminated().catch(() => {});
+      }
+    })();
   });
 }
 
