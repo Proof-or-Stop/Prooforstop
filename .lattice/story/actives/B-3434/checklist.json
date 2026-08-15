@@ -223,7 +223,9 @@
       "userSees": "When the serialised artifact passes the warning fraction, validate prints an advisory naming the measured size and the configured limit, and the pass or fail verdict is unchanged",
       "files": {
         "modify": [
-          "packages/main/src/handlers/verifier.ts"
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "lattice.config.json"
         ],
         "create": [
           "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
