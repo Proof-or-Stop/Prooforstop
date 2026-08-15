@@ -1,0 +1,1863 @@
+{
+  "command": "lattice validate --story=B-fb7b --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=4e86e207c8640923d21f76272f38def0533c121d4db1dd7a1e607590e657df40\",\"commandExecutions=0\",\"Verification intent coverage: 13/13 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — Run `npm run pretest` from repo root -> exits 0, packages/utils/dist/index.js exists afterward; WHY: proves the pretest actually builds utils\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — Run the RED test `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> prints PASS, exits 0; WHY: the repro-first guard itself validates structural, invariant-link, and behavioral correctness in one shot\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript — Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript — Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — Inspect the pretest script string: packages/main build appears before packages/utils build -> ordering assertion passes; WHY: utils tooling may assume main dist exists, so main-before-utils ordering is load-bearing\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — Run `npm run pretest` twice consecutively, then `git diff --stat` and `git status --porcelain` -> no dirty tree (no untracked or modified files); WHY: dist is gitignored, so idempotent rebuilds must not produce tree dirt that blocks done_required git-clean checks\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript — After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils\",\"  ✓ CHK-001:edge:3 [edge/must/cli] covered via manual_transcript — Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via manual_transcript — Temporarily replace pretest with `echo ok` (no-op) -> RED test must FAIL at the structural or behavioral assertion (pretest does not actually build utils); WHY: guard must catch a pretest that exists syntactically but does not perform the real build\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via manual_transcript — Temporarily replace pretest with a command that builds only packages/main (omits utils) -> RED test must FAIL at the utils-build assertion; WHY: guard must catch partial builds that leave the utils gap open\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/logic] covered via manual_transcript — Temporarily delete the pretest key from root package.json -> RED test must FAIL at the first structural assertion (no pretest script); WHY: removal of the fix must be detected, preventing silent regression\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/cli] covered via manual_transcript — Temporarily remove the `test-suite-utils-autobuild-smoke` entry from lattice.config.json validate.commands, then run `lattice validate` -> the smoke does NOT execute (no PASS line from it); WHY: proves the validate.commands wiring is the sole dispatch mechanism -- if the entry is absent the guard is silently absent from everyday validation\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/cli] covered via manual_transcript — Temporarily delete the pretest key from root package.json, then run `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> the structural smoke FAILS (exits non-zero); WHY: the permanent guard must detect pretest removal independently of the RED test, since validate.commands runs the smoke not the RED\"],\"warnings\":[],\"timestamp\":\"2026-08-15T00:16:24.663Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":13,\"reason\":\"verificationIntent entries present (13)\"},\"verificationCoverage\":{\"total\":13,\"required\":13,\"covered\":13,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run `npm run pretest` from repo root -> exits 0, packages/utils/dist/index.js exists afterward; WHY: proves the pretest actually builds utils\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs\",\"result\":\"pass\",\"note\":\"RED behavioral step runs npm run pretest and asserts packages/utils/dist/index.js is produced\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"2c739452b130612417e515aca24704183e6f9979cc43feb1684eb1c6c6dc4a0c\",\"outputTail\":\"PASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:37.982Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run the RED test `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> prints PASS, exits 0; WHY: the repro-first guard itself validates structural, invariant-link, and behavioral correctness in one shot\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs\",\"result\":\"pass\",\"note\":\"the repro-first RED validates structural + invariant-link + behavioral correctness in one run\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"2c739452b130612417e515aca24704183e6f9979cc43feb1684eb1c6c6dc4a0c\",\"outputTail\":\"PASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:39.379Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite proves a bare npm test auto-fires the pretest via the npm lifecycle hook in an isolated fixture (marker written by pretest, checked by test)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:40.019Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js\",\"result\":\"pass\",\"note\":\"compiled structural smoke runs directly and passes (the permanent validate.commands guard)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04\",\"outputTail\":\"PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:40.181Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Inspect the pretest script string: packages/main build appears before packages/utils build -> ordering assertion passes; WHY: utils tooling may assume main dist exists, so main-before-utils ordering is load-bearing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js\",\"result\":\"pass\",\"note\":\"structural smoke asserts pretest builds packages/main before packages/utils\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04\",\"outputTail\":\"PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:40.336Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Run `npm run pretest` twice consecutively, then `git diff --stat` and `git status --porcelain` -> no dirty tree (no untracked or modified files); WHY: dist is gitignored, so idempotent rebuilds must not produce tree dirt that blocks done_required git-clean checks\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: both dist trees are gitignored, so the pretest rebuild cannot dirty the tracked tree\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:41.011Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js\",\"result\":\"pass\",\"note\":\"structural smoke asserts pretest builds BOTH packages (main not regressed)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04\",\"outputTail\":\"PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:41.176Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite confirms the smoke entry is registered in validate.commands\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:41.853Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Temporarily replace pretest with `echo ok` (no-op) -> RED test must FAIL at the structural or behavioral assertion (pretest does not actually build utils); WHY: guard must catch a pretest that exists syntactically but does not perform the real build\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: echo-ok pretest makes the structural smoke fail (isolated fixture)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:42.470Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Temporarily replace pretest with a command that builds only packages/main (omits utils) -> RED test must FAIL at the utils-build assertion; WHY: guard must catch partial builds that leave the utils gap open\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: main-only pretest makes the structural smoke fail (isolated fixture)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:43.085Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Temporarily delete the pretest key from root package.json -> RED test must FAIL at the first structural assertion (no pretest script); WHY: removal of the fix must be detected, preventing silent regression\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: missing pretest makes the guard fail at the first assertion (isolated fixture)\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:43.807Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Temporarily remove the `test-suite-utils-autobuild-smoke` entry from lattice.config.json validate.commands, then run `lattice validate` -> the smoke does NOT execute (no PASS line from it); WHY: proves the validate.commands wiring is the sole dispatch mechanism -- if the entry is absent the guard is silently absent from everyday validation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: removing the validate.commands entry drops the smoke from dispatch\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:44.399Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Temporarily delete the pretest key from root package.json, then run `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> the structural smoke FAILS (exits non-zero); WHY: the permanent guard must detect pretest removal independently of the RED test, since validate.commands runs the smoke not the RED\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/tests/red/red-fb7b-guard-bite.mjs\",\"result\":\"pass\",\"note\":\"guard-bite: missing pretest makes the structural smoke fail, independent of the RED\",\"headHash\":\"916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f\",\"materialHash\":\"729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3\",\"storyFilesHash\":\"7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c\",\"outputTail\":\"GB-EDGE3-REGISTERED\\nGB-ADV3-ABSENT\\nGB-ADV0-BIT\\nGB-ADV1-BIT\\nGB-ADVLAB-BIT\\nGB-ADVFAST-BIT\\nGB-ADV4-BIT\\nGB-ADVNOGUARD-BIT\\nGB-ADV2-BIT\\nGB-EDGE1-CLEAN\\nGB-LIFECYCLE-FIRES\\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-14T16:52:45.007Z\"},\"timestamp\":\"2026-08-14T16:52:45.019Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"4e86e207c8640923d21f76272f38def0533c121d4db1dd7a1e607590e657df40\"}}",
+  "result": "PASS",
+  "timestamp": "2026-08-15T00:16:24.902Z",
+  "headHash": "9f669b3a7aab512176461438c335a2e82e175961",
+  "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+  "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+  "verificationCoverage": {
+    "total": 13,
+    "required": 13,
+    "covered": 13,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run `npm run pretest` from repo root -> exits 0, packages/utils/dist/index.js exists afterward; WHY: proves the pretest actually builds utils",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "result": "pass",
+          "note": "RED behavioral step runs npm run pretest and asserts packages/utils/dist/index.js is produced",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2c739452b130612417e515aca24704183e6f9979cc43feb1684eb1c6c6dc4a0c",
+            "outputTail": "PASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:37.982Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run the RED test `node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs` -> prints PASS, exits 0; WHY: the repro-first guard itself validates structural, invariant-link, and behavioral correctness in one shot",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "result": "pass",
+          "note": "the repro-first RED validates structural + invariant-link + behavioral correctness in one run",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2c739452b130612417e515aca24704183e6f9979cc43feb1684eb1c6c6dc4a0c",
+            "outputTail": "PASS red-fb7b-pretest-builds-utils: pretest self-bootstraps packages/utils AND idempotently skips a current dist\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:39.379Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run bare `npm test` (no prior manual build) -> npm lifecycle fires pretest automatically, full-suite bootstrap succeeds (no Missing build artifacts error from bootstrap-runner.js); WHY: proves the end-to-end done_required path self-bootstraps without manual intervention",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite proves a bare npm test auto-fires the pretest via the npm lifecycle hook in an isolated fixture (marker written by pretest, checked by test)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:40.019Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run the compiled structural smoke directly via `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> exits 0, prints PASS; WHY: the structural smoke (not the heavier behavioral RED) is the permanent regression guard that runs in everyday `lattice validate`",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "compiled structural smoke runs directly and passes (the permanent validate.commands guard)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:40.181Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Inspect the pretest script string: packages/main build appears before packages/utils build -> ordering assertion passes; WHY: utils tooling may assume main dist exists, so main-before-utils ordering is load-bearing",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "structural smoke asserts pretest builds packages/main before packages/utils",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:40.336Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Run `npm run pretest` twice consecutively, then `git diff --stat` and `git status --porcelain` -> no dirty tree (no untracked or modified files); WHY: dist is gitignored, so idempotent rebuilds must not produce tree dirt that blocks done_required git-clean checks",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: both dist trees are gitignored, so the pretest rebuild cannot dirty the tracked tree",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:41.011Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "After `npm run pretest`, confirm packages/main/dist/index.js ALSO exists (not just utils); WHY: pretest must build both packages, not regress the main build by only adding utils",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "result": "pass",
+          "note": "structural smoke asserts pretest builds BOTH packages (main not regressed)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0ab993da3658a89b1f0f5553a4631bce009f4b3e1692a4090a97695192133d04",
+            "outputTail": "PASS test-suite-utils-autobuild-smoke: root npm test self-bootstraps packages/utils via pretest\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:41.176Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Grep lattice.config.json validate.commands for an entry whose args include `test-suite-utils-autobuild-smoke` -> entry exists; WHY: the smoke must be registered in validate.commands so it runs as a permanent guard during every `lattice validate`, not just manually",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite confirms the smoke entry is registered in validate.commands",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:41.853Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Temporarily replace pretest with `echo ok` (no-op) -> RED test must FAIL at the structural or behavioral assertion (pretest does not actually build utils); WHY: guard must catch a pretest that exists syntactically but does not perform the real build",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: echo-ok pretest makes the structural smoke fail (isolated fixture)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:42.470Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Temporarily replace pretest with a command that builds only packages/main (omits utils) -> RED test must FAIL at the utils-build assertion; WHY: guard must catch partial builds that leave the utils gap open",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: main-only pretest makes the structural smoke fail (isolated fixture)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:43.085Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Temporarily delete the pretest key from root package.json -> RED test must FAIL at the first structural assertion (no pretest script); WHY: removal of the fix must be detected, preventing silent regression",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: missing pretest makes the guard fail at the first assertion (isolated fixture)",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:43.807Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Temporarily remove the `test-suite-utils-autobuild-smoke` entry from lattice.config.json validate.commands, then run `lattice validate` -> the smoke does NOT execute (no PASS line from it); WHY: proves the validate.commands wiring is the sole dispatch mechanism -- if the entry is absent the guard is silently absent from everyday validation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: removing the validate.commands entry drops the smoke from dispatch",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:44.399Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Temporarily delete the pretest key from root package.json, then run `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> the structural smoke FAILS (exits non-zero); WHY: the permanent guard must detect pretest removal independently of the RED test, since validate.commands runs the smoke not the RED",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "result": "pass",
+          "note": "guard-bite: missing pretest makes the structural smoke fail, independent of the RED",
+          "headHash": "916309fc44bf1ca7e92a48b8f6cd2d8d92bffc0f",
+          "materialHash": "729bda3dc0dca739dac83fbed6332c0d966437b1cd73379c1e361c2d98226be3",
+          "storyFilesHash": "7e05bfe6c3ba16f408730284982715bf030d85c971a10ffd2988dd4da63f63bf",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b87f2b6e70618dde24158fd33be779c949a35daa8f8005758c75351095b611c",
+            "outputTail": "GB-EDGE3-REGISTERED\nGB-ADV3-ABSENT\nGB-ADV0-BIT\nGB-ADV1-BIT\nGB-ADVLAB-BIT\nGB-ADVFAST-BIT\nGB-ADV4-BIT\nGB-ADVNOGUARD-BIT\nGB-ADV2-BIT\nGB-EDGE1-CLEAN\nGB-LIFECYCLE-FIRES\nGB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-14T16:52:45.007Z"
+          },
+          "timestamp": "2026-08-14T16:52:45.019Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 95,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "5882fb9304987193a76ce813dc02219d7fd4a011bef126938b675ba828d26d1e",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[94]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-fb7b",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8e63ce17cb1e1f88950482dbd2266a56967f5dab605632f1dfdc2698420aa9cf",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "balanced"
+    },
+    "verificationPolicyDigest": "de968edd424a17be291bafb5bdc186e552d2898a796f81560c3c7630c345e96e",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "4e86e207c8640923d21f76272f38def0533c121d4db1dd7a1e607590e657df40"
+  }
+}

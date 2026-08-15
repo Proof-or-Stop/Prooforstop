@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-fb7b",
+  "id": "IC-20260814030544",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fill the utils-build gap at the root npm test path via a pretest that builds both packages (main then utils), plus an un-gameable regression guard; explicitly NOT by editing the worktree handler or bootstrap-runner (those are out of scope).",
+  "acceptedInterpretationHash": "sha256:a6a4ea8e0433bfd8ccf5504d69f7fcb936dd961def28806986256266a22fec29",
+  "notes": "Single coherent interpretation; the only ambiguity (which layer to fix) was resolved by investigation showing validate never needs utils and done_required runs npm test, so pretest is the correct point.",
+  "createdAt": "2026-08-14T03:05:44.571Z",
+  "updatedAt": "2026-08-14T03:05:44.571Z"
+}

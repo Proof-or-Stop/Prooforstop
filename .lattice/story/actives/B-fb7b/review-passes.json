@@ -1,0 +1,1424 @@
+{
+  "passes": [
+    {
+      "id": "B-fb7b:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 23 local identifiers from git diff main...HEAD (test/smoke helper vars: findRepoRoot, buildsMain, buildsUtils, SMOKE_ABS, SMOKE_REL, biteCase, mainIdx, utilsIdx, etc.); only meaningful term was pretest. Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for all 23 terms -> only pretest hit, in docs/requirements/decisions/done-full-test-gate-execution-plan.md, which already anticipated a root pretest as an acceptable equivalent to the packages-main-build receipt for done-required npm test; not contradicted, confirms the design. Also manually verified the CHANGELOG.md B-fb7b entry (the diff's only doc change) line-by-line against the code diff: (1) validate.commands[0] builds only packages/main, confirmed in lattice.config.json; (2) new root package.json pretest = 'npm --prefix packages/main run build && npm --prefix packages/utils run build', main before utils, matches CHANGELOG; (3) bootstrap-runner.js Missing build artifacts / packages/utils/dist/index.js error and its Recovery hint (npm --prefix packages/main run build then packages/utils run build) is unchanged and matches the new pretest commands, confirming the CHANGELOG's no-conflict claim; (4) test-suite-utils-autobuild-smoke wired into lattice.config.json validate.commands, confirmed; (5) red-fb7b-pretest-builds-utils.mjs is the named behavioral RED, confirmed; (6) worktree.ts and bin/bootstrap-runner.js are absent from git diff main..HEAD --stat and git log --name-only, confirming the intentionally-untouched claim; (7) packages-main-build proof mechanism (done-required-validation.ts) is materialHash-receipt-based not mtime-based, supporting the CHANGELOG's 'materialHash is source-based' parenthetical, and is structurally independent of the new pretest hook. Narrow doc scan (docs/CLI.md manual recovery-hint paragraph referencing packages/utils/dist) still accurate post-fix since bootstrap-runner.js/worktree handler are unchanged. No doc-code drift found; CHANGELOG entry is accurate. No blockers.",
+      "createdAt": "2026-08-14T03:49:54.782Z",
+      "reviewRound": "2026-08-14T03:42:25.197Z",
+      "reviewRunId": "B-fb7b:RR-003",
+      "envelopeId": "cb7b5ec49a455ea61ff732535fe86d7cb9c733c271d4c5b0c0806e24aab34c90",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c30048b9b0d4e043e5e539a2932f2a0f7f621c2eba81e917209552b53c1555e"
+    },
+    {
+      "id": "B-fb7b:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review on current material (head 847854a). Confirmed via git log main..HEAD that round-2 fix commits (84e8bf2d14, 8bdc42ffa8) touched only 3 test/guard files -- no CHANGELOG.md or package.json changes since round 1. Step1 diff-symbol extraction yielded 26 code symbols, none referenced in README*.md/CLAUDE.md/docs/**/*.md (Fallback 2: no module-level README exists under packages/main/src/tasks/ or packages/main/tests/red/). Manually re-verified the B-fb7b CHANGELOG.md entry against current HEAD: pretest script text matches, main-before-utils order preserved, test-suite-utils-autobuild-smoke.js still registered in lattice.config.json validate.commands, both red-fb7b-*.mjs files still exist at named paths, bin/bootstrap-runner.js and worktree handler remain untouched across the whole story. No doc-code drift introduced by round-2 hardening. Zero blockers.",
+      "createdAt": "2026-08-14T04:18:29.350Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-008",
+      "envelopeId": "4718568baf6294beeec3392a0a24e77a527e77f07e5c9f8488a29cdc65c9e287",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbf786db7ea70a6ad397b54898e4b902b4322962f43cfa275d2dac7161a74d35"
+    },
+    {
+      "id": "B-fb7b:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review: re-verified own F-003 on current HEAD bae253f (material unchanged since fix commits 84e8bf2d/8bdc42ffa8) and filed disproven companion F-005 with reproduced counter-evidence (anchored regex rejects namespaced siblings incl. build:lab/build:post; RED mtime-freshness check rejects a stale pre-existing utils/dist). Also code-quality-checked the new guard-bite lines (runRedIn/runSmokeIn/makeFixture, temp-dir cleanup via try/finally, no residue after live run). No new blocking defect found in the CHK-001 diff for this lane.",
+      "createdAt": "2026-08-14T04:20:55.079Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-009",
+      "envelopeId": "1330e85195d2db442dc0817e143c86c56766666fd7b1c128a5812c2adb272e38",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "package.json",
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
+          "packages/main/package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "packages/utils/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2991f1e83e33173f35d8165c2c2df21f9d534be11054d67fd7ff54fd4da40d36"
+    },
+    {
+      "id": "B-fb7b:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-deletion-completeness scan. git diff main...HEAD --stat (merge-base-relative) shows the material change is 2802 insertions(+), 5 deletions(-); every deletion is confined to .lattice/story/actives/B-fb7b bookkeeping lifecycle-status churn (checklist.json status pending->done + startTime/endTime fields, index.json phase field) -- not code/docs/concept content. Note: a naive two-dot `git diff main..HEAD` additionally surfaces an 8-file deletion of .lattice/story/actives/B-c648/* (background.md, checklist.json, execution-boundary.json, index.json, init-check.json, process-events.jsonl, scope-boundary.json, scope-freeze-check.json); verified this is unrelated main-drift noise, not part of this story: `git log main..HEAD` contains zero B-c648 commits, B-c648/index.json exists at `git show main:...` but not at the merge-base (`git merge-base main HEAD`), and `git diff <merge-base>..HEAD -- .lattice/story/actives/B-c648/` is empty. The actual story diff (package.json, lattice.config.json, CHANGELOG.md, new file packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, new file packages/main/tests/red/red-fb7b-guard-bite.mjs, new file packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs) is purely additive (344 insertions, 0 deletions when .lattice/ excluded): package.json gains one new `pretest` script key (does not overwrite/replace any existing key), lattice.config.json gains one new validate.commands array entry, CHANGELOG.md gains one new dated section, and the three .ts/.mjs files are wholly new. No existing concept, symbol, command, export, script name, or config key is deleted, renamed, or replaced anywhere in the material diff, so there is no concept-word to grep for residue -- the deletion-completeness check is vacuously satisfied. Consistent with lattice-review-docs RP-001/RP-002 and lattice-review-quality RP-003 findings on the same round, which independently confirm bin/bootstrap-runner.js and the worktree handler are untouched and no doc/code drift was introduced.",
+      "createdAt": "2026-08-14T04:23:59.568Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-010",
+      "envelopeId": "6657a2ead889da115855a215b5b51570b852e547050f3934c17a9fb0098d3b62",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c648/index.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc5a94d2294c0bd0c9a8fe26c515ca5aed6ed79b0e60878634ad2ee945c23e1f"
+    },
+    {
+      "id": "B-fb7b:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-review: F-001 and F-002 (both filed round 1 by this lane) are resolved on current HEAD 847854aa / materialHash dbb8bfd9834bed030879081eeb6c3562890749aa1ad4a9ca312c02be54621aab, closed via F-008 (F-001 disproven) and F-009 (F-002 disproven) with live re-run repro evidence. All 13 CHK-001 verificationIntent refs (4 happy + 4 edge + 5 adversarial) carry fresh mechanical manual_transcript evidence bound to the current materialHash/storyFilesHash, none result=fail. Re-ran node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS), node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 9 GB-* selectors incl. GB-ADV2-BIT and GB-ADV4-BIT distinct, GB-ALL-PASS), and node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js (PASS) directly on a freshly rebuilt dist -- all exit 0. No new coverage gap found; test coverage review passed.",
+      "createdAt": "2026-08-14T04:29:04.278Z",
+      "reviewRound": "2026-08-14T04:14:43.557Z",
+      "reviewRunId": "B-fb7b:RR-007",
+      "envelopeId": "3e3d34eb29965226eb7d6472a47aa9d3c3810c1695d406889a3590f7f4fb444c",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/acceptance-basis.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6215db8d62040ce4fa3995b42459681655de719afdd34f1063aa7d424ad71e88"
+    },
+    {
+      "id": "B-fb7b:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 re-review of the single fd8054daa6 delta (F-006 fix): confirmed the (?![\\w:-]) anchor was applied identically to both --prefix packages/main|utils run build regexes in the smoke .ts and RED .mjs, plus the new GB-ADVFAST-BIT guard-bite case. Independently verified boundary behavior (build:fast/build-x/buildx/build_x rejected; real two-package pretest and exact npm run build accepted). Rebuilt packages/main+utils and ran the compiled structural smoke, the RED, and guard-bite live: all PASS incl. GB-ADVFAST-BIT. No dead code, no as-any, no I/O-isolation issue, no proof/receipt metadata touched. git status clean after builds (dist gitignored). No blocking defect found.",
+      "createdAt": "2026-08-14T04:41:24.927Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-011",
+      "envelopeId": "feebfa12b70076c601ea347f24dbcfb6b9a6362349d3a1eeabd55d3f1016d069",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bdf0f787d569904646a93ab9c89a093d6dca59442cb2ac326d309285c6c494a4"
+    },
+    {
+      "id": "B-fb7b:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 re-review: since round 2 only commit fd8054daa6 changed (F-006 fix: anchored the --prefix build regexes with the same negative-lookahead pattern already used for the bare npm-run-build fallback, plus a new GB-ADVFAST-BIT guard-bite case). Diff touched exactly 3 files, all test/guard code: packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs, packages/main/tests/red/red-fb7b-guard-bite.mjs. Confirmed via git show that CHANGELOG.md and package.json are untouched by this commit. Step1 symbol extraction on full git diff main...HEAD yielded 27 symbols, all internal test/guard-script locals (biteCase, findRepoRoot, buildsMain, buildsUtils, runsExactRootBuild, makeFixture, etc.) -- none are public API needing doc coverage. Step2 grep against README.md/CLAUDE.md found only generic-English false-positive hits (bootstrap, code, here, ignored, registered, root, scripts) tied to unrelated experiment READMEs, not this story's symbols. Re-verified the CHANGELOG Unreleased entry (Root npm test now self-bootstraps packages/utils, B-fb7b) against the current package.json pretest line and the lattice.config.json validate.commands entry (test-suite-utils-autobuild-smoke.js) -- both match exactly; the CHANGELOG describes pretest behavior/ordering/gitignore-safety at a level of detail the round-3 regex hardening does not change (it strengthens an internal guard-loophole close, not the delivered pretest behavior). No doc-code drift found; no findings raised.",
+      "createdAt": "2026-08-14T04:41:37.517Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-012",
+      "envelopeId": "381157c6d234624cf53622ca132c1510362d0caef7c0b54e6c9cccd9514076ae",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "lattice.config.json",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b88be8680f1b00ec21cbd226baed03b0d67ae1b468d2e7272f645a4ed8e93922"
+    },
+    {
+      "id": "B-fb7b:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-deletion-completeness scan. Since the round-2 pass (RP-004, RR-010), material moved by exactly one commit, fd8054daa6 (F-006 fix, CHK-001, 3 files / 11 insertions / 7 deletions per `git show --stat`): it tightens the buildsMain/buildsUtils --prefix regex fallbacks in packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts and the mirrored RED at packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs by adding the same (?![\\w:-]) negative-lookahead anchor already used on the bare npm-run-build fallback, plus one new GB-ADVFAST-BIT guard-bite case in packages/main/tests/red/red-fb7b-guard-bite.mjs. The per-file -7/+11 lines are same-line regex/comment replacements, not concept removal: buildsMain, buildsUtils, runsExactRootBuild, every existing GB-* selector (GB-ADV0-BIT..GB-ADV4-BIT, GB-EDGE1-CLEAN, GB-EDGE3-REGISTERED, GB-ADV3-ABSENT, GB-LIFECYCLE-FIRES), the pretest script key, the lattice.config.json validate.commands entry, and the CHANGELOG section from round 2 are all still present verbatim; nothing was deleted, renamed, or replaced. Re-ran `git diff main...HEAD --stat` and `git diff main...HEAD` fresh against current HEAD 24e2c68: 25 files changed, 3484 insertions(+), 5 deletions(-) total; grepped the full diff for lines matching ^-[^-] and confirmed all 5 are `.lattice/story/actives/B-fb7b/checklist.json` (status pending->done, startTime/endTime null->timestamps) and `.lattice/story/actives/B-fb7b/index.json` (phase INIT_CHECK->REVIEW, one closing-brace reflow from the checklist expansion) lifecycle bookkeeping -- zero deletions in code/config/docs. No concept word was deleted or replaced this round, so there is no concept-word to grep for residue; the deletion-completeness check is vacuously satisfied for round 3, consistent with the round-2 conclusion. Also re-executed the guard family live on current HEAD after build: `node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js` -> PASS; `node packages/main/tests/red/red-fb7b-guard-bite.mjs` -> all 11 selectors printed including the new GB-ADVFAST-BIT, GB-ALL-PASS, exit 0.",
+      "createdAt": "2026-08-14T04:42:00.036Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-015",
+      "envelopeId": "12a9898058d4752ff9293916cb428ff22e181e027613fb6406a639f30576f73b",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "889d4ac30f2e9a62e0ed8190744ff0bb927425dc769f6c01005b272e976de2df"
+    },
+    {
+      "id": "B-fb7b:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round-3 re-review of the single fd8054daa6 delta (F-006 fix). Confirmed both --prefix packages/main|utils run build regexes in test-suite-utils-autobuild-smoke.ts and the RED now carry the same (?![\\w:-]) negative lookahead already applied to the bare-fallback regex, plus a new GB-ADVFAST-BIT guard-bite fixture exercising the --prefix + namespaced-sibling loophole. Independently re-derived the regex logic outside the guard-bite harness and confirmed build:fast/build:lab/build-x forms (bare and --prefix) now fail the guard while the real pretest and exact npm run build still pass. Ran the compiled structural smoke, the RED, and guard-bite sequentially on a freshly rebuilt dist: all PASS/exit 0, including GB-ADVFAST-BIT. Filed F-010 (disproven) closing F-006. Checked CHK-001 userSees/behavior claims against the diff: no new behavior gap, no boundary-condition regression introduced by this narrow anchor-only change. No blocker found.",
+      "createdAt": "2026-08-14T04:42:06.648Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-014",
+      "envelopeId": "d32cfa08020b1a1566ecaef0c7204b4a87041f4433c372b6a8188754eafb9e7a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ff2bc10c4299449bf5c1354ba7bd15e8ff9a940fc1ff819ff7e0028f5c0f5c2"
+    },
+    {
+      "id": "B-fb7b:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3: all 13 CHK-001 verificationIntent refs (happy:4, edge:4, adversarial:5) have fresh command-backed verificationEvidence at current materialHash 10a846d1..7510429 (post F-006 fix fd8054daa6). Independently re-ran red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs (all 11 selectors incl new GB-ADVFAST-BIT/GB-ADVLAB-BIT), and test-suite-utils-autobuild-smoke.js in isolation: all PASS exit 0. Confirmed real root package.json pretest/test scripts match the anchored regex exactly and validate.commands still registers the smoke. No coverage gap; not a blocker.",
+      "createdAt": "2026-08-14T04:47:33.345Z",
+      "reviewRound": "2026-08-14T04:36:50.768Z",
+      "reviewRunId": "B-fb7b:RR-013",
+      "envelopeId": "70b5e4ffdef7cbdf79a8bf5419d4451729638cad8f5e9729f1beff8516fa68c9",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "bin/bootstrap-runner.js",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afe5419abd3fd686246f7e257ef655ac0cbec1fc2de0210e4eae091368732ced"
+    },
+    {
+      "id": "B-fb7b:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 re-pass: since round 3 only 6bc5d2e (packages/main/tests/red/red-b49d4-harness-registration.mjs, +10 lines, 2 REGISTRATION_EXCLUSIONS map entries for red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs) changed. Step1 symbol extraction over git diff main...HEAD yielded only local test-file consts (no exported API); ran full Step2 grep sweep, all hits were unrelated generic-word matches, none referencing the new exclusion entries or the changed file. CHANGELOG.md B-fb7b entry and package.json pretest script are byte-unchanged since round 3 (last touched by ae4a130f6a, predating this story) and remain accurate: pretest builds main then utils, structural guard test-suite-utils-autobuild-smoke stays in validate.commands, red-fb7b-pretest-builds-utils.mjs is named as the behavioral RED - all still true. No doc references red-fb7b-guard-bite.mjs, REGISTRATION_EXCLUSIONS, or the b49d4 exclusion registry, so the round-4 change (test-harness bookkeeping only) had no doc surface to drift. No blocker.",
+      "createdAt": "2026-08-14T05:27:08.318Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-018",
+      "envelopeId": "7f726cce666f296fbb26074dbab297e3839fdc7dce6a752b8046ae355285124b",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74324c066edb3b994bc73df6b763bc2808015a87d9e12665e9c013bdcdec1fee"
+    },
+    {
+      "id": "B-fb7b:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 delta review. git diff 781a58650f4..c266c29696 (round-3 head -> current head), excluding .lattice/: exactly one material file changed, packages/main/tests/red/red-b49d4-harness-registration.mjs, +10/-0, matching commit 6bc5d2e824 (adds 2 entries to REGISTRATION_EXCLUSIONS Map). Read the full file (311 lines) plus both referenced RED harnesses (red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs) to check the 2 new entries against the file own conventions and rules. (1) Key/path template: both keys use POPULATION_DIR_REL + /red-fb7b-*.mjs, identical construction to the 3 pre-existing entries (red-b2aa7-chk001/chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs), and both named files verifiably exist in packages/main/tests/red/ so neither is stale. (2) Reason length: MIN_EXCLUSION_REASON_CHARS=40; both reasons are multi-clause paragraphs (~330-350 chars each), far over the floor, and both are substantive: pretest-builds-utils reason correctly states it runs a full npm run pretest rebuilding both packages/main and packages/utils dist trees (confirmed at file line 71, execFileSync npm run pretest with a 290000ms timeout) and is therefore unsafe as a concurrent validate command; guard-bite reason correctly states it uses isolated temp-fixture bite tests (confirmed: mkdtempSync-based makeFixture at lines 46-57, used by 5 biteCase calls) plus a lifecycle npm test check (confirmed: GB-LIFECYCLE-FIRES block at lines 160-176). Both reasons correctly name test-suite-utils-autobuild-smoke as the permanent validate.commands guard, verified present at lattice.config.json line 68. (3) B-49d4 derivation-artifact naming caution (file lines 109-114, the CAUTION comment immediately above REGISTRATION_EXCLUSIONS): grepped both new reason strings for the derivation artifact filename/story id; neither mentions red-b49d4-registration-derivation.mjs, B-49d4, or CHK-001/BLOCK-D by name, so the entries do not trip the self-removal trap the header warns about. (4) Executed the modified guard directly in isolation: node packages/main/tests/red/red-b49d4-harness-registration.mjs -> exit 0, OK line reports 39 population entries, 34 registered + 5 excluded (the 3 pre-existing plus the 2 new), non-vacuity checks (classifier + exclusion-audit synthetic cases) all still pass since only the Map literal grew. No dead code, no as-any, no swallowed catches, no I/O-shell-isolation concern introduced by this 10-line change. Not run: full lattice validate (races under concurrency per task instruction) and the derivation guard red-b49d4-registration-derivation.mjs (heavy sandboxed spawn test, out of scope for a 10-line registry-entry diff). Verdict: no quality regression, round-4 PASS.",
+      "createdAt": "2026-08-14T05:27:24.467Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-016",
+      "envelopeId": "9050b760bed082d078d31c728f6b421a2181505dd1f96d1d1a9d232e60f047cd",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae56347e28f32a0d424251ac6909d999a087ba0f4c6348169b2d198d0cf2b73c"
+    },
+    {
+      "id": "B-fb7b:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 re-review of the single 6bc5d2e824 delta since the round-3 pass (24e2c689bf): a 10-line addition to REGISTRATION_EXCLUSIONS in red-b49d4-harness-registration.mjs, registering red-fb7b-pretest-builds-utils.mjs and red-fb7b-guard-bite.mjs as on-demand verification-evidence tests excluded from validate.commands. Confirmed: (1) git diff 24e2c689bf..HEAD touches only that one file outside .lattice metadata -- smoke/RED/guard-bite source is byte-identical to round 3; (2) both exclusion keys exactly match the real on-disk population paths (packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs, .../red-fb7b-guard-bite.mjs), each reason is >40 chars and factually accurate (pretest-builds-utils.mjs really execFileSyncs npm run pretest and rebuilds shared dist trees; guard-bite.mjs really uses isolated mkdtempSync fixtures plus a real npm test lifecycle run, matching the stated reasons); (3) neither excluded file is also registered in validate.commands (no wronglyRegistered conflict) and only test-suite-utils-autobuild-smoke stays registered; (4) ran red-b49d4-harness-registration.mjs directly -> OK, 39/39 population entries accounted for (34 registered + 5 excluded); (5) ran the structural smoke, the RED, and guard-bite individually (not full lattice validate, per concurrency-race guidance) -> all PASS/exit 0 (guard-bite prints all GB-* bite markers including GB-ALL-PASS); (6) git status --porcelain after all three runs shows only .lattice review-metadata dirt, no source-tree dirt from the pretest rebuilds. No functional or test-behavior change from round 3; CHK-001 userSees/behavior claims still match the diff; no new boundary-condition gap introduced by this bookkeeping-only change. No blocker found.",
+      "createdAt": "2026-08-14T05:27:31.308Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-017",
+      "envelopeId": "c87cce2abe36bd515a697c556840d52b76216abfe47561cf5d0af110c7f5e5b8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2768c425759f31d003761d256b7dc8156a2a6fd724db8e62354bbeb0a1ad9ad9"
+    },
+    {
+      "id": "B-fb7b:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 re-pass. git diff main...HEAD is purely additive (6429 insertions, 5 deletions total, and every deletion is confined to .lattice bookkeeping fields in checklist.json/index.json). Non-.lattice files (CHANGELOG.md, lattice.config.json, package.json, new smoke/RED test files, red-b49d4-harness-registration.mjs) show zero deletions. Since round 3 (head 24e2c689bf) exactly one code commit landed, 6bc5d2e824, which adds 2 map entries (10 insertions, 0 deletions) to REGISTRATION_EXCLUSIONS in red-b49d4-harness-registration.mjs and touches no other concept/symbol/command/config key. No concept word, symbol, command, or config key was deleted or replaced in this round or cumulatively vs main, so the concept-deletion-completeness grep scan is vacuously satisfied (nothing to grep for). Closing self-check: CHANGELOG/lattice.config.json/package.json additions (pretest script, test-suite-utils-autobuild-smoke.js validate.commands entry) all have matching implementations present in the diff; no promised-but-undelivered doc/config claims found.",
+      "createdAt": "2026-08-14T05:28:16.593Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-020",
+      "envelopeId": "b5f45584fcf3eac7595cb1c18b836bd662a37548a8872e7d31e40e0096fd62c0",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dacaabd2bc245c486537741c110027d6c683df32b54e77572de66d0cc7d43733"
+    },
+    {
+      "id": "B-fb7b:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 re-pass: since round 3 (RP-010/RR-013) only 6bc5d2e824 changed (packages/main/tests/red/red-b49d4-harness-registration.mjs, +10 lines: 2 REGISTRATION_EXCLUSIONS map entries for red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs, no edit to smoke/RED/guard-bite logic -- confirmed via git show 6bc5d2e824). All 13 CHK-001 verificationIntent refs (happy:4, edge:4, adversarial:5) carry verificationEvidence result=pass bound to the current materialHash 1df74d7dfccdbe5cb7c8406454e007a0af4ae68d93b069fedead8e727379a5db (matches HEAD c266c29 task-context materialHash). Independently re-ran node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js (PASS, exit 0), node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS, exit 0, real npm run pretest rebuild, mtime-fresh utils/index.js), and node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 11 selectors printed: GB-EDGE3-REGISTERED, GB-ADV3-ABSENT, GB-ADV0-BIT, GB-ADV1-BIT, GB-ADVLAB-BIT, GB-ADVFAST-BIT, GB-ADV4-BIT, GB-ADV2-BIT, GB-EDGE1-CLEAN, GB-LIFECYCLE-FIRES, ending GB-ALL-PASS, exit 0) directly on a freshly rebuilt dist -- all match the selectors bound in verificationEvidence. Read the full source of both red-fb7b RED files this round and confirmed the adversarial:2 F-001 fix (distinct runRedIn path vs adversarial:4's runSmokeIn) and the F-003/F-004/F-006 negative-lookahead regex fix are still present and unchanged. Also ran the changed file's own guard, red-b49d4-harness-registration.mjs (OK, all 39 RED entries accounted for, exit 0), confirming the new exclusion entries are sound bookkeeping that does not touch red-fb7b test logic or any verificationIntent. Prior findings F-001/F-002 (this lane) remain closed (evidenceState=disproven via F-008/F-009 filed round 2); no new coverage gap from the round-4 delta. git status --porcelain clean after all re-runs. No blocker; test coverage review passed.",
+      "createdAt": "2026-08-14T05:29:45.683Z",
+      "reviewRound": "2026-08-14T05:24:52.464Z",
+      "reviewRunId": "B-fb7b:RR-019",
+      "envelopeId": "e0835d8aacc8fd4ef8267616528b969e7a49f0f11b195d1ea7c4c3db953e6617",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "package.json",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/acceptance-basis.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d5f5ba4d1cc51ee8a1701da83c936eadc17ff77cb2908721a0a1cfe9504469d"
+    },
+    {
+      "id": "B-fb7b:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 re-pass after DONE-prep auto-sync (main merge ded81bbb, materialHash 249c271f, unchanged from prior RR-021 attempt that raced a concurrent DEV rollback from a sibling reviewer lane). Full-diff concept-deletion-completeness scan on git diff main...HEAD (30 files, 6717 insertions, 5 deletions). All 5 deletions are trivial story-metadata lifecycle field rewrites in .lattice/story/actives/B-fb7b/{checklist.json,index.json} (status pending->done, startTime/endTime null->timestamp, phase INIT_CHECK->TEST) -- not concept/symbol/command/config-key deletions. Material change is purely additive: package.json pretest script (new key), lattice.config.json validate.commands entry (new line), two new REGISTRATION_EXCLUSIONS Map entries appended to packages/main/tests/red/red-b49d4-harness-registration.mjs (existing entries untouched, byte-identical elsewhere), new files test-suite-utils-autobuild-smoke.ts / red-fb7b-pretest-builds-utils.mjs / red-fb7b-guard-bite.mjs, and a CHANGELOG.md entry. Verified all three CHANGELOG-referenced files exist on disk (no doc-promise-undelivered). No concept was deleted or replaced en masse this round; no residue grep needed. No blocker.",
+      "createdAt": "2026-08-14T09:40:28.675Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-023",
+      "envelopeId": "b0c7a4a8a27683c8f8085a1d0f2c6224176a6d5d73a2590a59b5c76e6978a9b6",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "732fe998dd2a71774a27f58bb7431be666ccca4f4ee5650573305ea4ec223d26"
+    },
+    {
+      "id": "B-fb7b:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 13 CHK-001 verificationIntent refs (4 happy, 4 edge, 5 adversarial) have fresh pass verificationEvidence bound to current material 249c271f; guard-bite RED covers all GB-* adversarial/edge cases plus GB-ALL-PASS, structural smoke and pretest-builds-utils RED both PASS; no blocker.",
+      "createdAt": "2026-08-14T09:40:39.929Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-022",
+      "envelopeId": "c87b8a72a7b40e4aab263516ca6e1a5fc57b2bfed9eed4d32d3e772439155790",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/review.json",
+          ".lattice/story/actives/B-fb7b/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72fe0cff195856f87ebfb3eaf521fd38132c16f773ec371f9eda5b3977fb73e4"
+    },
+    {
+      "id": "B-fb7b:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "git diff main...HEAD reviewed in full: only additive pretest wiring (package.json pretest script, lattice.config.json validate.commands entry, new test-suite-utils-autobuild-smoke.ts, new red-fb7b-*.mjs RED/guard-bite tests, CHANGELOG entry, and two new harness-registration exclusion entries). No concept was deleted or replaced en masse; the only diff-level deletions are 5 lines of story-bookkeeping status/phase field churn (checklist item pending->done, phase INIT_CHECK removal), not source concept residue. Grep for stray references to the new pretest concept found none outside the intended files. No blocker.",
+      "createdAt": "2026-08-14T09:42:29.258Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-026",
+      "envelopeId": "00448fd8c2281159c847d8b11ec4bf0bc4efabffbfaa4e641c86d6d9c65b4434",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/done-required-evidence.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          ".lattice/story/actives/B-fb7b/intent-collision.json",
+          ".lattice/story/actives/B-fb7b/original-intent-snapshot.json",
+          ".lattice/story/actives/B-fb7b/pre-review-check.json",
+          ".lattice/story/actives/B-fb7b/process-events.jsonl",
+          ".lattice/story/actives/B-fb7b/process-metrics.json",
+          ".lattice/story/actives/B-fb7b/prompt-envelopes.json",
+          ".lattice/story/actives/B-fb7b/proofstory.json",
+          ".lattice/story/actives/B-fb7b/red-evidence.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          ".lattice/story/actives/B-fb7b/review-runs.json",
+          ".lattice/story/actives/B-fb7b/review.json",
+          ".lattice/story/actives/B-fb7b/scope-check.json",
+          ".lattice/story/actives/B-fb7b/summary.json",
+          ".lattice/story/actives/B-fb7b/test-evidence.json",
+          ".lattice/story/actives/B-fb7b/topology-critic-receipt.json",
+          ".lattice/story/actives/B-fb7b/understanding.json",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01d676e39417d4b8a725fb7e4f216a4104b5fd103134cf7d880dbf2729e039e4"
+    },
+    {
+      "id": "B-fb7b:RP-019",
+      "agent": "lattice-review-behavior",
+      "note": "Round-5 re-verification after main-sync (materialHash 249c271f0040f61...b32c41ac, storyFilesHash c4e8d5b9...5e84621). Confirmed my story's owned files (package.json pretest wiring, test-suite-utils-autobuild-smoke.ts, red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs, lattice.config.json red-b49d4 exclusion entries) are byte-identical to the pre-merge round-4 tip (only unrelated package.json version bump 0.3.253->0.3.254 from a sibling DONE-merge auto-bump). Re-ran the compiled structural smoke (node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS), the adversarial guard-bite RED (node packages/main/tests/red/red-fb7b-guard-bite.mjs -> GB-ALL-PASS incl GB-ADVFAST-BIT), and red-b49d4-harness-registration.mjs -> OK; all reconfirm the userSees/edge/adversarial behavior already verified across rounds 1-4 (F-004/F-006 fixed and re-verified disproven at F-007/F-010) still holds unbroken on the current merged material. No behavior regression introduced by the main-sync merge; no new blocker.",
+      "createdAt": "2026-08-14T09:42:30.970Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-025",
+      "envelopeId": "1c79afd4573272915ac8106360fbeae0941f09a0a82c8d80fdb9f47ed763b62e",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+          "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+          "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffd26ee3458cb1cbac18f59556f24ab80d4a2a4d81d0a1aa968b4196c7c657e4"
+    },
+    {
+      "id": "B-fb7b:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Step1: git diff main...HEAD symbol extraction yielded 28 internal test/task-local symbols (RED_ABS, RED_REL, SMOKE_ABS, SMOKE_REL, mainIdx, utilsIdx, buildsMain, buildsUtils, etc. from the new smoke task and RED/guard-bite test files) -- none are doc-facing API names. Step2: grep of README.md/CLAUDE.md/docs/**/*.md for those symbols plus fallback-2 term search (pretest, test-suite-utils-autobuild-smoke, packages/utils/dist) found 0 symbol hits and 2 relevant paragraphs: the new CHANGELOG.md B-fb7b entry and the pre-existing docs/CLI.md:1049 manual utils-build recovery note (unmodified in this diff). Step3: compared both -- CHANGELOG.md entry (pretest builds main then utils, dist gitignored, structural smoke wired into validate.commands, behavioral RED guard) matches the code diff exactly (package.json pretest script line, lattice.config.json test-suite-utils-autobuild-smoke wiring, new packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts + red-fb7b-pretest-builds-utils.mjs + red-fb7b-guard-bite.mjs); docs/CLI.md:1049 is an unrelated global-CLI manual-recovery path, untouched and still accurate, no conflict with the new automated pretest. No doc-code drift, no promised-but-undelivered doc claims (Closing Self-Check). No blocker.",
+      "createdAt": "2026-08-14T09:42:39.148Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-024",
+      "envelopeId": "98cfe7ff6b48fdae215df489dcce7ed67f57d8348c32937957c8a94334048ef8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2f5651103e4b64b70502060f07531cb18ecf40d9a6534b7faf79ed01c8fe10f"
+    },
+    {
+      "id": "B-fb7b:RP-021",
+      "agent": "lattice-review-behavior",
+      "note": "Story-level behavior review of CHK-001 (root pretest self-bootstraps packages/utils). Code is byte-identical to pre-sync round-4 tip (de680a0769) for every B-fb7b-owned file (lattice.config.json, test-suite-utils-autobuild-smoke.ts, both red-fb7b-*.mjs); the sync only carried in other stories files (quorum-prune.ts, quorum-submit.ts, evidence-integrity docs, etc.) plus a root package.json version bump 0.3.253->0.3.254, verified via git diff. Reran full evidence set fresh at current material: red-fb7b-pretest-builds-utils.mjs PASS, red-fb7b-guard-bite.mjs GB-ALL-PASS (lifecycle-fires, edge1-clean, edge3-registered, adv0-4 all bite), compiled test-suite-utils-autobuild-smoke.js PASS, lattice.config.json validate.commands entry confirmed present, git status clean outside .lattice metadata after two pretest runs (dist gitignored, no tree dirt). Checked userSees-equivalent behavior against actual code: pretest correctly orders main-before-utils; bootstrap-runner.js and worktree handler intentionally untouched (confirmed via diff, matches CHANGELOG.md claim). Checked doc-promise-undelivered: CHANGELOG.md Unreleased entry for B-fb7b matches implementation exactly, no undelivered claims. Spec-boundary check: docs/requirements/decisions/done-full-test-gate-execution-plan.md requires a root pretest/equivalent build receipt before root npm test for self-host DONE-required proof -- this story directly implements that requirement. docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md cites B-fb7b as motivating incident and shows an illustrative (not mandated) alternative pretest=\"npm run build\"; doc explicitly disclaims pre-approving any patch, and the actual narrower pretest is correct because verify-full-suite-build-binding.mjs is already invoked independently inside full-suite-runner.ts (line 515) and packages-main-build freshness is separately proven by doneRequiredCommands, so omitting it from pretest is not a gap. No blockers found.",
+      "createdAt": "2026-08-14T09:43:40.918Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-027",
+      "envelopeId": "9970573ec686e2653d1a63c415d8acd7eb7c7607b2fa330e516fdd070cf10859",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2302c090c5f8ef65057a6d6fdd59b77abb6d73baa0ad6399d8e586ccffaac929"
+    },
+    {
+      "id": "B-fb7b:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 re-pass after DONE-prep main-sync (merge ded81bbb, materialHash 249c271f0040f61c45f45f2785441e3b7d045af98ad768ff10cf78b3b32c41ac). Independently sha256-verified (not taken on trust) that all of B-fb7bs own story files are byte-identical to round-4 (my prior PASS at RR-016): packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts, packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs, packages/main/tests/red/red-fb7b-guard-bite.mjs, lattice.config.json all match round-4 hashes exactly. git diff c266c29696(round-4 head)..HEAD excluding .lattice/ touches only unrelated main-sync files (quorum-prune.ts, quorum-submit.ts, quorum-submit-smoke.ts, cli-engine.ts, command-catalog.ts, etc. -- other-story material, e.g. B-3144) plus a version-only bump 0.3.253->0.3.254 in package.json/package-lock.json/packages/main/package.json/package-lock.json (single version-line diff each, no script/dependency changes; root package.json scripts.pretest string unchanged and confirmed present). git diff main...HEAD (the actual story-scoped three-dot diff) is unchanged in shape from prior rounds: 7 non-.lattice files, 358 insertions, 0 deletions (CHANGELOG.md, lattice.config.json, package.json, test-suite-utils-autobuild-smoke.ts, red-b49d4-harness-registration.mjs +10 lines, red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs) -- already fully quality-reviewed across my rounds 2/3/4 passes (RR-009/RR-011/RR-016): no dead code, no as-any, no swallowed catches, no I/O-shell-isolation issue, no proof/receipt/job/run metadata touched. Doc-promise-undelivered self-check on the new CHANGELOG.md entry: every claim verified against code -- test-suite-utils-autobuild-smoke registered in lattice.config.json validate.commands (grep confirmed line 68), red-fb7b-pretest-builds-utils.mjs exists and PASSes live, packages/utils/dist and packages/main/dist confirmed gitignored via git check-ignore. Live-reran on current material (did not run full lattice validate, per task scope -- targeted CHK-001 commands only): node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs -> PASS; node packages/main/tests/red/red-fb7b-guard-bite.mjs -> all 11 selectors incl. GB-ALL-PASS, exit 0; node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js -> PASS, exit 0. git status --porcelain clean outside .lattice bookkeeping after all runs. No new findings since round 3 (F-001..F-010 all previously verified-then-disproven/fixed, confirmed by re-reading findings.json). Verdict: no quality regression, round-5 PASS.",
+      "createdAt": "2026-08-14T09:44:35.439Z",
+      "reviewRound": "2026-08-14T09:39:10.680Z",
+      "reviewRunId": "B-fb7b:RR-028",
+      "envelopeId": "404561448a164b2ca34f6c994232aa93c7f4941e8954bcb6c5f987f28bb4d238",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          ".lattice/story/actives/B-fb7b/review-passes.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dae19ca0ab23ab8c09f1570f64f6ea3d9824cc921a7fc2229e062ef4c577818e"
+    },
+    {
+      "id": "B-fb7b:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 24 local identifiers from git diff main...HEAD (all internal vars/functions inside packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts and the two new red tests; no exported class/function/interface/type/enum was added, so no library API surface needs README/CLAUDE.md coverage). Step2 grep of README*.md/CLAUDE.md/docs/**/*.md for those 24 symbol names returned 0 hits (expected: pure test-infra internals). Ran a targeted keyword scan (pretest, packages/utils, utils/dist, full-suite-runner, bootstrap-runner, Missing build artifacts) and compared 1 paragraph (CLAUDE.md L1001-1041, the .githooks/pre-push recursive-tsc section) -- that paragraph documents an unrelated script (.githooks/pre-push building packages/main before recursive tsc) not touched by this diff, so no drift. CHANGELOG.md L24-39 (B-fb7b entry) was compared against the actual package.json pretest script, lattice.config.json validate.commands wiring, and test-suite-utils-autobuild-smoke.ts assertions: the described build order (main then utils), the gitignored/non-dirtying dist claim, the structural-smoke-plus-behavioral-RED guard pairing, and the untouched worktree-handler/bootstrap-runner.js note all match the code exactly. No doc-promise-undelivered gaps found. No blockers.",
+      "createdAt": "2026-08-14T10:21:24.412Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-030",
+      "envelopeId": "94e7fb5649ca213f3416c2c74ddf06ec0e12ca3f0ceb5ac31305c254e186ce41",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5cc113de5cd5ca54adb7ae7c0d66ee161c81622df5a0fbec2a8b1be57f21f5d8"
+    },
+    {
+      "id": "B-fb7b:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality review, round RR-029. Reviewed full material diff (git diff main...HEAD): CHANGELOG.md, lattice.config.json, package.json, packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts (new), packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (new), packages/main/tests/red/red-fb7b-guard-bite.mjs (new), packages/main/tests/red/red-b49d4-harness-registration.mjs (registration-exclusion entries). No dead code, no unnecessary as-any, no empty-catch error swallowing. No bridge/shell I/O isolation concerns (n/a). No proof/receipt/job/run metadata semantics touched. CHANGELOG entry accurately describes the pretest wiring, matches package.json/lattice.config.json changes. Confirmed against prior review rounds: story code files are byte-identical to the last-passed round (only .lattice metadata/prompt-envelope changed via a 4-commit merge; version stayed 0.3.254); no new quality regression introduced. No doc-promise-undelivered gaps found. No blocking findings.",
+      "createdAt": "2026-08-14T10:23:34.221Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-029",
+      "envelopeId": "8728d5bdc7464b9a03907b3d9a64f86f8a516ccfc440f3d7fe55c505c381ae47",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "de418d77e60678af5169f30fb377a3bd85012d4cb6034f788bf546718a9586ba"
+    },
+    {
+      "id": "B-fb7b:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Story diff is purely additive (git diff main...HEAD: 7759 insertions, 5 deletions, all 5 being routine phase/index metadata bumps in B-fb7b own index.json). No concept was deleted or replaced (new pretest script, new smoke guard, new RED tests, plus additive registration of the two new RED files in B-49d4 harness-registration exclusions). The apparent 8-file deletion set for B-16df/B-a7c5 under .lattice/story/actives seen in git diff main (two-dot) is main having advanced past the merge-base with unrelated stories init/INIT_CHECK metadata, not a deletion performed by this story (confirmed via git diff main...HEAD three-dot and git rev-list --left-right --count main...HEAD = 2 left / 105 right). Concept-deletion-completeness scan: no residue to check.",
+      "createdAt": "2026-08-14T10:24:20.073Z",
+      "reviewRound": "2026-08-14T10:16:51.753Z",
+      "reviewRunId": "B-fb7b:RR-031",
+      "envelopeId": "3e96cd6e20a861230e899010f57d1e31dbe8604dc4add40f703f5f305818aaa5",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/index.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7085d2c93b89664016387fd063553d77af41e40e6e119b99238c2d70c43d7e07"
+    },
+    {
+      "id": "B-fb7b:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 delta review: since the prior docs pass (RP-023), exactly one code commit landed -- 3979c2f718 (scripts/build-main-with-binding.mjs: rmSync gained maxRetries:10/retryDelay:100 backoff for the recursive dist rmdir, per commit msg F-011/F-012 concurrent-rebuild ENOTEMPTY/EBUSY hardening). Verified via git show 3979c2f718 and git log that this is the only new commit and it touches no *.md file. Step1 diff-symbol extraction (git diff main...HEAD) yields the same set of internal test/task identifiers as before plus none new from this commit (an rmSync options-object literal has no exported symbol). Step2 grepped README*.md/CLAUDE.md/docs/**/*.md for build-main-with-binding, rmSync, maxRetries, retryDelay, ENOTEMPTY, EBUSY: zero hits anywhere in the repo docs; no doc describes this script's internal retry semantics, so there is nothing that can drift. Re-read CHANGELOG.md L24-39 (the B-fb7b entry, unchanged since RP-023) against current package.json pretest, lattice.config.json validate.commands, and test-suite-utils-autobuild-smoke.ts: every claim in it (main-then-utils build order, dist gitignored/non-dirtying, structural-smoke plus behavioral-RED guard pairing, worktree-handler/bootstrap-runner.js intentionally untouched) still holds. The delta commit is purely internal build-tooling robustness (retry backoff on an already-existing rmSync call inside the already-documented pretest build step); it changes no documented behavior of the pretest, so no CHANGELOG update is required. Also re-checked docs/CLI.md L1049-1054 (manual utils-build recovery hint) and CLAUDE.md L1029 (pre-push hook main-build step, which also invokes build-main-with-binding.mjs) -- both remain accurate since neither describes rmSync retry mechanics. No doc-code drift introduced by the delta commit. No blockers.",
+      "createdAt": "2026-08-14T10:44:57.670Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-037",
+      "envelopeId": "cf5ec31b0b268799639d25d2efb742d80c13cd560c2b22abd5b263e87270fc8e",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e79aa7603b79471acdbcd2c6297c445c51a5c2c15ebdddde8156d76d3fd4baaa"
+    },
+    {
+      "id": "B-fb7b:RP-027",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (re-review after commit 3979c2f718). Since last concept pass, only one code commit landed: 3979c2f718 fix(build): retry rmSync(dist) to survive concurrent rebuilds (F-011/F-012), touching scripts/build-main-with-binding.mjs (5 insertions, 1 deletion). Confirmed via git show 3979c2f718: the single deleted line is the prior rmSync(...) call, replaced by the same call with two added option keys (maxRetries:10, retryDelay:100) plus an explanatory comment; no concept, symbol, command, or config key was deleted or renamed. Re-ran the full concept-deletion scan for this round: git diff main...HEAD --stat/--numstat shows only 3 files with any removed lines (checklist.json -3, index.json -2, build-main-with-binding.mjs -1); the checklist.json/index.json removals are routine lifecycle bookkeeping (status/startTime/endTime/phase field updates), not concept text. package.json, lattice.config.json, and CHANGELOG.md diffs for this story are purely additive (new pretest script key, new validate.commands smoke entry, new changelog section) with zero removed concept references. Grep-based residue scan confirms zero dangling references to any deleted/renamed concept because none was deleted or renamed this round. Wave 4 concept-boundary chain (acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check) is untouched by this story diff. No blocker.",
+      "createdAt": "2026-08-14T10:45:06.836Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-038",
+      "envelopeId": "eabaeda2d66ae0c23141c3339129159d3385d26dc619a8cbfc970ea685fd1e1a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/index.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "466e214fd07be16294ea9c305a76cb822071d54e09789c69f940e737b7104e78"
+    },
+    {
+      "id": "B-fb7b:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Story-level docs-code consistency re-review after commit eab8a74651 (shared main+utils build lock: scripts/build-lock.mjs new, scripts/build-utils-with-lock.mjs new, build-main-with-binding.mjs refactored to use withBuildLock, packages/utils/package.json build script rewired to the locked wrapper). Step 1 extracted 38 symbols from git diff main...HEAD, mostly local identifiers in scripts/build-lock.mjs, scripts/build-utils-with-lock.mjs, build-main-with-binding.mjs, test-suite-utils-autobuild-smoke.ts, and the two new RED tests. Step 2 grepped README star.md, CLAUDE.md, docs star star star.md for each symbol: 13 of 38 produced hits, but all 13 -- STALE_MS, bootstrap, code, here, ignored, pkg, pretest, projectRoot, registered, repoRoot, root, scripts, tsc -- are generic short identifiers; inspected every hit context and confirmed each is either an unrelated pre-existing doc paragraph (for example the STALE_MS hit in docs/host-run-usage.md refers to LATTICE_HOST_RUN_SLOT_STALE_MS and LATTICE_USAGE_LEDGER_LOCK_STALE_MS, unrelated env vars) or the CHANGELOG.md/CLAUDE.md pretest-build paragraphs, which I fully re-verified against current code in Step 3. None of the load-bearing new symbols withBuildLock, findRepoRoot, buildsMain, buildsUtils, runsExactRootBuild have any doc references; scripts/ and packages/main/ have no module-level README, so per Fallback 2 no finding is required, recorded as no-hits. Step 3: re-checked the CHANGELOG.md B-fb7b entry (pretest self-bootstraps packages/utils; dist gitignored; deterministic build does not dirty tree or conflict with the packages-main-build proof; structural guard test-suite-utils-autobuild-smoke wired into validate.commands; behavioral RED red-fb7b-pretest-builds-utils.mjs; worktree handler and bootstrap-runner.js left untouched) against current code: package.json pretest equals npm --prefix packages/main run build then npm --prefix packages/utils run build, main before utils confirmed; lattice.config.json validate.commands still contains the test-suite-utils-autobuild-smoke.js entry; git diff for bin/bootstrap-runner.js and the worktree handler is empty, confirmed untouched; the build-lock is implemented entirely inside scripts/ using an os.tmpdir lock directory, so it cannot dirty the git tree and does not alter writeBuildBinding's post-tsc call site or the packages-main-build materialHash mechanism. All CHANGELOG claims remain accurate, no drift found. The new build-lock mechanism, the F-011 through F-015 concurrency fix, is purely internal build-tooling robustness with no user-facing behavior change and is not described in any README/CLAUDE.md/docs paragraph, so it needs no CHANGELOG addition; docs/requirements/decisions/testing-infra.md and done-full-test-gate-execution-plan.md describe the packages-main-build proof at the command-invocation level, npm --prefix packages/main run build, which is unchanged by the lock refactor since it is still the same external command. Also checked CLAUDE.md's pre-push-hook section, an unrelated B-5a28/B-eab3 doc referencing packages/main build before packages/utils tsc for an unrelated reason, still accurate and untouched by this diff. Note: findings.json shows F-011 through F-015, concurrency-race findings raised by lattice-review-test-coverage, still open/verified as of this round including a fresh F-015 created 2026-08-14T11:16:01Z, before the eab8a74651 fix commit at 11:28:25Z, describing the pre-fix gap this commit targets; adjudicating whether the fix actually closes that race is outside the lattice-review-docs lane since no documentation makes a race-safety claim, so there is no doc-code drift to raise here, and it is left to the owning reviewer lane. 0 doc-code-drift findings registered this round.",
+      "createdAt": "2026-08-14T12:16:10.163Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-044",
+      "envelopeId": "eac6606f11b8d73d52c86c6945085a8d02f0be28594e4c68fd7965801469d97a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/index.json",
+          "docs/host-run-usage.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73dbc85e660944fe4d9535f42dedaba3f0849ea94cce07b7d549e6eb12cc67f0"
+    },
+    {
+      "id": "B-fb7b:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the new/changed build-lock files for B-fb7b: scripts/build-lock.mjs (new shared mutex), scripts/build-utils-with-lock.mjs (new locked utils build), scripts/build-main-with-binding.mjs (refactor to use the shared lock), packages/utils/package.json (build script now routes through the lock). No new quality defects found: atomic mkdirSync mutex is correctly exclusive on POSIX, EEXIST wait-loop with bounded sleepSync backoff, stale-lock steal at 300s (10x normal single-build duration, safe margin against false-steal), 900s overall wait timeout, lock always released via try/finally on both success and throw (no leak), no re-entrant acquisition, lock keyed by sha256(projectRoot) so worktrees never cross-serialize, no dead code / unused imports, no as-any, no empty-catch swallowing real errors. Closed F-013 (filed by this lane last round: maxRetries budget too short to outlast a full concurrent compile) as disproven/superseded via new finding F-018 -- commit eab8a74651 replaced retry-only serialization with a real per-repo mutex shared by both packages/main and packages/utils builds, so builds now wait/serialize instead of racing; the retry budget no longer needs to survive contention. Verified live: 5 concurrent npm run pretest in this actively shared worktree (other agents concurrently rebuilding the same trees, confirmed via lsof cwd) all exited 0 with zero ENOTEMPTY/TS2307 and a clean git tree afterward; a clean single-shot pretest plus structural smoke (test-suite-utils-autobuild-smoke.js) plus guard-bite (all 11 selectors, GB-ALL-PASS) plus RED (red-fb7b-pretest-builds-utils.mjs) all pass during a quiet window. Did not run full lattice validate per instruction.",
+      "createdAt": "2026-08-14T12:24:43.091Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-041",
+      "envelopeId": "e8e5456425ef5e9c865287377d7453772c6df22cbeb477953533a31ffca5addb",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "701f04d0da0cbea5c160beda3e55e1982c5bbed3327adb44d5daacf2c176f7b0"
+    },
+    {
+      "id": "B-fb7b:RP-030",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed for B-fb7b. Verified all 13 CHK-001 verificationIntent refs (4 happy, 4 edge, 5 adversarial) have valid, must-priority-satisfying verificationEvidence with result=pass, mechanical=true receipts, and materialHash/storyFilesHash matching the current REVIEW-round binding (0e5c5961842322daf56cb5e4eac3a9800d6c8e3369a4eef2f78ab1112215c7b5 / a9771279d635e4ff09d22d30f24fa9694e31b3aa9779facd20acfddfa6dc7bff); git diff --stat between the evidence-bound commit f391051ada and current HEAD touches only .lattice bookkeeping, so no code drift invalidates the recorded evidence. Findings F-011 (rmSync ENOTEMPTY under concurrent pretest) and F-015 (packages/utils tsc racing a concurrent packages/main rebuild -> TS2307), both authored by this lane, are resolved by code fix commit eab8a74651 (shared main+utils build lock: scripts/build-lock.mjs, scripts/build-utils-with-lock.mjs, packages/utils/package.json rewired) and closed this round via disproven findings F-016 (closes F-011) and F-017 (closes F-015). Light re-verification performed: (1) inspected the shared-lock design -- scripts/build-lock.mjs is a per-repo mkdirSync mutex (300s stale-lock steal, 900s wait timeout) taken by BOTH scripts/build-main-with-binding.mjs (whole rm+tsc+binding critical section) and the new scripts/build-utils-with-lock.mjs (whole tsc critical section, wired via packages/utils/package.json's build script), closing the cross-package race by construction since main-rebuild and utils-tsc now mutually exclude repo-wide; (2) ran the story's guard family on current HEAD -- node packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs (PASS), node packages/main/tests/red/red-fb7b-guard-bite.mjs (all 9 selectors incl. GB-ALL-PASS, exit 0), node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js (PASS) -- all exit 0; (3) observed one full round of 5 concurrent `npm run pretest` invocations against this exact worktree during this review (launched independently by a sibling reviewer lane sharing this worktree/scratchpad, logs at scratchpad/pretest_1..5.log): 5/5 exit 0, grep for TS2307/ENOTEMPTY across all 5 logs found zero matches, finish timestamps 13:11-13:14 confirming properly queued/serialized rather than racing execution. git status --porcelain clean throughout (dist stays gitignored). No blocking coverage gaps found; 0 must-priority intents lack valid evidence, 0 waivers present. Did not run an extended multi-round stress loop or full `lattice validate` per dispatch scope.",
+      "createdAt": "2026-08-14T12:24:49.449Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-042",
+      "envelopeId": "c17fb3a1be5df3a207a7c28dce3ed6a08c8795c9c72d2737a8a8ab7d4fbbc102",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/decision.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          ".lattice/story/actives/B-fb7b/scope-contract.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "plan.md does not exist for this story (decision.json/background.md serve the equivalent role); no full decisions-directory escalation was needed since the change is scoped to scripts/build-*.mjs and packages/utils build wiring with no README/CLAUDE.md/decisions-doc claims to reconcile beyond what the sibling lattice-review-docs lane already covered this round."
+      },
+      "_hash": "d8e6667224a54c48f994c582dd712f63269fdd300a851c6943880e71dab4c4df"
+    },
+    {
+      "id": "B-fb7b:RP-031",
+      "agent": "lattice-review-behavior",
+      "note": "Light re-verification of the F-012/F-014 concurrent-build fix (commit eab8a74651, shared scripts/build-lock.mjs held by both main and utils builds). Guards green: test-suite-utils-autobuild-smoke PASS, red-fb7b-pretest-builds-utils.mjs PASS, red-fb7b-guard-bite.mjs GB-ALL-PASS. One round of 5 concurrent npm run pretest against the live shared worktree (which had genuine concurrent other-lane build activity in flight) -- 5/5 exit 0, no ENOTEMPTY/TS2307. Filed B-fb7b:F-019 (disproven, closes F-012) and B-fb7b:F-020 (disproven, closes F-014). No new blocker found in this narrow scope.",
+      "createdAt": "2026-08-14T12:27:29.557Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-040",
+      "envelopeId": "03b643d77604d325c3a67f8dfde02fa82af52f026cece722f8191515f1c016a8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "57253080575c0e25df664692d6f4a537f88ee059c25e664c34376de6b0c695a2"
+    },
+    {
+      "id": "B-fb7b:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Focus on new lock commit eab8a74651: withBuildLock extracted from an inline function in build-main-with-binding.mjs into shared scripts/build-lock.mjs, plus a new consumer scripts/build-utils-with-lock.mjs; packages/utils build script changed from tsc to a lock-wrapped tsc invocation. Confirmed zero residue for the old inline lock (lock-dir prefix lattice-build-main- has no remaining references) and a single canonical withBuildLock export with two consumers, no orphaned duplicates. No command/config-key/symbol/concept word deleted -- additive/refactor only. No doc-promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-14T12:33:09.934Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-065",
+      "envelopeId": "545af1b6003fa7018366b535aada39c66c8acd477380bb5462e0a773da3d633f",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/background.md",
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          ".lattice/story/actives/B-fb7b/plan.md",
+          "CHANGELOG.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-fb7b/findings.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4dba5314414a0c4dd819e911e5bd78ded09555e14e60177cfda5bf178cbe2193"
+    },
+    {
+      "id": "B-fb7b:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency PASS at frozen tree (HEAD 906a4df307). Step 1 extracted 4 changed build/config symbols (root pretest script, scripts/build-lock.mjs withBuildLock, build-utils-with-lock.mjs, packages/utils build script). Step 2 compared the single CHANGELOG Unreleased/Fixed B-fb7b paragraph against those symbols — it accurately states the pretest builds main then utils and the shared build mutex serializes concurrent builds; no over- or under-claim. No blocker: documentation matches delivered code.",
+      "createdAt": "2026-08-14T12:52:29.698Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-066",
+      "envelopeId": "91d959b41572ce899170a0a8edb3ea21ba7de831629aaecf940bdf07ee3aad03",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "README.md"
+        ],
+        "scanEscalationReason": "docs surface for B-fb7b is the CHANGELOG Unreleased/Fixed entry; no decisions-directory doc paragraphs reference the changed build-script symbols, so no full decisions-dir escalation required."
+      },
+      "_hash": "b2b13297728ebf4a97595d33870f21a2a2569922559224f29b4908b8309e6629"
+    },
+    {
+      "id": "B-fb7b:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality PASS at frozen tree. Reviewed the 3 build scripts + smoke guard for dead code, type safety and I/O isolation: withBuildLock has try/finally lock release, no dead branches; build-*-with-lock wrappers are single-purpose; the smoke guard is pure structural regex on file contents (no side effects). No blocker.",
+      "createdAt": "2026-08-14T12:53:46.075Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-067",
+      "envelopeId": "60e390175c184693b31f4313735680ecfcccfa618a28322db4c26f8a3dc66788",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface is 3 build scripts + 1 structural smoke; fully read, no escalation needed."
+      },
+      "_hash": "f513da67cd0835c0104330fd3ec720c596122fcc7ae1da70e41fd60386370188"
+    },
+    {
+      "id": "B-fb7b:RP-035",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior PASS at frozen tree. userSees = root pretest builds main then utils so the full suite never hits Missing build artifacts, and concurrent builds serialize. Verified: pretest runs both --prefix builds in order; the shared withBuildLock mutex (atomic mkdir, stale-steal, try/finally release) serializes main rm+tsc and utils tsc; edge case of concurrent pretests proven by red-fb7b-guard-bite. No blocker.",
+      "createdAt": "2026-08-14T12:53:48.356Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-068",
+      "envelopeId": "005b181d4b73e665568862c9e2fa7b9b97596ff662024b404d17b8eda6bac61c",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "behavior surface fully read; no escalation."
+      },
+      "_hash": "abd37dcefc270ca9a94da445b241322187836d7b141c992ad3d7959519deb552"
+    },
+    {
+      "id": "B-fb7b:RP-036",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage PASS at frozen tree. Verified verificationIntent refs are covered: the repro-first RED red-fb7b-pretest-builds-utils.mjs exercises pretest-builds-utils with mtime freshness; the structural smoke test-suite-utils-autobuild-smoke.ts is wired into validate.commands; red-fb7b-guard-bite.mjs proves the guard bites on all adversarial fixtures. Both REDs are registered in red-b49d4 REGISTRATION_EXCLUSIONS. No coverage gap.",
+      "createdAt": "2026-08-14T12:53:50.699Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-069",
+      "envelopeId": "9bb0d4fc8f9bd5c9850d518eb4bbed0edb4fd6bdec6faf2f0cb0abd7d11b6a3e",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-fb7b/checklist.json",
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "intent-to-evidence surface fully read; no escalation."
+      },
+      "_hash": "b8fc712da3c42f702b8a5b2098139c7298879bc528fe0d9c5eeb73d1820733ef"
+    },
+    {
+      "id": "B-fb7b:RP-037",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion PASS at frozen tree. This story adds a pretest build step + a shared build mutex; it deletes no concept. Scanned the diff for orphaned/residual references to removed symbols — none, because nothing was removed. The prior 'tsc' build script in packages/utils/package.json was cleanly replaced by the wrapper with no dangling callers. No residual.",
+      "createdAt": "2026-08-14T12:53:52.972Z",
+      "reviewRound": "2026-08-14T10:38:58.044Z",
+      "reviewRunId": "B-fb7b:RR-070",
+      "envelopeId": "13df767f5d5824f73f11be8646bfeeb0ca66dc0b2b7b3ca258b2ad5e74659f88",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-lock.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "no concept deletion in scope; residual scan clean."
+      },
+      "_hash": "0975e36ae916067bdd04acc58a8e3eceb0bcf4e38bf77c77d526c522e6ae83e5"
+    },
+    {
+      "id": "B-fb7b:RP-038",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code PASS at descoped material: CHANGELOG accurately describes the existence-based ensure-dist bootstrap and explicitly documents that concurrent-build mutex + content-bound freshness are deferred to a follow-up story.",
+      "createdAt": "2026-08-14T16:35:06.124Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-071",
+      "envelopeId": "5083e090a604ed4820499a695ae46ad6978123601b57a79cc10b3e846421ed17",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "131db1cf227f9f73921282b6fd1a561dbb278f4d08cbfdcada6c0a1e4866788f"
+    },
+    {
+      "id": "B-fb7b:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality PASS: scripts/ensure-dist.mjs is 30 lines, single-purpose (existsSync guard then npm build per package), no dead code, no lock/mtime complexity (descoped); structural smoke is pure read/regex. No type-safety or I/O-isolation issues.",
+      "createdAt": "2026-08-14T16:35:25.950Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-072",
+      "envelopeId": "1691d755f993194824814beb502d522bb48def428b110d05b2f5fdfec7f41eaa",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "75b65d45edbbca9940eb27f52194cc3448637b51fa892744ac18236c45a797d8"
+    },
+    {
+      "id": "B-fb7b:RP-040",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior PASS: userSees = npm test bootstraps packages/utils/dist so it never hits Missing build artifacts. ensure-dist builds main-then-utils only when dist absent (existence-based, never rm+rebuilds a present dist); missing dist rebuilt, present dist untouched (proven by red-fb7b-pretest-builds-utils behavioral steps).",
+      "createdAt": "2026-08-14T16:35:28.917Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-073",
+      "envelopeId": "67f20675b4efe0d563c06ef248df242bcd80f7e57bc36f3071c188e1e8fc376a",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "13cbd7f10abc65edfa1f1b5387af8cfce07d627f45aecda0ffb0862b72518330"
+    },
+    {
+      "id": "B-fb7b:RP-041",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage PASS: repro-first RED exercises build-when-absent + skip-when-present; structural smoke (wired into validate.commands) pins pretest->ensure-dist + existence-based + main-before-utils; guard-bite bites on every broken pretest incl. a non-existsSync ensure-dist. Both REDs registered in red-b49d4 exclusions.",
+      "createdAt": "2026-08-14T16:35:32.066Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-074",
+      "envelopeId": "2ca8ac8023f497c9691790f6ce3c09ed0cb9e39f983aebb653a5b23d34354851",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "b15d1573431226559ad7b91a3acbb4edb418433e585494cf465d80ba5c019f73"
+    },
+    {
+      "id": "B-fb7b:RP-042",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion PASS: the descope REMOVED the build-lock concept (build-lock.mjs, build-utils-with-lock.mjs, liveness RED, --ensure mode). Grep confirms no dangling withBuildLock/--ensure/build-utils-with-lock residuals; packages/utils build reverted to tsc, build-main-with-binding restored byte-identical to main.",
+      "createdAt": "2026-08-14T16:35:35.219Z",
+      "reviewRound": "2026-08-14T16:26:45.915Z",
+      "reviewRunId": "B-fb7b:RR-075",
+      "envelopeId": "cabc2172649c4eb4fc0e4f81e76ba454891e56f77c49e6358b867c979d7639c8",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface fully read."
+      },
+      "_hash": "f79f2a8482cdbbbf82280882f62c4217c58caf363dc1e234ba6144df61944495"
+    },
+    {
+      "id": "B-fb7b:RP-043",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code PASS: CHANGELOG accurately describes the existence-based ensure-dist bootstrap; the concurrent-build hardening is tracked in a follow-up story.",
+      "createdAt": "2026-08-15T00:14:29.604Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-076",
+      "envelopeId": "84b8a3e3e8a9f97e0b12cadd7717851acf6d293747d15360a17989105f2e888b",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "2aaa3b06a643713914465856a39e2205130605e14102c0c77fe89c1170818b5d"
+    },
+    {
+      "id": "B-fb7b:RP-044",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality PASS: ensure-dist is 30 lines, single-purpose (existsSync guard then npm build), no dead code, no lock/mtime complexity; smoke is pure read.",
+      "createdAt": "2026-08-15T00:14:32.929Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-077",
+      "envelopeId": "a070844ee251fb856bab587659b508b64f52b7dd249c5b5ce8c50f591a30c817",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "a76ac051569a3e05f1534a9a13b95f031c6c1d00b13da2b5d5f192885954927b"
+    },
+    {
+      "id": "B-fb7b:RP-045",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior PASS: npm test bootstraps packages/utils/dist so it never hits Missing build artifacts; ensure-dist builds main-then-utils only when absent, present dist untouched.",
+      "createdAt": "2026-08-15T00:14:36.216Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-078",
+      "envelopeId": "619f565ea984fa302576c07aaa45b0bc97c9a8fb299f02731b636ac05bd5e843",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "1c891ce4166495a6fd8af190e333188a60afaea7081de037808d2d54cc8a279b"
+    },
+    {
+      "id": "B-fb7b:RP-046",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage PASS: repro-first RED (build-when-absent + skip-when-present), structural smoke wired into validate.commands, guard-bite bites on every broken pretest incl. non-existsSync ensure-dist; both REDs registered in red-b49d4 exclusions.",
+      "createdAt": "2026-08-15T00:14:39.479Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-079",
+      "envelopeId": "e13830146ba06af6370cece6af0bc4088c5c9ba03b85ecb02af48af635d61e39",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "e0826771958b330838d1e8f82f8b5d3f6f22bb83a54046178aa4fd4bfaf78194"
+    },
+    {
+      "id": "B-fb7b:RP-047",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS: the build-lock concept was fully removed (no withBuildLock/--ensure/build-utils-with-lock residuals); packages/utils build reverted to tsc, build-main-with-binding byte-identical to main.",
+      "createdAt": "2026-08-15T00:14:42.756Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-080",
+      "envelopeId": "54c6939994e3045480b8fe23ddd0d491dab4368001a3fc534e090c2827ee8de3",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "0194a5a25781a1ee656ec398c6e7c0fd3fa170458b26155559ed11ace728a238"
+    }
+  ]
+}

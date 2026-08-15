@@ -1,0 +1,35 @@
+{
+  "storyId": "B-6f23",
+  "checkedAt": "2026-08-14T13:46:54.657Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 is phrased as an internal implementation step rather than a user-observable acceptance item. Reframe it around the observable contract: multiple independent agent-liveness child smokes overlap under a fixed maximum concurrency while visible output, failure/signal reporting, recursion prevention, and cleanup remain unchanged; leave the pool mechanism as context. CHK-002 can then remain the distinct cold-suite budget proof."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-14T13:46:30.489Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 is implementation-mechanics-only: it says to replace the serial loop with a bounded pool and preserve internals, but does not state the user-observable outcome. Reframe or extend it so a maintainer can observe that the agent-liveness suite runs multiple independent child smokes concurrently while retaining the same visible output, failure reporting, and cleanup behavior."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-14T13:46:54.657Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 is phrased as an internal implementation step rather than a user-observable acceptance item. Reframe it around the observable contract: multiple independent agent-liveness child smokes overlap under a fixed maximum concurrency while visible output, failure/signal reporting, recursion prevention, and cleanup remain unchanged; leave the pool mechanism as context. CHK-002 can then remain the distinct cold-suite budget proof."
+        }
+      ]
+    }
+  ],
+  "_hash": "857ada28591497c6e3a656a9fd4f5505c96cac1edb90e117f3199e0c63911732"
+}

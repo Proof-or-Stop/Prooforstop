@@ -1,0 +1,43 @@
+{
+  "storyId": "B-6693",
+  "name": "workspace-validation-capacity-lease",
+  "title": "Serialize workspace-level validation capacity across stories",
+  "description": "Prevent concurrent lattice validate and done_required_validate executions from different stories/worktrees from oversubscribing one machine and producing false member/suite timeout failures. Keep per-story evidence serialization, but add a canonical git-common-dir workspace capacity lease with heartbeat, stale recovery, reentrancy, explicit contention diagnostics, and no timeout-budget weakening.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-08-14T15:08:19.378Z",
+  "startedAt": "2026-08-14T15:08:19.378Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-14T15:08:21.321Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T15:11:41.205Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6693",
+    "branch": "story/B-6693",
+    "createdAt": "2026-08-14T15:11:37.434Z"
+  }
+}
