@@ -115,6 +115,26 @@
       ],
       "signatureTag": "happy|ts|happy-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-007",
+      "desc": "Three lower-severity assertion-strength gaps, all convenience bindings rather than incorrect ones (the underlying behavior is genuinely correct on manual source inspection, but the bound selector under-proves the specific claim). (1) CHK-002:edge:0 claims the surfaced reason 'includes the original error message or code from the child process'; its selector's section only asserts String(unreadable.error).length > 0 (red-b3434-blob-buffer-ceiling.mjs line 278) -- any non-empty placeholder would satisfy this, it does not check the content actually derives from the child process. I confirmed describeChildProcessFailure (done-prepare-generated-metadata.ts lines 607-616) genuinely composes code+stderr/stdout/message, so the feature is correct; the test just doesn't prove it. (2) CHK-002:adversarial:1 claims the unreadable-blob message is 'textually distinct from the error message for a blob that is genuinely absent'; its bound section (line 303) never touches the absent-blob path at all, so no assertion anywhere in the file directly compares the two message strings for inequality -- only the structural kind field ('absent' vs 'unreadable', asserted in the different section bound to CHK-002:edge:0/adversarial:0) is checked. (3) CHK-005:adversarial:0 ('the advisory never changes the pass/fail verdict') is bound to 'validation-evidence-buffer-smoke: PASS' -- the whole-file summary banner, the least specific selector possible, printed identically regardless of which of the file's 7 sections is at issue. Sections 4/5 do preserve allPass alongside advisory generation, so the claim holds, but the selector itself carries no discriminating power for this specific claim over any other in the file. None of these three block the story; recommend tightening the assertions/selectors in a follow-up rather than in this story.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:23:29.524Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-003",
+      "_hash": "4c0b7e85b9ae8ebc20d3e05e8f74261e741d93e2518c63794b8f1700305b9e2b",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|three-lower-severity",
+      "signatureTagSource": "auto"
     }
   ]
 }
