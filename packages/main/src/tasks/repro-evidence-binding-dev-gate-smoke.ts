@@ -110,9 +110,27 @@ const noFileChecklist: ChecklistData = {
   }],
 };
 
+// B-a7c5 CHK-001: canSendStoryEventWithoutSnapshotCan's DEV-entry doors now ALSO
+// require a dev-memory preflight acknowledgement. This file exists to test the
+// repro-evidence-binding gate specifically, so every fixture writes a satisfying
+// ack up front -- otherwise a DEV-door assertion below would observe
+// missing_dev_memory_preflight_ack instead of the repro-binding-specific
+// block/message this file exists to test.
+function ackDevMemoryPreflight(store: StoryStore, storyId: string): void {
+  store.writeDevMemoryPreflightAck(storyId, {
+    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    storyId,
+    packDigest: 'repro-evidence-binding-dev-gate-smoke-synthetic-digest',
+    topHitIds: [],
+    acknowledgedAt: '2026-06-24T00:00:00.000Z',
+    acknowledgedBy: 'repro-evidence-binding-dev-gate-smoke',
+  });
+}
+
 function writeStory(store: StoryStore, storyId: string, phase: StoryPhase, checklist: ChecklistData): void {
   store.writeStory(storyId, story(storyId, phase));
   store.writeChecklist(storyId, checklist);
+  ackDevMemoryPreflight(store, storyId);
 }
 
 function writeDraft(root: string, draftName: string, checklist: ChecklistData, overrides: Partial<StoryInfo> = {}): void {
@@ -1019,6 +1037,7 @@ await check('PLAN->DEV material-code bug missing binding diagnostic uses code-ve
     const storyId = 'B-bug-missing-dev';
     store.writeStory(storyId, { ...story(storyId, 'PLAN'), type: 'bug' });
     store.writeChecklist(storyId, fileChecklist);
+    ackDevMemoryPreflight(store, storyId);
     assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
     const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
     assert.match(reason, /classifier=code_verifiable_behavior_change/);
@@ -1033,6 +1052,7 @@ await check('PLAN->DEV no-file bug is repro-first exempt (no bug_story over-reac
     const storyId = 'B-nofile-bug-dev';
     store.writeStory(storyId, { ...story(storyId, 'PLAN'), type: 'bug' });
     store.writeChecklist(storyId, noFileChecklist);
+    ackDevMemoryPreflight(store, storyId);
     const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
     assert.doesNotMatch(reason, /classifier=bug_story/);
     assert.doesNotMatch(reason, /missing_story_evidence_binding/);
@@ -1048,6 +1068,7 @@ await check('PLAN->DEV high-risk missing binding diagnostic uses classifier reas
       riskSignals: [{ category: 'State Machine/Gate', matched: 'gate' }],
     });
     store.writeChecklist(storyId, noFileChecklist);
+    ackDevMemoryPreflight(store, storyId);
     assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
     const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
     assert.match(reason, /classifier=high_risk_code_verifiable/);

@@ -98,6 +98,7 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../c
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { canFinishGuard, getGuardFailureReason } from '../core/machine.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
@@ -721,6 +722,11 @@ function story(): StoryInfo {
       },
     });
     store.writeBugs(DONE_STORY_ID, { bugs: [] });
+    // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+    // record. This write lands under metaRoot (.lattice/dev-memory/), never
+    // gitRoot, so it cannot perturb the wrapper-root materialHash computed above.
+    createPlaybookRuntimeMemoryHandlers({ store, root: metaRoot, scanRoot: gitRoot })
+      .dev_memory_finish_decision({ storyId: DONE_STORY_ID, decision: 'no-reusable-lesson', reason: 'review-escalation-freshness-root-smoke fixture; no lesson to capture' });
 
     const docsPromises: DocsPromise[] = [];
     const realMachineTests: RealMachineTest[] = [{

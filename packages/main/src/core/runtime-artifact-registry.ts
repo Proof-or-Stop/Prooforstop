@@ -118,6 +118,35 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-a7c5 F-005: dev_memory_finish_decision (core/playbook-runtime-memory.ts
+    // finishDecisionPath) writes OUTSIDE .lattice/story/actives/<storyId>/, so
+    // autoCommitStoryMetadata (deliberately hard-scoped to the story dir --
+    // its own anti-broadening preMortem #1 anchor) never covers it. Before this
+    // entry existed, an uncommitted write here fell through classifyParsedRow
+    // to `unexpected_dirty_files` (blocking) and stranded review_run_start and
+    // other dirty-tree-sensitive gates -- found live during B-a7c5's own REVIEW
+    // round 3. UNLIKE this registry's other entries, deliberately NO
+    // ignorePatterns: .lattice/dev-memory/** is explicitly un-ignored (see
+    // .gitignore) because these records are meant to be git-tracked and shared
+    // across agents/hosts, not ephemeral runtime state. materialHash:'exclude'
+    // is still required so writing/refreshing this record can never perturb
+    // currentMaterialHash and thus never invalidate an already-signed evidence
+    // freshness binding (test-evidence.json / delivery-check.json) -- this was
+    // confirmed as a real regression risk when an earlier draft of this fix
+    // tried auto-committing the write instead (that approach moved HEAD and
+    // broke delivery-check materialHash freshness; excluding from materialHash
+    // computation avoids the problem at its root instead).
+    id: 'dev-memory-finish-decision',
+    description: 'Per-story dev_memory_finish_decision record under .lattice/dev-memory/finish-decisions/, tracked but non-authoritative.',
+    matchers: [
+      { kind: 'prefix', value: '.lattice/dev-memory/finish-decisions/' },
+    ],
+    ignorePatterns: [],
+    materialHash: 'exclude',
+    volatile: false,
+    repairableTrackedArtifact: false,
+  },
+  {
     id: 'runtime-traces',
     description: 'Trace artifacts emitted under .lattice/traces/.',
     matchers: [
