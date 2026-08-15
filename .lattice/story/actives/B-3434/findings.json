@@ -545,6 +545,25 @@
       ],
       "signatureTag": "adversarial|ts|discovery-cross-host",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-027",
+      "desc": "NEW, my own discovery, informational/low-confidence. In persistStoryValidationEvidence (verifier.ts), the go/no-go gate at 'if (!persistedBound.withinBound) return persistenceFailure(...)' is evaluated on persistedBound = boundPersistedValidationEvidence({result, buildRecord: (output) => evidenceRecord(output)}) -- built WITHOUT headHash/materialHash/storyFilesHash, computed early (before the git calls that produce those hashes) so a doomed write can be refused without doing that work. But the record actually written at ctx.store.writeTestEvidence(storyId, evidence(hashes)) comes from a SEPARATE, later call to boundPersistedValidationEvidence (via the evidence() closure) that DOES include the three hash fields, and that second call's own .withinBound is discarded -- only .record is read. So the outer gate is checked against an object that is not byte-identical to what gets written, which is exactly the class of bug (measure X, persist Y) this story exists to eliminate; the dispatcher's own review brief asked me to check for precisely this pattern. I tried to make this observable: I reproduced the two-call pattern directly against the built dist with a 2,000,000-entry single-character warnings array sized to land the reduction close to the bound, then compared the hash-less and hash-bearing computations. In every configuration I tried the hash-bearing computation's own reduce-then-remeasure-with-margin logic (the 0.9 safety-factor retry in boundPersistedValidationEvidence) absorbed the ~170-byte addition from three hex hash strings and still returned withinBound:true, so I could not force actual divergence despite deliberately searching for a near-boundary case. I am filing this as suspected rather than verified because I have a real structural gap (confirmed by reading the code) but not a demonstrated harmful outcome, and do not want to overstate the risk. Fix direction if this is worth doing: check evidence(hashes).withinBound (not just persistedBound.withinBound) before the final writeTestEvidence call, or fold the hashes into the SAME boundPersistedValidationEvidence invocation used for the gate so there is exactly one measured record, not two.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Traced a genuine architecture gap (checked-record != written-record) but tried and failed to construct an input where it actually changes the outcome; the story's own retry-with-margin logic appears to self-correct every case I tried, so I cannot say this is reachable, only that it is structurally unguarded.",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:44:23.858Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-016",
+      "_hash": "42a22e0a986266f52dad528c809e821407949e65e97f69e08439b048ebbdffe9",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "edge|ts|discovery-informational-confidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
