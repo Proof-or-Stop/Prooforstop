@@ -1,13 +1,13 @@
 {
-  "task": "Fix three deterministically-failing test fixtures (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts) that are invisible to lattice validate because none are registered in validate.commands, following repro-first: a RED script proving each failure, then a GREEN fix.",
-  "outcome": "Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js`, `node packages/main/dist/tasks/field-regression-cli-smoke.js`, and `node packages/main/dist/tasks/worktree-authority-smoke.js` each print a PASS line and exit 0, with no assertion errors. Running the project's root `npm test` shows 47/47 passed. A reviewer running each new packages/main/tests/red/red-B-74b9-*.mjs script against the pre-fix commit sees it fail with a clear repro message; against the post-fix commit it passes.",
+  "task": "Fix three deterministically-failing test fixtures (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts) that are orphaned from BOTH lattice.config.json validate.commands and package.json test:serial-reference (confirmed by direct grep -- neither list references any of the three), following repro-first: a RED script proving each failure, then a GREEN fix.",
+  "outcome": "Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js`, `node packages/main/dist/tasks/field-regression-cli-smoke.js`, and `node packages/main/dist/tasks/worktree-authority-smoke.js` each print a PASS line and exit 0, with no assertion errors -- confirmed on the same commit these previously failed on. A reviewer running each new packages/main/tests/red/red-B-74b9-*.mjs script against the pre-fix commit sees it fail with a clear repro message; against the post-fix commit it passes. CHK-004 records an explicit registration decision for each fixture (validate.commands and/or test:serial-reference); if any fixture is newly registered, the corresponding aggregate command (lattice validate and/or root npm test) still completes cleanly afterward with no new flakiness.",
   "facts": [
     "proofstory-acceptance-basis-smoke.ts fails at line 218: plannedBeforeCode.basis.status is partial not complete, due to two blindSpots: snapshot_missing for packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs",
     "Root cause confirmed by direct repro + source read: PROCESS_FACT_REGISTRY (process-fact-registry.ts:1119) has an artifact:acceptance-rollout-report.json entry whose producerSourceRefs are [run-proofstory-acceptance-rollout-cohort.mjs, acceptance-rollout.ts, handlers/proofstory.ts]; buildBoundedSourceGraph (acceptance-discovery-adapters.ts:1092) pulls ALL of an entrys source refs into registryCandidates once one of them (handlers/proofstory.ts, which the fixture DOES stub) is relevant, but writeCanonicalAcceptanceRegistration never stubs the other two inside the fixtures synthetic pureRoot",
     "field-regression-cli-smoke.ts fails because assertReviewRunStartCliSurface calls review_pass_set without --readManifest, which command-catalog.ts:639 now marks required; real error is an argument-validation failure, but the fixtures own assertion expects /already stale|stale/i and fails on message mismatch instead",
     "worktree-authority-smoke.ts fails because assertDoneRecoverRunsPostMergeBuildForRuntimeChanges synthetic mkdtemp root has no package.json, but handlers/done-recover.ts now also calls core/version-bump.ts bumpVersionOnDoneMerge which requires root/package.json (and other version sync points) to exist, throwing ENOENT before the stubbed doneMainBuildRunner is ever invoked",
-    "None of the three fixtures are listed in lattice.config.json validate.commands, so lattice validate never runs them; only the broader root npm test (full-suite-runner.js) does",
-    "All three were confirmed reproducible on a clean, untouched main checkout at commit 8dbfac8809 before this story was opened, and are unrelated to story B-a7c5 whose work surfaced them"
+    "CONFIRMED via direct grep: none of the three fixture names appear in package.json test:serial-reference, and none appear in the 47 test: entries from B-a7c5s own done_required_validate PASS log -- they are orphaned from BOTH lattice validate AND root npm test, not just the former (see OQ-001 resolution)",
+    "All three were confirmed reproducible on a clean, untouched main checkout at commit 8dbfac8809 before this story was opened, and are unrelated to story B-a7c5 whose work surfaced them via direct fixture invocation, not root npm test as earlier described"
   ],
   "constraints": [
     "repro-first: each fix must be preceded by a committed RED script under packages/main/tests/red/ that fails on the pre-fix tree, per user instruction",
@@ -15,10 +15,7 @@
     "must not silently expand scope into the Authority Server, PROCESS_FACT_REGISTRY redesign, or command-catalog schema changes -- those are correct as-is; only the fixtures are stale",
     "dev_memory_preflight_ack is now mandatory before this storys first DEV entry (per B-a7c5, merged into main just before this story was created)"
   ],
-  "unknowns": [
-    "Whether worktree-authority-smoke.ts root cause needs a fixture-only fix (add package.json + version sync-point stub files to the synthetic root) or also a defensive production fix in bumpVersionOnDoneMerge/done_recover (e.g. skip gracefully when no package.json is present) -- resolved during CHK-003 investigation before implementing (see plan.md CHK-003 Investigation-first)",
-    "Whether any of the three fixtures should be added to lattice.config.json validate.commands going forward (CHK-004), and if so whether they need CI runtime/isolation adjustments to run safely inside the concurrent validate suite -- resolved during CHK-004 per plan.md decision criteria"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/field-regression-cli-smoke.ts",
@@ -30,5 +27,5 @@
     "packages/main/src/core/version-bump.ts",
     "packages/main/src/handlers/done-recover.ts"
   ],
-  "timestamp": "2026-08-15T19:59:14.732Z"
+  "timestamp": "2026-08-15T20:09:00.064Z"
 }

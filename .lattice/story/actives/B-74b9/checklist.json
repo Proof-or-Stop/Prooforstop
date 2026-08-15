@@ -174,7 +174,7 @@
         "happy": [
           {
             "id": "INT-CHK004-DECISION",
-            "desc": "plan.md (or background.md) records an explicit per-fixture registration decision for validate.commands with rationale",
+            "desc": "plan.md (or background.md) records an explicit per-fixture registration decision for validate.commands and/or test:serial-reference, with rationale, correcting the earlier confirmed-inaccurate assumption that these were already covered by root npm test",
             "type": "docs",
             "priority": "must"
           }
@@ -182,7 +182,7 @@
         "edge": [
           {
             "id": "INT-CHK004-EDGE",
-            "desc": "If a fixture is registered into validate.commands, lattice validate still completes successfully afterward (no new flakiness/timeout introduced)",
+            "desc": "If a fixture is newly registered into validate.commands and/or test:serial-reference, the corresponding aggregate command (lattice validate and/or root npm test) still completes cleanly afterward with no new flakiness/timeout",
             "type": "cli",
             "priority": "should"
           }
