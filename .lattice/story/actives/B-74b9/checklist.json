@@ -325,13 +325,14 @@
         {
           "intentRef": "INT-CHK003-SCOPE",
           "kind": "manual_transcript",
+          "file": "packages/main/src/core/version-bump.ts",
           "result": "pass",
-          "note": "Investigation (core/version-bump.ts): applyPatchBump/readSyncedVersion read all five version sync-point files unconditionally via readFileSync (filesystem, not git history) -- confirmed by reading the source directly. Every real Proofbound repo root has these files by construction (they are the project's own package.json/lockfiles/brand file, always committed). The ENOENT can only occur on a synthetic fixture root that never had them, never on a genuine partial-DONE recovery -- fixture-only fix confirmed sufficient, matching decision.json's chosen option.",
+          "note": "Investigation (core/version-bump.ts, functions applyPatchBump/readSyncedVersion): both read all five version sync-point files unconditionally via readFileSync (filesystem, not git history) -- confirmed by reading the source directly. Every real Proofbound repo root has these files by construction (they are the project's own package.json/lockfiles/brand file, always committed). The ENOENT can only occur on a synthetic fixture root that never had them, never on a genuine partial-DONE recovery -- fixture-only fix confirmed sufficient, matching decision.json's chosen option.",
           "mechanical": false,
-          "headHash": "f6043df73a670613a65b54976ba2bca5f34baa49",
+          "headHash": "c7a05bc9fe0a368754ffe10b05ac4c83d64dd894",
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:51:51.639Z"
+          "timestamp": "2026-08-15T21:07:20.529Z"
         },
         {
           "intentRef": "INT-CHK003-ADV",
