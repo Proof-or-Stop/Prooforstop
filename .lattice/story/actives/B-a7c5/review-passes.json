@@ -220,6 +220,39 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "0c9dfc383fbca30baf46f970067ea8f95b5ebd0bfbdb1fd29df9b8ea2231d9d8"
+    },
+    {
+      "id": "B-a7c5:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 targeted verification of F-005 fix (commit 4a7f2aa540): confirmed dev-memory-finish-decision RUNTIME_ARTIFACT_REGISTRY entry is scoped correctly (prefix .lattice/dev-memory/finish-decisions/, materialHash exclude), has no overlap with any of the 16 adjacent registry entries, classifyParsedRow routes it to runtime_artifact_changes before the unexpected_dirty_files fallback, .gitignore un-ignore lines match its deliberate empty ignorePatterns, dist is rebuilt in sync with src, live smoke run is 78/78 green including the 4 new F-005 assertions, and zero residue remains of the earlier reverted auto-commit approach (no autoCommitDevMemoryFinishDecision export, handler is a plain writeFileSync). No blocking findings.",
+      "createdAt": "2026-08-15T11:56:48.295Z",
+      "reviewRound": "2026-08-15T11:51:21.761Z",
+      "reviewRunId": "B-a7c5:RR-010",
+      "envelopeId": "cbf42a7e86161921865c7feb0d739773183084d0cb990d6f8f30e204d4b7d554",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          "packages/main/dist/core/runtime-artifact-registry.js",
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "bf80ae9638eda2d27b2ccc7e7b7288e32430ad61812a5e7085b6d5bb9325d80e"
     }
   ]
 }
