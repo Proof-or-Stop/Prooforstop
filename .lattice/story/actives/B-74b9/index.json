@@ -4,7 +4,7 @@
   "title": "Fix three silently-failing test fixtures not covered by validate.commands (acceptance-basis, review_pass_set readManifest, done_recover version-bump)",
   "description": "Three pre-existing fixtures under packages/main/src/tasks/ fail deterministically on a clean, untouched main checkout. They are orphaned from BOTH lattice.config.json's validate.commands AND package.json's test:serial-reference (confirmed by direct grep against both files during PLAN -- see OQ-001 resolution); they are reachable only via direct invocation (node packages/main/dist/tasks/X.js) or their own unwired per-fixture npm script. All three were discovered incidentally during B-a7c5's work (2026-08-15) via direct fixture invocation (not, as an earlier draft of this description inaccurately claimed, via root npm test), and confirmed reproducible on a clean untouched main checkout at commit 8dbfac8809 before being deliberately kept out of that story's scope.\n\n1) proofstory-acceptance-basis-smoke.ts: deriveAcceptanceCoverageBasis's plannedBeforeCode assertion expects status 'complete' but gets 'partial'. Root cause confirmed by direct repro: PROCESS_FACT_REGISTRY (process-fact-registry.ts) grew a new entry `artifact:acceptance-rollout-report.json` whose producerSourceRefs include packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs alongside handlers/proofstory.ts. Because buildBoundedSourceGraph (acceptance-discovery-adapters.ts:1092) pulls ALL of a registry entry's source refs into the required snapshot closure once handlers/proofstory.ts is relevant, and the fixture's synthetic pureRoot workspace (built by writeCanonicalAcceptanceRegistration) never stubs the two new files, they show up as snapshot_missing blind spots -- a fixture staleness bug, not a production logic bug.\n\n2) field-regression-cli-smoke.ts: assertReviewRunStartCliSurface calls review_pass_set without --readManifest, which command-catalog.ts now marks required. The real CLI error is 'Argument validation failed: readManifest: Invalid input: expected object, received undefined', but the fixture's own assertion expects a completely different message pattern (/already stale|stale/i), so it fails on a message mismatch instead of ever exercising the staleness scenario it was written to test.\n\n3) worktree-authority-smoke.ts: assertDoneRecoverRunsPostMergeBuildForRuntimeChanges's done_recover call throws 'DONE post-merge version bump failed before any commit: ENOENT ... package.json' from core/version-bump.ts's bumpVersionOnDoneMerge (called via handlers/done-recover.ts). The DONE-merge auto-bump feature now wires bumpVersionOnDoneMerge into done_recover's post-merge path, requiring root/package.json (and the other version sync points) to exist, but this fixture's synthetic mkdtemp root was never given one since that requirement postdates the fixture.\n\nPer explicit user direction: prove each with a RED reproduction first (repro-first methodology, tests/red/), then fix to GREEN, all under one story driven to DONE. CHK-004 records an explicit per-fixture decision on registering into validate.commands and/or test:serial-reference now that both are confirmed to currently exclude all three.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "acceptance-basis",
@@ -30,7 +30,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-08-15T19:50:07.182Z",
   "startedAt": "2026-08-15T19:50:07.182Z",
-  "endedAt": null,
+  "endedAt": "2026-08-15T23:49:02.637Z",
   "events": [
     {
       "phase": "INIT",
@@ -130,12 +130,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-15T23:49:02.637Z",
+      "branch": "story/B-74b9",
+      "user": "Harmonygo",
+      "sessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-74b9",
-    "branch": "story/B-74b9",
-    "createdAt": "2026-08-15T19:55:30.528Z"
-  },
   "currentReviewRound": "2026-08-15T23:39:41.435Z"
 }
