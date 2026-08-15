@@ -483,7 +483,7 @@
       "desc": "doc-code-drift: docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 describe direct validate structured watchdog/deadline cleanup but omit the repaired terminal-classification boundary. packages/main/src/cli-engine.ts:1062-1125 deliberately separates structuredDoneResult (done_prepare/done_required_validate only) from structuredWatchdog (also validate), so direct validate keeps isCanonicalCommandFailure rather than inheriting DONE structured-result classification. Add that distinction so structured cancellation is not read as a change to validate stdout/exit semantics.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T13:54:48.209Z",
@@ -509,7 +509,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d updates all three capacity documents: direct validate uses structured watchdog only for abort/deadline propagation and waiter cleanup, while structuredDoneResult and the DONE-result classifier remain exclusive to done_prepare/done_required_validate and validate retains its existing classification/exit contract.",
+      "resolvedAt": "2026-08-15T20:10:31.650Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-015",
