@@ -823,6 +823,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|fifth-instance-pattern",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-035",
+      "desc": "F-031's fix is satisfied by every CURRENT call site but is not structurally enforced at the choke point the fix's own comment claims it is. The doc comment above boundPersistedValidationEvidence says: 'Every record it hands back has been through snapshotPersistedRecord, on all four dispositions including the refusal - one path returning a live object and the others returning plain data would rebuild, in miniature, the split ... this function exists to close.' That uniformity is real today, but it is achieved because every existing branch happens to route its record through measureWith (which internally calls snapshotPersistedRecord) before calling finish(). finish() itself — the single common exit point that already does enforce one invariant structurally (record === null implies disposition refused, per F-032's fix) — does NOT enforce the snapshot invariant: its signature is finish(record: T | null, fileBytes: number, disposition, sizing), two independently-suppliable parameters that finish trusts without re-deriving fileBytes from record or verifying record is the parsed output of a JSON.stringify of itself. A future editor adding a fifth disposition, or adding an early return, or simply patching a field onto an already-built record before returning it (a very plausible small change — e.g. 'attach a diagnostic id to the fallback record') can call finish(patchedRecord, staleOrRecomputedBytes, ...) directly without going through snapshotPersistedRecord again, and nothing — not the type system, not finish(), not the smoke's structural checks (section 10b/13 grep verifier.ts's call pattern, not validation-executor.ts's internal choke point) — would catch it. That is 'remembered', not 'derived': the invariant holds because every current author of this function happened to route through measureWith, not because the code makes the alternative impossible. Concretely this is the same class of gap F-032 just closed for null-safety (previously: record==null was 'remembered' by three verifier.ts call sites; now: enforced once, structurally, in finish()) but left open for the snapshot property. Hardening: have finish() accept the {record, bytes} shape that measureWith/snapshotPersistedRecord already produce (a single object parameter) instead of two independent scalars, so a caller cannot supply a fileBytes that was not derived from that exact record by that exact function.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:52:19.796Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-025",
+      "_hash": "54fd1c94ecd0fc671789d30a0696152d0fef5bac164a6eaa2c0e40756e281f8a",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "cleanup|ts|satisfied-every-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
