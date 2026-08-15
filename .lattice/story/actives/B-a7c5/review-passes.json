@@ -455,6 +455,42 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "a36e0f4fc0ec1e27c9697ab317f504f83d5e392c387f6c3dcec1c7d6722e824b"
+    },
+    {
+      "id": "B-a7c5:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 7: independently re-verified round-6 F-009 fix (done-premerge-mainsha-recheck-smoke.ts) and the follow-up F-010 sweep (closeout-trust-smoke.ts + worktree-authority-smoke.ts dev_memory_finish_decision writes, plus fingerprint repin in retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs). Ran all 5 affected checks directly (dev-memory-lifecycle-gates-smoke 79/79, done-premerge-mainsha-recheck-smoke 14/14, closeout-trust-smoke, retired-authority-vocabulary-guard-smoke PASS, verify-process-fact-contract.mjs PASS) -- all green. Independently reproduced both flagged-separately unrelated pre-existing issues on a clean untouched main checkout (commit 8dbfac8809, freshly rebuilt dist): field-regression-cli-smoke.ts missing --readManifest arg, and worktree-authority-smoke.ts assertDoneRecoverRunsPostMergeBuildForRuntimeChanges ENOENT version-bump -- both reproduce identically on main, confirming genuinely unrelated. No dead code, no unnecessary as-any, no empty catches, no I/O-isolation violations in the 3 follow-up commits; new import/handler calls match createPlaybookRuntimeMemoryHandlers.dev_memory_finish_decision real signature. Both fingerprint-pin sites for closeout-trust-smoke.ts confirmed updated in lockstep (grepped whole repo for old value: zero remaining references). Worktree clean apart from own review-run bookkeeping. No blockers.",
+      "createdAt": "2026-08-15T15:01:20.994Z",
+      "reviewRound": "2026-08-15T14:53:25.129Z",
+      "reviewRunId": "B-a7c5:RR-020",
+      "envelopeId": "80eb6c89ae8d904f777ee8502e2d08933262ed1efa5063c66bd2fe13f999658e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl (commit e162c5c270 diff)",
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json (F-008, F-009 records)",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/handlers/playbook-runtime-memory.ts (dev_memory_finish_decision handler signature, lines 168-260)",
+          "packages/main/src/tasks/closeout-trust-smoke.ts (F-010 fix diff, commit e162c5c270)",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts (F-009 fix diff, commit 860e94cbe0)",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (fingerprint repin diff, commit cc8fd5f27e)",
+          "packages/main/src/tasks/worktree-authority-smoke.ts (F-010 fix diff, commit e162c5c270)",
+          "scripts/verify-process-fact-contract.mjs (fingerprint repin diff, commit cc8fd5f27e)"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json (test:serial-reference / full-suite-runner.js task list, 47-entry cross-check)",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "7e9be05d208b2330dde3e043708b1211f98afe345f20b72d437ba0958e4976d6"
     }
   ]
 }
