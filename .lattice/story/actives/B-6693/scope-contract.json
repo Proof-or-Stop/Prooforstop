@@ -9,6 +9,7 @@
     "packages/main/src/tasks/validate-execution-lock-smoke.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli-engine.ts",
     "docs/CLI.md",
     "docs/requirements/decisions/testing-infra.md",
     "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
@@ -30,10 +31,10 @@
     "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
   ],
-  "scopeChangeReason": "F-008 exposed that the managed checklist_update CLI cannot round-trip existing VerificationIntentPin values because command-schemas.ts omits the verification field that core/types.ts and stored checklist intents already support. Add exactly this schema file so PLAN can repair obsolete exact selectors through the authorized interface, never by direct Story JSON edits.",
+  "scopeChangeReason": "F-012 proves the real direct validate CLI watchdog does not propagate cooperative abort/deadline into the workspace capacity wait. Add exactly cli-engine.ts to repair and regress the production entrypoint; all prior allowed paths, protected files, and explicit exclusions remain unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T15:29:58.959Z",
-  "updatedAt": "2026-08-15T11:51:50.629Z",
+  "updatedAt": "2026-08-15T12:59:59.092Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -56,6 +57,7 @@
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes": "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
-    "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts"
+    "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
   }
 }
