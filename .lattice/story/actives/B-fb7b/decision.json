@@ -1,0 +1,92 @@
+{
+  "principles": [
+    "Fix at the exact point of need (npm test lifecycle), not by broadening scope into worktree bootstrapping.",
+    "Prefer the idiomatic npm mechanism (pretest lifecycle hook) over bespoke build orchestration.",
+    "Deterministic + idempotent: rebuilding gitignored dist yields identical bytes and never dirties the tree.",
+    "Leave a permanent, un-gameable regression guard so the utils build cannot silently regress.",
+    "Do not touch sensitive paths (worktree handler, bootstrap-runner) — keep their human-facing recovery hint intact."
+  ],
+  "drivers": [
+    "done_required runs the suite via {command:npm,args:[test]}, so an npm pretest hook fires automatically before it.",
+    "Only packages/utils is missing; packages/main is already built (validate.commands[0] + needed to run full-suite-runner.js).",
+    "Scope boundary forbids editing worktree.ts and bootstrap-runner.js."
+  ],
+  "options": [
+    {
+      "name": "root-pretest-build-both",
+      "pros": [
+        "Fires automatically on npm test via npm lifecycle (covers done_required)",
+        "One line in root package.json; mirrors existing build script",
+        "Self-bootstraps a clean tree: builds main then utils in order",
+        "dist gitignored + deterministic → no dirty tree, no build-proof conflict"
+      ],
+      "cons": [
+        "Adds a ~1-2 min build before every npm test",
+        "package.json in story diff → main-merge related-drift re-review risk (e5bcf07)"
+      ]
+    },
+    {
+      "name": "bootstrap-runner-autobuild",
+      "pros": [
+        "Covers every bin/lattice.js call incl. interactive mid-story",
+        "Single choke point"
+      ],
+      "cons": [
+        "Out of scope (blocked path)",
+        "Auto-building inside a CLI entrypoint is surprising/magic",
+        "Parallel full-suite sub-tests would each trigger concurrent builds → races (3a09431)"
+      ]
+    },
+    {
+      "name": "worktree-handler-autobuild",
+      "pros": [
+        "Fills the node_modules+dist gap at worktree creation, the most thorough",
+        "Covers all downstream uses"
+      ],
+      "cons": [
+        "Out of scope (blocked path); touches sensitive worktree bootstrapping",
+        "Adds build latency to every INIT_CHECK",
+        "Broader blast radius than the user asked for"
+      ]
+    },
+    {
+      "name": "add-utils-to-validate-commands",
+      "pros": [
+        "Symmetric with existing validate.commands[0] main build"
+      ],
+      "cons": [
+        "Wrong target: none of the 94 validate.commands need utils; lattice validate never invokes bin/lattice.js",
+        "Would build utils where it is not needed and still miss the real npm-test path"
+      ]
+    }
+  ],
+  "chosen": "root-pretest-build-both",
+  "rationale": "done_required runs the full suite via the bare npm test lifecycle, so a root pretest that builds packages/main then packages/utils fires automatically and closes the gap at exactly the point utils is required — with no edits to blocked paths, no dirty tree (dist is gitignored and the build is deterministic), and no conflict with the packages-main-build proof (the pretest main build is additive and reproduces identical bytes). The rejected options are either out of scope, race-prone, or aimed at the wrong path (validate never needs utils). A fast structural smoke wired into validate.commands plus a behavioral repro-first RED that runs npm run pretest give an un-gameable, permanent guard.",
+  "preMortem": [
+    {
+      "scenario": "pretest builds only utils, and a truly clean tree has no packages/main/dist",
+      "trigger": "npm test invoked before any build in a fresh checkout",
+      "consequence": "npm cannot even load node packages/main/dist/tasks/full-suite-runner.js and the suite aborts before pretest value is realized",
+      "mitigation": "pretest builds packages/main FIRST, then packages/utils, making npm test fully self-bootstrapping"
+    },
+    {
+      "scenario": "package.json is part of the story diff so later main merges stale all evidence",
+      "trigger": "a sibling story lands on main (or DONE auto-bump touches package.json) before this story reaches DONE",
+      "consequence": "storyFilesHash drift forces a full TEST->DEV->REVIEW re-review round (e5bcf07)",
+      "mitigation": "work solo, close the story promptly once quorum binds, and budget one re-review round; re-run command-backed evidence rather than refresh_stale"
+    },
+    {
+      "scenario": "the regression smoke asserts a package.json string that is satisfied without the real build effect",
+      "trigger": "someone writes a pretest that echoes or no-ops the build to satisfy a naive string check",
+      "consequence": "guard passes while the utils build silently regresses",
+      "mitigation": "smoke asserts the full invariant chain (bootstrap-runner requires utils/dist; test invokes full-suite-runner; pretest actually runs both package builds, main before utils) and a behavioral RED runs npm run pretest and asserts packages/utils/dist is produced"
+    },
+    {
+      "scenario": "the behavioral RED does a destructive dist remove/restore on the shared worktree",
+      "trigger": "RED deletes packages/utils/dist then rebuilds while parallel reviewers read the same dist",
+      "consequence": "concurrent reviewers observe spurious FAILs (3a09431 race)",
+      "mitigation": "RED performs only an idempotent npm run pretest rebuild (no destructive removal of shared dist); the fast structural smoke in validate.commands does no dist mutation at all"
+    }
+  ],
+  "timestamp": "2026-08-14T03:03:32.234Z"
+}

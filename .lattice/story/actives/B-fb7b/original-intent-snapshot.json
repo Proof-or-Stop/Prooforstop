@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-fb7b",
+  "sourceText": "User (info@retiave.com), 2026-08-14: after diagnosing that root npm test / done_required fails when packages/utils/dist is absent (the recurring 'worktree needs utils build' pitfall), asked to permanently fill the gap so nobody must manually build packages/utils — '把 utils 加进...把只警告升级成自动补齐', then '那现在就开story解决'. Investigation narrowed the real gap to the root npm test path (validate never needs utils); fix is a root pretest that builds packages/main then packages/utils.",
+  "normalizedOutcome": "Running npm test in a worktree where packages/utils/dist is absent now builds packages/utils (via the npm pretest lifecycle) before the full suite runs, so the suite no longer aborts with 'lattice local bootstrap is not ready / Missing build artifacts: packages/utils/dist/index.js'.",
+  "acceptanceClaim": "A root pretest script builds packages/main then packages/utils before the full suite, so npm test self-bootstraps packages/utils/dist and the full suite (including bin/lattice.js sub-tests) starts without the missing-utils bootstrap failure.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:a3cef3c49e581d54bea582071f0a59ca710be49a0b6a0a53b023eb64bce1d77e",
+  "createdAt": "2026-08-14T03:05:43.671Z",
+  "updatedAt": "2026-08-14T03:05:43.671Z"
+}

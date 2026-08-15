@@ -21,6 +21,35 @@
   wired into `validate.commands`; `scripts/verify-process-fact-contract.mjs` now
   tracks the git-command tokens in the shared module.
 
+- **Root `npm test` now self-bootstraps `packages/utils` (B-fb7b).** Added a root
+  `pretest` script (`scripts/ensure-dist.mjs`) that ensures `packages/main` then
+  `packages/utils` `dist` exist before the full suite runs. Previously
+  `validate.commands` auto-built only `packages/main`, so a worktree without
+  `packages/utils/dist` ran the full suite (via done_required's `npm test`) with utils
+  absent, and any sub-test that spawns `bin/lattice.js` aborted in `bootstrap-runner.js`
+  with `Missing build artifacts: packages/utils/dist/index.js`. The pretest fires through
+  the npm lifecycle, closing the gap at the exact point utils is needed.
+
+  The bootstrap is deliberately **existence-based**: it builds a package's `dist` only
+  when that `dist` is absent, and never `rm -rf dist`+rebuilds a present one — so a
+  repeated `npm test` cannot destroy a `dist` a concurrent invocation's suite is reading.
+  Freshness (rebuild on a source change) stays owned by the `packages-main-build` validate
+  proof, which rm+rebuilds from source; within a worktree the build output is at a fixed
+  HEAD, so an already-present `dist` is the correct one to reuse. `dist` is gitignored, so
+  the bootstrap never dirties the tree. A fast structural guard
+  (`test-suite-utils-autobuild-smoke`, wired into `validate.commands`), a behavioral
+  repro-first RED (`red-fb7b-pretest-builds-utils.mjs`), and a guard-bite verifier
+  (`red-fb7b-guard-bite.mjs`) keep the bootstrap from regressing. The worktree handler and
+  `bootstrap-runner.js` are intentionally left untouched (their human recovery hint stays).
+
+  Scope note: an independent cross-host (Codex) review of an in-story attempt to also add a
+  crash-safe concurrent-build mutex + content-bound idempotent build surfaced several MAJOR
+  correctness bugs in a hand-rolled `mkdir` lock and `mtime` freshness heuristic (age-steal
+  of a live holder; a check-then-delete reclaim race; `mtime` misclassifying deleted-source
+  orphans and partial builds). That is a genuine infrastructure problem, disproportionate to
+  this bootstrap, so it is deferred to a dedicated follow-up story; this change carries only
+  the minimal existence-based bootstrap.
+
 ## Proofbound 0.3.251 - 2026-07-31
 
 Dependency-security maintenance round: clears every high-severity advisory
