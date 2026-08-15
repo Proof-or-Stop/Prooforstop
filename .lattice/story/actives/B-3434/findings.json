@@ -232,6 +232,26 @@
       "resolvedAt": "2026-08-15T12:31:22.374Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-011",
+      "desc": "validation-executor.ts:139-152 (the 'What is guaranteed, and what is not' block immediately above VALIDATION_EVIDENCE_READ_CEILING_BYTES) states unconditionally: 'GUARANTEED, as an enforced post-condition of boundValidationEvidenceOutput: the string it returns is strictly smaller than VALIDATION_EVIDENCE_BOUND_BYTES. It is enforced by measuring the real encoding after every stage and by a last-resort replacement that cannot fail.' This is false for a reachable input. The early-return branch at line 375 (measuredBytes < VALIDATION_EVIDENCE_BOUND_BYTES || !result || typeof result !== 'object') returns the raw unbounded serialized string with NO stage and NO last-resort replacement (verdictOnlyRecord is only reachable from the object-shaped pipeline) whenever result is a non-object bulk value (e.g. a bare oversized string) whose size is already over the bound; that branch legitimately sets withinBound=false and hands back an over-bound output. This is exactly what the story's own smoke fixture 8e exercises and asserts as honest, not a hypothetical: boundValidationEvidenceOutput(x.repeat(30*MIB)) -> withinBound===false, actualBytes>=BOUND (confirmed live: node packages/main/dist/tasks/validation-evidence-buffer-smoke.js prints 'an unmet bound is reported honestly instead of being flagged as success / measured=31457282 serialised=31457282 withinBound=false'). Git history shows the two pieces of prose were never reconciled: the GUARANTEED paragraph was authored in commit 29968050ff (the F-001 fix round); the branch that can legitimately return withinBound=false on this exact path (previously a hardcoded bounded:false literal, now a genuine measurement per the F-008 fix) was made honest later in commit 78465a6d3, which added an inline comment right at that branch acknowledging the gap ('a non-object carrying bulk...has no structure to reduce, so this path can legitimately return withinBound=false') but did not revisit the module-level GUARANTEED paragraph nine lines above to add the same caveat. The doc's own framing -- 'stated precisely, because an earlier revision of this comment claimed an invariant that the code did not enforce' -- is itself undermined by this residual unconditional claim: it is the same defect family (comment claims an absolute the code enforces only conditionally) recurring in the very paragraph rewritten to correct that family, one field the paragraph never mentions later (measuredBytes 1160). Production is not at risk today: verifier.ts:849 (if (!boundedOutput.withinBound) return persistenceFailure(...)) checks the flag rather than trusting the doc absolute. But a future maintainer who trusts 'GUARANTEED...It is enforced by...a last-resort replacement that cannot fail' as license to skip that check at a new call site would reintroduce exactly the over-trusted-invariant shape F-001/F-008 exist to remove. Suggested fix: qualify the GUARANTEED clause with the same caveat already present at the code site, e.g. state the guarantee conditionally on withinBound (or on result being object-shaped / already under the bound) rather than as an absolute of the function itself.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T12:40:28.432Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-014",
+      "_hash": "45b3af0d9398b81b9edb95bba2be73275f856309b5ea47f1271af0455e89710c",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|validation-executor-what",
+      "signatureTagSource": "auto"
     }
   ]
 }
