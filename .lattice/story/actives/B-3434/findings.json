@@ -505,6 +505,24 @@
       "resolvedAt": "2026-08-15T13:43:37.834Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-025",
+      "desc": "Re-filed under the quality lane so it actually gates (story B-3434:F-016, agent=main/RR-011, not reviewer evidence for the same isReviewerAgent reason as F-014/F-015). This revises my own earlier judgement on this exact function: I had previously accepted verifyMetadataBlobDigests's lack of an aggregate cap on N concatenated per-path errors on the recorded rationale (comment above its reason field) that today's callers pass a small fixed manifest, while noting that is an assumption about callers rather than a property of the exported function. Independently confirmed the sibling gap by reading commitImmutableMetadataTree directly on the pre-fix tree: the worktreeReason branch (verified metadata is absent from the worktree: + worktreeMissing.join) composed a diagnostic from an arbitrary-length path list with NO capDiagnostic call at all, unlike every other diagnostic in the module, and strictly worse than verifyMetadataBlobDigests's own per-path-capped-but-aggregate-uncapped choice -- this branch capped nothing at all. THIS IS NOW FIXED as of e1afeb346a: I read the current done-prepare-generated-metadata.ts and confirmed worktreeReason is now wrapped in capDiagnostic (line ~961), consistent with the module's other diagnostics. verifyMetadataBlobDigests's own aggregate (the pre-existing, previously-accepted small-N assumption) is deliberately left as-is with its original rationale comment unchanged -- that is a legitimate scope decision (fix the newly-discovered inconsistency, do not silently re-litigate the already-accepted one) rather than an oversight.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:43:44.851Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-016",
+      "_hash": "029e937f9a90601c75c5c1717399404686552f32fa4b9558cf98c326c1ebad62",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "signatureTag": "missing|ts|filed-quality-lane",
+      "signatureTagSource": "auto"
     }
   ]
 }
