@@ -29,6 +29,49 @@
         "scanEscalationReason": null
       },
       "_hash": "5f4cdd0c7f934b66bfcc60fdcbb3eba416e45037f586c4cfea4fae96fa9b7c8b"
+    },
+    {
+      "id": "B-74b9:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality review of git diff main...HEAD: 3 fixture files (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts), 3 new standalone RED scripts under packages/main/tests/red/, lattice.config.json validate.commands addition. No dead code, no unsafe as-any casts, no empty catch blocks (grep confirmed). No shells/ui.ts-to-fn.ts I/O isolation concern (not applicable to these files). Proof-metadata job/run-metadata dual-surface rule not applicable (no job.metadata/run.metadata touched). Wave-4 acceptance-rollout-gate boundary (acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check/acceptanceRolloutGateMode/codex-cli/claude-cli) not touched anywhere in the diff -- confirmed via grep, not applicable. No doc-promise-undelivered risk: no CLAUDE.md/README changes in this diff. Independently ran all 3 fixed fixtures against a fresh build: proofstory-acceptance-basis-smoke.js exits 0 (~56s, matches plan.md claim); field-regression-cli-smoke.js fails only at the separately-tracked assertReviewerListForceReviewerLaneContract channel-lane bug (task_9f6b2322), confirming the readManifest fix itself (6/6 review_pass_set call sites) is correct and reaches past it; worktree-authority-smoke.js fails only at the separately-tracked assertConcurrentDoneSerializesWithoutPartialDone race (task_a8d49518), confirming the version-sync-files fixture fix is correct and reaches past it. Verified the third done_recover-calling function (assertDoneRecoverSkipsPostMergeBuildForUnwatchedChanges) was correctly left unpatched: read core/version-bump.ts bumpVersionOnDoneMerge and confirmed it short-circuits (returns early) before touching the filesystem when shouldBump is false, so that fixture never needed the version-sync-file scaffold -- not an omission. Verified lattice.config.json only registers proofstory-acceptance-basis-smoke.js (the one that is fully clean end-to-end); the other two are correctly deferred per plan.md CHK-004 with named follow-up tasks, and grepped package.json/packages/main/package.json to confirm neither is in test:serial-reference (consistent with the story's stated rationale). Checked CHK-002's adversarial concern about the readManifest stub shape (empty filesReadFully/filesTriagedByName arrays, null scanEscalationReason, used at all 6 call sites): read core/reviewer-read-evidence.ts normalizeReviewerReadManifest and confirmed empty arrays are schema-valid with no minimum-content enforcement, and the tests' own assertions (exit code + stderr message match) are orthogonal to readManifest content, so the empty shape cannot mask a broken staleness/binding check in these specific tests -- defensible, not a correctness gap. No code-quality blockers found.",
+      "createdAt": "2026-08-15T21:33:04.487Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-001",
+      "envelopeId": "cd6c6a456be8a33936d8f378aeab81addc0f146210e592581c8f667874c0744c",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/red-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          ".lattice/story/actives/B-74b9/review.json",
+          ".lattice/story/actives/B-74b9/test-evidence.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7c73f51de001ac7477e9d59c5e0e95a261f1f6eebebc748a7defb3fffc4a7759"
     }
   ]
 }
