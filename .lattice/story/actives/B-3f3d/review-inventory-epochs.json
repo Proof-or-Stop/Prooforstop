@@ -2205,6 +2205,448 @@
       "consumedAt": "2026-08-15T09:09:51.064Z",
       "consumedByReviewRound": "2026-08-15T08:24:40.660Z",
       "_hash": "a1c821e3dc2cab828a0fc8063146d9c6d3ea83be5e123ecb3aecf97cf65618dd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-017",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-15T10:36:55.261Z",
+      "updatedAt": "2026-08-15T11:20:07.342Z",
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "scopeDigest": "68b19340e6d385d115daa5f048d5ae8ad22b701771cffeb4723b49d6a5fe186b",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 216,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-15T10:36:55.261Z",
+          "completedAt": "2026-08-15T10:46:56.493Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-217",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "a21061c714ec702ef2b453ea38ec91932a33ff9a759af984d97521302720b1b5",
+              "evidenceIds": [
+                "B-3f3d:RP-165"
+              ],
+              "coverageDigest": "56dc8f3a0b2c621b785fb5f96bab73d87874d1df0ad25e268ff44350f0fc8454"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-219",
+              "terminal": "finding",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "4ab52e60b5d219d0033c0308fbbe39886a8d510a366a6972587ea34f4da527e5",
+              "evidenceIds": [
+                "B-3f3d:F-064"
+              ],
+              "coverageDigest": "25beb3a01782e49e254878791c09665e154af5c77a3f6b2eedbf661ac51ff13e"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-218",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "407c5132c8b299150afc12ad423b80d086d39168af74f01e6f43a38b13f3244c",
+              "evidenceIds": [
+                "B-3f3d:RP-166"
+              ],
+              "coverageDigest": "9f26c2f59c816d1988ded00bdfbcfc80b2b517b6456c53bfa96efa11bcd8700e"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-220",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "9613e44ca16cf4398f318a6ed61b26e448e432c1527879bde31428d4180e0fba",
+              "evidenceIds": [
+                "B-3f3d:RP-167"
+              ],
+              "coverageDigest": "208c7fc83814c86fe60f2c07a1d7324fe97b69b58c6c3e532c22f71d81a805e1"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-complete-control-closure-drift",
+            "flow-stability-partial-basis-fixture-drift"
+          ],
+          "verifiedFindingSetDigest": "6d8e6e5bd5c4a65df73225a853929e25df848ffe1c051eaf4eb74a3f9b4366fa",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "7e9683cdf943663348d1013d9e0e8ef3fd7399e4c3c3883450445bd37d8fe852",
+          "saturated": false,
+          "nextRunSequenceBoundary": 221
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-15T10:46:56.493Z",
+          "completedAt": "2026-08-15T10:59:53.444Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-222",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "6a91110a8b95b4f707f4654d7c28325191f63da6faea8a3ba0a332c29b0dfdd3",
+              "evidenceIds": [
+                "B-3f3d:RP-169"
+              ],
+              "coverageDigest": "b818ca4f4bcd817cea379730c7e82a0bfebc07bda6fdb407860a800828c53f5b"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-224",
+              "terminal": "finding",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "38d7762f1234d9fb342be055f06c9d79d5d3eaea3e953c10c9a76622483f8e7b",
+              "evidenceIds": [
+                "B-3f3d:F-065"
+              ],
+              "coverageDigest": "847ffd732165ec859c678006bd20bc878acedacbe8ad287cab41cce379b29f5f"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-223",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "f9e9959f1905dd34a12c06ec728580de70efc8130295ccbc3acf0cc86bd045d6",
+              "evidenceIds": [
+                "B-3f3d:RP-170"
+              ],
+              "coverageDigest": "8c3096c0ada215338a4c3176918cf839a410e3a54dbda281c97815742820a453"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-225",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "9e390f5011ce4bbaca8e229a78ef61f49ef0653051491a36c7488b47282aac63",
+              "evidenceIds": [
+                "B-3f3d:RP-171"
+              ],
+              "coverageDigest": "d77798ebba3bb7ffebe9eb90057d03e1e3fb731421b311238f0845f2d5e5f2e9"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-complete-control-closure-drift",
+            "flow-stability-partial-basis-fixture-drift",
+            "nonmechanical-evidence-provenance-semantic-binding"
+          ],
+          "verifiedFindingSetDigest": "2b97dd4576aa35bf36279ec6875d76fa6f80d426c17b6e47ce9ce4af2575e182",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "a6cdd65f80ff7d564b6c0ff8866725636b961359cad8d6ffa7e6e55d0366a0c2",
+          "saturated": false,
+          "nextRunSequenceBoundary": 226
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-15T10:59:53.444Z",
+          "completedAt": "2026-08-15T11:20:03.100Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-227",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "3dd69d7ca0d18f02fa68d46e868c0827c16ca1b4c359e471f48d192a9937c656",
+              "evidenceIds": [
+                "B-3f3d:RP-173"
+              ],
+              "coverageDigest": "d26e3402ce277cbd38bd522cac890e3c7c9d228f34ac8d20db2264919dbbde35"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-228",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "3fd2cbbdfdf2698904ac222fac2a036bafe4a53b20b6cdcb1832755ae63a7aea",
+              "evidenceIds": [
+                "B-3f3d:RP-174"
+              ],
+              "coverageDigest": "f7e1c5ce6b8333d91745d10382bb1967b7612f977ebad4de022900a5226685e5"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-229",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "bfaad37842631b75ce2d5bfab63dde5c63146b9971ceca5ad403a2c3c158af79",
+              "evidenceIds": [
+                "B-3f3d:RP-175"
+              ],
+              "coverageDigest": "6d8e796c913d0c2f45555c9d774cb5084005d493bf85ed144706a5bddf4ae7a0"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-230",
+              "terminal": "finding",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "f842a5baaf1396dd1c17e88e2f812f9ca87105388dc68a1a3626b5c30e074d38",
+              "evidenceIds": [
+                "B-3f3d:F-066"
+              ],
+              "coverageDigest": "ed4c2d8c752860791141c3322ca7ffb34fb5b6d3a21223c75771b78caa5234b0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-complete-control-closure-drift",
+            "flow-stability-partial-basis-fixture-drift",
+            "fresh-executable-evidence-doc-command-drift",
+            "nonmechanical-evidence-provenance-semantic-binding"
+          ],
+          "verifiedFindingSetDigest": "f5c0f59ab5f740e44c9e69261136615926b2b6f5628ad85b726a6068effbad38",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "48faedba645fb7df3a89f56028a4aa59d1455812a62eba0f5f83764c545b1633",
+          "saturated": false,
+          "nextRunSequenceBoundary": 231
+        }
+      ],
+      "baselineFindingIds": [
+        "B-3f3d:F-063"
+      ],
+      "cancelledAt": "2026-08-15T11:20:07.342Z",
+      "cancelReason": "replan or decompose after wave budget exhaustion",
+      "terminalRunSequenceBoundary": 231,
+      "_hash": "cf9abf0d2ea593b5509a42b04b4124a40e1ed2a6a1cf035417a16140bf7029d0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-018",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-15T11:20:18.474Z",
+      "updatedAt": "2026-08-15T12:27:11.715Z",
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "scopeDigest": "68b19340e6d385d115daa5f048d5ae8ad22b701771cffeb4723b49d6a5fe186b",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 231,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-15T11:20:18.474Z",
+          "completedAt": "2026-08-15T11:40:41.535Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-232",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "35980d7bbd090821dce46c6780af96ef919123f48d124c1b8710a211319dec00",
+              "evidenceIds": [
+                "B-3f3d:RP-177"
+              ],
+              "coverageDigest": "4074692d1fa90357915963584cf9d317faca1a764f38c44cb7f1ca3b9200338f"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-234",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "05f68a91e259c062b075fa8751e7bbe5e7f46c74ff1613e81d93aed245513e07",
+              "evidenceIds": [
+                "B-3f3d:RP-179"
+              ],
+              "coverageDigest": "306950ebd6a6791d547e052c6b52cddf4f4d7cfb3c80a3d2ed7030f3242db71d"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-233",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "2257d8b9934b706b4024fb4b76a9637a3f57f1f32e2c1fb541cd7595fe853f96",
+              "evidenceIds": [
+                "B-3f3d:RP-178"
+              ],
+              "coverageDigest": "68c1dee4e10994158b4f41a90ead2dfaeac069b0bec6d913fa57ba36ae83a559"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-235",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "277593efab6a41f7dcb8b688d209a623a3063ff25e9eb8e097af4a9c9b414744",
+              "evidenceIds": [
+                "B-3f3d:RP-180"
+              ],
+              "coverageDigest": "6d56a6126b63f2415a460a69de0952eeba1ca0117a511affb473580d39bc7102"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-3f3d:F-063",
+            "finding:B-3f3d:F-064",
+            "finding:B-3f3d:F-065",
+            "finding:B-3f3d:F-066"
+          ],
+          "verifiedFindingSetDigest": "5915a8c9a135e23fd5129ad9f39aeacaf19bc67aee7403b0b85e48f98476da53",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "34120a6015f126d6ee4e7ca791addc7a503ec6534e5d5d878e3491de39b526e8",
+          "saturated": false,
+          "nextRunSequenceBoundary": 236
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-15T11:40:41.535Z",
+          "completedAt": "2026-08-15T12:00:54.066Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-238",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "74e6e7a6e0b970886455fc70e236068638cf0af7422844db64780fdb99d289f5",
+              "evidenceIds": [
+                "B-3f3d:RP-182"
+              ],
+              "coverageDigest": "7922d2969003288ce72dd69a88739215143cfba29d042a722c5db5577f6ff1f4"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-237",
+              "terminal": "finding",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "062043a76b3615fb54cd196cd224f3bbb642fc9dbd48134128be788805cdf5df",
+              "evidenceIds": [
+                "B-3f3d:F-067"
+              ],
+              "coverageDigest": "5fa9057a3ceeb0b5dd10b70356bb06eb6ce706d3fef78f80c5f23cdfa8c392ca"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-239",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "0cdc0c2a3db51ff6892cb696d2ef51681ca709b37fbbefc64b86e8cb8abd1ab1",
+              "evidenceIds": [
+                "B-3f3d:RP-183"
+              ],
+              "coverageDigest": "5074368e33e5f8e37e99ee4613927095b64b87fd17bc95b71d700dd629ec707c"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-240",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "1d646a076a31b890f608e3f7130e474977d9a41607795597710474ecf4f4ca53",
+              "evidenceIds": [
+                "B-3f3d:RP-184"
+              ],
+              "coverageDigest": "2cd648660ddda46d045ee72d45b25d3e54ee235e7abd9eca11946fc8eb20a16b"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-3f3d:F-063",
+            "finding:B-3f3d:F-064",
+            "finding:B-3f3d:F-065",
+            "finding:B-3f3d:F-066",
+            "finding:B-3f3d:F-067"
+          ],
+          "verifiedFindingSetDigest": "b9bba5b182c31bac41528d2b102cfa079348048dbaca5fa85e522013415211e8",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "0155d322fe707eb4141f5675649b3007ddb197b33b2ba26ee880d11f47805967",
+          "saturated": false,
+          "nextRunSequenceBoundary": 241
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-15T12:00:54.066Z",
+          "completedAt": "2026-08-15T12:24:09.992Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-243",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "a1f1aa8640bc7b3e318245fb9c1c8de93652ddcffc45f41912a2065cfc6d6811",
+              "evidenceIds": [
+                "B-3f3d:RP-186"
+              ],
+              "coverageDigest": "809c1be97a17ae631bda0a3f937be4586e852c8e06c19bfe87a81bfaa3a455da"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-242",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "2100da08ed70245e3a821e11043f19a89d126753a5808619938127cfc5ec896d",
+              "evidenceIds": [
+                "B-3f3d:RP-187"
+              ],
+              "coverageDigest": "08df3eb1f33148e52c8ca36cd3a552990c287262789bdf0931c41359cea32e77"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-244",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "6eb098e45f1d45c651328e930c19e246cba37e379580cc066a50c5b8b216d535",
+              "evidenceIds": [
+                "B-3f3d:RP-188"
+              ],
+              "coverageDigest": "8577f2cabe383526ddced295818d39ecb52ce188dafa3b67cc7add51346da36f"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-245",
+              "terminal": "pass",
+              "hostIdentity": "eabc5b2190fead918d913012f580fd59b2590d654f22f77fedf901b388b8ce70",
+              "promptIdentity": "ac5f97e28bdeb0cd3d0c0dafac4a2bae78cb150bdda0ba7b1b3a39c3b7f82af1",
+              "evidenceIds": [
+                "B-3f3d:RP-189"
+              ],
+              "coverageDigest": "cd91b76b386c2ff091a75d563311e33a2a2cd83db17041ba6bc0ee4f3570683e"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-3f3d:F-063",
+            "finding:B-3f3d:F-064",
+            "finding:B-3f3d:F-065",
+            "finding:B-3f3d:F-066",
+            "finding:B-3f3d:F-067"
+          ],
+          "verifiedFindingSetDigest": "b9bba5b182c31bac41528d2b102cfa079348048dbaca5fa85e522013415211e8",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "7809f0a21b03b0f8e2b65dd54edac07adcf6358b2014a8194fa37cabebe94fdc",
+          "saturated": true,
+          "nextRunSequenceBoundary": 246
+        }
+      ],
+      "baselineFindingIds": [
+        "B-3f3d:F-063",
+        "B-3f3d:F-064",
+        "B-3f3d:F-065",
+        "B-3f3d:F-066"
+      ],
+      "receiptId": "B-3f3d:RI-018:RCP-001",
+      "consumedAt": "2026-08-15T12:27:11.715Z",
+      "consumedByReviewRound": "2026-08-15T09:35:32.661Z",
+      "_hash": "4ee85bda5c14620f811c0cbc988f4621f528e3e9ff890ce735e63f5a03d82bb1"
     }
   ],
   "receipts": [
@@ -2515,6 +2957,34 @@
       "issuedAt": "2026-08-15T09:08:36.940Z",
       "consumedAt": "2026-08-15T09:09:51.064Z",
       "_hash": "f336c9fb7c5d193394905b5979192a4418af32fdcdef15fa6d15ec0d0eee2516"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-3f3d:RI-018:RCP-001",
+      "epochId": "B-3f3d:RI-018",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "scopeDigest": "68b19340e6d385d115daa5f048d5ae8ad22b701771cffeb4723b49d6a5fe186b",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "waveCount": 3,
+      "findingSetDigest": "b9bba5b182c31bac41528d2b102cfa079348048dbaca5fa85e522013415211e8",
+      "coverageDigest": "3b57cd0faf31dbb1f84bf2346db3fa009ce539dac53a15c975937ad16b7efa4d",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-15T12:24:09.992Z",
+      "consumedAt": "2026-08-15T12:27:11.715Z",
+      "_hash": "f0e7db080c44125d6bb0c28e27c139cdd6e5a97219fd2a52ee7de114460c115f"
     }
   ],
   "criticReceipts": [
@@ -3496,6 +3966,209 @@
       "findingDispositions": [],
       "createdAt": "2026-08-15T09:08:19.491Z",
       "_hash": "af586627ce0df5e60c1ff9c242f2362c715576db0f9687325022df15d708d0fc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-017:CRIT-01",
+      "epochId": "B-3f3d:RI-017",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "6d8e6e5bd5c4a65df73225a853929e25df848ffe1c051eaf4eb74a3f9b4366fa",
+      "requiredLaneCoverageDigest": "c04a46a0d33fa3255d333db112fc5c3ed43d1c22b7286d3bc58b35942a13de03",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-221",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-168"
+      ],
+      "readEvidenceDigest": "8c0ead20f9234b8426b2c2990c853b7ea8a63bcc50098925b249718e7f0c31df",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-063",
+          "disposition": "verified_family",
+          "familyKey": "flow-stability-partial-basis-fixture-drift",
+          "reason": "Verified canonical validate blocker: flow-stability story-advance echo fixture asserts complete for an incomplete existing-commandRef/planned-path coverage subject."
+        },
+        {
+          "findingId": "B-3f3d:F-064",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-complete-control-closure-drift",
+          "reason": "Verified distinct standalone failure: the dedicated acceptance-basis complete control omits newly registry-reachable source snapshots and therefore seals partial."
+        }
+      ],
+      "createdAt": "2026-08-15T10:46:39.025Z",
+      "_hash": "edee88e573823646bda31059fad2598ae9c0324017e081a8730d061bdf2cbddf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-017:CRIT-02",
+      "epochId": "B-3f3d:RI-017",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "2b97dd4576aa35bf36279ec6875d76fa6f80d426c17b6e47ce9ce4af2575e182",
+      "requiredLaneCoverageDigest": "da86e5bfeb39457dd627f621f4b66fa948e2c8ec917b875ce10cf61d6829ae56",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-226",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-172"
+      ],
+      "readEvidenceDigest": "43784605de0bb399667661f4a829d148264d4cd4ac765851f29c2c009d0d736c",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-065",
+          "disposition": "verified_family",
+          "familyKey": "nonmechanical-evidence-provenance-semantic-binding",
+          "reason": "Independent critic verification: F065 is a distinct writer/provenance family. checklist_update carries a prior mechanical:false nonMechanicalReason by intentRef without requiring the incoming kind, command, and result to match, so a changed evidence row inherits stale audit justification and defeats the focused topology negative control. This is not F063 partial-fixture expectation drift or F064 complete-control registry-closure drift."
+        }
+      ],
+      "createdAt": "2026-08-15T10:59:33.986Z",
+      "_hash": "0a5e674dc120e21ebac15fb21f194fbbd92f78450b9f9bf0fbe5aaf649077b67"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-017:CRIT-03",
+      "epochId": "B-3f3d:RI-017",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "f5c0f59ab5f740e44c9e69261136615926b2b6f5628ad85b726a6068effbad38",
+      "requiredLaneCoverageDigest": "03688749ae2eb206de62a40ab7c822b321bfde098ec7ba7e51a88eb0115b039f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-231",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-176"
+      ],
+      "readEvidenceDigest": "995730a4fbb94d2c877613b8118f60598db164cf4ceba3df00b43888e117a652",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-066",
+          "disposition": "verified_family",
+          "familyKey": "fresh-executable-evidence-doc-command-drift",
+          "reason": "Independent critic verification: AGENTS.md:86 and 258-263 tell implementers to record a fresh command-backed executable logic_test through checklist_update, but packages/main/src/handlers/checklist.ts:462-518 intentionally rejects that fresh bulk-writer path with checklist_update_executable_evidence_unenforced and directs callers to verification_evidence_add or verification_evidence_batch_add. This is distinct from F065, which governs whether already persisted non-mechanical provenance may be carried across a semantic change."
+        }
+      ],
+      "createdAt": "2026-08-15T11:19:39.743Z",
+      "_hash": "31e7a9ae046b4677de56855f47f17924e75b14b2efd9a54d0ae810180f721a94"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-018:CRIT-01",
+      "epochId": "B-3f3d:RI-018",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "5915a8c9a135e23fd5129ad9f39aeacaf19bc67aee7403b0b85e48f98476da53",
+      "requiredLaneCoverageDigest": "4fe05b645afd4339ed3b43e667c38d2e7122d8775a8aaacbcdc76b64b3a3cf6b",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-236",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-181"
+      ],
+      "readEvidenceDigest": "170195f1f79ebce829e8dd04f4f65475643db999eefe668b5fde0bcfc8180639",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-063",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-3f3d:F-063",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-3f3d:F-064",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-3f3d:F-064",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-3f3d:F-065",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-3f3d:F-065",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-3f3d:F-066",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-3f3d:F-066",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-15T11:40:16.061Z",
+      "_hash": "4747fed4b828940f55b19710f08f848df7a852ddd8d1348954cddcde2e4a78aa"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-018:CRIT-02",
+      "epochId": "B-3f3d:RI-018",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "b9bba5b182c31bac41528d2b102cfa079348048dbaca5fa85e522013415211e8",
+      "requiredLaneCoverageDigest": "4bad5bd216bfc7c6fab2980c358d327077332199bf2dddf78c6bf835871419dd",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-241",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-185"
+      ],
+      "readEvidenceDigest": "6b21533ca3e6ed11dbb93b9fcf7cd03e69ced2d3047b32743d1fd43d3f5e0e2c",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-067",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-3f3d:F-067",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-15T12:00:34.192Z",
+      "_hash": "1c9be15340426fd14d7c42fc589d6828419d1ddfed51092fd0e04f0096368aef"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-018:CRIT-03",
+      "epochId": "B-3f3d:RI-018",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "9ee276972212ea6bcf83e2232945a06062436321",
+        "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221",
+        "storyFilesHash": "2b267654a27c7a44ebc0388f2d8858dfb8751c1b8a416536e902591174635586"
+      },
+      "aggregateFindingSetDigest": "b9bba5b182c31bac41528d2b102cfa079348048dbaca5fa85e522013415211e8",
+      "requiredLaneCoverageDigest": "0c7f0ad5028a1f8c9dc29487faa662272950cd0cad45ca5ceeae49a7164c2693",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-246",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-190"
+      ],
+      "readEvidenceDigest": "3afd18810a197951cea6cada93bdc18e8b6600d128d765b1988370e977bb981e",
+      "findingDispositions": [],
+      "createdAt": "2026-08-15T12:23:42.967Z",
+      "_hash": "1ecf17265d5f7679db7bc8ce59fc5427f8a7996ba19edc824b5c25092e5ccb39"
     }
   ]
 }

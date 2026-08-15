@@ -4245,6 +4245,235 @@
       "resolvedAt": "2026-08-15T09:35:53.583Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-063",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:101-140,2190-2233 [HIGH] validation-fixture-drift: the story-advance echo fixture supplies only existing commandRefs and leaves the current planned-path/coverage discovery subject incomplete, but line 2233 still asserts `Acceptance coverage basis: complete`. The canonical verifier correctly returns `partial`, so agent-liveness-suite -> review-pass-discard-smoke -> flow-stability produces the stable canonical validate result 92 PASS / 1 FAIL and blocks REVIEW to TEST. Update this fixture and assertion to match current acceptance-basis semantics, and retain a separate genuinely complete control proving `complete`; do not weaken the verifier. material-hash-large-tree passes standalone and in canonical rerun, so this is a distinct stale-fixture family rather than the F061/F062 committed-blob reader family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T10:36:38.517Z",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "reviewRunId": "B-3f3d:RR-216",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2303e30c93c21ab1e93aeb4aa76b1970b4559efdcd10aa55a98dc9545903f45f",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-064",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:101-158,210-226 [HIGH] acceptance-complete-control-closure-drift: the dedicated true-complete acceptance-basis control no longer materializes every source file now reachable from the canonical process-fact registry. Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js` fails at line 218 with actual `partial` and snapshot_missing for packages/main/src/core/acceptance-rollout.ts, packages/main/src/core/machine.ts, packages/main/src/core/review-inventory-epoch.ts, packages/main/src/handlers/review-inventory.ts, and scripts/run-proofstory-acceptance-rollout-cohort.mjs. This is distinct from F063: F063 is flow-stability’s incomplete existing-commandRefs fixture with a stale output assertion, whereas this is the specialized complete control’s canonical closure inventory failing to track newly registered producer/consumer sources. Extend writeCanonicalAcceptanceRegistration with minimal representative files for the complete control and retain its expected complete status; keep the existing partial mutation controls and do not weaken snapshot sealing or registry closure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T10:40:16.934Z",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "reviewRunId": "B-3f3d:RR-219",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b5d94c7596cd50233fad3b325eddfc86fd8fd709a494f2540386f98c9a0d5151",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-065",
+      "desc": "packages/main/src/handlers/checklist.ts:434-459 and packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:382-410 [HIGH] Non-mechanical verification-evidence provenance is carried forward by intentRef without semantic equality checks. After verification_evidence_add records a CLI intent as mechanical:false with an audited nonMechanicalReason, checklist_update can replace that row with a different kind/command/result/note while inheriting the stale reason; the writer succeeds where the focused topology negative control requires checklist_update_executable_evidence_unenforced. This is distinct from F063 partial-basis fixture drift and F064 complete-control registry-closure drift: it is a writer/provenance mutation family. It does not directly satisfy executable coverage as mechanical evidence, but it breaks provenance binding and the canonical acceptance topology contract. Remediation: carry nonMechanicalReason only for an exact semantic re-persist (at minimum same intentRef, kind, command, and result), otherwise drop inherited provenance and rerun admission; add a changed-command/result negative regression while retaining the same-evidence metadata-only re-persist control. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js; observed assertion at line 410 expects rejection but receives Checklist CHK-001: verificationEvidence updated (1). Controls: proofstory-pre-review-check-smoke PASS and agent-dispatch-registry-smoke PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T10:54:54.664Z",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "reviewRunId": "B-3f3d:RR-224",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "83205324ba242cdfec654fa796cd95fd9071f8e3913d49fbb477430452b40221",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "nonmechanical-evidence-provenance-semantic-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-066",
+      "desc": "doc-code-drift: AGENTS.md:258-263,86 and packages/main/src/handlers/checklist.ts:462-492,1398-1410 [MEDIUM] The authoritative agent guide still tells implementers to record a fresh command-backed logic_test through checklist_update and provides a copyable payload with no existing receipt or audited nonMechanicalReason. The current executable-evidence admission contract rejects that fresh bulk-writer path with checklist_update_executable_evidence_unenforced and directs callers to verification_evidence_add or verification_evidence_batch_add; proofstory-acceptance-topology-smoke exercises this rejection before reaching the separate F065 carry-forward mutation. This is not repaired by the F065 semantic-equality fix: F065 governs whether already persisted non-mechanical provenance may survive a re-persist, while this documentation promises a fresh executable-evidence writer route that is intentionally unavailable. Replace the example and DEV guidance with verification_evidence_add for executable evidence, while reserving checklist_update evidence re-persist for valid on-disk provenance or non-executable/manual rows.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T11:14:29.197Z",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "reviewRunId": "B-3f3d:RR-230",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "fa5168b45eb992f5407d0b88f765cc119fd5afe90306e576daaae93b2bc49090"
+      },
+      "readDiagnostics": [],
+      "_hash": "0d10b502268b785e094c93e3e9e03809d9ac8cbe65c5ca7dd32a6ea71511c3f4",
+      "files": [
+        "AGENTS.md",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "docs-checklist-update-executable-evidence-admission",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-067",
+      "desc": "packages/main/src/handlers/checklist.ts:323-352,434-450,1391-1410 and packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:510-540 [HIGH] Stale mechanical receipt is rebound to current evidence hashes by checklist_update without re-execution. carryForwardOnDiskProvenance preserves a prior mechanical:true receipt when command/result match, but does not require the prior evidence headHash/materialHash/storyFilesHash to remain fresh. normalizeEvidence then stamps the re-persisted row with current hashes while retaining the old receipt. Isolated real-handler repro: earn receipt at commit A, commit a source material change B, then checklist_update the same command/result with only a note edit; beforeHead and afterHead differ, receipt executedAt/outputDigest remain identical, after.mechanical=true, buildVerificationCoverage reports covered and missingRequired=0. This makes a pre-change execution appear current and can satisfy verification coverage after material drift. Distinct from F065: F065 carries stale nonMechanicalReason across changed evidence semantics but remains non-covering; this family preserves gate-covering mechanical authority across changed material. Fix: carry a mechanical receipt only if canonical freshness verifies the prior evidence against current HEAD/material/storyFiles lineage, otherwise reject/demote and require verification_evidence_add/_batch_add or verification_run to re-execute. Add a negative regression that commits story-owned material between receipt creation and checklist_update re-persist, plus the existing same-material metadata-only positive control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T11:45:19.826Z",
+      "reviewRound": "2026-08-15T09:35:32.661Z",
+      "reviewRunId": "B-3f3d:RR-237",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "03b9b8b91f53fd1477376da947d8e00713e5f15d0dedf954ee6244f86a0696d6"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5c28ec13b425c1bd1c0e4b361f72a1df7c36b923705b72df18e519a4bf6006f",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "stale-mechanical-receipt-current-hash-rebinding",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
