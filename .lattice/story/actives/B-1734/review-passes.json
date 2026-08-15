@@ -112,6 +112,41 @@
         "scanEscalationReason": null
       },
       "_hash": "6c340f6edd2ff57c4c0f0230baaf84ee88afd4f2a33d17a41c8b5b757f39615b"
+    },
+    {
+      "id": "B-1734:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (re-review of CONVERGED B-1734): intent_coverage_check + proofstory_gate_check both 0 gaps. Ran all 5 red files end-to-end and all VI-OK selectors printed genuinely: red-1734-content-binding.mjs 18/18 (incl. new rebuild:0-3 which run the REAL scripts/build-main-with-binding.mjs against the actual worktree dist after inducing orphan/partial/tamper/absent-manifest and assert the rebuilt dist then VERIFIES, not just that verify throws), red-1734-lock-liveness.mjs 12/12 (incl. adversarial:5 D2 heartbeat-during-async), red-1734-reader-race.mjs 5/5 (readerrace:0-4; confirmed readerrace:5/6 removed, only a historical CHANGELOG mention remains, no code references), red-1734-bootstrap-depfree.mjs 4/4, red-1734-desktop-asset-manifest.mjs 1/1. Confirmed all four deferred residuals (reader-lease TOCTOU #1, binding-vs-source TOCTOU #3, desktop buildPackages-outside-mutex #4, crash-between-promotion-renames) are documented in CHANGELOG.md Known limitations/follow-up AND anchored with inline KNOWN LIMITATION comments at bin/bootstrap-runner.js:98, scripts/build-main-with-binding.mjs:84, scripts/package-desktop.mjs:167, scripts/promote-dist.mjs:43. No new blockers raised, per the maintainer convergence decision. Observed one non-reproducible transient dist-file-missing artifact via a direct CLI call OUTSIDE any story test (not caught or caused by any story test assertion); resolved by a normal rebuild, not reproduced on retry, not raised as a story finding since the story's own tests genuinely exercise and would fail on exactly this class of corruption and did not.",
+      "createdAt": "2026-08-15T23:52:27.339Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-007",
+      "envelopeId": "230ace7eab72359587c9d5a91cb3789847f2921d2b8dd0342d472a5c637c49a0",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1734/checklist.json",
+          "CHANGELOG.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/build-main-with-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1734/background.md",
+          ".lattice/story/actives/B-1734/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b33c3084eff75c2db57bd70c231124d1a8ddb83e6906d295439d269c5e7ae40"
     }
   ]
 }
