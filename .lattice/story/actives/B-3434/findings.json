@@ -252,6 +252,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|validation-executor-what",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-012",
+      "desc": "Two residual doc/code gaps in the same function, both in the true last-resort path that the function's own doc comment never describes. (1) validation-executor.ts:341-357's doc for boundValidationEvidenceOutput says 'Nothing is discarded silently' and enumerates stage 1 through stage 5 as the reduction pipeline ('stage 5 - last resort: drop the largest remaining top-level fields, NAMING each one'), then separately states 'The verdict-bearing fields (allPass, allPassed, status, failureKind, summary) are preserved at every stage.' The code has moved past that description: there is a stage 6 (line 503, truncate remaining oversized strings in place) and, beyond even that, the verdictOnlyRecord fallback (line 525) -- neither is named in this doc block, so a reader of it does not know the pipeline has two more tiers. (2) Inside that undocumented final tier, verdictOnlyRecord (line 562) rebuilds the output from only 6 fields (provider, status, allPass, allPassed, failureKind, summary); it silently omits 2 of the 8 fields in the verdictKeys set defined at line 489 (timestamp, headSha) that stage 5 treats as protected/undroppable-by-name specifically so they are never candidates for the named-and-counted droppedKeys mechanism. When verdictOnlyRecord fires, timestamp and headSha vanish from the embedded output string with no entry in droppedKeys or truncatedKeys -- the one case in the whole function where a field disappears without being named, contradicting the 'Nothing is discarded silently' framing for the two fields the code itself classifies as verdict-bearing but the function's own field list (5 named fields, omitting provider/timestamp/headSha from that specific sentence) does not cover. Practical impact is low and confirmed bounded: evaluateValidationEvidenceAdmissibility (validation-evidence-admissibility.ts, outputPassState) only parses allPass/allPassed from the embedded output string, and persistStoryValidationEvidence (verifier.ts) sources the persisted evidence headHash/timestamp independently of boundedOutput.output (currentHead(gitCwd) / new Date().toISOString()), so no consumer is currently affected by the loss inside the embedded diagnostic string. This is a doc-completeness and silent-omission gap in the one path the module's own contract deliberately calls out for scrutiny, not a functional regression.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T12:40:52.291Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-014",
+      "_hash": "18f7abd9e1f3915fcf26e2ac8d5874b3c7b553c8b73c801449e5575cb6ff964d",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|residual-code-gaps",
+      "signatureTagSource": "auto"
     }
   ]
 }
