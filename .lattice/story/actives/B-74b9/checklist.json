@@ -63,9 +63,9 @@
       "id": "CHK-002",
       "title": "Fix field-regression-cli-smoke.ts missing --readManifest + stale assertion pattern (RED then GREEN)",
       "context": "assertReviewRunStartCliSurface calls review_pass_set without the now-required --readManifest argument (command-catalog.ts), so the real error is an argument-validation failure, not the /already stale|stale/i pattern the fixture own assertion expects. Write a RED script proving the current mismatch, then fix the fixture to pass a valid readManifest matching the shape other passing tests use so it actually exercises the staleness scenario, confirm GREEN.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-15T20:45:44.204Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/field-regression-cli-smoke.ts"
@@ -109,7 +109,14 @@
           }
         ]
       },
-      "userSees": "node packages/main/dist/tasks/field-regression-cli-smoke.js prints its pass output and exits 0 (no readManifest argument-validation error)."
+      "userSees": "node packages/main/dist/tasks/field-regression-cli-smoke.js prints its pass output and exits 0 (no readManifest argument-validation error).",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c4323ad24e4417635e6b3c91a3c7cc439ab55e155954881f6cae4d0d920ca50a",
+        "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+        "headHash": "4569fa57deea08cb7ec603fef68838cc96a18724",
+        "attestedAt": "2026-08-15T20:45:44.373Z",
+        "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
+      }
     },
     {
       "id": "CHK-003",
