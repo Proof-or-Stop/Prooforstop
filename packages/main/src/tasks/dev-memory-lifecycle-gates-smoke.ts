@@ -46,6 +46,7 @@ import {
 } from '../core/machine.js';
 import { readDevMemoryFinishDecision } from '../core/playbook-runtime-memory.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { findRuntimeArtifactEntry } from '../core/runtime-artifact-registry.js';
 import type { StoryInfo } from '../core/types.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
 import { createFindingHandlers } from '../handlers/finding.js';
@@ -497,6 +498,7 @@ function assertDoneGateFinishDecision(): void {
       { decision: 'no-reusable-lesson', reason: 'nothing here was a genuinely reusable lesson' },
       { decision: 'defer-with-reason', reason: 'deferring capture until a follow-up story' },
     ];
+    const materialHashBeforeAnyDecision = currentMaterialHash(root, 'HEAD', root);
     for (const { decision, reason } of decisions) {
       runtimeHandlers.dev_memory_finish_decision({ storyId, decision, ...(reason ? { reason } : {}) });
       check(`CHK-003 pass: canFinishGuard is true after decision=${decision}`, canFinishGuard(context) === true);
@@ -504,6 +506,24 @@ function assertDoneGateFinishDecision(): void {
       check(`CHK-003 pass: getGuardFailureReason no longer names missing_dev_memory_finish_decision (decision=${decision})`,
         !/missing_dev_memory_finish_decision/.test(reasonAfter ?? ''));
     }
+    // F-005 regression: finishDecisionPath writes OUTSIDE the story dir, where
+    // autoCommitStoryMetadata never reaches it -- left unclassified, an
+    // uncommitted write here previously fell through to unexpected_dirty_files
+    // (blocking review_run_start and other dirty-tree gates, found live during
+    // B-a7c5's own REVIEW round 3). The runtime-artifact-registry entry must
+    // recognize the path as a non-blocking runtime artifact AND exclude it from
+    // materialHash so an already-signed delivery-check/test-evidence binding
+    // is never retroactively invalidated by writing this file.
+    const registryEntry = findRuntimeArtifactEntry(`.lattice/dev-memory/finish-decisions/${storyId}.json`);
+    check('CHK-003 F-005: finish-decision path is a recognized runtime-artifact-registry entry (non-blocking, not unexpected_dirty_files)',
+      registryEntry?.id === 'dev-memory-finish-decision');
+    check('CHK-003 F-005: finish-decision path is materialHash-excluded',
+      registryEntry?.materialHash === 'exclude');
+    const materialHashAfterDecisions = currentMaterialHash(root, 'HEAD', root);
+    check('CHK-003 F-005: writing/updating the finish-decision record 3x never perturbs currentMaterialHash',
+      materialHashAfterDecisions === materialHashBeforeAnyDecision);
+    check('CHK-003 F-005: canFinishGuard remains true after the materialHash-invariance check (no retroactive staleness)',
+      canFinishGuard(context) === true);
 
     // ── adversarial: fail-closed on a corrupt record ──
     const finishDecisionPath = `.lattice/dev-memory/finish-decisions/${storyId}.json`;
