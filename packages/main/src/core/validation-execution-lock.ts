@@ -472,8 +472,46 @@ function quarantineValidationCapacityCandidate(candidatePath: string, reason: 'r
   } catch {
     return false;
   }
-  rmSync(quarantinePath, { recursive: true, force: true });
+  try {
+    rmSync(quarantinePath, { recursive: true, force: true });
+  } catch {
+    // Atomic isolation is the ownership boundary. A quarantine cleanup failure
+    // may leak ignored runtime debris, but it cannot leave a live queue ticket.
+  }
   return true;
+}
+
+function markValidationCapacityTicketReleased(ticketPath: string, holder: MkdirLockHolderInfo): boolean {
+  try {
+    writeValidationHeartbeat(ticketPath, {
+      ...holder,
+      lockId: `${holder.lockId ?? 'unknown'}-released-${randomUUID()}`,
+    });
+    const now = new Date();
+    utimesSync(ticketPath, now, now);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function releaseValidationCapacityTicket(ticketPath: string, holder: MkdirLockHolderInfo): Promise<void> {
+  const retryCount = 3;
+  for (let attempt = 1; attempt <= retryCount; attempt += 1) {
+    if (quarantineValidationCapacityCandidate(ticketPath, 'release')) return;
+    if (!existsSync(ticketPath)) return;
+    if (attempt < retryCount) {
+      await new Promise<void>(resolveRetry => setTimeout(resolveRetry, 20));
+    }
+  }
+  const markedReclaimable = markValidationCapacityTicketReleased(ticketPath, holder);
+  if (!existsSync(ticketPath)) return;
+  throw new Error(
+    `workspace validation capacity release failed after ${retryCount} ownership-safe attempts for ${ticketPath}; ` +
+    (markedReclaimable
+      ? 'the exact ticket was marked released for mechanical successor recovery'
+      : 'the exact ticket remains fail-closed and requires filesystem repair'),
+  );
 }
 
 function activeCapacityCandidates(
@@ -588,21 +626,29 @@ export async function withWorkspaceValidationCapacity<T>(
     throw error;
   }
 
-  const lock: AcquiredMkdirLock = {
-    lockDir: ticketPath,
-    release: () => { quarantineValidationCapacityCandidate(ticketPath, 'release'); },
-  };
-
   heldValidationLockPaths.add(lockKey);
-  const heartbeat = startHeartbeat(lock, holderInfo);
+  const heartbeat = startHeartbeat({ lockDir: ticketPath, release: () => undefined }, holderInfo);
+  let callbackFailed = false;
+  let callbackError: unknown;
+  let callbackResult: T | undefined;
   try {
     assertCapacityWaitActive(options);
-    return await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
-  } finally {
-    clearInterval(heartbeat);
-    heldValidationLockPaths.delete(lockKey);
-    lock.release();
+    callbackResult = await validationLockOwnerStore.run(extendedOwnerSet(lockKey), async () => await fn());
+  } catch (error) {
+    callbackFailed = true;
+    callbackError = error;
   }
+  clearInterval(heartbeat);
+  heldValidationLockPaths.delete(lockKey);
+  let releaseError: unknown;
+  try {
+    await releaseValidationCapacityTicket(ticketPath, holderInfo);
+  } catch (error) {
+    releaseError = error;
+  }
+  if (callbackFailed) throw callbackError;
+  if (releaseError) throw releaseError;
+  return callbackResult as T;
 }
 
 /** Fixed acquisition order for official validators: workspace capacity first,

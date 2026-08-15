@@ -27,6 +27,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -1178,6 +1179,110 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
   }
 }
 
+async function assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-configured-gitroot-failure-'));
+  const marker = join(root, 'validate-callback-entered');
+  try {
+    mkdirSync(join(root, 'configured-repo'), { recursive: true });
+    write(root, 'packages/main/src/index.ts', 'export const configuredGitRootFailure = true;\n');
+    write(root, 'validate-marker.mjs', `import { writeFileSync } from 'node:fs'; writeFileSync(${JSON.stringify(marker)}, 'entered\\n');\n`);
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      gitRoot: 'configured-repo',
+      validate: {
+        commands: [{ label: 'configured-gitroot-marker', command: process.execPath, args: ['validate-marker.mjs'] }],
+      },
+    }, null, 2) + '\n');
+    const store = new StoryStore(root);
+    const handlers = createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store });
+    await assert.rejects(
+      () => handlers.validate({ json: true, noSync: true }) as Promise<string>,
+      /configured gitRoot could not be resolved for workspace validation capacity/,
+    );
+    assert.equal(existsSync(marker), false,
+      'unresolved configured gitRoot must stop before the no-story validation callback');
+    assert.equal(existsSync(join(root, '.lattice/locks/validation-capacity.lock')), false,
+      'unresolved configured gitRoot must not mint a split capacity lock under the metadata wrapper');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-release-failure-'));
+  const lockRoot = validationCapacityLockPath(root);
+  try {
+    let callbackRan = false;
+    let releaseFailure: unknown;
+    try {
+      await withWorkspaceValidationCapacity({
+        root,
+        workspaceRoot: root,
+        command: 'release-failure-success-callback',
+      }, () => {
+        callbackRan = true;
+        chmodSync(lockRoot, 0o555);
+        return 'callback-ok';
+      });
+    } catch (error) {
+      releaseFailure = error;
+    }
+    assert.equal(callbackRan, true, 'release fault must occur after the callback succeeds');
+    assert.match(String(releaseFailure), /workspace validation capacity release failed after 3 ownership-safe attempts/,
+      'a successful callback must not hide an unreleased numbered ticket');
+    assert.equal(capacityTicketPaths(root).length, 1,
+      'deterministic chmod fault must leave the exact numbered ticket for successor recovery');
+
+    chmodSync(lockRoot, 0o755);
+    let successorEntered = false;
+    await withWorkspaceValidationCapacity({
+      root,
+      workspaceRoot: root,
+      command: 'release-failure-successor',
+      deadlineAt: Date.now() + 1000,
+    }, () => { successorEntered = true; });
+    assert.equal(successorEntered, true,
+      'after filesystem repair, a successor must mechanically reclaim the explicitly released ticket');
+    assert.equal(capacityTicketPaths(root).length, 0, 'successor recovery must leave no numbered ticket');
+
+    const originalError = new Error('original callback failure sentinel');
+    let observedError: unknown;
+    try {
+      await withWorkspaceValidationCapacity({
+        root,
+        workspaceRoot: root,
+        command: 'release-failure-error-callback',
+      }, () => {
+        chmodSync(lockRoot, 0o555);
+        throw originalError;
+      });
+    } catch (error) {
+      observedError = error;
+    }
+    assert.equal(observedError, originalError,
+      'release cleanup failure must preserve the original callback error object and semantics');
+    assert.equal(capacityTicketPaths(root).length, 1,
+      'original callback failure path must still mark its exact ticket for recovery');
+    chmodSync(lockRoot, 0o755);
+    let errorSuccessorEntered = false;
+    await withWorkspaceValidationCapacity({
+      root,
+      workspaceRoot: root,
+      command: 'release-failure-error-successor',
+      deadlineAt: Date.now() + 1000,
+    }, () => { errorSuccessorEntered = true; });
+    assert.equal(errorSuccessorEntered, true,
+      'successor must recover after a callback error plus release isolation failure');
+    assert.equal(capacityTicketPaths(root).length, 0);
+  } finally {
+    try { chmodSync(lockRoot, 0o755); } catch { /* fixture may not have created the lock root */ }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   const first = setupFixture({ storyId: 'B-cap-scope' });
   const second = setupFixture({ storyId: 'B-independent' });
@@ -1294,6 +1399,10 @@ function assertCapacityReclaimImplementationIsIdentityStable(): void {
     'failed stale isolation must remain active rather than admitting a successor');
   assert.doesNotMatch(capacitySource, /rmSync\(lockKey/,
     'capacity acquisition must never recursively remove the shared canonical capacity root');
+  assert.match(source, /releaseValidationCapacityTicket[\s\S]*markValidationCapacityTicketReleased/,
+    'capacity release failure must retry and mechanically mark only its exact ticket for recovery');
+  assert.match(capacitySource, /if \(callbackFailed\) throw callbackError;\s*if \(releaseError\) throw releaseError;/,
+    'an original callback failure must take precedence over a later release failure');
 }
 
 void (async () => {
@@ -1306,11 +1415,13 @@ void (async () => {
     await assertCapacityAsyncWaitAbortReentrancyAndRelease();
     await assertBareNpmAndReadOnlyCommandsBypassCapacity();
     await assertDerivedVerdictCannotBypassCapacity();
+    await assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity();
+    await assertCapacityReleaseFailureIsExplicitAndRecoverable();
     await assertCapacityRepositoryScopeAndSelectiveModes();
     assertProtectedInventoryAndTimeoutSourcesUnchanged();
     assertCapacityReclaimImplementationIsIdentityStable();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
-      console.log('validate-execution-lock workspace capacity contract passed: 11 assertion groups');
+      console.log('validate-execution-lock workspace capacity contract passed: 13 assertion groups');
       return;
     }
     await assertPostCommandPersistenceHoldsLock();
@@ -1324,7 +1435,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 22 assertion groups');
+    console.log('validate-execution-lock smoke passed: 24 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
