@@ -175,7 +175,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "The user sees npm test skip the rebuild instantly (no tsc) when dist already matches source, rebuild only when a source file actually changed, and never a TS2307 / MODULE_NOT_FOUND from a stale, partial, or orphaned dist; a deleted-source orphan or a tampered dist file triggers a rebuild instead of being silently reused."
     }
   ]
 }
