@@ -188,19 +188,31 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "An artifact below the warning fraction produces no advisory",
+            "desc": "An artifact past the warning fraction prints an advisory naming the measured size and the configured limit",
             "type": "cli"
           }
         ],
         "edge": [
           {
-            "desc": "An artifact above the warning fraction prints an advisory naming the measured size and the limit",
+            "desc": "An artifact below the warning fraction prints no advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "An artifact exactly at the warning fraction resolves the boundary deterministically and the chosen side is stated",
             "type": "cli"
           }
         ],
         "adversarial": [
           {
-            "desc": "The advisory is emitted without changing the pass or fail verdict of validate",
+            "desc": "The advisory never changes the pass or fail verdict that validate would otherwise report",
+            "type": "cli"
+          },
+          {
+            "desc": "The advisory is worded so it cannot be mistaken for a failure by a reader scanning output",
+            "type": "cli"
+          },
+          {
+            "desc": "The warning fraction is computed against the ceiling this story sets rather than any external default",
             "type": "cli"
           }
         ]
