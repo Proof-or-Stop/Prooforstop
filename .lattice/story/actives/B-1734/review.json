@@ -1,0 +1,44 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-15T11:55:38.236Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Add a crash-safe cross-platform concurrent-build mutex (proper-lockfile): never age-steal a live long-running build, race-free reclaim of a dead holder -- the build currently has no lock + Make the build skip decision content-bound via the existing verifyBuildBinding (not mtime/existence) and add an analogous packages/utils binding -- applied to the three build call sites are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: DEV-time detail: exact proper-lockfile stale/update interval config (stale>=30s, update<stale/2) to guarantee a live holder is never age-stolen.; DEV-time detail: the shape of the packages/utils build-binding manifest and where its sourceDigest incorporates the packages/main/dist it links against."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"CHANGELOG.md entry documenting this change\" but there is no corresponding checklist item and it is not excluded"
+        }
+      ],
+      "_hash": "73e9fab7ab82f21736f6a27719338116561abf348f2b966a45e6d4c30d902b9f"
+    }
+  ]
+}
