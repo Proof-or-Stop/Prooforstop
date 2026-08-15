@@ -3229,7 +3229,7 @@
       "desc": "packages/main/src/handlers/english-artifact-gate.ts:27-38,180-222, packages/main/src/handlers/story-create.ts:343-377, packages/main/src/handlers/checklist.ts:1190-1351, and packages/main/src/tasks/english-only-guards-smoke.ts:150-247 — MEDIUM distinct english-artifacts checklist-anchor recovery coverage gap. The REVIEW-to-TEST gate intentionally scans the complete checklist.json, and this Story proves that a CJK relatedDocs anchor such as AGENTS.md#流程事实双层契约 is a blocking artifact line. But storyCreateAuthoringFields scans checklist title/context/userSees only, so relatedDocs can enter without shift-left refusal; checklist_update permits relatedDocs replacement in DEV, providing the supported non-scope recovery path. Existing English smokes cover generic plan.md metadata, title/context authoring refusal, hook warnings and English punctuation, but never the real sequence: checklist relatedDocs anchor triggers english-artifacts failure, DEV checklist_update replaces only that anchor, rerun passes while frozen title/context and 54 verification intents/evidence remain unchanged. Add a real handler/preflight regression for that fail-to-supported-recovery-to-pass sequence and document the exact recovery command; do not force INIT reopen for a mutable relatedDocs anchor.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T01:01:27.539Z",
@@ -3316,7 +3316,11 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "signatureTag": "english-artifacts-relateddocs-recovery",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Critic-confirmed coverage manifestation of canonical F-049; the same fix and real English early/final gate smokes cover the requested recovery regression.",
+      "resolvedAt": "2026-08-15T01:41:19.208Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-049",
