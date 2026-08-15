@@ -283,6 +283,29 @@
         "scanEscalationReason": null
       },
       "_hash": "f3efa4bfe4928d37e50c39ae11a3e245f55fafc4c4f9e23372a8f5e595e94498"
+    },
+    {
+      "id": "B-3434:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "F-041 fix confirmed correct on read-back: the corrected line-102 paragraph explicitly rules out measurePersistedEvidenceBytes and any second copy of the formula, prescribing instead a boundary-owned measure-only entry point (measureCanonicalBytes) that runs the same serialiser the write path runs, shared by search loop and terminal check, with F-036 now stated as sequenced after the boundary rather than independent of it -- nothing in it re-prescribes what F-033's section (lines 56-77) identifies as the defect (duplicated formula + self-referential smoke pin). Second location (F-036 deferred-table row, line 117): the implementer correctly widened scope past the scoped paragraph to fix 'so it is core/store.ts-free work' -> 'It is not core/store.ts-free either ... sequenced after the boundary'; agree this was correct -- leaving it would have put two sections of the same document in direct, on-topic contradiction, which is the exact defect class (claim-wider-than-code) this document exists to stop reintroducing. Row-level-guard paragraph (line 108) counts independently re-verified against the committed revision by grepping full B-3434:F-0xx occurrences and excluding the deferred-table row itself: F-033 -> 2 other lines (73, 102), F-036 -> 1 other line (102), F-037 -> 5 other lines (54, 100, 102, 126, 128), F-035 -> 0 other lines (row is its sole full-id mention, matching 'fails for F-035 only'). All four counts match the paragraph exactly; no off-by-one. Scope: git diff 2717839123 HEAD -- packages/main/ is empty -- doc-only change confirmed, no source drift since the last full source read. Verification re-run clean on the built dist (no rebuild performed, per instruction): npx tsc --noEmit -p packages/main clean; red-b3434-blob-buffer-ceiling PASS; validation-evidence-buffer-smoke PASS (findingIdsNamed includes F-001,F-033..F-037); quorum-submit-smoke PASS (71 checks). All 41 findings resolved. FINAL VERDICT: SHIPPABLE. Twelve review rounds, 41 findings, CHK-004 shipped as outcome B (bounding+reduction ship as real code on the executed path; the byte-for-byte writer-agreement guarantee is deferred to a scoped, named follow-up with a committed rationale, which is what CHK-004's binding-outcome requirement calls for). Worth stating plainly for the record: the cross-vendor (codex) reviewer caught something four consecutive Claude-side lanes (concept, quality, test-coverage, behavior) missed across four consecutive rounds culminating in F-041 -- a prescribed remedy that silently reopened the exact defect (F-033) the same paragraph called closed. That is direct evidence for running genuine cross-vendor review on documentation-only, no-source-diff rounds, not only on code changes.",
+      "createdAt": "2026-08-15T23:05:49.065Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-039",
+      "envelopeId": "fc3db144c760a16e0fa84f4a4ce6d178ad83155ff1e3917098efb2d479e4157b",
+      "writerSessionId": "sess-506efb3c29b8d24af74d5564d79ed07a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7c196edb3689ecf4faaedd0fcae8ff64a4f49f75bb103a3f64914f8cfd8df7d3"
     }
   ]
 }
