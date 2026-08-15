@@ -262,7 +262,7 @@
       "desc": "Two residual doc/code gaps in the same function, both in the true last-resort path that the function's own doc comment never describes. (1) validation-executor.ts:341-357's doc for boundValidationEvidenceOutput says 'Nothing is discarded silently' and enumerates stage 1 through stage 5 as the reduction pipeline ('stage 5 - last resort: drop the largest remaining top-level fields, NAMING each one'), then separately states 'The verdict-bearing fields (allPass, allPassed, status, failureKind, summary) are preserved at every stage.' The code has moved past that description: there is a stage 6 (line 503, truncate remaining oversized strings in place) and, beyond even that, the verdictOnlyRecord fallback (line 525) -- neither is named in this doc block, so a reader of it does not know the pipeline has two more tiers. (2) Inside that undocumented final tier, verdictOnlyRecord (line 562) rebuilds the output from only 6 fields (provider, status, allPass, allPassed, failureKind, summary); it silently omits 2 of the 8 fields in the verdictKeys set defined at line 489 (timestamp, headSha) that stage 5 treats as protected/undroppable-by-name specifically so they are never candidates for the named-and-counted droppedKeys mechanism. When verdictOnlyRecord fires, timestamp and headSha vanish from the embedded output string with no entry in droppedKeys or truncatedKeys -- the one case in the whole function where a field disappears without being named, contradicting the 'Nothing is discarded silently' framing for the two fields the code itself classifies as verdict-bearing but the function's own field list (5 named fields, omitting provider/timestamp/headSha from that specific sentence) does not cover. Practical impact is low and confirmed bounded: evaluateValidationEvidenceAdmissibility (validation-evidence-admissibility.ts, outputPassState) only parses allPass/allPassed from the embedded output string, and persistStoryValidationEvidence (verifier.ts) sources the persisted evidence headHash/timestamp independently of boundedOutput.output (currentHead(gitCwd) / new Date().toISOString()), so no consumer is currently affected by the loss inside the embedded diagnostic string. This is a doc-completeness and silent-omission gap in the one path the module's own contract deliberately calls out for scrutiny, not a functional regression.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T12:40:52.291Z",
@@ -273,7 +273,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "doc-code-drift|ts|residual-code-gaps",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 353eec69e1. The function doc promised nothing is discarded silently while describing only stages one through five, and the fallback record dropped two of the eight protected verdict fields without listing them - the single place in that function where something vanished unnamed. Stage six and the fallback are now documented, and the two fields are recorded properly rather than hardcoded: the protected set and the carryable set are two module constants, the dropped set is their difference intersected with the keys actually present, and the fallback record is built by iterating the constant instead of repeating its members, so the two lists cannot drift and protecting a field later without carrying it names it automatically. Verified: droppedKeys went from an empty array to timestamp and headSha, with the fallback path confirmed active and both fields confirmed absent from the record. That is the same move as the F-008 repair - make the property derived rather than remembered - which is the deepest lesson of this story and was applied here by the implementer unprompted.",
+      "resolvedAt": "2026-08-15T12:48:18.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-013",
