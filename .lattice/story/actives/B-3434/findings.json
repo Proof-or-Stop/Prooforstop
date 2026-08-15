@@ -815,7 +815,7 @@
       "desc": "A fifth instance of the pattern this story keeps hitting, in the NEW prose the F-028 fix itself added. The doc comment above VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS (validation-executor.ts line ~279) now reads: 'four of these keys are string-capable, the cap is 200 UTF-16 units, and a 4-byte character costs 4 bytes each, which puts the packed worst case in the low thousands.' The literal 200 is hand-typed into this comment. The ONLY place that cap is actually enforced is safeScalarRead (line ~530): value.slice(0, 200) — a second, independent literal 200, roughly 250 lines away, with no shared named constant between them (grep for the bare token 200 in this file returns exactly these two lines and nothing else). Today both say 200 and the comment is accurate — the math checks out against the smoke's own pinned ceiling (bound.fileBytes < 4_000 in the buffer smoke section 8). But nothing ties them together: if a future editor changes the cap in safeScalarRead (e.g. to widen a truncated field on request), the comment 250 lines away silently becomes a false statement about the mechanism, and no test would catch the drift (the smokes bounds-check the byte OUTCOME, not this specific sentence). This is exactly the shape F-028 itself was — a hand-maintained figure restated in prose with no single source of truth — reintroduced by the very commit that deleted the previous instance. Fix: extract a single named constant (e.g. VALIDATION_EVIDENCE_SCALAR_CAP_CHARS = 200) referenced by both safeScalarRead and, if the comment keeps the arithmetic walkthrough, by the comment's number (via a template literal or by deleting the number and pointing at the constant the way the F-028 fix already does for the overall byte ceiling).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T20:52:05.966Z",
@@ -826,7 +826,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "doc-code-drift|ts|fifth-instance-pattern",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit a586100e89656ec6b7998aec13541e452eb49e65 - the only code fix in this round. The comment above VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS stated 'the cap is 200 UTF-16 units' while the only enforcement was safeScalarRead's value.slice(0, 200) about 250 lines away, with no shared constant tying them together - grep for the literal returned exactly those two lines. Both were correct, and nothing kept them correct: it is the same hand-maintained-figure shape as F-028, reintroduced by the commit that deleted the previous instance. Now one named constant VALIDATION_EVIDENCE_SCALAR_CHAR_CAP is used at the slice and referenced by name in the docstring, so the figure has a single source of truth and the prose can no longer drift from it. This one was fixed rather than deferred because it is two lines and touches no bounding logic; every other finding from this round was deferred under CHK-004 outcome B.",
+      "resolvedAt": "2026-08-15T21:29:04.574Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-035",
