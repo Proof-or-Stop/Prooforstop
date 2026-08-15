@@ -35,6 +35,49 @@
         "scanEscalationReason": null
       },
       "_hash": "201fd7e6147fea4f42504d98f5cb9803e45210f5b160f561155882b16f1637ff"
+    },
+    {
+      "id": "B-1734:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Verified retained concurrency core (5 rounds converged): build-lock.mjs/build-lock-target.mjs, both build-*-with-binding.mjs, promote-dist.mjs, bootstrap-runner.js. tsc runs execFileAsync/awaited (D2), lock wraps staging+promote+writeBuildBinding at both call sites, in-lock stray-sibling cleanup confirmed inside lock, promoteDist restores dist from trash on 2nd-rename failure, bootstrap-runner stays proper-lockfile-free and gates on lock mtime freshness with 20min IMPORT_WAIT_MAX_MS ceiling, no recoverOrphanedPromotion residue, no unused imports/unhandled rejections. Ran all 7 red-1734/red-fb7b tests live (incl. 40-reader concurrent race) -- all pass. The 4 documented residuals (reader-lease TOCTOU, binding-vs-source TOCTOU, desktop buildPackages outside lock, crash-between-renames) are correctly anchored in CHANGELOG.md and source comments; not re-raised per converge decision. No new defects found; revert is clean.",
+      "createdAt": "2026-08-15T23:48:24.911Z",
+      "reviewRound": "2026-08-15T23:40:37.744Z",
+      "reviewRunId": "B-1734:RR-004",
+      "envelopeId": "1fdcfb654f9f38db310fc7f8e730c9b31e331eae042f22a12d5e39ee64aef584",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "packages/utils/package.json",
+          "scripts/package-desktop.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c9e8d7926fa3383a072f5cb6088b7ff1482916d1bb2fa1d3e2858f01a15716b3"
     }
   ]
 }
