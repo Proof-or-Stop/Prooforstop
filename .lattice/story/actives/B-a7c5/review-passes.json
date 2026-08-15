@@ -369,6 +369,42 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "b32638303a3f2e0bc0c44b33b75954bca73b3d2c1ce24aaa208b9d59d0d28d37"
+    },
+    {
+      "id": "B-a7c5:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 test-coverage re-confirmation focused on F-008 fix (bd37ddd3d6). F-008 fixed a collateral regression in the pre-existing fixture proofstory-intent-hardening-smoke.ts (CHK-001s new dev-memory preflight gate check ran before proofStoryDevGateFailure in getGuardFailureReason, masking the ProofStory-specific message this fixture asserts on). The fix only adds ackDevMemoryPreflightForProofstory() calls to that files two fixture-builders; it touches no CHK-001..CHK-007 verificationIntent/verificationEvidence-bound file. Confirmed: none of the 24 pinned verificationEvidence commands/selectors across CHK-001..CHK-007 reference proofstory-intent-hardening-smoke.{ts,js}; no checklist items files field names it; it remains unregistered in lattice.config.json validate.commands (consistent with F-008s own documented root cause, not a request to register it -- that would be new scope). Re-ran after a clean standalone rebuild: proofstory-intent-hardening-smoke.js exits 0; the CHK-004-registered dev-memory-lifecycle-gates-smoke.js still passes all 79/79 assertions, unaffected by the fix. All checklist bindings remain sound; no new coverage gap introduced. Matches consistent judgment from rounds 4-5 that a fixture-only fix to a pre-existing, non-checklist-scoped test file needs no new checklist binding. Note: a full lattice validate --story=B-a7c5 run in this shared worktree hit a transient concurrent-build race from a sibling reviewer lanes simultaneous rebuild in the same worktree (dist/cli.js briefly missing, MODULE_NOT_FOUND cascading through ~90 unrelated commands); this is an environment artifact confirmed via a clean rebuild + targeted smoke reruns, not a story regression.",
+      "createdAt": "2026-08-15T13:20:34.190Z",
+      "reviewRound": "2026-08-15T13:11:28.330Z",
+      "reviewRunId": "B-a7c5:RR-016",
+      "envelopeId": "31afd5306ab4ee913a1dd4b13353ffab44f34fc71b1f37061d93c838960782ad",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          ".lattice/story/actives/B-a7c5/scope-contract.json",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "8e6ccce94b3bd64c45fb32323742cb2ec93d35f4e4cab1d13ab5754b2c2704f2"
     }
   ]
 }
