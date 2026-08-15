@@ -164,6 +164,18 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "Either the serialised evidence artifact is capped with a visible cap marker in its output, or a committed rationale document names the successor change that will bound it",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ]
       }
     },
     {
