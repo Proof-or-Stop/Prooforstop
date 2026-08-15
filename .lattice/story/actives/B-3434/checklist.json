@@ -106,7 +106,35 @@
       "context": "Per-command output is already truncated to twelve thousand characters by trimOutput in core/validation-executor.ts, so the unbounded dimension is the NUMBER of configured commands serialised into test-evidence.json by handlers/verifier.ts. Raising maxBuffer moves the cliff; it does not remove it. This item requires a BINDING outcome, not an evaluation: either the bounding ships in this story, or a committed rationale records why unbounded growth is acceptable and names the change that will address it. Closing this item with a written opinion and no shipped consequence is exactly the unexamined growth cliff this story exists to end.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Exactly one of two shipped outcomes exists: (A) a code change in the serialization path (persistStoryValidationEvidence or writeTestEvidence) that bounds the aggregate artifact size, or (B) a committed rationale document at a discoverable path that names a concrete successor story ID or issue reference for bounding aggregate growth; WHY: the item requires a BINDING disposition, not an evaluation",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If outcome A (bounding ships): serializing command results whose total would exceed the bound produces a bounded artifact with a visible truncation marker or a diagnostic cap, not a crash or silent data loss; WHY: a declared bound that is not enforced is not a shipped outcome",
+            "type": "cli"
+          },
+          {
+            "desc": "If outcome B (deferred with rationale): the rationale is a committed file in the repository (not a PR comment, plan paragraph, or commit message) and the named successor is a real story ID, issue number, or tracked backlog item that can be looked up; WHY: a rationale embedded in existing narrative has no binding force and no discoverable successor",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The item is NOT closed with only a prose paragraph in plan.md, background.md, a commit message, or a code comment explaining why growth is acceptable -- the disposition must be either shipped code in the serialization path OR a standalone committed rationale document; WHY: the third outcome (opinion with no shipped consequence) is exactly the unexamined growth cliff this story exists to end",
+            "type": "cli"
+          },
+          {
+            "desc": "If outcome A: the bound does not silently discard evidence entries -- it either truncates individual command outputs with a visible marker, caps the number of serialized entries with a diagnostic count, or errors with a message naming the measured size and the limit; WHY: silent evidence loss is a new class of the same silent-failure defect this story exists to fix",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
