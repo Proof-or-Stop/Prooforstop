@@ -30,9 +30,32 @@
     "packages/lab/**"
   ],
   "scopeChangeReason": "Refine DEV file set: the existing B-fb7b build tests (red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs) and the structural smoke assert the existence-based pretest, so they must be updated to the content-bound behavior; new REDs are named for this story (red-1734-*). CHANGELOG.md stays modifiable (delivered at DONE).",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary touchpoints for the concurrent-build-safety hardening surfaced by the genuine Codex cross-host review: build-lock-target.mjs is the dependency-free lock-target module (C3, so bin/bootstrap-runner.js can inspect the build lock without transitively importing proper-lockfile and crashing a fresh checkout); bootstrap-runner.js gains the reader wait-for-lock resilience (C3/C4); promote-dist.mjs is the shared crash-safe atomic-swap promotion (C2); .gitignore excludes the dist.staging/dist.trash-* atomic-swap transient siblings. All serve the same build-mutex/atomic-dist goal as the in-scope build scripts.",
+      "timestamp": "2026-08-15T20:01:06.961Z",
+      "paths": [
+        ".gitignore",
+        "bin/bootstrap-runner.js",
+        "scripts/build-lock-target.mjs",
+        "scripts/promote-dist.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".gitignore",
+        "bin/bootstrap-runner.js",
+        "scripts/build-lock-target.mjs",
+        "scripts/promote-dist.mjs"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "807ec4de955380a50c25d5e26c83a2254db53086",
+      "materialHash": "185ba2f8093225094c6ec2704d471c74d4b81ab8f05a7dba8679c2982d953499"
+    }
+  ],
   "createdAt": "2026-08-15T11:38:40.619Z",
-  "updatedAt": "2026-08-15T12:09:13.339Z",
+  "updatedAt": "2026-08-15T20:01:06.961Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -57,6 +80,10 @@
     "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs": "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
     "packages/main/tests/red/red-fb7b-guard-bite.mjs": "packages/main/tests/red/red-fb7b-guard-bite.mjs",
     "packages/main/tests/red/red-1734-lock-liveness.mjs": "packages/main/tests/red/red-1734-lock-liveness.mjs",
-    "packages/main/tests/red/red-1734-content-binding.mjs": "packages/main/tests/red/red-1734-content-binding.mjs"
+    "packages/main/tests/red/red-1734-content-binding.mjs": "packages/main/tests/red/red-1734-content-binding.mjs",
+    ".gitignore": ".gitignore",
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
+    "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
+    "scripts/promote-dist.mjs": "scripts/promote-dist.mjs"
   }
 }
