@@ -955,13 +955,19 @@
           "kind": "logic_test",
           "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
           "result": "pass",
-          "note": "Current registered 12-record cohort and exact-58 ProofStory pre-review live proof",
-          "headHash": "ef385ec07b76cbfcb4f06ec55cdcba943075ef0e",
-          "materialHash": "13693782dc151cb8878f3e3c5a33f20cc930922cf77c6ccede15b2d8b58b06f0",
-          "storyFilesHash": "f6646a59962e62104ce5f9b38a26a93e814d01d4f3ae4be98120954996e9338b",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-15T21:42:38.518Z"
+          "note": "Canonical registered 12-record frozen-cohort live proof rerun after F-019; exact 58 terminal and mutation rejection contract passed mechanically.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
+            "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T22:05:05.397Z"
+          },
+          "headHash": "b2b255e5f4b17ded581efcbe16350dd56dfb230e",
+          "materialHash": "257774f2ea3cf5b703a3218b4c4f77fff19cedd360e988458ac7ce7533da7883",
+          "storyFilesHash": "fe2337f398e0b0a1c1df87137c016b6ddbc4ef4b305151005ab1f7c2216f4b18",
+          "timestamp": "2026-08-15T22:05:05.520Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
