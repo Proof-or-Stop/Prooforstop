@@ -11,7 +11,11 @@
         "happy": [
           {
             "desc": "In a temp git repo, stage a 1,400,000-byte file as a managed metadata path, supply its sha256 in verifiedHashes, call commitImmutableMetadataTree -> result.ok is true with a valid commitSha; WHY: exercises both isolatedBlobHash (index verification) and treeBlobHash (tree verification) with content above the old 1 MiB Node default, matching the measured artifact size from B-9ff1",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+              "selector": "commitImmutableMetadataTree commits a 1,400,000-byte staged blob"
+            }
           }
         ],
         "edge": [
@@ -47,7 +51,28 @@
         "headHash": "d6195c4dd371a2854cc878b1289ddf7926243f26",
         "attestedAt": "2026-08-15T11:09:40.491Z",
         "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "result": "pass",
+          "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cfcd691b90f81998d66a5e129fe925135143b692d0a970683bcba1d5ac1d9844",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:11:49.470Z"
+          },
+          "headHash": "bf3b80e3f4a66018fb2b4a428e56f2d578f259f4",
+          "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3",
+          "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+          "timestamp": "2026-08-15T11:11:49.711Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
