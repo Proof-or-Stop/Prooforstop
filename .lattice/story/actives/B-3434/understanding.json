@@ -9,25 +9,24 @@
     "Per-command captured output is already bounded upstream by trimOutput and MAX_OUTPUT_CHARS of twelve thousand characters in core/validation-executor.ts",
     "handlers/verifier.ts serialises every command result into test-evidence.json, so the artifact grows with the NUMBER of configured commands, measured at 1369692 bytes on story B-9ff1",
     "lattice.config.json validate.commands grew from 56 to 100 entries on 2026-08-14",
-    "buildLedgerSizing in core/proofstory.ts already implements a three-tier capacity classification consumed as warn before hard fail"
+    "buildLedgerSizing in core/proofstory.ts already implements a three-tier capacity classification consumed as warn before hard fail, and is read here as precedent for the advisory shape rather than modified"
   ],
   "constraints": [
     "Fail-closed posture must be preserved: an unreadable blob must never be treated as a match",
     "The commit path must keep distinguishing blob genuinely absent from blob could not be read",
     "The hard-coded fifteen-minute watchdog ceiling is a separate defect and stays untouched",
-    "Which entries lattice.config.json declares is out of scope",
+    "Which entries lattice.config.json declares is out of scope; only the new smoke registration is added",
     "Upstream per-command truncation stays unchanged"
   ],
   "unknowns": [
-    "Whether the aggregate artifact should be bounded in this story or handed to a named successor change - CHK-004 requires the decision to be made and shipped either way",
-    "What warning fraction of the raised ceiling the advisory should use, measured against the ceiling this story sets rather than any external default"
+    "Whether the aggregate artifact is bounded in this story or handed to a named successor change - CHK-004 requires the decision to be made and shipped either way",
+    "What warning fraction of the ceiling CHK-001 sets the advisory should use, measured against that ceiling rather than any external default"
   ],
   "touchpoints": [
     "packages/main/src/core/done-prepare-generated-metadata.ts",
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/core/validation-executor.ts",
-    "packages/main/src/core/proofstory.ts",
     "lattice.config.json"
   ],
-  "timestamp": "2026-08-15T10:25:59.834Z"
+  "timestamp": "2026-08-15T10:40:49.676Z"
 }
