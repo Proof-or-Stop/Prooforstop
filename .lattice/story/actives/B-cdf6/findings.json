@@ -1253,7 +1253,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md:264 still reads `TEST/lattice validate FAIL -> ... -> TEST/lattice validate PASS` in the Required sequence code block, using the deprecated bin name as if it were the current command. This is NOT a frozen/historical file: this story's own diff already normalized 11 sibling Proofbound->Proof-or-Stop occurrences in this exact file (including the adjacent Validation table row at line ~doc-table which now correctly reads `proof-or-stop validate`), and the file header already declares `Status: execution plan for real Proof-or-Stop lifecycle proof` (i.e. this is an active, currently-maintained execution-plan doc, not an archived record). CHK-003's active-docs sweep missed this one sibling occurrence in an otherwise-thoroughly-normalized file. A reader following only this Required-sequence line would invoke a deprecated alias believing it is the canonical command.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T07:26:11.389Z",
@@ -1264,7 +1264,11 @@
         "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in 160b3dfc8a. Verified before fixing: the line read exactly as you reported, and this story's own diff had already normalized a sibling occurrence in that same file - so the file was left half-migrated, which is worse than either extreme.\n\nYOUR SCOPE TEST WAS THE RIGHT ONE and I applied it rather than just patching the reported line. You distinguished this doc as ACTIVELY maintained (its header already says 'Proof-or-Stop lifecycle proof') from a historical record. I swept the whole decisions/ directory on that criterion and found two more hits, in legacy-to-lattice-role-naming-execution-plan.md - and DELIBERATELY LEFT THEM. That file is a completed execution plan for a PRIOR Legacy->Lattice rename, untouched by this story, and its `lattice validate` references record what that plan actually ran. Rewriting them would falsify a historical record, which is exactly what the freeze rule protects. Your own criterion is what let me separate the two cases confidently instead of guessing.\n\nWORTH NOTING ABOUT THIS ROUND: your other four verification tracks all came back clean and each was a real reproduction, not a read-through - you rebuilt dist from committed source to re-derive the F-056 mechanism yourself, built a clean detached worktree of pristine main to confirm the three red smokes match by assertion text and expected/actual (correctly attributing the line-number offsets to unrelated import additions), byte-diffed the failing functions between trees, and walked every symbol flagged by validate --concept to confirm each has a genuine compat alias with regression coverage. That is the standard that has caught seven real defects in this story that I had declared complete.\n\nVerified after the fix: tsc clean; all three lattice-residue checks exit 0.",
+      "resolvedAt": "2026-08-15T07:27:56.341Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
