@@ -256,6 +256,33 @@
         "scanEscalationReason": null
       },
       "_hash": "d3e1571f2c14c0b7bafad39b6f451a5a7f730603f521736f5b0a9b84e91287ba"
+    },
+    {
+      "id": "B-3434:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Narrow confirmation of the F-041 doc-only commit cd7372f15c (1 file, +4/-2). (1) Re-derived the row-level-guard measurement myself in a filesystem-only scratch copy (never the worktree), independent of the implementer's re-run: deleting the F-033 deferred-table row leaves 2 other full-id mentions (lines 73, 102) and validation-evidence-buffer-smoke: PASS; deleting F-036's row leaves 1 other mention (line 102) and PASS; deleting F-037's row leaves 5 other mentions (lines 54, 100, 102, 126, 128) and PASS; deleting F-035's row leaves 0 other mentions and the smoke throws AssertionError 'the rationale is actionable by someone who was not here: it names \"B-3434:F-035\"', exit 1. All four counts and the F-035 divergence match the paragraph exactly; the paragraph does not contain the defect it describes. It also correctly uses short form (F-033/F-035/F-036/F-037, not the full B-3434:F-0xx string) so writing it did not itself add a mention that would move the counts it reports. (2) Scope check: git diff 2717839123 HEAD -- packages/main/ is empty (0 lines) - the row-level-guard recommendation was recorded in docs/requirements/decisions/validation-evidence-artifact-growth.md only, not built; validation-evidence-buffer-smoke.ts's required-substring list (checked directly, lines ~714-724) is unchanged. (3) Independently re-extracted all 24 pinned verificationEvidence selectors from checklist.json (happy+edge+adversarial, all 5 checklist items) and containment-tested them against fresh, real output of both bound commands run at current HEAD: 23/24 match; the sole miss is CHK-005:edge:0 ('artifact (1212174 bytes) is unbounded and silent'), the pin already on permanent waiver per checklist note (stale-by-design since the fixture was corrected under F-001/F-004, unrelated to this commit). checklist.json is untouched by cd7372f15c (0-line diff). Ran verification_evidence_refresh_stale directly: 'No stale verification evidence for B-3434' (matches the reported 23/23, consistent with the one selector being a permanent waiver rather than stale evidence). (4) Real output, current worktree HEAD, both commands executed directly (not assumed): node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> exit 0, 'red-b3434-blob-buffer-ceiling: PASS' (all fixtures incl. over-ceiling read/silent-hook/talking-hook); node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> exit 0, 'validation-evidence-buffer-smoke: PASS' (rationale bytes=18205, findingIdsNamed includes B-3434:F-001,F-033,F-034,F-035,F-036,F-037). Working tree clean, story phase REVIEW, all 5 checklist items done, all 41 findings resolved. No blocker found.",
+      "createdAt": "2026-08-15T23:04:20.000Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-042",
+      "envelopeId": "02f8a96a7a68859bf30be9718098ab58483d153e465f3aa6e4a14fb94224d401",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/background.md",
+          ".lattice/story/actives/B-3434/plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3efa4bfe4928d37e50c39ae11a3e245f55fafc4c4f9e23372a8f5e595e94498"
     }
   ]
 }
