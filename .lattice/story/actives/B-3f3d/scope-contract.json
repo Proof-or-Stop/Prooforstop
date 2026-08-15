@@ -561,10 +561,34 @@
       "phase": "DEV",
       "headHash": "a2d7c9dbe1b9b7f9d8486edf38d5987a5b816006",
       "materialHash": "4126abc5d8e0170179c9fc12b07e9400016fb95811911f6a84c8a91e978e730e"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary F073 closure: synchronize the six migrated reviewer definitions across generated guidance, prompt handler comments, registry/measurement smokes, while retaining the distinct five active REVIEW lane roster.",
+      "timestamp": "2026-08-15T19:41:34.252Z",
+      "paths": [
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "1a24428bb8c6d64437d8ad7db2821280281e8d22",
+      "materialHash": "bd5d485538e19aa0c5220bf5085e667bed3d945337ee373e6650019703bf5751"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T18:23:42.331Z",
+  "updatedAt": "2026-08-15T19:41:34.252Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -677,6 +701,11 @@
     "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
     "packages/main/src/tasks/provider-codex-smoke.ts": "packages/main/src/tasks/provider-codex-smoke.ts",
     "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts"
   }
 }
