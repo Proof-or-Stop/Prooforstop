@@ -95,6 +95,26 @@
       ],
       "signatureTag": "missing|ts|describechildprocessfailure-introduced-specifically",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-006",
+      "desc": "CHK-004:happy:0, CHK-004:edge:1 and CHK-004:adversarial:0 are all bound to the same selector, 'JSON contract intact' (validation-evidence-buffer-smoke.ts line 212), which does not evidence any of the three claims. happy:0 requires 'exactly one of two shipped outcomes exists' (A: code bound in the real serialization path, or B: a committed rationale doc) -- a governance/disposition judgment about production wiring that a pure-function unit test cannot establish; the smoke test only exercises boundValidationEvidenceOutput/formatValidationEvidenceAdvisory in isolation and never checks they are actually invoked by the real evidence-write path in handlers/verifier.ts. I independently confirmed by reading verifier.ts lines 842-851 that boundValidationEvidenceOutput and formatValidationEvidenceAdvisory ARE genuinely wired into the evidence object written to test-evidence.json, so outcome A is truly shipped today -- but nothing in CHK-004's mechanical evidence chain proves this, and a future refactor that silently un-wires those two calls (while leaving the standalone smoke test untouched) would sail through every CHK-004 selector unnoticed. edge:1 describes outcome B (rationale-doc path), which does not even apply since outcome A was chosen -- binding it to a code-behavior selector makes it vacuously/irrelevantly satisfied regardless of whether any rationale document exists. adversarial:0 requires proving the item was NOT closed with 'only a prose paragraph... with no shipped consequence' -- again not something a JSON.parse-succeeds assertion can demonstrate. Only CHK-004:edge:0 (bound to the same section, which does assert visible truncation markers, elidedCommandOutputs>0, and no silent data loss) is a direct, specific match for its own claim. Recommend re-binding happy:0/edge:1/adversarial:0 to a check that greps or imports handlers/verifier.ts to confirm boundValidationEvidenceOutput is actually called in the persisted-evidence path, rather than reusing the standalone smoke test's generic pass line.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:23:16.312Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-003",
+      "_hash": "7ce4d14e66b81cc79afdea20aaade6f65a582d2e96e5c0f3b2c6b50f4dae0777",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        ".lattice/story/actives/B-3434/checklist.json"
+      ],
+      "signatureTag": "happy|ts|happy-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
