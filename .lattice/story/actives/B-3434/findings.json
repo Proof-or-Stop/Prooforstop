@@ -270,6 +270,36 @@
       ],
       "signatureTag": "doc-code-drift|ts|residual-code-gaps",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-013",
+      "desc": "Residual from F-006, not fully discharged by its own fix. .lattice/story/actives/B-3434/checklist.json still pins CHK-004:happy:0, CHK-004:edge:1 and CHK-004:adversarial:0 to the selector 'JSON contract intact', which is the tail of section 5's console.log at validation-evidence-buffer-smoke.ts:289 ('oversized realistic artifact is bounded with visible markers and JSON contract intact') -- a section that only proves CHK-004:edge:0's claim (visible truncation markers, no silent loss when outcome A is exercised). F-006's own resolvedReason said a new section was added that 'reads handlers/verifier.ts and asserts the disposition itself' so that 'a future silent un-wiring now fails a test instead of passing unnoticed', and recommended re-binding happy:0/edge:1/adversarial:0 to it. That section was genuinely added -- section 10 at validation-evidence-buffer-smoke.ts:565-597, console.log at line 596 ('CHK-004 disposition observed: outcome A (bound ships) is wired into persistStoryValidationEvidence, outcome B absent') -- and I independently confirmed by reading handlers/verifier.ts:842-861 that persistStoryValidationEvidence genuinely calls boundValidationEvidenceOutput and formatValidationEvidenceAdvisory and serialises boundedOutput.output, and that docs/requirements/decisions/validation-evidence-artifact-growth.md does not exist, so outcome A is truly wired and outcome B is truly absent today. But the checklist pins for happy:0/edge:1/adversarial:0 were never moved off 'JSON contract intact' onto section 10's line. Consequence: today's command exit code still gates correctly (one script, one process, any assertion failure anywhere fails the whole bound command), but the pin's own discriminating power -- the thing F-006 was filed to restore, per its own text 'a future refactor that silently un-wires those two calls... would sail through every CHK-004 selector unnoticed' -- is not restored. If a future edit DELETES section 10 outright (rather than making one of its assertions fail), section 5 still prints 'JSON contract intact' unchanged, selectorMatched stays true for all three intentRefs, and the governance proof F-006 fought for is gone with nothing to catch it. This is a live gap in the current tree, confirmed directly against checklist.json (not a stale read), not a hypothetical from an earlier round. Recommend re-binding happy:0/edge:1/adversarial:0 to the section-10 sentence in a follow-up edit.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T12:41:58.469Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-013",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/background.md",
+          ".lattice/story/actives/B-3434/plan.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5900f4a8358b2ee81b3ed76b437807012ba5864c94f27b7e34ebd092d5e5de05",
+      "files": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        ".lattice/story/actives/B-3434/checklist.json",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|residual-fully-discharged",
+      "signatureTagSource": "auto"
     }
   ]
 }
