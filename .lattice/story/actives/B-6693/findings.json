@@ -617,6 +617,21 @@
       "_hash": "7e3a9d2e2bf3452ac90e12b63e0adb781aa2748514861c907943df80331d8020",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-018",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:3951 — verified integration contract regression: the TEST fail fixture creates a non-Git temp root, so the new B-6693 story-scoped workspace-capacity git-common-dir requirement now fails before the configured node -e process.exit(5) validator runs. Repro: node packages/main/dist/tasks/review-pass-discard-smoke.js exits 1 via flow-stability-smoke; actual is Cannot enter TEST: lattice validate execution error / cannot resolve git-common-dir identity, expected Cannot enter TEST: lattice validate did not pass. Make the fixture a valid Git-backed story workspace (or equivalently preserve its intended semantic-failure setup) so it still proves allPass=false, FAIL evidence persistence, and actor lifecycle behavior under the new capacity precondition.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:54:27.998Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-029",
+      "_hash": "cc73f747f4f2dc75f1f81bf71fcc00e8b5a60123a1d615762258a0a3af17c111",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
