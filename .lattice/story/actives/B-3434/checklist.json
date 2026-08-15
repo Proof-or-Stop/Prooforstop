@@ -76,6 +76,16 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "When a blob read fails during the metadata commit, the reported reason names the actual cause such as a buffer length being exceeded while reading a staged blob, instead of the misleading verified metadata changed after manifest verification",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ]
       }
     },
     {
