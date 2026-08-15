@@ -426,6 +426,39 @@
       ],
       "signatureTag": "adversarial|ts|task-question-verdict",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-021",
+      "desc": "In reusedStoryValidationResult, the new F-014 bound check does: `if (!reusedBound.withinBound) { throw new Error(...) }`. Every other \"cannot proceed\" branch in this same function - missing prior commandExecution, preexisting dirty managed metadata - returns `externalResult({ provider: 'lattice-verifier-reuse-persistence', status: 'fail', failureKind: 'infra_failure', ... })`, a structured, catchable result the rest of the pipeline (decorateAndMaybePersistStoryValidation, renderExternalResult, --json output) knows how to render. The parallel executed-path equivalent in persistStoryValidationEvidence (the function this commit is otherwise symmetric with) also returns a structured value: `return persistenceFailure(...)`, not a throw.\n\nMechanically this is not a lock leak - withValidationExecutionLock releases via try/finally regardless of how fn() exits - so it is not a correctness blocker. But it means the identical condition (evidence file cannot be reduced under the bound; refuse the write) surfaces two different ways depending only on which of the two near-duplicate code paths hit it: a clean \"Validation FAIL: <reason>\" result on the executed path, and an uncaught exception on the reuse path, which - absent a catch somewhere further up the CLI/handler chain that the story did not add and that lives outside allowedModify (cli-engine.ts is explicitly excluded from this story's scope) - most likely renders as a raw stack trace rather than the operator-facing message the identical executed-path condition produces.\n\nSuggested fix: mirror persistenceFailure's shape (or literally reuse it) in reusedStoryValidationResult rather than throwing, so the two paths this commit made symmetric for the bounding logic are also symmetric for the resulting failure surface.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T13:35:42.306Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-018",
+      "_hash": "d3b05ac88f0abcc57f2efd176766f3b4582854f5469c99a78873565c6dd2b69f",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|reusedstoryvalidationresult-bound-check",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-022",
+      "desc": "packages/main/src/core/validation-executor.ts:517-537,611-677 (boundPersistedValidationEvidence / verdictOnlyRecord): the pre-fix smoke (e1afeb346a~1, section 8e) asserted that an irreducible input honestly reports withinBound=false (\"an unmet bound is refused... never flagged as success\", matching CHK-004:adversarial:1). The rewritten smoke drops that assertion entirely -- no fixture calls persist()/boundPersistedValidationEvidence with a non-object `result` -- and section 9 (degenerate inputs) only covers cyclic/BigInt/throwing-getter, all of which are objects. I confirmed by executing packages/main/dist/core/validation-executor.js directly (not via the committed smoke) that the property actually flipped: boundPersistedValidationEvidence({result: \"x\".repeat(30*1024*1024), buildRecord}) now returns disposition=verdict_only, withinBound=true, fileBytes=507, with a persisted output of `{\"evidenceBound\":{...}}` carrying NEITHER allPass NOR status (verdictOnlyRecord:518 treats any non-object source as `{}`, so none of VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS survive). Same result for `result: undefined`. This is the opposite of the old honest-refusal guarantee and is not covered by any committed test, so a future change that makes this path reachable (result is typed `any` at the two production call sites in handlers/verifier.ts) would silently report success while persisting evidence with no verdict at all -- exactly the failure mode CHK-004 exists to prevent. WHY: this is a real behavior change (verified by direct execution against the built dist, not speculation) in a class of input the story previously tested and guaranteed honestly-refuses; it is currently reachable only defensively (both current call sites always pass well-formed ValidationResult objects), so it is not release-blocking, but it is untested in either direction and should get either a committed assertion pinning the current (silent-success) behavior as intentional, or a fix routing non-object/unserialisable-verdict inputs to the refused disposition the way the old code did.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:35:42.414Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-017",
+      "_hash": "105587ca9ec01a1d63c1f61e23f88be37c5844d80fc7dcacd0aa54d5d47ec687",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
