@@ -135,6 +135,21 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Fixed: both fixture-builders in proofstory-intent-hardening-smoke.ts (the main PLAN-phase story at line ~193 and writeLifecycleGateBlockedStory for the REVIEW/TEST reentry cases) now call a new ackDevMemoryPreflightForProofstory helper that writes a satisfying dev-memory-preflight-ack.json, matching the same fix pattern already used for the 8 earlier collateral fixture fixes in this story. Confirmed: proofstory-intent-hardening-smoke.js now passes standalone (was previously failing with the wrong guard message due to CHK-001's check running before the ProofStory-specific check this fixture tests). Root cause for why this wasn't caught in 5 prior REVIEW rounds: the file is not registered in lattice.config.json's validate.commands, only reachable via the project's separate root npm test command.",
       "resolvedAt": "2026-08-15T13:03:55.623Z"
+    },
+    {
+      "id": "B-a7c5:F-009",
+      "desc": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts:184-244 (buildDoneReadyStoryWithLinkedWorktree/writeDoneGateEvidence) never writes a dev_memory_finish_decision record before driving a real story_advance({phase:DONE}), so CHK-003s new canFinishGuard check (core/machine.ts:945, message at core/machine.ts:1419-1422) now blocks it with missing_dev_memory_finish_decision BEFORE the CLI ever reaches the git merge-tree pre-check logic this smoke exists to verify. Independently reproduced deterministically (3/3 runs) in a fully isolated clone of the exact story HEAD (b3c5db6775), and confirmed via debug instrumentation the real captured CLI output is literally \"Cannot enter DONE: dev_memory_finish_decision has not been recorded. [missing_dev_memory_finish_decision]\" -- not a merge-tree/race-condition failure. The SAME test passes cleanly (14/14 checks, 3/3 runs) both on current main and at this storys own merge-base commit (a15ae19707a0b128a38e24db02af420916115e9e), proving the failure is caused by this storys own CHK-003 gate change, not by an unrelated pre-existing issue. This contradicts the stated diligence claim that root npm test surfaced only one unrelated pre-existing failure confirmed untouched by this storys diff and by anything the diff depends on -- it IS caused by this storys diff (canFinishGuard), and it is the SAME regression class as F-008 (a pre-existing DONE-driving fixture never updated to satisfy a new CHK-001/CHK-003 gate; this file is likewise absent from lattice.config.jsons validate.commands, only reachable via npm run test:done-premerge-mainsha-recheck / root npm test, which is why lattice validate never caught it either). Left unfixed, this silently masks the B-0e53 DONE pre-merge mainSha re-check race-condition protection (both its ABORT and HAPPY path assertions never execute) for as long as this gate exists. Needs the same fix pattern already used 8+ times in this story: write a satisfying dev_memory_finish_decision (and confirm no other DEV-door gate is hit) before the fixtures story_advance DONE call.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:36:38.104Z",
+      "reviewRound": "2026-08-15T13:11:28.330Z",
+      "reviewRunId": "B-a7c5:RR-017",
+      "_hash": "fe0eccd8020fac7856c9f1ae470c8afe424fc2c84c97012e2aab42e3bdbac784",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
