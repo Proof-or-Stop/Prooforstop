@@ -6,7 +6,43 @@
       "context": "writeCanonicalAcceptanceRegistration's synthetic pureRoot never stubs packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs, which PROCESS_FACT_REGISTRY's artifact:acceptance-rollout-report.json entry now pulls into the required snapshot closure alongside handlers/proofstory.ts (acceptance-discovery-adapters.ts buildBoundedSourceGraph, line ~1092). Write a RED script under packages/main/tests/red/ proving the fixture fails on current main, then fix the fixture to stub both files, confirm GREEN.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "create": [
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "INT-CHK001-RED",
+            "desc": "RED script red-B-74b9-chk001-acceptance-basis.mjs fails on the pre-fix tree with the snapshot_missing/partial signature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "INT-CHK001-GREEN",
+            "desc": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js exits 0 after the fix",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "INT-CHK001-DISCRIM",
+            "desc": "Deliberately reverting the stub-content fix reproduces the original snapshot_missing failure, proving the fixture still discriminates a real regression",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",
