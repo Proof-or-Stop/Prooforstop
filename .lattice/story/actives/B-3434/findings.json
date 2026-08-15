@@ -29,7 +29,7 @@
       "desc": "CHK-003:adversarial:0 binds an un-falsifiable RED-before-GREEN claim to the wrong selector. The intent requires demonstrating 'the regression test fails when run without the maxBuffer fix (demonstrated by running against the pre-fix tree or by temporarily reverting the maxBuffer additions)'. Its bound selector, 'a genuine post-verification change still reports verified metadata changed' (red-b3434-blob-buffer-ceiling.mjs section 8, line 339), tests something unrelated: that a REAL digest mismatch is still correctly reported post-fix. That section never runs on the pre-fix tree and never reverts the fix, so it proves nothing about RED-before-GREEN. No other bound selector in the 24-intent set covers this claim either. The only committed artefact bearing on it is .lattice/story/actives/B-3434/red-evidence.json, whose failingCommand points at an ephemeral, uncommitted scratch script (a scratchpad path under a session tmpdir), not at the committed test file -- so within the story's own evidence chain, RED-before-GREEN for the actual committed regression is only ASSERTED (commit message prose + that indirect record), never mechanically verified. I independently checked out the RED commit ec18da8da6 (before fix commit 8250774c9d) into an isolated clone, built packages/main from that pre-fix source (confirmed zero maxBuffer occurrences), and ran the actual committed red-b3434-blob-buffer-ceiling.mjs against it: 6 of 8 sections genuinely FAIL, reproducing verified metadata changed after manifest verification verbatim. So the underlying claim is TRUE, but the story shipped no mechanical selector or artefact that proves it -- exactly the pass-for-the-wrong-reason pattern this lane exists to catch. Recommend re-binding CHK-003:adversarial:0 to a fixture-comparison test (e.g. a committed script that asserts failure against a checked-out pre-fix ref, or at minimum wiring the selector to something that actually differs between the two trees) rather than to an unrelated section.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T11:22:46.016Z",
@@ -42,7 +42,11 @@
         ".lattice/story/actives/B-3434/checklist.json"
       ],
       "signatureTag": "adversarial|mjs|adversarial-binds-falsifiable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29968050ff / 2365be5586. Two reviewers had independently rebuilt the pre-fix tree and confirmed six of eight sections fail there, so the claim was true - but it was not checkable from the story's own artefacts, which is what the finding was about. The regression now carries the pre-fix helper verbatim, without maxBuffer and with the bare catch, and asserts opposite outcomes on one fixture, plus a below-ceiling control proving size is the only variable. RED-before-GREEN is now provable from committed artefacts alone, with no rebuild of an old tree and no ephemeral scratch script.",
+      "resolvedAt": "2026-08-15T11:55:16.914Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-003",
