@@ -58,6 +58,25 @@
       ],
       "signatureTag": "adversarial|ts|reproduced-blob-exceeds",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-004",
+      "desc": "Of the 24 bound selectors, two embed a numeric count despite the stated policy that pinned selectors must carry no count (per the identical boilerplate note on every verificationEvidence entry, and the B-9ff1 history of stranded count-bearing selectors). CHK-001:happy:0's 'commitImmutableMetadataTree commits a 1,400,000-byte staged blob' is safe: 1,400,000 is a literal baked directly into the section() title string in red-b3434-blob-buffer-ceiling.mjs (line 144), chosen once by the author and immune to drift from unrelated code changes -- it can only change if someone edits that literal string itself. CHK-005:edge:0's 'artifact (1212174 bytes) is unbounded and silent' is NOT safe by the same reasoning: 1212174 is validation-evidence-buffer-smoke.ts line 131's runtime-computed bounded.measuredBytes (JSON.stringify of a synthetic 100-command fixture), interpolated into the console.log via template literal. Any future change to the shape of commandResult/validationResult (e.g. adding a field for closer fidelity to the real evidence.json shape, or changing trimOutput's 12,000-char cap) will silently shift this byte count and break the pinned selector -- reproducing exactly the B-9ff1 failure mode this policy exists to prevent. Notably the same file demonstrates awareness of this exact risk two sections later: line 212's marker/JSON-contract selector and line 239's entry-cap selector both deliberately pick number-free tails ('JSON contract intact', 'a diagnostic count') specifically to dodge adjacent printed byte counts ('30036374-byte artifact bounded to 25143521 bytes, 49 marker(s)'), but that same discipline was not applied to line 131's '(1212174 bytes)' text. Recommend re-binding CHK-005:edge:0 to a number-free substring of the same output line, e.g. 'is unbounded and silent'.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:23:00.890Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-003",
+      "_hash": "9b03af08135b16d7ba71a23afdfa59f81ecdaecc3d8ead81580b771031eae47d",
+      "files": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        ".lattice/story/actives/B-3434/checklist.json"
+      ],
+      "signatureTag": "edge|ts|bound-selectors-embed",
+      "signatureTagSource": "auto"
     }
   ]
 }
