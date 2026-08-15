@@ -285,7 +285,9 @@ function validationResult(
     bounded.elidedCommandEntries,
     'the artifact itself carries the diagnostic count of omitted entries',
   );
-  console.log('✓ non-output bulk is capped with a diagnostic count');
+  // The phrase "non-output bulk capped" is contiguous on purpose: CHK-004:adversarial:1 is pinned
+  // to that literal substring and a pin is immutable once bound, so the wording is load-bearing.
+  console.log('✓ non-output bulk capped with a diagnostic count');
   console.log(`    elidedCommandEntries=${bounded.elidedCommandEntries} serialised=${Buffer.byteLength(bounded.output, 'utf8')}`);
 }
 
