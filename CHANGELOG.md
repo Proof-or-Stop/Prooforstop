@@ -1,5 +1,40 @@
 # Changelog
 
+## Unreleased
+
+**Fixed**
+
+- **Cross-platform build mutex + content-bound idempotent build (B-1734).** Closes
+  the four Codex concurrency findings deferred from B-fb7b. Added
+  `scripts/build-lock.mjs` — `withBuildLock(repoKey, fn)` wraps every build's
+  rm+tsc+write critical section in a [`proper-lockfile`](https://www.npmjs.com/package/proper-lockfile)
+  mutex using the portable default mkdir strategy (no `flock`/`fcntl`/native module,
+  so it works on Mac/Linux/Windows). It is configured `stale: 30000`,
+  `update: 10000`: the correctness invariant `update < stale/2` means a **live**
+  long-running build always refreshes its heartbeat before the stale threshold, so
+  a waiter can never age-steal it (B-fb7b finding #1), while a **dead** holder's
+  lock ages past `stale` and is reclaimed race-safely (finding #2); `retries` make
+  concurrent builders wait. The lock releases on both normal completion and error.
+- The build skip decision is now **content-bound** via the existing
+  `verifyBuildBinding` (sha256 over all `packages/main/src`+config and all
+  `packages/main/dist`), replacing the shipped mtime/existence checks that
+  misclassified deleted-source orphans, partial builds, and tampered outputs as
+  fresh (findings #3/#4). `scripts/build-main-with-binding.mjs` skips instantly on
+  a lock-free fast-path when the binding verifies, and only rm+rebuilds (under the
+  mutex, with a double-check) when it is stale — so rebuilds are rare and the
+  rm-during-read window is closed. A parallel `packages/utils` binding
+  (`writeUtilsBuildBinding`/`verifyUtilsBuildBinding`, new
+  `scripts/build-utils-with-binding.mjs`) folds `packages/utils/src`+config **and**
+  the `packages/main/dist` it links against into its `sourceDigest`, so utils
+  rebuilds whenever main/dist changes. `scripts/ensure-dist.mjs` (the `pretest`) is
+  no longer existence-based: it delegates to the two content-bound + locked build
+  scripts, main before utils. Two concurrent `npm test` invocations in one worktree
+  now both complete without `ENOTEMPTY`/`MODULE_NOT_FOUND`/`TS2307`. New repro-first
+  REDs `red-1734-lock-liveness` and `red-1734-content-binding` are wired into
+  `validate.commands`; the `test-suite-utils-autobuild-smoke` structural guard and
+  the `red-fb7b-*` behavioral/guard-bite harnesses were updated to the content-bound
+  behavior.
+
 ## Proofbound 0.3.254 - 2026-08-14
 
 **Fixed**
