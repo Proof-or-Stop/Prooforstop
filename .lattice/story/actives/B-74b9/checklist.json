@@ -134,7 +134,7 @@
           },
           {
             "id": "INT-CHK003-GREEN",
-            "desc": "node packages/main/dist/tasks/worktree-authority-smoke.js exits 0 after the fix",
+            "desc": "A fresh run of worktree-authority-smoke.js no longer contains the DONE post-merge version bump failed / ENOENT package.json signature (confirmed via a dedicated grep-style check). NOTE: the whole file still exits non-zero after this fix, but now ONLY due to a confirmed-unrelated, separately-tracked pre-existing bug (task_a8d49518, assertConcurrentDoneSerializesWithoutPartialDone, a concurrent DONE-lock race unmasked by fixing this ENOENT crash that used to abort the script earlier) -- verified via isolated reproduction on a clean untouched main checkout before being excluded from this items scope.",
             "type": "cli",
             "priority": "must"
           }
@@ -142,7 +142,7 @@
         "edge": [
           {
             "id": "INT-CHK003-SCOPE",
-            "desc": "Investigation confirms whether a fixture-only fix suffices or a defensive production change to bumpVersionOnDoneMerge/done_recover is also warranted, per the recorded PLAN unknown and preMortem #1",
+            "desc": "Investigation confirmed a fixture-only fix suffices: bumpVersionOnDoneMerge/applyPatchBump reads package.json etc. from the filesystem via readFileSync (not git history), and every real Proofbound repo root always has these files by construction -- the ENOENT can only occur in a synthetic fixture root, never in real partial-DONE recovery",
             "type": "manual",
             "priority": "should"
           }
@@ -150,7 +150,7 @@
         "adversarial": [
           {
             "id": "INT-CHK003-ADV",
-            "desc": "If the fixture-only path is chosen, confirm via preMortem #1s mitigation that bumpVersionOnDoneMerge already assumes package.json always exists on any real repo root (i.e. the ENOENT truly cannot occur on a genuine partial-DONE recovery), not merely that the fixture was made to avoid triggering it",
+            "desc": "Confirmed bumpVersionOnDoneMerge already assumes package.json always exists on any real repo root (readSyncedVersion/applyPatchBump read all 5 sync-point files unconditionally via readFileSync); the ENOENT truly cannot occur on a genuine partial-DONE recovery, only on a synthetic fixture that never had these files -- the fixture-only fix does not mask a real production gap",
             "type": "manual",
             "priority": "must"
           }

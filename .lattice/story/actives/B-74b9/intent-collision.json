@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-74b9",
+  "id": "IC-20260815201645",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fixture-only fixes for all three (per decision.json's chosen option): each fixture's stale synthetic setup is updated to match legitimate, already-correct production behavior (PROCESS_FACT_REGISTRY growth, command-catalog.ts's required readManifest, bumpVersionOnDoneMerge's package.json requirement), with a repro-first RED script preceding each fix, plus an explicit validate.commands/test:serial-reference registration decision (CHK-004). No production logic changes unless CHK-003's investigation finds a genuine gap, per preMortem #1.",
+  "acceptedInterpretationHash": "sha256:211b4e3672cdb21fdf1a923bac37508fda172f4842cfedf94ee2a797e93f365a",
+  "notes": "Single unambiguous interpretation; confirmed by direct source investigation before PLAN was written, not inferred from the request text alone.",
+  "createdAt": "2026-08-15T20:16:45.273Z",
+  "updatedAt": "2026-08-15T20:16:45.273Z"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-74b9",
+  "sourceText": "Fix three deterministically-failing test fixtures (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts), each preceded by a RED reproduction script proving the failure, then a GREEN fix, all bundled into one story driven to DONE.",
+  "normalizedOutcome": "Each of the three fixtures exits 0 with no assertion errors when run directly, and each has a committed RED script under packages/main/tests/red/ that fails on the pre-fix tree and passes on the post-fix tree.",
+  "acceptanceClaim": "node packages/main/dist/tasks/{proofstory-acceptance-basis-smoke,field-regression-cli-smoke,worktree-authority-smoke}.js all exit 0, and each corresponding packages/main/tests/red/red-B-74b9-*.mjs script demonstrably fails pre-fix and passes post-fix.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:dc371aab4fe6b9fd45c177e43dc96366a248914be25dadb67bdecc0790f9ef99",
+  "createdAt": "2026-08-15T20:16:38.857Z",
+  "updatedAt": "2026-08-15T20:16:38.857Z"
+}
