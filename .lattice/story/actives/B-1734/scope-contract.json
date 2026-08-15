@@ -52,10 +52,26 @@
       "phase": "DEV",
       "headHash": "807ec4de955380a50c25d5e26c83a2254db53086",
       "materialHash": "185ba2f8093225094c6ec2704d471c74d4b81ab8f05a7dba8679c2982d953499"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Codex D1 fix: bin/bootstrap-runner.js now statically imports scripts/build-lock-target.mjs and scripts/promote-dist.mjs (for dep-free lock inspection + crash-recovery), so the desktop asset manifest in package-desktop.mjs must ship those two files or packaged binaries crash with ERR_MODULE_NOT_FOUND at bootstrap init. Same build-safety touchpoint set as the acknowledged bootstrap-runner.js change.",
+      "timestamp": "2026-08-15T20:32:35.506Z",
+      "paths": [
+        "scripts/package-desktop.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/package-desktop.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "83b36cc61d5b53ffc18517a3ad67afcec564992f",
+      "materialHash": "5394d8cee3654fc635bd698093e42089b5ff5eb5d60a7f8e73c6a9cfdac328c5"
     }
   ],
   "createdAt": "2026-08-15T11:38:40.619Z",
-  "updatedAt": "2026-08-15T20:01:06.961Z",
+  "updatedAt": "2026-08-15T20:32:35.506Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -84,6 +100,7 @@
     ".gitignore": ".gitignore",
     "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
     "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
-    "scripts/promote-dist.mjs": "scripts/promote-dist.mjs"
+    "scripts/promote-dist.mjs": "scripts/promote-dist.mjs",
+    "scripts/package-desktop.mjs": "scripts/package-desktop.mjs"
   }
 }
