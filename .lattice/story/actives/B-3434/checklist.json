@@ -38,7 +38,35 @@
       "context": "The catch currently returns null, which the caller compares against the expected digest and reports as verified metadata changed after manifest verification. Distinguish blob genuinely absent from blob could not be read, keep the fail-closed posture, and make the surfaced reason name the underlying error so the next person does not spend hours attributing it to concurrency.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When a staged blob IS readable, isolatedBlobHash and treeBlobHash return its correct sha256 hash and the commit path succeeds; WHY: the error-handling fix must not break the normal read-and-hash path",
+            "type": "cli"
+          },
+          {
+            "desc": "When a blob read fails (simulated ENOBUFS or equivalent), the commit-path failure reason names the underlying error cause (buffer overflow, error code, or OS message), not the generic string verified metadata changed after manifest verification; WHY: surfacing the real cause is the diagnosability fix that turns the next occurrence from hours of misattribution into minutes",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When execFileSync throws an error other than blob-not-found (e.g. ENOBUFS, EPERM, or a git crash), the surfaced reason includes the original error message or code from the child process; WHY: the current catch discards ALL error information and the fix must preserve it for the operator",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unreadable blob (execFileSync throws any error) never compares equal to any expected hash value -- the commit path always fails closed with a diagnostic message; WHY: if the fix changes the sentinel from null to some value that could accidentally match an expected hash, it opens a fail-open path where corrupted reads are silently accepted",
+            "type": "cli"
+          },
+          {
+            "desc": "The error message for an infrastructure failure (ENOBUFS, EPERM) is textually distinct from the error message for a blob that is genuinely absent from the index; WHY: conflating infrastructure failures with missing-blob is exactly the original defect -- if the fix treats both as the same generic error, the diagnosability improvement is cosmetic",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
