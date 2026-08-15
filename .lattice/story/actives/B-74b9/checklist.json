@@ -50,7 +50,43 @@
       "context": "assertReviewRunStartCliSurface calls review_pass_set without the now-required --readManifest argument (command-catalog.ts), so the real error is an argument-validation failure, not the /already stale|stale/i pattern the fixture own assertion expects. Write a RED script proving the current mismatch, then fix the fixture to pass a valid readManifest matching the shape other passing tests use so it actually exercises the staleness scenario, confirm GREEN.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "INT-CHK002-RED",
+            "desc": "RED script red-B-74b9-chk002-readmanifest.mjs fails on the pre-fix tree with the readManifest argument-validation mismatch signature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "INT-CHK002-GREEN",
+            "desc": "node packages/main/dist/tasks/field-regression-cli-smoke.js exits 0 after the fix",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "INT-CHK002-DISCRIM",
+            "desc": "The fixed fixture actual assertion genuinely matches an already-stale review_pass_set response, not merely a non-crashing one -- confirmed by inspecting the real CLI output the test asserts against",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-003",
