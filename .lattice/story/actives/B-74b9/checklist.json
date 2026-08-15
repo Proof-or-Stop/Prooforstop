@@ -111,7 +111,9 @@
       "endTime": null,
       "files": {
         "modify": [
-          "packages/main/src/tasks/worktree-authority-smoke.ts"
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-recover.ts"
         ],
         "create": [
           "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
@@ -143,7 +145,14 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "id": "INT-CHK003-ADV",
+            "desc": "If the fixture-only path is chosen, confirm via preMortem #1s mitigation that bumpVersionOnDoneMerge already assumes package.json always exists on any real repo root (i.e. the ENOENT truly cannot occur on a genuine partial-DONE recovery), not merely that the fixture was made to avoid triggering it",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
