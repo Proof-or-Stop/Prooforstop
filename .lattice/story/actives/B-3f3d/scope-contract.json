@@ -379,10 +379,30 @@
       "phase": "DEV",
       "headHash": "c179454a73e5baba942cf1d57f46461f78ddf547",
       "materialHash": "132e35b4b916a213fc99c95ff9840e10b1a4bf02f672b16a6425bb6a95604d23"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-049 remediation must apply the canonical English authoring predicate at story/checklist writers and prove CJK relatedDocs is rejected before persistence while the final gate remains fail closed.",
+      "timestamp": "2026-08-15T01:21:34.512Z",
+      "paths": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "1c064054261457140af3565314d48244890164c5",
+      "materialHash": "2d99f41a6ba9ebd03a3c9100b9375e891ab4c73ec680b7e3baba68452a946376"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-14T23:51:31.743Z",
+  "updatedAt": "2026-08-15T01:21:34.512Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -460,6 +480,9 @@
     "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
     "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
     "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
-    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts": "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts"
   }
 }
