@@ -30,6 +30,7 @@ import {
 import { canonicalReviewHostLauncherSpec, type CanonicalReviewHost } from '../core/host-execution-readiness.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type { BugData, Finding, ProcessEvent, ReviewRun, StoryInfo } from '../core/types.js';
 import { listVerdicts } from '../core/verdicts.js';
@@ -306,6 +307,11 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
     touchpoints: ['packages/main/src/index.ts'],
     timestamp: '2026-06-19T11:45:00.000Z',
   });
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This write lands under metadataRoot (.lattice/dev-memory/), never
+  // gitRoot, so it cannot perturb the wrapper-root materialHash computed above.
+  createPlaybookRuntimeMemoryHandlers({ store, root: metadataRoot, scanRoot: gitRoot })
+    .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'review-assurance-floor-smoke fixture; no lesson to capture' });
 
   const reviewers = computeActiveReviewers(smokeStory, store.readChecklist(STORY_ID), null, ['packages/main/src/index.ts']);
   const runs: ReviewRun[] = reviewers.map((reviewer, index) => {

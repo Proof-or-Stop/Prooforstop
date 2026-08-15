@@ -1,0 +1,32 @@
+{
+  "storyId": "B-74b9",
+  "updatedAt": "2026-08-15T19:53:29.519Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-74b9-001",
+      "storyId": "B-74b9",
+      "proposedBy": "jek",
+      "proposedAt": "2026-08-15T19:53:24.787Z",
+      "proposal": "The word 'Authority' is on the default correctness_fix excluded-keyword list to prevent scope creep into the Lattice Authority Server feature domain. This story legitimately references the literal file name worktree-authority-smoke.ts (an existing pre-fix test fixture unrelated to the Authority Server feature) in its checklist item CHK-003 context. No Authority Server functionality is in scope; this is a substring false-positive, not a real scope expansion.",
+      "proposalTextHash": "356f65c2810f1651790d8bafd0d04ef901b9e99939d89a6333f2c1b72e75c0c5",
+      "reason": "worktree-authority-smoke.ts is a pre-existing fixture file name that happens to contain the substring 'authority'; it tests done_recover's post-merge build/version-bump path, not the Authority Server feature.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "c850f19c8ce206156727c9e778bac49a3c728ca8feb75417334f857e4a932772",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "jek",
+        "decidedAt": "2026-08-15T19:53:29.519Z",
+        "rationale": "Confirmed false positive: 'Authority' keyword hit is the substring inside the pre-existing test fixture file name worktree-authority-smoke.ts, unrelated to the Lattice Authority Server feature. No Authority Server functionality is in scope for this story.",
+        "_hash": "987c69247a448e550de234a7abf8b2c6a74a1f5aff2ada482cb7199d71500abd"
+      }
+    }
+  ]
+}

@@ -131,6 +131,16 @@ const REGISTRATION_EXCLUSIONS = new Map([
     + 'nothing, which is the vacuous-coverage defect this story exists to remove; its own file header says it belongs '
     + 'on this side. It stays inside the population and is reached from this registered guard, so it is decided here '
     + 'rather than silently dropped.'],
+  [`${POPULATION_DIR_REL}/red-fb7b-pretest-builds-utils.mjs`,
+    'On-demand repro-first behavioral evidence for the B-fb7b pretest guard. It runs a full `npm run pretest` that '
+    + 'rebuilds the shared packages/main and packages/utils dist trees (~1 min), so it must not run as a validate command '
+    + 'alongside other commands that read those dist trees. It is pinned as verification evidence and exercised on demand; '
+    + 'the permanent fast structural guard test-suite-utils-autobuild-smoke is registered in validate.commands.'],
+  [`${POPULATION_DIR_REL}/red-fb7b-guard-bite.mjs`,
+    'On-demand guard-family verifier for the B-fb7b pretest guard. It proves the structural smoke bites on every broken '
+    + 'pretest variant via isolated temp-fixture bite tests plus a lifecycle `npm test`; it is pinned as verification '
+    + 'evidence, not a standing validate guard. The permanent fast structural guard test-suite-utils-autobuild-smoke is '
+    + 'registered in validate.commands.'],
 ]);
 
 /** A reason must actually be a reason; an empty string is not a decision. */

@@ -20,8 +20,34 @@ import { getProcessFactRegistryEntry, hasProcessFactSemantic } from '../core/pro
 import { StoryStore } from '../core/store.js';
 import type { ClosingSelfCheck, DeliveryCheckData, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { z } from 'zod';
+
+// B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+// record. Every fixture in this file exercises delivery-check-SPECIFIC DONE-gate
+// behavior, so each base fixture writes a satisfying record up front — otherwise
+// every `getGuardFailureReason(..., 'DONE', ...)` assertion below would observe
+// [missing_dev_memory_finish_decision] instead of the delivery-check-specific
+// code/message this file exists to test.
+function satisfyDevMemoryFinishDecision(root: string, store: StoryStore): void {
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'delivery-check-freshness-smoke fixture; no lesson to capture' });
+  // F-007 (round-4 quality finding): `.lattice/dev-memory/finish-decisions/` is
+  // now materialHash-EXCLUDED (B-a7c5 F-005 fix, core/runtime-artifact-registry.ts
+  // id='dev-memory-finish-decision') -- writing/committing it does NOT perturb
+  // materialHash either way, so this commit is no longer load-bearing for
+  // freshness stability. Kept anyway for a narrower, still-real reason: an
+  // uncommitted write here classifies as non-blocking runtime_artifact_changes
+  // (not unexpected_dirty_files), so it wouldn't block anything downstream in
+  // THIS file, but committing it keeps this fixture's own git history tidy and
+  // matches the pre-F-005 baseline behavior this file's other assertions were
+  // written against.
+  if (git(root, ['status', '--porcelain', '--', '.lattice/dev-memory'])) {
+    git(root, ['add', '.lattice/dev-memory']);
+    git(root, ['commit', '-m', 'dev-memory finish decision']);
+  }
+}
 
 const STORY_ID = 'B-delivery-fresh';
 const NOW = '2026-06-23T12:00:00.000Z';
@@ -139,6 +165,7 @@ function createFixture(): { root: string; store: StoryStore } {
       entries: [],
     },
   });
+  satisfyDevMemoryFinishDecision(root, store);
   return { root, store };
 }
 
@@ -215,6 +242,7 @@ function createMainFixture(): { root: string; store: StoryStore } {
       entries: [],
     },
   });
+  satisfyDevMemoryFinishDecision(root, store);
   return { root, store };
 }
 

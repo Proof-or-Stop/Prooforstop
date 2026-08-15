@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3434",
+  "checkedAt": "2026-08-15T10:24:31.701Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "d8ef72d26f1b8d84f677fc8f0484a3fcc9ac2d69150d6930bac8cf674db54876",
+  "executionBoundaryHash": "8651ccf400f3f68d8998bfa888e65a763c02f562c2c8c4ed404809144dfa69c8",
+  "freshnessHash": "23522a943023cf0e31ee2bd4b62a855690714cbc7a120503498635bd8ffbdb32",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Scheduling or parallelisation of how configured commands execute",
+    "The fifteen-minute watchdog ceiling story_advance inherits from the generic per-command default",
+    "Upstream per-command capture truncation, which already exists and stays untouched",
+    "Which entries lattice.config.json declares"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Scheduling or parallelisation of how configured commands execute",
+      "source": "scopeBoundary.excluded",
+      "text": "Scheduling or parallelisation of how configured commands execute",
+      "excluded": true
+    },
+    {
+      "keyword": "The fifteen-minute watchdog ceiling story_advance inherits from the generic per-command default",
+      "source": "scopeBoundary.excluded",
+      "text": "The fifteen-minute watchdog ceiling story_advance inherits from the generic per-command default",
+      "excluded": true
+    },
+    {
+      "keyword": "Upstream per-command capture truncation, which already exists and stays untouched",
+      "source": "scopeBoundary.excluded",
+      "text": "Upstream per-command capture truncation, which already exists and stays untouched",
+      "excluded": true
+    },
+    {
+      "keyword": "Which entries lattice.config.json declares",
+      "source": "scopeBoundary.excluded",
+      "text": "Which entries lattice.config.json declares",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "65bca48adb97775c4d38f4289207b3e3eccab7ac79810cce3003d40dce1c18a0"
+}

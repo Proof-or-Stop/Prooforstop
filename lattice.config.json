@@ -65,6 +65,7 @@
       { "command": "node", "args": ["packages/main/dist/tasks/delivery-check-freshness-smoke.js"], "focus": ["fast"] },
       "node packages/main/dist/tasks/done-required-validation-smoke.js",
       "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+      "node packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js",
       "node packages/main/dist/tasks/done-required-freshness-smoke.js",
       "node packages/main/dist/tasks/done-required-head-drift-proof.js",
       "node packages/main/dist/tasks/artifact-release-ledger-smoke.js",
@@ -139,7 +140,8 @@
       "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js", "--issuer-mutations"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"], "timeoutMs": 180000 },
-      { "command": "node", "args": ["packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"], "timeoutMs": 180000 }
+      { "command": "node", "args": ["packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"], "timeoutMs": 180000 }
     ]
   },
   "doneRequiredCommands": [

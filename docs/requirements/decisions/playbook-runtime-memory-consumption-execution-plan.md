@@ -134,8 +134,22 @@ type RuntimeConsumer =
   | 'story_advance'
   | 'done_prepare'
   | 'done_closure'
-  | 'final_response_check';
+  | 'final_response_check'
+  | 'finding_resolve';
 ```
+
+> **Delivered differently (B-a7c5):** `finding_resolve` is the 9th
+> `RuntimeConsumer`, appended (not inserted alphabetically) to match the code
+> union's actual order in `core/playbook-runtime-memory.ts`. It is a
+> non-blocking, non-escalatable advisory suffix on `finding_resolve` output —
+> deliberately absent from both `REGISTERED_CRITICAL_RUNTIME_CONSUMERS` and
+> `ADVISORY_ONLY_RUNTIME_CONSUMERS`, so it can never become `warn`/`blocking`
+> regardless of rollout mode. Doc-wide sweep performed for B-a7c5: no other
+> place in this document asserts a RuntimeConsumer count, lists a specific
+> consumer as blocking/critical in a way `finding_resolve` would contradict,
+> or otherwise goes stale from CHK-001 (dev-memory preflight-ack DEV-entry
+> gate) / CHK-002 (this consumer) / CHK-003 (see M8 below) — none found beyond
+> this union and the M8 section.
 
 The runtime must use an allowlist: `status === 'active'` is the only playbook
 status that may surface. `proposed`, `candidate`, `stale`, and `archived` are
@@ -473,6 +487,34 @@ Tests:
 - missing decision is visible in runbook/advisory output;
 - no-op decision is accepted with reason;
 - captured candidate remains non-authoritative.
+
+> **Delivered differently (B-a7c5):** the DONE-gate consumer of
+> `dev_memory_finish_decision` was deliberately escalated from purely
+> advisory ("missing decision is visible in runbook/advisory output", the
+> original test above) to a required, BLOCKING check. `core/machine.ts`'s
+> `canFinishGuard` (the actual DONE gate, TEST→DONE) now calls the shared
+> `readDevMemoryFinishDecision` (moved into `core/playbook-runtime-memory.ts`
+> alongside `finishDecisionPath` so `core/machine.ts` never imports from
+> `handlers/`) and refuses DONE when no record exists for the story. All
+> three decision values (`captured` / `no-reusable-lesson` /
+> `defer-with-reason`) still satisfy the gate — an honest negative answer
+> remains a complete answer, matching this section's own no-op-accepted-with-
+> reason test above and avoiding any incentive to pad/fabricate captures.
+> This is the first concrete instance of section 4.3's
+> registered-blocking-consumer-with-operator-visible-bypass-path pattern
+> being exercised for a dev-memory (not playbook) consumer: the "bypass" is
+> the pre-existing `decision=no-reusable-lesson`/`defer-with-reason` reason
+> requirement itself (already `>=5` chars per the command's existing schema)
+> — no new bypass mechanism was needed. `dev_memory_finish_decision`'s
+> `authority:'non_authoritative'`/`gateEvidence:false` fields still describe
+> LESSON CONTENT's non-authoritative status; the gate reads only whether a
+> record exists, never the lesson text, so this stays inside the spirit of
+> "memory content cannot satisfy gates" while closing the real gap (a purely
+> advisory end-of-story reminder that a multi-round story could silently
+> never act on). The rest of this section (deliverables, the original test
+> list, and the underlying non-authoritative record shape) is preserved
+> above as the original design rationale and remains accurate for what the
+> record itself contains.
 
 ### M9. Million-Record Baseline Generator
 
