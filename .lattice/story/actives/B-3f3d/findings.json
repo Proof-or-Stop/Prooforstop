@@ -3441,6 +3441,268 @@
       "resolvedAt": "2026-08-15T01:41:22.499Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-051",
+      "desc": ".lattice/story/actives/B-3f3d/checklist.json (B3F3D-006-H3) — HIGH post-F049 mechanical coverage regression distinct from the English-admission family. Current evidence is 54/54 result=pass but only 53/54 mechanical: H3 is mechanical=false with nonMechanicalReason saying verification_evidence_refresh_stale invalidated its receipt after material changed and the pinned command was not rerun. A live `node packages/main/dist/tasks/review-inventory-handler-smoke.js` run exits 0 and emits both `B3F3D-006-H3 docs/provenance: PASS` and `review inventory real handler smoke: PASS`, proving the implementation is currently green but the gate-consumed checklist row still lacks the fresh selector-matched receipt. Re-run H3 through verification_evidence_add/verification_run and persist its current mechanical receipt before claiming 54/54.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T01:46:10.372Z",
+      "reviewRound": "2026-08-15T01:40:53.249Z",
+      "reviewRunId": "B-3f3d:RR-127",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": "Post-remediation final coverage required tracing the changed English authoring handlers and smoke suite, then mechanically auditing all 54 evidence rows and rerunning the sole invalidated H3 pinned verifier to distinguish implementation success from persisted receipt freshness.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "70cf91a85062ea59cec462e608ad71c926187d86d2669cf9479588b850fb5a33"
+      },
+      "readDiagnostics": [],
+      "_hash": "fc77de3f62709957f5f9f3ef5b0380e4b3b3e1a520620d9a29a2ac6cce2c53e5",
+      "files": [
+        ".lattice/story/actives/B-3f3d/checklist.json",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "verification-evidence-receipt-refresh-regression",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-052",
+      "desc": "doc-code-drift: AGENTS.md:299-310 and CLAUDE.md:424-438,817-819,834 remain inconsistent with the post-F049 runtime. The authoritative checklist examples use CJK title/context/userSees/verificationIntent/note values, while checklistEnglishAuthoringFields plus story_create/checklist_add/checklist_update now reject every such nested authored string before persistence with [english_artifact_cjk_authoring]; the focused CLI smoke confirms this refusal. CLAUDE.md still describes English enforcement only as a REVIEW→TEST preflight and neither guide documents the new author-time writer gate or the supported recovery for an already-persisted CJK relatedDocs value (inventory-authorized REVIEW→DEV, then English-only checklist_update). Replace copyable examples with English metadata and document author-time refusal plus the exact supported recovery; otherwise operators following the authoritative guide receive unexpected command failure or repeat the late recovery loop.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T01:47:27.758Z",
+      "reviewRound": "2026-08-15T01:40:53.249Z",
+      "reviewRunId": "B-3f3d:RR-128",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": "Post-F049 docs review traced the changed checklist authoring projector and all three writer call sites to the authoritative checklist examples and English preflight table, because the exact supported recovery documentation was part of the resolved duplicate findings but no documentation file changed.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 9,
+          "tokenCount": null
+        },
+        "digest": "157bf428cf8de4e9ba29f179723046be5e0ec76b61546e857fc73bdb24df3be5"
+      },
+      "readDiagnostics": [],
+      "_hash": "29706e0e175e1180991750662274425e8a7e7ef43e91b09260fadd8c0ba2a719",
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "signatureTag": "english-authoring-doc-command-drift",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-053",
+      "desc": "packages/main/src/core/pre-review-check.ts:387-424 and .lattice/story/actives/B-3f3d/pre-review-check.json — HIGH distinct verifier-owned pre-review authority gap beyond baseline F051/F052. On the unchanged RI-011 cutoff, two independent `pre_review_check_read` calls deterministically return `PR_ARTIFACT_TAMPERED`; the stored signed artifact is itself status=inconclusive with zero executable command digests/binding proofs and codes for missing production, mutation, transcript, and authority evidence. This is separate from H3 checklist receipt freshness: acceptance_rollout_report_read is current full-3x2, but the required pre_review_check_read surface cannot authenticate its own stored artifact or demonstrate executable proof. Reissue pre_review_check from current authoritative basis with real positive/mutation/control/transcript proof, then require a read-only PASS without PR_ARTIFACT_TAMPERED before treating pre-review coverage as current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T01:50:22.170Z",
+      "reviewRound": "2026-08-15T01:40:53.249Z",
+      "reviewRunId": "B-3f3d:RR-131",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          ".lattice/story/actives/B-3f3d/pre-review-check.json",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": "RI-011 coverage saturation required tracing the reproducible PR_ARTIFACT_TAMPERED result through the verifier-owned pre-review issue/read contract and contrasting it with the independently current full-3x2 rollout receipt and baseline H3 checklist evidence gap.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "70cf91a85062ea59cec462e608ad71c926187d86d2669cf9479588b850fb5a33"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b944d579d3b5d1d795dd3968fd5b2a62fb4bf8669042d8b9952a4d9b6c6f99d",
+      "files": [
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "pre-review-artifact-tampered-inconclusive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

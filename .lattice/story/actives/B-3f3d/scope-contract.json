@@ -399,10 +399,28 @@
       "phase": "DEV",
       "headHash": "1c064054261457140af3565314d48244890164c5",
       "materialHash": "2d99f41a6ba9ebd03a3c9100b9375e891ab4c73ec680b7e3baba68452a946376"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-053 requires separating signed partial-basis diagnostics from actual pre-review artifact tamper, and F-051 requires a regression proving pinned docs/manual verification can re-earn a mechanical receipt after invalidation.",
+      "timestamp": "2026-08-15T02:22:02.755Z",
+      "paths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "dbdfe4d768e2b7a28b3e73e8df8d6c9ac88ab2fe",
+      "materialHash": "bc689d6066f56e16398889aa9018344209836dc9f94b87faf45ad455e9e83ea4"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T01:21:34.512Z",
+  "updatedAt": "2026-08-15T02:22:02.755Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -483,6 +501,8 @@
     "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
     "packages/main/src/handlers/english-artifact-gate.ts": "packages/main/src/handlers/english-artifact-gate.ts",
     "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
-    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts"
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
   }
 }
