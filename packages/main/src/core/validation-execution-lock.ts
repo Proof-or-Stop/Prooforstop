@@ -621,8 +621,18 @@ export async function withWorkspaceValidationCapacity<T>(
       await waitForCapacityRetry(options, pollMs);
     }
   } catch (error) {
-    quarantineValidationCapacityCandidate(choosingPath, 'release');
-    if (ticketPath) quarantineValidationCapacityCandidate(ticketPath, 'release');
+    // Preserve the original abort/deadline/acquisition classification. Cleanup
+    // is still ownership-safe and bounded: each published unique path gets the
+    // same retry + released-marker treatment as an acquired owner. A cleanup
+    // failure is intentionally secondary to the original wait failure.
+    for (const candidatePath of [ticketPath, choosingPath]) {
+      if (!candidatePath || !existsSync(candidatePath)) continue;
+      try {
+        await releaseValidationCapacityTicket(candidatePath, holderInfo);
+      } catch {
+        /* Original wait/acquisition error remains authoritative. */
+      }
+    }
     throw error;
   }
 

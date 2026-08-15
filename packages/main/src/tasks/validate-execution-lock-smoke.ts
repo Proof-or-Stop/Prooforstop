@@ -803,6 +803,15 @@ function capacityTicketPaths(root: string): string[] {
   }
 }
 
+async function waitForCapacityTicketCount(root: string, count: number, timeoutMs = 4000): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (capacityTicketPaths(root).length === count) return true;
+    await sleep(10);
+  }
+  return capacityTicketPaths(root).length === count;
+}
+
 async function assertCapacityStrictStaleClassifier(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-stale-'));
   const base = { root, workspaceRoot: root, command: 'validate', pollMs: 15, progressIntervalMs: 15 };
@@ -1283,6 +1292,81 @@ async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<v
   }
 }
 
+async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
+  for (const mode of ['abort', 'deadline'] as const) {
+    const root = mkdtempSync(join(tmpdir(), `lattice-capacity-waiter-${mode}-cleanup-`));
+    const lockRoot = validationCapacityLockPath(root);
+    let releaseOwner: () => void = () => {};
+    let owner: Promise<void> | null = null;
+    try {
+      let ownerReady!: () => void;
+      const ready = new Promise<void>(resolveReady => { ownerReady = resolveReady; });
+      const held = new Promise<void>(resolveRelease => { releaseOwner = resolveRelease; });
+      let ownerExited = false;
+      owner = withWorkspaceValidationCapacity({
+        root,
+        workspaceRoot: root,
+        command: `${mode}-cleanup-owner`,
+      }, async () => {
+        ownerReady();
+        await held;
+      }).then(() => { ownerExited = true; });
+      await ready;
+
+      const abortController = new AbortController();
+      const abortError = new Error('permission-fault queued waiter abort sentinel');
+      const deadlineError = new Error('permission-fault queued waiter deadline sentinel');
+      const waiterOptions = {
+        root,
+        workspaceRoot: root,
+        command: `${mode}-cleanup-waiter`,
+        pollMs: 10,
+        abortSignal: abortController.signal,
+        deadlineAt: Date.now() + 5000,
+        deadlineError: () => deadlineError,
+      };
+      let waiterEntered = false;
+      const waiter = withWorkspaceValidationCapacity(waiterOptions, () => { waiterEntered = true; });
+      assert.equal(await waitForCapacityTicketCount(root, 2), true,
+        `${mode}: owner and queued waiter must both publish unique tickets before the permission fault`);
+      chmodSync(lockRoot, 0o555);
+      if (mode === 'abort') abortController.abort(abortError);
+      else waiterOptions.deadlineAt = Date.now() + 40;
+
+      let observedError: unknown;
+      try { await waiter; } catch (error) { observedError = error; }
+      assert.equal(observedError, mode === 'abort' ? abortError : deadlineError,
+        `${mode}: cleanup isolation failure must preserve the original wait classification and error object`);
+      assert.equal(waiterEntered, false, `${mode}: failed waiter must never enter its callback`);
+      assert.equal(ownerExited, false, `${mode}: waiter cleanup must not affect the active owner`);
+      assert.equal(capacityTicketPaths(root).length, 2,
+        `${mode}: permission fault must retain owner plus released-marker waiter tickets before repair`);
+
+      chmodSync(lockRoot, 0o755);
+      releaseOwner();
+      await owner;
+      owner = null;
+      assert.equal(capacityTicketPaths(root).length, 1,
+        `${mode}: owner release must leave only the failed waiter's exact ticket`);
+      let successorEntered = false;
+      await withWorkspaceValidationCapacity({
+        root,
+        workspaceRoot: root,
+        command: `${mode}-cleanup-successor`,
+        deadlineAt: Date.now() + 1000,
+      }, () => { successorEntered = true; });
+      assert.equal(successorEntered, true,
+        `${mode}: post-repair successor must mechanically reclaim the failed waiter's released ticket`);
+      assert.equal(capacityTicketPaths(root).length, 0, `${mode}: successor release must leave no ticket leak`);
+    } finally {
+      try { chmodSync(lockRoot, 0o755); } catch { /* fixture may not have created the lock root */ }
+      releaseOwner();
+      if (owner) await owner.catch(() => undefined);
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   const first = setupFixture({ storyId: 'B-cap-scope' });
   const second = setupFixture({ storyId: 'B-independent' });
@@ -1403,6 +1487,8 @@ function assertCapacityReclaimImplementationIsIdentityStable(): void {
     'capacity release failure must retry and mechanically mark only its exact ticket for recovery');
   assert.match(capacitySource, /if \(callbackFailed\) throw callbackError;\s*if \(releaseError\) throw releaseError;/,
     'an original callback failure must take precedence over a later release failure');
+  assert.match(capacitySource, /for \(const candidatePath of \[ticketPath, choosingPath\]\)[\s\S]*await releaseValidationCapacityTicket\(candidatePath, holderInfo\)/,
+    'queued waiter abort/deadline cleanup must use bounded exact-ticket release recovery');
 }
 
 void (async () => {
@@ -1417,11 +1503,12 @@ void (async () => {
     await assertDerivedVerdictCannotBypassCapacity();
     await assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity();
     await assertCapacityReleaseFailureIsExplicitAndRecoverable();
+    await assertQueuedWaitFailureCleanupIsRecoverable();
     await assertCapacityRepositoryScopeAndSelectiveModes();
     assertProtectedInventoryAndTimeoutSourcesUnchanged();
     assertCapacityReclaimImplementationIsIdentityStable();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
-      console.log('validate-execution-lock workspace capacity contract passed: 13 assertion groups');
+      console.log('validate-execution-lock workspace capacity contract passed: 14 assertion groups');
       return;
     }
     await assertPostCommandPersistenceHoldsLock();
@@ -1435,7 +1522,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 24 assertion groups');
+    console.log('validate-execution-lock smoke passed: 25 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
