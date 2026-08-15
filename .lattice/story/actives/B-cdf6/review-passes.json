@@ -900,6 +900,31 @@
         "scanEscalationReason": null
       },
       "_hash": "b2f4f11dd6201d9d480ad0017cad6302163d1309ff72e6064264bfbea1c75fdf"
+    },
+    {
+      "id": "B-cdf6:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified test-coverage pass after F-059 fix (160b3dfc8a). Material diff since prior pass (RP-027 at 627f492d5b) is exactly one file: docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md, confirmed via review_incremental_context (isFirstPass=false, impactedIntentRefs=[]) and git diff excluding .lattice/. Diff is a 2-line brand-string swap in prose (lattice validate -> proof-or-stop validate); zero test/assertion files touched. checklist.json is byte-identical to prior pass so coverage is unchanged: 36 must-intents = 34 non-waiver + 2 waivers, CHK-002:adversarial:1=deferred_gate_evidence, CHK-004:edge:0=permanent, both confirmed by direct inspection. Independently ran all three claimed red smokes at current HEAD: prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke -- all fail for reasons unrelated to the reviewed doc-only diff, confirming red-smoke count stays exactly 3. Verified STATE claims directly: tsc clean, retired-authority-vocabulary-guard-smoke PASS, all three lattice-residue checks PASS, findings ledger 59 total / 0 open matches claim. No coverage regression, no weakened test.",
+      "createdAt": "2026-08-15T18:46:15.700Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-090",
+      "envelopeId": "0ab8c64878503a0de2592b2a6365ea7242cdc4646290fa1c8a8b8210aaaae8db",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "87870d4ceacc64bf9cd0c6c6654d97aacf3254768ecde5bed1481c3c9a37349d"
     }
   ]
 }
