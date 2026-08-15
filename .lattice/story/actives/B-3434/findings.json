@@ -408,6 +408,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|same-defect-recurring",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-020",
+      "desc": "Task question: \"does verdict_only ever get returned for input that was NOT degenerate, and is the reader told the difference between 'reduced successfully' and 'replaced because it could not be reduced'?\" Answer to both: yes it fires on non-degenerate input, and no, disposition carries no information distinguishing the two causes.\n\nRoot cause: boundPersistedValidationEvidence's escaping-expansion correction is a SINGLE-SHOT heuristic, not a loop. Its own docstring (line ~599) enumerates exactly THREE steps: (1) reduce once and measure the file, (2) if that doesn't fit, replace with verdictOnlyRecord and measure, (3) if that still doesn't fit, refuse. The actual code has FOUR: between (1) and (2) there is an undocumented retry - compute an \"expansion\" ratio from the one measurement already taken, derive a smaller innerBudget, re-run boundValidationEvidenceOutput ONCE more at that budget, and if THAT single retry doesn't land under the bound, fall straight to verdictOnlyRecord. There is no iteration toward convergence and no second retry with a further-adjusted budget - a reader of the docstring would not know this step exists at all, let alone that it can fail.\n\nReproduced: constructed a `details` array (96,000 entries total) with two populations of different escaping density - 16,000 pure-quote entries (each character doubles on the second stringify) placed first, and 80,000 plain 'a' entries placed after, so the array-end-popping reduction (stage 2) removes the low-density population first and the high-density population survives longest. At the reducer's default budget the first pass legitimately reduces to inner.serializedBytes=25,165,752 (just under the 25,165,824-byte inner bound), with 34,125 real detail lines surviving - genuinely reducible content, correctly reduced. boundPersistedValidationEvidence then measures the file, finds it over, computes an expansion ratio from a remainder whose average density does not match what the smaller retry budget will actually leave behind (the surviving low-density population gets consumed faster than the ratio assumes), retries ONCE at the derived innerBudget, and that retry still lands over the file bound. Result: disposition=\"verdict_only\", fileBytes=541, and every one of the 34,125 legitimately-reduced detail lines is thrown away in favour of a bare verdict stub - identical in shape and in `disposition` value to the truly-degenerate cases (bulk in an unknown field, a 30MB key name, a 30MB verdict scalar) that the smoke test's section 8 uses to justify the SAME label. allPass/status do survive (verified: parsed output.allPass===true, status===\"pass\"), so the phase-gate contract holds, but every readable per-command result is gone for an input that had 34,125 lines of real, already-correctly-reduced evidence one budget-adjustment away from fitting.\n\nThis is not a hypothetical shape: validate.commands mixing JSON-emitting tools (quote-heavy output) with plain-text tools (log-heavy output) across 100+ configured commands is an ordinary repository shape, not a constructed edge case.\n\nFix direction: either loop the retry (recompute innerBudget from the retry's own measured expansion, bounded iteration count) until convergence or a real ceiling is hit, or report a disposition value that distinguishes \"the heuristic did not converge\" from \"there is genuinely nothing left to reduce\" so a reader - and a future maintainer deciding whether to improve the heuristic - is not told the two are the same event.\n\nRepro environment note: verified against a `tsc -p packages/main/tsconfig.json` build of HEAD e1afeb346a to a private scratch outDir (worktree dist was not modified), using boundValidationEvidenceOutput/boundPersistedValidationEvidence/measurePersistedEvidenceBytes/VALIDATION_EVIDENCE_BOUND_BYTES imported directly; happy to hand over the exact repro script on request.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T13:35:27.297Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-018",
+      "_hash": "d9e6ddc76034ed4a388cadf3bc0f5c6e96f5b8da5805fb2f1915e75bceea3591",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "adversarial|ts|task-question-verdict",
+      "signatureTagSource": "auto"
     }
   ]
 }
