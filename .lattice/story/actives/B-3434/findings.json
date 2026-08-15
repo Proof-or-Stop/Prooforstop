@@ -982,6 +982,37 @@
       "resolvedAt": "2026-08-15T22:21:08.111Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-041",
+      "desc": "First surfaced by the cross-vendor host-B reviewer (codex); filed under main so it cannot gate, and I reproduced it independently by execution before filing under this lane. docs/requirements/decisions/validation-evidence-artifact-growth.md:102 says the writer-owned core/store.ts boundary closes B-3434:F-033, then in the same paragraph prescribes the B-3434:F-036 remedy as 'replace the search loop's measure callback with a cheap stringify-only measurement (measurePersistedEvidenceBytes)'. measurePersistedEvidenceBytes (validation-executor.ts:663-666) is not a boundary-owned function: its own docstring says 'The format is DUPLICATED from core/store.ts rather than shared with it, and it is NOT pinned' -- it hardcodes JSON.stringify(record, null, 2)+newline, the exact duplication B-3434:F-033 identifies. core/store.ts's actual writer, writeJsonFile (store.ts:162-174, private, no measure-only export exists), uses the same literal formula today, but nothing ties the two together; a future format change to the boundary (e.g. two-space to four-space) moves the writer while measurePersistedEvidenceBytes stays put, exactly the drift F-033 describes. Reproduced by execution against dist: built a record whose measurePersistedEvidenceBytes reading is 25165823 bytes (localSaysWithinBound=true, bound=25165824), then measured the identical record with a hypothetical four-space canonical writer at 25165835 bytes (writerSaysWithinBound=false) -- matching the cross-vendor reviewer's cited transcript exactly: {localTwoSpaceBytes:25165823, localSaysWithinBound:true, hypotheticalWriterFourSpaceBytes:25165835, writerSaysWithinBound:false, bound:25165824}. Consequence: the reduction loop's stopping decision (boundValidationEvidenceOutput's search phase) would trust the stale local reading and stop reducing (or select a larger candidate than it should) while the true writer-owned measurement disagrees. This is fail-closed rather than fail-silent under the CURRENT terminal-recheck-then-fallback structure in boundPersistedValidationEvidence (a terminal measureWith call re-verifies before any write, and falls back to a verdict-only record rather than writing an unverified one) -- but that safety net exists only because the terminal step still calls the expensive parse-back snapshot; the remedy paragraph does not say the terminal step must also route through the boundary's own measurement, only that snapshotPersistedRecord stays 'for the terminal candidate that is actually returned', so a follow-up implementer who wires the terminal step to the boundary's write call but not to a boundary measure-only call reopens exactly this drift at the point that matters. Swept the rest of the 'named change' section (lines 91-129) for the same shape: no other passage names measurePersistedEvidenceBytes, snapshotPersistedRecord, or any other duplicated-format helper as a prescribed remedy; the F-033, F-035, F-036, F-037 table rows and the sizing/history paragraphs describe problems or facts, not remedies, so none of them carry this defect. CORRECTED REMEDY for an implementer: give core/store.ts's writer-owned boundary a measure-only entry point (e.g. measureCanonicalBytes(data): number) that runs the exact same serializer the write path uses but does not write, and have boundValidationEvidenceOutput's search-loop measure callback AND boundPersistedValidationEvidence's terminal check both call that entry point instead of measurePersistedEvidenceBytes or a second copy of the formula; keep the expensive parse-back snapshot only where a plain-data record (not just a byte count) is needed for the value that is actually returned. That keeps exactly one format in the system for every measurement, cheap or expensive, search or terminal. Verified after re-reading: npx tsc --noEmit -p packages/main clean, validation-evidence-buffer-smoke PASS, red-b3434-blob-buffer-ceiling PASS, done-prepare-auto-closeout-smoke passed, validation-evidence-reuse-smoke PASS, quorum-submit-smoke passed (71 checks), verify-process-fact-contract.mjs verified -- none of this changes those results since the defect is in prose the current smoke does not check at the format level (it checks that the finding IDs are named, not that a prescribed remedy is internally consistent). Fourth consecutive round in which the cross-vendor reviewer found something the Claude-side lanes (concept, quality, test-coverage, behavior) did not.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T22:40:45.724Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-035",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0c27d532b500c6ac898998c63d97270f1289ac46a45a13905e50043e89dbd3b",
+      "files": [
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|first-surfaced-cross",
+      "signatureTagSource": "auto"
     }
   ]
 }
