@@ -11,6 +11,7 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
 import {
@@ -565,6 +566,16 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     closingSelfCheck,
     _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
+
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This shared fixture helper drives real story_advance DONE calls in
+  // 4 places in this file -- without a satisfying record here, every one of
+  // them would refuse before reaching the DONE-cleanup/worktree-authority
+  // behavior this file exists to test. No explicit git add/commit needed --
+  // every call site already runs `git add . && git commit` immediately after
+  // this function returns, which picks up this write too.
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'worktree-authority-smoke fixture; no lesson to capture' });
 }
 
 function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
