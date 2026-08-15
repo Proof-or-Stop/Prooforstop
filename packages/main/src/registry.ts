@@ -380,7 +380,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCapabilityListHandlers());
 
   // B-097f/B-235e: agent_prompt returns the canonical package-registry host
-  // render. The five migrated reviewers receive a body-free review_run_start
+  // render. The six migrated reviewers receive a body-free review_run_start
   // bootstrap; ordinary roles receive their role body. review_run_start alone
   // supplies one selected legacy/modular reviewer body.
   registry.registerBatch(createAgentPromptHandlers(ctx));

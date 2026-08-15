@@ -9,14 +9,14 @@
  *
  * Covers:
  *   (a) fresh claude-marker project: project has 0 `.claude/agents/*.md`;
- *       global `$HOME/.claude/agents` has 16 regular files. Five migrated
+ *       global `$HOME/.claude/agents` has 17 regular files. Six migrated
  *       reviewers contain only the canonical review_run_start bootstrap; the
  *       other roles retain the agent_prompt thin shim. No shim contains a
  *       migrated reviewer role body.
  *   (b) `lattice agent_prompt --role=<name>` returns the same actual Claude
- *       registry render: bootstrap for the five migrated reviewers, package
+ *       registry render: bootstrap for the six migrated reviewers, package
  *       body for ordinary roles.
- *   (c) `--upgrade` migration: 16 managed removed, user file kept, normal init
+ *   (c) `--upgrade` migration: 17 managed removed, user file kept, normal init
  *       only warns (no delete).
  *   (d) idempotency: re-running init reports synced=0 (all shims already ok).
  *
@@ -67,7 +67,7 @@ function listProjectAgentMd(root: string): string[] {
   return readdirSync(dir).filter(f => f.endsWith('.md'));
 }
 
-// ─── Test (a): fresh claude init → 0 project agent files, 16 global thin-shims ──
+// ─── Test (a): fresh claude init → 0 project agent files, 17 global thin-shims ──
 {
   const home = makeDir('ga-home-fresh');
   const proj = makeDir('ga-proj-fresh');
@@ -79,11 +79,12 @@ function listProjectAgentMd(root: string): string[] {
     // Project has zero agent .md files.
     assert.equal(listProjectAgentMd(proj).length, 0, 'fresh project must have 0 .claude/agents/*.md');
 
-    // Global has exactly the 16 managed basenames as REGULAR FILES (not symlinks).
+    // Global has exactly the 17 managed basenames as REGULAR FILES (not symlinks).
     const shims = listGlobalShims(home);
     assert.equal(shims.length, managedBasenames.length, `global must have ${managedBasenames.length} thin-shims`);
-    assert.equal(shims.length, 16, 'expected 16 managed agent roles');
+    assert.equal(shims.length, 17, 'expected 17 managed agent roles');
 
+    let migratedReviewerCount = 0;
     for (const basename of shims) {
       const shimPath = join(home, '.claude', 'agents', basename);
       assert.equal(lstatSync(shimPath).isSymbolicLink(), false, `${basename} must be a regular file, not a symlink`);
@@ -92,6 +93,7 @@ function listProjectAgentMd(root: string): string[] {
       assert.match(content, /^tools:/m, `${basename} shim must keep tools: frontmatter`);
       const role = basename.replace(/\.md$/, '');
       if (isModularReviewerRoleId(role)) {
+        migratedReviewerCount += 1;
         assert.match(content, /lattice review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
       } else {
@@ -101,6 +103,7 @@ function listProjectAgentMd(root: string): string[] {
       // No role body content (load-bearing slice / role-specific prose) leaked
       assert.doesNotMatch(content, /<!-- lattice:start -->/, `${basename} shim must NOT contain the role body slice`);
     }
+    assert.equal(migratedReviewerCount, 6, 'global init materializes exactly six migrated reviewer bootstraps');
   } finally {
     rmSync(home, { recursive: true, force: true });
     rmSync(proj, { recursive: true, force: true });
@@ -110,7 +113,7 @@ function listProjectAgentMd(root: string): string[] {
 // ─── Test (b): agent_prompt byte-equal to registry body (same source as Codex) ──
 {
   const snapshot = readPromptRegistry();
-  assert.equal(snapshot.agents.length, 16, 'registry must expose 16 roles');
+  assert.equal(snapshot.agents.length, 17, 'registry must expose 17 roles');
   for (const entry of snapshot.agents) {
     const expected = renderPromptEntryForHost(entry, 'claude');
     const cliOut = execFileSync(process.execPath, [cliPath, 'agent_prompt', `--role=${entry.agentId}`], {
@@ -125,12 +128,12 @@ function listProjectAgentMd(root: string): string[] {
   }
 }
 
-// ─── Test (c): --upgrade migration (16 managed removed, user file kept, normal warns) ──
+// ─── Test (c): --upgrade migration (17 managed removed, user file kept, normal warns) ──
 {
   const home = makeDir('ga-home-upgrade');
   const proj = makeDir('ga-proj-upgrade');
   try {
-    // Pre-seed project-local .claude/agents with the 16 managed copies + 1 user file.
+    // Pre-seed project-local .claude/agents with the 17 managed copies + 1 user file.
     const agentsDir = join(proj, '.claude', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     for (const basename of managedBasenames) {
@@ -139,17 +142,17 @@ function listProjectAgentMd(root: string): string[] {
     const userFile = join(agentsDir, 'my-custom.md');
     const userContent = '# user authored agent\nkeep me\n';
     writeFileSync(userFile, userContent);
-    assert.equal(listProjectAgentMd(proj).length, 17, 'pre-seed must be 16 managed + 1 user');
+    assert.equal(listProjectAgentMd(proj).length, 18, 'pre-seed must be 17 managed + 1 user');
 
     // Normal init: WARN only, delete nothing.
     const warnOut = runInit(home, proj, ['--profile=claude']);
     assert.match(warnOut, /managed agent files found in \.claude\/agents/, 'normal init must warn about managed files');
     assert.match(warnOut, /run lattice init --upgrade/, 'normal init must point at --upgrade');
-    assert.equal(listProjectAgentMd(proj).length, 17, 'normal init must NOT delete any project file');
+    assert.equal(listProjectAgentMd(proj).length, 18, 'normal init must NOT delete any project file');
 
-    // --upgrade: remove exactly the 16 managed, preserve the user file.
+    // --upgrade: remove exactly the 17 managed, preserve the user file.
     const upgradeOut = runInit(home, proj, ['--profile=claude', '--upgrade']);
-    assert.match(upgradeOut, /migrated 16 managed agent file\(s\) to global/, '--upgrade must migrate 16 managed files');
+    assert.match(upgradeOut, /migrated 17 managed agent file\(s\) to global/, '--upgrade must migrate 17 managed files');
     const remaining = listProjectAgentMd(proj);
     assert.deepEqual(remaining, ['my-custom.md'], 'only the user file must remain');
     assert.equal(readFileSync(userFile, 'utf8'), userContent, 'user file content must be preserved byte-for-byte');
@@ -166,8 +169,8 @@ function listProjectAgentMd(root: string): string[] {
   try {
     runInit(home, proj, ['--profile=claude']);
     const out2 = runInit(home, proj, ['--profile=claude']);
-    assert.match(out2, /synced=0,\s*ok=16,\s*replaced=0/, 'second init must be idempotent (synced=0, ok=16)');
-    assert.equal(listGlobalShims(home).length, 16, 'global shim count stays 16 after idempotent re-run');
+    assert.match(out2, /synced=0,\s*ok=17,\s*replaced=0/, 'second init must be idempotent (synced=0, ok=17)');
+    assert.equal(listGlobalShims(home).length, 17, 'global shim count stays 17 after idempotent re-run');
   } finally {
     rmSync(home, { recursive: true, force: true });
     rmSync(proj, { recursive: true, force: true });

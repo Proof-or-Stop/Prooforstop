@@ -275,7 +275,7 @@ keeps one file per role, but that file is a **content-free shim**.
 
 2. **The registry host render is the shared bootstrap/body endpoint.**
    `lattice agent_prompt --role=<name>` returns the canonical registry host
-   render: a body-free `review_run_start` bootstrap for the five migrated
+   render: a body-free `review_run_start` bootstrap for the six migrated
    reviewers, and the canonical role body for ordinary roles. Codex registry
    mode resolves the same host render. For migrated reviewers,
    `review_run_start` alone supplies exactly one selected role body.

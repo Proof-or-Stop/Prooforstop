@@ -339,17 +339,45 @@ async function main(): Promise<void> {
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     let launches = 0;
     const timeout = await runEntry({ ...entry('test:hang'), timeoutMs: 300 }, root, process.execPath, () => { launches++; });
-    assert(timeout.status === 'TIMEOUT' && launches === 1, 'actual process spawn increments launch accounting exactly once');
+    assertWithDetail(timeout.status === 'TIMEOUT' && launches === 1, 'actual process spawn increments launch accounting exactly once', `${timeout.status}/${launches}: ${timeout.reason ?? 'no reason'}`);
     assert(Boolean(timeout.tempRoot) && !existsSync(timeout.tempRoot!), 'normal timeout removes only the runner-owned unique temp root');
     assert(existsSync(root), 'runner cleanup cannot target the caller repository root');
     await new Promise((done) => setTimeout(done, 80)); const before = readFileSync(heartbeat, 'utf8').length;
     await new Promise((done) => setTimeout(done, 100));
     assert(before === readFileSync(heartbeat, 'utf8').length, 'timeout kills complete descendant process group');
     observations.lifecycle.timeoutGrandchild = before === readFileSync(heartbeat, 'utf8').length;
+    const detachedPidPath = join(root, 'detached-timeout.pid');
+    const detachedHeartbeat = join(root, 'detached-timeout-heartbeat');
+    const detachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(detachedPidPath)},String(process.pid));setInterval(()=>fs.appendFileSync(${JSON.stringify(detachedHeartbeat)},'x'),20)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(detachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(detachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(detachedPidPath)}))process.exit(2);setInterval(()=>{},1000);\n`);
+    const detachedTimeout = await runEntry({ ...entry('test:detached-timeout'), timeoutMs: 300 }, root, process.execPath);
+    const detachedPid = Number(readFileSync(detachedPidPath, 'utf8'));
+    let detachedAliveAfterTerminal = false;
+    try { process.kill(detachedPid, 0); detachedAliveAfterTerminal = true; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
+    if (detachedAliveAfterTerminal) {
+      try { process.kill(-detachedPid, 'SIGKILL'); } catch { try { process.kill(detachedPid, 'SIGKILL'); } catch {} }
+    }
+    assert(detachedTimeout.status === 'TIMEOUT', 'separate-process-group descendant fixture reaches timeout');
+    assertWithDetail(!detachedAliveAfterTerminal, 'timeout terminal waits for separate-process-group descendant PID to disappear', `live PID ${detachedPid}`);
+    writeFileSync(join(root, 'run'), 'process.exit(0);\n');
+    const reuseAfterDetachedTimeout = await runEntry(entry('test:reuse-after-detached-timeout'), root, process.execPath);
+    assert(reuseAfterDetachedTimeout.status === 'PASS', 'scheduler reuse starts only after detached timeout descendants are absent');
+    const interruptedDetachedPidPath = join(root, 'detached-interrupt.pid');
+    const interruptedDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(interruptedDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(interruptedDetachedProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(interruptedDetachedPidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(interruptedDetachedPidPath)}))process.exit(2);setInterval(()=>{},1000);\n`);
     const interruptedPromise = runEntry({ ...entry('test:hang'), timeoutMs: 10_000 }, root, process.execPath);
     await new Promise((done) => setTimeout(done, 100)); interruptForTest('SIGTERM');
     const interrupted = await interruptedPromise;
-    assert(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED');
+    const interruptedDetachedPid = Number(readFileSync(interruptedDetachedPidPath, 'utf8'));
+    let interruptedDetachedAlive = false;
+    try { process.kill(interruptedDetachedPid, 0); interruptedDetachedAlive = true; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
+    if (interruptedDetachedAlive) {
+      try { process.kill(-interruptedDetachedPid, 'SIGKILL'); } catch { try { process.kill(interruptedDetachedPid, 'SIGKILL'); } catch {} }
+    }
+    assertWithDetail(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED', `${interrupted.status}: ${interrupted.reason ?? 'no reason'}`);
+    assertWithDetail(!interruptedDetachedAlive, 'interrupt terminal waits for separate-process-group descendant PID to disappear', `live PID ${interruptedDetachedPid}`);
     observations.lifecycle.externalInterrupt = interrupted.status === 'INTERRUPTED' && Boolean(interrupted.reason?.includes('SIGTERM'));
     resetInterruptForTest();
 

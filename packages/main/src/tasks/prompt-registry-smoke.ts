@@ -125,11 +125,13 @@ for (const entry of registry.agents) {
 }
 assert.equal(registry.materialHash, material.digest('hex'), 'registry material hash is deterministic');
 
+assert.equal(MODULAR_REVIEWER_ROLE_IDS.length, 6, 'the migrated reviewer definition roster has exactly six roles');
 assert.deepEqual(
   [...ACTIVE_MODULAR_REVIEWER_ROLE_IDS],
-  [...MODULAR_REVIEWER_ROLE_IDS],
-  'the modular rollout roster is exactly the five active REVIEW lanes',
+  MODULAR_REVIEWER_ROLE_IDS.filter(roleId => roleId !== 'lattice-review-topology-critic'),
+  'the five active REVIEW lanes are the migrated reviewer roles other than topology critic',
 );
+assert.equal(ACTIVE_MODULAR_REVIEWER_ROLE_IDS.length, 5, 'the active REVIEW rollout roster remains exactly five lanes');
 const fullRoles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map(roleId => [roleId, 'full-envelope']));
 const fullConfig = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: fullRoles };
 for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {

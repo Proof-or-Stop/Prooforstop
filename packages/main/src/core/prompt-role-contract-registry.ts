@@ -25,7 +25,9 @@ import {
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
-export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze([...MODULAR_REVIEWER_ROLE_IDS]);
+export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze(
+  MODULAR_REVIEWER_ROLE_IDS.filter(roleId => roleId !== 'lattice-review-topology-critic'),
+);
 export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
 export interface ResolvedPromptRoleBody {

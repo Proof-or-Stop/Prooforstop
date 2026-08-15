@@ -75,6 +75,7 @@ export const DEFAULT_JOBS = 5;
 export const OWNERSHIP_MARKER_FILENAME = 'owner';
 const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
 const activeChildren = new Set<ReturnType<typeof spawn>>();
+const activeTerminators = new Map<ReturnType<typeof spawn>, () => Promise<void>>();
 let interruptSignal: NodeJS.Signals | undefined;
 let interruptError: Error | undefined;
 let schedulerCancellationReason: string | undefined;
@@ -354,11 +355,109 @@ export function killProcessTree(pid: number | undefined, kill: Kill = process.ki
   }
 }
 
+interface ProcessRow { pid: number; ppid: number; pgid: number }
+const TERMINATION_VERIFY_TIMEOUT_MS = 2_000;
+const TERMINATION_VERIFY_INTERVAL_MS = 20;
+const PROCESS_INSPECTION_TIMEOUT_MS = 500;
+
+function readProcessRows(): ProcessRow[] {
+  return execFileSync('ps', ['-axo', 'pid=,ppid=,pgid='], { encoding: 'utf8', timeout: PROCESS_INSPECTION_TIMEOUT_MS }).split(/\r?\n/).map(line => {
+    const [pid, ppid, pgid] = line.trim().split(/\s+/).map(Number);
+    return { pid, ppid, pgid };
+  }).filter(row => Number.isInteger(row.pid) && row.pid > 0 && Number.isInteger(row.ppid) && Number.isInteger(row.pgid));
+}
+
+function processTreeRows(rootPid: number, rows: ProcessRow[]): ProcessRow[] {
+  const descendants = new Set([rootPid]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const row of rows) if (descendants.has(row.ppid) && !descendants.has(row.pid)) {
+      descendants.add(row.pid); changed = true;
+    }
+  }
+  return rows.filter(row => descendants.has(row.pid));
+}
+
+function signalIgnoringMissing(pid: number, signal: NodeJS.Signals): void {
+  try { process.kill(pid, signal); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
+}
+
+/**
+ * Timeout/cancellation cleanup is a terminal-result barrier. Snapshot the full
+ * wrapper hierarchy while its root still owns it, freeze the discovered PIDs,
+ * terminate every captured process group (including children that called
+ * setsid), and verify that no captured PID remains before returning.
+ */
+export async function terminateProcessTreeAndVerify(pid: number | undefined, platform = process.platform): Promise<void> {
+  if (!pid) return;
+  if (platform === 'win32') {
+    killProcessTree(pid);
+    const deadline = performance.now() + TERMINATION_VERIFY_TIMEOUT_MS;
+    while (performance.now() < deadline) {
+      try { process.kill(pid, 0); }
+      catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') return; throw error; }
+      await new Promise(resolveWait => setTimeout(resolveWait, TERMINATION_VERIFY_INTERVAL_MS));
+    }
+    throw new Error(`live process remains after Windows tree termination: ${pid}`);
+  }
+
+  let initialRows: ProcessRow[];
+  let captured: ProcessRow[];
+  try { initialRows = readProcessRows(); captured = processTreeRows(pid, initialRows); }
+  catch (error) {
+    try { killProcessTree(pid); } catch {}
+    throw new Error(`unable to inspect process tree ${pid}: ${(error as Error).message}`);
+  }
+  if (!captured.some(row => row.pid === pid)) return;
+  const ownPgid = initialRows.find(row => row.pid === process.pid)?.pgid;
+
+  // Freeze known descendants before the second snapshot so the wrapper chain
+  // cannot fork or re-parent a process between discovery and termination.
+  const signalErrors: Error[] = [];
+  for (const row of captured) {
+    try { signalIgnoringMissing(row.pid, 'SIGSTOP'); }
+    catch (error) { signalErrors.push(error as Error); }
+  }
+  let expanded: ProcessRow[];
+  try { expanded = processTreeRows(pid, readProcessRows()); }
+  catch (error) {
+    const capturedGroups = new Set(captured.map(row => row.pgid).filter(pgid => pgid > 0 && pgid !== ownPgid));
+    for (const pgid of capturedGroups) try { signalIgnoringMissing(-pgid, 'SIGKILL'); } catch {}
+    for (const row of captured) try { signalIgnoringMissing(row.pid, 'SIGKILL'); } catch {}
+    throw new Error(`unable to re-inspect frozen process tree ${pid}: ${(error as Error).message}`);
+  }
+  const targets = new Map([...captured, ...expanded].map(row => [row.pid, row]));
+  const groups = new Set([...targets.values()].map(row => row.pgid).filter(pgid => pgid > 0 && pgid !== ownPgid));
+
+  for (const pgid of groups) {
+    try { signalIgnoringMissing(-pgid, 'SIGKILL'); }
+    catch (error) { signalErrors.push(error as Error); }
+  }
+  for (const targetPid of targets.keys()) {
+    try { signalIgnoringMissing(targetPid, 'SIGKILL'); }
+    catch (error) { signalErrors.push(error as Error); }
+  }
+
+  const deadline = performance.now() + TERMINATION_VERIFY_TIMEOUT_MS;
+  while (performance.now() < deadline) {
+    const liveRows = readProcessRows();
+    const survivors = liveRows.filter(row => targets.has(row.pid) || groups.has(row.pgid));
+    if (!survivors.length) {
+      if (signalErrors.length) throw new AggregateError(signalErrors, `process-tree termination reported ${signalErrors.length} signal error(s)`);
+      return;
+    }
+    await new Promise(resolveWait => setTimeout(resolveWait, TERMINATION_VERIFY_INTERVAL_MS));
+  }
+  const liveRows = readProcessRows();
+  const survivors = liveRows.filter(row => targets.has(row.pid) || groups.has(row.pgid));
+  throw new Error(`live descendants remain after process-tree termination: ${survivors.map(row => `${row.pid}/pgid:${row.pgid}`).join(', ')}`);
+}
+
 function requestInterrupt(signal: NodeJS.Signals): void {
   interruptSignal = signal;
-  for (const child of activeChildren) {
-    try { killProcessTree(child.pid); } catch (error) { interruptError = error as Error; }
-  }
+  for (const terminate of activeTerminators.values()) void terminate().catch(error => { interruptError ??= error as Error; });
 }
 export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal); }
 export function resetInterruptForTest(): void { interruptSignal = undefined; interruptError = undefined; }
@@ -382,13 +481,17 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
-    onSpawn?.(); activeChildren.add(child);
+    onSpawn?.();
     let output = '';
     const append = (chunk: unknown) => { output = (output + String(chunk)).slice(-MAX_OUTPUT_BYTES); };
     child.stdout?.on('data', append); child.stderr?.on('data', append);
     let settled = false;
+    let terminationPromise: Promise<void> | undefined;
+    const ensureTerminated = () => terminationPromise ??= terminateProcessTreeAndVerify(child.pid);
+    activeTerminators.set(child, ensureTerminated);
+    activeChildren.add(child);
     const done = (result: FullSuiteResult) => {
-      if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child);
+      if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child); activeTerminators.delete(child);
       result = {
         cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
         assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'runner-terminal',
@@ -404,14 +507,16 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       finish({ ...result, tempRoot, cleanupManifest, cleanupOutcomes });
     };
     const elapsed = () => performance.now() - started;
-    const timer = setTimeout(() => {
-      try { killProcessTree(child.pid); done({ name: entry.name, status: 'TIMEOUT', durationMs: elapsed(), output, reason: `exceeded ${entry.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms` }); }
+    const timer = setTimeout(async () => {
+      try { await ensureTerminated(); done({ name: entry.name, status: 'TIMEOUT', durationMs: elapsed(), output, reason: `exceeded ${entry.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms` }); }
       catch (error) { done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: `timeout cleanup failed: ${(error as Error).message}` }); }
     }, entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
-    child.on('exit', (code, signal) => {
+    child.on('exit', async (code, signal) => {
       let completionCleanupError: Error | undefined;
-      if (!interruptSignal && !schedulerCancellationReason) {
+      if (terminationPromise) {
+        try { await terminationPromise; } catch (error) { completionCleanupError = error as Error; }
+      } else if (!interruptSignal && !schedulerCancellationReason) {
         try { killProcessTree(child.pid); }
         catch (error) { completionCleanupError = error as Error; }
       }
@@ -475,9 +580,7 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
       if (!terminalFailureName && (result.status === 'FAIL' || result.status === 'TIMEOUT')) {
         terminalFailureName = result.name;
         schedulerCancellationReason = `cancelled after terminal failure ${result.name}`;
-        for (const child of activeChildren) {
-          try { killProcessTree(child.pid); } catch (error) { interruptError = error as Error; }
-        }
+        for (const terminate of activeTerminators.values()) void terminate().catch(error => { interruptError ??= error as Error; });
       }
     }).finally(() => { running.delete(task); });
     running.set(task, entry);

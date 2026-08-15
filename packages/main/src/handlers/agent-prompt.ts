@@ -2,7 +2,7 @@
  * agent-prompt.ts — `lattice agent_prompt --role=<name>` (B-097f CHK-002)
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
- * host render: a body-free `review_run_start` bootstrap for the five migrated
+ * host render: a body-free `review_run_start` bootstrap for the six migrated
  * reviewers, the rollout-selected body for migrated complex roles, and the
  * package role body for ordinary roles. For migrated
  * reviewers, `review_run_start` selects and returns exactly one legacy or

@@ -381,10 +381,10 @@ validateDispatchUsageObservation({
 });
 
 const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
-assert.equal(PROMPT_ROLE_CONTRACTS.length, 16);
+assert.equal(PROMPT_ROLE_CONTRACTS.length, 17);
 assert.deepEqual(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId).sort(), packageRoleIds);
-assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 16);
-assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 12);
+assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 17);
+assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 13);
 assert.deepEqual(
   PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'compatibility').map(contract => contract.roleId).sort(),
   ['implementation-reviewer', 'test-case-reviewer', 'test-intent'],
@@ -456,7 +456,7 @@ const mutationChildOutput = execFileSync(process.execPath, ['--input-type=module
 
   const report = generatePromptMeasurementReport();
   if (
-    report.aggregate.activeRoleCount !== 12 ||
+    report.aggregate.activeRoleCount !== 13 ||
     report.aggregate.compatibilityRoleCount !== 3 ||
     report.aggregate.retiredRoleCount !== 1
   ) throw new Error('report partition changed');
@@ -564,10 +564,10 @@ rejects(
 const reportA = generatePromptMeasurementReport();
 const reportB = generatePromptMeasurementReport();
 assert.equal(canonicalPromptMeasurementReportJson(reportA), canonicalPromptMeasurementReportJson(reportB));
-assert.equal(reportA.records.length, 16);
+assert.equal(reportA.records.length, 17);
 assert.deepEqual(reportA.records.map(record => record.roleId).sort(), packageRoleIds);
-assert.equal(reportA.aggregate.roleCount, 16);
-assert.equal(reportA.aggregate.activeRoleCount, 12);
+assert.equal(reportA.aggregate.roleCount, 17);
+assert.equal(reportA.aggregate.activeRoleCount, 13);
 assert.equal(reportA.aggregate.compatibilityRoleCount, 3);
 assert.equal(reportA.aggregate.retiredRoleCount, 1);
 assert.equal(reportA.aggregate.bytes, reportA.records.reduce((sum, record) => sum + record.bytes, 0));
@@ -584,7 +584,7 @@ verifyPromptMeasurementReport(reportA);
 rejects(() => verifyPromptMeasurementReport({
   ...reportA,
   records: reportA.records.slice(1),
-}), /16 records/);
+}), /17 records/);
 rejects(() => verifyPromptMeasurementReport({
   ...reportA,
   records: reportA.records.map((record, index) => index === 0 ? { ...record, bytes: record.bytes + 1 } : record),
@@ -595,7 +595,7 @@ const jsonReport = handlers.prompt_measurement_report({ format: 'json' });
 assert.equal(canonicalJsonStringify(jsonReport), canonicalJsonStringify(reportA));
 const textReport = handlers.prompt_measurement_report({ format: 'text' });
 assert.equal(textReport, renderPromptMeasurementReportText(reportA));
-assert.equal(textReport.split('\n').filter(line => packageRoleIds.some(id => line.startsWith(`${id}:`))).length, 16);
+assert.equal(textReport.split('\n').filter(line => packageRoleIds.some(id => line.startsWith(`${id}:`))).length, 17);
 assert.match(textReport, /knownDispatch=unavailable/);
 assert.match(textReport, /providerProcessed=unavailable/);
 assert.match(textReport, /L0 observational only/);

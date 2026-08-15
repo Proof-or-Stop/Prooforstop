@@ -7330,6 +7330,19 @@ function assertParentRoadmapTotalityRuntime() {
   for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
   }
+  const migratedReviewerContractSources = [
+    'packages/main/src/init-assets.ts',
+    'packages/main/src/registry.ts',
+    'packages/main/src/handlers/agent-prompt.ts',
+    'packages/main/src/core/process-fact-levels.ts',
+    'packages/main/src/tasks/global-agents-init-smoke.ts',
+    'docs/requirements/decisions/lifecycle-artifact-scope.md',
+  ];
+  for (const sourcePath of migratedReviewerContractSources) {
+    const source = read(sourcePath);
+    assert(/six migrated[\s*]+reviewer/i.test(source), `${sourcePath}: migrated reviewer contract must name all six definitions`);
+    assert(!/five migrated[\s*]+reviewer/i.test(source), `${sourcePath}: stale five-migrated-reviewer residue is forbidden`);
+  }
   const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
   assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
   for (const token of ['Every Prompt Envelope producer', 'Story-aware agent_prompt', 'bakery-style unique-ticket', 'never-reused UUID ticket path', 'stale reclaim removes only the exact dead acquisition path', 'fixed-path ABA', 'nests no fixed-path Prompt Envelope lock']) {
