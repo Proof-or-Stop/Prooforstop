@@ -169,22 +169,22 @@
         },
         {
           "intentRef": "CHK-001:happy:1",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
           "result": "pass",
-          "note": "Re-executed the focused workspace-capacity contract after PLAN topology re-planning to restore the verifier-owned pin and fresh mechanical receipt for CHK-001:happy:1.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b4fd9323435b6d9b99f21ae577e246c1f438023e7b853013c00a21fd4ae1fc01",
             "outputTail": "validate-execution-lock workspace capacity contract passed: 5 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:27:10.805Z"
+            "executedAt": "2026-08-15T00:07:50.633Z"
           },
-          "headHash": "ad3db65e5ae7048d8bede7328868d614d902fc04",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:28:11.353Z"
+          "headHash": "a4ac1181513e7379d804b6ed0343cff2e40af123",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:07:50.793Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
