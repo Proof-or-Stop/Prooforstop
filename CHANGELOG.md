@@ -34,6 +34,29 @@
   `validate.commands`; the `test-suite-utils-autobuild-smoke` structural guard and
   the `red-fb7b-*` behavioral/guard-bite harnesses were updated to the content-bound
   behavior.
+- **Concurrent-build hardening (B-1734 REVIEW round).** Three additional safety
+  fixes on top of the mutex: (1) the build-lock retry budget is now a REAL
+  exponential backoff (`minTimeout: 200`, `factor: 2`, `maxTimeout: 1000`,
+  `retries: 600` ≈ 10 min). The prior `factor: 1` collapsed every one of 120
+  retries to a flat 200 ms — a 24 s budget that a slow CI build could exceed,
+  crashing the waiter with an uncaught `ELOCKED` instead of waiting. (2) The lock
+  target open in `withBuildLock` no longer swallows errors in a bare `catch {}`: a
+  genuine `EACCES`/`ENOSPC` now surfaces instead of being masked as a confusing
+  downstream `proper-lockfile` realpath error. (3) The build is now an **atomic
+  staging-swap**: `tsc` emits into a `dist.staging` sibling and the new dist is
+  promoted by a single rename, so the ~90 non-lock-holding readers of
+  `packages/main/dist` (above all `bin/bootstrap-runner.js`, imported by every
+  `bin/lattice.js` call) never see an absent/partial dist during a rebuild. The
+  in-place `rmSync(dist)` + seconds-long in-place `tsc` — which exposed a
+  half-removed dist to unprotected readers and produced `MODULE_NOT_FOUND` — is
+  gone. `bin/bootstrap-runner.js` is additionally made lock-aware: while a build
+  lock is held it WAITS and retries (60 s ceiling) across the microsecond rename
+  gap instead of crashing, while a genuine "never built" (no lock active) still
+  fails fast with the recovery hint. New live-reproduced RED
+  `red-1734-reader-race` races dozens of real `bin/lattice.js` readers against a
+  real rebuild and asserts zero `MODULE_NOT_FOUND`; `red-1734-lock-liveness` now
+  also asserts the derived retry wait budget exceeds any single build (≥ 5 min).
+  The transient `dist.staging` / `dist.trash-*` swap siblings are gitignored.
 
 ## Proofbound 0.3.254 - 2026-08-14
 

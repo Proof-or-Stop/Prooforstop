@@ -64,6 +64,22 @@ async function pollUntil(pred, timeoutMs = 8000, stepMs = 25) {
   const retries = BUILD_LOCK_OPTIONS.retries;
   const retryCount = typeof retries === 'number' ? retries : retries?.retries;
   assert.ok(Number(retryCount) >= 10, `retries must make a concurrent builder WAIT (not fail): got ${retryCount}`);
+  // The retry COUNT alone is not enough — the WAIT BUDGET is what actually keeps a waiter from
+  // crashing with an uncaught ELOCKED while a slow build holds the lock. node-retry waits
+  // Math.min(maxTimeout, minTimeout * factor**i) on attempt i, so factor:1 collapses EVERY retry to
+  // minTimeout (the 24s bug: 120 * 200ms). Derive the real total from the config the same way
+  // node-retry does and require it comfortably exceeds any single build (>= 5 min).
+  const minTimeout = typeof retries === 'number' ? 1000 : Number(retries?.minTimeout ?? 1000);
+  const maxTimeout = typeof retries === 'number' ? Infinity : Number(retries?.maxTimeout ?? Infinity);
+  const factor = typeof retries === 'number' ? 2 : Number(retries?.factor ?? 2);
+  let budgetMs = 0;
+  for (let i = 0; i < Number(retryCount); i++) budgetMs += Math.min(maxTimeout, minTimeout * factor ** i);
+  assert.ok(
+    budgetMs >= 300000,
+    `the retry WAIT BUDGET must exceed any single build (>= 300000ms / 5 min) so a concurrent builder ` +
+      `WAITS instead of crashing with ELOCKED — a factor:1 config collapses every retry to minTimeout ` +
+      `and fails this: got ${budgetMs}ms from ${JSON.stringify(retries)}`,
+  );
   console.log('VI-OK CHK-001:adversarial:1');
 }
 
