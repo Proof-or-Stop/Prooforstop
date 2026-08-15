@@ -156,6 +156,28 @@
         "scanEscalationReason": null
       },
       "_hash": "07bbd022df9683e489003383487f909044de7a7a83475673bbd6d8e6604f2b06"
+    },
+    {
+      "id": "B-3434:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Final confirmation of commit 2717839123 (3 files, 10+/4-). (1) F-038 confirmed by re-running the smoke: with the F-037 substring added to section 13's list, redacting all six B-3434:F-037 mentions from the decision doc fails the smoke ('it names \"B-3434:F-037\"'), while deleting only the deferred-table row leaves 5 mentions and still passes -- reproduced by grep count (F-033:2, F-035:1, F-036:2->3, F-037:6) and by running the shipped smoke. The stated limit is accurate. (2) Residual-claim scan of the new text only: none of the three flagged over-claims (\"...completely\", \"the writer-owned boundary removes this window\", \"and nothing else in the follow-up depends on it\") are present anywhere in the diff (grep confirms zero matches). Looked for a fourth: none found in the genuinely new text -- the verifier.ts comment's new mutability claim (\"the gate below and the write that follows read the same mutable record\") is true (TestEvidenceData.output is a plain non-readonly string field, verified against packages/main/src/core/types.ts); the F-036 paragraph's \"5 search-phase snapshots plus 1 terminal one\" is a measured example (not a universal claim) and I independently reproduced it exactly against dist (buildRecord invoked 6 times = 5+1 on the documented 400-command quote-heavy fixture, matching fileBytes=19,617,036), cross-confirming the quality lane's own two independent measurements recorded on F-040 (measureCallsDuringSearch=5 plus 1 terminal). (3) Internal consistency: the new F-036 paragraph, the F-036 table row, and the post-table sizing paragraph all agree -- F-036 is independent, core/store.ts-free, lives in validation-executor.ts's reduction loop upstream of any writer, with its own named remedy and sizing breakdown; no contradiction. (4) Line-range correction verified two ways: arithmetically (comment grew from 3 to 5 lines, diff shows -1/+4 net +3, matching 972-981 -> 975-984 exactly) and empirically -- copied verifier.ts + dist + the decision doc to a disposable scratch tree (never the worktree), inserted persistedBound.record.output += 'x'.repeat(60*1024*1024) at the new range (line 983, between the gate and the write), and confirmed validation-evidence-buffer-smoke still PASSES unaffected, exactly as the row claims. (5) Ran real output from the worktree: node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (quote-heavy fixture: innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036); node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS; npx tsc --noEmit -p packages/main clean. finding_list confirms all 40/40 findings resolved. No blockers. Not re-auditing the story; this is a narrow confirmation of the one commit per dispatch.",
+      "createdAt": "2026-08-15T22:34:51.768Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-037",
+      "envelopeId": "90b01f48a04165d8a8202fce3dc9fcd23a5cd890aa675e0b4ec7386d129570cf",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a41462de5c6eedcf2c08d6cb81775c6d9d587c0de7a3f1cd5ef6e14789cd6db8"
     }
   ]
 }
