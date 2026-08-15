@@ -13,7 +13,7 @@
  *   3. each build-*-with-binding script skips on verifyBuildBinding / verifyUtilsBuildBinding
  *      (sha256 content hash — NOT existsSync) and takes the withBuildLock mutex;
  *   4. scripts/build-lock.mjs uses proper-lockfile with update < stale/2 (the live-holder heartbeat
- *      invariant) and stale >= 30000;
+ *      invariant) and stale >= 30000, where stale comes from the dependency-free build-lock-target.mjs;
  *   5. root "test" invokes the full-suite runner and bin/bootstrap-runner.js genuinely requires
  *      packages/utils/dist/index.js (so building utils is not moot).
  *
@@ -91,11 +91,19 @@ assert.ok(
 );
 
 // 4) build-lock.mjs uses proper-lockfile with the live-holder heartbeat invariant update < stale/2.
+//    The stale THRESHOLD lives in the dependency-free build-lock-target.mjs (single source of truth,
+//    shared with bin/bootstrap-runner.js's freshness gate); build-lock.mjs folds it into
+//    BUILD_LOCK_OPTIONS.stale and configures the update heartbeat.
 const lockSrc = read('scripts/build-lock.mjs');
 assert.ok(/proper-lockfile/.test(lockSrc), 'build-lock.mjs must use proper-lockfile (cross-platform mkdir mutex, no flock/native module)');
-const staleMatch = lockSrc.match(/stale:\s*(\d+)/);
+const staleTargetSrc = read('scripts/build-lock-target.mjs');
+assert.ok(
+  !/proper-lockfile/.test(staleTargetSrc),
+  'build-lock-target.mjs must stay dependency-free (no proper-lockfile) so bin/bootstrap-runner.js can import it in a fresh checkout',
+);
+const staleMatch = staleTargetSrc.match(/BUILD_LOCK_STALE_MS\s*=\s*(\d+)/);
 const updateMatch = lockSrc.match(/update:\s*(\d+)/);
-assert.ok(staleMatch && updateMatch, 'build-lock.mjs must configure numeric stale and update (heartbeat) intervals');
+assert.ok(staleMatch && updateMatch, 'build-lock-target.mjs must define numeric BUILD_LOCK_STALE_MS and build-lock.mjs a numeric update (heartbeat) interval');
 const stale = Number(staleMatch![1]);
 const update = Number(updateMatch![1]);
 assert.ok(stale >= 30000, `build-lock.mjs stale must be >= 30000ms so a crashed holder is reclaimed, not stalled: got ${stale}`);

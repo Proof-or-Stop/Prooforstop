@@ -52,6 +52,8 @@ const SCRIPT_FILES = [
   'scripts/build-main-with-binding.mjs',
   'scripts/build-utils-with-binding.mjs',
   'scripts/build-lock.mjs',
+  // build-lock-target.mjs holds the dep-free BUILD_LOCK_STALE_MS the smoke now reads for `stale`.
+  'scripts/build-lock-target.mjs',
 ];
 
 const GOOD_SCRIPTS = { pretest: 'node scripts/ensure-dist.mjs', test: 'node packages/main/dist/tasks/full-suite-runner.js', build: 'node scripts/ensure-dist.mjs' };

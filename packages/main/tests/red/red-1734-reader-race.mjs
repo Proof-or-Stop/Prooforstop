@@ -26,7 +26,8 @@
  */
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, rmSync, utimesSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -35,7 +36,8 @@ import {
   verifyUtilsBuildBinding,
 } from '../../../../scripts/full-suite-build-binding.mjs';
 import { BUILD_LOCK_OPTIONS, buildLockTarget } from '../../../../scripts/build-lock.mjs';
-import { buildInProgress } from '../../../../bin/bootstrap-runner.js';
+import { promoteDist } from '../../../../scripts/promote-dist.mjs';
+import { buildInProgress, IMPORT_WAIT_MAX_MS } from '../../../../bin/bootstrap-runner.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
@@ -156,7 +158,98 @@ async function main() {
     }
   }
 
-  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/lattice.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers`);
+  // ── readerrace:2 — C4: a slow, LIVE build is waited on well past 60s (no fixed short cap) ─────────
+  // The pre-fix reader gave up after a fixed 60s (IMPORT_WAIT_CAP=240 × 250ms) even while buildInProgress()
+  // still reported a FRESH heartbeating lock — but the main build timeout is 290s and the builder retry
+  // budget is ~10min, so a legitimately slow build failed concurrent readers after 1 minute. The fix
+  // replaces the fixed cap with an absolute wall-clock ceiling (IMPORT_WAIT_MAX_MS) and keeps waiting
+  // while the lock is fresh. Unit-tested WITHOUT sleeping 60s: assert the ceiling covers the build
+  // duration, that the fixed cap is gone, and that a FRESH lock keeps buildInProgress() true (so the
+  // give-up branch, which requires !buildInProgress() when dist is absent, does not fire).
+  {
+    assert.ok(
+      IMPORT_WAIT_MAX_MS >= 290000,
+      `the reader wait ceiling must be >= the 290s build timeout so a legitimately slow build is never abandoned: got ${IMPORT_WAIT_MAX_MS}ms`,
+    );
+    const bootSrc = readFileSync(join(repoRoot, 'bin/bootstrap-runner.js'), 'utf8');
+    assert.ok(!/IMPORT_WAIT_CAP/.test(bootSrc), 'the fixed 60s IMPORT_WAIT_CAP must be gone (replaced by the absolute IMPORT_WAIT_MAX_MS ceiling)');
+    assert.ok(/IMPORT_WAIT_MAX_MS/.test(bootSrc), 'bootstrap must bound waiting by the absolute IMPORT_WAIT_MAX_MS ceiling');
+    assert.ok(
+      /keepWaiting\s*=\s*buildInProgress\(\)/.test(bootSrc),
+      'the wait predicate must keep waiting while buildInProgress() reports a fresh lock (give-up requires !buildInProgress() when dist is absent)',
+    );
+    const lockDir = `${buildLockTarget(repoRoot)}.lock`;
+    try {
+      rmSync(lockDir, { recursive: true, force: true });
+      mkdirSync(lockDir, { recursive: true });
+      const nowSec = Date.now() / 1000;
+      utimesSync(lockDir, nowSec, nowSec);
+      assert.equal(buildInProgress(), true, 'a FRESH heartbeating lock must keep the reader waiting (never give up at a short 60s cap)');
+    } finally {
+      rmSync(lockDir, { recursive: true, force: true });
+    }
+    console.log('VI-OK CHK-001:readerrace:2');
+  }
+
+  // ── readerrace:3 — C2: a failed staging→dist rename RESTORES the old dist (never left absent) ─────
+  // Pre-fix the promotion was `renameSync(dist,trash); renameSync(staging,dist)` — if the SECOND rename
+  // failed after the first succeeded, dist was gone (in trash) and staging orphaned, leaving dist ABSENT
+  // and the CLI broken until the next build. promoteDist restores the old dist from trash on failure.
+  // Deterministic: staging is ABSENT so staging→dist throws ENOENT after the old dist was evicted.
+  {
+    const base = mkdtempSync(join(tmpdir(), 'red-1734-promote-'));
+    try {
+      const dist = join(base, 'dist');
+      const staging = join(base, 'dist.staging'); // deliberately absent → the second rename throws ENOENT
+      const trash = join(base, 'dist.trash');
+      mkdirSync(dist, { recursive: true });
+      writeFileSync(join(dist, 'index.js'), 'export const OLD = 1;\n');
+      writeFileSync(join(dist, 'sub.js'), 'export const S = 2;\n');
+      let threw = false;
+      try {
+        promoteDist(dist, staging, trash);
+      } catch (e) {
+        threw = true;
+        assert.equal(e && e.code, 'ENOENT', `the ORIGINAL staging→dist error must surface (not the restore error), got ${e && e.code}`);
+      }
+      assert.ok(threw, 'promoteDist must rethrow when the staging→dist rename fails');
+      assert.ok(existsSync(dist), 'the OLD dist must be RESTORED (never left absent) when promotion fails mid-swap');
+      assert.equal(readFileSync(join(dist, 'index.js'), 'utf8'), 'export const OLD = 1;\n', 'the restored dist must be COMPLETE (old content intact)');
+      assert.equal(readFileSync(join(dist, 'sub.js'), 'utf8'), 'export const S = 2;\n', 'the restored dist must include EVERY old file');
+      assert.ok(!existsSync(trash), 'a successful restore must not leave the old dist orphaned in trash');
+      console.log('VI-OK CHK-001:readerrace:3');
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  }
+
+  // ── readerrace:4 — C1: build-utils has NO pre-lock verify-and-exit (verify only inside the lock) ──
+  // The utils binding folds in packages/main/dist (a MUTABLE external). A pre-lock fast-path could
+  // validate against the OLD main/dist while a concurrent MAIN build holds the shared lock and is about
+  // to swap in NEW main/dist, exiting "fresh" and leaving the utils binding stale — so utils+main would
+  // NOT be mutually exclusive. The fix removes the pre-lock fast-path; every verify runs INSIDE the lock
+  // (where the shared lock keeps main/dist stable). Static assert: no verify and no process.exit(0)
+  // before withBuildLock. (build-main keeps its pre-lock fast-path safely — its binding is self-contained.)
+  {
+    const utilsSrc = readFileSync(join(repoRoot, 'scripts/build-utils-with-binding.mjs'), 'utf8');
+    const lockIdx = utilsSrc.indexOf('withBuildLock(');
+    assert.ok(lockIdx >= 0, 'build-utils-with-binding.mjs must take withBuildLock');
+    const verifyIdxs = [...utilsSrc.matchAll(/verifyUtilsBuildBinding\s*\(/g)].map(m => m.index);
+    assert.ok(verifyIdxs.length > 0, 'build-utils must still verify (the double-check INSIDE the lock)');
+    for (const idx of verifyIdxs) {
+      assert.ok(
+        idx > lockIdx,
+        'every verifyUtilsBuildBinding call must be INSIDE withBuildLock — a pre-lock fast-path could validate a mutable main/dist before a concurrent main build swaps it (C1)',
+      );
+    }
+    assert.ok(
+      !/process\.exit\s*\(\s*0\s*\)/.test(utilsSrc.slice(0, lockIdx)),
+      'build-utils must have NO pre-lock process.exit(0) fast-path (C1: always take the shared lock, then rely on the in-lock double-check)',
+    );
+    console.log('VI-OK CHK-001:readerrace:4');
+  }
+
+  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/lattice.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure; utils has no pre-lock fast-path`);
 }
 
 main().catch(err => {

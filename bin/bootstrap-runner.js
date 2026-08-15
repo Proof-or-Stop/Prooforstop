@@ -10,7 +10,11 @@
 import { existsSync, statSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { BUILD_LOCK_OPTIONS, buildLockTarget } from '../scripts/build-lock.mjs';
+// Import the lock target + stale threshold from the DEPENDENCY-FREE module (only
+// node: built-ins), NOT build-lock.mjs — build-lock.mjs imports proper-lockfile,
+// which is absent in a fresh checkout without node_modules and would throw
+// ERR_MODULE_NOT_FOUND at module-init here, before we could print the recovery hint.
+import { BUILD_LOCK_STALE_MS, buildLockTarget } from '../scripts/build-lock-target.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const binDir = dirname(__filename);
@@ -56,17 +60,23 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // A build is "in progress" only when a LIVE holder is heartbeating `<target>.lock`. Gate on lock
 // FRESHNESS, not mere existence: a build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release
 // and leaves the `.lock` dir ORPHANED. The atomic swap already left dist complete in that case, so the
-// orphan must NOT block readers — otherwise every bin/lattice.js call would wait 60s then fail until the
+// orphan must NOT block readers — otherwise every bin/lattice.js call would wait then fail until the
 // next build reclaims it. A live holder heartbeats the mtime every `update` (10s); proper-lockfile
 // treats it stale past `stale` (30s), so an orphan ages out within `stale` and we ignore it. The
-// threshold and lock target are imported from build-lock.mjs (single source of truth — never inline).
+// threshold and lock target are imported from the dependency-free build-lock-target.mjs (single source
+// of truth — never inline; never via build-lock.mjs, which would pull in proper-lockfile).
 export function buildInProgress() {
   const lockDir = `${buildLockTarget(repoRoot)}.lock`;
   let st;
   try { st = statSync(lockDir); } catch { return false; } // no lock dir → no build active
-  return (Date.now() - st.mtimeMs) < BUILD_LOCK_OPTIONS.stale;
+  return (Date.now() - st.mtimeMs) < BUILD_LOCK_STALE_MS;
 }
-const IMPORT_WAIT_CAP = 240; // × 250ms = 60s ceiling
+// Absolute wall-clock ceiling for waiting on an in-progress build (B-1734 C4). A concurrent reader must
+// keep waiting as long as buildInProgress() reports a FRESH, heartbeating lock — the main build timeout
+// is 290s and the builder retry budget is ~10min, so a fixed 60s cap would abandon a legitimately slow
+// build after 1 minute. This 20-minute ceiling is comfortably longer than the supported build duration,
+// so a live build is waited on for its full realistic length and only a genuinely stuck run gives up.
+export const IMPORT_WAIT_MAX_MS = 20 * 60 * 1000;
 
 // Universal entry point resilience (B-1734 F-003). A rebuild promotes dist by an atomic rename while
 // holding the build lock. Import the dist ONLY when it is present AND no build is in progress: that
@@ -83,17 +93,24 @@ const IMPORT_WAIT_CAP = 240; // × 250ms = 60s ceiling
 // immediately with zero wait; a genuine "never built" (dist absent, no build active) still fails fast
 // with the recovery hint — no wait.
 async function importDistModules() {
-  for (let i = 0; ; i++) {
+  const startedAt = Date.now();
+  for (;;) {
     if (existsSync(MAIN_DIST) && existsSync(UTILS_DIST) && !buildInProgress()) {
       return await Promise.all([
         import(pathToFileURL(MAIN_DIST).href),
         import(pathToFileURL(UTILS_DIST).href),
       ]);
     }
-    // Not importable this instant. Wait+retry while a build holds the lock (dist mid-rebuild), or while
-    // dist is present but a build lock is momentarily held; give up only when NO build is active AND
-    // dist is still absent (a genuine never-built repo, or a build that crashed mid-swap).
-    if (i < IMPORT_WAIT_CAP && (buildInProgress() || (existsSync(MAIN_DIST) && existsSync(UTILS_DIST)))) { await sleep(250); continue; }
+    // Not importable this instant. Keep waiting while a build heartbeats the lock (dist mid-rebuild) or
+    // while dist is present but the lock is momentarily held. Give up ONLY when EITHER
+    //   (a) dist is absent AND no build is active — a genuine never-built repo, or a build that crashed
+    //       and let its lock go stale; OR
+    //   (b) we exceed the absolute IMPORT_WAIT_MAX_MS ceiling (>= the supported build duration).
+    // So a live, heartbeating build is waited on for its full realistic duration and is NEVER abandoned
+    // at a fixed short cap; only a genuinely never-built repo or a stuck run past the ceiling fails fast.
+    const distPresent = existsSync(MAIN_DIST) && existsSync(UTILS_DIST);
+    const keepWaiting = buildInProgress() || distPresent;
+    if (keepWaiting && Date.now() - startedAt < IMPORT_WAIT_MAX_MS) { await sleep(250); continue; }
     printBootstrapFailure(); process.exit(1);
   }
 }

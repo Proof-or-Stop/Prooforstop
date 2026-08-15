@@ -50,13 +50,52 @@
   in-place `rmSync(dist)` + seconds-long in-place `tsc` — which exposed a
   half-removed dist to unprotected readers and produced `MODULE_NOT_FOUND` — is
   gone. `bin/bootstrap-runner.js` is additionally made lock-aware: while a build
-  lock is held it WAITS and retries (60 s ceiling) across the microsecond rename
-  gap instead of crashing, while a genuine "never built" (no lock active) still
-  fails fast with the recovery hint. New live-reproduced RED
+  lock is held it WAITS and retries across the microsecond rename gap instead of
+  crashing (the wait ceiling is revised to an absolute 20-minute wall-clock bound
+  in the second Codex round below), while a genuine "never built" (no lock active)
+  still fails fast with the recovery hint. New live-reproduced RED
   `red-1734-reader-race` races dozens of real `bin/lattice.js` readers against a
   real rebuild and asserts zero `MODULE_NOT_FOUND`; `red-1734-lock-liveness` now
   also asserts the derived retry wait budget exceeds any single build (≥ 5 min).
   The transient `dist.staging` / `dist.trash-*` swap siblings are gitignored.
+- **Concurrent-build hardening, second Codex cross-host round (B-1734).** Four
+  MAJOR findings against the concurrent-build-safety changes:
+  (C3) `bin/bootstrap-runner.js` transitively imported `proper-lockfile` (via
+  `scripts/build-lock.mjs`), so a fresh checkout without `node_modules` threw
+  `ERR_MODULE_NOT_FOUND` at ESM module-init — before the recovery hint could print.
+  The lock target and stale threshold moved to a new dependency-free
+  `scripts/build-lock-target.mjs` (only `node:` built-ins; exports `buildLockTarget`
+  and `BUILD_LOCK_STALE_MS`, now the single source of truth for
+  `BUILD_LOCK_OPTIONS.stale`); bootstrap imports from there, never from
+  `build-lock.mjs`.
+  (C4) the concurrent-reader wait was a fixed 60 s cap that abandoned a legitimately
+  slow build (main build timeout is 290 s, builder retry budget ~10 min) even while
+  the lock was fresh and heartbeating. It is now an absolute 20-minute wall-clock
+  ceiling (`IMPORT_WAIT_MAX_MS`); a reader keeps waiting while `buildInProgress()`
+  reports a fresh lock and only gives up on a genuinely never-built repo or past the
+  ceiling.
+  (C1) the `build-utils-with-binding.mjs` pre-lock verify-and-exit fast-path could
+  validate against a still-visible OLD `packages/main/dist` while a concurrent main
+  build held the shared lock and was about to swap in a NEW main/dist, leaving the
+  utils binding stale — so utils+main were not actually mutually exclusive. That
+  fast-path is removed; utils now always takes the shared lock and relies on the
+  in-lock double-check verify (main/dist is stable under the lock). `build-main`'s
+  fast-path is kept — its binding is self-contained (main src+dist only).
+  (C2) the promotion `renameSync(dist,trash); renameSync(staging,dist)` left dist
+  ABSENT if the second rename failed after the first succeeded. A shared
+  `scripts/promote-dist.mjs` now restores the old dist from trash before rethrowing.
+  The atomic rename already shrank the absent-dist window to a single rename syscall
+  (microseconds); `bin/lattice.js` readers close even that via the build-lock wait in
+  `bin/bootstrap-runner.js`. A documented residual remains for the ~90 DIRECT
+  (non-bootstrap) dist consumers — fully closing it needs a cross-platform
+  versioned-pointer / directory-junction architecture (Windows junction rename
+  semantics make it cross-platform-risky), deferred as a follow-up (C2b), not
+  implemented here. New RED `red-1734-bootstrap-depfree` (fresh-checkout / no
+  `proper-lockfile`) is wired into `validate.commands`; `red-1734-reader-race` gains
+  `readerrace:2` (C4 ceiling + fresh-lock wait), `readerrace:3` (C2 crash-restore),
+  and `readerrace:4` (C1 no pre-lock fast-path). The `test-suite-utils-autobuild-smoke`
+  guard and `red-fb7b-guard-bite` fixtures read the stale threshold from the new
+  dependency-free module.
 
 ## Proofbound 0.3.254 - 2026-08-14
 

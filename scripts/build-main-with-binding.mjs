@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { renameSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyBuildBinding, writeBuildBinding } from './full-suite-build-binding.mjs';
 import { withBuildLock } from './build-lock.mjs';
+import { promoteDist } from './promote-dist.mjs';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = join(projectRoot, 'packages/main');
@@ -40,16 +41,17 @@ await withBuildLock(projectRoot, () => {
   rmSync(staging, { recursive: true, force: true });
   rmSync(trash, { recursive: true, force: true });
   execFileSync(process.execPath, [tsc, '-p', join(packageRoot, 'tsconfig.json'), '--outDir', staging], { cwd: projectRoot, stdio: 'inherit' });
-  // Promote: evict old dist, then move staging into place. The only window where
-  // dist is absent is the single rename syscall between these two lines
-  // (microseconds vs the seconds-long tsc emit); bin/bootstrap-runner.js retries
-  // across it while the build lock is held. The ENOENT catch is the SOLE benign
-  // case — a first build has no prior dist to evict; every other error (EACCES,
-  // EXDEV, …) surfaces. A bare existence probe is deliberately avoided so the SKIP
-  // GATE stays content-bound (verifyBuildBinding), never existence-based.
-  try { renameSync(dist, trash); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  renameSync(staging, dist);
-  rmSync(trash, { recursive: true, force: true });
+  // Promote crash-safely (C2): promoteDist evicts the old dist → trash, moves staging
+  // → dist, and RESTORES the old dist from trash if the second rename fails, so a
+  // mid-promotion crash never leaves dist absent. The atomic rename shrinks the
+  // absent-dist window from the seconds-long tsc emit to a SINGLE rename syscall
+  // (microseconds). bin/lattice.js readers close even that microsecond gap via the
+  // build-lock wait in bin/bootstrap-runner.js (it waits out the whole build). Direct
+  // (non-bootstrap) dist consumers retain an astronomically-small residual — fully
+  // closing it needs a cross-platform versioned pointer / directory junction, which is
+  // cross-platform-risky (Windows junction rename semantics) and is tracked as a
+  // follow-up (C2b), NOT implemented here.
+  promoteDist(dist, staging, trash);
   // Manifest lands AFTER the code is fully in place. Readers import code, not the
   // manifest, so this ordering never exposes MODULE_NOT_FOUND; a concurrent fast-
   // path verify that briefly sees no manifest simply fails closed to a lock wait.
