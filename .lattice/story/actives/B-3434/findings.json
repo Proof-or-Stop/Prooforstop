@@ -805,6 +805,24 @@
       ],
       "signatureTag": "doc-promise-undelivered|ts|measurepersistedevidencebytes-docstring-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-034",
+      "desc": "A fifth instance of the pattern this story keeps hitting, in the NEW prose the F-028 fix itself added. The doc comment above VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS (validation-executor.ts line ~279) now reads: 'four of these keys are string-capable, the cap is 200 UTF-16 units, and a 4-byte character costs 4 bytes each, which puts the packed worst case in the low thousands.' The literal 200 is hand-typed into this comment. The ONLY place that cap is actually enforced is safeScalarRead (line ~530): value.slice(0, 200) — a second, independent literal 200, roughly 250 lines away, with no shared named constant between them (grep for the bare token 200 in this file returns exactly these two lines and nothing else). Today both say 200 and the comment is accurate — the math checks out against the smoke's own pinned ceiling (bound.fileBytes < 4_000 in the buffer smoke section 8). But nothing ties them together: if a future editor changes the cap in safeScalarRead (e.g. to widen a truncated field on request), the comment 250 lines away silently becomes a false statement about the mechanism, and no test would catch the drift (the smokes bounds-check the byte OUTCOME, not this specific sentence). This is exactly the shape F-028 itself was — a hand-maintained figure restated in prose with no single source of truth — reintroduced by the very commit that deleted the previous instance. Fix: extract a single named constant (e.g. VALIDATION_EVIDENCE_SCALAR_CAP_CHARS = 200) referenced by both safeScalarRead and, if the comment keeps the arithmetic walkthrough, by the comment's number (via a template literal or by deleting the number and pointing at the constant the way the F-028 fix already does for the overall byte ceiling).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T20:52:05.966Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-025",
+      "_hash": "2f82a0610c38367b7bf641c7cf06cf6892a52c1fae37a34fc7cdc1cc8cb2c649",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|fifth-instance-pattern",
+      "signatureTagSource": "auto"
     }
   ]
 }
