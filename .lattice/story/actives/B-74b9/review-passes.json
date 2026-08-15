@@ -72,6 +72,37 @@
         "scanEscalationReason": null
       },
       "_hash": "7c73f51de001ac7477e9d59c5e0e95a261f1f6eebebc748a7defb3fffc4a7759"
+    },
+    {
+      "id": "B-74b9:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed. All 4 checklist items (CHK-001..004) have happy/edge/adversarial verificationIntent columns populated; every must-priority intent has non-fail verificationEvidence. Independently re-verified beyond self-report: built the pre-fix commit (b4d8e324, direct parent of fix commit f5849c09ca) in an isolated detached worktree and reproduced all three RED signatures byte-for-byte (CHK-001 partial-vs-complete blindSpots; CHK-002 readManifest argument-validation mismatch; CHK-003 ENOENT package.json) exactly matching red-evidence.json baselineHeadHash/observedFailure. Also independently re-ran the pinned GREEN commands against the current (post-fix) tree and got outputs byte-identical to the recorded receipts (ProofStory acceptance coverage basis Wave 1A smoke passed / READMANIFEST_FIX_CONFIRMED / VERSION_BUMP_FIX_CONFIRMED), and confirmed the two deferred fixtures now fail only on their separately-described unrelated downstream defects (retired channel lane; concurrent-DONE index.json race), not on the fixed defect class. The permanent-waiver evidence for INT-CHK001-RED/002-RED/003-RED is sound, not scope-gaming: waiverType=permanent is a first-class, pre-existing evidence-coverage mechanism (core/milestone-status.ts evidenceCanCover), the RED scripts structurally cannot be mechanically re-verified post-fix without reverting a landed fix, and this matches established precedent (B-a7c5 dev-memory lesson c77064d). lattice.config.json registration matches CHK-004's decision exactly (only proofstory-acceptance-basis-smoke.js registered; the other two deliberately absent). No coverage gaps found.",
+      "createdAt": "2026-08-15T21:41:15.188Z",
+      "reviewRound": "2026-08-15T21:24:07.391Z",
+      "reviewRunId": "B-74b9:RR-002",
+      "envelopeId": "e7e2183a1fc86945a6aec802d55b77620e7a895eb616714fb1cb48169bdc0d26",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/red-evidence.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e61a742f0e29cae49d308b98b6e2b17ef29c941e4f2a1a7c1f3af1a08577c97"
     }
   ]
 }
