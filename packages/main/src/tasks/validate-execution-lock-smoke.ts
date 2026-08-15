@@ -943,6 +943,7 @@ await withWorkspaceValidationCapacity({
 });
 `, 'utf8');
 
+    const childProcessWaiterCount = 12;
     for (let round = 0; round < 3; round += 1) {
       rmSync(events, { force: true });
       rmSync(overlap, { force: true });
@@ -955,7 +956,7 @@ await withWorkspaceValidationCapacity({
         acquiredAt: new Date().toISOString(),
         processStartTimeMs: processStartTimeMs() - 60_000,
       });
-      const children = Array.from({ length: 8 }, (_, index) => new Promise<ChildResult>((resolveChild) => {
+      const children = Array.from({ length: childProcessWaiterCount }, (_, index) => new Promise<ChildResult>((resolveChild) => {
         const child = spawn(process.execPath, [helper, root, `${round}-${index}`, events, overlap, critical], {
           cwd: root,
           stdio: ['ignore', 'pipe', 'pipe'],
@@ -984,7 +985,8 @@ await withWorkspaceValidationCapacity({
           assert.ok(concurrent >= 0, `child stress round ${round}: end cannot precede start`);
         }
       }
-      assert.equal(starts, 8, `child stress round ${round}: every process must enter`);
+      assert.equal(starts, childProcessWaiterCount,
+        `child stress round ${round}: all ${childProcessWaiterCount} child-process waiters must enter`);
       assert.equal(concurrent, 0, `child stress round ${round}: every process must exit`);
       assert.equal(maxConcurrency, 1, `child stress round ${round}: maxConcurrency must remain one`);
       assert.equal(existsSync(overlap), false, `child stress round ${round}: critical section must have zero overlap`);
