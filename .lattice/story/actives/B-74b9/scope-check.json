@@ -204,10 +204,12 @@
       "q": "done-full-test-gate-execution-plan.md states the self-host DONE-required policy already builds the runtime and executes the complete 47-member canonical root suite (which includes proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts) and is consumed by DONE with fresh, hash-bound evidence. B-74b9's own background/understanding artifacts state these three fixtures are 'deterministically' failing on a clean, untouched main checkout at commit 8dbfac8809, i.e. main is currently red on 3 of the 47 canonical members. If the documented DONE-required gate genuinely blocks merge on any root-suite failure, it is unclear how these regressions reached main in the first place, or whether the DONE-required gate has a freshness/enforcement gap that let stale PASS evidence carry across the stories that introduced the readManifest requirement, the PROCESS_FACT_REGISTRY entry, and the version-bump wiring. This is out of this reviewer's evidence to resolve and is not addressed by any B-74b9 checklist item.",
       "evidence": "done-full-test-gate-execution-plan.md:18 -- \"The implemented self-host DONE-required policy now builds the runtime and executes the complete 47-member canonical root suite through the resource-aware parallel runner; its receipt is independently freshness-bound and consumed by DONE.\" vs background.md:2 -- \"running the project's root `npm test` ... surfaced three deterministic failures on a clean, untouched main checkout at commit 8dbfac8809\"",
       "sourcePointers": [
-        "docs/requirements/decisions/done-full-test-gate-execution-plan.md:18",
-        ".lattice/story/actives/B-74b9/background.md:2",
-        ".lattice/story/actives/B-74b9/understanding.json:3"
-      ]
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "package.json:test:serial-reference",
+        "CHK-004"
+      ],
+      "resolution": "Confirmed by direct grep: none of the three fixture names (proofstory-acceptance-basis-smoke, field-regression-cli-smoke, worktree-authority-smoke) appear anywhere in package.json's test:serial-reference script (verified: python3 substring check against the raw script string returns False for all three). Cross-checked against the actual PASS list from B-a7c5's done_required_validate run (47 named test: entries) -- none of the three names appear there either. So there is no real gap in the DONE-required full-suite gate (docs/requirements/decisions/done-full-test-gate-execution-plan.md's description of it building/running the complete 47-member canonical suite is accurate and unaffected); the earlier claim (inherited from an earlier session's subagent description) that these three were 'discovered via root npm test' was simply inaccurate. In truth these three fixtures are orphaned from BOTH lattice.config.json validate.commands AND package.json test:serial-reference -- they can only be invoked directly (node packages/main/dist/tasks/X.js) or via their own unwired per-fixture npm script. This strengthens rather than weakens the case for CHK-004's registration decision. background.md and understanding.json are being corrected to reflect this accurately.",
+      "resolvedAt": "2026-08-15T20:08:34.446Z"
     }
   ]
 }
