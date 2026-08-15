@@ -26,8 +26,39 @@
     },
     {
       "id": "CHK-004",
-      "title": "Evaluate and record whether test-evidence.json should store a digest and bounded tail instead of the complete captured output",
-      "context": "packages/main/src/handlers/verifier.ts writes output as JSON.stringify of every configured command's full output, so the artifact grows with the suite and the suite grew from 56 to 100 commands in one day. Decide deliberately whether to bound it here or to record why not; an unexamined growth cliff is what produced this defect.",
+      "title": "Bound the aggregate evidence artifact or commit a rationale naming the change that will, and ship whichever the decision is",
+      "context": "Per-command output is already truncated to twelve thousand characters by trimOutput in core/validation-executor.ts, so the unbounded dimension is the NUMBER of configured commands serialised into test-evidence.json by handlers/verifier.ts. Raising maxBuffer moves the cliff; it does not remove it. This item requires a BINDING outcome, not an evaluation: either the bounding ships in this story, or a committed rationale records why unbounded growth is acceptable and names the change that will address it. Closing this item with a written opinion and no shipped consequence is exactly the unexamined growth cliff this story exists to end.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Emit a visible advisory as the evidence artifact approaches the buffer limit so the cliff is marked and not merely moved",
+      "context": "After the maxBuffer raise and the diagnosability repair an operator still gets zero advance notice before hitting the wall. The repository already carries a threshold-classification model - buildLedgerSizing in core/proofstory.ts classifies capacity and warns before hard failure - and the same shape applies here: when the serialised evidence artifact passes a warning fraction of the limit, validate should print an advisory naming the measured size and the limit. Without it the next person who adds validate commands meets the same silent wall at a higher number.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-3434/background.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An artifact below the warning fraction produces no advisory",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An artifact above the warning fraction prints an advisory naming the measured size and the limit",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The advisory is emitted without changing the pass or fail verdict of validate",
+            "type": "cli"
+          }
+        ]
+      },
       "status": "pending",
       "startTime": null,
       "endTime": null

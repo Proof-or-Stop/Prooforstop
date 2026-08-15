@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3434",
+  "mode": "correctness_fix",
+  "allowed": [
+    "A binding disposition for aggregate evidence-artifact growth, shipped or recorded with a named successor change",
+    "A committed regression staging a blob above the one-mebibyte boundary",
+    "A threshold advisory printed by validate as the serialised artifact nears the ceiling",
+    "Explicit buffer ceilings on every child-process blob and tree read in core/done-prepare-generated-metadata.ts",
+    "Replacing the swallowing catch so an unreadable blob reports its underlying error instead of presenting as a digest difference"
+  ],
+  "excluded": [
+    "Scheduling or parallelisation of how configured commands execute",
+    "The fifteen-minute watchdog ceiling story_advance inherits from the generic per-command default",
+    "Upstream per-command capture truncation, which already exists and stays untouched",
+    "Which entries lattice.config.json declares"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directed this fix after story B-9ff1 proved the ceiling blocks every story from entering TEST.",
+  "createdAt": "2026-08-15T10:19:46.748Z",
+  "updatedAt": "2026-08-15T10:19:46.748Z",
+  "_hash": "d8ef72d26f1b8d84f677fc8f0484a3fcc9ac2d69150d6930bac8cf674db54876"
+}
