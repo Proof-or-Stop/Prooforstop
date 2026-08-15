@@ -1311,6 +1311,33 @@
         "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
       },
       "_hash": "2aaa3b06a643713914465856a39e2205130605e14102c0c77fe89c1170818b5d"
+    },
+    {
+      "id": "B-fb7b:RP-044",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality PASS: ensure-dist is 30 lines, single-purpose (existsSync guard then npm build), no dead code, no lock/mtime complexity; smoke is pure read.",
+      "createdAt": "2026-08-15T00:14:32.929Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-077",
+      "envelopeId": "a070844ee251fb856bab587659b508b64f52b7dd249c5b5ce8c50f591a30c817",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "a76ac051569a3e05f1534a9a13b95f031c6c1d00b13da2b5d5f192885954927b"
     }
   ]
 }
