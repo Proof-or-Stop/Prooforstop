@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1734",
+  "allowedCommands": [
+    "codex exec",
+    "git",
+    "node bin/lattice.js",
+    "node packages/main/",
+    "node scripts/",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm install",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src/tasks",
+    "packages/main/tests/red",
+    "packages/utils/package.json",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-1734 touches only build infrastructure. npm install adds proper-lockfile. codex exec is the cross-host host-B reviewer.",
+  "createdAt": "2026-08-15T11:31:02.177Z",
+  "updatedAt": "2026-08-15T11:31:02.177Z",
+  "_hash": "4060a7a264e535795c314ca7d4a992ae6553e385ebd3d035f1dc847cce85d16a"
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1734",
+  "checkedAt": "2026-08-15T11:31:02.839Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "a77bbf2644a847a55b4405fcf1c97ec0b69e5d63a54b82ad315821467dffa6c5",
+  "executionBoundaryHash": "4060a7a264e535795c314ca7d4a992ae6553e385ebd3d035f1dc847cce85d16a",
+  "freshnessHash": "71f841a5f3de454fe4abce265d96fb4a5db57d80aa922e91e7e72af7e65fa3ad",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "No atomic-publish / symlink dist-swap (YAGNI per approved design)",
+    "No changes to packages/core or packages/lab beyond build scripts if strictly required",
+    "No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)",
+    "No new CLI commands, gates, or lifecycle changes",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No atomic-publish / symlink dist-swap (YAGNI per approved design)",
+      "source": "scopeBoundary.excluded",
+      "text": "No atomic-publish / symlink dist-swap (YAGNI per approved design)",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to packages/core or packages/lab beyond build scripts if strictly required",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to packages/core or packages/lab beyond build scripts if strictly required",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)",
+      "excluded": true
+    },
+    {
+      "keyword": "No new CLI commands, gates, or lifecycle changes",
+      "source": "scopeBoundary.excluded",
+      "text": "No new CLI commands, gates, or lifecycle changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a44d04abb39ef470db77d08887e5d48e151b752c2721f3e7d30415771b68824e"
+}
