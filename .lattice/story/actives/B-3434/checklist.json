@@ -92,9 +92,9 @@
       "id": "CHK-003",
       "title": "Add a committed regression test that stages a file larger than one mebibyte and asserts the commit path still succeeds",
       "context": "The regression must fail on the pre-fix tree. Stage a blob above 1048576 bytes, drive the same commit path, and assert success; a fixture below the limit proves nothing because that is exactly the size at which the defect is invisible.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T10:54:21.747Z",
-      "endTime": null,
+      "endTime": "2026-08-15T11:09:38.424Z",
       "verificationIntent": {
         "happy": [
           {
@@ -128,6 +128,13 @@
         "test": [
           "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "33becc78f9cc0b70a98d1af8661c481fc82bbc0cdba479ca996d602f05088946",
+        "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+        "headHash": "8250774c9da288712d23470aab122b5dea2580b0",
+        "attestedAt": "2026-08-15T11:09:38.608Z",
+        "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
       }
     },
     {
