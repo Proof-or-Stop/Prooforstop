@@ -14889,6 +14889,47 @@
       },
       "readDiagnostics": [],
       "_hash": "41c4e1a3b9e7a713f19ad38e46ad39d635f820667d029941c89fe876c963f9c1"
+    },
+    {
+      "id": "B-3f3d:RP-236",
+      "agent": "lattice-review-docs",
+      "note": "Final post-F072/F073 docs review passed with no documentation finding. The mechanical full-diff extractor produced 730 declaration names; the review compared two affected public-contract paragraphs. Test Runner Consolidation Plan remains consistent: timeout is terminal/no-retry and process-group cleanup is now strengthened internally by verified descendant termination without changing the public CLI contract. Lifecycle Artifact Scope now says six migrated reviewers in both occurrences; prompt registry and process-fact contracts separately assert six migrated definitions and five ordinary active REVIEW lanes excluding topology critic. F-075 is a missing negative-test coverage issue for internal fail-closed branches, not an additional public documentation drift.",
+      "createdAt": "2026-08-15T19:48:47.834Z",
+      "reviewRound": "2026-08-15T19:45:13.096Z",
+      "reviewRunId": "B-3f3d:RR-301",
+      "envelopeId": "c5c1b4f8b738fc5badc306928dcc3243026771525ab8c13f55f3bc7f495060ff",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "072eee5be848d79db8e3ac240ac28783bb605dc2cdb71eaa7e902adbcc40d42b"
+      },
+      "readDiagnostics": [],
+      "_hash": "9320824199fa8383407a0a13636cfb6278ed8334f5fca132d5e7aa849530cf27"
     }
   ]
 }

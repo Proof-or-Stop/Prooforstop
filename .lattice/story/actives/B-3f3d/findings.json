@@ -4735,7 +4735,7 @@
       "desc": "full-suite-timeout-descendant-leak: packages/main/src/tasks/full-suite-runner.ts:407-409 records TIMEOUT immediately after killProcessTree(child.pid), but the actual root npm test exited 3/47 while PID 13327 (`node packages/main/dist/tasks/review-incremental-context-smoke.js`) remained alive, reparented to the Codex app-server with its own PGID, for more than two minutes before natural exit; child zombies and an active review-run shell were still observable. Therefore a terminal fail-closed suite result does not prove descendant termination and can release scheduler capacity/cleanup while a timed-out test continues executing. This is independent of the jobs=5 timeout cause (external reviewer contention was present): the defect is missing post-kill descendant/process-group reconciliation for the real /usr/bin/time -> npm -> node chain. Require a bounded verified no-descendant condition before terminal completion plus an isolated regression where a member descendant establishes a separate process group.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T18:40:27.813Z",
@@ -4776,14 +4776,15 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|full-suite-timeout",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "F-072@1a24428"
     },
     {
       "id": "B-3f3d:F-073",
       "desc": "doc-code-drift: docs/requirements/decisions/lifecycle-artifact-scope.md:278 still promises a body-free review_run_start bootstrap for five migrated reviewers, while the same policy at lines 248-249 now states six and the active registry/baseline includes lattice-review-topology-critic as the sixth migrated reviewer (packages/main/src/core/prompt-role-contract-registry.ts:293-299; scripts/verify-proof-or-stop-prompt-baseline.mjs:98-99). The remediation updated only the earlier count, leaving one contradictory operator contract in the same authoritative section. Change five to six and add a baseline/doc assertion covering both occurrences so the count cannot drift partially again.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T18:45:56.075Z",
@@ -4855,7 +4856,180 @@
         "scripts/verify-proof-or-stop-prompt-baseline.mjs"
       ],
       "signatureTag": "doc-code-drift|md|migrated-reviewer-count",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-073@1a24428"
+    },
+    {
+      "id": "B-3f3d:F-074",
+      "desc": "post-F072 process-inspection-failure terminal leak: packages/main/src/tasks/full-suite-runner.ts:402-429 and :510-512 still permit a terminal FAIL and scheduler release without verified descendant absence. If readProcessRows fails, terminateProcessTreeAndVerify performs only best-effort killProcessTree or captured PID/group kills, throws immediately, and the timeout catch calls done(FAIL). A focused isolated reproduction set PATH=/nonexistent so ps failed while a child had created a detached process group; terminateProcessTreeAndVerify threw unable to inspect process tree, yet the detached PID remained alive after the verifier returned (inspectionFailed=true, detachedAliveAfterVerifierFailure=true). The test explicitly killed the scoped PID afterward. This is distinct from F072 successful-inspection separate-PGID reconciliation: the new verifier error-collapse path violates its terminal-result barrier whenever process inspection is unavailable or times out. Keep the member nonterminal or retain an owned quarantine barrier until descendant absence is verified, and add biting initial and second inspection-failure regressions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T19:47:36.119Z",
+      "reviewRound": "2026-08-15T19:45:13.096Z",
+      "reviewRunId": "B-3f3d:RR-298",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "78a4b941737b8a19e4d2e7df369ff812b0a4d7fd80953401912299e6d5df4bd1",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "termination-verifier-inspection-failure-leaks-detached-descendant",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-075",
+      "desc": "process-tree-verifier-negative-coverage: packages/main/src/tasks/full-suite-runner.ts:408-455 adds fail-closed branches for initial ps inspection failure, post-freeze re-inspection failure, accumulated signal errors, and captured PID or PGID survivors after the 2-second boundary, but packages/main/src/tasks/full-suite-runner-smoke.ts:349-380 only proves successful detached-PG timeout/interrupt cleanup and scheduler reuse. A repository-wide search finds the inspection/survivor error contracts only in the implementation, so those safety-critical failure paths can regress to TIMEOUT/INTERRUPTED success without a deterministic test bite. Add injectable process inspection/time dependencies and negative tests proving inspection failure and persistent survivors yield FAIL, never release a successful terminal, and still perform best-effort cleanup.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T19:47:44.110Z",
+      "reviewRound": "2026-08-15T19:45:13.096Z",
+      "reviewRunId": "B-3f3d:RR-300",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "93398916439e6dca39583d1bff4b27ee519cec62f77ab6dc62491bb9ca951ca5",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|process-tree-verifier-negative-coverage",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-076",
+      "desc": "interrupt-registration-race: packages/main/src/tasks/full-suite-runner.ts:480-492 invokes onSpawn immediately after spawn but registers ensureTerminated in activeTerminators only afterward; requestInterrupt at lines 458-460 can therefore observe an empty map while the child is already live. A deterministic host harness passed onSpawn=()=>interruptForTest(\"SIGTERM\") to runEntry with a 600ms member timeout and produced {status:TIMEOUT, reason:exceeded 600ms, durationMs:752}, proving SIGTERM neither terminates the just-spawned child immediately nor preserves INTERRUPTED semantics. Existing coverage at packages/main/src/tasks/full-suite-runner-smoke.ts:369-380 waits 100ms, so it cannot bite this admission window. This is distinct from F072 descendant reconciliation after termination starts: it is the pre-registration interrupt linearization family. Register the terminator before any callback/signal-visible boundary and, if interruptSignal is already set, start termination immediately; add a deterministic interrupt-during-spawn regression asserting prompt INTERRUPTED terminal and no live child/descendant.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T19:49:46.579Z",
+      "reviewRound": "2026-08-15T19:45:13.096Z",
+      "reviewRunId": "B-3f3d:RR-299",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4d3c15481e6d1d32ea922f004f0855aba31e553679dfcb270a15fb5540deee5",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|interrupt-registration-race",
+      "signatureTagSource": "auto"
     }
   ]
 }
