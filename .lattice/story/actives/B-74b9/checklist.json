@@ -176,7 +176,21 @@
         "headHash": "4569fa57deea08cb7ec603fef68838cc96a18724",
         "attestedAt": "2026-08-15T20:45:44.373Z",
         "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "INT-CHK002-RED",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Directly observed on the pre-fix tree: assertReviewRunStartCliSurface's review_pass_set call failed argument validation ('readManifest: Invalid input: expected object, received undefined') instead of matching the fixture's own /already stale|stale/i assertion. Independently reproduced via red-B-74b9-chk002-readmanifest.mjs before the fix landed.",
+          "mechanical": false,
+          "nonMechanicalReason": "RED proves a pre-fix historical state; the fix has now landed at this call site so re-running would legitimately no longer show this specific mismatch, by design of repro-first evidence.",
+          "headHash": "704c9ceb32d1ee8af3b62bec580359979d3197ed",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:50:13.217Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
