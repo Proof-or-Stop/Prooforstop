@@ -155,9 +155,9 @@
       "id": "CHK-004",
       "title": "Bound the aggregate evidence artifact or commit a rationale naming the change that will, and ship whichever the decision is",
       "context": "Per-command output is already truncated to twelve thousand characters by trimOutput in core/validation-executor.ts, so the unbounded dimension is the NUMBER of configured commands serialised into test-evidence.json by handlers/verifier.ts. Raising maxBuffer moves the cliff; it does not remove it. This item requires a BINDING outcome, not an evaluation: either the bounding ships in this story, or a committed rationale records why unbounded growth is acceptable and names the change that will address it. Closing this item with a written opinion and no shipped consequence is exactly the unexamined growth cliff this story exists to end.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T11:09:43.321Z",
-      "endTime": null,
+      "endTime": "2026-08-15T11:09:44.145Z",
       "verificationIntent": {
         "happy": [
           {
@@ -197,6 +197,13 @@
         "test": [
           "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "38fb07c334b1e1856877f58e36443f3b3f72cf59d88112ebf0e585db7adbc51d",
+        "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+        "headHash": "0b78234fbab1475861a5ba00ac7559fdc2256f29",
+        "attestedAt": "2026-08-15T11:09:44.335Z",
+        "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
       }
     },
     {
