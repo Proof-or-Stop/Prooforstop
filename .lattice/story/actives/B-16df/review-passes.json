@@ -338,6 +338,34 @@
         "scanEscalationReason": null
       },
       "_hash": "942fcbe6af4266ef35541479cf39bc3dd846440c2a5b207396ca2ba5f71800af"
+    },
+    {
+      "id": "B-16df:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Story-level concept-deletion review, round RR-017. git diff b84379b9aa..89a50d2321 (this round vs prior RR-014/015/016 head) touches ONLY checklist.json plus lattice bookkeeping files - checklist.ts and validate-command-timeout-smoke.ts are byte-for-byte unchanged this round, confirmed by diff. No code concept was deleted or replaced this round. checklist.json edit is a text-only rewrite of CHK-001/CHK-002 verificationIntent desc strings (previously RED/pre-fix current-main framing for CHK-001:happy:2/edge:2/adversarial:2, already flagged/resolved as F-002 in an earlier round) to accurately describe the current section-6a/6b passing test structure, plus a selector swap on all 32 relevant verificationIntent pins from the permanently-stale count-embedding selector to a stable prefix selector with no count embedded. Verified: (1) grep confirms zero remaining count-embedding selectors in checklist.json verification blocks; (2) grep confirms 27-assertions string survives only in historical audit-trail waiver/finding notes explaining why the OLD pin became unsatisfiable - legitimate history, not residue of a deleted code concept; (3) built packages/main+utils and ran the smoke directly: exits 0, prints validate-command-timeout smoke passed: 45 assertions, matching the outputTail embedded in this rounds freshly-pinned mechanical:true receipts, confirming the new selector genuinely matches live runtime output; (4) full-story diff for the two source files remains purely additive with no identifier/type/field/doc concept removed or renamed, consistent with RR-012/RR-014 prior concept-review passes on this same code. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-15T11:04:39.367Z",
+      "reviewRound": "2026-08-15T11:00:58.353Z",
+      "reviewRunId": "B-16df:RR-017",
+      "envelopeId": "e9018298bd5dde5569f9980dbbc520e8194a258f7d40efef0e3d430722da767a",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ded4c4b0205c4d60c6c8559efc5e9b50e5c22601389bf2ac4939d8465023ce9"
     }
   ]
 }
