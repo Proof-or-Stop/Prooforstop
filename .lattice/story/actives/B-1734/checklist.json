@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Add a crash-safe cross-platform concurrent-build mutex (proper-lockfile): never age-steal a live long-running build, race-free reclaim of a dead holder -- the build currently has no lock",
       "context": "Fixes the two Codex LOCK findings recorded in B-fb7bs cross_host_review: (1) an mtime-age stale-steal that age-stole a LIVE holder mid-build, and (2) a check-then-delete reclaim TOCTOU race letting two waiters both enter the critical section. proper-lockfiles mtime heartbeat keeps a live holder fresh; its reclaim is race-safe; it is cross-platform (Mac/Linux/Windows).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-15T12:16:36.696Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
