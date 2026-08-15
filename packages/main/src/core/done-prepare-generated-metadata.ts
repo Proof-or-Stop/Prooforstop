@@ -9,6 +9,35 @@ import { classifySharedLifecycleMetadata } from './lifecycle-registry.js';
 
 export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-generated-metadata.v1' as const;
 
+/**
+ * Explicit output ceiling for every `git` read this module performs.
+ *
+ * Node applies a 1,048,576-byte `maxBuffer` default to `execFileSync`, and a read above it throws
+ * ENOBUFS rather than returning truncated content. The managed metadata this module commits is not
+ * bounded by that number: `test-evidence.json` serialises one entry per configured validate command,
+ * so it grows with the command count, and it measured 1,369,692 bytes on story B-9ff1. Under the
+ * default every such read failed, and the failure surfaced as a digest comparison against a null,
+ * i.e. as "verified metadata changed after manifest verification".
+ *
+ * 32 MiB is 32x the Node default, far above any observed artifact, and cheap: Node grows the pipe
+ * buffer on demand, so a high ceiling costs nothing until content actually arrives. The evidence
+ * writer in core/validation-executor.ts derives its own warning and bounding thresholds from THIS
+ * constant, which keeps the invariant that a bounded evidence artifact is always readable by the
+ * very read whose ceiling bounds it.
+ */
+export const METADATA_BLOB_READ_MAX_BUFFER_BYTES = 32 * 1024 * 1024;
+
+/** Why a blob read did not produce a digest. Absent and unreadable are deliberately distinct. */
+export type MetadataBlobReadFailureKind = 'absent' | 'unreadable';
+
+/**
+ * The outcome of reading one managed blob. A failed read is a tagged object, never a bare string
+ * or null, so it is structurally incapable of comparing equal to an expected sha256 digest.
+ */
+export type MetadataBlobRead =
+  | { ok: true; hash: string }
+  | { ok: false; kind: MetadataBlobReadFailureKind; error: string };
+
 export type DonePrepareGeneratedMetadataSafety =
   | 'safe_lifecycle_metadata'
   | 'unsafe_preexisting_dirty'
@@ -336,6 +365,7 @@ function git(gitCwd: string, args: string[]): string {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   }).trim();
 }
 
@@ -352,6 +382,7 @@ function gitRaw(gitCwd: string, args: string[]): string {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   });
 }
 
@@ -407,6 +438,7 @@ function restoreIndexEntries(gitCwd: string, path: string, entries: DonePrepareG
   childProcess.execFileSync('git', ['update-index', '--force-remove', '--', path], {
     cwd: gitCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   });
   if (entries.length === 0) return;
   const input = entries
@@ -416,6 +448,7 @@ function restoreIndexEntries(gitCwd: string, path: string, entries: DonePrepareG
     cwd: gitCwd,
     input,
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   });
 }
 
@@ -554,6 +587,7 @@ function isolatedGit(gitCwd: string, indexFile: string, args: string[]): string 
     env: { ...process.env, GIT_INDEX_FILE: indexFile },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
   });
 }
 
@@ -562,16 +596,59 @@ function isolatedChangedPaths(gitCwd: string, indexFile: string, parent: string)
   return sortedUnique(raw.split('\0').filter(Boolean));
 }
 
-function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): string | null {
+/**
+ * Render a child-process failure without losing the operator-relevant part.
+ *
+ * The nuance that matters: on ENOBUFS Node populates `code` with the string "ENOBUFS" and leaves
+ * `stderr` an EMPTY BUFFER, which is truthy. A naive `stderr || stdout || message` therefore
+ * selects the empty buffer and renders the empty string, discarding the only useful fact. Pick the
+ * first NON-EMPTY candidate instead, and always prefix the code or exit status.
+ */
+function describeChildProcessFailure(err: any): string {
+  const streams = [err?.stderr, err?.stdout]
+    .map((value) => (value === undefined || value === null ? '' : String(value).trim()))
+    .filter(Boolean);
+  const message = String(err?.message ?? err ?? '').trim();
+  const code = typeof err?.code === 'string' && err.code
+    ? err.code
+    : Number.isInteger(err?.status) ? `exit ${err.status}` : '';
+  const detail = streams[0] || message || 'no diagnostic output';
+  return code ? `${code}: ${detail}` : detail;
+}
+
+/**
+ * Absent means git ran and reported that the path is not in the index or tree. Everything else -
+ * a buffer ceiling, a permission error, a corrupt object store, a missing git binary - is an
+ * infrastructure failure and must never be mistaken for a missing blob.
+ */
+function classifyMetadataBlobReadFailure(err: any): { kind: MetadataBlobReadFailureKind; error: string } {
+  const error = describeChildProcessFailure(err);
+  const nodeLevelFailure = typeof err?.code === 'string' && err.code.length > 0;
+  const absent = !nodeLevelFailure
+    && (/fatal:\s+path\s+.+\s+does not exist/i.test(error)
+      || /fatal:\s+path\s+.+\s+exists on disk, but not in/i.test(error));
+  return { kind: absent ? 'absent' : 'unreadable', error };
+}
+
+/**
+ * Read a staged blob out of an isolated index and digest it.
+ *
+ * Named for grep continuity with the incident that produced it. It returns a tagged read rather
+ * than `string | null`: the previous bare `catch { return null }` turned every infrastructure
+ * failure into a value the caller compared against an expected digest, so an unreadable blob was
+ * reported as "verified metadata changed after manifest verification".
+ */
+export function isolatedBlobHash(gitCwd: string, indexFile: string, path: string): MetadataBlobRead {
   try {
     const content = childProcess.execFileSync('git', ['show', `:${path}`], {
       cwd: gitCwd,
       env: { ...process.env, GIT_INDEX_FILE: indexFile },
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
     });
-    return sha256(content);
-  } catch {
-    return null;
+    return { ok: true, hash: sha256(content) };
+  } catch (err: any) {
+    return { ok: false, ...classifyMetadataBlobReadFailure(err) };
   }
 }
 
@@ -580,16 +657,82 @@ function treeChangedPaths(gitCwd: string, parentTree: string, tree: string): str
   return sortedUnique(raw.split('\0').filter(Boolean));
 }
 
-function treeBlobHash(gitCwd: string, tree: string, path: string): string | null {
+/** Tree-side counterpart of isolatedBlobHash, with the identical ceiling and failure taxonomy. */
+export function treeBlobHash(gitCwd: string, tree: string, path: string): MetadataBlobRead {
   try {
     const content = childProcess.execFileSync('git', ['show', `${tree}:${path}`], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
     });
-    return sha256(content);
-  } catch {
-    return null;
+    return { ok: true, hash: sha256(content) };
+  } catch (err: any) {
+    return { ok: false, ...classifyMetadataBlobReadFailure(err) };
   }
+}
+
+/**
+ * The only sanctioned way to compare a blob read against a verified digest.
+ *
+ * Fail-closed by construction: a failed read never reaches the equality test, so no read failure
+ * can be reported as a match regardless of what the caller expected - including an undefined
+ * expectation, which the previous `null !== undefined` comparison silently classified as a change.
+ */
+export function classifyMetadataBlobDigestComparison(
+  read: MetadataBlobRead,
+  expected: string | undefined,
+): 'match' | 'changed' | 'absent' | 'unreadable' {
+  if (!read.ok) return read.kind;
+  return typeof expected === 'string' && read.hash === expected ? 'match' : 'changed';
+}
+
+interface MetadataBlobVerification {
+  changed: string[];
+  failed: string[];
+  reason?: string;
+}
+
+/**
+ * Partition one set of blob reads into genuine digest changes and read failures, and render the
+ * read failures as a message that names the underlying cause. The two failure classes get
+ * textually distinct sentences, and both are distinct from the digest-change message, because
+ * conflating them is the defect that cost hours of misattribution on story B-9ff1.
+ */
+function verifyMetadataBlobDigests(
+  source: string,
+  reads: Array<{ path: string; read: MetadataBlobRead }>,
+  verifiedHashes: Map<string, string>,
+): MetadataBlobVerification {
+  const changed: string[] = [];
+  const unreadable: Array<{ path: string; error: string }> = [];
+  const absent: Array<{ path: string; error: string }> = [];
+  for (const entry of reads) {
+    const classification = classifyMetadataBlobDigestComparison(entry.read, verifiedHashes.get(entry.path));
+    if (classification === 'match') continue;
+    if (classification === 'changed') { changed.push(entry.path); continue; }
+    const error = entry.read.ok ? '' : entry.read.error;
+    (classification === 'absent' ? absent : unreadable).push({ path: entry.path, error });
+  }
+  const sentences: string[] = [];
+  if (unreadable.length > 0) {
+    sentences.push(
+      `verified metadata could not be read from the ${source}: `
+      + unreadable.map((entry) => `${entry.path}: ${entry.error}`).join('; ')
+      + ` (read ceiling ${METADATA_BLOB_READ_MAX_BUFFER_BYTES} bytes)`,
+    );
+  }
+  if (absent.length > 0) {
+    sentences.push(
+      `verified metadata is absent from the ${source}: `
+      + absent.map((entry) => `${entry.path}: ${entry.error}`).join('; '),
+    );
+  }
+  const failed = [...unreadable, ...absent].map((entry) => entry.path);
+  return {
+    changed,
+    failed,
+    ...(sentences.length > 0 ? { reason: sentences.join(' | ') } : {}),
+  };
 }
 
 function runCommitHook(
@@ -609,6 +752,7 @@ function runCommitHook(
       cwd: gitCwd,
       env: { ...process.env, GIT_INDEX_FILE: indexFile },
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
     });
     return { ok: true };
   } catch (err: any) {
@@ -622,6 +766,7 @@ function optionalGitConfig(gitCwd: string, args: string[]): string | undefined {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
     }).trim() || undefined;
   } catch (err: any) {
     if (err?.status === 1) return undefined;
@@ -637,6 +782,7 @@ function updateRealIndexFromTree(gitCwd: string, tree: string, paths: string[]):
     childProcess.execFileSync('git', ['update-index', '--add', '--cacheinfo', match[1], match[2], path], {
       cwd: gitCwd,
       stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES,
     });
   }
 }
@@ -714,16 +860,31 @@ export function commitImmutableMetadataTree(args: {
         reason: 'isolated index paths do not exactly match the verified metadata manifest',
       };
     }
-    const isolatedDigestMismatch = paths.filter(
-      (path) => isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) !== args.verifiedHashes.get(path),
+    const isolatedVerification = verifyMetadataBlobDigests(
+      'isolated index',
+      paths.map((path) => ({ path, read: isolatedBlobHash(args.gitCwd, temporaryIndexFile, path) })),
+      args.verifiedHashes,
     );
+    const worktreeMissing = paths.filter((path) => hashFile(args.root, path) === null);
     const worktreeDigestMismatch = paths.filter(
-      (path) => hashFile(args.root, path) !== args.verifiedHashes.get(path),
+      (path) => !worktreeMissing.includes(path) && hashFile(args.root, path) !== args.verifiedHashes.get(path),
     );
-    if (isolatedDigestMismatch.length > 0 || worktreeDigestMismatch.length > 0) {
+    // A read that could not complete is reported on its own terms and takes precedence: it is the
+    // class an operator cannot diagnose from a digest-change sentence.
+    if (isolatedVerification.reason || worktreeMissing.length > 0) {
+      const worktreeReason = worktreeMissing.length > 0
+        ? `verified metadata is absent from the worktree: ${worktreeMissing.join('; ')}`
+        : '';
       return {
         ok: false,
-        files: sortedUnique([...isolatedDigestMismatch, ...worktreeDigestMismatch]),
+        files: sortedUnique([...isolatedVerification.failed, ...worktreeMissing]),
+        reason: [isolatedVerification.reason, worktreeReason].filter(Boolean).join(' | '),
+      };
+    }
+    if (isolatedVerification.changed.length > 0 || worktreeDigestMismatch.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...isolatedVerification.changed, ...worktreeDigestMismatch]),
         reason: 'verified metadata changed after manifest verification',
       };
     }
@@ -732,13 +893,22 @@ export function commitImmutableMetadataTree(args: {
     const treePaths = treeChangedPaths(args.gitCwd, oldTree, tree);
     const treeUnexpected = treePaths.filter((path) => !paths.includes(path));
     const treeMissing = paths.filter((path) => !treePaths.includes(path));
-    const treeDigestMismatch = paths.filter(
-      (path) => treeBlobHash(args.gitCwd, tree, path) !== args.verifiedHashes.get(path),
+    const treeVerification = verifyMetadataBlobDigests(
+      'isolated tree',
+      paths.map((path) => ({ path, read: treeBlobHash(args.gitCwd, tree, path) })),
+      args.verifiedHashes,
     );
-    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeDigestMismatch.length > 0) {
+    if (treeVerification.reason) {
       return {
         ok: false,
-        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeDigestMismatch]),
+        files: sortedUnique(treeVerification.failed),
+        reason: treeVerification.reason,
+      };
+    }
+    if (treeUnexpected.length > 0 || treeMissing.length > 0 || treeVerification.changed.length > 0) {
+      return {
+        ok: false,
+        files: sortedUnique([...treeUnexpected, ...treeMissing, ...treeVerification.changed]),
         reason: 'isolated tree does not exactly match the verified metadata manifest',
       };
     }

@@ -21,6 +21,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './done-prepare-generated-metadata.js';
 
 const MAX_OUTPUT_CHARS = 12000;
 
@@ -119,6 +120,204 @@ function trimOutput(output: string): string {
   if (output.length <= MAX_OUTPUT_CHARS) return output;
   const omitted = output.length - MAX_OUTPUT_CHARS;
   return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
+}
+
+/**
+ * Aggregate sizing for the serialised validation evidence artifact (B-3434).
+ *
+ * trimOutput above bounds each command SEPARATELY at MAX_OUTPUT_CHARS. What was never bounded is
+ * the AGGREGATE: handlers/verifier.ts serialises every command result into test-evidence.json, so
+ * the artifact grows with the NUMBER of configured commands. It measured 1,369,692 bytes on story
+ * B-9ff1 after validate.commands grew from 56 to 100 entries in a single day, which put it past the
+ * 1,048,576-byte read ceiling that then blocked every REVIEW to TEST transition in the repository.
+ *
+ * Raising that read ceiling alone only moves the cliff, so the ceiling is the ANCHOR here rather
+ * than an independent number: both thresholds below are fractions of
+ * METADATA_BLOB_READ_MAX_BUFFER_BYTES, the ceiling core/done-prepare-generated-metadata.ts applies
+ * to the very read that consumes this artifact. That keeps one invariant true by construction: a
+ * bounded artifact is always readable by the read whose ceiling bounds it, because
+ * VALIDATION_EVIDENCE_BOUND_BYTES is strictly below VALIDATION_EVIDENCE_READ_CEILING_BYTES.
+ */
+export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
+/**
+ * Advisory at a quarter of the ceiling (8 MiB against a 32 MiB ceiling). Chosen against the
+ * measured growth curve, not by taste: 8 MiB is roughly 6x the 1,369,692-byte artifact that caused
+ * the incident, which is far enough ahead that an operator meets the advisory with room to act, and
+ * far enough behind the bound that the advisory is not a synonym for it.
+ */
+export const VALIDATION_EVIDENCE_ADVISORY_FRACTION = 0.25;
+/** Hard bound at three quarters of the ceiling, leaving 25 percent headroom for the read itself. */
+export const VALIDATION_EVIDENCE_BOUND_FRACTION = 0.75;
+export const VALIDATION_EVIDENCE_ADVISORY_BYTES = Math.floor(
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_ADVISORY_FRACTION,
+);
+export const VALIDATION_EVIDENCE_BOUND_BYTES = Math.floor(
+  VALIDATION_EVIDENCE_READ_CEILING_BYTES * VALIDATION_EVIDENCE_BOUND_FRACTION,
+);
+
+/** Three tiers, mirroring the buildLedgerSizing shape in core/proofstory.ts. */
+export type ValidationEvidenceSizingState = 'within_budget' | 'advisory' | 'bounded';
+
+export interface ValidationEvidenceSizing {
+  /** Byte length of the artifact as it would have serialised with no bounding applied. */
+  measuredBytes: number;
+  /** Byte length of the artifact actually written. Equals measuredBytes when nothing was bounded. */
+  serializedBytes: number;
+  ceilingBytes: number;
+  advisoryBytes: number;
+  boundBytes: number;
+  state: ValidationEvidenceSizingState;
+  bounded: boolean;
+  /** Command entries kept, but with their captured output replaced by a visible marker. */
+  elidedCommandOutputs: number;
+  /** Command entries dropped from the array, always reported as a count, never silently. */
+  elidedCommandEntries: number;
+}
+
+export interface BoundedValidationEvidenceOutput extends ValidationEvidenceSizing {
+  /** The serialised artifact. Always valid JSON, and always preserves the pass/fail fields. */
+  output: string;
+}
+
+/**
+ * Boundary rule, stated once so it is not re-litigated: each threshold is INCLUSIVE of the higher
+ * tier. An artifact of exactly VALIDATION_EVIDENCE_ADVISORY_BYTES is `advisory`, and one of exactly
+ * VALIDATION_EVIDENCE_BOUND_BYTES is `bounded`.
+ */
+export function classifyValidationEvidenceSize(measuredBytes: number): ValidationEvidenceSizingState {
+  if (measuredBytes >= VALIDATION_EVIDENCE_BOUND_BYTES) return 'bounded';
+  if (measuredBytes >= VALIDATION_EVIDENCE_ADVISORY_BYTES) return 'advisory';
+  return 'within_budget';
+}
+
+function formatBytes(bytes: number): string {
+  const mib = bytes / (1024 * 1024);
+  return `${bytes} bytes (${mib.toFixed(2)} MiB)`;
+}
+
+/**
+ * The operator-facing advisory. Deliberately worded as information: no failure vocabulary, no
+ * cross or warning glyph, and an explicit statement that the validate verdict is untouched, so a
+ * reader scanning output cannot mistake it for a failing check.
+ */
+export function formatValidationEvidenceAdvisory(sizing: ValidationEvidenceSizing): string | null {
+  if (sizing.state === 'within_budget') return null;
+  // The wording deliberately avoids every failure token, so a reader scanning validate output
+  // cannot mistake this line for a check that did not pass.
+  const head = `evidence size advisory (informational; the validate verdict is unchanged): `
+    + `the serialised validation evidence artifact is ${formatBytes(sizing.measuredBytes)}, `
+    + `past the ${formatBytes(sizing.advisoryBytes)} advisory threshold, which is `
+    + `${Math.round(VALIDATION_EVIDENCE_ADVISORY_FRACTION * 100)}% of the `
+    + `${formatBytes(sizing.ceilingBytes)} metadata read ceiling.`;
+  if (sizing.state === 'advisory') {
+    return `${head} The artifact grows with the number of lattice.config.json validate.commands entries; `
+      + `it is bounded at ${formatBytes(sizing.boundBytes)}.`;
+  }
+  return `${head} It reached the ${formatBytes(sizing.boundBytes)} bound, so it was serialised at `
+    + `${formatBytes(sizing.serializedBytes)} with ${sizing.elidedCommandOutputs} command output(s) `
+    + `replaced by a marker and ${sizing.elidedCommandEntries} command entry(ies) summarised by count. `
+    + `Per-command output remains available in the validate console output.`;
+}
+
+function elisionMarker(originalChars: number): string {
+  return `[evidence bound: ${originalChars} chars of captured output omitted so the aggregate artifact `
+    + `stays under ${VALIDATION_EVIDENCE_BOUND_BYTES} bytes; see the validate console output]`;
+}
+
+/**
+ * Serialise a validation result for the evidence artifact, bounded at VALIDATION_EVIDENCE_BOUND_BYTES.
+ *
+ * Bounding is structural, never a string truncation: consumers parse this field (an unparseable
+ * artifact is rejected as output_invalid_json and blocks the phase gate), so the result stays valid
+ * JSON and keeps allPass / allPassed / status exactly as given. Nothing is discarded silently:
+ *
+ *   tier 1 - replace captured per-command output with a visible marker naming the omitted length,
+ *            largest first, stopping as soon as the artifact fits; every entry is retained.
+ *   tier 2 - only if tier 1 is not enough, cap the entry count and record how many were omitted in
+ *            the evidenceBound block, so the loss is stated as a number rather than vanishing.
+ */
+export function boundValidationEvidenceOutput(result: unknown): BoundedValidationEvidenceOutput {
+  const serialized = JSON.stringify(result);
+  const measuredBytes = Buffer.byteLength(serialized ?? 'null', 'utf8');
+  const base = {
+    measuredBytes,
+    ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+    advisoryBytes: VALIDATION_EVIDENCE_ADVISORY_BYTES,
+    boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+    state: classifyValidationEvidenceSize(measuredBytes),
+  };
+  if (measuredBytes < VALIDATION_EVIDENCE_BOUND_BYTES || !result || typeof result !== 'object') {
+    return {
+      ...base,
+      serializedBytes: measuredBytes,
+      bounded: false,
+      elidedCommandOutputs: 0,
+      elidedCommandEntries: 0,
+      output: serialized ?? 'null',
+    };
+  }
+
+  const source = result as Record<string, unknown>;
+  const commands = Array.isArray(source.commands) ? [...(source.commands as any[])] : [];
+  const order = commands
+    .map((command, index) => ({ index, length: typeof command?.output === 'string' ? command.output.length : 0 }))
+    .sort((a, b) => (b.length - a.length) || (a.index - b.index));
+  let elidedCommandOutputs = 0;
+  let elidedCommandEntries = 0;
+  const render = (): string => JSON.stringify({
+    ...source,
+    commands,
+    evidenceBound: {
+      measuredBytes,
+      boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
+      ceilingBytes: VALIDATION_EVIDENCE_READ_CEILING_BYTES,
+      elidedCommandOutputs,
+      elidedCommandEntries,
+    },
+  });
+
+  // Serialising a multi-megabyte artifact is not free, so each elision adjusts an EXACT byte
+  // delta (replacing one JSON string value changes the encoding by exactly the difference of the
+  // two encoded lengths) and the object is re-rendered only to confirm, never per elision.
+  const encodedLength = (value: unknown): number => Buffer.byteLength(JSON.stringify(value) ?? 'null', 'utf8');
+  let output = render();
+  let bytes = Buffer.byteLength(output, 'utf8');
+  for (const entry of order) {
+    if (bytes < VALIDATION_EVIDENCE_BOUND_BYTES) break;
+    if (entry.length === 0) continue;
+    const previous = commands[entry.index]?.output;
+    const marker = elisionMarker(entry.length);
+    commands[entry.index] = { ...commands[entry.index], output: marker };
+    elidedCommandOutputs += 1;
+    bytes -= encodedLength(previous) - encodedLength(marker);
+  }
+  if (elidedCommandOutputs > 0) {
+    output = render();
+    bytes = Buffer.byteLength(output, 'utf8');
+  }
+  const overBound = bytes >= VALIDATION_EVIDENCE_BOUND_BYTES;
+  while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES && commands.length > 0) {
+    const removed = commands.pop();
+    elidedCommandEntries += 1;
+    bytes -= encodedLength(removed) + 1;
+  }
+  if (overBound) output = render();
+  // Confirm against the real encoding rather than the running estimate: the evidenceBound counters
+  // themselves grow by a digit as they climb, so the estimate can sit a few bytes optimistic.
+  while (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES && commands.length > 0) {
+    commands.pop();
+    elidedCommandEntries += 1;
+    output = render();
+  }
+
+  return {
+    ...base,
+    serializedBytes: Buffer.byteLength(output, 'utf8'),
+    bounded: true,
+    elidedCommandOutputs,
+    elidedCommandEntries,
+    output,
+  };
 }
 
 function emitValidationProgress(progress: ValidationProgressReporter | undefined, event: ValidationProgressEvent): void {

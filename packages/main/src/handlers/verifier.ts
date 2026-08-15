@@ -36,7 +36,9 @@ import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
+  boundValidationEvidenceOutput,
   executeValidationPlan,
+  formatValidationEvidenceAdvisory,
   formatValidationProgressEvent,
   formatWorktreePollutionDetails,
   runValidationCommand,
@@ -832,13 +834,21 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     commandExecutions: commandResults.length,
   });
+  // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
+  // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
+  // could commit test-evidence.json at all. Bound it here, at the one place that serialises it, and
+  // surface the approach to that ceiling as an advisory rather than a silent wall. The advisory is
+  // logged only: `result` is not touched, so the pass/fail verdict is exactly what it would be.
+  const boundedOutput = boundValidationEvidenceOutput(result);
+  const sizingAdvisory = formatValidationEvidenceAdvisory(boundedOutput);
+  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
   const evidence = (hashes: {
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
   } = {}): TestEvidenceData => ({
     command,
-    output: JSON.stringify(result),
+    output: boundedOutput.output,
     result: allPass ? 'PASS' : 'FAIL',
     ...(failureKind ? { failureKind } : {}),
     timestamp: new Date().toISOString(),
