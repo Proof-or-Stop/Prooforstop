@@ -4680,7 +4680,7 @@
       "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:267-270 [HIGH] topology-critic-smoke-thin-bootstrap-mirror-expectation-drift. The focused smoke still requires both .claude and .lattice-codex reviewer assets to be byte-equal to the full canonical template. The authoritative current contract intentionally uses role-specific body-free bootstrap mirrors that call review_run_start and consume its selected role body, while packages/main/templates/agents/lattice-review-topology-critic.md remains the full canonical body. Repro: node packages/main/dist/tasks/proofstory-topology-critic-smoke.js exits 1 at dist line 249 with Claude prompt mirror is exact; actual is the thin bootstrap and expected is the full modular role body. node scripts/verify-process-fact-contract.mjs passes and reports Prompt drift scan: 35 reviewer prompt files checked, proving the runtime-selected prompt contract is coherent. Replace byte-equality assertions with contract-aware checks: validate bootstrap frontmatter and body-free review_run_start delegation for host assets, validate the canonical template body independently, and retain the process-fact drift scan.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T14:51:42.143Z",
@@ -4724,7 +4724,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "topology-critic-smoke-thin-bootstrap-mirror-expectation-drift",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 6a5da86bc1 replaces stale full-template equality with host-aware body-free thin-bootstrap assertions, preserves independent full package template validation, and adds biting negatives for missing/malformed delegation and injected full body. Focused topology critic and adjacent prompt asset controls pass.",
+      "resolvedAt": "2026-08-15T15:53:12.074Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

@@ -14004,6 +14004,242 @@
       },
       "readDiagnostics": [],
       "_hash": "348e68793eaffe0e3570fe800abf4ad09b92ab5ba6e7fce87370bff5627e78ea"
+    },
+    {
+      "id": "B-3f3d:RP-220",
+      "agent": "lattice-review-concept",
+      "note": "Final post-6a5da86 concept review is clean. proofstory-topology-critic-smoke passed its real lifecycle transcript, producer and verifier path, tamper matrix, exclusion authority, host bootstrap mutations, and leakage checks. story6-role-migration-smoke, thin-init-assets-smoke, and codex-registry-mode-smoke also passed. The remediation now validates canonical host renders, review_run_start delegation, modular-body absence in thin bootstraps, full body retention in the package template, and biting negative controls. A repository scan found zero residual direct full-template mirror equality expectations and no new conceptual family.",
+      "createdAt": "2026-08-15T15:55:38.087Z",
+      "reviewRound": "2026-08-15T15:52:57.944Z",
+      "reviewRunId": "B-3f3d:RR-280",
+      "envelopeId": "5c921481645a689fed3ddae358f1e06a86b57f90885eb82ea4f6a20f49434214",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2341090bab6e5e5e4a199255a0bc4ac1ac63e1bf2a302b7de6cf0bcc99b59ca"
+    },
+    {
+      "id": "B-3f3d:RP-221",
+      "agent": "lattice-review-quality",
+      "note": "Post-6a5da86 quality review found no blocker or distinct new family: F071 is closed by canonical host-render bootstrap assertions with delegation/body-free negative bites; topology critic, role migration, thin-init, Codex registry, and process-fact contract controls all pass.",
+      "createdAt": "2026-08-15T15:59:33.932Z",
+      "reviewRound": "2026-08-15T15:52:57.944Z",
+      "reviewRunId": "B-3f3d:RR-281",
+      "envelopeId": "b8ad24f803653d285c61d0fea0a06ef29782a434a4ed704917092925ff8e8ebf",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "831defaba41e36ec9c2062b1645a7cf59c00e27e0cae1646772cdbafd2eec53e"
+    },
+    {
+      "id": "B-3f3d:RP-222",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-6a5da86 coverage review passed with zero new findings. All 54/54 must intents have current mechanical selector-matched PASS receipts and zero waivers, uniformly bound to implementation head 6a5da86bc12ebf464e1c88555f9fc9c7b176c711, material 5b37c55a00bb14969f5fd0eaf5bb4a53b85acdbd4a11c477371a1409f4d7c040, storyFiles 6b03f2e828a2d5ae32ac5fba6f7fd3dad6b83728d29717bd34c98929e6013a0b. ProofStory topology critic smoke now passes end-to-end. F071 regression coverage asserts canonical host render equality, role frontmatter, review_run_start delegation, absence of embedded modular body, independent package full-template marker, host-render equality semantics, and negative bites for missing/malformed delegation plus injected full body. Process-fact contract also passes. F071 is closed and no adjacent coverage family remains.",
+      "createdAt": "2026-08-15T16:02:26.584Z",
+      "reviewRound": "2026-08-15T15:52:57.944Z",
+      "reviewRunId": "B-3f3d:RR-282",
+      "envelopeId": "ac5a377388cd6a0c79bfb359abce523b212f90d7d645fa314f0b81c6a38094e7",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "eed26272c0e3be3f621369df57c071fd6c8f1d08b16c4a9c1d2a7bab342c2f0d"
+      },
+      "readDiagnostics": [],
+      "_hash": "866dc88ea53004d15d8de071edffff3566816f109922a4f18b9d81cbdff7e610"
+    },
+    {
+      "id": "B-3f3d:RP-223",
+      "agent": "lattice-review-docs",
+      "note": "Final post-6a5da86 docs review extracted 674 symbols with the mandated main...HEAD regex and compared 2 directly relevant authoritative documentation paragraphs. Commit 6a5da86 changes only the topology-critic smoke and adds one local test helper plus fixture-local constants; it introduces no exported API, CLI command, schema field, configuration, or documentation promise. lifecycle-artifact-scope and role-prompt-modularization-and-budget-execution-plan both specify that migrated reviewers use canonical body-free host bootstraps from renderPromptEntryForHost and obtain exactly one selected body through review_run_start. The new positive and mutation controls implement that contract without changing runtime or operator semantics. Coverage RP-222 is green; no documentation drift or undelivered promise remains.",
+      "createdAt": "2026-08-15T16:04:32.623Z",
+      "reviewRound": "2026-08-15T15:52:57.944Z",
+      "reviewRunId": "B-3f3d:RR-283",
+      "envelopeId": "d1fc790e7712a12e8be726b4a1c814d394799ee0ce10847829be1a0283b9014e",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "88bd03042443897878adc8756e8e57411928332b8931b97fa560ddee09f2a778"
+      },
+      "readDiagnostics": [],
+      "_hash": "a80565bb636b752e2c3c21a6f3978be56914c6ee8b0fadf876531011789a7c3a"
     }
   ]
 }
