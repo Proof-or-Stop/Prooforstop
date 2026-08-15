@@ -831,6 +831,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0b50d7da39a3598a22676a8cd69fa8dddbccbea1da8ca3a5fcfb4d787ec1d323"
+    },
+    {
+      "id": "B-cdf6:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "No blocker. Independently verified all 4 ledger claims: cli-engine.ts diff is brand-string-only (no loader/import changes), the F-057 repin holds (guard exits 0), the F-053 reworded comment is accurate and does not retrip the guard, commit 0be3fbd206 correctly says THREE (not four) smokes remain red, and B-META F-032's git-hash-vs-gitignored-dist reasoning is technically sound (verified against review-run.ts/evidence-freshness.ts source). Independently rebuilt pristine main in a scratch worktree and reproduced all three named red smokes failing with matching assertions. finding_list re-counted: 58 total, 0 open.",
+      "createdAt": "2026-08-15T07:24:11.774Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-083",
+      "envelopeId": "2a902cf8ebccb9988dfe4e388c211d107ec5f8df34c40ea2819aa3ffb790281b",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c997c7cf1df31191df4bfe84e50f3f1d279441d8b9ca555f4017409ead72f142"
     }
   ]
 }
