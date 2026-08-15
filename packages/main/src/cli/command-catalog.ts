@@ -3182,7 +3182,7 @@ Behavior:
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},
-  { name: 'dev_memory_finish_decision', description: 'Record end-of-work memory decision: captured, no reusable lesson, or defer with reason (no automatic promotion; not gate evidence)', schema: {
+  { name: 'dev_memory_finish_decision', description: 'Record end-of-work memory decision: captured, no reusable lesson, or defer with reason (no automatic promotion; existence required by the DONE gate, but lesson content is never gate evidence)', schema: {
     storyId: z.string().optional().describe('Optional story id for the finish decision.'),
     decision: z.enum(['captured', 'no-reusable-lesson', 'defer-with-reason']).describe('End-of-work memory decision.'),
     reason: z.string().optional().describe('Required for no-reusable-lesson and defer-with-reason.'),
