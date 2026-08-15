@@ -212,6 +212,17 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:50:46.459Z"
+        },
+        {
+          "intentRef": "INT-CHK002-ADV",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "All six readManifest objects added use the shape { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, matching the established valid-manifest shape used elsewhere in the codebase (agent-dispatch-registry-smoke.ts). Each call site's downstream assertions were confirmed to reach their REAL target checks (staleness rejection, workspace-binding rejection, tampered-binding rejection) rather than short-circuiting earlier, by tracing execution progressing past each call in the full-file run.",
+          "mechanical": false,
+          "headHash": "3f5b65d19fc3944f927be094b20421f3e93e7c4c",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:50:47.414Z"
         }
       ]
     },
