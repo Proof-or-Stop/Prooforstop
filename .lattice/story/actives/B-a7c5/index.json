@@ -4,7 +4,7 @@
   "title": "Make dev-memory preflight mandatory before DEV and finish-decision mandatory before DONE, plus an advisory capture reminder on finding_resolve",
   "description": "Proofbound's own dev-memory system (.lattice/dev-memory/experience.jsonl, git-tracked, shared across all agents/sessions on this repo) is entirely voluntary today: dev_memory_preflight/dev_memory_start/dev_memory_capture/dev_memory_finish/dev_memory_finish_decision are never called automatically by any lifecycle handler, and canFinishGuard (the DONE gate) never checks for dev-memory activity. A story can reach DONE having captured zero lessons and nothing notices. This story closes that gap at three points: (1) an INIT_CHECK-phase gate requiring a recorded dev_memory_preflight acknowledgement before a story may enter DEV, so every session starts having actually consulted prior lessons; (2) a non-blocking advisory reminder appended to finding_resolve's own output, prompting in-the-moment capture rather than end-of-story recall; (3) a DONE-gate requirement that dev_memory_finish_decision has been recorded (captured | no-reusable-lesson | defer-with-reason -- an honest 'nothing to capture' is an acceptable, non-blocking answer, but silent skip is not).",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "dev-memory",
@@ -80,6 +80,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T10:45:44.244Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -87,5 +96,5 @@
     "branch": "story/B-a7c5",
     "createdAt": "2026-08-14T10:17:46.944Z"
   },
-  "currentReviewRound": "2026-08-14T13:41:16.096Z"
+  "currentReviewRound": "2026-08-15T10:45:44.244Z"
 }

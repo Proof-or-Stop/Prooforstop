@@ -41,9 +41,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Widened after DEV implementation surfaced real, necessary collateral: (1) core/lifecycle-registry.ts + core/process-fact-levels.ts registration entries the new dev_memory_preflight_ack/dev_memory_finish_decision commands require (discovered by the implementer via the repo's own consistency checks, not originally in plan.md's touchpoint list); (2) 8 pre-existing test fixtures across packages/main/src/tasks and packages/main/tests that construct DEV/DONE-door stories without a dev-memory artifact, which the new CHK-001/CHK-003 gates now correctly refuse -- each fixture needed exactly one satisfying write added, verified individually and via the full 95-command validate suite; (3) bin/lattice.js is a zero-diff rebuild artifact.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Append-only dev-memory capture of a genuinely reusable lesson (id c77064d) discovered while resolving REVIEW findings F-002/F-003/F-004 -- the immutable-evidence-pin tooling limitation. Not story-code scope but a legitimate, git-tracked shared side-channel write, per CHK-002's own design (the dev-memory system this story extends).",
+      "timestamp": "2026-08-15T10:45:37.051Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9461aa8c35fda620fec9ffb0ef3f0ad79b3f3d9c",
+      "materialHash": "0fe9fa9b02f2e85245d1acb53c5d102f12cd96063d329f92e017ed77a3edfad9"
+    }
+  ],
   "createdAt": "2026-08-14T11:04:45.930Z",
-  "updatedAt": "2026-08-14T13:40:53.181Z",
+  "updatedAt": "2026-08-15T10:45:37.051Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -76,6 +93,7 @@
     "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs": "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
     "packages/main/tests/**/*.test.mjs": "packages/main/tests/**/*.test.mjs",
     "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
-    "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts"
+    "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
   }
 }
