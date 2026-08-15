@@ -223,6 +223,19 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:50:47.414Z"
+        },
+        {
+          "intentRef": "INT-CHK002-DISCRIM",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "result": "pass",
+          "note": "Confirmed by inspecting the real CLI stdout captured by assertReviewRunStartCliSurface after the fix: the stalePass.stderr now genuinely matches /already stale|stale/i against a real staleness rejection message from review_pass_set, not merely a non-crashing generic response -- traced by running the fixture and reading its captured stderr directly.",
+          "mechanical": false,
+          "nonMechanicalReason": "Verifying real staleness output required reading the fixture's own captured stderr during a live run rather than a standalone pinned command; the observation is a manual trace, not a repeatable single-command receipt.",
+          "headHash": "02dad3024a84987f9719bda18dbfc8802b9170f4",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T21:08:25.031Z"
         }
       ]
     },
