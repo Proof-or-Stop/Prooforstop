@@ -91,7 +91,7 @@
       "desc": "describeChildProcessFailure was introduced by this fix specifically to avoid the \"empty-but-truthy stderr Buffer\" pitfall (its own doc comment names this exact bug), but it is not applied at 4 other catch sites in the same file that construct diagnostics from the same execFileSync error shape with the pre-existing naive pattern `String(err?.stderr || err?.stdout || err?.message || err).trim()`:\n  - gitMaybe, line 376\n  - rollbackDonePrepareGeneratedMetadataTransaction, line 494\n  - runCommitHook, line 759\n  - commitImmutableMetadataTree's index-refresh-failure catch, line 955, and its outer catch, line 965\n\nCurrently these specific call sites (rev-parse HEAD, symbolic-ref, update-ref, hook path/args, index-info restore) carry low practical risk since their normal output is small, so this is not independently reproducible as a live incident the way F-003 is. But it is a real inconsistency: the module now states an explicit diagnosability invariant (CHK-002's own goal, \"make the surfaced reason name the underlying error so the next person does not spend hours attributing it to concurrency\") and built a dedicated helper for it, yet applied that helper to only 2 of the module's ~7 catch sites that wrap execFileSync failures. Any future change that routes larger content through isolatedGit (used for read-tree/add/write-tree/commit-tree, all under the outer catch at line 965) inherits the same empty-buffer-selection defect the new helper was written to fix.\n\nRecommend either applying describeChildProcessFailure uniformly at all execFileSync catch sites in this file, or documenting why these five are exempt.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T11:23:01.704Z",
@@ -102,7 +102,11 @@
         "packages/main/src/core/done-prepare-generated-metadata.ts"
       ],
       "signatureTag": "missing|ts|describechildprocessfailure-introduced-specifically",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 29968050ff / 2365be5586, and the implementer caught a real regression of its own in the process. Routing all four remaining catch sites through the new describers broke done-prepare-auto-closeout-smoke, which asserts a specific hook-failure wording. That file is outside allowedModify, and adjusting an assertion to fit new wording would have been the wrong repair regardless. Fixed on the merits instead: a hook that failed has already explained itself, so the diagnostic-stream describer prefixes only a Node-level code and never a plain exit status, while the content-read describer keeps exit 128 because there stderr is often all there is. done-prepare-auto-closeout-smoke, quorum-submit-smoke and validation-evidence-reuse-smoke all pass.",
+      "resolvedAt": "2026-08-15T11:55:15.472Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-006",
