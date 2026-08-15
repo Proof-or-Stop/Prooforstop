@@ -608,7 +608,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 — verified integration regression: B-6693 edits packages/main/src/cli-engine.ts but leaves its pinned canonical AST fingerprint at ef1c4e..., so the approved runCli → import(`file://${initPath}`) call is rejected as an unapproved non-literal dynamic load (current digest c38c840...). Repro: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 1. Re-audit the unchanged loader call and repin the canonical guard fingerprint; canonical validation cannot pass until this member is restored.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T20:54:11.628Z",
@@ -616,7 +616,11 @@
       "reviewRunId": "B-6693:RR-029",
       "_hash": "7e3a9d2e2bf3452ac90e12b63e0adb781aa2748514861c907943df80331d8020",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit d6529bdfc8f973117bdaa99817d1189ef8d0d7b9. Independent original repro `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exited 0 with `retired authority vocabulary guard PASS builds=788 cacheHits=2 fullAnalysis=1256 astCandidates=489 reachability=34`. The canonical cli-engine AST repin preserves the same runCli anchor, cli-init initPath producer, and import callsite; relocation, producer-mutation, nested-anchor, and loader-replacement controls still bite. Production semantics are unchanged because this is a test-only pin repair.",
+      "resolvedAt": "2026-08-15T21:05:52.277Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-018",
