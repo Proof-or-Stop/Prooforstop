@@ -805,6 +805,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e29799d997d43aad1730b8d8878af4bb9e9f346fc21ca44631846f814abb3b5b"
+    },
+    {
+      "id": "B-cdf6:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified mechanically at 627f492d5b: coverage unchanged (36 must=34 non-waiver+2 waivers at CHK-002:adv:1 deferred_gate_evidence and CHK-004:edge:0 permanent), no weakened tests in 0be3fbd206 (repin diff touches zero import/require calls, approved loader call site byte-identical to main; comment-only reword with assertions unchanged), corrected red-smoke count of exactly 3 independently reproduced on a fresh clean detached main worktree, finding_list 58/0-open. No blocker.",
+      "createdAt": "2026-08-15T07:23:20.769Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-084",
+      "envelopeId": "31ce9e3b78ab98ace1c9e9a058dce67511c32dfec6ca82e2d4ec3c170715bb35",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0b50d7da39a3598a22676a8cd69fa8dddbccbea1da8ca3a5fcfb4d787ec1d323"
     }
   ]
 }
