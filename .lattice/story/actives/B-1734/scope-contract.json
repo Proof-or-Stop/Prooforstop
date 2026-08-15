@@ -11,14 +11,15 @@
     "lattice.config.json",
     "CHANGELOG.md",
     "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
-    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+    "packages/main/tests/red/red-fb7b-guard-bite.mjs"
   ],
   "allowedCreate": [
     "scripts/build-lock.mjs",
     "scripts/build-utils-with-binding.mjs",
-    "packages/main/tests/red/red-e165-lock-liveness.mjs",
-    "packages/main/tests/red/red-e165-content-binding.mjs",
-    "packages/main/tests/red/red-e165-guard-bite.mjs"
+    "packages/main/tests/red/red-1734-lock-liveness.mjs",
+    "packages/main/tests/red/red-1734-content-binding.mjs"
   ],
   "allowedTest": [
     "packages/main/tests/red/**"
@@ -28,10 +29,10 @@
     "packages/core/**",
     "packages/lab/**"
   ],
-  "scopeChangeReason": "B-1734 touches only build infrastructure (build scripts, the build-binding module, deps, RED tests, config, CHANGELOG) per the approved design.",
+  "scopeChangeReason": "Refine DEV file set: the existing B-fb7b build tests (red-fb7b-pretest-builds-utils.mjs, red-fb7b-guard-bite.mjs) and the structural smoke assert the existence-based pretest, so they must be updated to the content-bound behavior; new REDs are named for this story (red-1734-*). CHANGELOG.md stays modifiable (delivered at DONE).",
   "acknowledgements": [],
   "createdAt": "2026-08-15T11:38:40.619Z",
-  "updatedAt": "2026-08-15T11:38:40.619Z",
+  "updatedAt": "2026-08-15T12:09:13.339Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -52,6 +53,10 @@
     "packages/main/tests/red/red-e165-guard-bite.mjs": "packages/main/tests/red/red-e165-guard-bite.mjs",
     "packages/main/tests/red/**": "packages/main/tests/red/**",
     "packages/core/**": "packages/core/**",
-    "packages/lab/**": "packages/lab/**"
+    "packages/lab/**": "packages/lab/**",
+    "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs": "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+    "packages/main/tests/red/red-fb7b-guard-bite.mjs": "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+    "packages/main/tests/red/red-1734-lock-liveness.mjs": "packages/main/tests/red/red-1734-lock-liveness.mjs",
+    "packages/main/tests/red/red-1734-content-binding.mjs": "packages/main/tests/red/red-1734-content-binding.mjs"
   }
 }

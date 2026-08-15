@@ -4,7 +4,7 @@
   "title": "Crash-safe cross-platform build mutex + content-bound idempotent build (shared-worktree review pipeline)",
   "description": "Deferred from B-fb7b (DONE, merged ba067c2f76). B-fb7bs FIRST Codex cross-host review found two MAJOR build-concurrency bugs (a lock age-steal of a live holder; an rm-during-read reader-writer race); after B-fb7b fixed those, a SECOND Codex review of the fix found two more MAJOR bugs (a check-then-delete reclaim TOCTOU race; mtime/existence freshness misclassifying deleted-source orphans, partial builds, and tampered outputs). All four are recorded in B-fb7bs cross_host_review verdicts. B-fb7b then fully reverted its build-lock attempt and shipped only a minimal existence-based bootstrap, so the build currently has NO locking. This story ADDS the robust fix: (a) a cross-platform proper-lockfile mutex around the build critical section; (b) a content-bound skip using the EXISTING scripts/full-suite-build-binding.mjs verifyBuildBinding (sha256 over all packages/main src+config and all dist outputs) instead of mtime/existence, plus an analogous packages/utils binding; applied to the three distinct build call sites (scripts/ensure-dist.mjs, scripts/build-main-with-binding.mjs which is also the packages-main-build validate command, and the packages/utils build).",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "source": "descoped from B-fb7b two-round cross-host (Codex) review",
   "keywords": [
@@ -41,6 +41,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-08-15T11:37:20.296Z",
+      "branch": "story/B-1734",
+      "user": "Harmonygo",
+      "sessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T12:07:50.373Z",
       "branch": "story/B-1734",
       "user": "Harmonygo",
       "sessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
