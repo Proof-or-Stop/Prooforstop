@@ -925,6 +925,66 @@
         "scanEscalationReason": null
       },
       "_hash": "87870d4ceacc64bf9cd0c6c6654d97aacf3254768ecde5bed1481c3c9a37349d"
+    },
+    {
+      "id": "B-cdf6:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Re-bound concept-lane verdict at head 2ededfa090 (RR-086), scope f78856fe..HEAD (39 files), superseding stale prior pass RP-015 bound to f78856fe. Corrected the dispatch's one-file scope claim (measured from 627f492d5b, itself already past my true prior baseline f78856fe) using review_incremental_context; reviewed the full 39-file delta instead. F-059 fix confirmed exact at unlock-layer3-real-execution-udm-baseline.md:264. Sibling-file boundary in legacy-to-lattice-role-naming-execution-plan.md accepted as correct application of the past-evidence freeze criterion (closed prior rename plan, rewriting would falsify history). finding_list: 0 open, F-059 resolved with matching evidence. Grepped full diff for concept residue independent of the framework's own script: only documented dual-token compat found (ACCEPTANCE_WRAPPER_BASENAMES, DEPRECATED_COMMIT_SUBJECT_PREFIX, dual-prefix regex), all per CHK-006 mandate. Reran claimed-green checks myself: tsc clean; all 3 lattice-residue checks + self-test (38/38) pass; retired-authority-vocabulary-guard, version-bump, global-agents-unit-smoke pass. flow-stability-smoke and done-prepare-auto-closeout-smoke initially errored under my own incorrect tsx-on-source invocation; pass cleanly via proper npm scripts against rebuilt dist. Spot-checked still-red proofstory-acceptance-topology-smoke: pre-existing assertion mismatch unrelated to brand tokens, matches prior pristine-main characterization. git status clean. No concept-residue blocker this round.",
+      "createdAt": "2026-08-15T18:49:04.558Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-086",
+      "envelopeId": "d3f5864f3e970e6ae2bcb3d9172dd5858df19535c435a24f582a0d24f14c3302",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/init-check-metadata-sync.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/safe-init-commit.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-init-check-bootstrap.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "939c95a7208933830c944e25adddcb03b98d0ec1bbc1fe9501a99f069bd594da"
     }
   ]
 }
