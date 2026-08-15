@@ -20,6 +20,7 @@ import type { ScopeFreezeTextSource } from '../core/types.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import {
   assertEnglishAuthoringText,
+  checklistEnglishAuthoringFields,
   type EnglishAuthoringTextSource,
 } from './english-artifact-gate.js';
 import {
@@ -364,11 +365,8 @@ function storyCreateAuthoringFields(args: {
     });
   }
   if (Array.isArray(args.checklist)) {
-    args.checklist.forEach((item: { title?: unknown; context?: unknown; userSees?: unknown }, index: number) => {
-      const itemRef = `checklist[${index + 1}]`;
-      fields.push({ field: `${itemRef}.title`, text: item?.title });
-      fields.push({ field: `${itemRef}.context`, text: item?.context });
-      fields.push({ field: `${itemRef}.userSees`, text: item?.userSees });
+    args.checklist.forEach((item, index) => {
+      fields.push(...checklistEnglishAuthoringFields(item, `checklist[${index + 1}]`));
     });
   }
   return fields;

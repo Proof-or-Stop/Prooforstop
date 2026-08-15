@@ -24,6 +24,10 @@ import {
   validatePlannedPathDeclarationsForChecklistItem,
   verificationIntentHasPlannedPathDeclarations,
 } from '../core/acceptance-topology.js';
+import {
+  assertEnglishAuthoringText,
+  checklistEnglishAuthoringFields,
+} from './english-artifact-gate.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -1022,6 +1026,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       agent?: string;
       actor?: string;
     }): string {
+      assertEnglishAuthoringText(
+        'checklist_add',
+        checklistEnglishAuthoringFields(args, 'checklist item'),
+      );
       if (verificationIntentHasPlannedPathDeclarations(args.verificationIntent)) {
         throw new Error(
           'checklist_add refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
@@ -1206,6 +1214,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
       }
+
+      assertEnglishAuthoringText(
+        'checklist_update',
+        checklistEnglishAuthoringFields(args, args.itemId),
+      );
 
       // B-1909 CHK-001/CHK-005: 'withdrawn' is a terminal disposition that can
       // only originate from a confirmed + userConfirmed scope-shrinkage decision.
