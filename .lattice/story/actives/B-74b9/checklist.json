@@ -400,12 +400,13 @@
           "intentRef": "INT-CHK004-DECISION",
           "kind": "docs_check",
           "file": ".lattice/story/actives/B-74b9/plan.md",
+          "result": "pass",
           "note": "plan.md's CHK-004 section records an explicit per-fixture decision: proofstory-acceptance-basis-smoke.ts registered into lattice.config.json validate.commands (confirmed clean, ~57s runtime, matching the shape of the existing proofstory-acceptance-rollout-smoke.js entry); field-regression-cli-smoke.ts and worktree-authority-smoke.ts deliberately deferred with explicit rationale (each blocked only by a separately-tracked, confirmed-unrelated pre-existing bug: task_9f6b2322 and task_a8d49518 respectively).",
           "mechanical": false,
-          "headHash": "5605cbb970a2feeab527ece7a40278519d71b34a",
+          "headHash": "0c1ab8b50c48490bf8392f505edace9395138220",
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:52:02.169Z"
+          "timestamp": "2026-08-15T20:52:15.442Z"
         }
       ]
     }
