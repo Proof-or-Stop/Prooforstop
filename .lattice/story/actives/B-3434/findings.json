@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-3434:F-001",
+      "desc": "boundValidationEvidenceOutput (packages/main/src/core/validation-executor.ts:239-315) only elides/pops entries from result.commands. It never touches result.details, but executeValidationPlan (same file, ~line 845-850) pushes each already-trimmed commands[i].output into details a SECOND time, line-by-line: `details.push(...result.output.trim().split(\\n).filter(Boolean).map((line) => `  ${line}`))`. So details duplicates the same content the bounding tiers elide, and that duplicate is spread verbatim through `...source` in the internal render() closure (line 267) with no reduction. Reproduced against the built dist (packages/main/dist/core/validation-executor.js) with a ValidationResult shaped exactly like executeValidationPlan produces (commands + a details array built by the same duplication the production code performs, not the empty details:[] the smoke test hardcodes): at 2800 commands x 12,000-char output (the real per-command trimOutput cap), details alone serializes to 33,772,491 bytes -- already past both VALIDATION_EVIDENCE_BOUND_BYTES (25,165,824 = 24 MiB) and VALIDATION_EVIDENCE_READ_CEILING_BYTES (33,554,432 = 32 MiB). Calling boundValidationEvidenceOutput on that object elides all 2800 command outputs (elidedCommandOutputs=2800) and then pops every single command entry (elidedCommandEntries=2800, commands.length reaches 0), yet the returned artifact still serializes to 33,772,843 bytes -- OVER the ceiling -- while the function reports bounded:true and state:\"bounded\", and formatValidationEvidenceAdvisory renders \"It reached the 24.00 MiB bound, so it was serialised at 32.21 MiB\" as if bounding succeeded. This directly falsifies the invariant asserted in the module doc comment (validation-executor.ts, the paragraph immediately above VALIDATION_EVIDENCE_READ_CEILING_BYTES): \"a bounded artifact is always readable by the read whose ceiling bounds it, because VALIDATION_EVIDENCE_BOUND_BYTES is strictly below VALIDATION_EVIDENCE_READ_CEILING_BYTES.\" That inequality is true only of the two constants; it is not enforced by the code once result.details independently exceeds the bound, because the bounding logic has no lever on details at all. It is exactly the concept-review target pattern: an absolute guarantee (\"always readable... by construction\") that holds on the tested path and is false on the real production path. validation-evidence-buffer-smoke.ts never catches this because every fixture it builds via its local validationResult() helper hardcodes details: [] (see smoke lines ~44-53), so the ONE realistic object shape that would exercise this -- the details array executeValidationPlan actually produces, which duplicates the same growth driver CHK-004 targeted (the NUMBER of configured validate commands) -- is never constructed by the tests. Practically: this repository grew validate.commands from 56 to 100 in a single day per the story context (B-9ff1); the details duplication scales with the identical driver, so reaching the few-thousand-command regime where this manifests is the same kind of unbounded growth this story exists to end, and when it is reached the artifact can again exceed the metadata read ceiling and reproduce the original ENOBUFS/\"verified metadata changed\" failure -- silently, because evidenceBound.bounded=true is reported. Suggested fix direction (not prescribing implementation): either fold details into the same byte budget (e.g. drop/replace details once the bound is not achievable by commands elision alone, and report that in evidenceBound), or derive/replace details from the already-bounded commands array rather than serializing it as an independent duplicate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T11:20:33.961Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-004",
+      "_hash": "6504c08f14dd4dd030676f66d35a9739a0fd192ec9c8db1eb972827a6a5df142",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|boundvalidationevidenceoutput-packages-main",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
