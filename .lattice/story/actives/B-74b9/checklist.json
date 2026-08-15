@@ -92,7 +92,14 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "id": "INT-CHK002-ADV",
+            "desc": "Confirm the readManifest object passed is NOT so permissive/empty that it would also silently pass if the staleness detection itself were broken -- it must contain a plausible non-empty filesReadFully/filesTriagedByName shape matching real reviewer usage",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
