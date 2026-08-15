@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add a crash-safe cross-platform concurrent-build mutex (proper-lockfile): never age-steal a live long-running build, race-free reclaim of a dead holder -- the build currently has no lock",
       "context": "Fixes the two Codex LOCK findings recorded in B-fb7bs cross_host_review: (1) an mtime-age stale-steal that age-stole a LIVE holder mid-build, and (2) a check-then-delete reclaim TOCTOU race letting two waiters both enter the critical section. proper-lockfiles mtime heartbeat keeps a live holder fresh; its reclaim is race-safe; it is cross-platform (Mac/Linux/Windows).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T12:16:36.696Z",
-      "endTime": null,
+      "endTime": "2026-08-15T12:26:28.810Z",
       "verificationIntent": {
         "happy": [
           {
@@ -75,7 +75,14 @@
           }
         ]
       },
-      "userSees": "Running two npm test invocations concurrently in one worktree, the user sees both complete without an ENOTEMPTY / EBUSY / MODULE_NOT_FOUND build crash — no build is aborted mid-run by another process stealing its lock, even for a build that runs longer than the stale threshold."
+      "userSees": "Running two npm test invocations concurrently in one worktree, the user sees both complete without an ENOTEMPTY / EBUSY / MODULE_NOT_FOUND build crash — no build is aborted mid-run by another process stealing its lock, even for a build that runs longer than the stale threshold.",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "61c42f315f342e748dcadbf04c729d17164c09a1b0d56c2f32ff95e5257e2a50",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headHash": "b5cd93c814fc78f04eabd51469af168b6f9c1917",
+        "attestedAt": "2026-08-15T12:26:29.080Z",
+        "materialHash": "599998e6946c6f469f142172e747c46afc7fa06f80c37705570cac79133d4eed"
+      }
     },
     {
       "id": "CHK-002",
