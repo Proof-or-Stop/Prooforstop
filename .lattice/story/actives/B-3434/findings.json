@@ -898,6 +898,41 @@
       "resolvedAt": "2026-08-15T21:29:03.901Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-038",
+      "desc": "Section 13's required-substring list in validation-evidence-buffer-smoke.ts checks the CHK-004 decision document for 'B-3434:F-033', 'B-3434:F-035' and 'B-3434:F-036' but omits 'B-3434:F-037', even though F-037 is disclosed in the same deferred table and is arguably the most operationally important row (it is the caller-side gap that makes the writer-owned-boundary extraction necessary, per the document's own 'named change' section). The smoke computes namedFindings from the document text but only logs it, asserting nothing about its contents. So a future edit that deletes the F-037 table row - the row a follow-up story would read to know the source-check gap exists - keeps every assertion in the file green; deleting any of the other three rows would fail. This asymmetry is already disclosed candidly in the finding_resolve note for F-037 itself ('unlike F-033, F-035 and F-036, this id is not in the smoke's required-substring list, so nothing mechanically prevents a future edit from dropping it from the document'), so this is not a hidden overclaim - it is a known, named gap. Recommend closing it for symmetry: add 'B-3434:F-037' to the required list in section 13 (or assert namedFindings is a superset of all four deferred ids read from the table itself). That change is confined to validation-evidence-buffer-smoke.ts, which is in allowedCreate/allowedTest, so it does not re-enter core/validation-executor.ts, handlers/verifier.ts or core/store.ts and does not touch the bounding algorithm the round-9 stopping rule put out of scope. Non-blocking: the document is accurate today and the gap only affects a future edit's ability to silently regress the hand-off, not current behaviour.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T21:39:36.275Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-033",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d7cd9bd45c56d9887bf4e2c6201c5c3cf9a07c1e34ec0a295a3e62bf208346c3",
+      "files": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      ],
+      "signatureTag": "missing|ts|section-required-substring",
+      "signatureTagSource": "auto"
     }
   ]
 }
