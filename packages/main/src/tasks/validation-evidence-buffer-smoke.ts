@@ -436,8 +436,11 @@ function validationResult(
 {
   // A verdict-bearing key holding a huge NON-string: string truncation cannot touch it and stage 5
   // must not drop a verdict key, so the only way to satisfy the postcondition is the fallback.
+  // headSha is present alongside the timestamp validationResult already sets: both are protected
+  // from stage 5 but cannot be carried by the fallback, and both must therefore be NAMED.
   const result = validationResult([], {
     summary: Array.from({ length: 400_000 }, (_, index) => ({ index, note: 'n'.repeat(60) })),
+    headSha: 'abc123def4567890abc123def4567890abc123de',
   });
   const bounded = boundValidationEvidenceOutput(result);
   const serializedBytes = Buffer.byteLength(bounded.output, 'utf8');
@@ -454,6 +457,16 @@ function validationResult(
   assert.equal(parsed.allPass, true, 'the last-resort record preserves the consumer contract: allPass');
   assert.equal(parsed.status, 'pass', 'the last-resort record preserves the consumer contract: status');
   assert.equal(parsed.evidenceBound.measuredBytes, bounded.measuredBytes, 'the record names the size it replaced');
+  // The fallback is the one path that cannot carry every protected field. What it cannot carry it
+  // must NAME - this was the single place in the function where a field vanished unlisted.
+  assert.ok(!('timestamp' in parsed), 'the fallback cannot carry timestamp');
+  assert.ok(!('headSha' in parsed), 'the fallback cannot carry headSha');
+  assert.ok(bounded.droppedKeys.includes('timestamp'), 'a protected field the fallback drops is named in droppedKeys');
+  assert.ok(bounded.droppedKeys.includes('headSha'), 'headSha is named too, not only the field someone remembered');
+  assert.ok(parsed.evidenceBound.droppedKeys.includes('timestamp'), 'the artifact itself names the dropped timestamp');
+  assert.ok(parsed.evidenceBound.droppedKeys.includes('headSha'), 'the artifact itself names the dropped headSha');
+  const advisory = formatValidationEvidenceAdvisory(bounded);
+  assert.match(advisory!, /removed entirely: [^.]*timestamp/, 'the advisory reports the fallback drops as removals');
   console.log('✓ last-resort record is admissible, self-describing and input-independent in size');
   console.log(`    measured=${bounded.measuredBytes} serialised=${serializedBytes}`);
 }

@@ -137,12 +137,22 @@ function trimOutput(output: string): string {
  * to the very read that consumes this artifact.
  *
  * What is guaranteed, and what is not - stated precisely, because an earlier revision of this
- * comment claimed an invariant that the code did not enforce:
+ * comment claimed an invariant the code did not enforce, and the revision after it kept the claim
+ * while the code moved underneath: the honest withinBound=false path was added nine lines below
+ * this paragraph without the paragraph being revisited. A sentence about behaviour has to be
+ * re-read whenever the behaviour changes, or it becomes the most confident wrong thing in the file.
  *
- *   GUARANTEED, as an enforced post-condition of boundValidationEvidenceOutput: the string it
- *   returns is strictly smaller than VALIDATION_EVIDENCE_BOUND_BYTES. It is enforced by measuring
- *   the real encoding after every stage and by a last-resort replacement that cannot fail, not by
- *   the two constants standing in the right order.
+ *   GUARANTEED for an input the reduction can act on - an object, which is what the only
+ *   production caller passes: boundValidationEvidenceOutput returns a string strictly smaller than
+ *   VALIDATION_EVIDENCE_BOUND_BYTES. It is enforced by measuring the real encoding after every
+ *   stage and by a last-resort record capped by construction, not by the two constants standing in
+ *   the right order.
+ *
+ *   NOT GUARANTEED for an input with no structure to reduce - a multi-megabyte primitive, say.
+ *   There is no field to elide and no entry to cap, so the function returns the oversized
+ *   serialisation and reports withinBound: false. It does not pretend: the flag is measured on that
+ *   path like every other, and persistStoryValidationEvidence refuses the write rather than storing
+ *   an artifact the metadata read cannot consume. An unreduceable input is reported, not absorbed.
  *
  *   NOT GUARANTEED: that test-evidence.json as a FILE is under the ceiling. That file also carries
  *   verificationCoverage, commandExecution and routineValidationIdentity, written by
@@ -283,6 +293,41 @@ export function formatValidationEvidenceAdvisory(sizing: ValidationEvidenceSizin
  */
 const MAX_EMBEDDED_LABEL_CHARS = 120;
 
+/**
+ * Fields stage 5 will not drop, because they carry the verdict or the provenance a consumer reads.
+ */
+const VALIDATION_EVIDENCE_VERDICT_KEYS = [
+  'allPass',
+  'allPassed',
+  'status',
+  'failureKind',
+  'summary',
+  'provider',
+  'timestamp',
+  'headSha',
+] as const;
+
+/**
+ * The subset the last-resort record can carry. Anything in VALIDATION_EVIDENCE_VERDICT_KEYS but not
+ * here is dropped BY NAME when the fallback runs - the difference is computed from these two lists
+ * rather than written out, so a field protected later without being carried cannot go missing
+ * quietly the way timestamp and headSha did.
+ */
+const VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS = [
+  'provider',
+  'status',
+  'allPass',
+  'allPassed',
+  'failureKind',
+  'summary',
+] as const;
+
+/** Protected fields the fallback cannot carry, derived from the two lists above. */
+function verdictKeysDroppedByFallback(source: Record<string, unknown>): string[] {
+  const carried = new Set<string>(VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS);
+  return VALIDATION_EVIDENCE_VERDICT_KEYS.filter((key) => !carried.has(key) && key in source);
+}
+
 function capLabel(label: string): string {
   const text = String(label);
   if (text.length <= MAX_EMBEDDED_LABEL_CHARS) return text;
@@ -350,12 +395,22 @@ function collapseDetailContinuationRuns(details: string[]): { details: string[];
  *   stage 2 - collapse the DUPLICATE of that same output that executeValidationPlan copies into
  *             `details`, keeping the per-command status lines that make details navigable.
  *   stage 3 - cap `warnings`, then stage 4 caps `commands` entries, each with a stated count.
- *   stage 5 - last resort: drop the largest remaining top-level fields, NAMING each one. This is
+ *   stage 5 - drop the largest remaining top-level fields, NAMING each one in droppedKeys. This is
  *             what makes the bound a post-condition over the whole object rather than a promise
  *             about the fields listed above; bulk in a field added later is bounded too.
+ *   stage 6 - truncate any still-oversized string value IN PLACE, naming each field in
+ *             truncatedKeys. The field stays in the artifact, carrying an inline marker; that is a
+ *             different disposition from stage 5 removal and is reported as one.
+ *   fallback - if the measurement STILL fails, replace the whole artifact with verdictOnlyRecord:
+ *             a record capped by construction that keeps the verdict fields the phase gate parses,
+ *             says of itself that it is a replacement, and names every protected field it could
+ *             not carry in droppedKeys, so the fallback discards nothing unnamed either.
  *
- * The verdict-bearing fields (allPass, allPassed, status, failureKind, summary) are preserved at
- * every stage, and the input object is never mutated.
+ * The verdict-bearing fields (VALIDATION_EVIDENCE_VERDICT_KEYS) are preserved by stages 1 to 5, and
+ * the input object is never mutated. The fallback is the one place that cannot carry all of them -
+ * it emits VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS - and the difference between those two
+ * lists is computed and recorded rather than assumed, so protecting a new field without carrying it
+ * names it automatically instead of dropping it in silence.
  *
  * `withinBound` is computed from Buffer.byteLength of the string actually returned, on every path
  * including the ones that do no work. It is never set from the fact that a stage ran: a flag that
@@ -486,7 +541,7 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
 
   // Stage 5. Anything still oversized lives in a field this function does not model. Drop the
   // largest remaining non-verdict field, name it, and re-measure, until the bound holds.
-  const verdictKeys = new Set(['allPass', 'allPassed', 'status', 'failureKind', 'summary', 'provider', 'timestamp', 'headSha']);
+  const verdictKeys = new Set<string>(VALIDATION_EVIDENCE_VERDICT_KEYS);
   while (bytes >= VALIDATION_EVIDENCE_BOUND_BYTES) {
     const candidates = Object.keys(carried)
       .filter((key) => !verdictKeys.has(key) && key !== 'commands' && key !== 'details' && key !== 'warnings')
@@ -522,6 +577,13 @@ export function boundValidationEvidenceOutput(result: unknown): BoundedValidatio
   // the guarantee is not that the stages ran; it is this measurement of the string being returned,
   // with one fallback whose size is capped by construction rather than by the input.
   if (Buffer.byteLength(output, 'utf8') >= VALIDATION_EVIDENCE_BOUND_BYTES) {
+    // Record what the fallback cannot carry BEFORE building it, so the record embeds those names
+    // too. This was the single place in the function where a field vanished unlisted, inside the
+    // function whose contract is that nothing does.
+    for (const key of verdictKeysDroppedByFallback(source)) {
+      const label = capLabel(key);
+      if (!droppedKeys.includes(label)) droppedKeys.push(label);
+    }
     output = verdictOnlyRecord(source, measuredBytes, droppedKeys, truncatedKeys);
   }
   const serializedBytes = Buffer.byteLength(output, 'utf8');
@@ -567,13 +629,15 @@ function verdictOnlyRecord(
 ): string {
   const scalar = (value: unknown): unknown =>
     typeof value === 'string' ? value.slice(0, 200) : (typeof value === 'boolean' || typeof value === 'number' ? value : undefined);
+  // Built FROM the constant rather than repeating its members, so the set this record carries and
+  // the set the caller reports as dropped are derived from one another and cannot disagree.
+  const carried: Record<string, unknown> = {};
+  for (const key of VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS) {
+    const value = scalar(source[key]);
+    if (value !== undefined) carried[key] = value;
+  }
   return JSON.stringify({
-    provider: scalar(source.provider),
-    status: scalar(source.status),
-    allPass: scalar(source.allPass),
-    allPassed: scalar(source.allPassed),
-    failureKind: scalar(source.failureKind),
-    summary: scalar(source.summary),
+    ...carried,
     evidenceBound: {
       measuredBytes,
       boundBytes: VALIDATION_EVIDENCE_BOUND_BYTES,
