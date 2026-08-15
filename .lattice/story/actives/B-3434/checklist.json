@@ -53,8 +53,8 @@
       "id": "CHK-002",
       "title": "Stop the catch from turning an unreadable blob into a silent digest mismatch and surface the real cause",
       "context": "The catch currently returns null, which the caller compares against the expected digest and reports as verified metadata changed after manifest verification. Distinguish blob genuinely absent from blob could not be read, keep the fail-closed posture, and make the surfaced reason name the underlying error so the next person does not spend hours attributing it to concurrency.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-15T11:09:41.374Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
