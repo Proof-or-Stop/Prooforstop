@@ -152,18 +152,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:44:33.393Z"
+            "executedAt": "2026-08-15T14:30:22.045Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -171,18 +171,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:44:45.056Z"
+            "executedAt": "2026-08-15T14:30:33.504Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -190,18 +190,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:44:56.735Z"
+            "executedAt": "2026-08-15T14:30:44.964Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -209,18 +209,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:45:08.339Z"
+            "executedAt": "2026-08-15T14:30:56.413Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -228,18 +228,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:2 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:45:20.039Z"
+            "executedAt": "2026-08-15T14:31:07.861Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -247,18 +247,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:45:31.700Z"
+            "executedAt": "2026-08-15T14:31:19.309Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -266,18 +266,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:45:43.274Z"
+            "executedAt": "2026-08-15T14:31:30.755Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -285,18 +285,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:2 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:45:54.962Z"
+            "executedAt": "2026-08-15T14:31:42.203Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -304,18 +304,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:3 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:06.589Z"
+            "executedAt": "2026-08-15T14:31:53.653Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:4",
@@ -323,18 +323,18 @@
           "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:4 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8fc87b908ba13288b1f7e35403751785be6d4b2006137fb5adbe325ac8a5ff1",
             "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, and wraps rm+tsc+write at every call site\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:18.252Z"
+            "executedAt": "2026-08-15T14:32:05.110Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         }
       ]
     },
@@ -508,18 +508,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:18.595Z"
+            "executedAt": "2026-08-15T14:32:05.312Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -527,18 +527,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:18.904Z"
+            "executedAt": "2026-08-15T14:32:05.505Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -546,18 +546,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:2 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:19.232Z"
+            "executedAt": "2026-08-15T14:32:05.696Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -565,18 +565,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:19.539Z"
+            "executedAt": "2026-08-15T14:32:05.911Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -584,18 +584,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:19.830Z"
+            "executedAt": "2026-08-15T14:32:06.097Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -603,18 +603,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:2 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:20.162Z"
+            "executedAt": "2026-08-15T14:32:06.286Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -622,18 +622,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:3 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:20.473Z"
+            "executedAt": "2026-08-15T14:32:06.477Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
@@ -641,18 +641,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:4 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:20.769Z"
+            "executedAt": "2026-08-15T14:32:06.667Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -660,18 +660,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:0 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:21.109Z"
+            "executedAt": "2026-08-15T14:32:06.858Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -679,18 +679,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:1 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:21.434Z"
+            "executedAt": "2026-08-15T14:32:07.051Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -698,18 +698,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:2 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:21.783Z"
+            "executedAt": "2026-08-15T14:32:07.239Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:3",
@@ -717,18 +717,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:3 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:22.134Z"
+            "executedAt": "2026-08-15T14:32:07.426Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:4",
@@ -736,18 +736,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:4 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:22.448Z"
+            "executedAt": "2026-08-15T14:32:07.614Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         },
         {
           "intentRef": "CHK-002:adversarial:5",
@@ -755,18 +755,18 @@
           "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
           "result": "pass",
           "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:5 only when its real assertion holds.",
+          "headHash": "d0d81a8f7b4697f0573138236c6aabddf15b8206",
+          "materialHash": "78bdb0e695e12e86a96a3ab35c385e13c4bc7f89b31e2dd442151c140bcbc7c4",
+          "storyFilesHash": "25d16a2b19e87db26ab7ddcbc3e28573781c55dc7ee4393848f52a015cdc5d12",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "82f7483430f9f801187062ac13b9847bf4186aa021bed4398ee6e80a2aae40ad",
             "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:46:22.782Z"
+            "executedAt": "2026-08-15T14:32:07.807Z"
           },
-          "headHash": "7e7485684c84f5c29ad2a156d9d977d5b56d282b",
-          "materialHash": "48c26d174422d0f9d28f50d52c266f761988fd3cc6e9b315351debd644608c2c",
-          "storyFilesHash": "cbb472ce334d8c80f2f117a0fa7174522aca7dc03fe40e4df613fb5077779f34",
-          "timestamp": "2026-08-15T12:46:23.033Z"
+          "timestamp": "2026-08-15T14:32:07.819Z"
         }
       ]
     }
