@@ -29,6 +29,28 @@
       "_hash": "c8166e771a63158ad32675d09efa1d1c7ee4f25abf3b799c444142a7adbc3166",
       "signatureTag": "missing|unknown|scripts-build-lock",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1734:F-003",
+      "desc": "Coverage gap, live-reproduced: CHK-001:adversarial:0 and CHK-002:edge:3 only prove mutual exclusion among the 3 designated build call sites and a read-only re-verify at a static HEAD (packages/main/tests/red/red-1734-lock-liveness.mjs:120-145 tests two withBuildLock holders on a synthetic key; packages/main/tests/red/red-1734-content-binding.mjs:151-161 CHK-002:edge:3 only calls verifyBuildBinding 3x sequentially with no source change, so no rmSync ever fires). Neither intent nor evidence covers non-participating readers of packages/main/dist -- e.g. bin/bootstrap-runner.js:56-62 (used by every bin/lattice.js invocation) does a naive existsSync(MAIN_DIST) check then import(MAIN_DIST) with NO withBuildLock/verifyBuildBinding call, and packages/main/tests/milestone-status.test.mjs:16-31 imports dist/*.js directly the same way. I live-reproduced this in the B-1734 worktree: touching packages/main/src/claude-md-sync.ts to force a real rebuild, then racing 100+ real child-process imports of packages/main/dist/cli-engine.js (same pattern as bootstrap-runner.js) against `npm --prefix packages/main run build` (which does rmSync(dist) at scripts/build-main-with-binding.mjs:29 inside the lock, per source order already covered by adversarial:3) produced a 100% MODULE_NOT_FOUND failure rate for the whole rm-to-tsc-completion window (0 OK / 20+ FAIL logs, e.g. Cannot find module .../packages/main/dist/cli-engine.js). This exactly matches a MODULE_NOT_FOUND I independently observed mid-review in a live `lattice validate` run in this same worktree (validate.commands[1]: milestone-status.test.mjs failed with ERR_MODULE_NOT_FOUND for dist/registry.js imported from dist/cli-engine.js, immediately after validate.commands[0] npm run build had already reported success). This directly contradicts the CHK-001 userSees claim (\"no build is aborted mid-run by another process\") and the CHK-002 userSees claim (\"never a TS2307 / MODULE_NOT_FOUND from a stale, partial, or orphaned dist\") for the realistic usage pattern of this exact codebase, where bin/lattice.js and ~90+ in-repo test/task scripts read dist without participating in the lock/binding protocol. No verificationIntent (happy/edge/adversarial) on either checklist item asks for or is evidenced against this non-participating-reader-vs-real-rebuild race, so the 24/24 intent-to-evidence mapping is complete but the intent set itself has an undisclosed scope gap relative to the userSees acceptance text. Worktree was fully restored (git checkout of the mutation, clean rebuild, both bindings re-verified, both RED suites re-passed) before filing this finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:07:26.556Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-002",
+      "_hash": "25f559b8e099d712d4a2108d1c3cbb9f8359241ffa5ed04b50ad753177f5cbae",
+      "files": [
+        "bin/bootstrap-runner.js",
+        "packages/main/tests/milestone-status.test.mjs",
+        "packages/main/tests/red/red-1734-lock-liveness.mjs",
+        "packages/main/tests/red/red-1734-content-binding.mjs",
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "signatureTag": "missing|js|coverage-live-reproduced",
+      "signatureTagSource": "auto"
     }
   ]
 }
