@@ -74,7 +74,31 @@
       "context": "The regression must fail on the pre-fix tree. Stage a blob above 1048576 bytes, drive the same commit path, and assert success; a fixture below the limit proves nothing because that is exactly the size at which the defect is invisible.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A committed test file exists that stages a blob larger than 1,048,576 bytes in a temp repo, drives the commitImmutableMetadataTree path, and asserts result.ok === true with a valid commitSha; WHY: the regression test exercises the exact failure class -- a large blob through the isolated commit path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The fixture blob is generated at a size strictly above 1,048,576 bytes, not at 1,000,000 or any round number below the Node maxBuffer default; WHY: a fixture below the limit passes on the UNFIXED tree and proves nothing -- this is exactly why the defect survived undetected",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The regression test fails when run without the maxBuffer fix (demonstrated by running against the pre-fix tree or by temporarily reverting the maxBuffer additions in isolatedBlobHash and treeBlobHash); WHY: a test that passes on both the fixed and unfixed tree is a tautology, not a regression test -- the plan explicitly requires RED-before-GREEN evidence",
+            "type": "cli"
+          },
+          {
+            "desc": "The fixture blob is a deterministic byte sequence whose on-disk size cannot be reduced below 1,048,576 by any gitattributes filter, delta compression, or encoding normalization; WHY: if the fixture content can be shrunk by any transform in the pipeline, the test silently stops exercising the failure path",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
