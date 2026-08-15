@@ -589,6 +589,32 @@
         "scanEscalationReason": null
       },
       "_hash": "8a89d80763acc2c0dc3b72e2bad73ee1fe8203ca1eb32c94e57c70164959bc02"
+    },
+    {
+      "id": "B-a7c5:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 rebinding-only review. Since round 7 (clean pass, all 3 lanes) exactly one commit landed: d3baf12167, a single-line docs/help-text fix in packages/main/src/cli/command-catalog.ts correcting the dev_memory_finish_decision --help description string to reflect the already-shipped CHK-003 DONE-gate behavior. Verified via git show: 1 file changed, 1 insertion(+), 1 deletion(-); no functional/logic code touched, no gate functions touched, no test files touched, no checklist file targets reference command-catalog.ts as a functional target. Confirmed dev-memory-lifecycle-gates-smoke.ts CHK-003 assertions test the guard programmatically via missing_dev_memory_finish_decision tag/reason, not the --help string, so coverage is unaffected. Read background.md, plan.md, checklist.json (all 7 items status=done with full happy/edge/adversarial verificationIntent). Round 7 verificationIntent-to-verificationEvidence coverage conclusion stands unchanged. No blocker.",
+      "createdAt": "2026-08-15T15:50:05.097Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-024",
+      "envelopeId": "a90c84a30e0ee76700833c6259971ec6710fd983a144524ade9981b3d553633c",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "5dbe5dab18d21624e61d570a0c5ce6adaac4dd8a5f0952afc9071997e4f3bd95"
     }
   ]
 }
