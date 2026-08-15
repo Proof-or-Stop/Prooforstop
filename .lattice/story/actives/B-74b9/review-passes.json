@@ -232,6 +232,43 @@
         "scanEscalationReason": null
       },
       "_hash": "68fe8f13c1a0f050e935871b20bfa4fae7f7ff18c784771fd3ed6f2b4601fc6b"
+    },
+    {
+      "id": "B-74b9:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-confirmation pass: verified via git diff main...HEAD --stat and git diff a93476fd6f..HEAD --stat -- packages/main/src packages/main/tests lattice.config.json that zero code/test/config lines have changed since commit a93476fd6f, which this same lane already reviewed clean (RP-004, RR-005). Independently re-read the full git diff main...HEAD -- packages/main/src packages/main/tests lattice.config.json: all changes are additive (2 new stub write() calls in proofstory-acceptance-basis-smoke.ts, a readManifest object added to 6 pre-existing review_pass_set calls in field-regression-cli-smoke.ts, a new writeVersionSyncFiles helper + its invocation in worktree-authority-smoke.ts, 1 new validate.commands array entry, 3 new RED scripts under tests/red/, 14 new REGISTRATION_EXCLUSIONS lines in red-b49d4-harness-registration.mjs). The only removed lines (4, all in worktree-authority-smoke.ts) are 2-argument extensions to pre-existing git add/git commit calls, not concept deletion. No concept word was deleted or mass-replaced anywhere in this diff; no residue grep required. Only .lattice/ story metadata and dev-memory changed since the prior pass at this lane.",
+      "createdAt": "2026-08-15T23:41:27.581Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-009",
+      "envelopeId": "9702fd542194745947ecd89eaab7c03d258db1db399121c05922b91ba4876124",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/dev-memory/finish-decisions/B-74b9.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          ".lattice/story/actives/B-74b9/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d2d77621a201d8cace7d359f0c9068c6e6eac955769ba35a2b2d251c6f743efa"
     }
   ]
 }
