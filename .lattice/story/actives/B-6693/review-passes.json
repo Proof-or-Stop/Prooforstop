@@ -522,6 +522,33 @@
       },
       "readDiagnostics": [],
       "_hash": "52119460995d222f7afbe79f3dd07d463ba5fef8a15d8e454aff07eb3376555a"
+    },
+    {
+      "id": "B-6693:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality PASS for d6529bdfc8. F-017 is fixed by re-auditing and repinning cli-engine.ts to the current canonical AST digest while preserving the exact runCli/initPath/import call-shape allowlist and all relocation, producer-mutation, nested-anchor, loader-replacement, and unrelated non-literal fail-closed controls; the original retired-authority-vocabulary-guard command exits 0. F-018 is fixed by making only the semantic-failure fixture Git-backed, so the configured exit-5 validator is reached and still yields the exact Cannot enter TEST: lattice validate did not pass contract, FAIL evidence, and actor-stop ownership; the original review-pass-discard command exits 0 including flow stability. Build and focused capacity 15-group proof pass. Managed checklist reports 29/29 passing evidence rows (9+8+9+3), and verification_evidence_refresh_stale dry-run reports no stale evidence. No blocker found.",
+      "createdAt": "2026-08-15T21:48:18.565Z",
+      "reviewRound": "2026-08-15T21:03:08.116Z",
+      "reviewRunId": "B-6693:RR-032",
+      "envelopeId": "7330d7e3a4034dd72a38e2cdc7305751eb9c9c30d152b3b63ca209045d3c7b37",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8ad63d69ca7bb15da2c22688208ef68e5dfe3e7abfd941877570a384d7475fd"
     }
   ]
 }
