@@ -204,10 +204,12 @@
       "q": "Does CHK-004's outcome-A bounding (adding a truncation/cap marker or entry-count cap to test-evidence.json's serialization) require registering a new/changed process fact in packages/main/src/core/process-fact-registry.ts and scripts/verify-process-fact-contract.mjs, per testing-infra.md's process-fact discipline -- or does it fall under the already-registered test-evidence.json artifact and need no additional registration? Neither CHK-004 nor scope-contract.json's allowedModify list names process-fact-registry.ts or verify-process-fact-contract.mjs.",
       "evidence": "testing-infra.md: 'The validation-related process facts must be registered in packages/main/src/core/process-fact-registry.ts: ... test-evidence.json is the routine validation-result artifact consumed by TEST/DONE ... scripts/verify-process-fact-contract.mjs is responsible for validating that these registry facts are consistent with COMMAND_POLICIES, PROCESS_FACT_LEVELS, DEFAULT_PHASE_TOOLS, reviewer lanes, and signed artifacts.' Same discipline restated in done-full-test-gate-execution-plan.md's 'Process Fact Contract' section for a sibling artifact (done-required-evidence.json).",
       "sourcePointers": [
-        "docs/requirements/decisions/testing-infra.md:59-64",
-        "docs/requirements/decisions/done-full-test-gate-execution-plan.md:158-166",
-        ".lattice/story/actives/B-3434/scope-contract.json (allowedModify list)"
-      ]
+        "docs/requirements/decisions/testing-infra.md",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "resolution": "Resolved by scoping CHK-004's outcome-A narrowly. If bounding ships, it bounds only what handlers/verifier.ts serialises into the evidence artifact; it does not introduce, rename or reclassify any process fact, so the process-fact registration discipline in docs/requirements/decisions/testing-infra.md is not engaged and core/process-fact-registry.ts and scripts/verify-process-fact-contract.mjs stay outside allowedModify as recorded. If an implementer finds that bounding cannot be done without touching a process fact, that is a genuine scope expansion and must be raised via scope_contract_acknowledge rather than absorbed silently, because the registration contracts are bidirectional and a false class claim there is worse than a wider diff. The advisory in CHK-005 is emitted output, not a persisted fact, so it is unaffected either way.",
+      "resolvedAt": "2026-08-15T10:48:38.700Z"
     }
   ]
 }
