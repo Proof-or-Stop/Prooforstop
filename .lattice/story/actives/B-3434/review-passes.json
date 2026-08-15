@@ -1,0 +1,24 @@
+{
+  "passes": [
+    {
+      "id": "B-3434:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "Verified all 6 attack points by running real fixtures, not just reading. (1) Built pre-fix tree in a detached git worktree at RED commit ec18da8da6 (symlinked packages/main and root node_modules to the shared repo node_modules; tsc emits despite unrelated 'ws' type errors since noEmitOnError is unset), confirmed the emitted dist/core/done-prepare-generated-metadata.js still has the bare execFileSync-no-maxBuffer + catch{return null}, and ran the committed RED test against it: 6 of 8 sections genuinely FAIL, including the 1,400,000-byte commit section reporting the exact misleading reason \"verified metadata changed after manifest verification\" -- reproducing the incident transcript verbatim. Cleaned up the scratch worktree afterward (git worktree remove). (2) Ran both commands from the brief against the fixed tree: red-b3434-blob-buffer-ceiling.mjs -> PASS (8/8 sections); validation-evidence-buffer-smoke.js -> PASS (7/7 sections). (3) Traced both call sites of isolatedBlobHash/treeBlobHash: both flow only through verifyMetadataBlobDigests -> classifyMetadataBlobDigestComparison, which returns read.kind (absent/unreadable) before ever touching the expected digest -- structurally impossible to report match on a failed read. RED section 6 sweeps expected over 4 values including undefined and gets unreadable/absent every time. (4) Confirmed by grep that the literal string \"verified metadata changed after manifest verification\" is preserved verbatim for genuine digest mismatches in both the isolated-index and isolated-tree comparison branches (not deleted), while unreadable/absent get their own distinct sentences (\"verified metadata could not be read from the...\" / \"verified metadata is absent from the...\"); RED sections 7-8 confirm behaviourally. (5) Independently reproduced the ENOBUFS/empty-truthy-stderr-Buffer claim with two standalone probes outside the test suite: a synthetic oversized child process AND a real \"git show\" on an oversized blob with a tiny maxBuffer (matching the exact execFileSync call shape used in the module) -- both confirm err.code equals ENOBUFS, err.stderr is an empty but truthy Buffer (length 0), and the naive stderr-or-stdout-or-message idiom renders an empty string. Ran describeChildProcessFailure's logic verbatim against the real error object and confirmed it correctly renders \"ENOBUFS: <content>\" by filtering empty candidates before selecting. Also independently confirmed via two more real-git probes that the absent-vs-unreadable regex patterns match real git stderr output verbatim, and that a normal nonzero git exit leaves err.code undefined (so it is never misclassified as absent through the nodeLevelFailure gate) while ENOBUFS always sets err.code so it can never be misclassified as absent. (6) Confirmed via the smoke test's own assertions (which I executed, not just read) that a 100-command/12,000-char artifact (measured 1,212,174 bytes) classifies within_budget, bounded=false, output equals JSON.stringify(result) byte-for-byte, and formatValidationEvidenceAdvisory returns null -- today's repository shape is provably a no-op. No fail-open path found anywhere in the diff; no blocking findings.",
+      "createdAt": "2026-08-15T11:20:00.309Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-001",
+      "envelopeId": "88802df327fc5212b5c5ed3846f8eff284e49dfe840133b307df64395728d699",
+      "writerSessionId": "sess-506efb3c29b8d24af74d5564d79ed07a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "67555143c86eaaf289cb98053314f367a0299a856f0616ac227c795d1c1b9228"
+    }
+  ]
+}
