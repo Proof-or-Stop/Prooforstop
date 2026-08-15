@@ -3632,7 +3632,7 @@
       "desc": "packages/main/src/core/pre-review-check.ts:387-424 and .lattice/story/actives/B-3f3d/pre-review-check.json — HIGH distinct verifier-owned pre-review authority gap beyond baseline F051/F052. On the unchanged RI-011 cutoff, two independent `pre_review_check_read` calls deterministically return `PR_ARTIFACT_TAMPERED`; the stored signed artifact is itself status=inconclusive with zero executable command digests/binding proofs and codes for missing production, mutation, transcript, and authority evidence. This is separate from H3 checklist receipt freshness: acceptance_rollout_report_read is current full-3x2, but the required pre_review_check_read surface cannot authenticate its own stored artifact or demonstrate executable proof. Reissue pre_review_check from current authoritative basis with real positive/mutation/control/transcript proof, then require a read-only PASS without PR_ARTIFACT_TAMPERED before treating pre-review coverage as current.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T01:50:22.170Z",
@@ -3710,7 +3710,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "pre-review-artifact-tampered-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit dbdfe4d distinguishes signed partial-basis diagnostics from actual artifact tamper; immediate pre_review_check_read is inconclusive/nonblocking without PR_ARTIFACT_TAMPERED, while tamper controls remain biting.",
+      "resolvedAt": "2026-08-15T02:36:37.186Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
