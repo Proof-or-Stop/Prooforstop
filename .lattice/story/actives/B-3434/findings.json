@@ -372,6 +372,24 @@
       "_hash": "9f626d3bf1b7406f11723a066262d0189db9c11c13c5b49519dfc8bbaf76dfc6",
       "signatureTag": "missing|unknown|codex-host-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-018",
+      "desc": "F-015 is NOT fixed by e1afeb346a despite the commit message (\"make the reducer total\") and the new doc comment at validation-executor.ts:608-609 (\"Total by construction... yields the bounded fallback or a refusal rather than an exception\"). boundPersistedValidationEvidence (lines 611-677) still throws uncaught for a throwing getter/proxy on one of the six VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS. Root cause: the fallback call at line 666, `args.buildRecord(verdictOnlyRecord(args.result, measuredBytes))`, sits OUTSIDE the try block that ends at line 664 - unlike the two earlier buildRecord calls (642, 655) which are inside it. verdictOnlyRecord (517-537) reads `record[key]` directly for provider/status/allPass/allPassed/failureKind/summary with no try/catch of its own, so a getter that throws when accessed propagates straight out of boundPersistedValidationEvidence. Reproduced against the shipped dist build (node dist/core/validation-executor.js) with a minimal fixture: `{provider:\"p\",status:\"pass\",allPass:true,commands:[],details:[],warnings:[], get summary(){throw new Error(\"summary getter always throws\")}}` passed to boundPersistedValidationEvidence({result, buildRecord}) throws uncaught, stack: `at get summary ... at verdictOnlyRecord (validation-executor.js:415:36) at boundPersistedValidationEvidence (validation-executor.js:528:45)`. The existing smoke (section 9, validation-evidence-buffer-smoke.ts) does not catch this because its throwing-getter fixture only throws on the 3rd+ read and the fixture is small enough that the FIRST reduction attempt succeeds without ever reaching the fallback branch at line 666, so PASS there does not exercise this call site. By contrast, positive verification: F-014 IS fixed - drove the real StoryStore.writeTestEvidence (not the measurement helper) against a scratch project root with a quote-heavy 1100-command fixture (20,594,242-byte inner JSON): bound.fileBytes (22,631,408) matched the real on-disk file size exactly, stayed under the 25,165,824-byte bound and 33,554,432-byte ceiling; the reuse path (reusedStoryValidationResult in verifier.ts) is also now wired through boundPersistedValidationEvidence. Recommendation: wrap the line-666 fallback build+measure (and the args.buildRecord(...) call itself, since a throwing buildRecord closure hits the same gap) in the same try/catch as the staged-reduction attempt, falling through to the refused disposition already used for the fileBytes===null case, rather than letting the exception escape the function.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-15T13:24:58.494Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-015",
+      "_hash": "e4675a780f90e06e8f6a913082e73ab966e46f00c2419467ca68980b2d4354b6",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "adversarial|ts|fixed-e1afeb346a-despite",
+      "signatureTagSource": "auto"
     }
   ]
 }
