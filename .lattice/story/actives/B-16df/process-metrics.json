@@ -1,11 +1,11 @@
 {
   "storyId": "B-16df",
-  "generatedAt": "2026-08-15T10:26:30.072Z",
+  "generatedAt": "2026-08-15T10:29:09.886Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
-    "checklistItems": 3,
+    "checklistItems": 4,
     "reviewRounds": 5,
     "findings": 9,
     "bugs": 0,
@@ -107,7 +107,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -183,7 +183,7 @@
     },
     "planning": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -201,7 +201,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 1,
+          "value": 0.75,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -218,7 +218,7 @@
           ]
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
