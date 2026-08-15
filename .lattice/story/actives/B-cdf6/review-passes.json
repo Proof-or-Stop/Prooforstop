@@ -859,6 +859,26 @@
         "scanEscalationReason": null
       },
       "_hash": "c997c7cf1df31191df4bfe84e50f3f1d279441d8b9ca555f4017409ead72f142"
+    },
+    {
+      "id": "B-cdf6:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind at head 2ededfa. Incremental context shows exactly 1 changed file since prior pass RP-026: unlock-layer3-real-execution-udm-baseline.md. Verified commit 160b3dfc8a directly: single-line prose fix normalizing a stale lattice validate reference, sibling frozen file correctly left untouched. No source/tests/config changed, no dead code/type-safety/IO issues introduced. No blocker.",
+      "createdAt": "2026-08-15T18:42:36.786Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-088",
+      "envelopeId": "7a55747d67aff949bc991539a5c4304ce98367997e8c535e5ae7c7c3fb4980ba",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "973a1e71f0f772acaf42104b15505acd6844b3766716fe571a1fdbdef657a760"
     }
   ]
 }
