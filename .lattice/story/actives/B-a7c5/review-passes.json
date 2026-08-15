@@ -405,6 +405,56 @@
         "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
       },
       "_hash": "8e6ccce94b3bd64c45fb32323742cb2ec93d35f4e4cab1d13ab5754b2c2704f2"
+    },
+    {
+      "id": "B-a7c5:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 concept review: verified F-008 fix (bd37ddd3d6) that satisfies the CHK-001 dev-memory preflight ack in both proofstory-intent-hardening-smoke.ts fixture builders before the DEV-transition assertion, restoring the ProofStory-specific gate message the fixture exists to test. Confirmed via git diff that only this 19-line addition landed since round 5 (no other source drift), confirmed the fix's call-site coverage is complete (the only story_advance->DEV call site in the file is inside assertDevAdmissionBlocked, reached only via the two ack'd builders; other writeStory calls in the file test unrelated gates that never transition to DEV), confirmed DevMemoryPreflightAckData/store method shape match exactly, and confirmed evaluateDevMemoryPreflightGate really does run before proofStoryDevGateFailure at all relevant call sites in core/machine.ts. Independently re-ran proofstory-intent-hardening-smoke.js and dev-memory-lifecycle-gates-smoke.js (79/79) in an isolated hardlink snapshot (race-free, immune to the shared worktree's concurrent sibling-reviewer rebuild races observed live during this round) after a clean build -- both pass. All 7 checklist items are done and all 8 prior findings (F-001..F-008) are resolved. Read the CHK-005/CHK-006/CHK-007 doc reconciliations (playbook-runtime-memory-consumption-execution-plan.md S4.3 + M8, dev-memory.md Non-Goals annotation) and they are precise and consistent with the shipped code. No concept residue, dead code, or duplicate logic found in the fix commit or its surrounding area. No blocker.",
+      "createdAt": "2026-08-15T13:28:16.952Z",
+      "reviewRound": "2026-08-15T13:11:28.330Z",
+      "reviewRunId": "B-a7c5:RR-018",
+      "envelopeId": "06e42697ee75e15c69082cfdb512726b14eec8079a2858840a00c49a2b95563e",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "0652e740594750b5e270f3b10159e861e9562a574d31adc2f7239c3adb7faaf4",
+        "corpusDigest": "bffc48bcca12bbb4f5269fab26913e574d5b327b58ae94c095dee911fbf85b69"
+      },
+      "_hash": "a36e0f4fc0ec1e27c9697ab317f504f83d5e392c387f6c3dcec1c7d6722e824b"
     }
   ]
 }
