@@ -718,6 +718,35 @@
         "scanEscalationReason": null
       },
       "_hash": "91af51fcd9d47c34e8240a88e13eae4ccd0aa0e170e2dd3d79e6ff019a96aa0a"
+    },
+    {
+      "id": "B-6693:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 quality PASS. F-019 is closed by synchronizing the exact c38c840... cli-engine canonical AST fingerprint into verify-process-fact-contract while retaining the full required token/control inventory; node scripts/verify-process-fact-contract.mjs exits 0 and verifies 446 registry entries. The two original failures both exit 0: retired-authority-vocabulary-guard preserves relocation, path-producer, nested-anchor, loader-replacement, and unrelated dynamic-import fail-closed controls; review-pass-discard includes flow-stability and proves the Git-backed exit-5 fixture reaches the intended Cannot enter TEST: lattice validate did not pass path. Build, focused capacity 15, full lock 26, and protected inventory diff pass. Managed checklist remains 29/29 passing evidence (9+8+9+3), and stale-evidence dry-run reports none. No blocking quality issue found.",
+      "createdAt": "2026-08-15T22:29:07.783Z",
+      "reviewRound": "2026-08-15T22:23:11.894Z",
+      "reviewRunId": "B-6693:RR-036",
+      "envelopeId": "5029ff5bd29858e1be155b91769952ae3ece0547361def9c4db3fde6873f133e",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e928a34273b67b08c4731ae88957e07f3ac4fe1234cd698b748f5df172e11c5e"
     }
   ]
 }
