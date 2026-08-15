@@ -270,8 +270,16 @@ export function formatValidationEvidenceAdvisory(persisted: PersistedValidationE
 }
 
 /**
- * The fields the last-resort record carries. Every one is coerced to a short scalar, so the record
- * has a computable size ceiling in the low hundreds of bytes whatever arrives.
+ * The fields the last-resort record carries. Every one is coerced to a short scalar by
+ * safeScalarRead, so the record's size is a function of THIS LIST and that cap rather than of the
+ * input.
+ *
+ * No byte figure is stated here. The figure that used to be - "low hundreds of bytes" - was picked
+ * by hand and was wrong by an order of magnitude: four of these keys are string-capable, the cap is
+ * 200 UTF-16 units, and a 4-byte character costs 4 bytes each, which puts the packed worst case in
+ * the low thousands. The verdict_only section of tasks/validation-evidence-buffer-smoke.ts measures
+ * the realised size on every run and asserts the ceiling it actually meets, so the number lives
+ * where it is checked rather than where it is only read.
  */
 const VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS = [
   'provider',
@@ -526,11 +534,12 @@ function safeScalarRead(source: Record<string, unknown>, key: string): unknown {
 /**
  * The last-resort output field, sized by construction rather than by the input.
  *
- * Every value passes a cap and every read is defensive, so this cannot throw and its serialised
- * length has a computable ceiling in the low hundreds of bytes whatever arrives. It satisfies the
- * consumer contract that matters at the phase gate: valid JSON carrying allPass / allPassed /
- * status, which is what outputPassState in core/validation-evidence-admissibility.ts parses. And it
- * names itself a replacement, so a reader is never left thinking it is the whole evidence.
+ * Every value passes a cap and every read is defensive, so this cannot throw, and its serialised
+ * length is a function of the key list above and that cap rather than of the input. The size itself
+ * is measured by the smoke rather than restated here. It satisfies the consumer contract that
+ * matters at the phase gate: valid JSON carrying allPass / allPassed / status, which is what
+ * outputPassState in core/validation-evidence-admissibility.ts parses. And it names itself a
+ * replacement, so a reader is never left thinking it is the whole evidence.
  */
 function verdictOnlyRecord(source: unknown, measuredBytes: number): string {
   const record = source && typeof source === 'object' ? source as Record<string, unknown> : {};
@@ -580,6 +589,21 @@ function safeJsonStringify(value: unknown, indent?: number): string | null {
   }
 }
 
+/**
+ * JSON.parse that cannot throw, guarded the same way safeJsonStringify is.
+ *
+ * The result is wrapped rather than returned bare because `null` is a legitimate parse of the text
+ * "null", and a bare null would make a successful parse indistinguishable from a failed one - the
+ * same conflation that would let a failure be treated as a value.
+ */
+function safeJsonParse(text: string): { value: unknown } | null {
+  try {
+    return { value: JSON.parse(text) };
+  } catch {
+    return null;
+  }
+}
+
 /** How the persisted record was brought under the bound, if it had to be. */
 export type PersistedValidationEvidenceDisposition =
   | 'unmodified'
@@ -588,9 +612,20 @@ export type PersistedValidationEvidenceDisposition =
   | 'refused';
 
 export interface PersistedValidationEvidenceBound<T = unknown> {
-  /** The record to persist. Identical to the caller record unless `output` had to be replaced. */
-  record: T;
-  /** Measured byte length of the FILE StoryStore will write, escaping and outer fields included. */
+  /**
+   * The record to persist, as plain JSON data: JSON.parse of the very serialisation fileBytes
+   * counts, not the object buildRecord returned. Its `output` field carries the caller value unless
+   * it had to be replaced.
+   *
+   * Null when no record could be built or measured. Every null record is reported with
+   * withinBound false and disposition 'refused', so a caller that checks withinBound before writing
+   * is checking this too - and the type says so, rather than a comment saying so.
+   */
+  record: T | null;
+  /**
+   * Byte length of `record` serialised in StoryStore's file format. This number and `record` are
+   * two views of ONE stringify: the bytes were counted, then parsed back to produce the value.
+   */
   fileBytes: number;
   /** The postcondition, derived from fileBytes. False means: do not write this. */
   withinBound: boolean;
@@ -601,8 +636,16 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
 }
 
 /**
- * StoryStore.writeJson serialises with `JSON.stringify(data, null, 2) + '\n'`. The bound is a
- * property of the bytes that reach disk, so the measurement has to reproduce that exactly.
+ * StoryStore.writeJson serialises with `JSON.stringify(data, null, 2) + '\n'`. This applies that
+ * same FORMAT to whatever it is handed, and returns null instead of throwing when the value cannot
+ * be serialised.
+ *
+ * It measures the value AS GIVEN, at the moment it is given. It does not follow that value to disk,
+ * and it cannot speak for a later stringify of a value that answers differently the second time - a
+ * `toJSON` that returns something small now and something large later defeats any single reading of
+ * it. Nothing here fixes that; boundPersistedValidationEvidence settles it by returning parsed plain
+ * data instead of the object it measured, so what a writer later serialises has no second opinion to
+ * give.
  *
  * This duplicates a format owned by core/store.ts, which is outside this story's allowed scope. The
  * coupling is real and is the weak point of this design: if store.ts changes its serialisation, this
@@ -612,6 +655,35 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
 export function measurePersistedEvidenceBytes(record: unknown): number | null {
   const serialized = safeJsonStringify(record, 2);
   return serialized === null ? null : Buffer.byteLength(`${serialized}\n`, 'utf8');
+}
+
+/**
+ * Serialise once, count those bytes, and hand back a parse of the same text.
+ *
+ * The reason it is done in this order: a record is built by a caller-supplied closure over
+ * caller-supplied data, so any node of it may be a getter, a Proxy or a `toJSON` - values that are
+ * free to answer differently on each call. Measuring such an object and then returning IT means the
+ * number describes one reading and the writer performs another. Parsing the measured text collapses
+ * the two: what comes back holds strings, numbers, booleans, null, arrays and plain objects and
+ * nothing else, and `bytes` is the length of the text it was parsed from.
+ *
+ * core/store.ts is out of this story's scope and cannot be taught to write pre-serialised bytes, so
+ * the stability has to come from the VALUE rather than from the writer.
+ *
+ * Returns null if either step fails, which the caller treats as "no record", never as a small one.
+ */
+function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | null {
+  const measured = safeJsonStringify(record, 2);
+  if (measured === null) return null;
+  const parsed = safeJsonParse(measured);
+  if (parsed === null) return null;
+  // Re-serialised from the parsed copy rather than reusing `measured`: the returned value is what a
+  // writer will stringify, so the count comes from stringifying that same value. For plain data the
+  // two texts are identical; where they could differ, this is the one that describes the record
+  // being handed back.
+  const settled = safeJsonStringify(parsed.value, 2);
+  if (settled === null) return null;
+  return { record: parsed.value as T, bytes: Buffer.byteLength(`${settled}\n`, 'utf8') };
 }
 
 /**
@@ -630,12 +702,18 @@ export function measurePersistedEvidenceBytes(record: unknown): number | null {
  *   reduced / unmodified - the record fits; write it.
  *   verdict_only         - reduction could not fit an OBJECT result, so the output field is
  *                          replaced by a record sized by construction.
- *   refused              - it still does not fit, or the input had no structure to reduce. The
- *                          caller must not write this; withinBound is false and says so.
+ *   refused              - it still does not fit, the input had no structure to reduce, or no
+ *                          record could be built or measured at all. The caller must not write
+ *                          this; withinBound is false, `record` may be null, and both say so.
  *
- * Total by construction: every serialisation goes through safeJsonStringify and every read of
- * caller data through safeScalarRead, so a cyclic, BigInt or throwing-accessor input yields a
- * bounded record or an honest refusal rather than an exception.
+ * Total by construction: every serialisation goes through safeJsonStringify, every parse through
+ * safeJsonParse, and every read of caller data through safeScalarRead, so a cyclic, BigInt or
+ * throwing-accessor input yields a bounded record or an honest refusal rather than an exception.
+ *
+ * Every record it hands back has been through snapshotPersistedRecord, on all four dispositions
+ * including the refusal - one path returning a live object and the others returning plain data
+ * would rebuild, in miniature, the split between the measured value and the written one that this
+ * function exists to close.
  */
 export function boundPersistedValidationEvidence<T>(args: {
   result: unknown;
@@ -644,24 +722,41 @@ export function boundPersistedValidationEvidence<T>(args: {
   const serializedResult = safeJsonStringify(args.result);
   const measuredBytes = Buffer.byteLength(serializedResult ?? 'null', 'utf8');
   const finish = (
-    record: T,
+    record: T | null,
     fileBytes: number,
     disposition: PersistedValidationEvidenceDisposition,
     sizing: ValidationEvidenceSizing | null,
-  ): PersistedValidationEvidenceBound<T> => ({
-    record,
-    fileBytes,
-    withinBound: fileBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
-    disposition,
-    state: classifyValidationEvidenceSize(fileBytes),
-    sizing,
-  });
-  const measureWith = (output: string): { record: T; bytes: number | null } => {
+  ): PersistedValidationEvidenceBound<T> => (record === null
+    // No record is not a small record. Forcing the refusal here, at the single exit, is what lets
+    // `record: T | null` be read as "non-null implies measured": no caller has to know which of the
+    // branches below can produce a null, because none of them can produce a null that is reported
+    // as writable.
+    ? {
+      record: null,
+      fileBytes: Number.MAX_SAFE_INTEGER,
+      withinBound: false,
+      disposition: 'refused',
+      state: classifyValidationEvidenceSize(Number.MAX_SAFE_INTEGER),
+      sizing,
+    }
+    : {
+      record,
+      fileBytes,
+      withinBound: fileBytes < VALIDATION_EVIDENCE_BOUND_BYTES,
+      disposition,
+      state: classifyValidationEvidenceSize(fileBytes),
+      sizing,
+    });
+  const measureWith = (output: string): { record: T | null; bytes: number | null } => {
     try {
-      const record = args.buildRecord(output);
-      return { record, bytes: measurePersistedEvidenceBytes(record) };
+      const snapshot = snapshotPersistedRecord(args.buildRecord(output));
+      return snapshot === null ? { record: null, bytes: null } : snapshot;
     } catch {
-      return { record: args.buildRecord('') as T, bytes: null };
+      // A builder that throws produces no record at all. The previous revision manufactured one by
+      // calling the same builder again with a different argument - an unguarded call, in the one
+      // place reached only because that builder had just thrown, and two of the four call sites of
+      // this helper have no outer try to catch it. There is nothing to build from: say so.
+      return { record: null, bytes: null };
     }
   };
 
@@ -669,7 +764,13 @@ export function boundPersistedValidationEvidence<T>(args: {
   // would be an invention rather than a reduction: there are no verdict fields on a string to
   // carry, so the artifact would claim neither allPass nor status. Report it honestly instead - an
   // unreducible oversized input is refused, which is the contract the smoke has always asserted.
-  if (!args.result || typeof args.result !== 'object') {
+  //
+  // Arrays are named explicitly because `typeof [] === 'object'` puts them on the wrong side of that
+  // test. An array has no `commands`, `details` or `warnings` for the reducer to work on and no
+  // verdict fields for the fallback to carry, so it used to arrive at a verdict-only record that
+  // asserted neither allPass nor status while reporting success - the exact invention this branch
+  // refuses to perform for a string.
+  if (!args.result || typeof args.result !== 'object' || Array.isArray(args.result)) {
     const plain = measureWith(serializedResult ?? 'null');
     if (plain.bytes === null) return finish(plain.record, Number.MAX_SAFE_INTEGER, 'refused', null);
     return finish(

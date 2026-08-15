@@ -736,7 +736,10 @@ function reusedStoryValidationResult(args: {
   });
   const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
   if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
-  if (!reusedBound.withinBound) {
+  // The null test is not belt-and-braces: `record` is `T | null` precisely so that the write below
+  // is unreachable without one. A null record is always reported as refused, so this condition is
+  // the same condition twice - stated in the form the compiler can carry to the write.
+  if (!reusedBound.withinBound || reusedBound.record === null) {
     // Structured refusal, matching every sibling failure in this function. A raw throw here made
     // one condition surface differently from the identical condition in
     // persistStoryValidationEvidence, which returns a result the caller can render and classify.
@@ -947,10 +950,10 @@ function persistStoryValidationEvidence(
       try {
         // Same rule on the degraded path: gate and write the SAME computation.
         const fallbackBound = boundEvidence();
-        if (!fallbackBound.withinBound) {
+        if (!fallbackBound.withinBound || fallbackBound.record === null) {
           return persistenceFailure(
             `${reason}; non-git FAIL evidence exceeds the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound `
-            + `(file measures ${fallbackBound.fileBytes} bytes)`,
+            + `(file measures ${fallbackBound.fileBytes} bytes; disposition=${fallbackBound.disposition})`,
           );
         }
         ctx.store.writeTestEvidence(storyId, fallbackBound.record);
@@ -966,7 +969,7 @@ function persistStoryValidationEvidence(
   const persistedBound = boundEvidence(hashes);
   const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
   if (sizingAdvisory) ctx.log?.(sizingAdvisory);
-  if (!persistedBound.withinBound) {
+  if (!persistedBound.withinBound || persistedBound.record === null) {
     return persistenceFailure(
       `serialised validation evidence file could not be reduced under the `
       + `${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound (file measures ${persistedBound.fileBytes} bytes; `
