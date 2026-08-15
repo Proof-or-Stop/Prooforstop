@@ -859,6 +859,25 @@
       ],
       "signatureTag": "cleanup|ts|disclosed-cost-smoke",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-037",
+      "desc": "F-029s second-version source check (validation-evidence-buffer-smoke.ts:517-556, verifying verifier.ts:967-982) is NOT pinned to the absence of a gate/write divergence -- only to four literal substrings existing somewhere in the sliced persistStoryValidationEvidence body: !persistedBound.withinBound, persistedBound.record === null, exactly one boundEvidence(hashes), and persistedBound as the write-call variable name. I empirically reproduced this: in a scratch git worktree (never the story worktree; node_modules symlinked from the real repo, rebuilt with the packages/main tsc -p tsconfig.json), I inserted ONE ordinary line immediately after the existing gate at verifier.ts:972-977 and before the write at :981 -- `persistedBound.record.output += x.repeat(60*1024*1024);` (mutates an EXISTING typed field of TestEvidenceData; compiles clean, zero new tsc errors beyond four pre-existing unrelated ws-module errors; no `as any` needed). This reintroduces the exact F-014/F-027 shape this whole finding chain exists to close -- gate measures one artifact, write persists a different, larger one -- yet all four literal substrings the check requires remain verbatim, so every one of its assertions still passes and `validation-evidence-buffer-smoke: PASS` is unaffected. I separately confirmed (same scratch method) that the FOUR claimed mutation-catches (revert the snapshot / revert the catch / remove the array guard / reintroduce the literal gate-write split) ARE genuinely caught with the exact quoted failure messages -- this is a fifth, unclaimed mutation shape, at the verifier.ts caller level, that is not caught. Related to but distinct from the already-open F-035 (which is scoped to a hypothetical edit INSIDE validation-executor.ts, before finish() is called, and explicitly disclaims that the smokes verifier.ts-level checks, section 10b/13, would not catch it either): this finding supplies a concrete, reproduced exploit at exactly that disclaimed location -- the verifier.ts caller side, and specifically against the F-029 check that this review lane itself filed and is re-confirming this round. A source-text check that greps for names is fragile by nature and this one is not pinned to something real; recommend either (a) applying F-035s proposed finish()-shape hardening one level up so persistStoryValidationEvidence cannot obtain a writable record without re-deriving it, or (b) adding a runtime assertion (e.g. Object.freeze on record, or a re-measurement equality check immediately before writeTestEvidence) that the smoke can exercise directly rather than trusting source text.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T21:01:55.494Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-026",
+      "_hash": "dbef01b36b9b2031177c2ab1383495f2b8389b5d216a2cb72ddab27068718e52",
+      "files": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|029s-second-version",
+      "signatureTagSource": "auto"
     }
   ]
 }
