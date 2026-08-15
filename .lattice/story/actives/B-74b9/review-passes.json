@@ -103,6 +103,34 @@
         "scanEscalationReason": null
       },
       "_hash": "5e61a742f0e29cae49d308b98b6e2b17ef29c941e4f2a1a7c1f3af1a08577c97"
+    },
+    {
+      "id": "B-74b9:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Focused confirmation pass on the single new commit a93476fd6f (register 3 new RED scripts red-B-74b9-chk001/002/003 in REGISTRATION_EXCLUSIONS map). Verified via git show a93476fd6f: change is purely additive (3 new Map entries + supporting scope-contract.json widen), 0 code-concept deletions. Checked for duplicate/colliding Map keys across the full REGISTRATION_EXCLUSIONS list (none found), confirmed all 3 referenced .mjs files exist on disk and paths match exactly, and confirmed no concept word was deleted or replaced en masse anywhere in the story diff (git diff main...HEAD --stat). No concept deletion/replacement this round; no blocker.",
+      "createdAt": "2026-08-15T22:10:20.540Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-005",
+      "envelopeId": "189cafd2bc47d3a573307137c8f11c80b3e99f72a347b7ccbb067d8fbfb8adb2",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/scope-contract.json",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83750d9c5a877b7420067ad460f35dc08f12754cefa5dac91b833ee34ea4b3a8"
     }
   ]
 }
