@@ -57,10 +57,26 @@
       "phase": "DEV",
       "headHash": "9461aa8c35fda620fec9ffb0ef3f0ad79b3f3d9c",
       "materialHash": "0fe9fa9b02f2e85245d1acb53c5d102f12cd96063d329f92e017ed77a3edfad9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This story's own dogfooded CHK-003 dev_memory_finish_decision record, required by the DONE gate this story itself built. Not story-code scope but a necessary artifact of proving the gate works end-to-end on its own author story.",
+      "timestamp": "2026-08-15T11:16:45.074Z",
+      "paths": [
+        ".lattice/dev-memory/finish-decisions/B-a7c5.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/finish-decisions/B-a7c5.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f3ee077a662466254e349cfe5b0eb7e837c05974",
+      "materialHash": "dc1f2c3e20b7c326a5c094e5964f8b7506b4739effef7300c098ac544f61b066"
     }
   ],
   "createdAt": "2026-08-14T11:04:45.930Z",
-  "updatedAt": "2026-08-15T10:45:37.051Z",
+  "updatedAt": "2026-08-15T11:16:45.074Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -94,6 +110,7 @@
     "packages/main/tests/**/*.test.mjs": "packages/main/tests/**/*.test.mjs",
     "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
     "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
-    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl",
+    ".lattice/dev-memory/finish-decisions/B-a7c5.json": ".lattice/dev-memory/finish-decisions/B-a7c5.json"
   }
 }
