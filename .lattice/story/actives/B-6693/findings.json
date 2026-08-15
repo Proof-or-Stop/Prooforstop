@@ -627,7 +627,7 @@
       "desc": "packages/main/src/tasks/flow-stability-smoke.ts:3951 — verified integration contract regression: the TEST fail fixture creates a non-Git temp root, so the new B-6693 story-scoped workspace-capacity git-common-dir requirement now fails before the configured node -e process.exit(5) validator runs. Repro: node packages/main/dist/tasks/review-pass-discard-smoke.js exits 1 via flow-stability-smoke; actual is Cannot enter TEST: lattice validate execution error / cannot resolve git-common-dir identity, expected Cannot enter TEST: lattice validate did not pass. Make the fixture a valid Git-backed story workspace (or equivalently preserve its intended semantic-failure setup) so it still proves allPass=false, FAIL evidence persistence, and actor lifecycle behavior under the new capacity precondition.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T20:54:27.998Z",
@@ -635,7 +635,11 @@
       "reviewRunId": "B-6693:RR-029",
       "_hash": "cc73f747f4f2dc75f1f81bf71fcc00e8b5a60123a1d615762258a0a3af17c111",
       "signatureTag": "edge|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit d6529bdfc8f973117bdaa99817d1189ef8d0d7b9. Independent original repro `node packages/main/dist/tasks/flow-stability-smoke.js` exited 0 and ended with `✓ flow stability smoke passed`. The fixture now creates a minimal Git main branch with an empty HEAD so workspace-capacity identity resolves; its configured `process.exit(5)` still reaches and asserts `Cannot enter TEST: lattice validate did not pass`, and the FAIL test-evidence record is persisted. Production fail-closed behavior and validate result/exit classification are unchanged because this is a test-only fixture repair.",
+      "resolvedAt": "2026-08-15T21:05:58.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
