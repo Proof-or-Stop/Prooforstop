@@ -3715,6 +3715,66 @@
       "resolvedAt": "2026-08-15T02:36:37.186Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-054",
+      "desc": "doc-code-drift: AGENTS.md:314 and CLAUDE.md:444 still describe the English authoring refusal as the smaller enumerated set title/context/userSees/relatedDocs/verificationIntent.desc/evidence note, while packages/main/src/handlers/english-artifact-gate.ts:123-150 recursively rejects every string leaf under excludes, files, verificationEvidence, and reason as well. A copyable checklist_update payload can therefore be rejected for fields the agent truth docs imply are outside the contract. MEDIUM: F052 agent-doc truth is only partially remediated; document the complete recursive authored-field boundary (or explicitly label the list non-exhaustive) so operator guidance matches writer admission.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T02:40:09.332Z",
+      "reviewRound": "2026-08-15T02:36:05.242Z",
+      "reviewRunId": "B-3f3d:RR-141",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "bed9a7081e4da0964ba9b4916b069dd3370be96b475e0f0b63d1638f3ed1ebf8"
+      },
+      "readDiagnostics": [],
+      "_hash": "06ab16a2e95fc3b92c1c26e0ee3bbf10d54aadd76c1e391e5fe05c7431baa75e",
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "packages/main/src/handlers/english-artifact-gate.ts"
+      ],
+      "signatureTag": "english-authoring-doc-field-boundary-drift",
+      "signatureTagSource": "confirmed",
+      "resolvedAt": "2026-08-15T03:51:55.754Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
