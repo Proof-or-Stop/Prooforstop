@@ -337,13 +337,14 @@
         {
           "intentRef": "INT-CHK003-ADV",
           "kind": "manual_transcript",
+          "file": "packages/main/src/core/version-bump.ts",
           "result": "pass",
           "note": "Confirmed via direct source read of core/version-bump.ts: readSyncedVersion/applyPatchBump have no existence-check branch or conditional skip for a missing package.json -- they unconditionally assume it exists (matching every real npm-based Proofbound repo root). This confirms preMortem #1's concern does not materialize: the fixture-only fix does not mask a real production robustness gap, since a real repo root can never lack package.json.",
           "mechanical": false,
-          "headHash": "e45be0fb5cef1737e1ab32ff61592eb868e78580",
+          "headHash": "a4dfba250cee736631d5884ae02daedec69938bb",
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:51:52.553Z"
+          "timestamp": "2026-08-15T21:07:21.461Z"
         }
       ]
     },
