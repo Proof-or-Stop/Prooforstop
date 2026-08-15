@@ -895,6 +895,38 @@ function runIncrementalCases(): void {
   }
 }
 
+function runWrapperRootRoutingCase(): void {
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-incremental-wrapper-'));
+  const gitRoot = join(metadataRoot, 'repo');
+  try {
+    mkdirSync(gitRoot, { recursive: true });
+    write(metadataRoot, 'lattice.config.json', JSON.stringify({ gitRoot: 'repo' }, null, 2));
+    write(gitRoot, 'src/feature.ts', 'export const feature = 1;\n');
+    git(gitRoot, ['init']);
+    git(gitRoot, ['checkout', '-B', 'main']);
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper base']);
+    git(gitRoot, ['checkout', '-b', 'story/B-wrapper']);
+    write(gitRoot, 'src/feature.ts', 'export const feature = 2;\n');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, [...COMMIT_ENV, 'commit', '-m', 'wrapper feature']);
+
+    resetConfigCache();
+    const storyId = 'B-wrapper';
+    const store = new StoryStore(metadataRoot);
+    store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
+    store.writeChecklist(storyId, { items: [] });
+    const ctx = reviewIncrementalContext(store, metadataRoot, storyId, 'concept');
+    assert.equal(ctx.currentHeadHash, currentGitHead(gitRoot), 'wrapper-root HEAD must come from configured gitRoot');
+    assert.ok(ctx.changedFiles.includes('src/feature.ts'), 'wrapper-root diff must come from configured gitRoot');
+    assert.equal(ctx.currentHeadHash?.length, 40, 'non-git metadataRoot cannot collapse lineage to unavailable');
+    console.log(`${MARKER} WRAPPER ROOT: metadataRoot routes every Git read through configured gitRoot`);
+  } finally {
+    resetConfigCache();
+    rmSync(metadataRoot, { recursive: true, force: true });
+  }
+}
+
 function runPolicyCases(): void {
   const none = classifyImpact({
     changedFiles: [],
@@ -1770,6 +1802,7 @@ function run(): void {
   runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  runWrapperRootRoutingCase();
   const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;

@@ -67,6 +67,7 @@ import {
   verifyReviewInventoryEpoch,
   verifyReviewInventoryReceipt,
 } from './review-inventory-epoch.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 
 export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proofbound.post-remediation-review-selection.v1' as const;
 
@@ -124,10 +125,10 @@ function canonicalRepoPath(projectRoot: string, path: string): string | null {
   return rel === normalized ? normalized : null;
 }
 
-function trackedFiles(projectRoot: string): string[] {
+function trackedFiles(gitCwd: string): string[] {
   try {
     return execFileSync('git', ['ls-files', '-z'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).split('\0').map(path => path.trim()).filter(Boolean).sort();
@@ -159,19 +160,19 @@ function hasOpaqueDynamicLoad(source: ts.SourceFile): boolean {
  * or missing changed source makes the proof incomplete rather than narrow.
  */
 export function computeCanonicalDependencyClosure(
-  projectRoot: string,
+  gitCwd: string,
   changedFilesInput: readonly string[],
 ): CanonicalDependencyClosure {
   const changedFiles = [...new Set(changedFilesInput)].sort();
-  const tracked = trackedFiles(projectRoot);
+  const tracked = trackedFiles(gitCwd);
   if (tracked.length === 0) return { complete: false, files: changedFiles, reason: 'tracked source inventory unavailable' };
   const trackedSet = new Set(tracked);
   const sourceExtensions = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
-  const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, projectRoot));
+  const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, gitCwd));
   const sourceSet = new Set(sourceFiles);
   const graph = new Map<string, Set<string>>(sourceFiles.map(path => [path, new Set<string>()]));
-  const realProjectRoot = realpathSync(projectRoot);
-  const configPath = ts.findConfigFile(projectRoot, ts.sys.fileExists);
+  const realProjectRoot = realpathSync(gitCwd);
+  const configPath = ts.findConfigFile(gitCwd, ts.sys.fileExists);
   let compilerOptions: ts.CompilerOptions = { moduleResolution: ts.ModuleResolutionKind.Node16 };
   if (configPath) {
     const config = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -179,7 +180,7 @@ export function computeCanonicalDependencyClosure(
     compilerOptions = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath)).options;
   }
   for (const path of sourceFiles) {
-    const absolute = resolve(projectRoot, path);
+    const absolute = resolve(gitCwd, path);
     try {
       if (lstatSync(absolute).isSymbolicLink() || relative(realProjectRoot, realpathSync(absolute)).startsWith('..')) {
         return { complete: false, files: changedFiles, reason: `source inventory contains symlink escape: ${path}` };
@@ -196,7 +197,7 @@ export function computeCanonicalDependencyClosure(
           if (specifier.startsWith('.')) return { complete: false, files: changedFiles, reason: `unresolved relative dependency: ${path} -> ${specifier}` };
           continue;
         }
-        const target = canonicalRepoPath(projectRoot, relative(projectRoot, resolved.resolvedFileName));
+        const target = canonicalRepoPath(gitCwd, relative(gitCwd, resolved.resolvedFileName));
         if (!target || !sourceSet.has(target)) {
           if (!resolved.isExternalLibraryImport && !resolved.resolvedFileName.includes('/node_modules/')) {
             return { complete: false, files: changedFiles, reason: `dependency escapes tracked source inventory: ${path} -> ${specifier}` };
@@ -259,12 +260,13 @@ export function verifyCurrentPostRemediationReviewSelection(
   active?: readonly { name: string; reason: string; forced?: boolean }[],
 ): boolean {
   if (!verifyPostRemediationReviewSelection(selection) || selection.storyId !== storyId) return false;
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const story = store.readStory(storyId);
   const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(store, storyId);
   const bindingMatches = story.currentReviewRound === selection.reviewRound
-    && currentGitHead(projectRoot) === selection.headHash
-    && currentMaterialHash(projectRoot, 'HEAD', projectRoot) === selection.materialHash
-    && currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) === selection.storyFilesHash
+    && currentGitHead(gitCwd) === selection.headHash
+    && currentMaterialHash(gitCwd, 'HEAD', projectRoot) === selection.materialHash
+    && currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) === selection.storyFilesHash
     && scopeDigest === selection.scopeDigest;
   if (!bindingMatches) return false;
   return !active || postRemediationReviewSelection(store, projectRoot, storyId, active)._hash === selection._hash;
@@ -298,10 +300,11 @@ export function postRemediationReviewSelection(
   storyId: string,
   active: readonly { name: string; reason: string; forced?: boolean }[],
 ): PostRemediationReviewSelection {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const story = store.readStory(storyId);
-  const headHash = currentGitHead(projectRoot) ?? '<unavailable>';
-  const materialHash = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? '<unavailable>';
-  const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? '<unavailable>';
+  const headHash = currentGitHead(gitCwd) ?? '<unavailable>';
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? '<unavailable>';
   const reviewRound = story.currentReviewRound ?? '<unavailable>';
   const activeLanes = active.map(row => `lattice-review-${row.name}`);
   const checklist = store.readChecklist(storyId);
@@ -347,16 +350,16 @@ export function postRemediationReviewSelection(
   }
   try {
     execFileSync('git', ['merge-base', '--is-ancestor', receipt.cutoff.headHash, 'HEAD'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       stdio: ['ignore', 'ignore', 'ignore'],
     });
   } catch {
     return fallback('SOURCE_CUTOFF_NOT_ANCESTOR');
   }
   if (receipt.scopeDigest !== scopeDigest) return fallback('SCOPE_OR_POLICY_CHANGED');
-  const changedFiles = materialOnly(changedFilesBetweenRenameAware(projectRoot, receipt.cutoff.headHash, 'HEAD'), projectRoot);
+  const changedFiles = materialOnly(changedFilesBetweenRenameAware(gitCwd, receipt.cutoff.headHash, 'HEAD'), projectRoot);
   if (changedFiles.length === 0) return fallback('NO_MATERIAL_REMEDIATION');
-  const statuses = changedFileStatusesBetweenRenameAware(projectRoot, receipt.cutoff.headHash, 'HEAD');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, receipt.cutoff.headHash, 'HEAD');
   if (Object.values(statuses).some(status => status.startsWith('R') || status.startsWith('C') || status === 'D')) {
     return fallback('UNSUPPORTED_RENAME_OR_DELETE', changedFiles);
   }
@@ -370,7 +373,7 @@ export function postRemediationReviewSelection(
   }
   try {
     const rawDirty = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--ignored=matching'], {
-      cwd: projectRoot,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     });
@@ -405,7 +408,7 @@ export function postRemediationReviewSelection(
       policy.impacts.map(impact => `${impact.path}:${impact.reasonCode}`).sort().join(', '),
     );
   }
-  const closure = computeCanonicalDependencyClosure(projectRoot, changedFiles);
+  const closure = computeCanonicalDependencyClosure(gitCwd, changedFiles);
   if (!closure.complete) return fallback('DEPENDENCY_CLOSURE_INCOMPLETE', changedFiles, closure.files, closure.reason);
   const selectedLanes = impactedLanes(closure.files, active);
   if (selectedLanes.length === 0) return fallback('EMPTY_IMPACT_SELECTION', changedFiles, closure.files);
@@ -700,6 +703,7 @@ export function reviewIncrementalContext(
     findingProjection?: PromptFindingProjection[];
   } = {},
 ): ReviewIncrementalContext {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
@@ -712,9 +716,9 @@ export function reviewIncrementalContext(
     options.excludedReviewRunId,
     options.passesCutoffAt,
   );
-  const currentHead = currentGitHead(projectRoot) ?? null;
-  const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
-  const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;
+  const currentHead = currentGitHead(gitCwd) ?? null;
+  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
+  const currentStoryFiles = currentStoryFilesHash(gitCwd, 'HEAD', projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
@@ -888,7 +892,7 @@ export function reviewIncrementalContext(
   // headHash as a first pass so we never compute an incremental diff from an
   // unknown base — the conservative direction is "show everything".
   if (!prior || !prior.run.headHash) {
-    const fullDiff = materialOnly(changedFilesBetweenRenameAware(projectRoot, 'main', 'HEAD'), projectRoot);
+    const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
       declaredTestFiles,
@@ -896,9 +900,9 @@ export function reviewIncrementalContext(
       fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
         path,
         declaredTestFiles.includes(path)
-          && fixtureCaseClosure(projectRoot, 'main', storyId, path, currentStoryIntentRefs),
+          && fixtureCaseClosure(gitCwd, 'main', storyId, path, currentStoryIntentRefs),
       ])),
-      changedFileStatus: changedFileStatusesBetweenRenameAware(projectRoot, 'main', 'HEAD'),
+      changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
     });
     return finalize({
       prior: null,
@@ -910,12 +914,12 @@ export function reviewIncrementalContext(
   }
 
   const changedFiles = materialOnly(
-    changedFilesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD'),
+    changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
-  const statuses = changedFileStatusesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD');
+  const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(
-    projectRoot,
+    gitCwd,
     prior.run.headHash,
     prior.run.materialHash,
     projectRoot,
@@ -945,7 +949,7 @@ export function reviewIncrementalContext(
     fixtureCaseClosureByFile: Object.fromEntries(changedFiles.map(path => [
       path,
       declaredTestFiles.includes(path)
-        && fixtureCaseClosure(projectRoot, prior.run.headHash, storyId, path, currentStoryIntentRefs),
+        && fixtureCaseClosure(gitCwd, prior.run.headHash, storyId, path, currentStoryIntentRefs),
     ])),
     changedFileStatus: statuses,
   });
