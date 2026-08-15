@@ -1,0 +1,57 @@
+{
+  "storyId": "B-1734",
+  "mode": "enforce",
+  "allowedModify": [
+    "scripts/build-main-with-binding.mjs",
+    "scripts/ensure-dist.mjs",
+    "scripts/full-suite-build-binding.mjs",
+    "packages/utils/package.json",
+    "package.json",
+    "package-lock.json",
+    "lattice.config.json",
+    "CHANGELOG.md",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "allowedCreate": [
+    "scripts/build-lock.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "packages/main/tests/red/red-e165-lock-liveness.mjs",
+    "packages/main/tests/red/red-e165-content-binding.mjs",
+    "packages/main/tests/red/red-e165-guard-bite.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/core/**",
+    "packages/lab/**"
+  ],
+  "scopeChangeReason": "B-1734 touches only build infrastructure (build scripts, the build-binding module, deps, RED tests, config, CHANGELOG) per the approved design.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-15T11:38:40.619Z",
+  "updatedAt": "2026-08-15T11:38:40.619Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/ensure-dist.mjs": "scripts/ensure-dist.mjs",
+    "scripts/full-suite-build-binding.mjs": "scripts/full-suite-build-binding.mjs",
+    "packages/utils/package.json": "packages/utils/package.json",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "lattice.config.json": "lattice.config.json",
+    "CHANGELOG.md": "CHANGELOG.md",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "scripts/build-utils-with-binding.mjs": "scripts/build-utils-with-binding.mjs",
+    "packages/main/tests/red/red-e165-lock-liveness.mjs": "packages/main/tests/red/red-e165-lock-liveness.mjs",
+    "packages/main/tests/red/red-e165-content-binding.mjs": "packages/main/tests/red/red-e165-content-binding.mjs",
+    "packages/main/tests/red/red-e165-guard-bite.mjs": "packages/main/tests/red/red-e165-guard-bite.mjs",
+    "packages/main/tests/red/**": "packages/main/tests/red/**",
+    "packages/core/**": "packages/core/**",
+    "packages/lab/**": "packages/lab/**"
+  }
+}

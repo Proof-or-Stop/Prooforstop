@@ -6,7 +6,75 @@
       "context": "Fixes the two Codex LOCK findings recorded in B-fb7bs cross_host_review: (1) an mtime-age stale-steal that age-stole a LIVE holder mid-build, and (2) a check-then-delete reclaim TOCTOU race letting two waiters both enter the critical section. proper-lockfiles mtime heartbeat keeps a live holder fresh; its reclaim is race-safe; it is cross-platform (Mac/Linux/Windows).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Single npm test acquires the proper-lockfile mutex, builds both packages/main and packages/utils to completion, then releases the lock — verify the lock directory exists during build (ps + ls) and is absent after exit; WHY: baseline proof the lock lifecycle works end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:1",
+            "desc": "Two sequential npm test runs in the same worktree — second run completes without ENOTEMPTY or lock-contention error because the first fully released; WHY: proves the lock is not leaked on normal completion",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Inject a tsc compilation error (e.g. syntax error in a .ts file) so the build fails mid-critical-section — verify the lock is released despite the error (ls shows lock directory absent after the failed run); WHY: a missing finally/onCompromised cleanup would leak the lock and deadlock every subsequent build",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:1",
+            "desc": "Send SIGTERM to a building process mid-compilation — verify the lock is either cleaned up by a signal handler or its stale mtime allows the next builder to reclaim it within proper-lockfile's stale window; WHY: CI runners and user Ctrl-C both send SIGTERM; a leaked unkillable lock blocks the pipeline",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "id": "CHK-001:edge:2",
+            "desc": "Verify in code that the lock uses proper-lockfile's mkdir strategy (the default) and does NOT require flock, fcntl, or any native module — grep the lock call for the absence of fs:lockFile options overriding the strategy; WHY: cross-platform guarantee (Windows has no flock); a native-module dep would break npx/CI on some platforms",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "Launch two concurrent npm test invocations in the same worktree (background the first, immediately start the second) — both must complete successfully with no dist corruption (no TS2307/MODULE_NOT_FOUND/ENOTEMPTY in either stdout/stderr) and build timestamps in the log must show sequential (non-overlapping) compilation phases; WHY: this is the core mutex guarantee — a missing lock lets both rm+build simultaneously causing ENOTEMPTY and TS2307; a broken implementation MUST fail this because concurrent rm+tsc is not idempotent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:1",
+            "desc": "Verify in code that proper-lockfile is configured with stale >= 30000ms AND update (heartbeat) interval < stale/2 (so a live holder refreshes before stale expiry) — a broken implementation using a low stale (e.g. 5s) with no heartbeat update would let a waiter age-steal a live holder's lock mid-build, which is exactly B-fb7b finding #1; WHY: the mtime heartbeat is the specific mechanism that prevents live-holder age-steal, and the stale/update ratio is its correctness invariant",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:2",
+            "desc": "Simulate a dead holder: manually create the lock directory with an mtime older than the configured stale threshold (touch -t), then run npm test — the builder must reclaim the stale lock and complete successfully; WHY: a crashed process leaves a lock with no heartbeat; proper-lockfile's stale detection reclaims it, but only if the implementation configures stale correctly; a broken implementation with stale=Infinity would deadlock forever",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:3",
+            "desc": "Verify in code that the lock acquisition happens BEFORE rmSync(dist) and the lock release happens AFTER writeBuildBinding — the lock must wrap the entire critical section (rm + tsc + writeBuildBinding); WHY: if rm is outside the lock a concurrent reader sees a missing dist (MODULE_NOT_FOUND); if writeBuildBinding is outside the lock a concurrent verifyBuildBinding reads an incomplete binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:4",
+            "desc": "Verify that ALL three build call sites (ensure-dist.mjs, build-main-with-binding.mjs, and the packages/utils build) acquire the same lock before entering their build critical sections — grep/inspect each call site for proper-lockfile lock acquisition; WHY: a single unprotected call site is a concurrency hole; the four Codex findings were triggered through ensure-dist.mjs but the race exists in any call site that does rm+build",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
