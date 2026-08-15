@@ -2,30 +2,36 @@
   "storyId": "B-a7c5",
   "mode": "enforce",
   "allowedModify": [
-    "packages/main/src/core/machine.ts",
-    "packages/main/src/core/types.ts",
-    "packages/main/src/core/store.ts",
-    "packages/main/src/handlers/finding.ts",
-    "packages/main/src/core/playbook-runtime-memory.ts",
-    "packages/main/src/handlers/playbook-runtime-memory.ts",
-    "packages/main/src/core/command-policy.ts",
-    "packages/main/src/core/config.ts",
-    "packages/main/src/cli/command-catalog.ts",
-    "lattice.config.json",
-    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
-    "docs/requirements/decisions/dev-memory.md",
     "bin/lattice.js",
+    "docs/requirements/decisions/dev-memory.md",
+    "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/playbook-runtime-memory.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/playbook-runtime-memory.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts",
     "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
     "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
     "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
     "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts",
     "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
     "packages/main/tests/milestone-status.test.mjs",
-    "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+    "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "allowedCreate": [
     "packages/main/src/handlers/dev-memory.ts",
@@ -41,7 +47,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Widened to cover core/runtime-artifact-registry.ts, edited by the F-005 fix (registering .lattice/dev-memory/finish-decisions/ as a non-blocking, materialHash-excluded runtime artifact so dev_memory_finish_decision's own write doesn't strand review_run_start).",
+  "scopeChangeReason": "Final consolidated scope covering all files touched across the full DEV push: original CHK-001..007 implementation, 12 collateral fixture fixes (dev-memory preflight-ack + finish-decision satisfying writes) across rounds, the runtime-artifact-registry F-005 fix, and the closeout-trust-smoke.ts structural fingerprint repin (retired-authority-vocabulary-guard-smoke.ts + scripts/verify-process-fact-contract.mjs).",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -77,7 +83,7 @@
     }
   ],
   "createdAt": "2026-08-14T11:04:45.930Z",
-  "updatedAt": "2026-08-15T11:51:02.901Z",
+  "updatedAt": "2026-08-15T14:53:16.568Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -113,6 +119,12 @@
     "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
     ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl",
     ".lattice/dev-memory/finish-decisions/B-a7c5.json": ".lattice/dev-memory/finish-decisions/B-a7c5.json",
-    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts"
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts": "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
