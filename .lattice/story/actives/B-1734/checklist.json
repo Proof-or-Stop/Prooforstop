@@ -95,7 +95,7 @@
           },
           {
             "id": "CHK-001:adversarial:3",
-            "desc": "Verify in code that the lock acquisition happens BEFORE rmSync(dist) and the lock release happens AFTER writeBuildBinding — the lock must wrap the entire critical section (rm + tsc + writeBuildBinding); WHY: if rm is outside the lock a concurrent reader sees a missing dist (MODULE_NOT_FOUND); if writeBuildBinding is outside the lock a concurrent verifyBuildBinding reads an incomplete binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency",
+            "desc": "Verify in code that the build lock wraps the ENTIRE critical section — tsc-into-staging, the atomic rename promote (staging→dist, with the prior dist evicted), and writeBuildBinding — at each call site, so there is no unlocked window where a crash or concurrent invocation could leave a torn or missing dist; note that reader-safety against a torn dist during the promote is now delivered by the atomic rename swap itself (adversarial:3 verifies the lock still wraps the whole section; the actual reader-race is proven by readerrace:0). WHY: if tsc, promote, or writeBuildBinding runs outside the lock, a concurrent builder can interleave and corrupt dist or the binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -111,6 +111,28 @@
             "verification": {
               "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
               "selector": "VI-OK CHK-001:adversarial:4"
+            }
+          }
+        ],
+        "readerrace": [
+          {
+            "id": "CHK-001:readerrace:0",
+            "desc": "concurrent non-lock-holding dist readers (the ~90 importers of packages/main/dist, chiefly bin/bootstrap-runner.js on every bin/lattice.js call) must never observe MODULE_NOT_FOUND while a rebuild is promoting a fresh dist; the atomic staging-swap is what guarantees this (an in-place rm+tsc would expose an absent/partial dist for the whole tsc window). WHY: directly proves the CHK-001/CHK-002 userSees \"never MODULE_NOT_FOUND\" for the real reader population, which the builder-mutual-exclusion intents (adversarial:0) do not exercise.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-1734-reader-race.mjs",
+              "selector": "VI-OK CHK-001:readerrace:0"
+            }
+          },
+          {
+            "id": "CHK-001:readerrace:1",
+            "desc": "a build interrupted by Ctrl-C/SIGKILL orphans the proper-lockfile .lock dir; because bin/bootstrap-runner.js waits while a build lock is held, it must gate on lock mtime-FRESHNESS (heartbeat 10s, stale 30s) so an orphaned lock ages out and does not brick the CLI for 60s-then-fail on every invocation. WHY: the freshness gate is the specific mechanism preventing an orphaned-lock brick regression introduced by the wait-for-lock design.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-1734-reader-race.mjs",
+              "selector": "VI-OK CHK-001:readerrace:1"
             }
           }
         ]
