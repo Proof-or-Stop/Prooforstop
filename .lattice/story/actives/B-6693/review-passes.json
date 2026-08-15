@@ -1,0 +1,45 @@
+{
+  "passes": [
+    {
+      "id": "B-6693:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 85 changed declaration symbols; Step 2 found 0 direct symbol-reference documentation paragraphs, so the narrow fallback/reverse check compared 5 changed behavior paragraphs and 2 CLI help descriptions against both official handlers and the shared capacity implementation. No doc-code blocker: validate and done_required_validate serialize, bare npm test remains outside the lease, wait diagnostics are stderr/progress, protected inventory/budget sources have zero diff, workspace-capacity smoke passed twice, and the exact 58-assertion terminal contract passed.",
+      "createdAt": "2026-08-15T00:38:00.176Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-003",
+      "envelopeId": "5c8d9ae4f9562d24d10e44963be9aca9743466285ae374e3e5560cda762fed3c",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "227082aae52f0b9bb1df842fd2524052727dd0d3b5480faa04bd68295562171a"
+      },
+      "readDiagnostics": [],
+      "_hash": "17f5dc1052e9e8e6f68f606a6cd009adbaa729a2461821147340d8f427cdab5a"
+    }
+  ]
+}

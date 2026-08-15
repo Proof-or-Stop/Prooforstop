@@ -1,0 +1,152 @@
+{
+  "findings": [
+    {
+      "id": "B-6693:F-001",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:177-191 and packages/main/src/core/mkdir-lock.ts:279-286 — HIGH: workspace-capacity stale recovery is not identity-conditional. acquireMkdirLock reads holder A, then classifyValidationCapacityLock re-reads heartbeat from the mutable fixed path; if A releases and live successor B acquires between those reads, the A/B mismatch is classified stale and rmSync(lockDir,{recursive:true}) deletes B. A waiter can then acquire alongside B, violating the one-official-validation invariant. Use an identity-stable unique-ticket/compare-and-delete reclaim (or revalidate the same ownership token atomically) and add an ABA successor race regression; static mismatch fixtures do not cover this interleaving.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T00:38:00.807Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-001",
+      "_hash": "a94229f3ab119600601076f0d113b8f2100a2ecb3499765ce54cec413603afd1",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-002",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:207-225,238-241,421-424; packages/main/src/handlers/verifier.ts:1066-1077 — the capacity key is derived from options.root even though the handler already passes the resolved signed git workspace as workspaceRoot. In a supported bare metadataRoot/configured-gitRoot layout, git -C options.root fails and resolveSharedLockRoot silently falls back to the metadata wrapper, so the lease is not keyed by the repository git-common-dir as docs/CLI.md:907 and testing-infra.md:55 promise; separate wrappers over one repository can run official validations concurrently, and a transient git-probe failure similarly splits linked-worktree locks. Separate capacityRoot/workspaceRoot from the legacy story-evidence root, fail closed on an expected-git identity resolution failure, and add a wrapper-root/common-dir regression.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T00:38:23.634Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-001",
+      "_hash": "69cae9fe2ed81a49c9b24f6c00675d9c23571ad58482d163ed159010f026bde6",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "spec-boundary|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-003",
+      "desc": "packages/main/src/core/validation-execution-lock.ts:453 — stale-capacity takeover is not ownership-atomic. withWorkspaceValidationCapacity passes classifyValidationCapacityLock into acquireMkdirLock, whose stale branch classifies the observed holder and then recursively removes the shared path without atomically isolating/revalidating that exact ownership token (packages/main/src/core/mkdir-lock.ts:285-286). With multiple waiters, one waiter can reclaim the dead holder, a successor can acquire, and another waiter that already classified the old holder stale can delete the successor's live lease, breaking maxConcurrency=1. Reproduced against built HEAD with 12 worker threads and a mechanically dead seed: after 159 rounds, overlaps=1 and errors=8. Replace classify-then-rm with atomic stale-directory/token isolation before deletion and add a simultaneous multi-waiter stale-recovery regression.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T00:38:55.215Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "79fc1b4777c7a1d459d062cd717d483f750657733863f103587245d5363a4797"
+      },
+      "readDiagnostics": [],
+      "_hash": "37e487afe054b734774951430c2a69ad7794ea2a7fbdccc87173660fe2d63ac9",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-004",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:288-340,563-584,845-915,921-954,963-984 — HIGH: verificationEvidence records PASS for all 29 must intents, mostly by reusing the 5-group focused smoke, but the executable cases do not discriminate at least these required claims: CHK-001:happy:0 and CHK-001:adversarial:2 never run contending validators from two linked worktrees (only same-root handlers plus lock-path equality); CHK-001:edge:1 has abort coverage but no active-owner deadline case proving neither callback nor inner story lock is entered; CHK-002:happy:1 covers only validate -> done_required_validate, not the reverse order or both evidence artifacts; CHK-002:edge:1 never kills a live child owner with a queued successor; CHK-002:edge:2 never queues three waiters or asserts maxConcurrency=1/eventual entry; CHK-002:adversarial:0 only observes lock presence during persistence without a competing story or overwrite check; CHK-002:adversarial:1 does not integrate same-story official nesting with an independent queued process; CHK-003:happy:0 never validates DONE-required evidence hash bindings; CHK-003:edge:0/edge:1/edge:2 and CHK-003:adversarial:0 have no inventory+120/180/300 snapshot, read-only-command bypass, stale-evidence replacement, or bare-npm-test bypass cases. CHK-003:adversarial:1 additionally records only `npm --prefix packages/main run build`, omitting its required protected-file `git diff --exit-code` command. Therefore these regressions can survive while the focused command and 29/29 receipts remain green. Independent review reproduced focused PASS, protected-file zero diff, and exact-58 terminal PASS; the blocker is missing discriminating evidence, not an asserted implementation defect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T00:39:31.127Z",
+      "reviewRound": "2026-08-15T00:32:05.278Z",
+      "reviewRunId": "B-6693:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5293a06dd9649e28e1c138fe7b33e79f1e4bf51e97e3e3c8496d4db5e541773",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
