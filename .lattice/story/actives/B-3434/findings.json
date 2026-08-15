@@ -19,6 +19,26 @@
       ],
       "signatureTag": "doc-code-drift|ts|boundvalidationevidenceoutput-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-002",
+      "desc": "CHK-003:adversarial:0 binds an un-falsifiable RED-before-GREEN claim to the wrong selector. The intent requires demonstrating 'the regression test fails when run without the maxBuffer fix (demonstrated by running against the pre-fix tree or by temporarily reverting the maxBuffer additions)'. Its bound selector, 'a genuine post-verification change still reports verified metadata changed' (red-b3434-blob-buffer-ceiling.mjs section 8, line 339), tests something unrelated: that a REAL digest mismatch is still correctly reported post-fix. That section never runs on the pre-fix tree and never reverts the fix, so it proves nothing about RED-before-GREEN. No other bound selector in the 24-intent set covers this claim either. The only committed artefact bearing on it is .lattice/story/actives/B-3434/red-evidence.json, whose failingCommand points at an ephemeral, uncommitted scratch script (a scratchpad path under a session tmpdir), not at the committed test file -- so within the story's own evidence chain, RED-before-GREEN for the actual committed regression is only ASSERTED (commit message prose + that indirect record), never mechanically verified. I independently checked out the RED commit ec18da8da6 (before fix commit 8250774c9d) into an isolated clone, built packages/main from that pre-fix source (confirmed zero maxBuffer occurrences), and ran the actual committed red-b3434-blob-buffer-ceiling.mjs against it: 6 of 8 sections genuinely FAIL, reproducing verified metadata changed after manifest verification verbatim. So the underlying claim is TRUE, but the story shipped no mechanical selector or artefact that proves it -- exactly the pass-for-the-wrong-reason pattern this lane exists to catch. Recommend re-binding CHK-003:adversarial:0 to a fixture-comparison test (e.g. a committed script that asserts failure against a checked-out pre-fix ref, or at minimum wiring the selector to something that actually differs between the two trees) rather than to an unrelated section.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:22:46.016Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-003",
+      "_hash": "3eb286779febd003d1e76fcae32a6cedc1e20da7866396b857b4028905b224d4",
+      "files": [
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+        ".lattice/story/actives/B-3434/red-evidence.json",
+        ".lattice/story/actives/B-3434/checklist.json"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-binds-falsifiable",
+      "signatureTagSource": "auto"
     }
   ]
 }
