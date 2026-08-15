@@ -82,7 +82,99 @@
       "context": "Fixes the two Codex FRESHNESS findings: (3) single-file mtime misclassifying deleted-source orphans, partial builds, and tampered outputs as fresh, and (4) existence-only reuse with no freshness proof. Reuses scripts/full-suite-build-binding.mjs verifyBuildBinding (sha256 over all src+config and all dist) as the skip gate; adds a packages/utils binding covering utils/src plus the packages/main/dist it links against.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Clean build from absent dist: run the build on a fresh checkout (no packages/main/dist) — dist is created, binding manifest written at packages/main/dist/full-suite-build-binding.json, and verifyBuildBinding(projectRoot) returns without throwing; WHY: baseline proof the build+binding write works end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "Subsequent run with no source change: invoke ensure-dist.mjs (or npm test pretest) after a successful build — verifyBuildBinding passes and the build is skipped (no tsc invocation in output, measurably faster than a full build); WHY: the content-bound skip is the primary efficiency guarantee; a broken implementation that always rebuilds fails this by taking full build time",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:happy:2",
+            "desc": "packages/utils binding: build utils, verify a utils binding manifest exists covering utils/src plus packages/main/dist; subsequent utils build with no change skips (no tsc invocation); WHY: the utils binding is new work in this story and must follow the same content-bound pattern as packages/main",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Deleted-source orphan: after a successful build, delete a non-index .ts source file from packages/main/src (leaving dist intact with its old .js output) then run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding must fail, rebuild must run, and the rebuilt dist must NOT contain the deleted file's .js output; WHY: B-fb7b finding #3 — mtime/existence checks missed orphaned dist files from deleted sources; the sha256 sourceDigest catches this because the file set changed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:1",
+            "desc": "Partial/interrupted build: after a successful build, delete one non-index .js file from packages/main/dist (simulating a crash mid-build) then run ensure-dist.mjs — distDigest changes, verifyBuildBinding must fail, rebuild must run and restore the missing file; WHY: B-fb7b finding #3 — existence-only (index.js present) missed partial dist directories; the sha256 distDigest catches this because a file is missing from the hash input",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:2",
+            "desc": "packages/utils binding covers main/dist: rebuild packages/main (changing main/dist content), then run the utils build — the utils binding must detect that the packages/main/dist it links against has changed (its sourceDigest includes main/dist) and trigger a utils rebuild; WHY: utils tsc resolves types from main/dist; stale main/dist means stale utils .d.ts references and potential runtime MODULE_NOT_FOUND",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:3",
+            "desc": "Concurrent npm test at the same HEAD: launch two npm test invocations simultaneously at the same commit — both invoke ensure-dist.mjs, both verifyBuildBinding, both skip (or at most one builds and the other waits+skips), and both complete successfully with no MODULE_NOT_FOUND or TS2307; WHY: content-bound skip means skip = no rm, so concurrent reads of dist are safe; the rm-during-read window is closed because rebuild only happens on content mismatch (which means something actually changed)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:4",
+            "desc": "Source change triggers rebuild: edit a .ts file in packages/main/src (add a comment or whitespace), run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding fails, rebuild runs; WHY: proves the skip gate is sensitive to any source change, not just structural changes; a broken implementation using a coarse hash (e.g. file count only) would miss content-only changes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Tampered non-index dist file: after a successful build, modify the content of a dist .js file that is NOT index.js and NOT the binding manifest (e.g. append a comment to any other .js) then run ensure-dist.mjs — distDigest must mismatch, verifyBuildBinding must fail, rebuild must run and overwrite the tampered file; WHY: B-fb7b finding #3 root cause was single-file mtime checking only index.js; the sha256-over-all-dist-files catches tampering of ANY dist file; a broken implementation checking only index.js existence/mtime/hash would pass the tampered file through",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:1",
+            "desc": "Stale binding manifest: copy the binding manifest from a different HEAD (with a different sourceDigest) into the current dist directory, preserving the dist files from the current build — verifyBuildBinding must recompute sourceDigest from the actual source files on disk and detect the mismatch with the manifest's recorded sourceDigest, triggering a rebuild; WHY: the binding is a CLAIM; the verify function must recompute from source, not trust the manifest; a broken implementation that reads and trusts the manifest's sourceDigest without recomputation would accept stale dist",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:2",
+            "desc": "Existence-only bypass: ensure packages/main/dist/index.js exists (e.g. from a prior checkout at a different source version) but source has changed since that dist was built — the skip decision must be based on verifyBuildBinding (sha256 content hash comparison), NOT on existsSync(dist/index.js); verify: build runs despite dist/index.js existing; WHY: B-fb7b finding #4 — the shipped ensure-dist.mjs uses existence-only reuse; the fix must replace that with content-bound verification; a broken implementation preserving the existsSync check would skip on stale dist",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:3",
+            "desc": "Binding manifest absent: after a successful build, delete ONLY the binding manifest (packages/main/dist/full-suite-build-binding.json) leaving all other dist files intact — verifyBuildBinding must throw (ENOENT on JSON.parse(readFileSync(...))), and the caller must treat this as 'not verified' and trigger a rebuild (not skip); WHY: a broken implementation that catches the ENOENT and treats 'no manifest' as 'assume fresh' would silently skip on an unverifiable dist",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:4",
+            "desc": "Verify in code that ensure-dist.mjs uses verifyBuildBinding (or an equivalent sha256 content check) for BOTH packages/main AND packages/utils skip decisions, replacing the current existsSync(join(root,'packages',pkg,'dist','index.js')) check — grep/inspect the file for the absence of the old existence-only guard and presence of verifyBuildBinding calls; WHY: ensure-dist.mjs is one of the three call sites listed in the acceptance claim; if it still uses existence-only for either package, the freshness guarantee has a gap that concurrent test runs at different HEADs would exploit",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:5",
+            "desc": "Verify that build-main-with-binding.mjs (the packages-main-build validate proof command) also uses verifyBuildBinding as its skip gate — when the binding already verifies, it skips the rm+tsc+write cycle; WHY: if this call site always rm+rebuilds regardless of content match, it defeats the concurrent-safety guarantee (rm during a concurrent reader's verify) and wastes CI time; the acceptance claim requires content-bound skip at ALL three call sites",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
