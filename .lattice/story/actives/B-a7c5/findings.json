@@ -67,6 +67,21 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed the reviewer's diagnosis: CHK-002:edge:0's pinned evidence greps a source code comment string rather than actually invoking finding_resolve on a trivial-content finding. Same immutable-pin constraint as F-002/F-003 prevents re-binding. Independently re-verified the underlying behavioral claim directly: constructed a throwaway git fixture, wrote a trivial-content finding (desc='trivial typo fix in a comment'), and called the real compiled finding_resolve handler -- output genuinely includes the dev_memory_capture advisory text unconditionally (ADVISORY_APPEARS_ON_TRIVIAL_FINDING), confirming there is no content-based branch suppressing the advisory, exactly as the code at handlers/finding.ts:794-813 shows (no conditional gating memoryHint computation on finding content).",
       "resolvedAt": "2026-08-14T13:53:21.220Z"
+    },
+    {
+      "id": "B-a7c5:F-005",
+      "desc": "packages/main/src/handlers/playbook-runtime-memory.ts:250-252 dev_memory_finish_decision writeFileSync()s its record to finishDecisionPath() (core/playbook-runtime-memory.ts:912-913 => .lattice/dev-memory/finish-decisions/<storyId>.json), a path OUTSIDE .lattice/story/actives/<storyId>/. That path is not covered by isStoryMetadataPath (evidence-freshness.ts DEFAULT_STORY_METADATA_PREFIXES only lists .lattice/story/, legacy docs dir, docs/framework-audit/), not registered in runtime-artifact-registry.ts, and not a declared artifact, so dirty-worktree.ts classifyParsedRow falls through to unexpected_dirty_files, which dirty-gate-policy.ts marks blocking:true for done-gate/test-pre-check/validate-side-effect AND review_run_start reuses the identical check (handlers/review-run.ts:99-121, the B-7691 preflight). Net effect: every legitimate call to the CHK-003 DONE-gate-required dev_memory_finish_decision command leaves an untracked file that blocks the very next DONE-gate / review_run_start / test-pre-check invocation until an operator manually git-commits it -- unlike CHK-001s ack artifact (deliberately placed inside .lattice/story/actives/ so it auto-classifies as non-blocking lattice_metadata_changes) or finding_resolves commitHint (which calls autoCommitStoryMetadata, core/auto-commit-metadata.ts:478/521, scoped only to the story dir and therefore structurally unable to cover this path either). This is not hypothetical: it fired for real during this stories own round-3 dogfooding -- my review_run_start call failed with exactly `git working tree has uncommitted unexpected_dirty_files changes (.lattice/dev-memory/finish-decisions/B-a7c5.json)`, and it took an out-of-band manual commit (1a4a58f9b3 lattice: commit stranded dev-memory finish-decision + dispatch telemetry for B-a7c5, which touches zero .ts files) to unblock the review round I am running right now. dev-memory-lifecycle-gates-smoke.ts (grepped for dirty/classify/unexpected_dirty/DIRTY_GATE_POLICY/isBlockingDirty: zero matches) never exercises this interaction, so there is no test coverage that would have caught this before it broke the live gate chain. Fix should either (a) add the finish-decisions path to the story-metadata/runtime-artifact classifier so it auto-passes the dirty gate, or (b) have dev_memory_finish_decision auto-commit its own artifact, plus a smoke assertion exercising classifyGitStatusRows/evaluateDirtyGate against a real finish-decision write.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T11:23:57.293Z",
+      "reviewRound": "2026-08-15T11:17:03.901Z",
+      "reviewRunId": "B-a7c5:RR-009",
+      "_hash": "b716b619e4f2a6a5208cd427b6eb491393335fc8dd267b943c0da02ebeb9c4c6",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
