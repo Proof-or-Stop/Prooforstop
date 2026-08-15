@@ -520,9 +520,25 @@ function assertDoneGateFinishDecision(): void {
     check('CHK-003 F-005: finish-decision path is materialHash-excluded',
       registryEntry?.materialHash === 'exclude');
     const materialHashAfterDecisions = currentMaterialHash(root, 'HEAD', root);
-    check('CHK-003 F-005: writing/updating the finish-decision record 3x never perturbs currentMaterialHash',
+    check('CHK-003 F-005: writing/updating the finish-decision record 3x never perturbs currentMaterialHash (write-only, before any commit)',
       materialHashAfterDecisions === materialHashBeforeAnyDecision);
-    check('CHK-003 F-005: canFinishGuard remains true after the materialHash-invariance check (no retroactive staleness)',
+    // F-006 (round-4 quality finding): a write-only check is non-discriminating
+    // -- currentMaterialHash reads git ls-tree (committed state), so it passes
+    // identically whether or not the registry exclusion exists, since a bare
+    // writeFileSync never touches HEAD either way. The REAL regression this
+    // guards against only manifests once the file is actually COMMITTED (the
+    // reverted auto-commit draft moved HEAD and broke delivery-check
+    // freshness). Commit the finish-decision file here and re-check
+    // materialHash across that commit -- this is the assertion that would have
+    // caught the reverted approach and now proves the registry exclusion still
+    // holds even if the file is committed by some other means (e.g. a future
+    // autoCommitStoryMetadata sweep of the story dir, or a manual commit).
+    git(root, ['add', '--', `.lattice/dev-memory/finish-decisions/${storyId}.json`]);
+    git(root, ['commit', '-m', 'commit the finish-decision record for the F-005/F-006 regression check']);
+    const materialHashAfterCommit = currentMaterialHash(root, 'HEAD', root);
+    check('CHK-003 F-006: materialHash is unchanged even after the finish-decision file is actually COMMITTED (the real regression scenario)',
+      materialHashAfterCommit === materialHashBeforeAnyDecision);
+    check('CHK-003 F-006: canFinishGuard remains true after the finish-decision file is committed (no retroactive staleness from the commit)',
       canFinishGuard(context) === true);
 
     // ── adversarial: fail-closed on a corrupt record ──

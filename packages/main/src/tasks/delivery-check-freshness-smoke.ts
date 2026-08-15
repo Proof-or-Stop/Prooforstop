@@ -33,12 +33,16 @@ import { z } from 'zod';
 function satisfyDevMemoryFinishDecision(root: string, store: StoryStore): void {
   createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
     .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'delivery-check-freshness-smoke fixture; no lesson to capture' });
-  // `.lattice/dev-memory/` is git-tracked in real Proofbound repos (un-ignored in
-  // .gitignore), unlike `.lattice/story/`, which is materialHash-EXCLUDED — so
-  // this write DOES count toward materialHash. Commit it immediately, before any
-  // delivery_check_set call in this file signs a materialHash, so every scenario
-  // below observes one stable HEAD instead of the delivery-check being signed
-  // pre-commit and then retroactively invalidated by a later `.lattice` commit.
+  // F-007 (round-4 quality finding): `.lattice/dev-memory/finish-decisions/` is
+  // now materialHash-EXCLUDED (B-a7c5 F-005 fix, core/runtime-artifact-registry.ts
+  // id='dev-memory-finish-decision') -- writing/committing it does NOT perturb
+  // materialHash either way, so this commit is no longer load-bearing for
+  // freshness stability. Kept anyway for a narrower, still-real reason: an
+  // uncommitted write here classifies as non-blocking runtime_artifact_changes
+  // (not unexpected_dirty_files), so it wouldn't block anything downstream in
+  // THIS file, but committing it keeps this fixture's own git history tidy and
+  // matches the pre-F-005 baseline behavior this file's other assertions were
+  // written against.
   if (git(root, ['status', '--porcelain', '--', '.lattice/dev-memory'])) {
     git(root, ['add', '.lattice/dev-memory']);
     git(root, ['commit', '-m', 'dev-memory finish decision']);
