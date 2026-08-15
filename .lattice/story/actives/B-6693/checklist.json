@@ -706,31 +706,31 @@
           "kind": "docs_check",
           "file": "docs/CLI.md",
           "result": "pass",
-          "note": "Rechecked final CLI and decision docs: official validators and derived verdict use shared capacity; configured gitRoot and failed release paths fail closed; bare npm test remains explicitly outside the lease.",
+          "note": "CLI documentation states token-bound reentrancy, structured direct validate deadline cleanup, and the derived-verdict cancellation boundary at the current material",
           "mechanical": false,
-          "headHash": "b175c6b0ece878d940a5b95ac245aee0d463680b",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T12:22:32.021Z"
+          "headHash": "7ce8b8ae91c7e2a67bce42c6f499c656708e303e",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:46:36.627Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "Fresh protected inventory and build receipt after final fixes.",
+          "note": "Main build compiles current generation-token lock and structured validate watchdog implementation",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f11dff53bab5a474393955bef714e7fec1c2bc5750e847e0ac964346a5e97cd3",
             "outputTail": "\n> @lattice/core@0.3.254 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:22:20.235Z"
+            "executedAt": "2026-08-15T13:46:20.023Z"
           },
-          "headHash": "b175c6b0ece878d940a5b95ac245aee0d463680b",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T12:22:20.580Z"
+          "headHash": "7ce8b8ae91c7e2a67bce42c6f499c656708e303e",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:46:20.263Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -936,57 +936,57 @@
           "kind": "integration_test",
           "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
           "result": "pass",
-          "note": "Fresh canonical exact-58 live-proof receipt after final fixes.",
+          "note": "Current registered 12-record acceptance cohort and exact 58-assertion ProofStory pre-review live proof",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
             "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:25:06.638Z"
+            "executedAt": "2026-08-15T13:48:16.167Z"
           },
-          "headHash": "b175c6b0ece878d940a5b95ac245aee0d463680b",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T12:25:06.776Z"
+          "headHash": "7ce8b8ae91c7e2a67bce42c6f499c656708e303e",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:48:16.410Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
           "result": "pass",
-          "note": "Fresh canonical exact-58 live-proof receipt after final fixes.",
+          "note": "Current registered 12-record acceptance cohort and exact 58-assertion ProofStory pre-review live proof",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
             "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:26:24.554Z"
+            "executedAt": "2026-08-15T13:49:55.737Z"
           },
-          "headHash": "b175c6b0ece878d940a5b95ac245aee0d463680b",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T12:26:24.696Z"
+          "headHash": "7ce8b8ae91c7e2a67bce42c6f499c656708e303e",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:49:55.874Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
           "result": "pass",
-          "note": "Fresh canonical exact-58 live-proof receipt after final fixes.",
+          "note": "Current registered 12-record acceptance cohort and exact 58-assertion ProofStory pre-review live proof",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8183821c9f5c46afe36e30d461638e4f2689caf022b46fdd3e770df4e1593490",
             "outputTail": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-6693\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:4e7809e32bcf6aaca93cb53b4de8b4076245c605df8496ccf2dc50b141670531\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE31RTW8aMRD9K9acbQmUBtq90QQpUdUEsVQ9IA6DdwAL41mN7U3331e72SUc2pw89hs/vY/tFhZm9Vqae9BQc3TJNQQahL3nnIoD2xypMhQOLJZM975HewYNIzSsGsshCXvQQH/I5kRq2FC/sSH1RQ2LKl74TOrNpZMaaLUaebXCUKmTi4mlNbVQJGkwOQ5q4I+gYbUoy+uRJJPebqEWrrIlMdSgz5ioAn3/bae3YDnEfCExDYk7uA6YTXY7DS4kCql4ePphJpNpccK6bosJdH8W5uevjZnOQcMlp14BaIicxVLxhg2ZPedQobSgob97wjMeu/CixaDe5fTKR2W9t1GMOrAoj4nEdN9VbC/7d3eL7+XyZXMzjA5HIQbr2vc27mad1srhMXBMzhred4H10Hyw3oVmhCQH0Hdf/2Ebq4Ykojj0V/Ob9eKlfFg/rzZmChqSYIhWXJ26ehsKKRbXvEdHI2Q8H42QH0NDmzL6jxRcaNjikAxZqigqi4GDs+iVdweyrfWkbnhf14/L9fLxdvqs9tl/Wp9/VvruLzM4M+4MAwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:e9581ea2a4a78655e1b48c229af010c44d0176004c993a084b475bfb70ccae7f\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T12:28:06.014Z"
+            "executedAt": "2026-08-15T13:51:27.797Z"
           },
-          "headHash": "b175c6b0ece878d940a5b95ac245aee0d463680b",
-          "materialHash": "440f1e47ad1831638c02acf77aead6bdf28f1080df92e97b15d903821266eb0d",
-          "storyFilesHash": "c5c33a555199f3ee7d14fce64ccdaf5acfad8a23a6968b857e08830323b1bfcc",
-          "timestamp": "2026-08-15T12:28:06.269Z"
+          "headHash": "7ce8b8ae91c7e2a67bce42c6f499c656708e303e",
+          "materialHash": "69808f8afd0bab311d56d7d1435dc750efb5f077424ba33a155e0f796613f4d3",
+          "storyFilesHash": "b56a719429351e125b3ef8102a4b762543e62fefcc6d93fc0b72f5f8cce10aef",
+          "timestamp": "2026-08-15T13:51:27.962Z"
         }
       ],
       "userSeesSnapshot": {
