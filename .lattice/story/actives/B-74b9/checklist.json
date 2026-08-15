@@ -138,7 +138,27 @@
       "context": "All three fixtures currently run only via the broader root npm test, not lattice validate. After fixing them, decide per-fixture whether they should be added to validate.commands so lattice validate (and REVIEW rounds relying on it) catches this class of regression going forward, and record the reasoning in background.md or plan.md.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "INT-CHK004-DECISION",
+            "desc": "plan.md (or background.md) records an explicit per-fixture registration decision for validate.commands with rationale",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     }
   ]
 }
