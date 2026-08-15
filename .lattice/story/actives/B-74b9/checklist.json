@@ -30,7 +30,11 @@
             "id": "INT-CHK001-GREEN",
             "desc": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js exits 0 after the fix",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
           }
         ],
         "edge": [
@@ -57,7 +61,28 @@
         "headHash": "f5849c09caf653a8ab7552a25aad4a74e29326ca",
         "attestedAt": "2026-08-15T20:45:43.257Z",
         "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "INT-CHK001-GREEN",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Mechanically re-executable regression guard: the fixture now exits 0 and prints its pass line after stubbing the two missing files.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1fab61fa1f38ec6dcd8677d6b07de043761108e83720195276b25d2cf539fd39",
+            "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T20:49:17.067Z"
+          },
+          "headHash": "19a640a108917f0ed66279d1f2fc10dd1140257a",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:49:17.210Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
