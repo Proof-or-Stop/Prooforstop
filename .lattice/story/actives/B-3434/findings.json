@@ -479,6 +479,24 @@
       ],
       "signatureTag": "missing|ts|filed-quality-lane",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-024",
+      "desc": "Re-filed under the quality lane so it actually gates (story B-3434:F-015, agent=main/RR-011, not reviewer evidence for the same isReviewerAgent reason as F-014). Independently reproduced against the pre-fix build: boundValidationEvidenceOutput's doc comment and the smoke's own heading claimed degenerate inputs (null/primitive/circular) never crash, but the function's first statement was an unguarded JSON.stringify(result) with no try/catch anywhere in the module. I called boundValidationEvidenceOutput against a plain circular object ({allPass, status, self: <self-reference>}) on the built pre-fix dist and it threw synchronously: TypeError: Converting circular structure to JSON. The only production caller happens to build a plain non-circular object, but the function is exported with a parameter typed unknown, which the story's own earlier findings (F-001, F-008) rejected as sufficient basis for trusting a postcondition. THIS PARTICULAR MECHANISM IS NOW FIXED as of e1afeb346a: I re-ran the same circular-object reproduction against the current build and boundPersistedValidationEvidence now returns {disposition: 'verdict_only', withinBound: true} instead of throwing -- safeJsonStringify wraps every JSON.stringify call in try/catch and the outer function catches any throw from the reduction path. Filing as resolved for the mechanism this text describes; see my own new finding filed separately in this same round for a narrower fallback-construction gap I found that survives this fix (a getter that throws on one of the six verdict-only-record field names still escapes uncaught, because verdictOnlyRecord's own call site sits outside the try/catch).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:43:00.551Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-016",
+      "_hash": "fb6fe70f7880f018e90b2290219bf16bc5f3da524abead7bd700a5dc393e6b32",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "missing|ts|filed-quality-lane",
+      "signatureTagSource": "auto"
     }
   ]
 }
