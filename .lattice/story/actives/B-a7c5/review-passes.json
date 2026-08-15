@@ -37,6 +37,37 @@
         "scanEscalationReason": null
       },
       "_hash": "0266d832ad80117ab7313e8f0e8a860b21c8f7f75d47161809f67e20e2776fdd"
+    },
+    {
+      "id": "B-a7c5:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 audit of all 67 verificationIntent/verificationEvidence pairs across CHK-001..007: 1:1 coverage confirmed (67/67, no orphaned intents or evidence). Re-verified the 3 previously-resolved weak-binding findings (F-002/F-003/F-004): confirmed checklist.ts selectorMatched (line 645) is a raw includes() substring check, confirmed verification_evidence_add immutably pins command+selector on first write (receipt-command-mismatch/receipt-selector-mismatch refusals) with no tool-level path to strengthen an already-pinned weak selector for an existing intentRef, and independently re-confirmed each underlying claim by hand (grep for original M8/dev-memory.md text, code inspection of finding.ts memoryHint). All three resolutions are sound: honest documentation of a genuine tooling gap, not evidence laundering. Audited the new CHK-004:happy:0 waiver: traced its git history (commit 9461aa8c35) confirming it replaced a stale nonMechanical entry (invalidated by verification_evidence_refresh_stale after commit 1c150d07f3 added exactly 2 new regression assertions, raising the smoke test from 72->74 and breaking the immutably-pinned count-bearing selector). Ran the compiled smoke test myself: exits 0, 74 assertions pass, matching the waiver note. Also confirmed the underlying claim is independently, redundantly re-proven by 5 sibling CHK-004 evidence entries in the same item (happy:1/2/3, edge:1, adversarial:3) that execute the identical command and get exitCode:0, which given the fail-fast check()-throws design with no top-level try/catch is only reachable if all assertions passed -- so the waiver is a reasonable, honest use of the mechanism, not a coverage gap. Spot-checked CHK-007 git-diff-based evidence (structurally similar to the flagged CHK-005/006 pattern) and confirmed its selector correctly includes a leading + prefix, properly discriminating an added line -- does not repeat the F-002/F-003 flaw. Verified new since-round-1 code (commit 1c150d07f3, EISDIR fail-open fix in evaluateDevMemoryPreflightGate) against machine.ts and the 2 new smoke-test assertions exercising it. Verified CHK-001 DEV-door wiring and CHK-003 DONE-gate wiring match plan.md exactly. No blocking issues found.",
+      "createdAt": "2026-08-15T10:52:44.090Z",
+      "reviewRound": "2026-08-15T10:45:44.244Z",
+      "reviewRunId": "B-a7c5:RR-006",
+      "envelopeId": "342985e03d8e21087e9d14039e852b482c5b30582facaa568103956b900424c3",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef7c3345b80e2cf3d79bf3339326730c5eeca5d60f412cbe516b7f6601fc9cf4"
     }
   ]
 }
