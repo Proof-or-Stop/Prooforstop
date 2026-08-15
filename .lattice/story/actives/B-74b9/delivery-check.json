@@ -1,72 +1,72 @@
 {
   "storyId": "B-74b9",
-  "checkedAt": "2026-08-15T22:57:44.407Z",
-  "headHash": "62e2a17ab3adbbbef9675f25de53c4060814517c",
-  "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
-  "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
+  "checkedAt": "2026-08-15T23:34:33.574Z",
+  "headHash": "b2b8bac3690444980e76eb5fec636a1db90a2541",
+  "materialHash": "64950acbdac980850ef556102116d31fe0cab7912c6a31f50b00e749c07d79e1",
+  "storyFilesHash": "54351799707502cb96ac67a9b11a24167c86cd876ff2316a4532ffc83bc53ee5",
   "reviewRound": "2026-08-15T22:05:49.841Z",
-  "agentId": "lattice-review-delivery",
+  "agentId": "",
   "docsPromises": [
     {
       "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-001",
-      "promise": "Fix proofstory-acceptance-basis-smoke.ts's writeCanonicalAcceptanceRegistration by adding write() stubs for packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs so the synthetic snapshot closure is complete and the fixture no longer reports 'partial' status.",
+      "promise": "Fix proofstory-acceptance-basis-smoke.ts writeCanonicalAcceptanceRegistration by adding write() stubs for packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs so the synthetic snapshot closure is complete and the fixture no longer reports partial status.",
       "status": "verified",
-      "verifiedBy": "diff read + direct execution",
-      "evidence": "git diff main...HEAD -- packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts shows exactly two new write() calls for the two named files. Rebuilt (npm --prefix packages/main run build) and ran node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js directly: exit 0, prints 'ProofStory acceptance coverage basis Wave 1A smoke passed'. Also ran the paired RED script red-B-74b9-chk001-acceptance-basis.mjs on the fixed tree and confirmed it now throws (AssertionError: expected the fixture to still fail), consistent with the repro-first waiver claim that RED legitimately flips once the fix lands."
+      "verifiedBy": "re-confirmation diff/grep vs prior delivery-check.json basis (headHash 62e2a17ab3)",
+      "evidence": "git diff main...HEAD -- packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts is byte-identical to the diff analyzed by the prior delivery review; git diff 62e2a17ab3..HEAD -- that path produced zero output. Independently re-ran node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js on the current tree: exit 0, prints the same pass line and outputDigest 1fab61fa1f38ec6d recorded in checklist.json's re-refreshed evidence."
     },
     {
       "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-002",
-      "promise": "Fix field-regression-cli-smoke.ts by passing a valid readManifest object ({ filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }) to every review_pass_set call site so calls reach the real staleness/workspace-binding checks instead of failing CLI argument validation.",
+      "promise": "Fix field-regression-cli-smoke.ts by passing a valid readManifest object to every review_pass_set call site so calls reach the real staleness/workspace-binding checks instead of failing CLI argument validation.",
       "status": "verified",
-      "verifiedBy": "diff read + source cross-check + direct execution",
-      "evidence": "git diff shows the readManifest object added at 6 call sites in assertReviewRunStartCliSurface, assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift, assertReviewRunStartSplitRootGitRootBinding (x3), and assertReviewPassConcurrentCliSurface. Confirmed packages/main/src/cli/command-catalog.ts:639 marks readManifest required on review_pass_set (no .optional()). Ran the exact GREEN selector command from checklist.json INT-CHK002-GREEN directly: output 'READMANIFEST_FIX_CONFIRMED'. A raw full-file run still exits 1, but on a different, unrelated 'forceReviewer channel is not supported' error (the separately-tracked task_9f6b2322 defect), never the readManifest argument-validation message -- matching the claimed scope boundary exactly."
+      "verifiedBy": "re-confirmation diff/grep vs prior delivery-check.json basis",
+      "evidence": "git diff 62e2a17ab3..HEAD -- packages/main/src/tasks/field-regression-cli-smoke.ts is empty, no change since the prior pass. Re-ran the pinned GREEN selector command: output READMANIFEST_FIX_CONFIRMED, matching outputDigest 5f08334ef0648168 recorded previously."
     },
     {
       "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-003",
-      "promise": "Fix worktree-authority-smoke.ts's assertDoneRecoverRunsPostMergeBuildForRuntimeChanges and assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup by extending the synthetic mkdtemp root with all 5 version sync-point files (via new writeVersionSyncFiles helper + VERSION_SYNC_FILES import), fixture-only (no production code change), so bumpVersionOnDoneMerge's post-merge path no longer throws ENOENT on package.json.",
+      "promise": "Fix worktree-authority-smoke.ts by extending the synthetic mkdtemp root with the five version sync-point files, fixture-only with no production code change, so bumpVersionOnDoneMerge post-merge path no longer throws ENOENT on package.json.",
       "status": "verified",
-      "verifiedBy": "diff read + direct execution",
-      "evidence": "git diff shows the new writeVersionSyncFiles() helper, the VERSION_SYNC_FILES import from ../core/version-bump.js, and both target functions now call it and commit the 5 files before markStoryBranchPartialDone. Confirmed via git diff --stat that packages/main/src/core/version-bump.ts and packages/main/src/handlers/done-recover.ts have ZERO changes despite being listed in checklist.json CHK-003 files.modify -- consistent with decision.json's chosen option ('Fixture-only fixes') and plan.md's investigation finding that these functions already assume package.json unconditionally exists on any real repo root. Ran the exact GREEN selector command from checklist.json INT-CHK003-GREEN: output 'VERSION_BUMP_FIX_CONFIRMED'. A raw full-file run still exits 1, but now at a LATER, unrelated assertion (assertConcurrentDoneSerializesWithoutPartialDone, task_a8d49518, 'File not found ... index.json'), confirmed by reading the file's synchronous top-level call sequence: both fixed functions (lines 1613-1614) execute and complete without throwing before reaching the unrelated failure at line 1636 -- matching the claimed scope boundary exactly."
+      "verifiedBy": "re-confirmation diff/grep vs prior delivery-check.json basis",
+      "evidence": "git diff 62e2a17ab3..HEAD for worktree-authority-smoke.ts, version-bump.ts and done-recover.ts is empty. Re-ran the pinned GREEN selector command: output VERSION_BUMP_FIX_CONFIRMED, matching outputDigest b299796f8838663 recorded previously. Confirmed via git diff --stat main...HEAD that version-bump.ts and done-recover.ts remain untouched, consistent with the fixture-only decision."
     },
     {
       "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-004",
-      "promise": "Register proofstory-acceptance-basis-smoke.js into lattice.config.json validate.commands (confirmed clean, ~180000ms timeout matching the sibling proofstory-acceptance-rollout-smoke.js entry's shape); deliberately defer field-regression-cli-smoke.ts and worktree-authority-smoke.ts, each blocked only by its own separately-tracked, confirmed-unrelated pre-existing bug (task_9f6b2322 and task_a8d49518 respectively).",
+      "promise": "Register proofstory-acceptance-basis-smoke.js into lattice.config.json validate.commands; deliberately defer field-regression-cli-smoke.ts and worktree-authority-smoke.ts, each blocked only by its own separately-tracked, confirmed-unrelated pre-existing bug, task_9f6b2322 and task_a8d49518 respectively.",
       "status": "verified",
-      "verifiedBy": "diff read + grep + direct execution",
-      "evidence": "git diff main...HEAD -- lattice.config.json shows exactly one new line: { command: node, args: [packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js], timeoutMs: 180000 }, adjacent to the same-shape proofstory-acceptance-rollout-smoke.js entry. grep for field-regression-cli-smoke and worktree-authority-smoke in lattice.config.json returns no matches, confirming they were deliberately NOT registered. Independently re-ran node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js and confirmed a clean pass, so the new validate.commands entry is not flaky."
+      "verifiedBy": "re-confirmation diff/grep vs prior delivery-check.json basis",
+      "evidence": "git diff 62e2a17ab3..HEAD -- lattice.config.json is empty, no change since prior pass. Current git diff main...HEAD -- lattice.config.json still shows exactly the one new validate.commands entry for proofstory-acceptance-basis-smoke.js, no entries for the two deferred fixtures."
     },
     {
       "docPath": "packages/main/tests/red/red-b49d4-harness-registration.mjs#REGISTRATION_EXCLUSIONS",
-      "promise": "Register the three new RED scripts (red-B-74b9-chk001-acceptance-basis.mjs, red-B-74b9-chk002-readmanifest.mjs, red-B-74b9-chk003-version-bump.mjs) in the pre-existing B-49d4 harness-registration exclusion map with a stated reason each (they are pre-fix historical attestations that now throw once the fix lands, so registering them in validate.commands would make validate fail permanently on a fixed bug), so the total-population registration guard does not report them as undecided.",
+      "promise": "Register the three new RED scripts in the pre-existing B-49d4 harness-registration exclusion map with a stated reason each, so the total-population registration guard does not report them as undecided.",
       "status": "verified",
-      "verifiedBy": "diff read + direct execution",
-      "evidence": "git diff main...HEAD -- packages/main/tests/red/red-b49d4-harness-registration.mjs shows exactly 3 new REGISTRATION_EXCLUSIONS entries (>=40-char reasons, matching MIN_EXCLUSION_REASON_CHARS) for the three new RED scripts, no other lines touched. Ran node packages/main/tests/red/red-b49d4-harness-registration.mjs directly: exit 0, reports all 42 tests/red entries accounted for (34 registered + 8 excluded), including the three new ones. This guard is itself wired into lattice.config.json validate.commands (pre-existing, unchanged by this diff), so the exclusion-map update takes effect in lattice validate."
+      "verifiedBy": "re-confirmation diff/grep vs prior delivery-check.json basis",
+      "evidence": "git diff 62e2a17ab3..HEAD -- packages/main/tests/red/red-b49d4-harness-registration.mjs is empty, no change since prior pass. Current diff still shows the same 3 REGISTRATION_EXCLUSIONS entries verified previously."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Rebuilt packages/main and ran `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js` directly: exit 0, prints the pass line, confirming the two new stub write() calls close the snapshot gap. Ran the paired RED script `red-B-74b9-chk001-acceptance-basis.mjs`: exit 1 with AssertionError (fixture no longer reproduces the pre-fix 'partial' failure), consistent with the checklist's recorded discriminating-power revert-check (temporarily reverting the 2 stub lines reproduces the original snapshot_missing failure) and its permanent RED waiver."
+      "transcript": "Re-executed node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js directly on the current tree: exit 0, identical pass output and digest to the prior reviewed evidence. Underlying source diff for this checklist item is unchanged since the prior delivery-check pass, confirmed byte-identical via targeted git diff against the prior review's headHash."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Ran the pinned GREEN selector command (spawnSync + string-includes check on 'readManifest: Invalid input...' vs pass marker) directly: printed READMANIFEST_FIX_CONFIRMED. Cross-checked all 6 readManifest call sites added in the diff use the identical, non-trivial shape { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, matching an existing valid-manifest shape used elsewhere (agent-dispatch-registry-smoke.ts:619). Confirmed the file's remaining full-run failure is a distinct, unrelated 'forceReviewer channel not supported' error, not a readManifest regression."
+      "transcript": "Re-ran the pinned GREEN selector command: READMANIFEST_FIX_CONFIRMED, matching the prior digest. Underlying source diff unchanged since the prior pass."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Ran the pinned GREEN selector command directly: printed VERSION_BUMP_FIX_CONFIRMED. Confirmed via git diff --stat that no production file (version-bump.ts, done-recover.ts) changed, matching the fixture-only decision. Confirmed via a raw full-file run and source read of the file's synchronous top-level call order that both CHK-003-relevant functions (assertDoneRecoverRunsPostMergeBuildForRuntimeChanges, assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup, lines 1613-1614) now complete successfully, with the file's only remaining failure occurring later (line 1636, an unrelated concurrent-DONE-lock defect)."
+      "transcript": "Re-ran the pinned GREEN selector command: VERSION_BUMP_FIX_CONFIRMED, matching the prior digest. Confirmed via git diff --stat that no production file changed. Underlying source diff unchanged since the prior pass."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "This item is a documentation/config registration decision, not new runtime logic. Verified structurally: lattice.config.json diff adds exactly one validate.commands entry (proofstory-acceptance-basis-smoke.js) and none for the two deferred fixtures. Re-ran the newly-registered fixture directly (clean pass, no flakiness) and ran the harness-registration guard (red-b49d4-harness-registration.mjs) which independently cross-checks that every packages/main/tests/red/*.mjs entry -- including this story's three new RED scripts -- is either registered or excluded with a reason; it passed with 0 undecided entries.",
-      "waiverReason": "The 'not registering the two deferred fixtures' half of this decision is a negative/config claim with no independent positive assertion to execute; it was instead verified by grep-confirming their absence from lattice.config.json and by independently reproducing that each deferred fixture's own defect (readManifest, version-bump ENOENT) is genuinely fixed while a separate, unrelated pre-existing bug in the same file blocks full-file green."
+      "transcript": "Confirmed structurally unchanged: lattice.config.json diff still adds exactly one validate.commands entry, none for the two deferred fixtures; the exclusion-map guard red-b49d4-harness-registration.mjs diff is also unchanged.",
+      "waiverReason": "The negative/config half of this decision, not registering the two deferred fixtures, has no independent positive command to execute; verified by absence-of-change confirmation against the prior reviewed diff."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 5 docs/config promises (3 fixture fixes, 1 registration decision, 1 exclusion-map update) are verified directly against the diff and by independently re-executing every GREEN/RED command myself on a freshly rebuilt tree, with results matching the checklist's claims exactly, including the precise unrelated-defect boundaries (task_9f6b2322, task_a8d49518) each deferred fixture still hits. No unresolved TODO/FIXME/HACK found in the diff. No critical gaps found."
+    "summary": "Focused re-confirmation pass: only story-metadata and dev-memory-lifecycle commits (dev_memory_finish_decision, dev_memory_capture lesson, summary_set, plus intervening validate, verification-evidence-refresh, and done_required_validate metadata commits) landed since the prior thorough delivery review at headHash 62e2a17ab3. Verified via targeted git diff that none of the reviewed material files (lattice.config.json, the three fixed .ts task files, the four .mjs RED and exclusion-map files) changed even one byte since that basis, and independently re-ran all three pinned GREEN commands with identical output digests. All 5 docs promises and 4 checklist items remain verified with no regression or drift; no unresolved TODO/FIXME/HACK in the diff."
   },
-  "_hash": "6572ac541f99d4e765be7387903bec0375e3d1e213628ca5c4be2eeff4bc9122"
+  "_hash": "669d0b469b97c72fb8a733a66c503810242ac30be4b55ebd70d9a1068d5515c5"
 }
