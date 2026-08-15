@@ -31,8 +31,8 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
-  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
@@ -41,9 +41,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE,
-  VALIDATION_CAPACITY_PROBE_DEADLINE_MS,
   validationCapacityLockPath,
   validationExecutionLockPath,
   withOfficialValidationExecution,
@@ -53,6 +53,7 @@ import {
 import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
+import { createVerdictHandlers } from '../handlers/verdict.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
@@ -238,6 +239,7 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-'));
   write(root, '.gitignore', [
     'entered.log',
+    'bare-entered.log',
     'release',
     '.lattice/activity.jsonl',
     '.lattice/locks/',
@@ -269,6 +271,8 @@ while (!existsSync('release')) {
 }
 console.log('probe ' + label + ' passed');
 `);
+  write(root, 'package.json', JSON.stringify({ scripts: { test: 'node bare-test-probe.mjs' } }, null, 2) + '\n');
+  write(root, 'bare-test-probe.mjs', "import{appendFileSync}from'node:fs';appendFileSync('bare-entered.log','bare npm test\\n');console.log('bare npm test passed');\n");
   write(root, 'packages/main/src/index.ts', 'export const validateLockSmoke = true;\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -361,7 +365,7 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
             assert.equal(enteredCount(root), 1, 'real configured command must finish before evidence persistence');
             assert.equal(existsSync(validationExecutionLockPath(root, storyId)), true,
               'real verifier evidence persistence must remain inside the story validation lock');
-            assert.equal(existsSync(validationCapacityLockPath(root)), true,
+            assert.equal(capacityTicketPaths(root).length, 1,
               'real verifier evidence persistence must remain inside workspace capacity');
             persistenceObserved = true;
             return target.writeTestEvidence(...args);
@@ -380,7 +384,7 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
     assert.equal(persistenceObserved, true, 'real verifier must call the instrumented evidence writer');
     assert.equal(existsSync(validationExecutionLockPath(root, storyId)), false,
       'validation lock releases only after the real handler returns');
-    assert.equal(existsSync(validationCapacityLockPath(root)), false,
+    assert.equal(capacityTicketPaths(root).length, 0,
       'workspace capacity releases only after the real handler returns');
     assert.ok(targetStore.readTestEvidence(storyId), 'real verifier persists story evidence');
   } finally {
@@ -582,8 +586,45 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
     assert.equal(validateResult.code, 0, validateResult.output);
     assert.equal(doneRequiredResult.code, 0, doneRequiredResult.output);
     assert.equal(enteredCount(root), 2, 'queued done_required_validate must run after validate releases');
+    const evidenceStore = new StoryStore(root);
+    const routineEvidence = evidenceStore.readTestEvidence(storyId);
+    const doneEvidence = evidenceStore.readDoneRequiredEvidence(storyId);
+    assert.equal(routineEvidence?.result, 'PASS', 'validate -> done_required must retain routine PASS evidence');
+    assert.equal(doneEvidence?.status, 'PASS', 'validate -> done_required must write DONE-required PASS evidence');
+    for (const [label, evidence] of [['routine', routineEvidence], ['done-required', doneEvidence]] as const) {
+      assert.ok(evidence?.headHash, `${label} evidence must bind headHash`);
+      assert.ok(evidence?.materialHash, `${label} evidence must bind materialHash`);
+      assert.ok(evidence?.storyFilesHash, `${label} evidence must bind storyFilesHash`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+
+  const reverse = setupFixture({ storyId: 'B-required-validate', doneRequired: true });
+  try {
+    const doneRequired = spawnCommand(reverse.root, [
+      'done_required_validate',
+      JSON.stringify({ storyId: reverse.storyId, json: true }),
+    ], 'reverse-done-holder');
+    assert.equal(await waitForEntered(reverse.root, 1, 4000), true,
+      'done_required_validate must enter before reverse validate starts');
+    const validate = spawnValidate(reverse.root, reverse.storyId, 'reverse-validate-contender');
+    assert.equal(await waitForOutput(validate, /waiting for workspace validation capacity/, 4000), true,
+      `reverse validate must visibly wait; output=${validate.output()}`);
+    assert.equal(enteredCount(reverse.root), 1, 'reverse validate must not enter while done_required holds capacity');
+    release(reverse.root);
+    const [doneResult, validateResult] = await Promise.all([
+      waitChild(doneRequired, 12000),
+      waitChild(validate, 12000),
+    ]);
+    assert.equal(doneResult.code, 0, doneResult.output);
+    assert.equal(validateResult.code, 0, validateResult.output);
+    assert.equal(enteredCount(reverse.root), 2, 'reverse queued validate must run after done_required releases');
+    const store = new StoryStore(reverse.root);
+    assert.equal(store.readDoneRequiredEvidence(reverse.storyId)?.status, 'PASS');
+    assert.equal(store.readTestEvidence(reverse.storyId)?.result, 'PASS');
+  } finally {
+    rmSync(reverse.root, { recursive: true, force: true });
   }
 }
 
@@ -735,8 +776,11 @@ function writeCapacityOwner(
   heartbeat?: Record<string, unknown>,
   ageMs = 0,
 ): string {
-  const lockDir = validationCapacityLockPath(root);
-  mkdirSync(lockDir, { recursive: true });
+  const lockRoot = validationCapacityLockPath(root);
+  mkdirSync(lockRoot, { recursive: true });
+  const lockId = typeof holder?.lockId === 'string' ? holder.lockId : `unknown-${Date.now()}`;
+  const lockDir = join(lockRoot, `0000000000000001-${lockId}.ticket`);
+  mkdirSync(lockDir);
   if (holder) writeFileSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), JSON.stringify(holder, null, 2) + '\n', 'utf8');
   if (heartbeat) {
     writeFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), JSON.stringify(heartbeat, null, 2) + '\n', 'utf8');
@@ -744,6 +788,18 @@ function writeCapacityOwner(
   const timestamp = new Date(Date.now() - ageMs);
   utimesSync(lockDir, timestamp, timestamp);
   return lockDir;
+}
+
+function capacityTicketPaths(root: string): string[] {
+  const lockRoot = validationCapacityLockPath(root);
+  try {
+    return readdirSync(lockRoot)
+      .filter(name => name.endsWith('.ticket'))
+      .sort()
+      .map(name => join(lockRoot, name));
+  } catch {
+    return [];
+  }
 }
 
 async function assertCapacityStrictStaleClassifier(): Promise<void> {
@@ -807,36 +863,118 @@ async function assertCapacityStrictStaleClassifier(): Promise<void> {
   }
 }
 
-async function assertCapacityReleaseRaceRetriesAsynchronously(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-release-race-'));
-  const lockPath = validationCapacityLockPath(root);
+async function assertCapacityAtomicStaleQuarantineStress(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-aba-stress-'));
   try {
-    assert.ok(VALIDATION_CAPACITY_PROBE_DEADLINE_MS < 0,
-      'capacity probe deadline must stay pre-expired so acquireMkdirLock cannot enter synchronous polling');
-    mkdirSync(dirname(lockPath), { recursive: true });
-    // A dangling symlink deterministically produces mkdir=EEXIST followed by
-    // stat=ENOENT, the same observable sequence as a holder releasing between
-    // the probe's mkdir and stat. The timer cannot remove it until the probe
-    // yields, so the old deadlineMs=1 synchronous path fails this test.
-    symlinkSync(join(root, 'missing-capacity-holder'), lockPath, 'dir');
-    let releaseTimerFired = false;
-    setTimeout(() => {
-      rmSync(lockPath, { force: true });
-      releaseTimerFired = true;
-    }, 0);
-    let entered = false;
+    for (let round = 0; round < 20; round += 1) {
+      writeCapacityOwner(root, {
+        lockId: `dead-seed-${round}`,
+        pid: 999_999_999,
+        hostname: hostname(),
+        command: `dead seed ${round}`,
+        acquiredAt: new Date().toISOString(),
+        processStartTimeMs: processStartTimeMs() - 60_000,
+      });
+      let concurrent = 0;
+      let maxConcurrency = 0;
+      const entries: number[] = [];
+      await Promise.all(Array.from({ length: 12 }, (_, waiter) => withWorkspaceValidationCapacity({
+        root,
+        workspaceRoot: root,
+        command: 'validate',
+        storyId: `B-aba-${round}-${waiter}`,
+        pollMs: 2,
+        deadlineAt: Date.now() + 5000,
+      }, async () => {
+        concurrent += 1;
+        maxConcurrency = Math.max(maxConcurrency, concurrent);
+        entries.push(waiter);
+        await sleep(2);
+        concurrent -= 1;
+      })));
+      assert.equal(maxConcurrency, 1, `round ${round}: stale reclaim must never overlap a successor`);
+      assert.equal(entries.length, 12, `round ${round}: every queued successor must eventually enter`);
+      const leftovers = readdirSync(validationCapacityLockPath(root))
+        .filter(name => name.endsWith('.ticket') || name.endsWith('.choosing') || name.endsWith('.quarantine'));
+      assert.deepEqual(leftovers, [], `round ${round}: no ticket/quarantine may leak after release`);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertKilledCapacityOwnerReplacement(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-killed-owner-'));
+  const ready = join(root, 'owner-ready');
+  const helper = join(root, 'capacity-owner.mjs');
+  try {
+    writeFileSync(helper, `
+import { writeFileSync } from 'node:fs';
+import { withWorkspaceValidationCapacity } from ${JSON.stringify(join(repoRoot(), 'packages/main/dist/core/validation-execution-lock.js'))};
+await withWorkspaceValidationCapacity({ root: ${JSON.stringify(root)}, workspaceRoot: ${JSON.stringify(root)}, command: 'killed-owner', pollMs: 5 }, async () => {
+  writeFileSync(${JSON.stringify(ready)}, 'ready\\n');
+  await new Promise(() => { setInterval(() => {}, 1000); });
+});
+`, 'utf8');
+    const owner = spawn(process.execPath, [helper], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    const ownerDone = new Promise<number | null>((resolveDone) => owner.on('close', resolveDone));
+    const readyDeadline = Date.now() + 4000;
+    while (!existsSync(ready) && Date.now() < readyDeadline) await sleep(10);
+    assert.equal(existsSync(ready), true, 'child owner must acquire capacity before replacement queues');
+
+    let successorEntered = false;
+    const successor = withWorkspaceValidationCapacity({
+      root,
+      workspaceRoot: root,
+      command: 'killed-successor',
+      pollMs: 5,
+      deadlineAt: Date.now() + 4000,
+    }, () => { successorEntered = true; });
+    await sleep(50);
+    assert.equal(successorEntered, false, 'successor must wait while child owner is live');
+    owner.kill('SIGKILL');
+    await ownerDone;
+    await successor;
+    assert.equal(successorEntered, true, 'queued successor must replace a mechanically dead child owner');
+    assert.equal(capacityTicketPaths(root).length, 0, 'killed-owner replacement must leave no ticket');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertKilledBeforeCapacityPublicationDoesNotBlock(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-killed-before-publish-'));
+  const lockRoot = validationCapacityLockPath(root);
+  const ready = join(root, 'preparing-ready');
+  const helper = join(root, 'capacity-preparing-owner.mjs');
+  const abandonedPreparation = join(lockRoot, 'killed-owner.preparing');
+  try {
+    mkdirSync(lockRoot, { recursive: true });
+    writeFileSync(helper, `
+import { mkdirSync, writeFileSync } from 'node:fs';
+mkdirSync(${JSON.stringify(abandonedPreparation)});
+writeFileSync(${JSON.stringify(ready)}, 'ready\\n');
+await new Promise(() => { setInterval(() => {}, 1000); });
+`, 'utf8');
+    const owner = spawn(process.execPath, [helper], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    const ownerDone = new Promise<number | null>((resolveDone) => owner.on('close', resolveDone));
+    const readyDeadline = Date.now() + 4000;
+    while (!existsSync(ready) && Date.now() < readyDeadline) await sleep(10);
+    assert.equal(existsSync(ready), true, 'child must stop in the private pre-publication path');
+    owner.kill('SIGKILL');
+    await ownerDone;
+
+    let successorEntered = false;
     await withWorkspaceValidationCapacity({
       root,
       workspaceRoot: root,
-      command: 'validate',
-      pollMs: 15,
+      command: 'post-publication-kill-successor',
       deadlineAt: Date.now() + 1000,
-    }, () => {
-      assert.equal(releaseTimerFired, true, 'release-race retry must yield to the event loop before callback entry');
-      entered = true;
-    });
-    assert.equal(entered, true, 'vanished-between-mkdir/stat race must retry and acquire');
-    assert.equal(existsSync(lockPath), false, 'release-race acquisition must release its successor lease');
+    }, () => { successorEntered = true; });
+    assert.equal(successorEntered, true,
+      'a killed process before atomic publication must not leave a queue-visible ownerless choosing entry');
+    assert.equal(existsSync(abandonedPreparation), true,
+      'the simulation must retain the private killed preparation while the successor acquires');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -852,9 +990,11 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     let releaseOwner: () => void = () => {};
     let ownerEntered = false;
     let nestedEntered = false;
-    const owner = withWorkspaceValidationCapacity(options, async () => {
+    const owner = withOfficialValidationExecution(options, async () => {
       ownerEntered = true;
-      await withWorkspaceValidationCapacity(options, () => { nestedEntered = true; });
+      assert.equal(existsSync(validationExecutionLockPath(root, 'B-owner')), true,
+        'official owner must acquire the inner story lock after capacity');
+      await withOfficialValidationExecution(options, () => { nestedEntered = true; });
       await new Promise<void>((resolveOwner) => { releaseOwner = resolveOwner; });
     });
     while (!ownerEntered) await sleep(5);
@@ -875,7 +1015,9 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     assert.equal(siblingEntered, false, 'independent sibling context must remain queued');
     assert.ok(progress.length >= 1 && progress.length <= 4, `wait progress must be visible and bounded: ${progress.length}`);
     assert.match(progress[0]!, /waiting for workspace validation capacity: holder validate for B-owner .*heartbeat/);
-    const heartbeatPath = join(validationCapacityLockPath(root), VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE);
+    const ownerTicket = capacityTicketPaths(root)[0];
+    assert.ok(ownerTicket, 'active capacity owner must expose one unique ticket');
+    const heartbeatPath = join(ownerTicket, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE);
     const firstHeartbeat = JSON.parse(readFileSync(heartbeatPath, 'utf8')) as { heartbeatAt: string };
     await sleep(2100);
     const secondHeartbeat = JSON.parse(readFileSync(heartbeatPath, 'utf8')) as { heartbeatAt: string };
@@ -885,6 +1027,8 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     releaseOwner();
     await Promise.all([owner, sibling]);
     assert.equal(siblingEntered, true, 'queued sibling must enter automatically after release');
+    assert.equal(existsSync(validationExecutionLockPath(root, 'B-owner')), false,
+      'same-story nested owner must release the inner lock exactly once');
 
     let releaseAbortOwner: () => void = () => {};
     let abortOwnerEntered = false;
@@ -895,7 +1039,7 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     while (!abortOwnerEntered) await sleep(5);
     const abortController = new AbortController();
     let abortedEntered = false;
-    const aborted = withWorkspaceValidationCapacity({
+    const aborted = withOfficialValidationExecution({
       ...options,
       storyId: 'B-aborted',
       abortSignal: abortController.signal,
@@ -903,6 +1047,22 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
     abortController.abort(new Error('capacity wait cancelled by smoke'));
     await assert.rejects(() => aborted, /cancelled by smoke/);
     assert.equal(abortedEntered, false, 'aborted waiter must stop before callback entry');
+    assert.equal(existsSync(validationExecutionLockPath(root, 'B-aborted')), false,
+      'aborted capacity waiter must never acquire the inner story lock');
+
+    let deadlineEntered = false;
+    await assert.rejects(
+      () => withOfficialValidationExecution({
+        ...options,
+        storyId: 'B-deadline',
+        deadlineAt: Date.now() + 40,
+        deadlineError: () => new Error('capacity deadline smoke'),
+      }, () => { deadlineEntered = true; }),
+      /capacity deadline smoke/,
+    );
+    assert.equal(deadlineEntered, false, 'deadline waiter must stop before callback entry');
+    assert.equal(existsSync(validationExecutionLockPath(root, 'B-deadline')), false,
+      'deadline capacity waiter must never acquire the inner story lock');
     releaseAbortOwner();
     await abortOwner;
 
@@ -918,10 +1078,111 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
   }
 }
 
+async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-capacity-bypass' });
+  try {
+    const holder = spawnValidate(root, storyId, 'bypass-holder');
+    assert.equal(await waitForEntered(root, 1, 4000), true, 'official validate must hold capacity');
+    const ticketBefore = capacityTicketPaths(root);
+    assert.equal(ticketBefore.length, 1);
+
+    const bareOutput = execFileSync('npm', ['test'], { cwd: root, encoding: 'utf8' });
+    assert.match(bareOutput, /bare npm test passed/);
+    assert.equal(existsSync(join(root, 'bare-entered.log')), true,
+      'bare npm test must execute while official capacity is held');
+    for (const [command, args] of [
+      ['session_brief', {}],
+      ['story_get', { storyId, slim: true }],
+      ['checklist_get', { storyId, slim: true }],
+    ] as const) {
+      const output = await runLattice(root, command, args);
+      assert.ok(output.trim(), `${command} must complete while validation capacity is held`);
+    }
+    assert.deepEqual(capacityTicketPaths(root), ticketBefore,
+      'bare npm and read-only commands must neither acquire nor replace the official capacity ticket');
+    assert.equal(enteredCount(root), 1, 'bypass commands must not enter the configured validation probe');
+
+    release(root);
+    const holderResult = await waitChild(holder, 12000);
+    assert.equal(holderResult.code, 0, holderResult.output);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-capacity-derived-verdict' });
+  const originalCwd = process.cwd();
+  try {
+    const store = new StoryStore(root);
+    store.writeChecklist(storyId, { items: [] });
+    commitAll(root, 'seed empty checklist for derived verdict');
+    const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
+    store.writeTestEvidence(storyId, {
+      result: 'PASS',
+      command: `lattice validate --story=${storyId} --json`,
+      output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
+      timestamp: NOW,
+      headHash: git(root, ['rev-parse', 'HEAD']).trim(),
+      materialHash: currentMaterialHash(root)!,
+      storyFilesHash: currentStoryFilesHash(root)!,
+      verificationCoverage: coverage,
+    });
+    process.chdir(root);
+
+    let releaseOwner!: () => void;
+    let ownerReady!: () => void;
+    const ready = new Promise<void>(resolveReady => { ownerReady = resolveReady; });
+    const releasePromise = new Promise<void>(resolveRelease => { releaseOwner = resolveRelease; });
+    const holder = withWorkspaceValidationCapacity({
+      root,
+      workspaceRoot: root,
+      requireGitIdentity: true,
+      command: 'starved-live-validation-writer',
+    }, async () => {
+      ownerReady();
+      await releasePromise;
+    });
+    await ready;
+
+    let verdictSettled = false;
+    const verdictPromise = Promise.resolve(createVerdictHandlers({ root, scanRoot: join(root, 'packages/main'), store })
+      .autopilot_review_submit({
+        storyId,
+        runId: 'capacity-race',
+        hostId: 'capacity-host',
+        provider: 'codex',
+        sessionId: 'capacity-session',
+        decision: 'pass',
+        deriveBindings: true,
+        json: true,
+      }));
+    verdictPromise.finally(() => { verdictSettled = true; }).catch(() => undefined);
+    await sleep(75);
+    assert.equal(verdictSettled, false,
+      'derived verdict must queue behind the same outer capacity as a validation evidence writer');
+    assert.equal(store.readProcessEvents(storyId).filter(event => event.type === 'host_verdict').length, 0,
+      'derived verdict must not persist while validation capacity is held');
+
+    releaseOwner();
+    await holder;
+    const verdict = await verdictPromise;
+    assert.notEqual(typeof verdict, 'string', 'JSON derived verdict must return a structured verdict');
+    if (typeof verdict === 'string') assert.fail(verdict);
+    assert.equal(verdict.runId, 'capacity-race');
+    assert.equal(store.readProcessEvents(storyId).filter(event => event.type === 'host_verdict').length, 1,
+      'derived verdict must persist after the capacity owner releases');
+  } finally {
+    process.chdir(originalCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   const first = setupFixture({ storyId: 'B-cap-scope' });
   const second = setupFixture({ storyId: 'B-independent' });
   const linked = join(tmpdir(), `lattice-capacity-linked-${process.pid}-${Date.now()}`);
+  const wrapper = mkdtempSync(join(tmpdir(), 'lattice-capacity-wrapper-'));
   try {
     git(first.root, ['worktree', 'add', '-b', `capacity-linked-${Date.now()}`, linked]);
     assert.equal(validationCapacityLockPath(first.root), validationCapacityLockPath(linked),
@@ -929,9 +1190,34 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
     assert.notEqual(validationCapacityLockPath(first.root), validationCapacityLockPath(second.root),
       'independent repositories must not share capacity');
 
+    let wrapperEntered = false;
+    await withWorkspaceValidationCapacity({
+      root: wrapper,
+      workspaceRoot: first.root,
+      requireGitIdentity: true,
+      command: 'validate',
+    }, () => {
+      wrapperEntered = true;
+      assert.equal(capacityTicketPaths(first.root).length, 1,
+        'metadata wrapper must place capacity under the signed git workspace common dir');
+      assert.equal(existsSync(join(wrapper, '.lattice/locks/validation-capacity.lock')), false,
+        'metadata wrapper must not mint a split capacity root');
+    });
+    assert.equal(wrapperEntered, true);
+    await assert.rejects(
+      () => withWorkspaceValidationCapacity({
+        root: wrapper,
+        workspaceRoot: wrapper,
+        requireGitIdentity: true,
+        command: 'validate',
+      }, () => undefined),
+      /cannot resolve git-common-dir identity/,
+      'expected git identity failure must fail closed instead of falling back to metadataRoot',
+    );
+
     const holder = spawnValidate(first.root, first.storyId, 'selective-holder');
     assert.equal(await waitForEntered(first.root, 1, 4000), true);
-    const selective = spawnCommand(first.root, ['validate', '--concept', '--json'], 'selective-contender');
+    const selective = spawnCommand(linked, ['validate', '--concept', '--json'], 'selective-contender');
     assert.equal(await waitForOutput(selective, /waiting for workspace validation capacity/, 4000), true,
       `selective mode must visibly wait; output=${selective.output()}`);
     release(first.root);
@@ -948,27 +1234,83 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
 
     const verifierSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verifier.ts'), 'utf8');
     const doneSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
+    const verdictSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verdict.ts'), 'utf8');
     assert.match(verifierSource, /return await withOfficialValidationExecution[\s\S]*if \(args\.channel \|\| args\.concept \|\| args\.lint\)/,
       'all selective validate returns must be below the official capacity boundary');
     assert.match(doneSource, /return await withOfficialValidationExecution/,
       'done_required_validate must use the same official capacity boundary');
+    assert.match(verdictSource, /submitWithDerivedBindings[\s\S]*return withOfficialValidationExecution/,
+      'derived verdict binding must not bypass the validation writer capacity boundary');
+    assert.doesNotMatch(verdictSource, /withValidationExecutionLock/,
+      'production derived verdict binding must not call the inner story lock directly');
   } finally {
     try { git(first.root, ['worktree', 'remove', '--force', linked]); } catch { /* fixture cleanup */ }
     rmSync(linked, { recursive: true, force: true });
     rmSync(first.root, { recursive: true, force: true });
     rmSync(second.root, { recursive: true, force: true });
+    rmSync(wrapper, { recursive: true, force: true });
   }
+}
+
+function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
+  const protectedFiles = [
+    'lattice.config.json',
+    'package.json',
+    'packages/main/package.json',
+    'packages/main/src/tasks/full-suite-runner.ts',
+    'packages/main/src/tasks/full-suite-runner-smoke.ts',
+  ];
+  assert.doesNotThrow(() => execFileSync('git', [
+    'diff', '--exit-code', 'main...HEAD', '--', ...protectedFiles,
+  ], { cwd: repoRoot(), stdio: ['ignore', 'pipe', 'pipe'] }),
+  'CHK-003 adversarial inventory proof requires zero story-branch diff over protected command/timeout sources');
+  assert.doesNotThrow(() => execFileSync('git', [
+    'diff', '--exit-code', 'HEAD', '--', ...protectedFiles,
+  ], { cwd: repoRoot(), stdio: ['ignore', 'pipe', 'pipe'] }),
+  'CHK-003 adversarial inventory proof requires zero uncommitted diff over protected command/timeout sources');
+
+  const runnerSource = readFileSync(join(repoRoot(), 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
+  const smokeSource = readFileSync(join(repoRoot(), 'packages/main/src/tasks/full-suite-runner-smoke.ts'), 'utf8');
+  assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
+  assert.match(runnerSource + smokeSource, /180_000|180000/, '180-second member timeout source must remain present');
+  assert.match(runnerSource + smokeSource, /300_000|300000/, '300-second proof threshold source must remain present');
+}
+
+function assertCapacityReclaimImplementationIsIdentityStable(): void {
+  const source = readFileSync(join(repoRoot(), 'packages/main/src/core/validation-execution-lock.ts'), 'utf8');
+  const start = source.indexOf('export async function withWorkspaceValidationCapacity');
+  const end = source.indexOf('export async function withOfficialValidationExecution', start);
+  assert.ok(start >= 0 && end > start, 'capacity implementation source section must be locatable');
+  const capacitySource = source.slice(start, end);
+  assert.doesNotMatch(capacitySource, /acquireMkdirLock\(/,
+    'capacity reclaim must not delegate a classified ticket to fixed-path recursive removal');
+  assert.match(source, /renameSync\(candidatePath, quarantinePath\)/,
+    'capacity reclaim must atomically isolate the exact classified UUID ticket');
+  assert.match(source, /writeValidationHeartbeat\(preparingPath, holder\);\s*renameSync\(preparingPath, path\)/,
+    'capacity choosing publication must occur atomically only after holder and heartbeat metadata are complete');
+  assert.match(source, /rmSync\(quarantinePath, \{ recursive: true, force: true \}\)/,
+    'capacity reclaim may recursively remove only its unique quarantine');
+  assert.match(source, /!quarantineValidationCapacityCandidate\(candidate\.path, 'stale'\) && existsSync\(candidate\.path\)[\s\S]*active\.push\(candidate\)/,
+    'failed stale isolation must remain active rather than admitting a successor');
+  assert.doesNotMatch(capacitySource, /rmSync\(lockKey/,
+    'capacity acquisition must never recursively remove the shared canonical capacity root');
 }
 
 void (async () => {
   try {
     await assertWorkspaceWaitAndRun();
-    await assertCapacityReleaseRaceRetriesAsynchronously();
+    await assertCapacityAtomicStaleQuarantineStress();
+    await assertKilledCapacityOwnerReplacement();
+    await assertKilledBeforeCapacityPublicationDoesNotBlock();
     await assertCapacityStrictStaleClassifier();
     await assertCapacityAsyncWaitAbortReentrancyAndRelease();
+    await assertBareNpmAndReadOnlyCommandsBypassCapacity();
+    await assertDerivedVerdictCannotBypassCapacity();
     await assertCapacityRepositoryScopeAndSelectiveModes();
+    assertProtectedInventoryAndTimeoutSourcesUnchanged();
+    assertCapacityReclaimImplementationIsIdentityStable();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
-      console.log('validate-execution-lock workspace capacity contract passed: 5 assertion groups');
+      console.log('validate-execution-lock workspace capacity contract passed: 11 assertion groups');
       return;
     }
     await assertPostCommandPersistenceHoldsLock();
@@ -982,7 +1324,7 @@ void (async () => {
     await assertVanishedOwnerReclaimed();
     await assertMismatchedOwnerReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 16 assertion groups');
+    console.log('validate-execution-lock smoke passed: 22 assertion groups');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);

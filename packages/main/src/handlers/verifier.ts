@@ -1070,6 +1070,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         root: projectRoot,
         storyId: args.story,
         workspaceRoot: handlerGitCwd,
+        requireGitIdentity: Boolean(args.story) || existsSync(join(handlerGitCwd, '.git')),
         command: 'validate',
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,

@@ -34,6 +34,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
         root: ctx.root,
         storyId,
         workspaceRoot: gitCwd,
+        requireGitIdentity: true,
         command: 'done_required_validate',
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,

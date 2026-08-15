@@ -1,7 +1,18 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  statSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import { hostname } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import {
@@ -20,7 +31,6 @@ export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE = 'heartbeat.json';
 export const VALIDATION_CAPACITY_LOCK_REL = `${LATTICE_DIR}/locks/validation-capacity.lock`;
 export const VALIDATION_CAPACITY_WAIT_POLL_MS = 100;
 export const VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS = 30000;
-export const VALIDATION_CAPACITY_PROBE_DEADLINE_MS = -1;
 
 const heldValidationLockPaths = new Set<string>();
 const validationLockOwnerStore = new AsyncLocalStorage<Set<string>>();
@@ -204,23 +214,24 @@ export function classifyValidationCapacityLock(snapshot: ExistingMkdirLockSnapsh
  * shared anchor. On ANY failure (not a git repo, git missing, unusual layout)
  * this falls back to `root` verbatim, keeping plain-repo behavior byte-identical.
  */
+function resolveGitCommonLockRoot(root: string): string {
+  const projectRoot = String(root ?? '').trim();
+  if (!projectRoot) throw new Error('git-common-dir lock identity requires a workspace root');
+  const commonDirRaw = execFileSync('git', ['-C', projectRoot, 'rev-parse', '--git-common-dir'], {
+    stdio: ['ignore', 'pipe', 'ignore'],
+    encoding: 'utf8',
+  }).trim();
+  if (!commonDirRaw) throw new Error(`git-common-dir lock identity is empty for ${projectRoot}`);
+  const commonDirAbs = isAbsolute(commonDirRaw) ? commonDirRaw : resolve(projectRoot, commonDirRaw);
+  const commonDir = realpathSync(commonDirAbs);
+  return basename(commonDir) === '.git' ? dirname(commonDir) : commonDir;
+}
+
 export function resolveSharedLockRoot(root: string): string {
   const projectRoot = String(root ?? '').trim();
   if (!projectRoot) return projectRoot;
   try {
-    const commonDirRaw = execFileSync('git', ['-C', projectRoot, 'rev-parse', '--git-common-dir'], {
-      stdio: ['ignore', 'pipe', 'ignore'],
-      encoding: 'utf8',
-    }).trim();
-    if (!commonDirRaw) return projectRoot;
-    // `--git-common-dir` is relative to the queried worktree in the main
-    // worktree (`.git`) and absolute in linked worktrees; resolve against root.
-    const commonDirAbs = isAbsolute(commonDirRaw) ? commonDirRaw : resolve(projectRoot, commonDirRaw);
-    const commonDir = realpathSync(commonDirAbs);
-    // Normal repos: `<mainRoot>/.git` → the main worktree root, shared by all
-    // linked worktrees. Unusual layouts (e.g. a bare repo whose common dir is
-    // the repository itself) use the common dir as the shared anchor directly.
-    return basename(commonDir) === '.git' ? dirname(commonDir) : commonDir;
+    return resolveGitCommonLockRoot(projectRoot);
   } catch {
     return projectRoot;
   }
@@ -235,10 +246,22 @@ export function validationExecutionLockPath(root: string, storyId: string): stri
   return join(sharedRoot, VALIDATION_EXECUTION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
 }
 
-export function validationCapacityLockPath(root: string): string {
-  const projectRoot = String(root ?? '').trim();
-  if (!projectRoot) throw new Error('validationCapacityLockPath: root is required');
-  return join(resolveSharedLockRoot(projectRoot), VALIDATION_CAPACITY_LOCK_REL);
+export function validationCapacityLockPath(workspaceRoot: string, requireGitIdentity = false): string {
+  const canonicalWorkspace = String(workspaceRoot ?? '').trim();
+  if (!canonicalWorkspace) throw new Error('validationCapacityLockPath: workspaceRoot is required');
+  let sharedRoot: string;
+  try {
+    sharedRoot = resolveGitCommonLockRoot(canonicalWorkspace);
+  } catch (error) {
+    if (requireGitIdentity) {
+      throw new Error(
+        `workspace validation capacity cannot resolve git-common-dir identity for ${canonicalWorkspace}: ` +
+        `${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    sharedRoot = canonicalWorkspace;
+  }
+  return join(sharedRoot, VALIDATION_CAPACITY_LOCK_REL);
 }
 
 /**
@@ -335,6 +358,7 @@ export interface ValidationExecutionLockOptions {
 export interface ValidationCapacityLockOptions {
   root: string;
   workspaceRoot: string;
+  requireGitIdentity?: boolean;
   command: string;
   storyId?: string;
   staleMs?: number;
@@ -404,15 +428,106 @@ function buildCapacityWaitMessage(options: ValidationCapacityLockOptions, lockPa
   return `waiting for workspace validation capacity: holder ${holderText}, ${heartbeatText}`;
 }
 
-function isRetryableCapacityProbeRace(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /\bEEXIST\b/.test(message);
+interface ValidationCapacityCandidate {
+  path: string;
+  name: string;
+  holder: MkdirLockHolderInfo | null;
+  ageMs: number;
+}
+
+function capacityCandidates(
+  lockRoot: string,
+  suffix: '.choosing' | '.ticket',
+): ValidationCapacityCandidate[] {
+  let names: string[];
+  try {
+    names = readdirSync(lockRoot).filter(name => name.endsWith(suffix));
+  } catch {
+    return [];
+  }
+  return names.flatMap((name): ValidationCapacityCandidate[] => {
+    const path = join(lockRoot, name);
+    try {
+      return [{
+        path,
+        name,
+        holder: readMkdirLockHolder(path),
+        ageMs: Math.max(0, Date.now() - statSync(path).mtimeMs),
+      }];
+    } catch {
+      return [];
+    }
+  });
+}
+
+/**
+ * Move one never-reused ticket to a unique quarantine before deleting it.
+ * The canonical capacity root is never recursively removed, and a successor
+ * always owns another UUID path, so stale-A cleanup cannot delete live-B.
+ */
+function quarantineValidationCapacityCandidate(candidatePath: string, reason: 'release' | 'stale'): boolean {
+  const quarantinePath = `${candidatePath}.${reason}-${process.pid}-${randomUUID()}.quarantine`;
+  try {
+    renameSync(candidatePath, quarantinePath);
+  } catch {
+    return false;
+  }
+  rmSync(quarantinePath, { recursive: true, force: true });
+  return true;
+}
+
+function activeCapacityCandidates(
+  lockRoot: string,
+  suffix: '.choosing' | '.ticket',
+  staleMs: number,
+): ValidationCapacityCandidate[] {
+  const active: ValidationCapacityCandidate[] = [];
+  for (const candidate of capacityCandidates(lockRoot, suffix)) {
+    const classification = classifyValidationCapacityLock({
+      lockDir: candidate.path,
+      holder: candidate.holder,
+      ageMs: candidate.ageMs,
+      staleMs,
+      nowMs: Date.now(),
+    });
+    if (classification !== 'stale') {
+      active.push(candidate);
+      continue;
+    }
+    // The ticket path contains a UUID and is never reused. Rename atomically
+    // isolates exactly the candidate that was classified; failure means its
+    // owner/reclaimer already moved it, so there is nothing for us to delete.
+    if (!quarantineValidationCapacityCandidate(candidate.path, 'stale') && existsSync(candidate.path)) {
+      // A failed isolation that still exists is not reclaimed. Treat it as
+      // active and fail closed; only a successful rename proves this caller
+      // owns the exact directory it is about to delete.
+      active.push(candidate);
+    }
+  }
+  return active;
+}
+
+function createValidationCapacityCandidate(path: string, holder: MkdirLockHolderInfo): void {
+  // A `.choosing` name is queue-visible, so never publish it before its
+  // identity is complete. A process killed while preparing leaves only an
+  // ignored, never-reused private path; the atomic rename is the publication.
+  const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
+  mkdirSync(preparingPath);
+  try {
+    writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
+    writeValidationHeartbeat(preparingPath, holder);
+    renameSync(preparingPath, path);
+  } catch (error) {
+    quarantineValidationCapacityCandidate(preparingPath, 'release');
+    throw error;
+  }
 }
 
 /**
  * Acquire one capacity lease per git-common-dir without blocking the event
- * loop. Each mkdir probe is fail-fast; contention is retried with an awaited,
- * abortable timer so the active holder's heartbeat remains live.
+ * loop. Never-reused UUID tickets make classification identity-stable;
+ * contention is retried with an awaited, abortable timer so the active
+ * holder's heartbeat remains live.
  */
 export async function withWorkspaceValidationCapacity<T>(
   options: ValidationCapacityLockOptions,
@@ -420,7 +535,7 @@ export async function withWorkspaceValidationCapacity<T>(
 ): Promise<T> {
   const command = String(options.command ?? '').trim() || 'validate';
   const storyId = String(options.storyId ?? '').trim();
-  const lockKey = validationCapacityLockPath(options.root);
+  const lockKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
   if (heldValidationLockPaths.has(lockKey) && currentContextOwns(lockKey)) return await fn();
 
   const holderInfo: MkdirLockHolderInfo = {
@@ -434,44 +549,49 @@ export async function withWorkspaceValidationCapacity<T>(
   const pollMs = Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS);
   const progressIntervalMs = Math.max(pollMs, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS);
   let lastProgressAt = Number.NEGATIVE_INFINITY;
-  let lock: AcquiredMkdirLock | null = null;
-  while (!lock) {
-    assertCapacityWaitActive(options);
-    let held = false;
-    try {
-      lock = acquireMkdirLock(lockKey, {
-        label: 'workspace validation capacity',
-        // A negative deadline makes the fail-fast probe return immediately if
-        // an EEXIST entry vanishes between mkdir and stat. The outer async loop
-        // owns all retry timing; acquireMkdirLock must never reach sleepSync.
-        deadlineMs: VALIDATION_CAPACITY_PROBE_DEADLINE_MS,
-        staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
-        failFastIfHeld: true,
-        holderInfo,
-        requireHolderToken: true,
-        ownedAuxFiles: [VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE],
-        classifyExistingLock: classifyValidationCapacityLock,
-        onContentionHeld: () => {
-          held = true;
-          return 'workspace validation capacity is held';
-        },
-      });
-    } catch (error) {
-      if (!held && !isRetryableCapacityProbeRace(error)) throw error;
-      if (held) {
-        const now = Date.now();
-        if (now - lastProgressAt >= progressIntervalMs) {
-          lastProgressAt = now;
-          try {
-            options.onWaitProgress?.(buildCapacityWaitMessage(options, lockKey));
-          } catch {
-            /* Progress is descriptive and must not change lock ownership. */
-          }
+  const staleMs = options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS;
+  mkdirSync(lockKey, { recursive: true });
+  const choosingPath = join(lockKey, `${holderInfo.lockId}.choosing`);
+  let ticketPath = '';
+  createValidationCapacityCandidate(choosingPath, holderInfo);
+  try {
+    const existingNumbers = capacityCandidates(lockKey, '.ticket')
+      .map(candidate => Number(candidate.name.slice(0, candidate.name.indexOf('-'))))
+      .filter(Number.isFinite);
+    const number = (existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0) + 1;
+    ticketPath = join(lockKey, `${String(number).padStart(16, '0')}-${holderInfo.lockId}.ticket`);
+    renameSync(choosingPath, ticketPath);
+
+    while (true) {
+      assertCapacityWaitActive(options);
+      const choosing = activeCapacityCandidates(lockKey, '.choosing', staleMs);
+      const tickets = activeCapacityCandidates(lockKey, '.ticket', staleMs)
+        .sort((a, b) => a.name.localeCompare(b.name));
+      if (choosing.length === 0 && tickets[0]?.path === ticketPath) break;
+      const now = Date.now();
+      if (now - lastProgressAt >= progressIntervalMs) {
+        lastProgressAt = now;
+        const activeHolder = tickets[0] ?? choosing[0];
+        try {
+          options.onWaitProgress?.(activeHolder
+            ? buildCapacityWaitMessage(options, activeHolder.path)
+            : 'waiting for workspace validation capacity: holder transition in progress, heartbeat unavailable');
+        } catch {
+          /* Progress is descriptive and must not change lock ownership. */
         }
       }
       await waitForCapacityRetry(options, pollMs);
     }
+  } catch (error) {
+    quarantineValidationCapacityCandidate(choosingPath, 'release');
+    if (ticketPath) quarantineValidationCapacityCandidate(ticketPath, 'release');
+    throw error;
   }
+
+  const lock: AcquiredMkdirLock = {
+    lockDir: ticketPath,
+    release: () => { quarantineValidationCapacityCandidate(ticketPath, 'release'); },
+  };
 
   heldValidationLockPaths.add(lockKey);
   const heartbeat = startHeartbeat(lock, holderInfo);
