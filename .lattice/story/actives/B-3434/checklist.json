@@ -649,7 +649,11 @@
         "edge": [
           {
             "desc": "An artifact below the warning fraction prints no advisory",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+              "selector": "artifact (1212174 bytes) is unbounded and silent"
+            }
           },
           {
             "desc": "An artifact exactly at the warning fraction resolves the boundary deterministically and the chosen side is stated",
@@ -714,6 +718,25 @@
           "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3",
           "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
           "timestamp": "2026-08-15T11:12:50.971Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "result": "pass",
+          "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9f2e91db4e4aa17ec11743d2c5a24507d7eab8a9ea93fa82398a2eb55fe4b28c",
+            "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ realistic 100-command artifact (1212174 bytes) is unbounded and silent\n✓ advisory names measured size and limit and cannot be read as a failure\n✓ 30036374-byte artifact bounded to 25143521 bytes, 49 marker(s), JSON contract intact\n✓ non-output bulk capped 49 entry(ies) with a diagnostic count\n✓ null / primitive / empty-command results serialise without crashing\nvalidation-evidence-buffer-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:12:52.865Z"
+          },
+          "headHash": "cf6a7bf74f9765333dc264144d8f4cc81f7b57ac",
+          "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3",
+          "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+          "timestamp": "2026-08-15T11:12:53.065Z"
         }
       ]
     }
