@@ -248,6 +248,40 @@
         "scanEscalationReason": null
       },
       "_hash": "2ada429b9d6d823d2fe95c45fb8e25bb3f20283fb16cb371b0ab87bb033c54d1"
+    },
+    {
+      "id": "B-16df:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-6 confirmation pass. No source code changed since RP-007/RR-013 (head d66e6be9): git diff --stat d66e6be9..b84379b9 -- . \":!.lattice\" is empty. This round only adds CHK-004 (a metadata-only checklist item recording a fresh mechanical evidence receipt with a stable non-count-embedding selector 'validate-command-timeout smoke passed:' for ProofStory acceptance binding AB-001) and corrects proofstory.json verificationIntentRefs to [CHK-004:happy:0]. Independently rebuilt (npm --prefix packages/main run build, clean) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js: exit 0, 45 assertions, output sha256 1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2 - byte-identical to the outputDigest recorded in checklist.json CHK-004 verificationEvidence receipt, confirming the CHK-004:happy:0 mechanical receipt is genuine and reproducible, not fabricated. Verified the receipt shape ({exitCode,outputDigest,outputTail,selectorMatched,executedAt}) matches enforceAndStampEvidence's own stamping logic (checklist.ts:680-687) and that kind:cli is the standard alias persisted as manual_transcript (confirmed via field-regression-cli-smoke.ts:1608-1629), so CHK-004's evidence kind is not anomalous. Re-confirmed all 9 prior findings F-001..F-009 remain status=resolved in findings.json (7 fixed, 2 accepted_risk for inherently pin-unsatisfiable claims). Re-read the checklist.ts vs main diff (resolvePinnedCommandTimeoutMs export + 4 threaded call sites) and validate-command-timeout-smoke.ts - matches plan.md CHK-002 exactly, no dead code, no unsafe casts, no empty-catch swallowing, validation-executor.ts/verifier.ts untouched. No doc-promise-undelivered items (CHK-004's userSees claim was independently reproduced). No new quality issues found. No blocker.",
+      "createdAt": "2026-08-15T10:32:39.352Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-016",
+      "envelopeId": "51c1a1e4f8bb2e26a1c22d2d12d21fb994a5e7187794118771551ad6ae7b6dc6",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d9d3da36de94834038ebdef11d822ccf6d656bf97744a83ebc20f587e7a36e7"
     }
   ]
 }
