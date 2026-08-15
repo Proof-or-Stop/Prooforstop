@@ -524,60 +524,60 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:0: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:11:55.251Z"
+            "executedAt": "2026-08-15T00:26:31.828Z"
           },
-          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:13:10.928Z"
+          "headHash": "4a20b93976745cf825435d127a6136df9a955049",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:26:31.970Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:1: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:12:33.010Z"
+            "executedAt": "2026-08-15T00:27:10.180Z"
           },
-          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:13:10.928Z"
+          "headHash": "4a20b93976745cf825435d127a6136df9a955049",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:27:10.316Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-002:adversarial:2: bounded multi-waiter serialization, persistence critical section, context-only reentrancy, strict capacity reclaim, and unchanged legacy story-lock behavior.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:13:10.787Z"
+            "executedAt": "2026-08-15T00:27:47.999Z"
           },
-          "headHash": "64221585ae29f7062664f08283cffb33db0fee2e",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:13:10.928Z"
+          "headHash": "4a20b93976745cf825435d127a6136df9a955049",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:27:48.115Z"
         }
       ],
       "userSeesSnapshot": {
@@ -737,19 +737,19 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Tool-executed full lock smoke covers CHK-003:happy:0: routine and DONE-required PASS evidence shapes, persistence under capacity, freshness behavior, and unchanged story evidence serialization.",
+          "note": "Fresh pinned receipt after final Story-owned file set.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "154b88a04adfa4c041fa033db4333e92e0930a5203e7f91df288da4dff3b16a1",
             "outputTail": "validate-execution-lock smoke passed: 16 assertion groups\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-14T16:14:46.070Z"
+            "executedAt": "2026-08-15T00:28:26.253Z"
           },
-          "headHash": "4be92a41ace74cd61b669f2fac4656498e4d62c1",
-          "materialHash": "e4abdd57246dbb5ab7b7dfbe3f2dc336d1fc6139c4415ea056455aa878f76b4c",
-          "storyFilesHash": "8048bb0d675e6c770ba8615e67de66866be60bf1297068b2d7e8babd1fccbacb",
-          "timestamp": "2026-08-14T16:15:25.225Z"
+          "headHash": "4a20b93976745cf825435d127a6136df9a955049",
+          "materialHash": "9ebb3d33074ea81fac97874b99974bd0cda03ba18188a7962abf50e7527ad008",
+          "storyFilesHash": "6e8b67d8ede40771ef025cf9b6164389dffcf9606d08f57a897622771250d577",
+          "timestamp": "2026-08-15T00:28:26.368Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
