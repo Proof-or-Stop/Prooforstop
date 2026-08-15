@@ -953,8 +953,12 @@ export function commitImmutableMetadataTree(args: {
     // A read that could not complete is reported on its own terms and takes precedence: it is the
     // class an operator cannot diagnose from a digest-change sentence.
     if (isolatedVerification.reason || worktreeMissing.length > 0) {
+      // capDiagnostic here for the same reason verifyMetadataBlobDigests caps its equivalent: the
+      // path list is caller-supplied, and this composition had been left uncapped while its sibling
+      // was capped - the inconsistency being the tell. Reachable whenever a hook, a test seam or a
+      // concurrent process removes files after isolated staging.
       const worktreeReason = worktreeMissing.length > 0
-        ? `verified metadata is absent from the worktree: ${worktreeMissing.join('; ')}`
+        ? capDiagnostic(`verified metadata is absent from the worktree: ${worktreeMissing.join('; ')}`)
         : '';
       return {
         ok: false,

@@ -36,7 +36,8 @@ import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
-  boundValidationEvidenceOutput,
+  VALIDATION_EVIDENCE_BOUND_BYTES,
+  boundPersistedValidationEvidence,
   executeValidationPlan,
   formatValidationEvidenceAdvisory,
   formatValidationProgressEvent,
@@ -714,19 +715,34 @@ function reusedStoryValidationResult(args: {
     paths: managedPaths,
   });
   recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
-  args.ctx.store.writeTestEvidence(args.storyId, {
-    command: `lattice validate --story=${args.storyId} --json`,
-    output: JSON.stringify(reused),
-    result: 'PASS',
-    timestamp: new Date().toISOString(),
-    ...(headHash ? { headHash } : {}),
-    ...(materialHash ? { materialHash } : {}),
-    ...(storyFilesHash ? { storyFilesHash } : {}),
-    verificationCoverage: args.snapshot.coverage,
-    commandExecution: priorCommandExecution,
-    disposition: 'reused',
-    routineValidationIdentity: args.identity,
+  // B-3434 F-014: the reuse path wrote JSON.stringify(reused) with no bound at all, so a reused
+  // result from a large command set produced the same oversized file the executed path was fixed
+  // for. Same boundary, same enforcement: bound the serialised record, not the inner string.
+  const reusedBound = boundPersistedValidationEvidence({
+    result: reused,
+    buildRecord: (output): TestEvidenceData => ({
+      command: `lattice validate --story=${args.storyId} --json`,
+      output,
+      result: 'PASS',
+      timestamp: new Date().toISOString(),
+      ...(headHash ? { headHash } : {}),
+      ...(materialHash ? { materialHash } : {}),
+      ...(storyFilesHash ? { storyFilesHash } : {}),
+      verificationCoverage: args.snapshot.coverage,
+      commandExecution: priorCommandExecution,
+      disposition: 'reused',
+      routineValidationIdentity: args.identity,
+    }),
   });
+  const reusedAdvisory = formatValidationEvidenceAdvisory(reusedBound);
+  if (reusedAdvisory) args.ctx.log?.(reusedAdvisory);
+  if (!reusedBound.withinBound) {
+    throw new Error(
+      `reused validation evidence file could not be reduced under the ${VALIDATION_EVIDENCE_BOUND_BYTES}-byte `
+      + `bound (file measures ${reusedBound.fileBytes} bytes; disposition=${reusedBound.disposition})`,
+    );
+  }
+  args.ctx.store.writeTestEvidence(args.storyId, reusedBound.record);
   const commitResult = commitValidationReuseMetadataTransaction({
     projectRoot: args.ctx.root,
     gitCwd: args.gitCwd,
@@ -836,29 +852,20 @@ function persistStoryValidationEvidence(
   });
   // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
   // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
-  // could commit test-evidence.json at all. Bound it here, at the one place that serialises it, and
-  // surface the approach to that ceiling as an advisory rather than a silent wall. The advisory is
-  // logged only: `result` is not touched, so the pass/fail verdict is exactly what it would be.
-  const boundedOutput = boundValidationEvidenceOutput(result);
-  const sizingAdvisory = formatValidationEvidenceAdvisory(boundedOutput);
-  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
-  // withinBound is measured, so it can genuinely say no. Storing an artifact that the metadata
-  // blob read cannot consume is the original defect: it would commit, then fail every later read
-  // with ENOBUFS and block the phase gate with a message about something else. Refusing here is
-  // fail-closed and names both numbers.
-  if (!boundedOutput.withinBound) {
-    return persistenceFailure(
-      `serialised validation evidence could not be reduced under the ${boundedOutput.boundBytes}-byte bound `
-      + `(measured ${boundedOutput.measuredBytes} bytes, serialised ${boundedOutput.serializedBytes} bytes)`,
-    );
-  }
-  const evidence = (hashes: {
+  // could commit test-evidence.json at all.
+  //
+  // The bound is enforced over the SERIALISED FILE, not over the inner output string: StoryStore
+  // stringifies this record a second time, escaping the output string again, which roughly doubles
+  // quote-heavy content on the way to disk. Bounding the inner string alone left a reachable wedge
+  // where an in-bound string produced an out-of-bound file, the metadata commit hit the blob
+  // ceiling, and no story could persist evidence.
+  const evidenceRecord = (output: string, hashes: {
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
   } = {}): TestEvidenceData => ({
     command,
-    output: boundedOutput.output,
+    output,
     result: allPass ? 'PASS' : 'FAIL',
     ...(failureKind ? { failureKind } : {}),
     timestamp: new Date().toISOString(),
@@ -872,6 +879,31 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),
   });
+  const evidence = (hashes: {
+    headHash?: string;
+    materialHash?: string;
+    storyFilesHash?: string;
+  } = {}): TestEvidenceData => boundPersistedValidationEvidence({
+    result,
+    buildRecord: (output) => evidenceRecord(output, hashes),
+  }).record;
+  // Measured against the hash-bearing record, which is the one actually written.
+  const persistedBound = boundPersistedValidationEvidence({
+    result,
+    buildRecord: (output) => evidenceRecord(output),
+  });
+  const sizingAdvisory = formatValidationEvidenceAdvisory(persistedBound);
+  if (sizingAdvisory) ctx.log?.(sizingAdvisory);
+  // withinBound is measured over the file, so it can genuinely say no. Storing a file the metadata
+  // blob read cannot consume is the original defect: it would commit, then fail every later read
+  // with ENOBUFS and block the phase gate with a message about something else.
+  if (!persistedBound.withinBound) {
+    return persistenceFailure(
+      `serialised validation evidence file could not be reduced under the `
+      + `${VALIDATION_EVIDENCE_BOUND_BYTES}-byte bound (file measures ${persistedBound.fileBytes} bytes; `
+      + `disposition=${persistedBound.disposition})`,
+    );
+  }
 
   let gitCwd: string;
   let storyRel: string;
