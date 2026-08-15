@@ -183,9 +183,9 @@
       "id": "CHK-004",
       "title": "Decide and record whether the three fixed fixtures should be registered in lattice.config.json validate.commands",
       "context": "All three fixtures currently run only via the broader root npm test, not lattice validate. After fixing them, decide per-fixture whether they should be added to validate.commands so lattice validate (and REVIEW rounds relying on it) catches this class of regression going forward, and record the reasoning in background.md or plan.md.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-15T20:45:46.440Z",
       "files": {
         "modify": [
           "lattice.config.json",
@@ -220,7 +220,14 @@
           }
         ]
       },
-      "userSees": "plan.md or background.md contains a clearly labeled per-fixture validate.commands/test:serial-reference registration decision with rationale for each of the three fixtures."
+      "userSees": "plan.md or background.md contains a clearly labeled per-fixture validate.commands/test:serial-reference registration decision with rationale for each of the three fixtures.",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "a1418a0c00451b3347393461b4b7812b5f611cd66f8a88f84d287bbf9339684a",
+        "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+        "headHash": "a754ea6a7fb178a47c73d5fcc0478aa2275fc25d",
+        "attestedAt": "2026-08-15T20:45:46.608Z",
+        "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1"
+      }
     }
   ]
 }
