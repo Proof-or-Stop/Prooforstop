@@ -53,9 +53,9 @@
       "id": "CHK-002",
       "title": "Stop the catch from turning an unreadable blob into a silent digest mismatch and surface the real cause",
       "context": "The catch currently returns null, which the caller compares against the expected digest and reports as verified metadata changed after manifest verification. Distinguish blob genuinely absent from blob could not be read, keep the fail-closed posture, and make the surfaced reason name the underlying error so the next person does not spend hours attributing it to concurrency.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T11:09:41.374Z",
-      "endTime": null,
+      "endTime": "2026-08-15T11:09:42.240Z",
       "verificationIntent": {
         "happy": [
           {
@@ -93,6 +93,13 @@
         "test": [
           "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "78db630a2e1125c037269a8dd41d851a87a3fe31525d4b2682857ea466c891bf",
+        "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+        "headHash": "b2ee7891bbf7af55772f98df64af48a59895323c",
+        "attestedAt": "2026-08-15T11:09:42.441Z",
+        "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
       }
     },
     {
