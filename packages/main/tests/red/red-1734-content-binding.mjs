@@ -1,36 +1,48 @@
 #!/usr/bin/env node
 /**
  * RED (repro-first) for B-1734 CHK-002 — the content-bound skip gate (verifyBuildBinding /
- * verifyUtilsBuildBinding), which replaces the mtime/existence checks that Codex flagged on B-fb7b.
+ * verifyUtilsBuildBinding), which replaces the mtime/existence checks Codex flagged on B-fb7b.
  *
  * The build scripts SKIP iff their verify passes and REBUILD iff it throws, so proving the verify
- * gate is sensitive to each hazard IS proving the build rebuilds on it. Every case runs against an
- * ISOLATED temp fixture (never the shared worktree dist):
- *   - happy: verify passes on a clean build → skip.
- *   - edge:4 / adversarial:2: a source .ts change (or existence-only dist/index.js present but source
- *     changed) makes sourceDigest mismatch → verify throws → rebuild (not an existsSync skip).
- *   - edge:0: a DELETED-source orphan (dist .js left behind) changes sourceDigest → verify throws.
- *   - edge:1: a PARTIAL build (missing non-index dist .js) changes distDigest → verify throws.
- *   - adversarial:0: a TAMPERED non-index dist .js changes distDigest → verify throws.
- *   - adversarial:3: an ABSENT manifest → verify throws (ENOENT), treated as "not verified" → rebuild.
- *   - adversarial:1: a STALE manifest (forged sourceDigest) → verify RECOMPUTES from source and
- *     rejects it (it does not trust the manifest's claim).
- *   - utils edge:2 / happy:2: the utils binding folds in packages/main/dist, so a main/dist change
- *     makes the utils sourceDigest mismatch → verify throws → utils rebuilds; unchanged → skip.
+ * gate is sensitive to each hazard IS proving the build rebuilds on it. Covers EACH of the 14
+ * CHK-002 verificationIntent cases and prints a distinct `VI-OK CHK-002:<sub>:<n>` marker ONLY after
+ * that case's real assertion passes (a broken gate still fails, and no marker is emitted):
+ *   happy:0        clean build from ABSENT dist → manifest written, verify passes
+ *   happy:1        subsequent run, no change → verify passes AND dist is byte-unchanged (skip)
+ *   happy:2        utils binding covers utils/src + main/dist → verify passes, re-verify skips
+ *   edge:0         deleted-source orphan → sourceDigest changes → verify throws (rebuild)
+ *   edge:1         partial build (missing non-index dist .js) → distDigest changes → verify throws
+ *   edge:2         packages/main/dist change → utils sourceDigest changes → utils verify throws
+ *   edge:3         skip is READ-ONLY (no rm/write side effect) → concurrent same-HEAD reads are safe
+ *   edge:4         a source .ts change → sourceDigest changes → verify throws
+ *   adversarial:0  tampered non-index dist .js → distDigest changes → verify throws
+ *   adversarial:1  forged manifest sourceDigest → verify RECOMPUTES from source and rejects it
+ *   adversarial:2  dist/index.js PRESENT but source changed → verify throws (content, not existsSync)
+ *   adversarial:3  absent manifest → verify throws (ENOENT), treated as "not verified" → rebuild
+ *   adversarial:4  code: ensure-dist is content-bound (no existsSync) and both build scripts verify
+ *   adversarial:5  code: build-main-with-binding.mjs uses verifyBuildBinding as its skip gate
+ *
+ * Every destructive case runs against an ISOLATED temp fixture (never the shared worktree dist).
  */
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   BUILD_MANIFEST,
   BUILD_UTILS_MANIFEST,
+  treeDigest,
   verifyBuildBinding,
   verifyUtilsBuildBinding,
   writeBuildBinding,
   writeUtilsBuildBinding,
 } from '../../../../scripts/full-suite-build-binding.mjs';
+
+const here = dirname(fileURLToPath(import.meta.url));
+let repoRoot = here;
+while (!existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
+assert.ok(existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
 
 const write = (root, rel, body) => {
   const abs = join(root, rel);
@@ -39,9 +51,8 @@ const write = (root, rel, body) => {
 };
 
 // A minimal but faithful two-package tree: packages/main (src+config+dist) and packages/utils
-// (src+config+dist). Both bindings are written so a clean fixture verifies (the skip state).
-function makeFixture() {
-  const root = mkdtempSync(join(tmpdir(), 'red-1734-content-'));
+// (src+config+dist), WITHOUT the bindings.
+function scaffold(root) {
   write(root, 'packages/main/src/index.ts', 'export const a = 1;\n');
   write(root, 'packages/main/src/util.ts', 'export const b = 2;\n');
   write(root, 'packages/main/tsconfig.json', '{}\n');
@@ -53,6 +64,12 @@ function makeFixture() {
   write(root, 'packages/utils/tsconfig.json', '{}\n');
   write(root, 'packages/utils/package.json', '{"name":"@lattice/utils"}\n');
   write(root, 'packages/utils/dist/index.js', 'export const u = 1;\n');
+}
+
+// A clean fixture whose bindings are written, i.e. the "verified, skip-ready" state.
+function makeFixture() {
+  const root = mkdtempSync(join(tmpdir(), 'red-1734-content-'));
+  scaffold(root);
   writeBuildBinding(root);
   writeUtilsBuildBinding(root);
   return root;
@@ -67,111 +84,142 @@ const throws = (fn, label) => {
   }
   assert.ok(threw, label);
 };
-
-// ── happy: a clean fixture verifies (skip) ──────────────────────────────────
-{
+const withFixture = body => {
   const root = makeFixture();
   try {
-    assert.doesNotThrow(() => verifyBuildBinding(root), 'clean main dist must verify (skip)');
-    assert.doesNotThrow(() => verifyUtilsBuildBinding(root), 'clean utils dist must verify (skip)');
+    body(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+};
+
+// ── happy:0 — clean build from ABSENT dist → manifest written, verify passes ─
+{
+  const root = mkdtempSync(join(tmpdir(), 'red-1734-content-'));
+  try {
+    scaffold(root);
+    assert.ok(!existsSync(join(root, BUILD_MANIFEST)), 'baseline: no main binding manifest before the build writes it');
+    writeBuildBinding(root); // emulate the build recording its binding
+    writeUtilsBuildBinding(root);
+    assert.ok(existsSync(join(root, BUILD_MANIFEST)), 'the build must write the binding manifest');
+    assert.doesNotThrow(() => verifyBuildBinding(root), 'a freshly built+bound dist must verify');
+    console.log('VI-OK CHK-002:happy:0');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-// ── edge:4 / adversarial:2 — source change (index.js exists, source changed) → rebuild ──
+// ── happy:1 — subsequent run, no change → verify passes AND dist unchanged (skip) ─
+withFixture(root => {
+  const before = treeDigest(root, 'dist');
+  assert.doesNotThrow(() => verifyBuildBinding(root), 'unchanged dist must verify (skip)');
+  assert.doesNotThrow(() => verifyBuildBinding(root), 're-verify must still pass (idempotent skip)');
+  assert.equal(treeDigest(root, 'dist'), before, 'the skip decision must not mutate dist');
+  console.log('VI-OK CHK-002:happy:1');
+});
+
+// ── happy:2 — utils binding covers utils/src + main/dist, subsequent build skips ─
+withFixture(root => {
+  assert.ok(existsSync(join(root, BUILD_UTILS_MANIFEST)), 'the utils build must write a utils binding manifest');
+  assert.doesNotThrow(() => verifyUtilsBuildBinding(root), 'clean utils dist must verify (skip)');
+  assert.doesNotThrow(() => verifyUtilsBuildBinding(root), 're-verify utils must still pass (idempotent skip)');
+  console.log('VI-OK CHK-002:happy:2');
+});
+
+// ── edge:0 — deleted-source orphan → verify throws ──────────────────────────
+withFixture(root => {
+  rmSync(join(root, 'packages/main/src/util.ts')); // dist/util.js remains as an orphan
+  throws(() => verifyBuildBinding(root), 'a deleted source (leaving an orphan dist .js) must change sourceDigest → verify throws');
+  console.log('VI-OK CHK-002:edge:0');
+});
+
+// ── edge:1 — partial/interrupted build (missing non-index dist .js) → verify throws ─
+withFixture(root => {
+  rmSync(join(root, 'packages/main/dist/sub/deep.js'));
+  throws(() => verifyBuildBinding(root), 'a missing non-index dist file (partial build) must change distDigest → verify throws');
+  console.log('VI-OK CHK-002:edge:1');
+});
+
+// ── edge:2 — packages/main/dist change → utils binding stale → utils verify throws ─
+withFixture(root => {
+  assert.doesNotThrow(() => verifyUtilsBuildBinding(root), 'precondition: utils verifies before main/dist changes');
+  write(root, 'packages/main/dist/util.js', 'export const b = 2; // main dist rebuilt\n');
+  throws(() => verifyUtilsBuildBinding(root), 'a packages/main/dist change must make the utils binding stale (its sourceDigest folds in main/dist)');
+  console.log('VI-OK CHK-002:edge:2');
+});
+
+// ── edge:3 — skip is READ-ONLY → concurrent same-HEAD reads are safe ─────────
+withFixture(root => {
+  const distBefore = treeDigest(root, 'dist');
+  const manifestBefore = readFileSync(join(root, BUILD_MANIFEST), 'utf8');
+  // The skip path is a pure read: verifying (even repeatedly, as concurrent readers would) must not
+  // rm/write anything, so two concurrent `npm test` reads of the same dist cannot corrupt it.
+  for (let i = 0; i < 3; i++) assert.doesNotThrow(() => verifyBuildBinding(root), 'skip must verify without side effects');
+  assert.equal(treeDigest(root, 'dist'), distBefore, 'verifying (skip) must not modify any dist file');
+  assert.equal(readFileSync(join(root, BUILD_MANIFEST), 'utf8'), manifestBefore, 'verifying (skip) must not rewrite the manifest');
+  console.log('VI-OK CHK-002:edge:3');
+});
+
+// ── edge:4 — a source .ts change → verify throws ────────────────────────────
+withFixture(root => {
+  write(root, 'packages/main/src/index.ts', 'export const a = 1; // whitespace/comment change\n');
+  throws(() => verifyBuildBinding(root), 'any source change must change sourceDigest → verify throws (not a coarse file-count hash)');
+  console.log('VI-OK CHK-002:edge:4');
+});
+
+// ── adversarial:0 — tampered non-index dist .js (not index, not manifest) → verify throws ─
+withFixture(root => {
+  write(root, 'packages/main/dist/util.js', 'export const b = 2; // tampered\n');
+  throws(() => verifyBuildBinding(root), 'tampering ANY dist file (here a non-index .js) must change distDigest → verify throws');
+  console.log('VI-OK CHK-002:adversarial:0');
+});
+
+// ── adversarial:1 — forged manifest sourceDigest → verify recomputes and rejects ─
+withFixture(root => {
+  const manifestPath = join(root, BUILD_MANIFEST);
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  manifest.sourceDigest = 'deadbeef'.repeat(8); // a plausible-looking but wrong claim
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  throws(() => verifyBuildBinding(root), 'verify must RECOMPUTE sourceDigest from disk and reject a forged manifest (not trust the recorded digest)');
+  console.log('VI-OK CHK-002:adversarial:1');
+});
+
+// ── adversarial:2 — dist/index.js PRESENT but source changed → content-bound, not existsSync ─
+withFixture(root => {
+  write(root, 'packages/main/src/index.ts', 'export const a = 42; // source changed after that dist was built\n');
+  assert.ok(existsSync(join(root, 'packages/main/dist/index.js')), 'precondition: dist/index.js exists (an existence-only check would skip)');
+  throws(() => verifyBuildBinding(root), 'with dist/index.js present but source changed, the content gate must still throw (build runs, not an existsSync skip)');
+  console.log('VI-OK CHK-002:adversarial:2');
+});
+
+// ── adversarial:3 — absent manifest → verify throws (not "assume fresh") ─────
+withFixture(root => {
+  rmSync(join(root, BUILD_MANIFEST));
+  throws(() => verifyBuildBinding(root), 'a missing binding manifest must make verify throw (ENOENT) so the caller rebuilds, not silently skips');
+  console.log('VI-OK CHK-002:adversarial:3');
+});
+
+// ── adversarial:4 — code: ensure-dist content-bound; both build scripts verify ─
 {
-  const root = makeFixture();
-  try {
-    write(root, 'packages/main/src/index.ts', 'export const a = 1; // touched\n');
-    throws(() => verifyBuildBinding(root),
-      'a source change must make verifyBuildBinding throw even though dist/index.js still exists (content-bound, not existsSync)');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+  const ensureSrc = readFileSync(join(repoRoot, 'scripts/ensure-dist.mjs'), 'utf8');
+  const mainSrc = readFileSync(join(repoRoot, 'scripts/build-main-with-binding.mjs'), 'utf8');
+  const utilsSrc = readFileSync(join(repoRoot, 'scripts/build-utils-with-binding.mjs'), 'utf8');
+  assert.ok(!/existsSync/.test(ensureSrc), 'ensure-dist must NOT use existsSync (the old existence-only reuse) for its skip decisions');
+  assert.ok(
+    ensureSrc.includes('build-main-with-binding.mjs') && ensureSrc.includes('build-utils-with-binding.mjs'),
+    'ensure-dist must delegate BOTH skip decisions to the content-bound build scripts',
+  );
+  assert.ok(/verifyBuildBinding\s*\(/.test(mainSrc), 'the main build script must gate its skip on verifyBuildBinding');
+  assert.ok(/verifyUtilsBuildBinding\s*\(/.test(utilsSrc), 'the utils build script must gate its skip on verifyUtilsBuildBinding');
+  console.log('VI-OK CHK-002:adversarial:4');
 }
 
-// ── edge:0 — deleted-source orphan (dist .js left behind) → rebuild ─────────
+// ── adversarial:5 — code: build-main-with-binding.mjs uses verifyBuildBinding skip gate ─
 {
-  const root = makeFixture();
-  try {
-    rmSync(join(root, 'packages/main/src/util.ts')); // dist/util.js remains as an orphan
-    throws(() => verifyBuildBinding(root),
-      'a deleted source (leaving an orphan dist .js) must change sourceDigest and make verify throw');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ── edge:1 — partial/interrupted build (missing non-index dist .js) → rebuild ──
-{
-  const root = makeFixture();
-  try {
-    rmSync(join(root, 'packages/main/dist/sub/deep.js'));
-    throws(() => verifyBuildBinding(root),
-      'a missing non-index dist file (partial build) must change distDigest and make verify throw');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ── adversarial:0 — tampered non-index dist .js (not index, not the manifest) → rebuild ──
-{
-  const root = makeFixture();
-  try {
-    write(root, 'packages/main/dist/util.js', 'export const b = 2; // tampered\n');
-    throws(() => verifyBuildBinding(root),
-      'tampering ANY dist file (here a non-index .js) must change distDigest and make verify throw');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ── adversarial:3 — absent manifest → verify throws (not "assume fresh") ────
-{
-  const root = makeFixture();
-  try {
-    rmSync(join(root, BUILD_MANIFEST));
-    throws(() => verifyBuildBinding(root),
-      'a missing binding manifest must make verify throw (ENOENT) so the caller rebuilds, not silently skips');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ── adversarial:1 — stale manifest with a forged sourceDigest → verify recomputes and rejects ──
-{
-  const root = makeFixture();
-  try {
-    const manifestPath = join(root, BUILD_MANIFEST);
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-    manifest.sourceDigest = 'deadbeef'.repeat(8); // a plausible-looking but wrong claim
-    writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-    throws(() => verifyBuildBinding(root),
-      'verify must RECOMPUTE sourceDigest from disk and reject a forged manifest claim (not trust the recorded digest)');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// ── utils edge:2 / happy:2 — utils binding folds in packages/main/dist ──────
-{
-  const root = makeFixture();
-  try {
-    assert.doesNotThrow(() => verifyUtilsBuildBinding(root), 'unchanged utils fixture must verify (skip)');
-    // Change packages/main/dist (what utils tsc links against) → utils sourceDigest must mismatch.
-    write(root, 'packages/main/dist/util.js', 'export const b = 2; // main dist rebuilt\n');
-    throws(() => verifyUtilsBuildBinding(root),
-      'a packages/main/dist change must make the utils binding stale (its sourceDigest folds in main/dist) so utils rebuilds');
-    // A missing utils manifest is likewise unverifiable.
-    write(root, 'packages/main/dist/util.js', 'export const b = 2; // main dist rebuilt\n');
-    writeUtilsBuildBinding(root); // re-sync so only the manifest-absence changes below
-    rmSync(join(root, BUILD_UTILS_MANIFEST));
-    throws(() => verifyUtilsBuildBinding(root),
-      'a missing utils manifest must make verifyUtilsBuildBinding throw (rebuild, not assume-fresh)');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+  const mainSrc = readFileSync(join(repoRoot, 'scripts/build-main-with-binding.mjs'), 'utf8');
+  assert.ok(/verifyBuildBinding\s*\(/.test(mainSrc), 'build-main-with-binding.mjs must skip via verifyBuildBinding when the binding already verifies');
+  assert.ok(!/existsSync/.test(mainSrc), 'build-main-with-binding.mjs must NOT use existsSync as its skip gate (content-bound at every call site)');
+  console.log('VI-OK CHK-002:adversarial:5');
 }
 
 console.log('PASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift');

@@ -2,26 +2,29 @@
 /**
  * RED (repro-first) for B-1734 CHK-001 — the cross-platform build mutex.
  *
- * BEHAVIORAL proofs that a broken lock MUST fail:
- *   - CONFIG INVARIANT (adversarial:1, edge:2): proper-lockfile is configured with stale >= 30000
- *     and update (heartbeat) < stale/2, with the DEFAULT mkdir strategy (no fs/native override).
- *     A low stale with no heartbeat is exactly B-fb7b finding #1 (live-holder age-steal).
- *   - MUTUAL EXCLUSION / LIVE HOLDER NOT STOLEN (adversarial:0): two concurrent withBuildLock calls
- *     on the same key never overlap — the second WAITS for the live holder rather than barging in.
- *   - RELEASED ON ERROR (edge:0): a fn that throws still releases the lock, so the next builder is
- *     not deadlocked (no leaked finally/onCompromised cleanup).
- *   - STALE / DEAD HOLDER RECLAIMED (adversarial:2, edge:1): a lock directory older than `stale` is
- *     reclaimed by the next builder instead of stalling forever.
- *   - LOCK WRAPS THE ENTIRE CRITICAL SECTION AT EVERY CALL SITE (adversarial:3, adversarial:4): in
- *     both build-*-with-binding scripts rmSync + tsc + write happen INSIDE withBuildLock, and
- *     ensure-dist does no unlocked rm+build of its own (it only delegates to the two locked scripts).
+ * Covers EACH of the 10 CHK-001 verificationIntent cases and prints a distinct
+ * `VI-OK CHK-001:<sub>:<n>` marker ONLY after that case's real assertion passes, so a broken lock
+ * still fails and no marker is emitted for an unmet case:
+ *   happy:0        lock-lifecycle: `<target>.lock` exists DURING the section, absent AFTER release
+ *   happy:1        two sequential runs: the first fully releases so the second never contends/leaks
+ *   edge:0         a fn that throws still releases the lock (no leaked finally cleanup / deadlock)
+ *   edge:1         a SIGTERM'd holder's lock is cleaned up by proper-lockfile's signal handler and
+ *                  the next builder reclaims it
+ *   edge:2         code: DEFAULT mkdir strategy — no flock/fcntl/native module, no `fs` override
+ *   adversarial:0  mutual exclusion: two concurrent holders on one key never overlap (live not stolen)
+ *   adversarial:1  code: stale >= 30000 AND update (heartbeat) < stale/2 (live-holder heartbeat)
+ *   adversarial:2  a DEAD holder (lock mtime older than stale) is reclaimed race-safely
+ *   adversarial:3  the lock wraps the ENTIRE rm+tsc+write section (source order) at each call site
+ *   adversarial:4  ALL three call sites (ensure-dist + both build-*-with-binding) take the SAME lock
  *
  * Isolated: every behavioral case uses a unique random repoKey and its own tmp lock target, so this
  * never touches the shared worktree dist and is safe to register in validate.commands.
  */
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUILD_LOCK_OPTIONS, buildLockTarget, withBuildLock } from '../../../../scripts/build-lock.mjs';
@@ -30,16 +33,24 @@ const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
 while (!existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
 assert.ok(existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+const LOCK_MODULE_ABS = join(repoRoot, 'scripts', 'build-lock.mjs');
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const uniqueKey = () => `red-1734-${randomUUID()}`;
+const lockDir = key => `${buildLockTarget(key)}.lock`;
 const cleanup = key => {
-  const target = buildLockTarget(key);
-  rmSync(`${target}.lock`, { recursive: true, force: true });
-  rmSync(target, { force: true });
+  rmSync(lockDir(key), { recursive: true, force: true });
+  rmSync(buildLockTarget(key), { force: true });
 };
+async function pollUntil(pred, timeoutMs = 8000, stepMs = 25) {
+  for (let waited = 0; waited < timeoutMs; waited += stepMs) {
+    if (pred()) return true;
+    await sleep(stepMs);
+  }
+  return pred();
+}
 
-// ── 1. CONFIG INVARIANT (adversarial:1, edge:2) ─────────────────────────────
+// ── adversarial:1 — CONFIG: stale >= 30000 AND update < stale/2 ─────────────
 {
   const { stale, update } = BUILD_LOCK_OPTIONS;
   assert.equal(typeof stale, 'number', 'BUILD_LOCK_OPTIONS.stale must be numeric');
@@ -50,16 +61,63 @@ const cleanup = key => {
     `update (heartbeat) must be > 0 and < stale/2 so a LIVE holder refreshes before stale expiry — ` +
       `the specific mechanism that prevents live-holder age-steal (B-fb7b finding #1): got update=${update}, stale=${stale}`,
   );
-  // DEFAULT mkdir strategy: no `fs` / `lockfilePath` override, so no flock/fcntl/native module — the
-  // cross-platform guarantee (Windows has no flock).
-  assert.ok(!('fs' in BUILD_LOCK_OPTIONS), 'BUILD_LOCK_OPTIONS must not override `fs` (keep the portable mkdir strategy)');
-  assert.ok(!('lockfilePath' in BUILD_LOCK_OPTIONS), 'BUILD_LOCK_OPTIONS must not override lockfilePath (keep the default `<target>.lock`)');
   const retries = BUILD_LOCK_OPTIONS.retries;
   const retryCount = typeof retries === 'number' ? retries : retries?.retries;
   assert.ok(Number(retryCount) >= 10, `retries must make a concurrent builder WAIT (not fail): got ${retryCount}`);
+  console.log('VI-OK CHK-001:adversarial:1');
 }
 
-// ── 2. MUTUAL EXCLUSION / LIVE HOLDER NOT STOLEN (adversarial:0) ─────────────
+// ── edge:2 — CODE: default mkdir strategy, no fs:lockFile option overriding it ─
+{
+  const lockSrc = readFileSync(LOCK_MODULE_ABS, 'utf8');
+  assert.ok(/proper-lockfile/.test(lockSrc), 'build-lock.mjs must use proper-lockfile (portable mkdir mutex, no native module)');
+  // Grep the lock CALL itself for the absence of a strategy override: it must pass BUILD_LOCK_OPTIONS
+  // and no inline `fs:` option (an fs:lockFile override would swap out the cross-platform mkdir default).
+  const callMatch = lockSrc.match(/lockfile\.lock\(([^)]*)\)/s);
+  assert.ok(callMatch, 'build-lock.mjs must call lockfile.lock(...)');
+  assert.ok(/BUILD_LOCK_OPTIONS/.test(callMatch[1]), 'the lock call must pass the reviewed BUILD_LOCK_OPTIONS');
+  assert.ok(!/\bfs\s*:/.test(callMatch[1]), 'the lock call must not pass an inline `fs:` option overriding the mkdir strategy');
+  assert.ok(!('fs' in BUILD_LOCK_OPTIONS), 'BUILD_LOCK_OPTIONS must not override `fs` (keep the mkdir strategy — Windows has no flock)');
+  assert.ok(!('lockfilePath' in BUILD_LOCK_OPTIONS), 'BUILD_LOCK_OPTIONS must not override lockfilePath (default `<target>.lock`)');
+  console.log('VI-OK CHK-001:edge:2');
+}
+
+// ── happy:0 — lock LIFECYCLE: dir present DURING, absent AFTER ───────────────
+{
+  const key = uniqueKey();
+  try {
+    let presentDuring = false;
+    const ret = await withBuildLock(key, () => {
+      presentDuring = existsSync(lockDir(key));
+      return 'built-both';
+    });
+    assert.equal(ret, 'built-both', 'withBuildLock must return the fn result');
+    assert.ok(presentDuring, 'the lock directory must EXIST while the critical section runs');
+    assert.ok(!existsSync(lockDir(key)), 'the lock directory must be ABSENT after the section releases');
+    console.log('VI-OK CHK-001:happy:0');
+  } finally {
+    cleanup(key);
+  }
+}
+
+// ── happy:1 — two SEQUENTIAL runs: first releases, second never contends ─────
+{
+  const key = uniqueKey();
+  try {
+    const r1 = await withBuildLock(key, () => 'run-1');
+    const releasedBetween = !existsSync(lockDir(key));
+    const r2 = await withBuildLock(key, () => 'run-2');
+    assert.equal(r1, 'run-1');
+    assert.equal(r2, 'run-2');
+    assert.ok(releasedBetween, 'the first run must fully release the lock on normal completion (no leak)');
+    assert.ok(!existsSync(lockDir(key)), 'the lock must be absent after the second sequential run too');
+    console.log('VI-OK CHK-001:happy:1');
+  } finally {
+    cleanup(key);
+  }
+}
+
+// ── adversarial:0 — MUTUAL EXCLUSION / live holder not stolen ────────────────
 {
   const key = uniqueKey();
   try {
@@ -71,23 +129,22 @@ const cleanup = key => {
         events.push({ id, ev: 'exit', t: Date.now() });
       });
     await Promise.all([hold('A'), hold('B')]);
-    // Four events in time order. If the lock were not mutually exclusive the two holders would
-    // overlap and produce enter,enter,exit,exit; a working mutex produces enter,exit,enter,exit —
-    // so the SECOND event must be an 'exit' (the first holder released before the second entered).
     events.sort((a, b) => a.t - b.t);
     assert.equal(events.length, 4, 'expected two enter/exit pairs');
+    // A working mutex yields enter,exit,enter,exit; an overlap yields enter,enter,exit,exit.
     assert.equal(
       events[1].ev,
       'exit',
-      'a live holder was STOLEN: the second builder entered while the first was still inside the critical section — ' +
-        `the mutex did not serialize (event order: ${events.map(e => `${e.id}:${e.ev}`).join(',')})`,
+      'a live holder was STOLEN: the second builder entered while the first was still inside the critical section ' +
+        `(event order: ${events.map(e => `${e.id}:${e.ev}`).join(',')})`,
     );
+    console.log('VI-OK CHK-001:adversarial:0');
   } finally {
     cleanup(key);
   }
 }
 
-// ── 3. RELEASED ON ERROR (edge:0) ───────────────────────────────────────────
+// ── edge:0 — RELEASED ON ERROR ──────────────────────────────────────────────
 {
   const key = uniqueKey();
   try {
@@ -101,42 +158,65 @@ const cleanup = key => {
       assert.match(String(e && e.message), /simulated tsc failure/, 'the original error must propagate');
     }
     assert.ok(threw, 'withBuildLock must reject when fn throws');
-    // If the lock leaked on error, this second acquisition would hang until the stale window (30s).
-    const result = await Promise.race([
-      withBuildLock(key, () => 'reacquired'),
-      sleep(10000).then(() => 'TIMEOUT'),
-    ]);
-    assert.equal(result, 'reacquired', 'the lock must be RELEASED on error (a leaked lock would deadlock the next builder)');
+    assert.ok(!existsSync(lockDir(key)), 'the lock directory must be released even when fn throws');
+    const result = await Promise.race([withBuildLock(key, () => 'reacquired'), sleep(10000).then(() => 'TIMEOUT')]);
+    assert.equal(result, 'reacquired', 'a leaked lock would deadlock the next builder; it must be released on error');
+    console.log('VI-OK CHK-001:edge:0');
   } finally {
     cleanup(key);
   }
 }
 
-// ── 4. STALE / DEAD HOLDER RECLAIMED (adversarial:2, edge:1) ─────────────────
+// ── adversarial:2 — DEAD holder (stale mtime) reclaimed ─────────────────────
 {
   const key = uniqueKey();
   try {
     const target = buildLockTarget(key);
     writeFileSync(target, '');
-    // Simulate a crashed holder: a lock directory whose mtime is far older than `stale`.
-    mkdirSync(`${target}.lock`, { recursive: true });
-    const old = (Date.now() - BUILD_LOCK_OPTIONS.stale * 2) / 1000;
-    utimesSync(`${target}.lock`, old, old);
-    const result = await Promise.race([
-      withBuildLock(key, () => 'reclaimed'),
-      sleep(10000).then(() => 'TIMEOUT'),
-    ]);
-    assert.equal(
-      result,
-      'reclaimed',
-      'a DEAD holder (lock mtime older than stale) must be reclaimed by the next builder; a stale=Infinity impl would deadlock',
-    );
+    mkdirSync(lockDir(key), { recursive: true });
+    const old = (Date.now() - BUILD_LOCK_OPTIONS.stale * 2) / 1000; // well past stale
+    utimesSync(lockDir(key), old, old);
+    const result = await Promise.race([withBuildLock(key, () => 'reclaimed'), sleep(10000).then(() => 'TIMEOUT')]);
+    assert.equal(result, 'reclaimed', 'a DEAD holder (lock mtime older than stale) must be reclaimed; a stale=Infinity impl would deadlock');
+    console.log('VI-OK CHK-001:adversarial:2');
   } finally {
     cleanup(key);
   }
 }
 
-// ── 5. LOCK WRAPS THE WHOLE rm+tsc+write AT EVERY CALL SITE (adversarial:3/4) ─
+// ── edge:1 — SIGTERM'd holder cleaned up by the signal handler, then reclaimed ─
+{
+  const key = uniqueKey();
+  const childPath = join(tmpdir(), `red-1734-sigterm-${randomUUID()}.mjs`);
+  let child;
+  try {
+    writeFileSync(
+      childPath,
+      `import { withBuildLock } from ${JSON.stringify(LOCK_MODULE_ABS)};\n` +
+        `await withBuildLock(${JSON.stringify(key)}, () => new Promise(() => {\n` +
+        `  process.stdout.write('READY\\n');\n` +
+        `  setInterval(() => {}, 1000); // keep the event loop alive so the lock is genuinely HELD until SIGTERM\n` +
+        `}));\n`,
+    );
+    child = spawn(process.execPath, [childPath], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let ready = false;
+    child.stdout.on('data', d => { if (String(d).includes('READY')) ready = true; });
+    assert.ok(await pollUntil(() => ready, 8000), 'child holder failed to acquire the lock');
+    assert.ok(existsSync(lockDir(key)), 'the child holder must be holding the lock before SIGTERM');
+    child.kill('SIGTERM');
+    // proper-lockfile registers a signal-exit cleanup; the lock must be removed on SIGTERM.
+    assert.ok(await pollUntil(() => !existsSync(lockDir(key)), 8000), 'a SIGTERM\'d holder must have its lock cleaned up by the signal handler');
+    const result = await Promise.race([withBuildLock(key, () => 'reclaimed'), sleep(10000).then(() => 'TIMEOUT')]);
+    assert.equal(result, 'reclaimed', 'after the SIGTERM\'d holder is cleaned up the next builder must reclaim the lock');
+    console.log('VI-OK CHK-001:edge:1');
+  } finally {
+    if (child && !child.killed) child.kill('SIGKILL');
+    rmSync(childPath, { force: true });
+    cleanup(key);
+  }
+}
+
+// ── adversarial:3 — the lock wraps the WHOLE rm+tsc+write at each call site ──
 function assertLockWraps(rel, writeFnName) {
   const src = readFileSync(join(repoRoot, rel), 'utf8');
   const lockIdx = src.indexOf('withBuildLock(');
@@ -145,23 +225,31 @@ function assertLockWraps(rel, writeFnName) {
   assert.ok(lockIdx >= 0, `${rel}: must acquire withBuildLock`);
   assert.ok(rmIdx >= 0, `${rel}: must rm the dist tree before rebuilding`);
   assert.ok(writeIdx >= 0, `${rel}: must call ${writeFnName} to record the binding`);
-  assert.ok(
-    rmIdx > lockIdx,
-    `${rel}: rmSync(dist) happens BEFORE withBuildLock — a concurrent reader would see a half-removed dist (MODULE_NOT_FOUND)`,
-  );
-  assert.ok(
-    writeIdx > rmIdx,
-    `${rel}: ${writeFnName} must come after the rm (inside the same locked section) so the binding is written last`,
-  );
+  assert.ok(rmIdx > lockIdx, `${rel}: rmSync(dist) happens BEFORE withBuildLock — a concurrent reader would see a half-removed dist`);
+  assert.ok(writeIdx > rmIdx, `${rel}: ${writeFnName} must come after the rm inside the same locked section (binding written last)`);
 }
-assertLockWraps('scripts/build-main-with-binding.mjs', 'writeBuildBinding');
-assertLockWraps('scripts/build-utils-with-binding.mjs', 'writeUtilsBuildBinding');
-// ensure-dist is the third named call site: it must NOT do an unlocked rm+build of its own — all
-// rm+build is delegated to the two locked scripts above.
-const ensureSrc = readFileSync(join(repoRoot, 'scripts/ensure-dist.mjs'), 'utf8');
-assert.ok(ensureSrc.includes('build-main-with-binding.mjs') && ensureSrc.includes('build-utils-with-binding.mjs'),
-  'ensure-dist must delegate to both locked build scripts');
-assert.ok(!/rmSync\s*\(/.test(ensureSrc),
-  'ensure-dist must NOT rm the dist directly (an unlocked critical section) — it delegates to the locked build scripts');
+{
+  assertLockWraps('scripts/build-main-with-binding.mjs', 'writeBuildBinding');
+  assertLockWraps('scripts/build-utils-with-binding.mjs', 'writeUtilsBuildBinding');
+  console.log('VI-OK CHK-001:adversarial:3');
+}
 
-console.log('PASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead ones, releases on error, and wraps rm+tsc+write at every call site');
+// ── adversarial:4 — ALL three call sites take the SAME lock ──────────────────
+{
+  const mainSrc = readFileSync(join(repoRoot, 'scripts/build-main-with-binding.mjs'), 'utf8');
+  const utilsSrc = readFileSync(join(repoRoot, 'scripts/build-utils-with-binding.mjs'), 'utf8');
+  const ensureSrc = readFileSync(join(repoRoot, 'scripts/ensure-dist.mjs'), 'utf8');
+  // The two rm+build call sites acquire withBuildLock keyed on the SAME per-repo projectRoot.
+  assert.ok(/withBuildLock\(\s*projectRoot\b/.test(mainSrc), 'build-main-with-binding.mjs must take withBuildLock(projectRoot, ...)');
+  assert.ok(/withBuildLock\(\s*projectRoot\b/.test(utilsSrc), 'build-utils-with-binding.mjs must take withBuildLock(projectRoot, ...) — the SAME per-repo lock as main');
+  // The third named call site (ensure-dist) does no unlocked rm+build of its own; it delegates to
+  // the two locked scripts, so every critical section is behind the same mutex.
+  assert.ok(
+    ensureSrc.includes('build-main-with-binding.mjs') && ensureSrc.includes('build-utils-with-binding.mjs'),
+    'ensure-dist must delegate to both locked build scripts',
+  );
+  assert.ok(!/rmSync\s*\(/.test(ensureSrc), 'ensure-dist must NOT rm the dist directly (an unlocked critical section)');
+  console.log('VI-OK CHK-001:adversarial:4');
+}
+
+console.log('PASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM\'d ones, releases on error, and wraps rm+tsc+write at every call site');
