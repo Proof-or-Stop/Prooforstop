@@ -261,7 +261,7 @@ Create a small task where the first validation must fail.
 Required sequence:
 
 ```text
-DEV implementation -> REVIEW -> TEST/lattice validate FAIL -> DEV repair attempt -> REVIEW -> TEST/lattice validate PASS -> DONE
+DEV implementation -> REVIEW -> TEST/proof-or-stop validate FAIL -> DEV repair attempt -> REVIEW -> TEST/proof-or-stop validate PASS -> DONE
 ```
 
 Pass criteria:
