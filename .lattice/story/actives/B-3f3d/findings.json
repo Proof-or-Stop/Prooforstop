@@ -3537,7 +3537,7 @@
       "desc": "doc-code-drift: AGENTS.md:299-310 and CLAUDE.md:424-438,817-819,834 remain inconsistent with the post-F049 runtime. The authoritative checklist examples use CJK title/context/userSees/verificationIntent/note values, while checklistEnglishAuthoringFields plus story_create/checklist_add/checklist_update now reject every such nested authored string before persistence with [english_artifact_cjk_authoring]; the focused CLI smoke confirms this refusal. CLAUDE.md still describes English enforcement only as a REVIEW→TEST preflight and neither guide documents the new author-time writer gate or the supported recovery for an already-persisted CJK relatedDocs value (inventory-authorized REVIEW→DEV, then English-only checklist_update). Replace copyable examples with English metadata and document author-time refusal plus the exact supported recovery; otherwise operators following the authoritative guide receive unexpected command failure or repeat the late recovery loop.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T01:47:27.758Z",
@@ -3621,7 +3621,11 @@
         "packages/main/src/tasks/english-early-check-smoke.ts"
       ],
       "signatureTag": "english-authoring-doc-command-drift",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit dbdfe4d updates AGENTS.md and CLAUDE.md with English-compatible copyable commands, author-time refusal, exact RI receipt to DEV legacy metadata recovery, and observe versus enforce authority.",
+      "resolvedAt": "2026-08-15T02:36:33.300Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-053",
