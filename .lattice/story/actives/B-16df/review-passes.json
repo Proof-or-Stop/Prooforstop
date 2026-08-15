@@ -205,6 +205,49 @@
         "scanEscalationReason": null
       },
       "_hash": "6d7d24de61cca1308219a10c5226ea80a196eb6b635eb2968ed6f91792a5e5b5"
+    },
+    {
+      "id": "B-16df:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Story-level concept-deletion review, round RR-014. Confirmed via git diff (fa4e0f1def..HEAD) that no source code changed this round: packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts are byte-identical to the last passing round. This round is metadata-only: (1) CHK-004 added (test-only smoke re-assertion, no files created/modified), and (2) proofstory.json verificationIntentRefs corrected from a dangling ref CHK-002:happy:0 (CHK-002 happy[0] actually carries custom id H-001, not the auto CHK-002:happy:0 pattern) to the valid CHK-004:happy:0. Reviewed full story diff vs main for checklist.ts and validate-command-timeout-smoke.ts: both are purely additive (new resolvePinnedCommandTimeoutMs export, new imports threaded into 4 existing runSingleAllowlistedCommand call sites; additive docstring) with no concept word deleted, renamed, or replaced en masse. Grepped B-16df story files for the corrected dangling ref CHK-002:happy:0; sole remaining hit (red-evidence.json:53) is an explanatory historical note about the fix itself, not a live dangling pointer. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-08-15T10:32:13.859Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-014",
+      "envelopeId": "7360fd17f07db4871c3fc4938fcd62d219eb8d6e33ea8aaf7f6447d567ea70c9",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          "packages/main/src/handlers/checklist.ts (diff main...HEAD)",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts (diff main...HEAD)"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-16df/decision.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/intent-collision.json",
+          ".lattice/story/actives/B-16df/original-intent-snapshot.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/process-metrics.json",
+          ".lattice/story/actives/B-16df/prompt-envelopes.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/review.json",
+          ".lattice/story/actives/B-16df/scope-check.json",
+          ".lattice/story/actives/B-16df/scope-contract.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          ".lattice/story/actives/B-16df/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ada429b9d6d823d2fe95c45fb8e25bb3f20283fb16cb371b0ab87bb033c54d1"
     }
   ]
 }
