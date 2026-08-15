@@ -398,6 +398,35 @@ try {
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  const audited = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: audited.result, note: audited.note }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+    'an exact semantic re-persist retains the audited non-mechanical provenance',
+  );
+  assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.nonMechanicalReason, nonMatrixEscape, 'exact re-persist carries the on-disk audit reason');
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: 'node changed-command.test.mjs', result: audited.result, note: audited.note }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+    'changed command cannot inherit an old nonMechanicalReason',
+  );
+  run(writerCliRoot, 'checklist_update', {
+    storyId,
+    itemId: 'CHK-001',
+    verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: 'fail', note: audited.note }],
+  }, false, 'main-agent');
+  const changedResult = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.equal(changedResult.result, 'fail', 'changed result remains an explicit failure');
+  assert.equal(changedResult.mechanical, undefined, 'changed result does not inherit non-mechanical provenance');
+  assert.equal(changedResult.nonMechanicalReason, undefined, 'changed result does not inherit the old audit reason');
   // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
   // not execute pinned commands); a non-matrix row is now refused with the F-007 code
   // (NOT the matrix-projection code), directing callers to verification_evidence_add.

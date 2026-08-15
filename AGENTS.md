@@ -83,7 +83,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 | **INIT** | 主 agent | `story_create` 后停在这，story 文件在 main 分支上 |
 | **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
 | **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
-| **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
+| **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status，通过 `verification_evidence_add` / `verification_evidence_batch_add` 记录新鲜的可执行 `verificationEvidence`。**只有此阶段可改代码** |
 | **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass；有 finding 时先完成冻结 inventory 的全部 required lanes、topology critic dispositions，并按 `review_inventory_status` 对非零新增 wave 执行 `review_inventory_wave_advance`，直到零新增 wave 才 `review_inventory_finalize`；只有签名单次 receipt 才允许 REVIEW→DEV |
 | **TEST** | CLI / 主 agent | 跑 routine `lattice validate`，写 validation evidence / bug / stale evidence 结果 |
 | **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过；若配置了 DONE-required policy，还必须有当前 HEAD 的 `done-required-evidence.json`），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
@@ -260,7 +260,7 @@ lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items
 lattice story_get '{"storyId":"B-xxx"}'
 lattice checklist_get '{"storyId":"B-xxx"}'
 lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
-lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationEvidence":[{"kind":"logic_test","intentRef":"CHK-001:happy:0","command":"npm test -- --runInBand","result":"pass","note":"npm test passed and covers CHK-001:happy:0"}]}'
+lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","kind":"logic_test","intentRef":"CHK-001:happy:0","command":"npm test -- --runInBand","selector":"PASS","result":"pass","note":"The pinned test command covers CHK-001:happy:0."}'
 
 # 文档列表（PLAN 阶段挑 relatedDocs 用，扫 docs/ + requirements/ + 根目录的 Codex/README/AGENTS）
 lattice aux_doc_list                          # text 格式，按目录分组 + H1 标题 + 修改时间
@@ -504,7 +504,7 @@ story_review 检查：缺失/弱 `verificationIntent`、item 间交叉场景遗�
 
 ## Legacy Fixture 写法（兼容 / 维护）
 
-Fixture 命令族是 legacy 兼容层，保留给旧 story、迁移和维护场景。新流程默认用 checklist 上的 `verificationIntent` 描述验收，用 `checklist_update` 记录 `verificationEvidence`，在 TEST 阶段跑 `lattice validate`。
+Fixture 命令族是 legacy 兼容层，保留给旧 story、迁移和维护场景。新流程默认用 checklist 上的 `verificationIntent` 描述验收，用 `verification_evidence_add` / `verification_evidence_batch_add` 执行并记录新鲜的可执行 `verificationEvidence`，在 TEST 阶段跑 `lattice validate`。
 
 确实需要维护旧 fixture 时，用 legacy/compat `fixture_batch_add` 一次提交所有 case。每条 case 必须包含：
 
@@ -587,7 +587,7 @@ Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/next
 ## 规则
 
 - 所有 Story/fixture 操作通过 Lattice CLI 完成，禁止直接读写 JSON
-- routine TEST 验证通过 `lattice validate` 执行；DEV 阶段用 `checklist_update` 记录 `verificationEvidence`
+- routine TEST 验证通过 `lattice validate` 执行；DEV 阶段用 `verification_evidence_add` / `verification_evidence_batch_add` 执行并记录新鲜的可执行 `verificationEvidence`
 - 若项目配置 `doneRequiredCommands` / DONE-required policy，DONE 前还必须运行 `lattice done_required_validate --storyId=<id>` 生成当前 HEAD 绑定的 `done-required-evidence.json`；无 policy 时该检查只是 advisory / no full-suite assurance
 - `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是 legacy/compat/maintenance 入口，不作为新 story 的默认流程
 - 所有环境统一用 CLI

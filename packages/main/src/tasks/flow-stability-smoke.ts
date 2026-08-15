@@ -2230,7 +2230,18 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       root,
       scanRoot: join(root, 'packages/main'),
     }).acceptance_basis_generate({ storyId });
-    assert.match(basisOutput, /Acceptance coverage basis: complete/);
+    assert.match(basisOutput, /Acceptance coverage basis: partial/, 'an incomplete registry-closure fixture is reported honestly');
+    write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance basis lifecycle consumer";\n');
+    write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance basis review inventory binding";\n');
+    write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance basis review inventory handler";\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'complete registry closure fixture']);
+    const completeBasisOutput = createProofStoryHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).acceptance_basis_generate({ storyId });
+    assert.match(completeBasisOutput, /Acceptance coverage basis: complete/, 'the repaired closure remains a true complete control');
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'lattice acceptance_basis_generate');

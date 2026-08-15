@@ -11,6 +11,7 @@ import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { createHash } from 'crypto';
+import { digestCanonicalJson } from '../core/digest.js';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -422,32 +423,56 @@ function resolveIntentForRef(
  * provenance here so the internal fn-call path (which bypasses Zod) is protected the same.
  *
  * A tool-execution receipt / audited attestation therefore survives a checklist_update
- * re-persist (reordering the array, editing note/file/verdict metadata) ONLY by being
- * carried forward from the EXISTING on-disk evidence for the same intentRef — never from
- * the incoming row. A mechanical receipt is carried forward only when the caller does not
- * change the underlying evidence the receipt attests to (same command + same result); if
- * the caller changes command or result the stale receipt is dropped and the row is re-judged
- * as fresh (an executable intent then needs a real on-disk receipt or the guard refuses it).
+ * re-persist ONLY by being carried forward from the EXISTING on-disk evidence for the same
+ * intentRef — never from the incoming row — and only when every evidence-semantic field is
+ * unchanged. Mechanical authority additionally requires unchanged materialHash and
+ * storyFilesHash; checklist_update never executes a verifier and cannot rebind commit-A
+ * authority to commit B.
  * This closes F-008's receipt-loss demotion (a legitimate re-persist previously stripped a
  * real receipt, silently re-grandfathering it) without opening a caller-receipt injection path.
  */
 function carryForwardOnDiskProvenance(
   existing: readonly VerificationEvidence[] | undefined,
   incoming: VerificationEvidenceInput,
+  currentHashes: ReturnType<typeof evidenceHashes>,
 ): VerificationEvidenceInput {
   // Discard caller-supplied provenance up front (untrusted-by-design).
   const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
   const prior = existing?.find(e => e.intentRef === incoming.intentRef);
   if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
+  const incomingStructuredMetadata = digestCanonicalJson({
+    attestation: incoming.attestation ?? null,
+    actorTrust: incoming.actorTrust ?? null,
+    factProvenance: incoming.factProvenance ?? null,
+  });
+  const priorStructuredMetadata = digestCanonicalJson({
+    attestation: prior.attestation ?? null,
+    actorTrust: prior.actorTrust ?? null,
+    factProvenance: prior.factProvenance ?? null,
+  });
+  const sameSemantics = normalizeEvidenceKind(incoming.kind) === prior.kind
+    && incoming.verdict === prior.verdict
+    && incoming.waiverType === prior.waiverType
+    && incoming.file === prior.file
+    && incoming.command === prior.command
+    && incoming.result === prior.result
+    && incoming.note.trim() === prior.note
+    && incomingStructuredMetadata === priorStructuredMetadata;
+  if (!sameSemantics) return trusted;
   if (prior.mechanical === true) {
-    // A receipt is bound to a specific command execution; carry it forward only when the
-    // caller re-persists the SAME command + result (does not change the underlying evidence).
-    const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
-    const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
-    if (prior.receipt && sameCommand && sameResult) {
+    // A receipt is bound to both the exact evidence semantics and the material that was
+    // executed. checklist_update does not run the verifier, so it may preserve authority
+    // only for an exact same-material re-persist. A missing material binding fails closed;
+    // storyFilesHash is compared whenever the repository can derive it on either side.
+    const sameStoryFiles = prior.storyFilesHash === currentHashes.storyFilesHash;
+    const sameMaterial = Boolean(
+      prior.materialHash && currentHashes.materialHash && prior.materialHash === currentHashes.materialHash
+      && sameStoryFiles,
+    );
+    if (prior.receipt && sameMaterial) {
       return { ...trusted, mechanical: true, receipt: prior.receipt };
     }
-    return trusted; // command/result changed → stale receipt dropped, row re-judged as fresh
+    return trusted; // semantic/material drift → stale receipt dropped, row re-judged as fresh
   }
   // prior.mechanical === false → audited non-mechanical attestation; carry forward the
   // on-disk reason so a re-persist of an audited-escape row stays attributable (still
@@ -1396,11 +1421,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         //
         // B-ec67 F-008: snapshot the EXISTING on-disk evidence BEFORE replacing it, then carry
         // forward each row's trusted provenance (mechanical/receipt/nonMechanicalReason) FROM
-        // DISK — never from the caller — so a legitimate re-persist (reorder / metadata edit)
-        // does not strip an already-earned receipt, while a fabricated caller receipt stays
-        // untrusted and (for a fresh executable intent) is refused (carryForwardOnDiskProvenance).
+        // DISK — never from the caller — so an exact same-material re-persist does not strip
+        // an already-earned receipt, while semantic/material drift and fabricated caller
+        // receipts stay untrusted (carryForwardOnDiskProvenance).
         const priorEvidence = item.verificationEvidence;
-        const effectiveEvidence = args.verificationEvidence.map(ev => carryForwardOnDiskProvenance(priorEvidence, ev));
+        const currentHashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
+        const effectiveEvidence = args.verificationEvidence.map(ev => carryForwardOnDiskProvenance(priorEvidence, ev, currentHashes));
         for (const ev of effectiveEvidence) {
           assertEvidenceIsNotAcceptanceMatrixProjection(ev);
           assertChecklistUpdateEvidenceRowAllowed(item, ev);

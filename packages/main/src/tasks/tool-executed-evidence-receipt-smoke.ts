@@ -19,6 +19,7 @@ import { StoryStore } from '../core/store.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { resetConfigCache } from '../core/config.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
 // Mirror of the private sha256Hex / VERIFICATION_OUTPUT_TAIL_CHARS in
@@ -515,8 +516,10 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(seeded?.mechanical, true, 'seed: genuine receipt recorded as mechanical:true');
     assert.ok(seeded?.receipt, 'seed: genuine receipt present on disk');
     const seededDigest = seeded.receipt.outputDigest;
+    assert.equal(seeded.materialHash, currentMaterialHash(env.root, 'HEAD', env.root), 'seed receipt material binding is current before re-persist');
+    assert.equal(seeded.storyFilesHash, currentStoryFilesHash(env.root, 'HEAD', env.root), 'seed receipt story-files binding is current before re-persist');
 
-    // 12c: a LEGITIMATE re-persist (metadata edit only — SAME on-disk command+result, caller
+    // 12c: a LEGITIMATE exact re-persist (SAME semantics and material, caller
     //      supplies NO receipt) preserves the REAL on-disk receipt (carried forward from disk,
     //      not from the caller) and stays covered. INT-MAN2 is a manual (attestation-only)
     //      intent, covered by a plain manual_transcript row. (Breaking carryForwardOnDiskProvenance
@@ -527,7 +530,7 @@ const SELECTOR = 'MARKER_OK';
       storyId: env.storyId, itemId: 'CHK-001',
       verificationEvidence: [
         { intentRef: 'INT-MAN2', kind: 'manual_transcript', result: 'pass', note: 'manual attestation for an attestation-only intent' },
-        { intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: 'legitimate re-persist: metadata edit only, no receipt supplied' },
+        { intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: seeded.note },
       ],
     });
     const cl = env.store.readChecklist(env.storyId);
@@ -535,9 +538,57 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(exec?.mechanical, true, 'on-disk receipt is carried forward as mechanical:true on re-persist');
     assert.ok(exec?.receipt, 'on-disk receipt survives the re-persist (not stripped)');
     assert.equal(exec.receipt.outputDigest, seededDigest, 'carried-forward receipt is the REAL on-disk one (same digest), not a caller fabrication');
-    assert.equal(exec.note, 'legitimate re-persist: metadata edit only, no receipt supplied', 're-persist applied the metadata edit');
+    assert.equal(exec.note, seeded.note, 'exact re-persist preserves the bound evidence semantics');
     const cov = buildVerificationCoverage(cl);
     assert.equal(cov.missingRequired, 0, 'a re-persisted intent with its preserved real receipt + manual attestation cover both intents');
+
+    // 12d: semantic changes cannot inherit the prior receipt. checklist_update does not
+    // execute the verifier, so changed note/command rows are refused and a changed-result
+    // failure remains explicitly non-authoritative.
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: 'changed note cannot inherit execution authority' }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'semantic note drift drops the prior receipt',
+    );
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: 'changed-command --not-executed', result: seeded.result, note: seeded.note }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'changed command cannot inherit the prior receipt',
+    );
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: 'fail', note: seeded.note }],
+    });
+    const failed = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(failed?.result, 'fail', 'changed result remains an explicit failure');
+    assert.equal(failed?.mechanical, undefined, 'changed result does not inherit mechanical authority');
+    assert.equal(failed?.receipt, undefined, 'changed result does not inherit the receipt');
+
+    // Restore a fresh receipt, then mutate committed material. Even an exact semantic
+    // re-persist must fail closed: checklist_update may not restamp old execution as if it
+    // ran against commit B.
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-EXEC', kind: 'logic_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'fresh receipt before material drift',
+    });
+    const beforeDrift = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    write(env.root, 'packages/main/src/base.ts', 'export const base = "commit-B";\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'commit B material drift']);
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: beforeDrift!.kind, command: beforeDrift!.command, result: beforeDrift!.result, note: beforeDrift!.note }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'commit-B material/story-files drift cannot rebind commit-A execution authority',
+    );
   } finally { cleanup(env); }
 }
 
