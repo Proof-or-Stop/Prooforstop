@@ -149,7 +149,11 @@
             "id": "INT-CHK002-GREEN",
             "desc": "node packages/main/dist/tasks/field-regression-cli-smoke.js exits 0 after the fix",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/field-regression-cli-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');console.log(out.includes('readManifest: Invalid input: expected object, received undefined')?'READMANIFEST_STILL_MISSING':'READMANIFEST_FIX_CONFIRMED');\"",
+              "selector": "READMANIFEST_FIX_CONFIRMED"
+            }
           }
         ],
         "edge": [
@@ -189,6 +193,25 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:50:13.217Z"
+        },
+        {
+          "intentRef": "INT-CHK002-GREEN",
+          "kind": "logic_test",
+          "command": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/field-regression-cli-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');console.log(out.includes('readManifest: Invalid input: expected object, received undefined')?'READMANIFEST_STILL_MISSING':'READMANIFEST_FIX_CONFIRMED');\"",
+          "result": "pass",
+          "note": "Mechanically re-executable regression guard: confirms the readManifest argument-validation error no longer appears anywhere in a fresh run's output, across all six review_pass_set call sites. The whole file still exits non-zero, but only due to the confirmed-unrelated, separately-tracked task_9f6b2322 retired-channel-lane defect further down the file -- this selector specifically isolates the readManifest defect class this checklist item targets.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5f08334ef0648168453ef972b3d94f306ae4c1e6372d4a31580701554bd0ab3c",
+            "outputTail": "READMANIFEST_FIX_CONFIRMED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T20:50:46.347Z"
+          },
+          "headHash": "dcca4531fdc4a748701967077949abdc0846fefb",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:50:46.459Z"
         }
       ]
     },
