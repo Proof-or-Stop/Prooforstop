@@ -1365,6 +1365,33 @@
         "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
       },
       "_hash": "1c891ce4166495a6fd8af190e333188a60afaea7081de037808d2d54cc8a279b"
+    },
+    {
+      "id": "B-fb7b:RP-046",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage PASS: repro-first RED (build-when-absent + skip-when-present), structural smoke wired into validate.commands, guard-bite bites on every broken pretest incl. non-existsSync ensure-dist; both REDs registered in red-b49d4 exclusions.",
+      "createdAt": "2026-08-15T00:14:39.479Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-079",
+      "envelopeId": "e13830146ba06af6370cece6af0bc4088c5c9ba03b85ecb02af48af635d61e39",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "e0826771958b330838d1e8f82f8b5d3f6f22bb83a54046178aa4fd4bfaf78194"
     }
   ]
 }
