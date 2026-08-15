@@ -335,15 +335,13 @@
         {
           "intentRef": "CHK-001:adversarial:4",
           "kind": "docs_check",
-          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "No new entry is added to the project-root lattice.config.json (the smoke is already registered there per its docstring); the temp config is written only to the ephemeral tmpdir projectRoot.",
-          "headHash": "cc9aa30579052288e496ccf336f86b5e3a50c50d",
-          "materialHash": "366e0fd7c9058f42e9fb07fc6e4bbbb72eb1ead6a562ee459440effeec4852db",
-          "storyFilesHash": "b2dfa0e89b3e0a72652af195783b25b7a0f853a4cd8c1344251183e858c15df7",
+          "note": "Attestation refresh: confirmed by inspection that no new entry was added to the project-root lattice.config.json validate.commands[] for this story - the temp config used by section 6b is written only to an ephemeral os.tmpdir()-based projectRoot (see validate-command-timeout-smoke.ts sections 6-16), never to the real repo-root lattice.config.json. Docs-type attestation, no command execution applicable.",
           "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-14T12:54:10.889Z"
+          "headHash": "9fedf93ad653b43b9cc10f7704dfe3376a55538c",
+          "materialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+          "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+          "timestamp": "2026-08-15T11:42:05.093Z"
         }
       ]
     },
