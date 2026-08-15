@@ -859,7 +859,10 @@ function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): Stale
     (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
     { deferredGateEvidence: 'missing' },
   );
-  const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);
+  const stale = coverage.entries.filter(e => e.evidence && (
+    e.status === 'stale'
+    || e.evidence.nonMechanicalReason?.startsWith('receipt invalidated by verification_evidence_refresh_stale:')
+  ));
   return { refreshGitCwd, headHash, materialHash, storyFilesHash, cl, stale };
 }
 
@@ -1841,9 +1844,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned executable rows
+     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned rows
      * instead of demoting them. For every stale row whose intent carries an immutable
-     * `verification:{command,selector}` (a mechanical receipt or any pinned executable
+     * `verification:{command,selector}` (a mechanical receipt or any pinned
      * intent), the PINNED command is re-run OUTSIDE the checklist lock through the SAME
      * `enforceAndStampEvidence` refusal path + `runSingleAllowlistedCommand` executor as
      * `verification_run` / `verification_evidence_add` (no second executor). On a real
@@ -1877,7 +1880,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           if (!item) continue;
           const resolved = resolveIntentForRef(item, entry.intentRef);
           const pin = resolved?.intent.verification;
-          if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) continue;
+          // A docs/manual intent may deliberately carry an immutable mechanical
+          // verifier. Refresh every pinned intent; enforceAndStampEvidence keeps
+          // unpinned attestations non-mechanical and applies the same command +
+          // selector contract used by verification_evidence_add.
+          if (!resolved || !pin) continue;
           const kind = intentTypeToEvidenceKind(resolved.intent.type);
           try {
             const stamp = await enforceAndStampEvidence(

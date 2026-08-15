@@ -44,7 +44,7 @@
 ## Lattice CLI 速查
 
 ```bash
-lattice story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
+lattice story_create '{"name":"example-story","title":"Improve example behavior","description":"Make the example behavior explicit and verifiable.","type":"feature","priority":"high","checklist":[{"title":"Implement the example behavior","context":"Preserve the documented compatibility boundary."}]}'
 lattice story_review '{"storyId":"B-xxx"}'
 lattice story_advance '{"storyId":"B-xxx","phase":"DEV"}'
 lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'       # routine read-only status
@@ -427,9 +427,9 @@ Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout �
 
 ```json
 {
-  "title": "做什么（一句话）",
-  "context": "根因/参考方案",
-  "userSees": "用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符",
+  "title": "Create the requested file",
+  "context": "Preserve the documented output contract.",
+  "userSees": "The user sees \"File created: hello.txt\" and the prompt returns.",
   "relatedDocs": ["requirements/foo.md", "CLAUDE.md#section"]
 }
 ```
@@ -438,6 +438,18 @@ Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout �
 - context 给执行 agent 提供决策上下文
 - **userSees**：用户完成此 item 后看到的具体文本（必须含精确输出，不能是"功能正常"这类抽象描述）
 - **relatedDocs**：关联文档路径数组，触发三次提醒
+
+### English authoring and legacy relatedDocs recovery
+
+`story_create`、`checklist_add`、`checklist_update` 在写入前检查 checklist author prose。若 `title`、`context`、`userSees`、`relatedDocs`、`verificationIntent.desc` 或 evidence `note` 含 CJK，命令返回 `[english_artifact_cjk_authoring]` 且不产生部分写入。所有可复制 payload 的这些字段必须使用英文。
+
+旧 story 的 CJK `relatedDocs` 不通过直接编辑 story 文件或重开 INIT 修复。先在 REVIEW 完成 finding 对应的冻结 review inventory、达到 zero-new-finding saturation，并调用 `review_inventory_finalize` 取得 signed receipt；再由 story owner 执行 REVIEW→DEV。receipt 被消费且 phase 为 DEV 后运行：
+
+```bash
+lattice checklist_update '{"storyId":"B-xxxx","itemId":"CHK-002","relatedDocs":["CLAUDE.md#review-stage-rules"]}'
+```
+
+重新运行 English artifact check 后再进入 REVIEW。observe/readOnly/nonblocking 的 pre-review check 只报告诊断，不授予 acceptance rollout 权限；只有 enforce 路径和既有 lifecycle authority 能改变 gate 结论或 phase。
 
 ### relatedDocs 三次提醒（软提醒，不阻塞）
 
@@ -814,8 +826,8 @@ fast / normal channel 的 zero intent 只能显示普通缺失文案，不能显
 常用命令：
 
 ```bash
-lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
-lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"lattice validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
+lattice checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"Valid input returns success.","type":"cli","priority":"must"}],"edge":[{"desc":"Empty input returns a clear error.","type":"cli","priority":"must"}],"adversarial":[{"desc":"Invalid state cannot corrupt persisted data.","type":"logic","priority":"must"}]}}'
+lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"lattice validate --story=B-xxx","result":"pass","note":"The integration test directly covers the valid-input path."}'
 ```
 
 `DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`lattice validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。

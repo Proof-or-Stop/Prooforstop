@@ -712,6 +712,25 @@ try {
   }
 
   if (!liveProofMode) {
+    rmSync(join(root, 'packages/main/src/producer.ts'));
+    git(root, ['add', 'packages/main/src/producer.ts']);
+    git(root, ['commit', '-m', 'remove planned producer for partial basis']);
+    const partial = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(partial.artifact.preReviewBasisArtifact.basis.status, 'partial',
+      'an unmapped current source path produces a signed inconclusive pre-review basis');
+    const partialRead = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.equal(partialRead.readOnly, true, 'observe pre-review read remains read-only');
+    assert.equal(partialRead.blocking, false, 'observe pre-review diagnostics remain nonblocking');
+    assert.equal(partialRead.ok, false, 'an inconclusive observe artifact never becomes authority');
+    assert.ok(!partialRead.codes.includes('PR_ARTIFACT_TAMPERED'),
+      `a freshly issued, validly signed inconclusive artifact must not self-report tampering: ${JSON.stringify(partialRead.codes)}`);
+    write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
+    git(root, ['add', 'packages/main/src/producer.ts']);
+    git(root, ['commit', '-m', 'restore planned producer control']);
+    captureProof(fixtureProof);
+    parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(parsed.ok, true, 'removing the unmapped path restores the clean pre-review control');
+
     const originalContract = structuredClone(store.readProofStoryContract(storyId)!);
     const omittedContract = structuredClone(originalContract);
     omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];

@@ -235,7 +235,7 @@ lattice --root /path/to/project ...   # 指定项目根目录
 
 ```bash
 # 创建 Story（有 checklist 时停在 PLAN，checklist 只写 title+context，verificationIntent 由 intent/reviewer flow 填）
-lattice story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"根因/参考方案"}]}'
+lattice story_create '{"name":"example-story","title":"Improve example behavior","description":"Make the example behavior explicit and verifiable.","type":"feature","priority":"high","checklist":[{"title":"Implement the example behavior","context":"Preserve the documented compatibility boundary."}]}'
 
 # 对抗审查（PLAN 阶段必须通过才能进 DEV）
 lattice story_review '{"storyId":"B-xxx"}'
@@ -298,8 +298,8 @@ lattice aux_sync --direction=extract    # 从源码注释提取到 task.json
 
 ```json
 {
-  "title": "做什么（一句话）",
-  "context": "根因/参考方案",
+  "title": "Implement the requested behavior",
+  "context": "Preserve the documented compatibility boundary.",
   "relatedDocs": ["requirements/foo.md", "AGENTS.md#section"]
 }
 ```
@@ -308,6 +308,18 @@ lattice aux_sync --direction=extract    # 从源码注释提取到 task.json
 - context 给执行 agent 提供决策上下文
 - **主 agent 只写 title + context + relatedDocs，不写旧 testIntent；当前验收意图是 `verificationIntent`**
 - relatedDocs 是关联的文档路径数组（可带 `#锚点` 给人看，不参与机器匹配），用于三次提醒避免代码改了文档忘改
+
+### English authoring and legacy relatedDocs recovery
+
+`story_create`、`checklist_add`、`checklist_update` 会在写入前拒绝 checklist author prose 中的 CJK，返回 `[english_artifact_cjk_authoring]`，且不产生部分写入。`title`、`context`、`userSees`、`relatedDocs`、`verificationIntent.desc` 及 evidence `note` 均使用英文；CJK 只可出现在明确允许的非 author 数据中。
+
+旧 story 若已有 CJK `relatedDocs`，不要直接编辑 story 文件，也不要重开 INIT。在 REVIEW 中先完成 finding 所属的冻结 review inventory、达到 zero-new-finding saturation，并通过 `review_inventory_finalize` 取得当前 signed receipt；随后由 story owner 执行 REVIEW→DEV。receipt 被消费、phase 已回到 DEV 后再执行：
+
+```bash
+lattice checklist_update '{"storyId":"B-xxxx","itemId":"CHK-002","relatedDocs":["AGENTS.md#process-fact-contract"]}'
+```
+
+最后重新运行 English artifact check，再按正常流程进入 REVIEW。非 owner implementer 不得代替 owner 消费 receipt 或改变 phase。
 
 ### relatedDocs 三次提醒
 
