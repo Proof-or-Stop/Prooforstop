@@ -481,10 +481,28 @@
       "phase": "DEV",
       "headHash": "53830e97e50f06f03d88d21cc050e70c75d78894",
       "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Focused regressions are required to prove the corrected acceptance-basis closure and evidence-provenance admission semantics for verified F064 and F065.",
+      "timestamp": "2026-08-15T12:44:10.952Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "49ee22695a6c19759d88674e0f4444ae205be800",
+      "materialHash": "86490a4fed04b4507f136aadd39492e626d503c2645c7fb9fd8a54e855213b8d"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T09:14:08.482Z",
+  "updatedAt": "2026-08-15T12:44:10.952Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -578,6 +596,8 @@
     "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
     "packages/main/src/tasks/gap-log-smoke.ts": "packages/main/src/tasks/gap-log-smoke.ts",
     "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts",
-    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts"
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
   }
 }
