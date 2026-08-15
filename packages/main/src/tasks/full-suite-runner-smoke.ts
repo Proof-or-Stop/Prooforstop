@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
-  FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
+  DEFAULT_JOBS, FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
@@ -72,12 +72,37 @@ async function main(): Promise<void> {
   assert(rootPackage.scripts?.build?.startsWith('npm --prefix packages/main run build && npm --prefix packages/utils run build'), 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
   assert(rootPackage.scripts?.build?.endsWith('node scripts/verify-full-suite-build-binding.mjs'), 'standard root build fails closed on stale full-suite dist');
+  assert(DEFAULT_JOBS === 5, 'canonical default uses five bounded workers without changing the serial oracle or performance budget');
   const canonicalClassCounts = new Map<string, number>();
   for (const item of FULL_SUITE_ENTRIES) for (const resource of item.resources) canonicalClassCounts.set(resource.class, (canonicalClassCounts.get(resource.class) ?? 0) + 1);
   for (const resourceClass of ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock']) {
     assert((canonicalClassCounts.get(resourceClass) ?? 0) > 0, `canonical manifest exercises protected class ${resourceClass}`);
   }
   assert(FULL_SUITE_ENTRIES.some(item => item.resources.some(resource => resource.access === 'exclusive')), 'canonical manifest contains truthful exclusive protected claims');
+  assert(
+    FULL_SUITE_ENTRIES.some(item => item.name === 'test:agent-liveness-suite-smoke')
+      && !FULL_SUITE_ENTRIES.some(item => item.name === 'test:flow-stability-smoke'),
+    'canonical manifest schedules the acyclic liveness aggregate instead of a component back-edge',
+  );
+  const priorityOrder = [...FULL_SUITE_ENTRIES]
+    .map((item, index) => ({ name: item.name, priority: item.priority ?? 0, index }))
+    .sort((left, right) => right.priority - left.priority || left.index - right.index)
+    .map(item => item.name);
+  assert(
+    FULL_SUITE_ENTRIES.find(item => item.name === 'test:agent-liveness-suite-smoke')?.priority === 750
+      && priorityOrder.indexOf('test:agent-liveness-suite-smoke') < priorityOrder.indexOf('test:milestone-status'),
+    'liveness aggregate is scheduled before the measured default-priority tail',
+  );
+  assert(
+    FULL_SUITE_ENTRIES.find(item => item.name === 'test:closeout-trust')?.priority === 650
+      && priorityOrder.indexOf('test:closeout-trust') < priorityOrder.indexOf('test:brief-output'),
+    'closeout trust is scheduled before the measured default-priority tail',
+  );
+  assert(
+    FULL_SUITE_ENTRIES.find(item => item.name === 'test:nested-worktree-bootstrap')?.priority === 550
+      && priorityOrder.indexOf('test:nested-worktree-bootstrap') < priorityOrder.indexOf('test:experiments'),
+    'nested worktree bootstrap is scheduled before the measured default-priority tail',
+  );
   const runnerSmokeFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-path');
   const sentinelFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-path');
   assert(runnerSmokeFixedPath?.access === 'exclusive' && runnerSmokeFixedPath.canonicalKey === sentinelFixedPath?.canonicalKey, 'canonical runner smoke declares the real fixed-path collision it creates');

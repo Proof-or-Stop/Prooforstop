@@ -71,6 +71,7 @@ export interface RunScheduledOptions { onSpawn?: () => void }
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 64 * 1024;
 const MAX_JOBS = 64;
+export const DEFAULT_JOBS = 5;
 export const OWNERSHIP_MARKER_FILENAME = 'owner';
 const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
 const activeChildren = new Set<ReturnType<typeof spawn>>();
@@ -101,14 +102,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:lattice-residue'), repoRead('test:proof-or-stop-prompt-baseline'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
-  isolated('test:flow-stability-smoke'), isolated('test:review-assurance-floor-smoke'),
+  isolated('test:agent-liveness-suite-smoke', { priority: 750 }), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
   isolated('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
   isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
-  isolated('test:closeout-trust'),
+  isolated('test:closeout-trust', { priority: 650 }),
   repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: '.lattice/runtime', access: 'shared' }]),
   repoRead('test:evidence-quality'), repoRead('test:anti-stall'), isolated('test:storydir-inside-gitroot-smoke'),
   isolated('test:gitroot-cwd-routing'), isolated('test:bare-gate-gitroot-cwd'), isolated('test:project-gitroot-cwd'),
@@ -116,7 +117,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:done-escalation-drift-advisory'), isolated('test:review-escalation-freshness-root'),
   isolated('test:dispatch-checklist-doctor-wrapper-root'), isolated('test:graceful-sites-gitroot-cwd'),
   isolated('test:experience-hint-worktree-cache'), isolated('test:done-merge-experience-refresh'),
-  isolated('test:experience-coverage-gap'), isolated('test:nested-worktree-bootstrap'),
+  isolated('test:experience-coverage-gap'), isolated('test:nested-worktree-bootstrap', { priority: 550 }),
   isolated('test:e2e', { timeoutMs: 180_000 }), isolated('test:experience-arm-gate'),
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
@@ -519,7 +520,7 @@ async function main(): Promise<void> {
   if (!serialReference) throw new Error('missing test:serial-reference membership authority');
   FULL_SUITE_ENTRIES = canonicalizeEntries(entriesFromSerialReference(serialReference, pkg.scripts), cwd);
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
-  const jobs = args.jobs ?? 4;
+  const jobs = args.jobs ?? DEFAULT_JOBS;
   const startIdentity = readIdentity(cwd);
   const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();

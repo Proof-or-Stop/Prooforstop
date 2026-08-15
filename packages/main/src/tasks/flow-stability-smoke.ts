@@ -36,7 +36,6 @@ import { readHealthIssues } from '../core/health.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
-import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 import {
   ACTIVE_LIFECYCLE_PHASES,
   COMMAND_LIFECYCLE_PHASES,
@@ -4979,5 +4978,4 @@ await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 
-runAgentLivenessSuiteForPinnedEvidence();
 console.log('✓ flow stability smoke passed');
