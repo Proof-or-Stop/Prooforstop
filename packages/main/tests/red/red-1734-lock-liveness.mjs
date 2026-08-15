@@ -22,7 +22,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -268,4 +268,63 @@ function assertLockWraps(rel, writeFnName) {
   console.log('VI-OK CHK-001:adversarial:4');
 }
 
-console.log('PASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM\'d ones, releases on error, and wraps rm+tsc+write at every call site');
+// ── adversarial:5 — LIVENESS: the heartbeat fires during an ASYNC critical section (event loop free) ─
+// D2: proper-lockfile refreshes `<target>.lock`'s mtime every `update` (10s) via a setInterval — which
+// can ONLY fire when the event loop is not blocked. tsc now runs as an AWAITED async child, so the loop
+// stays free during the seconds-long compile and the heartbeat keeps the lock fresh. A synchronous
+// execFileSync compile would BLOCK the loop for the whole emit, freeze the heartbeat, and let a build
+// longer than the 30s stale threshold have its LIVE lock age-stolen (B-fb7b). Prove the mechanism: hold
+// the lock across an AWAITED sleep spanning one heartbeat interval and assert the lock mtime ADVANCED —
+// only possible because the event loop was free. Deterministic ~12s, generous margins (non-flaky).
+{
+  const key = uniqueKey();
+  try {
+    const dir = lockDir(key);
+    let before = 0;
+    let after = 0;
+    await withBuildLock(key, async () => {
+      before = statSync(dir).mtimeMs;
+      await sleep(11500); // spans one 10s heartbeat; advances the mtime ONLY if the event loop is free
+      after = statSync(dir).mtimeMs;
+    });
+    assert.ok(
+      after - before >= 5000,
+      `the proper-lockfile heartbeat must refresh the lock mtime during an AWAITED async critical section ` +
+        `(event loop free): the mtime advanced only ${after - before}ms. A blocking execFileSync compile ` +
+        `would freeze the event loop so the heartbeat never fires — reopening the B-fb7b live-holder ` +
+        `age-steal for any build longer than the 30s stale threshold (before=${before}, after=${after})`,
+    );
+    console.log('VI-OK CHK-001:adversarial:5');
+  } finally {
+    cleanup(key);
+  }
+}
+
+// ── adversarial:6 — CODE: the tsc step is an AWAITED ASYNC child, never a blocking execFileSync (D2) ──
+{
+  for (const rel of ['scripts/build-main-with-binding.mjs', 'scripts/build-utils-with-binding.mjs']) {
+    const src = readFileSync(join(repoRoot, rel), 'utf8');
+    // Match a CALL (execFileSync followed by `(`), not a prose mention in a comment — the comments here
+    // legitimately explain WHY execFileSync is avoided.
+    assert.ok(
+      !/execFileSync\s*\(/.test(src),
+      `${rel}: must NOT call execFileSync for the tsc step — a synchronous compile blocks the event loop, ` +
+        `freezing the proper-lockfile heartbeat so a >30s build's live lock can be age-stolen (D2)`,
+    );
+    assert.ok(
+      !/\bexecFileSync\b/.test(src.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '')),
+      `${rel}: must not import or reference execFileSync in CODE (comments explaining its absence are fine)`,
+    );
+    assert.ok(
+      /await\s+execFileAsync\s*\(/.test(src),
+      `${rel}: the tsc step must be an AWAITED async child process (execFileAsync) so the event loop stays free for the heartbeat`,
+    );
+    assert.ok(
+      /withBuildLock\(\s*projectRoot\s*,\s*async\b/.test(src),
+      `${rel}: the withBuildLock callback must be async so it can await the async tsc child`,
+    );
+  }
+  console.log('VI-OK CHK-001:adversarial:6');
+}
+
+console.log('PASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM\'d ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync');

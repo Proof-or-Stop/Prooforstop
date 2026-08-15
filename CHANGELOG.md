@@ -96,6 +96,49 @@
   and `readerrace:4` (C1 no pre-lock fast-path). The `test-suite-utils-autobuild-smoke`
   guard and `red-fb7b-guard-bite` fixtures read the stale threshold from the new
   dependency-free module.
+- **Concurrent-build hardening, third Codex cross-host round (B-1734).** Three MAJOR
+  findings against the concurrent-build-safety changes:
+  (D2) `tsc` ran via `execFileSync`, which BLOCKS the Node event loop for the whole
+  ~15s+ compile. `proper-lockfile`'s heartbeat (`setInterval`, every 10 s) cannot
+  fire while the loop is blocked, so a build lasting longer than the 30 s stale
+  threshold had its LIVE lock reclaimed by another builder — silently reintroducing
+  the B-fb7b live-holder age-steal (`bin/bootstrap-runner.js`'s `buildInProgress()`
+  freshness gate had the same blind spot). Both `build-main-with-binding.mjs` and
+  `build-utils-with-binding.mjs` now run `tsc` as an AWAITED async child
+  (`promisify(execFile)`) inside an `async` `withBuildLock` callback, so the event
+  loop stays free and the heartbeat keeps the lock fresh throughout the compile; a
+  `tsc` failure still rejects out of `withBuildLock` (its `finally` releases the
+  lock) so the scripts exit non-zero. `red-1734-lock-liveness` gains `adversarial:5`
+  (a ~12 s liveness proof that the lock mtime advances across a held async critical
+  section) and `adversarial:6` (static: the tsc step is an awaited async child, never
+  `execFileSync`).
+  (D1) `bin/bootstrap-runner.js` statically imports `scripts/build-lock-target.mjs`
+  (and now `scripts/promote-dist.mjs`), but the desktop asset manifest in
+  `scripts/package-desktop.mjs` shipped `bin/bootstrap-runner.js` WITHOUT them, so a
+  packaged desktop runtime crashed with `ERR_MODULE_NOT_FOUND` at bootstrap
+  module-init. Both `scripts/` modules are added to the manifest `files` array. New
+  RED `red-1734-desktop-asset-manifest` computes bootstrap's transitive static import
+  graph and asserts every `scripts/` module in it is shipped by the manifest, catching
+  this and any future drift; it is wired into `validate.commands`.
+  (D3) the promotion was not process-crash-safe: a SIGKILL/host crash AFTER
+  `renameSync(dist, trash)` but BEFORE `renameSync(staging, dist)` bypasses the
+  in-process catch and leaves `dist` absent INDEFINITELY. The full fix (immutable
+  versioned output + atomic pointer) stays deliberately DESCOPED (cross-platform-risky,
+  same follow-up as the C2(b) microsecond gap). The bounded self-healing part is
+  implemented: `scripts/promote-dist.mjs` gains `recoverOrphanedPromotion(packageRoot,
+  repoKey)` (node:-only, so it stays importable in a fresh checkout), which at
+  build/bootstrap startup restores the newest orphaned `dist.trash-*` when `dist` is
+  absent and best-effort clears leftover swap siblings — so `dist` is never absent
+  longer than until the next build/bootstrap. It is gated on build-lock freshness so
+  it never disturbs a concurrent LIVE build (whose live heartbeat, now kept alive by
+  D2's async `tsc`, keeps its lock fresh and its `dist.staging`/`dist.trash-<pid>`
+  off-limits). Both build scripts call it before deciding anything, and
+  `bin/bootstrap-runner.js` calls it before giving up on an absent `dist`.
+  `red-1734-reader-race` gains `readerrace:5` (a crash-orphaned `dist.trash-*` is
+  restored complete with no stray siblings) and `readerrace:6` (recovery is a no-op
+  while a build lives). `red-1734-bootstrap-depfree` now copies bootstrap's whole
+  static graph into its fresh-checkout fixture and gains `depfree:3` (the entire graph,
+  including `promote-dist.mjs`, is third-party-free).
 
 ## Proofbound 0.3.254 - 2026-08-14
 

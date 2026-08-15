@@ -128,6 +128,14 @@ function writeAssetManifest() {
   const files = [
     'package.json',
     'bin/bootstrap-runner.js',
+    // bin/bootstrap-runner.js statically imports these at module-init (dependency-free node:-only
+    // helpers). They live under scripts/ (not packages/*/dist), so no listFiles() spread below ships
+    // them — they MUST be listed explicitly or the packaged desktop runtime crashes with
+    // ERR_MODULE_NOT_FOUND at bootstrap (B-1734 D1). recoverOrphanedPromotion (promote-dist.mjs) in turn
+    // imports build-lock-target.mjs, so both are required. red-1734-desktop-asset-manifest.mjs asserts
+    // every scripts/ module in bootstrap's static import graph is present here.
+    'scripts/build-lock-target.mjs',
+    'scripts/promote-dist.mjs',
     'packages/main/package.json',
     ...listFiles('packages/main/dist'),
     'packages/utils/package.json',

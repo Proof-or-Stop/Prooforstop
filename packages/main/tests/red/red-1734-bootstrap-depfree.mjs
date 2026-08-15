@@ -25,8 +25,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { isBuiltin } from 'node:module';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -40,14 +41,35 @@ const TARGET_REL = 'scripts/build-lock-target.mjs';
 const LOCKFILE_RE = /proper-lockfile/;
 
 function spawnCapture(args, opts = {}) {
-  return new Promise(resolve => {
+  return new Promise(res => {
     const child = spawn(process.execPath, args, { stdio: ['ignore', 'pipe', 'pipe'], ...opts });
     let out = '';
     child.stdout.on('data', d => { out += d; });
     child.stderr.on('data', d => { out += d; });
-    child.on('close', code => resolve({ code, out }));
-    child.on('error', err => resolve({ code: -1, out: String((err && err.stack) || err) }));
+    child.on('close', code => res({ code, out }));
+    child.on('error', err => res({ code: -1, out: String((err && err.stack) || err) }));
   });
+}
+
+const toRepoRel = abs => relative(repoRoot, abs).split(sep).join('/');
+
+// Follow every RELATIVE static import from an entry file, returning the reachable first-party module
+// files (absolute paths, including the entry). node: built-ins and bare specifiers terminate a branch.
+function collectStaticGraph(entryAbs) {
+  const seen = new Set();
+  const stack = [entryAbs];
+  while (stack.length > 0) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const src = readFileSync(file, 'utf8');
+    const specs = [...src.matchAll(/^\s*import\s+[^'"]*from\s+['"]([^'"]+)['"]/gm)].map(m => m[1]);
+    for (const spec of specs) {
+      if (!spec.startsWith('.')) continue;
+      stack.push(resolve(dirname(file), spec));
+    }
+  }
+  return seen;
 }
 
 async function main() {
@@ -80,6 +102,42 @@ async function main() {
     console.log('VI-OK C3:depfree:0');
   }
 
+  // ── depfree:3 — TRANSITIVE: bootstrap's WHOLE static graph is third-party-free (loads sans node_modules) ─
+  // bootstrap now also imports promote-dist.mjs (recoverOrphanedPromotion, B-1734 D3), which imports
+  // build-lock-target.mjs. Guard the ENTIRE reachable graph, not just bootstrap's direct imports: no
+  // first-party module in it may import a bare/third-party specifier (that needs node_modules and
+  // reintroduces the proper-lockfile-class fresh-checkout crash). This future-proofs any new dep-free
+  // scripts/ helper bootstrap picks up.
+  {
+    const graph = collectStaticGraph(join(repoRoot, BOOTSTRAP_REL));
+    const scriptModules = [...graph].map(toRepoRel).filter(r => r.startsWith('scripts/'));
+    assert.ok(scriptModules.includes(TARGET_REL), `bootstrap's static graph must include ${TARGET_REL}`);
+    assert.ok(
+      scriptModules.length >= 2,
+      `bootstrap now depends on more than one dep-free scripts/ module (build-lock-target + promote-dist); got ${JSON.stringify(scriptModules)}`,
+    );
+    const thirdPartyImports = [];
+    for (const file of graph) {
+      const specs = [...readFileSync(file, 'utf8').matchAll(/^\s*import\s+[^'"]*from\s+['"]([^'"]+)['"]/gm)].map(m => m[1]);
+      for (const spec of specs) {
+        // A dependency-free graph may import ONLY node: built-ins (whether written `node:fs` or bare
+        // `fs` — isBuiltin recognizes both) and first-party relative modules. Anything else needs
+        // node_modules and would ERR_MODULE_NOT_FOUND in a fresh checkout (proper-lockfile was exactly
+        // such a case).
+        if (isBuiltin(spec) || spec.startsWith('.')) continue;
+        thirdPartyImports.push({ file: toRepoRel(file), spec });
+      }
+    }
+    assert.deepEqual(
+      thirdPartyImports,
+      [],
+      `every module in bin/bootstrap-runner.js's static import graph must import ONLY node: built-ins or ` +
+        `other first-party dep-free modules so a fresh checkout loads without node_modules; found ` +
+        `third-party imports: ${JSON.stringify(thirdPartyImports)}`,
+    );
+    console.log('VI-OK C3:depfree:3');
+  }
+
   // ── depfree:1 — both modules LOAD (module-init does not throw) and expose expected bindings ───────
   {
     const target = await import(pathToFileURL(join(repoRoot, TARGET_REL)).href);
@@ -100,8 +158,15 @@ async function main() {
     try {
       mkdirSync(join(base, 'bin'), { recursive: true });
       mkdirSync(join(base, 'scripts'), { recursive: true });
-      cpSync(join(repoRoot, BOOTSTRAP_REL), join(base, BOOTSTRAP_REL));
-      cpSync(join(repoRoot, TARGET_REL), join(base, TARGET_REL));
+      // Copy EVERY first-party module in bootstrap's static import graph (bootstrap-runner.js +
+      // build-lock-target.mjs + promote-dist.mjs + …) so the fixture is a faithful fresh checkout whose
+      // ONLY missing piece is node_modules. If bootstrap gains a new dep-free scripts/ module this keeps
+      // copying it, so the test stays honest that module-init loads without node_modules.
+      for (const abs of collectStaticGraph(join(repoRoot, BOOTSTRAP_REL))) {
+        const dest = join(base, toRepoRel(abs));
+        mkdirSync(dirname(dest), { recursive: true });
+        cpSync(abs, dest);
+      }
       // No node_modules anywhere up-tree of a tmpdir fixture, and no packages/*/dist → this is exactly
       // the fresh-checkout condition. A driver imports runLocalBootstrap and runs it; module-init must
       // succeed (build-lock-target.mjs is dep-free) and importDistModules must fail FAST with the hint

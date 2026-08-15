@@ -15,6 +15,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 // which is absent in a fresh checkout without node_modules and would throw
 // ERR_MODULE_NOT_FOUND at module-init here, before we could print the recovery hint.
 import { BUILD_LOCK_STALE_MS, buildLockTarget } from '../scripts/build-lock-target.mjs';
+// recoverOrphanedPromotion lives in promote-dist.mjs, which — like build-lock-target.mjs — imports ONLY
+// node: built-ins (never proper-lockfile), so importing it here keeps bootstrap loadable in a fresh
+// checkout without node_modules. It self-heals a promotion that crashed BETWEEN promote-dist's two
+// renames (dist evicted to an orphaned dist.trash-* but never replaced), which no in-process catch can.
+import { recoverOrphanedPromotion } from '../scripts/promote-dist.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const binDir = dirname(__filename);
@@ -94,6 +99,7 @@ export const IMPORT_WAIT_MAX_MS = 20 * 60 * 1000;
 // with the recovery hint — no wait.
 async function importDistModules() {
   const startedAt = Date.now();
+  let recoveryAttempted = false;
   for (;;) {
     if (existsSync(MAIN_DIST) && existsSync(UTILS_DIST) && !buildInProgress()) {
       return await Promise.all([
@@ -111,6 +117,18 @@ async function importDistModules() {
     const distPresent = existsSync(MAIN_DIST) && existsSync(UTILS_DIST);
     const keepWaiting = buildInProgress() || distPresent;
     if (keepWaiting && Date.now() - startedAt < IMPORT_WAIT_MAX_MS) { await sleep(250); continue; }
+    // About to give up on an absent dist. Before failing, self-heal a promotion that crashed BETWEEN
+    // promote-dist's two renames (old dist evicted to an orphaned dist.trash-*, staging→dist never ran):
+    // restore the orphan so bootstrap recovers instead of bricking until the next build. Only when no
+    // build is active (buildInProgress() false → the lock is stale/absent, so no live builder owns those
+    // siblings; recoverOrphanedPromotion re-checks the same freshness gate). Attempt once, then re-loop:
+    // if it restored dist the top-of-loop import succeeds; otherwise we fail fast with the recovery hint.
+    if (!recoveryAttempted && !buildInProgress()) {
+      recoveryAttempted = true;
+      recoverOrphanedPromotion(join(repoRoot, 'packages', 'main'), repoRoot);
+      recoverOrphanedPromotion(join(repoRoot, 'packages', 'utils'), repoRoot);
+      continue;
+    }
     printBootstrapFailure(); process.exit(1);
   }
 }

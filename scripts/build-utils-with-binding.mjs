@@ -1,16 +1,31 @@
 #!/usr/bin/env node
 
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import { verifyUtilsBuildBinding, writeUtilsBuildBinding } from './full-suite-build-binding.mjs';
 import { withBuildLock } from './build-lock.mjs';
-import { promoteDist } from './promote-dist.mjs';
+import { promoteDist, recoverOrphanedPromotion } from './promote-dist.mjs';
+
+// tsc runs as an AWAITED ASYNC child (D2), NOT execFileSync: a synchronous compile BLOCKS the Node event
+// loop for the whole ~15s+ emit, so proper-lockfile's heartbeat (setInterval, 10s) cannot fire and a
+// build longer than the 30s stale threshold has its LIVE lock reclaimed by another builder — reopening
+// the B-fb7b live-holder age-steal. An async child keeps the loop free so the heartbeat keeps firing.
+const execFileAsync = promisify(execFile);
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageRoot = join(projectRoot, 'packages/utils');
 const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
+
+// D3 SELF-HEAL (before deciding anything): a promotion killed BETWEEN promote-dist's two renames leaves
+// dist absent + an orphaned dist.trash-* sibling that no in-process catch recovers. Restore it up front
+// so dist is never absent longer than until this build. Gated on build-lock freshness so it never
+// disturbs a concurrent LIVE build (which owns its dist.staging/dist.trash-<pid>). The residual window
+// between a mid-promotion crash and this next build/bootstrap is the same versioned-pointer follow-up as
+// the C2(b) microsecond gap.
+recoverOrphanedPromotion(packageRoot, projectRoot);
 
 // NO PRE-LOCK FAST-PATH (C1): unlike build-main-with-binding.mjs, the utils binding
 // folds in an EXTERNAL mutable input — packages/main/dist — which a concurrent MAIN
@@ -27,7 +42,7 @@ const tsc = fileURLToPath(import.meta.resolve('typescript/bin/tsc'));
 // exclusive. The lock wraps the ENTIRE critical section (staging build + atomic
 // swap + write), serializing BUILDERS; the atomic staging-swap (not an in-place rm)
 // is what keeps the ~90 non-lock-holding dist readers from ever seeing a torn dist.
-await withBuildLock(projectRoot, () => {
+await withBuildLock(projectRoot, async () => {
   try { verifyUtilsBuildBinding(projectRoot); return; } catch { /* still stale → rebuild */ }
   const dist = join(packageRoot, 'dist');
   const staging = join(packageRoot, 'dist.staging');
@@ -40,7 +55,17 @@ await withBuildLock(projectRoot, () => {
   // dist. A fresh staging each build preserves the clean-build proof.
   rmSync(staging, { recursive: true, force: true });
   rmSync(trash, { recursive: true, force: true });
-  execFileSync(process.execPath, [tsc, '-p', join(packageRoot, 'tsconfig.json'), '--outDir', staging], { cwd: projectRoot, stdio: 'inherit' });
+  // AWAITED ASYNC tsc (D2, identical to build-main-with-binding.mjs): the event loop stays free so the
+  // proper-lockfile heartbeat keeps refreshing the lock during the seconds-long compile (a live build is
+  // never age-stolen). On failure the rejected promise propagates out of withBuildLock — whose finally
+  // still releases the lock — so the script exits non-zero; surface tsc's diagnostics first.
+  try {
+    await execFileAsync(process.execPath, [tsc, '-p', join(packageRoot, 'tsconfig.json'), '--outDir', staging], { cwd: projectRoot, maxBuffer: 64 * 1024 * 1024 });
+  } catch (error) {
+    if (error.stdout) process.stdout.write(error.stdout);
+    if (error.stderr) process.stderr.write(error.stderr);
+    throw error;
+  }
   // Promote crash-safely (C2, shared with build-main-with-binding.mjs): promoteDist
   // evicts the old dist → trash, moves staging → dist, and RESTORES the old dist from
   // trash if the second rename fails, so a mid-promotion crash never leaves dist absent.

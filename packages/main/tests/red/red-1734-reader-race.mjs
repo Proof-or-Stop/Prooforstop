@@ -26,7 +26,8 @@
  */
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +37,7 @@ import {
   verifyUtilsBuildBinding,
 } from '../../../../scripts/full-suite-build-binding.mjs';
 import { BUILD_LOCK_OPTIONS, buildLockTarget } from '../../../../scripts/build-lock.mjs';
-import { promoteDist } from '../../../../scripts/promote-dist.mjs';
+import { promoteDist, recoverOrphanedPromotion } from '../../../../scripts/promote-dist.mjs';
 import { buildInProgress, IMPORT_WAIT_MAX_MS } from '../../../../bin/bootstrap-runner.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -249,7 +250,78 @@ async function main() {
     console.log('VI-OK CHK-001:readerrace:4');
   }
 
-  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/lattice.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure; utils has no pre-lock fast-path`);
+  // ── readerrace:5 — D3: a CRASH between promote-dist's two renames is self-healed at build startup ───
+  // A SIGKILL/host crash AFTER `renameSync(dist,trash)` but BEFORE `renameSync(staging,dist)` bypasses
+  // promoteDist's in-process catch (the process is gone) and leaves dist ABSENT indefinitely — the old
+  // dist stranded in an orphaned dist.trash-*, recovered by no one. recoverOrphanedPromotion, run before
+  // any build/bootstrap decides anything, restores the newest orphaned trash so dist is never absent
+  // longer than until the next build. Deterministic: build the crashed state directly (dist absent +
+  // dist.trash-<pid> holding a complete tree + a leftover dist.staging), then run recovery.
+  {
+    const base = mkdtempSync(join(tmpdir(), 'red-1734-recover-'));
+    try {
+      const pkg = join(base, 'packages', 'main');
+      mkdirSync(pkg, { recursive: true });
+      const dist = join(pkg, 'dist');
+      const trash = join(pkg, `dist.trash-${process.pid}`);
+      const staging = join(pkg, 'dist.staging');
+      // Mimic the kill between the two renames: old dist already evicted to trash, staging→dist never ran.
+      mkdirSync(join(trash, 'sub'), { recursive: true });
+      writeFileSync(join(trash, 'index.js'), 'export const OLD = 1;\n');
+      writeFileSync(join(trash, 'sub', 'deep.js'), 'export const D = 2;\n');
+      mkdirSync(staging, { recursive: true }); // a leftover partial staging from the crash
+      writeFileSync(join(staging, 'partial.js'), '// interrupted\n');
+      assert.ok(!existsSync(dist), 'precondition: dist is ABSENT (killed mid-promotion, old dist stranded in trash)');
+      // A unique repoKey with no build lock → recoverOrphanedPromotion's freshness gate passes → it recovers.
+      const uniqueRepoKey = `red-1734-recover-${randomUUID()}`;
+      recoverOrphanedPromotion(pkg, uniqueRepoKey);
+      assert.ok(existsSync(dist), 'D3: recovery must RESTORE dist from the orphaned dist.trash-* (dist never left absent past the next build)');
+      assert.equal(readFileSync(join(dist, 'index.js'), 'utf8'), 'export const OLD = 1;\n', 'the restored dist must be COMPLETE (old content intact)');
+      assert.equal(readFileSync(join(dist, 'sub', 'deep.js'), 'utf8'), 'export const D = 2;\n', 'the restored dist must include every file/subdir');
+      const leftovers = readdirSync(pkg).filter(n => /^dist\.(staging|trash-)/.test(n));
+      assert.deepEqual(leftovers, [], `recovery must leave NO stray dist.trash-*/dist.staging siblings, found ${JSON.stringify(leftovers)}`);
+      console.log('VI-OK CHK-001:readerrace:5');
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  }
+
+  // ── readerrace:6 — D3 SAFETY: recovery is a NO-OP while a build LIVES (never corrupts its siblings) ─
+  // The recovery gate must not disturb a concurrent LIVE build, which legitimately owns its
+  // dist.staging / dist.trash-<pid> mid-promotion. With a FRESH build lock present, recoverOrphanedPromotion
+  // must do NOTHING — otherwise it would restore/delete a live builder's siblings and corrupt its build.
+  {
+    const base = mkdtempSync(join(tmpdir(), 'red-1734-recover-live-'));
+    const repoKey = `red-1734-recover-live-${randomUUID()}`;
+    const lockDir = `${buildLockTarget(repoKey)}.lock`;
+    try {
+      const pkg = join(base, 'packages', 'main');
+      mkdirSync(pkg, { recursive: true });
+      const dist = join(pkg, 'dist');
+      const trash = join(pkg, `dist.trash-${process.pid}`);
+      const staging = join(pkg, 'dist.staging');
+      mkdirSync(trash, { recursive: true });
+      writeFileSync(join(trash, 'index.js'), 'export const LIVE = 1;\n');
+      mkdirSync(staging, { recursive: true });
+      writeFileSync(join(staging, 'in-progress.js'), '// a LIVE build is emitting here\n');
+      // A FRESH lock (mtime = now) means a build is LIVE → recovery must skip entirely.
+      mkdirSync(lockDir, { recursive: true });
+      const nowSec = Date.now() / 1000;
+      utimesSync(lockDir, nowSec, nowSec);
+      assert.ok(Date.now() - statSync(lockDir).mtimeMs < BUILD_LOCK_OPTIONS.stale, 'precondition: the lock is fresh (a live build)');
+      recoverOrphanedPromotion(pkg, repoKey);
+      assert.ok(!existsSync(dist), 'while a build LIVES, recovery must NOT restore dist from the live builder\'s dist.trash-<pid>');
+      assert.ok(existsSync(trash), 'while a build LIVES, recovery must NOT delete the live builder\'s dist.trash-<pid>');
+      assert.ok(existsSync(staging), 'while a build LIVES, recovery must NOT delete the live builder\'s in-progress dist.staging');
+      console.log('VI-OK CHK-001:readerrace:6');
+    } finally {
+      rmSync(lockDir, { recursive: true, force: true });
+      rmSync(buildLockTarget(repoKey), { force: true });
+      rmSync(base, { recursive: true, force: true });
+    }
+  }
+
+  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/lattice.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure; a crash-orphaned dist.trash-* is self-healed at startup while a live build's siblings are left untouched; utils has no pre-lock fast-path`);
 }
 
 main().catch(err => {
