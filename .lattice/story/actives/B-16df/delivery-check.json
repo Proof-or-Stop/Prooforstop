@@ -1,0 +1,72 @@
+{
+  "storyId": "B-16df",
+  "checkedAt": "2026-08-15T11:51:14.138Z",
+  "headHash": "f73cd38a116c3858e0e6f86daf35ddf112b43e62",
+  "materialHash": "7363b2445078779c9b0298ffe85920716bfbdce8f6678e30e10956d992c01fc0",
+  "storyFilesHash": "5f21d1f85b849f122c6b35c47dc9a1a5783c869ba51ab6352ae646b977919ab6",
+  "reviewRound": "2026-08-15T11:00:58.353Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chosen-option",
+      "promise": "resolvePinnedCommandTimeoutMs is implemented in packages/main/src/handlers/checklist.ts, exported (non-default), and matches {command,args} against configuredValidationCommands(root) to find a configured validate.commands[].timeoutMs override.",
+      "verifiedBy": "diff/grep + source read",
+      "evidence": "checklist.ts: `export function resolvePinnedCommandTimeoutMs(root: string, command: string): number | undefined { const { executable, args } = parseAllowlistedCommand(command); const configured = configuredValidationCommands(root); const match = configured.find((c) => c.command === executable && c.args.length === args.length && c.args.every((a, i) => a === args[i])); return match?.timeoutMs; }` matches the plan's chosen-option snippet verbatim."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-002",
+      "promise": "All 4 existing runSingleAllowlistedCommand call sites in checklist.ts are rewired to pass timeoutMs: resolvePinnedCommandTimeoutMs(root, command); no duplicated matching logic outside the one shared helper.",
+      "verifiedBy": "grep + source read",
+      "evidence": "grep 'resolvePinnedCommandTimeoutMs(root, command)' packages/main/src/handlers/checklist.ts -> exactly 4 matches, in verification_evidence_add (L1576), verification_evidence_batch_add (L1667), verification_run (L1798), and verification_evidence_refresh_stale (L1877, the re-exec path). Exactly one function declaration exists. The test file's own section 13 also structurally asserts this (call-site count===4, declaration count===1) and passed on real run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chosen-option",
+      "promise": "resolveCommandTimeoutMs and the lattice validate execution path (executeValidationPlan/runValidationCommand) are not touched; core/validation-executor.ts and handlers/verifier.ts are reused as-is, not modified by this story.",
+      "verifiedBy": "git diff --name-only main...HEAD",
+      "evidence": "git diff --name-only main...HEAD lists only packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts as source changes; packages/main/src/core/validation-executor.ts and packages/main/src/handlers/verifier.ts do not appear. Independently confirmed live: `git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts` (executed directly, not just trusting the smoke's own section-12 self-check) produces empty output."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-001",
+      "promise": "A new RED-then-GREEN case is added to validate-command-timeout-smoke.ts that fails on current main (runSingleAllowlistedCommand ignores validate.commands[].timeoutMs) and passes once the fix lands, using a real subprocess spawn (not mocked) against a temp lattice.config.json.",
+      "verifiedBy": "live reproduction (fix reverted + rebuilt + rerun, then restored + rebuilt + rerun)",
+      "evidence": "Reversed the checklist.ts diff via `git apply -R`, ran `npm run build` (clean) then `node packages/main/dist/tasks/validate-command-timeout-smoke.js`: genuinely FAILs with 'FAIL: checklist.ts exports resolvePinnedCommandTimeoutMs' (exit 1). Re-applied the diff, rebuilt, reran: 'validate-command-timeout smoke passed: 45 assertions' (exit 0). Confirms real RED->GREEN, not a rubber-stamped test."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-003",
+      "promise": "Regression coverage added: an unmatched pinned command falls through to the 270s default (undefined from the resolver), and two configured commands sharing the same executable but different args do not cross-match each other's timeoutMs (args-based disambiguation).",
+      "verifiedBy": "diff/grep + real run",
+      "evidence": "validate-command-timeout-smoke.ts sections 7 and 8 implement exactly these two cases against temp lattice.config.json fixtures; both assertions are among the 45 that pass in the real `node .../validate-command-timeout-smoke.js` run."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-16df/plan.md#chk-001-doc-registration",
+      "promise": "The smoke is already registered in lattice.config.json validate.commands for ongoing regression protection; no new config-file registration is needed for this story.",
+      "verifiedBy": "grep",
+      "evidence": "lattice.config.json line 59: { \"command\": \"node\", \"args\": [\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"], \"focus\": [\"fast\"] } — present and unchanged by this story's diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real (non-mocked) subprocess-spawning regression case (validate-command-timeout-smoke.ts sections 6a/6b) against a tmpdir lattice.config.json pinning 'node -e \"setTimeout(() => {}, 1500)\"' at a 700ms override. Independently reproduced RED on current main (revert checklist.ts fix -> rebuild -> run -> genuine FAIL at the resolvePinnedCommandTimeoutMs export-existence assertion) and GREEN with the fix restored (rebuild -> run -> 'validate-command-timeout smoke passed: 45 assertions', exit 0, timedOut=true/code=124 for the pinned override)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Covered by the same real-machine smoke run: section 13 structurally verifies all 4 runSingleAllowlistedCommand call sites route through the single resolvePinnedCommandTimeoutMs(root, command) helper (call-site count===4, declaration count===1) by reading checklist.ts's own compiled/source text; section 12 verifies validation-executor.ts/verifier.ts are byte-for-byte unmodified via a real `git diff` subprocess. Both pass in the live run."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Sections 7 (unmatched command -> undefined) and 8 (args-based disambiguation, two node commands with different args/timeoutMs never cross-match) are direct unit assertions on the real exported resolvePinnedCommandTimeoutMs against temp lattice.config.json fixtures; both pass in the live run. Additional adversarial edge coverage beyond the plan's original CHK-003 scope: sections 9-11, 14-16 cover bare-string config entries (no timeoutMs field structurally possible), shell-style config entries (never false-positive match), zero/negative configured timeoutMs (returned verbatim, sanitized downstream), huge timeoutMs (clamped via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS), tokenizer parsing parity + whitespace/quoting evasion resistance, and strict-prefix args mismatch."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Acceptance verification: independently ran `npm run build` in packages/main (clean, no errors) and `node packages/main/dist/tasks/validate-command-timeout-smoke.js` (exit 0, 'validate-command-timeout smoke passed: 45 assertions') myself, matching the checklist's recorded receipt."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All promises in plan.md (the only .md file in this diff) are verified directly in source and confirmed by an independent, self-executed RED->GREEN reproduction (reverted the checklist.ts fix, rebuilt, watched the smoke genuinely fail, then restored and watched it genuinely pass with 45 assertions). All 4 checklist items are feature items backed by real subprocess-spawning tests, not mocks; no TODO/FIXME/HACK in the diff; validation-executor.ts and verifier.ts are confirmed untouched."
+  },
+  "_hash": "176ad980729c1f4e9119f415b42e31c7100f5e0df8f66754718962a45080eb4c"
+}
