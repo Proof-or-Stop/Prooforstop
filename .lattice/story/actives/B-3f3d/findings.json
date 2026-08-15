@@ -3323,7 +3323,7 @@
       "desc": "packages/main/src/handlers/english-artifact-gate.ts:29-38,202-215; packages/main/src/handlers/story-create.ts:340-374; packages/main/src/handlers/checklist.ts:1189-1207,1348-1354; packages/main/src/core/command-policy.ts:171-173; packages/main/src/tasks/english-early-check-smoke.ts:162-198 — HIGH distinct framework admission/gate mismatch that forces late lifecycle recovery. REVIEW→TEST scans the entire checklist.json and currently reports checklist.json:328 (`AGENTS.md#流程事实双层契约`), but storyCreateAuthoringFields checks only checklist title/context/userSees and omits relatedDocs, while checklist_add/update have no assertEnglishAuthoringText admission at all. The existing early smoke passes because it covers only title/context and never relatedDocs or later checklist writers. Therefore CJK metadata can be accepted and frozen through PLAN/DEV, survive all four REVIEW lanes and quorum, and fail only at REVIEW→TEST. checklist_update is command-policy restricted to INIT/PLAN/DEV, so REVIEW cannot repair the rejected metadata in place and must complete a new finding inventory and remediation DEV cycle. This is not an unrecoverable permanent deadlock because the inventory receipt can authorize DEV, but it is a distinct fail-late framework correctness/efficiency defect. Apply the same canonical English-authoring predicate to every author-controlled checklist field the final gate scans (including relatedDocs, excludes and nested authored prose as policy intends) at story_create/checklist_add/checklist_update before persistence; add real CLI smoke cases proving CJK relatedDocs is rejected side-effect-free at create and update, and English replacement succeeds without weakening the final fail-closed scan.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T01:01:41.026Z",
@@ -3371,7 +3371,11 @@
         "packages/main/src/tasks/english-only-guards-smoke.ts"
       ],
       "signatureTag": "english-artifact-writer-gate-coverage-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 1c06405426 applies the canonical English predicate to story_create, checklist_add, and checklist_update authored fields; CJK relatedDocs is rejected side-effect-free, English replacement succeeds, final gate remains fail closed; build, early/final English smokes, and process-fact contract pass.",
+      "resolvedAt": "2026-08-15T01:41:15.831Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-050",
