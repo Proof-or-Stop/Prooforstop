@@ -196,6 +196,42 @@
         "scanEscalationReason": null
       },
       "_hash": "7b97edaf018f5cd64e2a9162af64e86dc378db353c6256e2b8a1c8856118d942"
+    },
+    {
+      "id": "B-74b9:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmation pass: verified via git diff fc0e8f4bf5..2dd17eba89 -- . \":!.lattice\" that ZERO bytes changed in packages/main/src, packages/main/tests, or lattice.config.json since the prior clean lattice-review-quality pass (RR-004/RP-006, materialHash 66f5b46ae5). Only .lattice/ story-metadata and dev-memory files changed (dev_memory_finish_decision + dev_memory_capture lesson entry, delivery-check, done-required-evidence, summary, prompt-envelopes, review-runs/passes bookkeeping) between fc0e8f4bf5 and 2dd17eba89 -- confirmed via git diff --stat over that range. The reviewed code diff (git diff main...HEAD -- packages/main/src packages/main/tests lattice.config.json) is: lattice.config.json (proofstory-acceptance-basis-smoke.js registration, CHK-004), 3 fixture fixes (field-regression-cli-smoke.ts, proofstory-acceptance-basis-smoke.ts, worktree-authority-smoke.ts), 3 CHK-00x RED scripts, and the red-b49d4-harness-registration.mjs exclusion-map update for the 3 new RED scripts -- identical to what RR-004 already reviewed clean (no dead code, no unsafe any, no empty catch, no I/O-isolation issues, no proof-metadata dual-surface concerns, no doc-promise-undelivered). No new findings; re-affirming the prior 0-finding conclusion on unchanged code.",
+      "createdAt": "2026-08-15T23:40:40.311Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-007",
+      "envelopeId": "3cf8dd09793cc6afd1cb9b0dcd3830c692fd95c11f018c6dcd91af6d8525b031",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/dev-memory/finish-decisions/B-74b9.json",
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/plan.md",
+          ".lattice/story/actives/B-74b9/summary.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68fe8f13c1a0f050e935871b20bfa4fae7f7ff18c784771fd3ed6f2b4601fc6b"
     }
   ]
 }
