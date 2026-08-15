@@ -520,7 +520,7 @@
       "desc": "doc-code-drift: the capacity documentation at docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 omits the final retained proof boundary added for F-011/F-013. packages/main/src/tasks/validate-execution-lock-smoke.ts:913-994 now runs checked-in independent child-process stale-reclaim stress with maxConcurrency=1, zero overlap, and zero queue leaks; lines 1742-1774 define exact focused/full terminal contracts of 15 and 26 assertion groups. Document the cross-process regression and current exact 15/26 terminal/pin values so operator assurance does not silently rely on the weaker prior in-process-only or stale 14/25 proof.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T13:54:59.964Z",
@@ -546,7 +546,11 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "missing|md|code-drift-capacity",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d records in all three documents the checked-in exact-12 child-process stale/ABA regression, distinguishes it from the in-process cohort and runtime guarantees, and states the exact managed focused15/full26 terminal-pin contract; current docs evidence is refreshed.",
+      "resolvedAt": "2026-08-15T20:10:32.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-016",
