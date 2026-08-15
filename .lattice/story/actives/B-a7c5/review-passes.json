@@ -1,0 +1,42 @@
+{
+  "passes": [
+    {
+      "id": "B-a7c5:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: verified 1c150d07f3 correctly fixes the round-1 EISDIR fail-open finding; all 74 smoke assertions + tsc clean; no new dead-code/type-safety/IO regressions in collateral files.",
+      "createdAt": "2026-08-15T10:49:37.822Z",
+      "reviewRound": "2026-08-15T10:45:44.244Z",
+      "reviewRunId": "B-a7c5:RR-005",
+      "envelopeId": "b31cd99590fff3d83c8a5c776f0fcb2605b41c5ef09ec011ff50c7c57dafe5a8",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/findings.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts",
+          "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts",
+          "packages/main/src/tasks/playbook-runtime-memory-mvp2-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0266d832ad80117ab7313e8f0e8a860b21c8f7f75d47161809f67e20e2776fdd"
+    }
+  ]
+}
