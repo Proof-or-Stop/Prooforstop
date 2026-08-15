@@ -172,7 +172,11 @@
         "edge": [
           {
             "desc": "When execFileSync throws an error other than blob-not-found (e.g. ENOBUFS, EPERM, or a git crash), the surfaced reason includes the original error message or code from the child process; WHY: the current catch discards ALL error information and the fix must preserve it for the operator",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+              "selector": "an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal"
+            }
           }
         ],
         "adversarial": [
@@ -241,6 +245,25 @@
           "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3",
           "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
           "timestamp": "2026-08-15T11:12:10.890Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "result": "pass",
+          "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cfcd691b90f81998d66a5e129fe925135143b692d0a970683bcba1d5ac1d9844",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-15T11:12:14.502Z"
+          },
+          "headHash": "57af8a51b5af195e81feb4d5a6e5d7aefa12b196",
+          "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3",
+          "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+          "timestamp": "2026-08-15T11:12:14.657Z"
         }
       ]
     },
