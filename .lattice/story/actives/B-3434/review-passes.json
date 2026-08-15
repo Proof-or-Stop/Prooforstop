@@ -101,6 +101,38 @@
         "scanEscalationReason": null
       },
       "_hash": "62d6799bfa11ea19e34b4e3c01797de1e9cbf03955f4985269513b08b216e077"
+    },
+    {
+      "id": "B-3434:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Verified by execution that the round-9-to-10 documentation-only commit (a586100e89) does not change behaviour. (1) Re-ran the four-disposition/real-writer property with fresh fixtures against the built dist's boundPersistedValidationEvidence + the real StoryStore.writeTestEvidence (no archived script from a prior round was retrievable in review-passes.json/findings.json to replay verbatim, so I constructed new ones): unmodified=312/fileBytes matched on-disk bytes exactly, reduced=656/matched, verdict_only=599/matched -- this EXACTLY reproduces the decision doc's own transcript number for verdict_only (599), which is strong corroboration since that path is sized entirely by construction (fixed key list x VALIDATION_EVIDENCE_SCALAR_CHAR_CAP) and is fixture-independent; refused correctly never wrote a file in any case (onDiskBytes=null, fileExistedAfter=false). The other three numbers differ from the doc's (277/667/27263587) only because I used different fixture shapes -- expected, not a drift signal. (2) safeScalarRead's cap: probed the 200/201/199-unit boundary and a UTF-16 surrogate pair straddling the cut through the real verdict_only path -- 199 kept whole, 200 kept whole, 201 truncated to 200, and the astral-character case truncates mid-surrogate-pair exactly as plain value.slice(0,200) would, byte-identical to VALIDATION_EVIDENCE_SCALAR_CHAR_CAP's replacement of the literal (grep confirms the constant is unexported and used at exactly the one call site, so no duplication risk was introduced). (3) The smoke's inverted section-13 guard: built a disposable git worktree from HEAD d9a11a37d6 under my own temp dir (packages/main built locally there via npm --prefix packages/main run build with node_modules symlinked from root -- the shipped worktree's dist was never touched), confirmed baseline PASS (rationale bytes=15474, matching the review worktree), then: deleting the decision doc -> AssertionError naming the missing path and exit 1; restoring + corrupting the Disposition line -> AssertionError with actual/expected diff showing the exact wrong string; restoring + duplicating the Disposition line -> AssertionError actual=2 expected=1; restoring + removing B-3434:F-033 from the body -> AssertionError naming that exact substring. Restored to a clean PASS after each mutation. All four mutations fail loudly and specifically, confirming the inverted guard has real teeth in both directions. (4) Re-confirmed the 32 MiB ceiling against real git blobs in a scratch repo via the built isolatedBlobHash/treeBlobHash: a genuine 5 MiB blob reads correctly (sha256 returned) via both the index and tree path; a genuine 40 MiB blob fails as kind=unreadable with byte counts in the message on both paths; a missing path reports kind=absent with a distinct git message on both paths -- matches RR-020, no drift. Also ran red-b3434-blob-buffer-ceiling.mjs standalone (independent PASS, 34.5 MB over-ceiling section included). (5) Ran and confirmed green in the review worktree (dist not rebuilt, as instructed): npx tsc --noEmit -p packages/main (0 errors), red-b3434-blob-buffer-ceiling.mjs (PASS), validation-evidence-buffer-smoke.js (PASS, section 13 shows outcome-B wired correctly), done-prepare-auto-closeout-smoke.js (passed), validation-evidence-reuse-smoke.js (PASS). Confirmed via git show a586100e89 that the diff is prose/docstrings plus exactly one behaviour-preserving change (value.slice(0,200) -> value.slice(0,VALIDATION_EVIDENCE_SCALAR_CHAR_CAP), constant equals 200). Noted but out of my brief per the dispatch (behaviour-preservation only, not re-hunting the bounding machinery): concurrent open findings B-3434:F-038 (concept lane, RR-033, low) and B-3434:F-039 (quality lane, RR-031, medium) surfaced during this round from other reviewer lanes about documentation completeness/staleness elsewhere in the same files -- neither is a behaviour regression in the four items I was asked to check, and both are outside this lanes scope this round. No findings filed by me. All prior findings on this story remain resolved.",
+      "createdAt": "2026-08-15T21:51:14.406Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-030",
+      "envelopeId": "e74f98ee78d44417973983594a4e43f57a9a39eab7941e69c0ae8acb578beb98",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea7c84023ac9d9aaf6a58ce2f9cc8a135dc564af59dd69229e4c7ca18426797f"
     }
   ]
 }
