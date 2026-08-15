@@ -1,0 +1,33 @@
+{
+  "task": "Staged blobs larger than Node's default one-mebibyte execFileSync buffer cannot be read by the metadata commit path, so validation evidence can never be persisted and no story can enter TEST.",
+  "outcome": "A story whose test-evidence.json exceeds one mebibyte persists its validation evidence and enters TEST; an unreadable blob reports its real error rather than presenting as a digest difference; a committed regression covers the above-limit case; aggregate artifact growth has a shipped or explicitly recorded disposition; and validate prints an advisory as the artifact nears the ceiling.",
+  "facts": [
+    "isolatedBlobHash, isolatedGit and treeBlobHash in core/done-prepare-generated-metadata.ts call execFileSync with no maxBuffer, so Node's 1048576-byte default applies",
+    "The two hash helpers swallow the resulting ENOBUFS with a bare catch that returns null",
+    "The caller compares that null against the expected digest and reports verified metadata changed after manifest verification, which names concurrent modification rather than a buffer limit",
+    "Reproduced outside the repository: a 1400000-byte staged file throws ENOBUFS under default options and returns all 1400000 bytes with maxBuffer raised",
+    "Per-command captured output is already bounded upstream by trimOutput and MAX_OUTPUT_CHARS of twelve thousand characters in core/validation-executor.ts",
+    "handlers/verifier.ts serialises every command result into test-evidence.json, so the artifact grows with the NUMBER of configured commands, measured at 1369692 bytes on story B-9ff1",
+    "lattice.config.json validate.commands grew from 56 to 100 entries on 2026-08-14",
+    "buildLedgerSizing in core/proofstory.ts already implements a three-tier capacity classification consumed as warn before hard fail"
+  ],
+  "constraints": [
+    "Fail-closed posture must be preserved: an unreadable blob must never be treated as a match",
+    "The commit path must keep distinguishing blob genuinely absent from blob could not be read",
+    "The hard-coded fifteen-minute watchdog ceiling is a separate defect and stays untouched",
+    "Which entries lattice.config.json declares is out of scope",
+    "Upstream per-command truncation stays unchanged"
+  ],
+  "unknowns": [
+    "Whether the aggregate artifact should be bounded in this story or handed to a named successor change - CHK-004 requires the decision to be made and shipped either way",
+    "What warning fraction of the raised ceiling the advisory should use, measured against the ceiling this story sets rather than any external default"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/proofstory.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-08-15T10:25:59.834Z"
+}

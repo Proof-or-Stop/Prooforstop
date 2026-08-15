@@ -1,0 +1,43 @@
+{
+  "storyId": "B-3434",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/*.mjs",
+    "packages/main/src/tasks/*-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "scopeChangeReason": "The two excluded files carry the separate fifteen-minute watchdog asymmetry, which is a real but distinct defect handled on its own; touching them here would blur two independent fixes. The decisions doc is allowed to be created because CHK-004's rationale branch must land somewhere committed rather than in a story artifact.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-15T10:29:19.650Z",
+  "updatedAt": "2026-08-15T10:29:19.650Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
+    "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
+    "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
+  }
+}
