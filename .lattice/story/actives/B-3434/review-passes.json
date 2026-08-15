@@ -19,6 +19,34 @@
         "scanEscalationReason": null
       },
       "_hash": "67555143c86eaaf289cb98053314f367a0299a856f0616ac227c795d1c1b9228"
+    },
+    {
+      "id": "B-3434:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Confirmed all three of my own findings by execution, not re-reading. F-031: wrote an adversarial probe using the real StoryStore.writeTestEvidence against a scratch dir; reported fileBytes equalled bytes on disk. Pushed harder than the shipped smoke's toJSON-flips-on-call-3 fixture: a toJSON already large on call 1 (converges to a stable admitted record via the reduction loop, bytes on disk still matched); a 3-level nested Proxy with distinct per-level call counters; a value with only Symbol.toPrimitive (confirmed JSON.stringify never invokes it, 0 calls observed, and the returned copy carries no live symbol trap); a top-level getter returning a fresh object on every read (returned record has no accessor descriptor, 200 repeat reads identical). Found no second opinion left in the returned graph in any case. Verified the snapshot lands on all four dispositions via the real store: unmodified, reduced and verdict_only all wrote bytes matching fileBytes; refused correctly never reaches a write (that guard lives in verifier.ts, separately confirmed). F-032: probed all four internal measureWith call sites (the non-object branch and the verdictOnlyRecord fallback, both outside the try; the reduction measure callback and the post-reduction remeasure, both inside it) with throwing builders -- none let an exception escape boundPersistedValidationEvidence; all report record=null, disposition=refused, withinBound=false. Confirmed the three verifier.ts write sites (reusedBound, fallbackBound, persistedBound) each guard on record===null with no cast, and npx tsc --noEmit -p packages/main is clean, so the narrowing is compiler-verified, not just visually plausible. F-030: confirmed an oversized array is refused (not verdict_only), and that null and a small array are unaffected by the added Array.isArray branch. Cost judgement: right and acceptable. Re-ran the real dist smoke (17.9s wall, matching the disclosed 9.9s->18.5s within run-to-run noise) and microbenchmarked boundPersistedValidationEvidence directly outside the smoke harness (~17ms/call for a 100-command shape, ~230ms/call for the 400-command quote-heavy torture fixture) -- same order of magnitude as disclosed, no exaggeration. This path runs exactly once per lattice validate, after the validate commands themselves have already run for seconds to minutes, so tens of ms (realistic shape) to low hundreds of ms (synthetic MB-scale torture fixtures far above realistic evidence size) is negligible. The uniform-everywhere design (vs snapshotting only the returned record, ~7x cheaper) is the right call: this story's whole defect class (F-014, F-027, and now F-031 itself) is exactly a gate that measures one computation and a writer that persists a different one: reintroducing a cheap/authoritative split for intermediate search steps would recreate a smaller instance of that same wedge. Ran and confirmed all five requested commands green: npx tsc --noEmit -p packages/main (clean, 0 errors), red-b3434-blob-buffer-ceiling.mjs (PASS), dist/tasks/validation-evidence-buffer-smoke.js (PASS), test:done-prepare-auto-closeout-smoke (passed), dist/tasks/validation-evidence-reuse-smoke.js (PASS). No blockers. All 32 findings on this story remain resolved.",
+      "createdAt": "2026-08-15T20:48:20.991Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-024",
+      "envelopeId": "0d846d72f2ff76d04c788a85f17e60056814bf2eedd735ab207bedbad59656ea",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/process-events.jsonl",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f5aca16b0336f64ec63a406c881fab9408dbc53c8066f4fed9ef2d972cd2a0d6"
     }
   ]
 }
