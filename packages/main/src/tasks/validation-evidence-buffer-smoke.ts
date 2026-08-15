@@ -3,10 +3,10 @@
  * B-3434 — deterministic, OFFLINE smoke for the validation evidence sizing model. No git, no
  * network, no spawned process: pure-Fn assertions over classifyValidationEvidenceSize,
  * boundValidationEvidenceOutput, boundPersistedValidationEvidence and
- * formatValidationEvidenceAdvisory. It DOES read two repository source files with readFileSync and
- * existsSync - the CHK-004 disposition section observes the shipped wiring rather than inferring it
- * - so this is filesystem-reading but filesystem-writing free, and it says so rather than claiming
- * a purity it does not have.
+ * formatValidationEvidenceAdvisory. It DOES read repository files with readFileSync and existsSync -
+ * handlers/verifier.ts and the CHK-004 decision document, because the disposition section observes
+ * the shipped wiring rather than inferring it - so this is filesystem-reading but filesystem-writing
+ * free, and it says so rather than claiming a purity it does not have.
  *
  * What it protects:
  *
@@ -217,16 +217,20 @@ function validationResult(
   console.log('✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary');
 }
 
-// ── 3. The measurement reproduces StoryStore.writeJson exactly. ──────────────────────────────────
+// ── 3. The measurement applies the two-space format. This section does NOT pin it to store.ts. ───
 {
   // measurePersistedEvidenceBytes duplicates a format owned by core/store.ts, which is outside this
-  // story's allowed scope. Pin it here so a change there fails a test instead of silently loosening
-  // the bound by measuring something smaller than what reaches disk.
+  // story's allowed scope. This section does not close that: it re-types the same formula rather
+  // than importing StoryStore, so both copies move together and a store.ts format change leaves
+  // every assertion here passing while the measurement reads low. Measured on a two-space to
+  // four-space change: expected 158, measured 158, writer 168, smoke still passing. B-3434:F-033;
+  // the repair is a writer-owned boundary, recorded in
+  // docs/requirements/decisions/validation-evidence-artifact-growth.md.
   const record = buildRecord('{"allPass":true}');
   const expected = Buffer.byteLength(`${JSON.stringify(record, null, 2)}\n`, 'utf8');
-  assert.equal(measurePersistedEvidenceBytes(record), expected, 'the measurement is JSON.stringify(record, null, 2) + newline, as StoryStore.writeJson writes it');
+  assert.equal(measurePersistedEvidenceBytes(record), expected, 'the measurement is JSON.stringify(record, null, 2) + newline, which is what store.ts writes today - compared against a second copy of that formula, not against store.ts');
   assert.equal(measurePersistedEvidenceBytes({ cycle: (() => { const o: any = {}; o.self = o; return o; })() }), null, 'an unserialisable record measures null rather than throwing');
-  console.log('✓ the persisted measurement reproduces the StoryStore serialisation format');
+  console.log('✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)');
 }
 
 // ── 4. Today's repository shape is untouched: no advisory, no reduction, byte-identical output. ──
@@ -664,7 +668,7 @@ function validationResult(
   console.log('✓ advisory is log-only and bounding never mutates the caller result or its verdict');
 }
 
-// ── 13. CHK-004 disposition: outcome A shipped, wired into BOTH evidence write paths. ────────────
+// ── 13. CHK-004 disposition: outcome B shipped. The reduction is wired; the guarantee is deferred.
 {
   const here = dirname(fileURLToPath(import.meta.url));
   const repoRoot = resolve(here, '../../../..');
@@ -683,9 +687,50 @@ function validationResult(
     reuseSlice.slice(0, reuseSlice.indexOf('\nfunction ')).includes('boundPersistedValidationEvidence('),
     'the reuse path bounds its record too',
   );
-  const rationale = resolve(repoRoot, 'docs/requirements/decisions/validation-evidence-artifact-growth.md');
-  assert.ok(!existsSync(rationale), 'outcome B must NOT also exist: CHK-004 requires exactly one shipped disposition');
-  console.log('✓ CHK-004 disposition observed: outcome A (bound ships) is wired into persistStoryValidationEvidence, outcome B absent');
+  // CHK-004 requires a BINDING disposition, and outcome B is the one that shipped: the reduction
+  // above is wired into both write paths, but the byte-for-byte agreement between the number it
+  // reports and the file on disk is not established from this side, and the repair needs
+  // core/store.ts, which is out of this story's scope. That makes the committed rationale a required
+  // artifact rather than an optional note - and a bare existsSync would let an empty file satisfy it.
+  const rationalePath = 'docs/requirements/decisions/validation-evidence-artifact-growth.md';
+  const rationale = resolve(repoRoot, rationalePath);
+  assert.ok(
+    existsSync(rationale),
+    `CHK-004 shipped outcome B (the reduction ships, the byte-for-byte guarantee is deferred), so the committed rationale must exist at ${rationalePath}`,
+  );
+  const rationaleText = readFileSync(rationale, 'utf8');
+  // Exactly one disposition is declared, and it is B. This is the mutual-exclusivity the outcome-A
+  // guard used to get from the document's ABSENCE, re-expressed against the document's own structure
+  // now that it is present.
+  const declared = rationaleText.split('\n').filter((line) => line.startsWith('Disposition:'));
+  assert.equal(declared.length, 1, `the rationale declares exactly one CHK-004 disposition (found ${declared.length})`);
+  assert.equal(
+    declared[0],
+    'Disposition: outcome B (committed rationale). The reduction ships; the byte-for-byte agreement between the measured size and the file on disk does not.',
+    'and the one it declares is outcome B, in the document a follow-up story will read',
+  );
+  // Teeth: a follow-up needs the boundary to build, the file to build it in, and a work list. A
+  // document that has lost any of these has stopped being the thing CHK-004 asked for.
+  for (const required of [
+    '## What ships',
+    '## What does not ship',
+    'writer-owned canonical boundary',
+    'packages/main/src/core/store.ts',
+    'Object.prototype',
+    'B-3434:F-033',
+    'B-3434:F-035',
+    'B-3434:F-036',
+  ]) {
+    assert.ok(
+      rationaleText.includes(required),
+      `the rationale is actionable by someone who was not here: it names ${JSON.stringify(required)}`,
+    );
+  }
+  // Read out of the document rather than restated beside it: a hardcoded list here would be one more
+  // sentence owned somewhere else, which is the defect class this whole story kept reopening.
+  const namedFindings = [...new Set(rationaleText.match(/B-3434:F-\d+/g) ?? [])].sort();
+  console.log('✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale');
+  console.log(`    rationale=${rationalePath} bytes=${Buffer.byteLength(rationaleText, 'utf8')} findingIdsNamed=${namedFindings.join(',')}`);
 }
 
 console.log('validation-evidence-buffer-smoke: PASS');

@@ -868,11 +868,12 @@ function persistStoryValidationEvidence(
   // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
   // could commit test-evidence.json at all.
   //
-  // The bound is enforced over the SERIALISED FILE, not over the inner output string: StoryStore
-  // stringifies this record a second time, escaping the output string again, which roughly doubles
-  // quote-heavy content on the way to disk. Bounding the inner string alone left a reachable wedge
-  // where an in-bound string produced an out-of-bound file, the metadata commit hit the blob
-  // ceiling, and no story could persist evidence.
+  // The size decision is made over the RECORD as it would serialise into the file, not over the
+  // inner output string: StoryStore stringifies this record a second time, escaping the output
+  // string again, which roughly doubles quote-heavy content on the way to disk. Bounding the inner
+  // string alone left a reachable wedge where an in-bound string produced an out-of-bound file, the
+  // metadata commit hit the blob ceiling, and no story could persist evidence. What that measurement
+  // does and does not settle is described on boundPersistedValidationEvidence.
   const evidenceRecord = (output: string, hashes: {
     headHash?: string;
     materialHash?: string;

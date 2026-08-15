@@ -145,10 +145,9 @@ function trimOutput(output: string): string {
  * the sentence stayed. Its own text advised re-reading a sentence whenever the behaviour changes,
  * and it then became the third counterexample to that advice.
  *
- * So the durable fix is not a more careful sentence. It is to stop duplicating the claim: the
- * guarantee lives with the code that enforces it, in the doc comment on
- * boundPersistedValidationEvidence, which is also the only function that can measure it. A pointer
- * cannot go stale, because it does not restate anything.
+ * So the durable fix is not a more careful sentence. It is to stop duplicating the claim: what the
+ * bounding does, and what it leaves open, is described where it is performed - on
+ * boundPersistedValidationEvidence, measurePersistedEvidenceBytes and snapshotPersistedRecord.
  */
 export const VALIDATION_EVIDENCE_READ_CEILING_BYTES = METADATA_BLOB_READ_MAX_BUFFER_BYTES;
 /**
@@ -186,12 +185,12 @@ export interface ValidationEvidenceSizing {
    * that has to fit is the serialised TestEvidenceData file, whose second stringify escapes this
    * string again and can double it. boundPersistedValidationEvidence owns that measurement. Kept
    * because the reducer reports what it achieved; read `withinBound` on the persisted result for
-   * the property anyone actually depends on.
+   * the file-level measurement.
    */
   outputWithinBound: boolean;
   /** Command entries kept, but with their captured output replaced by a visible marker. */
   elidedCommandOutputs: number;
-  /** Command entries dropped from the array, always reported as a count, never silently. */
+  /** Command entries dropped from the array, reported as a count. */
   elidedCommandEntries: number;
   /**
    * Detail lines replaced by a marker. executeValidationPlan copies every captured output line
@@ -203,7 +202,7 @@ export interface ValidationEvidenceSizing {
 }
 
 export interface BoundedValidationEvidenceOutput extends ValidationEvidenceSizing {
-  /** The serialised artifact. Always valid JSON, and always preserves the pass/fail fields. */
+  /** The serialised artifact: JSON, with the pass/fail fields carried through the reduction. */
   output: string;
 }
 
@@ -270,16 +269,24 @@ export function formatValidationEvidenceAdvisory(persisted: PersistedValidationE
 }
 
 /**
+ * The cap safeScalarRead applies to every string it returns, in UTF-16 units. B-3434:F-034: this
+ * used to be a figure written into a comment 250 lines from the `slice` that enforced it, so the
+ * two could disagree without anything noticing. One constant, both sites.
+ */
+const VALIDATION_EVIDENCE_SCALAR_CHAR_CAP = 200;
+
+/**
  * The fields the last-resort record carries. Every one is coerced to a short scalar by
  * safeScalarRead, so the record's size is a function of THIS LIST and that cap rather than of the
  * input.
  *
  * No byte figure is stated here. The figure that used to be - "low hundreds of bytes" - was picked
- * by hand and was wrong by an order of magnitude: four of these keys are string-capable, the cap is
- * 200 UTF-16 units, and a 4-byte character costs 4 bytes each, which puts the packed worst case in
- * the low thousands. The verdict_only section of tasks/validation-evidence-buffer-smoke.ts measures
- * the realised size on every run and asserts the ceiling it actually meets, so the number lives
- * where it is checked rather than where it is only read.
+ * by hand and was wrong by an order of magnitude: four of these keys are string-capable, each capped
+ * at VALIDATION_EVIDENCE_SCALAR_CHAR_CAP UTF-16 units, and a 4-byte character costs 4 bytes each,
+ * which puts the packed worst case in the low thousands. The verdict_only section of
+ * tasks/validation-evidence-buffer-smoke.ts measures the realised size on every run and asserts the
+ * ceiling it actually meets, so the number lives where it is checked rather than where it is only
+ * read.
  */
 const VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS = [
   'provider',
@@ -527,19 +534,19 @@ function safeScalarRead(source: Record<string, unknown>, key: string): unknown {
   } catch {
     return undefined;
   }
-  if (typeof value === 'string') return value.slice(0, 200);
+  if (typeof value === 'string') return value.slice(0, VALIDATION_EVIDENCE_SCALAR_CHAR_CAP);
   return typeof value === 'boolean' || typeof value === 'number' ? value : undefined;
 }
 
 /**
  * The last-resort output field, sized by construction rather than by the input.
  *
- * Every value passes a cap and every read is defensive, so this cannot throw, and its serialised
- * length is a function of the key list above and that cap rather than of the input. The size itself
- * is measured by the smoke rather than restated here. It satisfies the consumer contract that
- * matters at the phase gate: valid JSON carrying allPass / allPassed / status, which is what
- * outputPassState in core/validation-evidence-admissibility.ts parses. And it names itself a
- * replacement, so a reader is never left thinking it is the whole evidence.
+ * Every value passes a cap and every read goes through safeScalarRead, so its serialised length is a
+ * function of the key list above and that cap rather than of the input. The size itself is measured
+ * by the smoke rather than restated here. It satisfies the consumer contract that matters at the
+ * phase gate: valid JSON carrying allPass / allPassed / status, which is what outputPassState in
+ * core/validation-evidence-admissibility.ts parses. And it names itself a replacement, so a reader
+ * is not left thinking it is the whole evidence.
  */
 function verdictOnlyRecord(source: unknown, measuredBytes: number): string {
   const record = source && typeof source === 'object' ? source as Record<string, unknown> : {};
@@ -623,11 +630,13 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
    */
   record: T | null;
   /**
-   * Byte length of `record` serialised in StoryStore's file format. This number and `record` are
-   * two views of ONE stringify: the bytes were counted, then parsed back to produce the value.
+   * Byte length reported for `record`, measured in the format core/store.ts writes with. On every
+   * path that produces a record today it comes from snapshotPersistedRecord, which counts one text
+   * and parses that same text back. It reaches the single exit as a parameter beside `record`
+   * rather than being re-derived there (B-3434:F-035).
    */
   fileBytes: number;
-  /** The postcondition, derived from fileBytes. False means: do not write this. */
+  /** Derived from fileBytes. False means: do not write this. */
   withinBound: boolean;
   disposition: PersistedValidationEvidenceDisposition;
   state: ValidationEvidenceSizingState;
@@ -636,21 +645,20 @@ export interface PersistedValidationEvidenceBound<T = unknown> {
 }
 
 /**
- * StoryStore.writeJson serialises with `JSON.stringify(data, null, 2) + '\n'`. This applies that
- * same FORMAT to whatever it is handed, and returns null instead of throwing when the value cannot
- * be serialised.
+ * Applies the format core/store.ts writes with - `JSON.stringify(data, null, 2) + '\n'` - to
+ * whatever it is handed, and returns null instead of throwing when the value cannot be serialised.
  *
  * It measures the value AS GIVEN, at the moment it is given. It does not follow that value to disk,
- * and it cannot speak for a later stringify of a value that answers differently the second time - a
- * `toJSON` that returns something small now and something large later defeats any single reading of
- * it. Nothing here fixes that; boundPersistedValidationEvidence settles it by returning parsed plain
- * data instead of the object it measured, so what a writer later serialises has no second opinion to
- * give.
+ * and it describes that one reading: a `toJSON` that answers small now and large later defeats any
+ * single reading of it. snapshotPersistedRecord narrows that route and records what it leaves open.
  *
- * This duplicates a format owned by core/store.ts, which is outside this story's allowed scope. The
- * coupling is real and is the weak point of this design: if store.ts changes its serialisation, this
- * measurement drifts low and the bound silently loosens. The smoke pins the format so the drift
- * fails a test rather than a phase gate.
+ * The format is DUPLICATED from core/store.ts rather than shared with it, and it is NOT pinned. The
+ * smoke does not import StoryStore; it re-types the same formula and compares two hand-written
+ * copies, so a format change in store.ts moves both copies together, this measurement reads low,
+ * and the assertions keep passing. Measured on a two-space to four-space change: the smoke compares
+ * 158 to 158 while the writer emits 168. core/store.ts is outside this story's scope; the
+ * divergence, its transcripts and the named repair are recorded in
+ * docs/requirements/decisions/validation-evidence-artifact-growth.md.
  */
 export function measurePersistedEvidenceBytes(record: unknown): number | null {
   const serialized = safeJsonStringify(record, 2);
@@ -658,19 +666,25 @@ export function measurePersistedEvidenceBytes(record: unknown): number | null {
 }
 
 /**
- * Serialise once, count those bytes, and hand back a parse of the same text.
+ * Serialise once, count those bytes, and hand back a parse of the same text. Best-effort narrowing,
+ * not a settlement.
  *
  * The reason it is done in this order: a record is built by a caller-supplied closure over
  * caller-supplied data, so any node of it may be a getter, a Proxy or a `toJSON` - values that are
  * free to answer differently on each call. Measuring such an object and then returning IT means the
- * number describes one reading and the writer performs another. Parsing the measured text collapses
- * the two: what comes back holds strings, numbers, booleans, null, arrays and plain objects and
- * nothing else, and `bytes` is the length of the text it was parsed from.
+ * number describes one reading and the writer performs another. Parsing the measured text removes
+ * the OWN properties that do that: what comes back holds strings, numbers, booleans, null, arrays
+ * and plain objects, with no own toJSON, getter or Proxy trap, and `bytes` is the length of the text
+ * it was parsed from.
  *
- * core/store.ts is out of this story's scope and cannot be taught to write pre-serialised bytes, so
- * the stability has to come from the VALUE rather than from the writer.
+ * It does NOT survive an inherited toJSON. JSON.parse returns objects whose prototype is the live
+ * Object.prototype, so a toJSON installed there is consulted again when the writer serialises.
+ * Measured through the real StoryStore, on a record the builder produced as a fresh plain object
+ * literal: 67 bytes reported and within bound, 31,457,342 bytes on disk against a 25,165,824-byte
+ * bound. Closing that route means one serialisation owned by the writer, in core/store.ts, which is
+ * out of this story's scope.
  *
- * Returns null if either step fails, which the caller treats as "no record", never as a small one.
+ * Returns null if either step fails, which the caller treats as "no record" rather than a small one.
  */
 function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | null {
   const measured = safeJsonStringify(record, 2);
@@ -687,7 +701,7 @@ function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | n
 }
 
 /**
- * THE POSTCONDITION, at the boundary it is claimed about.
+ * The size decision, made over the record that is about to be written.
  *
  * The reducer produces an inner `output` string. That is not what has to fit: StoryStore
  * stringifies the whole TestEvidenceData a SECOND time, escaping every character of that string
@@ -706,14 +720,21 @@ function snapshotPersistedRecord<T>(record: T): { record: T; bytes: number } | n
  *                          record could be built or measured at all. The caller must not write
  *                          this; withinBound is false, `record` may be null, and both say so.
  *
- * Total by construction: every serialisation goes through safeJsonStringify, every parse through
- * safeJsonParse, and every read of caller data through safeScalarRead, so a cyclic, BigInt or
- * throwing-accessor input yields a bounded record or an honest refusal rather than an exception.
+ * Degenerate inputs are routed rather than propagated: serialisation goes through
+ * safeJsonStringify, parses through safeJsonParse, and reads of caller data through safeScalarRead,
+ * so a cyclic, BigInt or throwing-accessor input arrives at one of the outcomes above instead of at
+ * an exception. The smoke exercises cyclic, BigInt, always-throwing-getter and throwing-proxy inputs
+ * against this.
  *
- * Every record it hands back has been through snapshotPersistedRecord, on all four dispositions
- * including the refusal - one path returning a live object and the others returning plain data
- * would rebuild, in miniature, the split between the measured value and the written one that this
- * function exists to close.
+ * What this does NOT establish is that `fileBytes` equals the bytes StoryStore writes. Routes by
+ * which they diverge are open and measured: a serialisation format duplicated from core/store.ts
+ * rather than shared with it (measurePersistedEvidenceBytes), an inherited toJSON on the shared
+ * prototype (snapshotPersistedRecord), and a caller that mutates the returned record between the
+ * gate and the write (B-3434:F-037).
+ *
+ * Every disposition, the refusal included, runs its record through snapshotPersistedRecord. The
+ * plain-data shape of the RETURNED record comes from the terminal call alone: the reduction loop
+ * consumes only `.bytes` from the snapshots it takes and discards their records (B-3434:F-036).
  */
 export function boundPersistedValidationEvidence<T>(args: {
   result: unknown;
@@ -727,10 +748,11 @@ export function boundPersistedValidationEvidence<T>(args: {
     disposition: PersistedValidationEvidenceDisposition,
     sizing: ValidationEvidenceSizing | null,
   ): PersistedValidationEvidenceBound<T> => (record === null
-    // No record is not a small record. Forcing the refusal here, at the single exit, is what lets
-    // `record: T | null` be read as "non-null implies measured": no caller has to know which of the
-    // branches below can produce a null, because none of them can produce a null that is reported
-    // as writable.
+    // No record is not a small record. Forcing the refusal here, at the single exit, is what makes
+    // `record: T | null` readable as "a null record is not writable": no caller has to know which of
+    // the branches below produced the null. The other half - that `fileBytes` describes THIS record
+    // - is convention rather than structure at this exit: both arrive as separate parameters and
+    // neither is re-derived from the other (B-3434:F-035).
     ? {
       record: null,
       fileBytes: Number.MAX_SAFE_INTEGER,
