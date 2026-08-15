@@ -4251,7 +4251,7 @@
       "desc": "packages/main/src/tasks/flow-stability-smoke.ts:101-140,2190-2233 [HIGH] validation-fixture-drift: the story-advance echo fixture supplies only existing commandRefs and leaves the current planned-path/coverage discovery subject incomplete, but line 2233 still asserts `Acceptance coverage basis: complete`. The canonical verifier correctly returns `partial`, so agent-liveness-suite -> review-pass-discard-smoke -> flow-stability produces the stable canonical validate result 92 PASS / 1 FAIL and blocks REVIEW to TEST. Update this fixture and assertion to match current acceptance-basis semantics, and retain a separate genuinely complete control proving `complete`; do not weaken the verifier. material-hash-large-tree passes standalone and in canonical rerun, so this is a distinct stale-fixture family rather than the F061/F062 committed-blob reader family.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T10:36:38.517Z",
@@ -4289,14 +4289,18 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "F-063 fixed and verified by lattice-implementer commit 49ee22695a6c19759d88674e0f4444ae205be800 with focused regression evidence and refreshed 54/54 verification evidence.",
+      "resolvedAt": "2026-08-15T13:06:29.209Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-064",
       "desc": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:101-158,210-226 [HIGH] acceptance-complete-control-closure-drift: the dedicated true-complete acceptance-basis control no longer materializes every source file now reachable from the canonical process-fact registry. Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js` fails at line 218 with actual `partial` and snapshot_missing for packages/main/src/core/acceptance-rollout.ts, packages/main/src/core/machine.ts, packages/main/src/core/review-inventory-epoch.ts, packages/main/src/handlers/review-inventory.ts, and scripts/run-proofstory-acceptance-rollout-cohort.mjs. This is distinct from F063: F063 is flow-stability’s incomplete existing-commandRefs fixture with a stale output assertion, whereas this is the specialized complete control’s canonical closure inventory failing to track newly registered producer/consumer sources. Extend writeCanonicalAcceptanceRegistration with minimal representative files for the complete control and retain its expected complete status; keep the existing partial mutation controls and do not weaken snapshot sealing or registry closure.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T10:40:16.934Z",
@@ -4333,14 +4337,18 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "F-064 fixed and verified by lattice-implementer commit 49ee22695a6c19759d88674e0f4444ae205be800 with focused regression evidence and refreshed 54/54 verification evidence.",
+      "resolvedAt": "2026-08-15T13:06:30.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-065",
       "desc": "packages/main/src/handlers/checklist.ts:434-459 and packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:382-410 [HIGH] Non-mechanical verification-evidence provenance is carried forward by intentRef without semantic equality checks. After verification_evidence_add records a CLI intent as mechanical:false with an audited nonMechanicalReason, checklist_update can replace that row with a different kind/command/result/note while inheriting the stale reason; the writer succeeds where the focused topology negative control requires checklist_update_executable_evidence_unenforced. This is distinct from F063 partial-basis fixture drift and F064 complete-control registry-closure drift: it is a writer/provenance mutation family. It does not directly satisfy executable coverage as mechanical evidence, but it breaks provenance binding and the canonical acceptance topology contract. Remediation: carry nonMechanicalReason only for an exact semantic re-persist (at minimum same intentRef, kind, command, and result), otherwise drop inherited provenance and rerun admission; add a changed-command/result negative regression while retaining the same-evidence metadata-only re-persist control. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js; observed assertion at line 410 expects rejection but receives Checklist CHK-001: verificationEvidence updated (1). Controls: proofstory-pre-review-check-smoke PASS and agent-dispatch-registry-smoke PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T10:54:54.664Z",
@@ -4376,14 +4384,18 @@
         "packages/main/src/core/verification.ts"
       ],
       "signatureTag": "nonmechanical-evidence-provenance-semantic-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "F-065 fixed and verified by lattice-implementer commit 49ee22695a6c19759d88674e0f4444ae205be800 with focused regression evidence and refreshed 54/54 verification evidence.",
+      "resolvedAt": "2026-08-15T13:06:31.238Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-066",
       "desc": "doc-code-drift: AGENTS.md:258-263,86 and packages/main/src/handlers/checklist.ts:462-492,1398-1410 [MEDIUM] The authoritative agent guide still tells implementers to record a fresh command-backed logic_test through checklist_update and provides a copyable payload with no existing receipt or audited nonMechanicalReason. The current executable-evidence admission contract rejects that fresh bulk-writer path with checklist_update_executable_evidence_unenforced and directs callers to verification_evidence_add or verification_evidence_batch_add; proofstory-acceptance-topology-smoke exercises this rejection before reaching the separate F065 carry-forward mutation. This is not repaired by the F065 semantic-equality fix: F065 governs whether already persisted non-mechanical provenance may survive a re-persist, while this documentation promises a fresh executable-evidence writer route that is intentionally unavailable. Replace the example and DEV guidance with verification_evidence_add for executable evidence, while reserving checklist_update evidence re-persist for valid on-disk provenance or non-executable/manual rows.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T11:14:29.197Z",
@@ -4424,14 +4436,18 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "docs-checklist-update-executable-evidence-admission",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "F-066 fixed and verified by lattice-implementer commit 49ee22695a6c19759d88674e0f4444ae205be800 with focused regression evidence and refreshed 54/54 verification evidence.",
+      "resolvedAt": "2026-08-15T13:06:32.279Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-067",
       "desc": "packages/main/src/handlers/checklist.ts:323-352,434-450,1391-1410 and packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:510-540 [HIGH] Stale mechanical receipt is rebound to current evidence hashes by checklist_update without re-execution. carryForwardOnDiskProvenance preserves a prior mechanical:true receipt when command/result match, but does not require the prior evidence headHash/materialHash/storyFilesHash to remain fresh. normalizeEvidence then stamps the re-persisted row with current hashes while retaining the old receipt. Isolated real-handler repro: earn receipt at commit A, commit a source material change B, then checklist_update the same command/result with only a note edit; beforeHead and afterHead differ, receipt executedAt/outputDigest remain identical, after.mechanical=true, buildVerificationCoverage reports covered and missingRequired=0. This makes a pre-change execution appear current and can satisfy verification coverage after material drift. Distinct from F065: F065 carries stale nonMechanicalReason across changed evidence semantics but remains non-covering; this family preserves gate-covering mechanical authority across changed material. Fix: carry a mechanical receipt only if canonical freshness verifies the prior evidence against current HEAD/material/storyFiles lineage, otherwise reject/demote and require verification_evidence_add/_batch_add or verification_run to re-execute. Add a negative regression that commits story-owned material between receipt creation and checklist_update re-persist, plus the existing same-material metadata-only positive control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T11:45:19.826Z",
@@ -4473,7 +4489,179 @@
         "packages/main/src/core/verification.ts"
       ],
       "signatureTag": "stale-mechanical-receipt-current-hash-rebinding",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "F-067 fixed and verified by lattice-implementer commit 49ee22695a6c19759d88674e0f4444ae205be800 with focused regression evidence and refreshed 54/54 verification evidence.",
+      "resolvedAt": "2026-08-15T13:06:33.331Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-068",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:833-838 [HIGH] Post-remediation focused-suite checkout-coupling regression distinct from F063-F067. The smoke now passes the earlier F065 provenance negatives but fails at its final assertion because it concatenates `git diff --name-only main...HEAD` with the dirty diff and globally asserts that `packages/main/src/core/machine.ts` is absent. B-3f3d intentionally and in-scope modifies machine.ts for CHK-004 lifecycle gating, so the reusable acceptance-topology smoke deterministically fails on the current clean story candidate even though the topology behavior under test has passed. Repro: `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` exits 1 with `Wave 1 and its fixes do not modify lifecycle machine or phase gates`; flow-stability, proofstory-acceptance-basis, and tool-executed-evidence-receipt smokes all exit 0, isolating this stale repository-diff assertion. Remove checkout-wide main...HEAD coupling from the focused task or replace it with an isolated fixture/behavior assertion that expresses the actual topology boundary without rejecting unrelated or explicitly planned lifecycle changes; retain the earlier F065/F067 regression controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:12:15.999Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-248",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "19aeaa7b2dc9320a44fb9e913cd9ed134d22c5303bda8b055eaa80f97b6af1f1",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "signatureTag": "focused-smoke-checkout-diff-coupling",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-069",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:838 retains the obsolete assertion that Wave 1 and its fixes must not modify packages/main/src/core/machine.ts. The current B-3f3d implementation legitimately changes machine.ts for the signed inventory remediation gate, so `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` deterministically fails at dist line 740 before completing the focused topology controls. This is distinct from F-063 partial-vs-complete acceptance-basis expectation: here the fixture changed-file boundary is stale. Replace the historical whole-story diff assertion with a fixture-local invariant that still bites unauthorized lifecycle/gate edits without rejecting this story intended machine change.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:12:47.083Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-249",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "86663c78f035d68cf612476f62eee2ff7ed56750923d3dd90b960f231520a8c1",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-070",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:151-181 and the real gate path [HIGH] acceptance-completeness fixture closure drift remains after F064 was resolved. This is distinct from current F068/F069 checkout-diff coupling, while matching the historical F064 family at a second fixture. writeDiscoveryRegistration still seeds only the older topology source set, so acceptance_basis_generate reports partial with snapshot_missing for acceptance-rollout.ts, machine.ts, pre-review-live-proof.ts, review-inventory-epoch.ts, review-inventory.ts, and both rollout/live-proof scripts. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js exits 1 at dist line 344 because false !== true after AT_COVERAGE_BASIS_PARTIAL. Update this dedicated gate fixture to seed the complete canonical closure and retain a true complete control; then rerun the focused smoke.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T13:32:03.993Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-256",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7744fc68efafef53f7c3003edd4109561ab8b480cc8f0c073e8aadcc668b010b",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }

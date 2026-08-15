@@ -12482,6 +12482,824 @@
       },
       "readDiagnostics": [],
       "_hash": "639ac7eb81d823c7ba9acc72cb3c355af86c108c566ddd774935ff711dccdd5c"
+    },
+    {
+      "id": "B-3f3d:RP-191",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 659 unique changed declaration symbols. Step 2 compared 4 directly relevant AGENTS.md/CLAUDE.md paragraphs covering DEV evidence recording and copyable verification commands. Both guides now route fresh executable evidence through verification_evidence_add or verification_evidence_batch_add, matching checklist handler admission and the focused receipt regression; no distinct documentation drift beyond resolved F-066 was found. Coverage F-068 is a checkout-coupled test-fixture defect and introduces no additional operator-document contract.",
+      "createdAt": "2026-08-15T13:16:04.694Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-250",
+      "envelopeId": "8ae510f4295659057dbfe43daca6f1ddc30bc67480ea69310ec9c41d989868f1",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": "The final post-remediation docs lane triaged the frozen candidate decision corpus and narrowed full comparison to the AGENTS.md and CLAUDE.md executable-evidence guidance directly implicated by F-066/F-067.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "e7502de27a563408f033c25e414d567d91bb642416d5e04377a24e6b3082cf55"
+    },
+    {
+      "id": "B-3f3d:RP-192",
+      "agent": "lattice-review-concept",
+      "note": "Concept review verified F063 through F067 remediation semantics at current signed cutoff. flow-stability-smoke, proofstory-acceptance-basis-smoke, and tool-executed-evidence-receipt-smoke passed. acceptance_basis is complete with a valid receipt; rollout report is current with full-3x2 quorum; enforce rollout policy passes and is promotion eligible. proofstory-acceptance-topology-smoke reaches the obsolete checkout-diff assertion and fails because this Story legitimately changes core machine. That exact focused-smoke checkout-diff coupling is already canonical F068, with F069 the same family, so this lane found no additional distinct conceptual finding.",
+      "createdAt": "2026-08-15T13:17:50.417Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-247",
+      "envelopeId": "f3427d37e2029d46f9b2f0b3925e59ca40dacccc72b170efc67cc46ffc659062",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "167f9029da2347676df11a18be940723823c8423b3b960e36abea9e5d0b54156"
+    },
+    {
+      "id": "B-3f3d:RP-193",
+      "agent": "lattice-review-quality",
+      "note": "RI-019 wave1 quality found no distinct family beyond baseline F-068/F-069. Both findings describe the same checkout-wide main...HEAD assertion at proofstory-acceptance-topology-smoke.ts:838 and the same deterministic failure. The adjacent tool-executed receipt control passes, and the only topology smoke failure is the already-recorded checkout-coupling family.",
+      "createdAt": "2026-08-15T13:20:35.472Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-251",
+      "envelopeId": "b4b705c22ca7ed4aa374326ca7432a6c0a5383a2c7bc5dcbd7aa26678ec5d697",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0baa553e7b988506d43dc1e1bb5b9ded6503f880c0dd3e3e7580a0d2a560ea07"
+    },
+    {
+      "id": "B-3f3d:RP-194",
+      "agent": "lattice-review-concept",
+      "note": "RI-019 wave1 concept saturation confirmed F069 is a duplicate of canonical F068: both identify packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts line 838, the same proofstory-acceptance-topology-smoke reproduction, and the same checkout-wide main...HEAD diff coupling that rejects the Story planned core machine change. A repository scan for adjacent main...HEAD and machine exclusion assertions found no second fixture with this mechanism and no distinct new conceptual family on the unchanged cutoff.",
+      "createdAt": "2026-08-15T13:21:29.411Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-253",
+      "envelopeId": "63bfd29daca0521a77d8baa99da0c104ff3745d2383e5ea2e8c7c5b328021982",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6a80477676efd9f82955ae3b0e0b03757f676a5a031f3072ebc8549d69f07acc"
+    },
+    {
+      "id": "B-3f3d:RP-195",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-019 wave1 coverage found no distinct family beyond canonical F-068. F-069 is the same proofstory-acceptance-topology-smoke checkout-diff assertion at lines 833-838 with identical trigger and remediation. The focused repro still fails at that one known assertion; the adjacent experience-layer checkout guard passes all 22 checks. Mechanical inventory is 54/54 with one head/material/storyFiles binding set (49ee22695a/86490a4f/ad25ed0c).",
+      "createdAt": "2026-08-15T13:22:07.460Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-252",
+      "envelopeId": "0147913762ade934f801516ad67aa74a90808071bd7cda766693f8cf02fa0e5a",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": "The frozen wave required distinguishing F-068/F-069 identity and checking adjacent checkout-coupled smoke assertions without broadening into unrelated code families.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "3eb668bd7a2a9f415c0c2230c25617909c52909b0e2f8b49a9e2a41941ce902c"
+    },
+    {
+      "id": "B-3f3d:RP-196",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 659 unique changed declaration symbols. Step 2 compared 2 directly relevant acceptance-topology applicability/lifecycle-proof paragraphs against the F-068/F-069 fixture assertion. The authoritative docs describe behavioral topology and gate applicability, not the obsolete whole-checkout prohibition on machine.ts changes; F-068/F-069 therefore remain one test-fixture family with no distinct documentation drift or promised-but-undelivered contract.",
+      "createdAt": "2026-08-15T13:23:59.126Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-254",
+      "envelopeId": "0e36232ecc2b85c07dec90335182c2fb30b534952bed2393222a39a4ce072f25",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": "The frozen wave required checking whether the F-068/F-069 checkout-coupled fixture assertion was also promised by authoritative topology documentation; the comparison stayed bounded to the directly relevant paragraphs and candidate titles.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6236d3e97dc0bc6c169b1ee2fa4a331ed7c14f112679fc3a7566d4e8b1c3962d"
+      },
+      "readDiagnostics": [],
+      "_hash": "523ac22cd2c261fac60c6241bfa049dc6cf0756e5b4b32de057ef17bf0809f50"
+    },
+    {
+      "id": "B-3f3d:RP-197",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-019 wave1 completeness review confirms all four required lanes are terminal. F-068 and F-069 have identical source assertion, checkout-wide main...HEAD dependency, reproduction, and remediation boundary; F-068 is canonical and F-069 is a duplicate. No finding is omitted.",
+      "createdAt": "2026-08-15T13:25:51.319Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-255",
+      "envelopeId": "9d173911b29989020b5885eb2539c141d93eb22c3ed6e31e5fd3281977aef5f5",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ceddb159859fb92ddce1da3e933aa3683f3e78517d2cbffe14700d22a11ad622"
+    },
+    {
+      "id": "B-3f3d:RP-198",
+      "agent": "lattice-review-quality",
+      "note": "RI-019 wave2 quality found no additional distinct family. F-070 reproduces the historical F-064 canonical acceptance-closure fixture drift. proofstory-topology-critic-smoke is a second same-family manifestation because its writeDiscoveryRegistration helper omits the same canonical closure sources and yields the same partial/snapshot_missing classification; it requires the same fixture seed repair. The dedicated proofstory-acceptance-basis complete control passes.",
+      "createdAt": "2026-08-15T13:36:06.872Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-257",
+      "envelopeId": "c85d4664dceb2a356b6915b7aac67311cb52f82b3caebeaf5e33543c31ca2449",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7a1c3230661bea56b303c21fd6efcd1617283fb8ffa53407149d3380ab50727"
+    },
+    {
+      "id": "B-3f3d:RP-199",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-019 wave2 coverage found no third family. Both repository fixtures that define writeDiscoveryRegistration (proofstory-acceptance-topology-gate-smoke and proofstory-topology-critic-smoke) fail because the canonical acceptance source closure expanded while their complete-control source snapshots stayed old. They share five missing closure files; the gate fixture has two additional live-proof files of the same closure-drift class. This is the historical F-064 family, with F-070 as its current canonical manifestation, distinct from F-068 checkout coupling. Evidence remains 54/54 mechanical with one current binding tuple.",
+      "createdAt": "2026-08-15T13:40:48.386Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-258",
+      "envelopeId": "b9a7d9cb3b9b10df793bbcb29c5147b23d145408030ea78e26d4c557f76061ba",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "scanEscalationReason": "Wave2 bounded saturation compared every test fixture owning writeDiscoveryRegistration against the current canonical closure to distinguish duplicate manifestations from a third coverage family.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "1437abbfb6d7826ed83449320110a99739669286659c298bf71acb11f98601ec"
+    },
+    {
+      "id": "B-3f3d:RP-200",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 659 unique changed declaration symbols. Step 2 compared 4 directly relevant paragraphs covering closureFilesHash, partial-basis semantics, topology command surface, and critic receipt bindings. The authoritative contract correctly requires unresolved closure sources to produce partial/AT_COVERAGE_BASIS_PARTIAL, so F-070/F-064 are stale complete-control fixtures rather than an operator-doc inconsistency. No docs promise the F-068 historical whole-checkout machine.ts prohibition. No distinct docs or promised-but-undelivered family was found.",
+      "createdAt": "2026-08-15T13:43:20.451Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-259",
+      "envelopeId": "76770164c54c2aa0ff8a79e6135720a6def8ba8f0dd90931251afdb024cdf9cc",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": "The frozen wave bounded comparison to whether the F-068 checkout assertion or F-070/F-064 closure fixture behavior was represented as an operator-facing promise in authoritative topology documentation.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6236d3e97dc0bc6c169b1ee2fa4a331ed7c14f112679fc3a7566d4e8b1c3962d"
+      },
+      "readDiagnostics": [],
+      "_hash": "45ad10ce823abc9c1e16136384f97f3d323844b3db7a6c68df7a81ac2f8724d9"
+    },
+    {
+      "id": "B-3f3d:RP-201",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-019 wave2 completeness review confirms all four required lanes are terminal and current raw contains only F-070. F-070 is verified as the same acceptance complete-control canonical closure seed drift family historically represented by resolved F-064; it remains a current verified family rather than an invalid duplicate reference to a resolved finding.",
+      "createdAt": "2026-08-15T13:46:06.146Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-260",
+      "envelopeId": "a342a32a574a242570b77c17a1c43b13478aefc4ed4ddef77f1c8dfbb5b557c8",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f50669e7da3db58c29fd1e8889454f6355708103a6a2f526a43c51d75f6a5818"
+    },
+    {
+      "id": "B-3f3d:RP-202",
+      "agent": "lattice-review-concept",
+      "note": "RI-019 wave3 final concept saturation found no third distinct family. proofstory-acceptance-rollout-smoke passed 58 assertions including six mutation classes, and proofstory-pre-review-check-smoke passed verifier parity, tamper, mode, and rollback checks. proofstory-topology-critic-smoke fails because its fixture also omits current canonical acceptance closure sources and expects basis status complete; this is the same acceptance-basis fixture closure drift family already recorded as F070 and historically F064, not a new mechanism. Scanning every focused task that asserts a complete acceptance basis found no additional family beyond F068/F069 checkout coupling and F070 closure drift.",
+      "createdAt": "2026-08-15T13:56:38.968Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-261",
+      "envelopeId": "f469e544d9dc6dabba8891631bb7a31200a25c1fdb13c6dac42912111a2db0bb",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2298958cfda5bc11fe6e1749f67a48cf288ca7926e3a8c1f6a4085f57f542de"
+    },
+    {
+      "id": "B-3f3d:RP-203",
+      "agent": "lattice-review-quality",
+      "note": "RI-019 wave3 final quality saturation found zero new distinct families. Checkout-wide main...HEAD coupling remains exactly the F-068/F-069 family, while the two outdated writeDiscoveryRegistration helpers are the F-070 historical closure-drift family. Search found no third helper/boundary; tool-executed receipt and dedicated acceptance-basis complete controls both pass.",
+      "createdAt": "2026-08-15T14:00:37.804Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-262",
+      "envelopeId": "1ac7d5f4381de4fd6511b0fb13c93b939644ee3cda81b03986d09cc3359a2ad4",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7cea13fd7fcd9e4cacb8c8f0e2c4ec70da3be37094b0255b8afd2d87edb507a"
+    },
+    {
+      "id": "B-3f3d:RP-204",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-019 wave3 bounded saturation found zero new coverage families. The acceptance-basis positive control passes. The closure-fixture census remains exactly two writeDiscoveryRegistration owners, both already classified under F-070/historical F-064. Checkout-diff guard census contains the known F-068/F-069 assertion plus the experience-layer guard that passes 22/22. Verification evidence remains 54/54 mechanical with the single current binding tuple 49ee22695a/86490a4f/ad25ed0c.",
+      "createdAt": "2026-08-15T14:05:03.944Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-263",
+      "envelopeId": "617dd91b970a500e48fc65480d2b7065805c1a3ba8acfee20df0a1dc7a3d79a1",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": "Final bounded saturation used exact fixture and checkout-guard censuses plus the repaired positive control to determine whether any third coverage family exists beyond F-068/F-069 and F-070/F-064.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "39b2782b4bf17c46b017505c29752475f06a34162211770be74be39d4a9aa4d4"
+      },
+      "readDiagnostics": [],
+      "_hash": "d0ae82e9fbbafe23642b8ea5987a9c4418dceda08bb3fe1cbdd9dafdf5bebdd9"
+    },
+    {
+      "id": "B-3f3d:RP-205",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 659 unique changed declaration symbols. Step 2 compared 4 public-contract paragraphs covering global closure discovery, partial-basis diagnostics, structural-pass prerequisites, and the implemented command surface. They correctly require unresolved closure sources to remain partial and never expose the F-068 historical checkout-wide source restriction as public behavior. Final bounded docs saturation found no additional public/operator drift beyond the known test-fixture families.",
+      "createdAt": "2026-08-15T14:07:47.594Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-264",
+      "envelopeId": "e87bfaff03cc325ed1d774db33e3685ed8a98763ec0ed463709d560b77f7b9e7",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": "Final bounded docs saturation checked only the public/operator contract surfaces adjacent to F-068 checkout coupling and F-070/F-064 closure fixture drift.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6236d3e97dc0bc6c169b1ee2fa4a331ed7c14f112679fc3a7566d4e8b1c3962d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1492ed7d04ebe33b4f8a5e2a90b76b337411612fcd76ecfe1d830b2cb8023f0d"
+    },
+    {
+      "id": "B-3f3d:RP-206",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-019 wave3 final completeness review confirms four required lanes are terminal passes, current raw finding set is empty, and historical aggregate retains F-068 canonical, F-069 duplicate to F-068, and F-070 verified closure-drift family. No new disposition is required.",
+      "createdAt": "2026-08-15T14:10:33.526Z",
+      "reviewRound": "2026-08-15T13:05:38.389Z",
+      "reviewRunId": "B-3f3d:RR-265",
+      "envelopeId": "86b9f1485e9e4a2a8fc52627ff5dc478d4969d7a3fe7c9a0699500a7a4cbdcd7",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2084cf99d370982bbbbea7e7e28a0c09d0e40767a07c9aba40d34a1b45eab5a3"
     }
   ]
 }

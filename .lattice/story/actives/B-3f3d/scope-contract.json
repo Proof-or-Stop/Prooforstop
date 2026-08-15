@@ -499,10 +499,28 @@
       "phase": "DEV",
       "headHash": "49ee22695a6c19759d88674e0f4444ae205be800",
       "materialHash": "86490a4fed04b4507f136aadd39492e626d503c2645c7fb9fd8a54e855213b8d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These focused acceptance topology fixtures must change to close verified F-070 by tracking the current canonical acceptance closure sources.",
+      "timestamp": "2026-08-15T14:23:05.268Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "9d251a380c815d542adef0fcde7655c56c512d37",
+      "materialHash": "a18109f21a98bbc31d81e8ccbf91e7413b88dac5d832c76bbc6b8097c828e634"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T12:44:10.952Z",
+  "updatedAt": "2026-08-15T14:23:05.268Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -598,6 +616,8 @@
     "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts",
     "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
-    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
   }
 }
