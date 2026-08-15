@@ -55,6 +55,7 @@ import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
+import { verificationIntentSchema } from '../cli/command-schemas.js';
 
 const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
@@ -1491,6 +1492,56 @@ function assertCapacityReclaimImplementationIsIdentityStable(): void {
     'queued waiter abort/deadline cleanup must use bounded exact-ticket release recovery');
 }
 
+function assertManagedVerificationIntentPinSchemaRoundTrip(): void {
+  const pinnedIntent = {
+    id: 'capacity-contract-pin',
+    desc: 'Pinned capacity contract remains writable through the managed CLI schema.',
+    type: 'cli_blackbox',
+    requiredIn: 'strict',
+    priority: 'must',
+    plannedPathDeclarations: [{
+      schemaVersion: 'proofstory.verification_planned_path_declaration.v1',
+      id: 'capacity-pin-path',
+      relation: 'producer_to_consumer',
+      producer: {
+        id: 'capacity-pin-producer', role: 'producer', expectedArtifactKind: 'source_file',
+        expectedFileRef: 'packages/main/src/cli/command-schemas.ts',
+        expectedSymbolOrFact: 'verificationIntentItemSchema', fileDeclarationRef: 'CHK-001:files:modify:0',
+      },
+      consumers: [{
+        id: 'capacity-pin-consumer', role: 'consumer', expectedArtifactKind: 'handler',
+        expectedFileRef: 'packages/main/src/handlers/checklist.ts',
+        expectedSymbolOrFact: 'checklist_update', fileDeclarationRef: 'CHK-001:files:modify:1',
+      }],
+      outputFactRef: 'verificationIntent.verification',
+    }],
+    verification: {
+      command: 'node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only',
+      selector: 'validate-execution-lock workspace capacity contract passed: 14 assertion groups',
+    },
+  };
+  const parsed = verificationIntentSchema.parse({ happy: [pinnedIntent], edge: [], adversarial: [] });
+  assert.equal(parsed.happy[0]?.type, 'cli', 'legacy cli_blackbox type must still normalize to cli');
+  assert.deepEqual(parsed.happy[0]?.verification, pinnedIntent.verification,
+    'managed CLI schema must round-trip an existing command/selector pin');
+  assert.deepEqual(parsed.happy[0]?.plannedPathDeclarations, pinnedIntent.plannedPathDeclarations,
+    'adding the pin must preserve planned path declarations');
+
+  for (const [label, verification] of [
+    ['missing selector', { command: pinnedIntent.verification.command }],
+    ['missing command', { selector: pinnedIntent.verification.selector }],
+    ['empty command', { command: '   ', selector: pinnedIntent.verification.selector }],
+    ['empty selector', { command: pinnedIntent.verification.command, selector: '   ' }],
+    ['unknown pin key', { ...pinnedIntent.verification, receipt: 'forged' }],
+  ] as const) {
+    assert.equal(verificationIntentSchema.safeParse({ happy: [{ ...pinnedIntent, verification }] }).success, false,
+      `${label} must remain rejected by the strict shared verificationIntent schema`);
+  }
+  assert.equal(verificationIntentSchema.safeParse({
+    happy: [{ ...pinnedIntent, unknownIntentKey: true }],
+  }).success, false, 'unknown verificationIntent item keys must remain rejected');
+}
+
 void (async () => {
   try {
     await assertWorkspaceWaitAndRun();
@@ -1507,6 +1558,7 @@ void (async () => {
     await assertCapacityRepositoryScopeAndSelectiveModes();
     assertProtectedInventoryAndTimeoutSourcesUnchanged();
     assertCapacityReclaimImplementationIsIdentityStable();
+    assertManagedVerificationIntentPinSchemaRoundTrip();
     if (process.argv.includes('--workspace-capacity-contract-only')) {
       console.log('validate-execution-lock workspace capacity contract passed: 14 assertion groups');
       return;
