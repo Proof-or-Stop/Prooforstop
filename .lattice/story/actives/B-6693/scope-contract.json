@@ -20,7 +20,8 @@
     "packages/main/src/tasks/validate-execution-lock-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [
     "lattice.config.json",
@@ -33,10 +34,10 @@
     "packages/main/src/Direct bare npm test interception or wrapping",
     "packages/main/src/Runtime artifact registry, doctor, runtime-fact registry, and process-fact registry changes"
   ],
-  "scopeChangeReason": "F-017 and F-018 are verified routine-validation regressions directly caused by the authorized cli-engine and workspace-capacity changes. Extend only allowedTest for two integration-contract repairs; production scope and protected files remain unchanged.",
+  "scopeChangeReason": "F-019 proves the process-fact contract script retains the old audited cli-engine AST fingerprint. Extend allowedTest by exactly scripts/verify-process-fact-contract.mjs to synchronize the mechanical truth source; no production or registry semantics change.",
   "acknowledgements": [],
   "createdAt": "2026-08-14T15:29:58.959Z",
-  "updatedAt": "2026-08-15T20:55:25.434Z",
+  "updatedAt": "2026-08-15T21:50:55.476Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -62,6 +63,7 @@
     "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts",
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
