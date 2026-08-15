@@ -1,6 +1,6 @@
 {
   "task": "Fix three deterministically-failing test fixtures (proofstory-acceptance-basis-smoke.ts, field-regression-cli-smoke.ts, worktree-authority-smoke.ts) that are invisible to lattice validate because none are registered in validate.commands, following repro-first: a RED script proving each failure, then a GREEN fix.",
-  "outcome": "Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js`, `node packages/main/dist/tasks/field-regression-cli-smoke.js`, and `node packages/main/dist/tasks/worktree-authority-smoke.js` each print a PASS line and exit 0, with no assertion errors. Running the project's root `npm test` shows 47/47 passed (up from the current baseline where these three failures are latent but do not appear in that count because they run outside lattice validate). A reviewer running each new packages/main/tests/red/red-B-74b9-*.mjs script against the pre-fix commit sees it fail with a clear repro message; against the post-fix commit it passes.",
+  "outcome": "Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js`, `node packages/main/dist/tasks/field-regression-cli-smoke.js`, and `node packages/main/dist/tasks/worktree-authority-smoke.js` each print a PASS line and exit 0, with no assertion errors. Running the project's root `npm test` shows 47/47 passed. A reviewer running each new packages/main/tests/red/red-B-74b9-*.mjs script against the pre-fix commit sees it fail with a clear repro message; against the post-fix commit it passes.",
   "facts": [
     "proofstory-acceptance-basis-smoke.ts fails at line 218: plannedBeforeCode.basis.status is partial not complete, due to two blindSpots: snapshot_missing for packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs",
     "Root cause confirmed by direct repro + source read: PROCESS_FACT_REGISTRY (process-fact-registry.ts:1119) has an artifact:acceptance-rollout-report.json entry whose producerSourceRefs are [run-proofstory-acceptance-rollout-cohort.mjs, acceptance-rollout.ts, handlers/proofstory.ts]; buildBoundedSourceGraph (acceptance-discovery-adapters.ts:1092) pulls ALL of an entrys source refs into registryCandidates once one of them (handlers/proofstory.ts, which the fixture DOES stub) is relevant, but writeCanonicalAcceptanceRegistration never stubs the other two inside the fixtures synthetic pureRoot",
@@ -16,17 +16,19 @@
     "dev_memory_preflight_ack is now mandatory before this storys first DEV entry (per B-a7c5, merged into main just before this story was created)"
   ],
   "unknowns": [
-    "Whether worktree-authority-smoke.tsss root cause needs a fixture-only fix (add package.json + version sync-point stub files to the synthetic root) or also a defensive production fix in bumpVersionOnDoneMerge/done_recover (e.g. skip gracefully when no package.json is present) -- to be resolved during DEV by attempting the fixture-only fix first",
-    "Whether any of the three fixtures should be added to lattice.config.json validate.commands going forward (CHK-004), and if so whether they need CI runtime/isolation adjustments to run safely inside the concurrent validate suite (worktree-authority-smoke.ts and field-regression-cli-smoke.ts spawn real git repos and CLI subprocesses)"
+    "Whether worktree-authority-smoke.ts root cause needs a fixture-only fix (add package.json + version sync-point stub files to the synthetic root) or also a defensive production fix in bumpVersionOnDoneMerge/done_recover (e.g. skip gracefully when no package.json is present) -- resolved during CHK-003 investigation before implementing (see plan.md CHK-003 Investigation-first)",
+    "Whether any of the three fixtures should be added to lattice.config.json validate.commands going forward (CHK-004), and if so whether they need CI runtime/isolation adjustments to run safely inside the concurrent validate suite -- resolved during CHK-004 per plan.md decision criteria"
   ],
   "touchpoints": [
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/field-regression-cli-smoke.ts",
     "packages/main/src/tasks/worktree-authority-smoke.ts",
-    "packages/main/tests/red/ (three new RED scripts)",
-    "lattice.config.json (validate.commands, conditionally)",
-    "packages/main/src/core/version-bump.ts (conditionally, only if a defensive production fix is needed)",
-    "packages/main/src/handlers/done-recover.ts (conditionally, only if a defensive production fix is needed)"
+    "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+    "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+    "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+    "lattice.config.json",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts"
   ],
-  "timestamp": "2026-08-15T19:56:46.307Z"
+  "timestamp": "2026-08-15T19:59:14.732Z"
 }

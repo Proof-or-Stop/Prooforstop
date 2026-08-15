@@ -41,7 +41,14 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "id": "INT-CHK001-ADV",
+            "desc": "Stub content for the two new files is not merely trivial-pass filler -- it mirrors the shape/role of the real files closely enough that the snapshot closure genuinely reflects the real registry entrys structure, not a shortcut that would also mask a different future regression",
+            "type": "manual",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
