@@ -356,7 +356,7 @@
       "desc": "[codex host-B J3] Verified by main agent. commitImmutableMetadataTree composes 'verified metadata is absent from the worktree: ' plus a joined path list without capDiagnostic, while verifyMetadataBlobDigests caps its equivalent. An exported arbitrary paths set can reach it when a hook, test seam or concurrent process removes files after isolated staging. Canonical callers use a tiny fixed set so this is not a present wedge, but it violates the exact rationale given for adding the aggregate cap in the first place - that a small path set is a property of current callers, not of an exported function.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-15T12:54:23.765Z",
@@ -364,7 +364,11 @@
       "reviewRunId": "B-3434:RR-011",
       "_hash": "4a8b6c11383f231cf2a77cef8a52805704a53dbbb6aa18359f927191189ffc53",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e1afeb346a and superseded by B-3434:F-025, re-filed under the quality lane after confirming worktreeReason in commitImmutableMetadataTree is now wrapped in capDiagnostic, matching the module's other diagnostics.",
+      "resolvedAt": "2026-08-15T13:46:08.762Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-017",
