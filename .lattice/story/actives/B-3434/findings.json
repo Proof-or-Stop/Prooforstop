@@ -673,6 +673,34 @@
       ],
       "signatureTag": "missing|ts|a4d8971f4f-persiststoryvalidationevidence-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-030",
+      "desc": "F-022 confirmation (RR-020), array case: boundPersistedValidationEvidence({result: <oversized array>, buildRecord}) does NOT return disposition='refused'. Reproduced against the built dist directly: a 300,000-entry array (each ~90 bytes) yields disposition='verdict_only', withinBound=true, fileBytes=470, record.output length=342 -- not the refusal the task description characterized for 'non-object input' when asked to verify null/string/number/array. Root cause: the actual refusal guard at validation-executor.ts is 'if (!args.result || typeof args.result !== object)', and typeof [] === object in JS, so an array never enters that branch; it falls into the SAME generic object-reduction path as a plain object, which -- when the array has none of VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS (provider/status/allPass/allPassed/failureKind/summary) -- lands on the verdict_only fallback (identical to smoke section 8's 'unknown field'/'key name'/'verdict-bearing scalar' object fixtures), not on refused. This is NOT a corruption or crash: the fallback record is self-describing (replacedWithVerdictOnlyRecord:true, carriedFields listed, reason stated) and withinBound is a real measurement, so verifier.ts callers still handle it safely. It IS a genuine behavioral gap versus a literal reading of the F-022 confirmation ask, and no committed test (red-b3434-blob-buffer-ceiling.mjs or validation-evidence-buffer-smoke.ts) exercises boundPersistedValidationEvidence/boundValidationEvidenceOutput with an array result -- both only cover string/undefined for the refused path and object shapes for the verdict_only path, never an array specifically. Currently unreachable in production: both call sites in handlers/verifier.ts (persistStoryValidationEvidence, reusedStoryValidationResult) always pass a full ValidationResult-shaped object, never a bare array, so this is not release-blocking on its own -- same posture as the original F-022 resolution note for other non-object shapes. Suggest either: (a) widen the non-object refusal guard to also catch Array.isArray(args.result) (an array has no allPass/status to carry, matching the F-022 rationale that a verdict-only substitution for such input 'invents' fields), or (b) add a committed assertion pinning the array-input behavior as intentional so a future change cannot silently flip it either way undetected.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-15T19:50:32.403Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cdefc8774fd8a445fd6b90775ad349acd59dcc9f9ec1cf9fc195654753f3e304",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "edge|ts|confirmation-array-case",
+      "signatureTagSource": "auto"
     }
   ]
 }
