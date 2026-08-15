@@ -303,6 +303,48 @@
       },
       "readDiagnostics": [],
       "_hash": "7b8af18b28526306f0fb250807bf40ef2fbe4425a1f17961f10f400c8fcc847f"
+    },
+    {
+      "id": "B-6693:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: extracted 186 changed declaration symbols and compared 9 changed documentation paragraphs across the three scoped docs against CLI watchdog/result classification, official-capacity wiring, derived verdict, exact-12 cohorts, exact 15/26 terminal pins, bare-npm exclusion, and protected inventory/budget proof. No doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-15T20:13:32.083Z",
+      "reviewRound": "2026-08-15T20:10:20.018Z",
+      "reviewRunId": "B-6693:RR-028",
+      "envelopeId": "5f48fdb8250670da11a21fbf6e538cd0eaa93372cb8d22637aef1bc6f67cc433",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d94a0da42c763cf7ab6553e2f495b33c4b336042271ea2db062282ad0c8b6574"
+      },
+      "readDiagnostics": [],
+      "_hash": "308c9d1b27a12ac9a73ceb7f3822956dc438b7e093878ac84e43265ae33e39b5"
     }
   ]
 }
