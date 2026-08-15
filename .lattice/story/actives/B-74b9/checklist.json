@@ -94,7 +94,43 @@
       "context": "assertDoneRecoverRunsPostMergeBuildForRuntimeChanges's synthetic mkdtemp root has no package.json, but done_recover now also runs bumpVersionOnDoneMerge (core/version-bump.ts) which requires root/package.json and the other version sync points to exist, throwing ENOENT before the stubbed build runner is ever reached. Write a RED script proving the current ENOENT, then fix the fixture's root scaffold to include the version sync-point files done_recover's post-merge path now needs, confirm GREEN.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "create": [
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "INT-CHK003-RED",
+            "desc": "RED script red-B-74b9-chk003-version-bump.mjs fails on the pre-fix tree with the ENOENT package.json signature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "INT-CHK003-GREEN",
+            "desc": "node packages/main/dist/tasks/worktree-authority-smoke.js exits 0 after the fix",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "INT-CHK003-SCOPE",
+            "desc": "Investigation confirms whether a fixture-only fix suffices or a defensive production change to bumpVersionOnDoneMerge/done_recover is also warranted, per the recorded PLAN unknown and preMortem #1",
+            "type": "manual",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-004",
