@@ -282,6 +282,36 @@
         "scanEscalationReason": null
       },
       "_hash": "0d9d3da36de94834038ebdef11d822ccf6d656bf97744a83ebc20f587e7a36e7"
+    },
+    {
+      "id": "B-16df:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: CHK-004:happy:0 mechanical receipt independently re-verified (reran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself: exit 0, output digest sha256:1f6fd0ecd6493659ffbbba7a35f3e5811009cab4ef61a7ccdd37f2e482646ec2 byte-identical to the stored receipt; kind=manual_transcript/alias-cli with mechanical:true which checklist.ts only mints via actual tool execution matching the pinned selector, not caller-injectable). AB-001 verificationIntentRefs now correctly point at CHK-004:happy:0 instead of the permanently pin-locked CHK-001/002/003 refs. CHK-004 has only a happy intent (no edge/adversarial) but this is a reasonable design, not a coverage gap: the smoke script is one linear check()-chain wrapped in a single try/catch (validate-command-timeout-smoke.ts:79-561) so ANY of the 45 assertions failing anywhere in sections 1-16 (including all of CHK-001/002/003s existing edge/adversarial coverage of matching, disambiguation, TOCTOU, clamping, unmatched-default fallthrough, etc.) throws and suppresses the passed: N assertions line CHK-004s selector depends on. CHK-004 is a metadata/acceptance-anchor item (added in PLAN, not slipped into REVIEW, per checklist.json auditLog) transitively gated by the full existing battery, not a new untested behavior needing its own edge/adversarial columns. Verified CHK-001-009 findings are all status=resolved, no source code changed this round (git status clean except lifecycle metadata; materialHash bd782343e68... matches both the CHK-004 receipt and the current dispatch context), and npm --prefix packages/main run build exits 0 with no diff. No blocker.",
+      "createdAt": "2026-08-15T10:33:46.243Z",
+      "reviewRound": "2026-08-15T10:29:18.440Z",
+      "reviewRunId": "B-16df:RR-015",
+      "envelopeId": "000f0fbf60177eb29806458906100af235abd081a08f7edbf4707c4708dafde5",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bdac16f3b70d701a7feaa51882a1c70ea369f07326aecbcbf1041e26ac41a039"
     }
   ]
 }
