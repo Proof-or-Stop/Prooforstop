@@ -4770,6 +4770,43 @@
       "findingDispositions": [],
       "createdAt": "2026-08-15T15:27:53.709Z",
       "_hash": "cd112c7ed1e017c37e5aea3b11509f7bfe59deb5056c9d1d1b9206fd77c80829"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-021:CRIT-01",
+      "epochId": "B-3f3d:RI-021",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "6b6f55e63c7d10c8c2e9b5db9d774e502ce35545",
+        "materialHash": "4126abc5d8e0170179c9fc12b07e9400016fb95811911f6a84c8a91e978e730e",
+        "storyFilesHash": "d0480b002674db0b85471f91fefa86376d92b893d486be0a760a6d65b7a30962"
+      },
+      "aggregateFindingSetDigest": "18e876987c80b22bd3baf9b80fc6b95fb61ebec10c305306a3f52b4242873f6e",
+      "requiredLaneCoverageDigest": "25e6b42c4f5f9d06995d9579cc3a04eb0e5a10e1866013701d66a098b3230b3a",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-292",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-230"
+      ],
+      "readEvidenceDigest": "96f4d5d46c5a745fd5c10354eb1c7c23a519e53ceb97027bf5d77afa678ccb7d",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-072",
+          "disposition": "verified_family",
+          "familyKey": "full-suite-timeout-descendant-reconciliation",
+          "reason": "Verified distinct process-lifecycle family: timeout terminal publication can precede confirmed termination of a descendant that escaped the wrapper process group."
+        },
+        {
+          "findingId": "B-3f3d:F-073",
+          "disposition": "verified_family",
+          "familyKey": "migrated-reviewer-count-drift",
+          "reason": "Verified distinct documentation-contract family: authoritative migrated-reviewer count remains internally inconsistent with the six-role registry and rollout baseline."
+        }
+      ],
+      "createdAt": "2026-08-15T18:55:35.766Z",
+      "_hash": "4e00c26bef92dd58ae88ab7343cfae1507977a47d6f26bf1fdf8afad76058fd7"
     }
   ]
 }

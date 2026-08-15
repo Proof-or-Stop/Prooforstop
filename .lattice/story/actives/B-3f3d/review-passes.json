@@ -14607,6 +14607,49 @@
       },
       "readDiagnostics": [],
       "_hash": "c3380511525508e46e4601713ae0324d30b4ec206493f9f3d1178abafe32d172"
+    },
+    {
+      "id": "B-3f3d:RP-230",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-021 wave1 completeness critic verified all four required lanes have current terminal passes on cutoff 4126abc5. Baseline/raw set is exactly F072 and F073: F072 is timeout descendant reconciliation/terminal publication; F073 is migrated-reviewer count documentation drift. They are distinct verified families with no duplicate relation.",
+      "createdAt": "2026-08-15T18:55:03.091Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-292",
+      "envelopeId": "d2a2d83c017173c33ae119095cb617adfe4ed87695d824dd5ec4220a01b1e90d",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b757938a5162f58734f6fac3b7fff03749b8658005f329b43ab64bb631c9660"
     }
   ]
 }
