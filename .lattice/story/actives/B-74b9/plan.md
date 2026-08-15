@@ -96,11 +96,39 @@ so `done_recover`'s post-merge path can run to completion and reach the stubbed 
 
 ## CHK-004
 
-After CHK-001..003 land, record an explicit per-fixture decision on whether to add each fixture
-to `lattice.config.json`'s `validate.commands`, in this plan.md (this section) and/or
-background.md. Decision criteria: does the fixture's runtime and isolation profile
-(worktree-spawning, subprocess-spawning, timing) match other `validate.commands` entries of
-similar shape already in that list? If yes for a given fixture, register it; if no (e.g., too
-slow or requires exclusive dist access, per the shared-worktree build-race hazard already known
-in this repo), record why it stays root-`npm test`-only instead, so this is a deliberate,
-documented decision rather than another silent gap.
+**Decision (per-fixture, recorded after CHK-001..003 landed):**
+
+- **proofstory-acceptance-basis-smoke.ts -- REGISTERED.** Now passes cleanly end-to-end
+  (confirmed: `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js` exits 0,
+  ~57s runtime). Added to `lattice.config.json`'s `validate.commands` alongside the structurally
+  similar `proofstory-acceptance-rollout-smoke.js` entry (same 180000ms timeoutMs, same shape),
+  so `lattice validate` now catches regressions in this class going forward.
+
+- **field-regression-cli-smoke.ts -- NOT YET REGISTERED (deferred).** CHK-002's own defect (six
+  `review_pass_set` calls missing the required `--readManifest` argument) is fully fixed and
+  verified. However, fixing it unmasked a confirmed-unrelated, separately-tracked pre-existing
+  defect cluster further down the SAME file: at least two functions
+  (`assertReviewerListForceReviewerLaneContract`, `assertPassOnlyFindingConvertsToReviewPassCliSurface`)
+  still reference a "channel" / "lattice-review-channel" reviewer lane that `review_run_start`
+  and `reviewer_list` have since retired, verified via isolated reproduction (temporary
+  scratch-skip) before being excluded from this story's scope and flagged separately
+  (task_9f6b2322). Registering this file into `validate.commands` now would make `lattice
+  validate` fail repo-wide on that unrelated, already-tracked issue -- deferred until
+  task_9f6b2322 lands.
+
+- **worktree-authority-smoke.ts -- NOT YET REGISTERED (deferred).** CHK-003's own defect (the
+  `bumpVersionOnDoneMerge` ENOENT on a synthetic root missing `package.json`) is fully fixed and
+  verified as a correct fixture-only fix (see CHK-003's Investigation-first finding: production
+  code correctly assumes `package.json` always exists on any real repo root). However, fixing it
+  unmasked a confirmed-unrelated, separately-tracked pre-existing bug further down the SAME file:
+  `assertConcurrentDoneSerializesWithoutPartialDone` fails with a "File not found ...
+  index.json" error during a simulated concurrent-DONE race, verified via isolated reproduction
+  on a clean untouched main checkout before being excluded from this story's scope and flagged
+  separately (task_a8d49518). Registering this file into `validate.commands` now would make
+  `lattice validate` fail repo-wide on that unrelated, already-tracked issue -- deferred until
+  task_a8d49518 lands.
+
+This is a deliberate, documented decision (not a silent gap): the two deferred fixtures' OWN
+defects are fixed and verified; their `validate.commands` registration is blocked only by
+separately-tracked, confirmed-unrelated pre-existing bugs in the same files, each already flagged
+as an independent follow-up task.

@@ -4,9 +4,11 @@
   "id": "IC-20260815201645",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "Fixture-only fixes for all three (per decision.json's chosen option): each fixture's stale synthetic setup is updated to match legitimate, already-correct production behavior (PROCESS_FACT_REGISTRY growth, command-catalog.ts's required readManifest, bumpVersionOnDoneMerge's package.json requirement), with a repro-first RED script preceding each fix, plus an explicit validate.commands/test:serial-reference registration decision (CHK-004). No production logic changes unless CHK-003's investigation finds a genuine gap, per preMortem #1.",
-  "acceptedInterpretationHash": "sha256:211b4e3672cdb21fdf1a923bac37508fda172f4842cfedf94ee2a797e93f365a",
-  "notes": "Single unambiguous interpretation; confirmed by direct source investigation before PLAN was written, not inferred from the request text alone.",
+  "acceptedInterpretation": "Fixture-only fixes for all three (per decision.json's chosen option): each fixture's stale synthetic setup is updated to match legitimate, already-correct production behavior (PROCESS_FACT_REGISTRY growth, command-catalog.ts's required readManifest, bumpVersionOnDoneMerge's package.json requirement), with a repro-first RED script preceding each fix, plus an explicit validate.commands/test:serial-reference registration decision (CHK-004). No production logic changes unless CHK-003's investigation finds a genuine gap, per preMortem #1. Re-confirmed after milestone_ledger_set (M1-M4) to bind the current ledger hash for gate consumption.",
+  "acceptedInterpretationHash": "sha256:8449129e1caed5ec399dc42e6b774fba3ed3801c8f082494c1333a1027986291",
+  "notes": "Re-run to confirm the milestone ledger set after this decision was first recorded; confirms ledger hash sha256:e338632e2a057a57599c847e9d67f52715f7643cb820d8c006013c355b3ac103.",
+  "ledgerHashBeforeDecision": "sha256:e338632e2a057a57599c847e9d67f52715f7643cb820d8c006013c355b3ac103",
+  "confirmedLedgerHash": "sha256:e338632e2a057a57599c847e9d67f52715f7643cb820d8c006013c355b3ac103",
   "createdAt": "2026-08-15T20:16:45.273Z",
-  "updatedAt": "2026-08-15T20:16:45.273Z"
+  "updatedAt": "2026-08-15T20:31:20.179Z"
 }
