@@ -84,6 +84,21 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Fixed: registered .lattice/dev-memory/finish-decisions/ in RUNTIME_ARTIFACT_REGISTRY (id=dev-memory-finish-decision) with materialHash:'exclude' and no ignorePatterns (path stays git-tracked per the story's own dev-memory design, but is now classified as non-blocking runtime_artifact_changes instead of unexpected_dirty_files). Verified directly via classifyGitStatusRows: category is now runtime_artifact_changes. Verified materialHash invariance across 3 repeated writes. An initial auto-commit-based fix attempt was tried and rejected after it caused a worse regression (moved HEAD, broke delivery-check materialHash freshness) -- confirmed via a targeted repro before landing the registry-based fix instead. 4 new regression assertions added to dev-memory-lifecycle-gates-smoke.ts (now 78 assertions).",
       "resolvedAt": "2026-08-15T11:49:59.146Z"
+    },
+    {
+      "id": "B-a7c5:F-006",
+      "desc": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts:501-524 F-005 regression check is non-discriminating: it writeFileSync()s the finish-decision record 3x but never git-commits it, then asserts currentMaterialHash(...) is unchanged. currentMaterialHash (core/evidence-freshness.ts) reads only `git ls-tree -r HEAD` (committed tree state) so an uncommitted write can never change it, WITH OR WITHOUT the RUNTIME_ARTIFACT_REGISTRY exclusion this fix adds. Empirically confirmed via a targeted repro against packages/main/dist with the dev-memory-finish-decision registry entry deleted: (a) write-only (this test's exact pattern) still reports materialHash unchanged even with the fix broken; (b) write+commit (the real regression scenario, matching production commit 1a4a58f9b3's manual sweep-commit and the reverted auto-commit draft) correctly shows materialHash unchanged WITH the registry entry and CHANGED WITHOUT it. The underlying production fix is architecturally sound (verified), but this specific smoke assertion provides zero protection against a future accidental removal/typo of the registry entry silently reintroducing the exact historical bug (delivery-check materialHash freshness breakage) this story already had to build-test-revert once to discover. Fix: git add+commit the finish-decision.json (the `git()` helper already exists in this file) before comparing materialHash.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:01:08.170Z",
+      "reviewRound": "2026-08-15T11:51:21.761Z",
+      "reviewRunId": "B-a7c5:RR-011",
+      "_hash": "bc46cbcf2029b60b952e51a43e9b761f55355702e2d7394e186314709dbb1143",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
