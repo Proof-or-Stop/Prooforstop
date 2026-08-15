@@ -163,6 +163,39 @@
         "scanEscalationReason": null
       },
       "_hash": "b5d03aa90a18b575715d4cb654af1145ec090dc0bc51f93186379907df4cce6f"
+    },
+    {
+      "id": "B-74b9:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-review of the single new commit (a93476fd6f) since the prior 0-finding pass (head 7603fdb0d). Confirmed via git diff 7603fdb0d..fc0e8f4bf -- . \":!.lattice\" that the ONLY non-metadata change is a 14-line, additive addition to packages/main/tests/red/red-b49d4-harness-registration.mjs REGISTRATION_EXCLUSIONS, adding entries for red-B-74b9-chk001-acceptance-basis.mjs, chk002-readmanifest.mjs, chk003-version-bump.mjs. Verified: (1) the 3 new keys are exact-case matches for the actual files on disk (ls confirmed); (2) each reason string exceeds MIN_EXCLUSION_REASON_CHARS(40); (3) ran the guard itself -- node packages/main/tests/red/red-b49d4-harness-registration.mjs exits 0, all 42 population entries accounted for (34 registered + 8 excluded), including the self-inclusion/non-vacuity/sibling-population checks; (4) independently reproduced the exclusion rationale by running all 3 new RED scripts against the current post-fix dist: chk001 and chk002 both throw AssertionError (exit 1) as claimed; chk003 also throws AssertionError (exit 1, ~44s runtime, not a hang) -- it fails on its own stderr-match assertion because the underlying worktree-authority-smoke.js run now hits the separately-tracked unrelated assertConcurrentDoneSerializesWithoutPartialDone race (task_a8d49518, already documented in plan.md CHK-004) rather than the pre-fix ENOENT signature, confirming these scripts genuinely cannot be registered in validate.commands without making validate fail permanently, exactly as the exclusion reasons state. (5) lattice.config.json has zero diff between the two heads -- CHK-004s registration decision (only proofstory-acceptance-basis-smoke.js registered) is unchanged. (6) grepped for other references to the 3 new filenames repo-wide -- only used inside the harness-registration exclusion map and within their own file headers/self-referential comments, no other registration surface needs updating. No dead code, no unsafe any, no empty catch, no I/O-isolation or proof-metadata dual-surface concerns in the new lines. No doc-promise-undelivered risk (no CLAUDE.md/README touched). Working tree clean (git status --short empty) after all repro runs. No blocker.",
+      "createdAt": "2026-08-15T22:15:22.789Z",
+      "reviewRound": "2026-08-15T22:05:49.841Z",
+      "reviewRunId": "B-74b9:RR-004",
+      "envelopeId": "c1e15771848f18222c40a785d06f8d8e3462f487ce844b572a6f68bd5d2012b0",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/plan.md",
+          "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/review-passes.json",
+          ".lattice/story/actives/B-74b9/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+          "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b97edaf018f5cd64e2a9162af64e86dc378db353c6256e2b8a1c8856118d942"
     }
   ]
 }
