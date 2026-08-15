@@ -557,7 +557,7 @@
       "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:892-907 runs/asserts 12 waiters only as Promise calls inside one Node process. The genuinely independent child-process cohort at :958 spawns `length: 8` and at :987 asserts exactly 8 starts. Thus the checked-in focused15/full26 smoke does not prove the required exact-12 cross-process/execution-context stress; both commands pass while this requirement remains absent. Change the child cohort to 12 and assert 12 process starts, maxConcurrency=1, zero overlap, and zero leaked queue artifacts. The new detached-generation and real CLI-watchdog assertions are discriminating against the prior implementation, but they do not substitute for the missing 12-process capacity stress.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T13:57:27.390Z",
@@ -597,7 +597,11 @@
         "packages/main/src/tasks/validate-execution-lock-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 61532dba5d changes the genuine child-process cohort from 8 to exact 12 and asserts all 12 results, maxConcurrency=1, zero overlap, zero child errors, and zero queue leaks without adding a top-level group. Build, 14 focused15 receipts, 10 full26 receipts and dry-run zero stale all pass.",
+      "resolvedAt": "2026-08-15T20:10:33.649Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
