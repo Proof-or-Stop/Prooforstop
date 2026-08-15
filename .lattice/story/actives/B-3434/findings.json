@@ -337,7 +337,7 @@
       "desc": "[codex host-B J2] Verified by main agent. Every successful return derives withinBound from the real encoding, so the flag is truthful - that part is sound. But the function is not TOTAL, contrary to the comment saying the last-resort replacement cannot fail and the smoke heading saying degenerate inputs never crash. JSON.stringify throws on cycles and BigInt; getters and proxies can throw during stringify, spread, Object.keys or the fallback scalar reads; a stateful getter that returned a large array twice and threw on the third read reached verdictOnlyRecord and threw there. An oversized primitive returns the oversized serialisation rather than a bounded replacement. Current callers construct plain JSON-shaped objects so no canonical gate path reaches these today, but the export takes unknown and the story's own stated rationale is that current-caller assumptions are insufficient.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-15T12:54:22.880Z",
@@ -345,7 +345,11 @@
       "reviewRunId": "B-3434:RR-011",
       "_hash": "8ae306b70f86286b40d870756f3eb70e5f07230e32cd74e04f3434aaed5244fc",
       "signatureTag": "missing|unknown|codex-host-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e1afeb346a and superseded by B-3434:F-024, re-filed under the quality lane after it reproduced the pre-fix circular-reference throw itself and confirmed boundPersistedValidationEvidence now returns disposition verdict_only instead of throwing. Note that totality is NOT yet complete - the try/catch does not cover the fallback construction, which two lanes independently found as F-018 and F-026 and which remains open.",
+      "resolvedAt": "2026-08-15T13:46:06.906Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-016",
