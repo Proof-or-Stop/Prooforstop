@@ -9,7 +9,7 @@
  *   - happy: sync writes a thin-shim regular file for every *.md template —
  *     verbatim frontmatter (tools sandbox preserved) + a CLI-fetch body that
  *     references `lattice agent_prompt --role=<name>` for ordinary roles or
- *     `review_run_start` for the five modular reviewers, and contains NO role body
+ *     `review_run_start` for the six modular reviewers, and contains NO role body
  *   - edge: idempotent re-run reports "shim ok"; broken link / stale full copy /
  *     old symlink / drifted shim → unlink + rewrite ("replaced")
  *   - adversarial: non-writable global dir (mkdir throws) → clear actionable

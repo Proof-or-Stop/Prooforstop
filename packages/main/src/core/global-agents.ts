@@ -14,7 +14,7 @@
  *   *thin shim* file: the registry template's frontmatter (name/description/tools,
  *   plus model if present) followed by a standard imperative body that tells the
  *   agent to fetch its authoritative instructions from the Proofbound CLI via
- *   `lattice agent_prompt --role=<name>`. The five modular REVIEW roles instead
+ *   `lattice agent_prompt --role=<name>`. The six modular REVIEW roles instead
  *   use the canonical `review_run_start` bootstrap so the host receives exactly
  *   one mode-selected role body. Every shim contains NO role body.
  *

@@ -7,7 +7,7 @@
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
     "roleCount": 17,
-    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
+    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the six modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -63,7 +63,7 @@
       },
       {
         "role": "lattice-review-topology-critic",
-        "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35"
+        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
       },
       {
         "role": "product-reviewer",
@@ -133,6 +133,17 @@
         "legacyCodexRenderDigest": "683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f",
         "modularClaudeRenderDigest": "f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495",
         "modularCodexRenderDigest": "71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2"
+      },
+      {
+        "role": "lattice-review-topology-critic",
+        "legacyBodySha256": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
+        "modularBodySha256": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
+        "roleSemanticDigest": "38bfd5f5a08208a07cf9562fc295ab636e89b0ddff331f9b30f341fac4c1aa8e",
+        "roleRenderDigest": "2d4411f90d969398d14016d72a6f394c50467050ba0f3cdd3840a51410039260",
+        "legacyClaudeRenderDigest": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
+        "legacyCodexRenderDigest": "077d0e79c6884f5009d066faf1e640aaba8b4b1654283b7f5d0ecb730d3c3a24",
+        "modularClaudeRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
+        "modularCodexRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
       }
     ]
   },
@@ -141,7 +152,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "7e1df99e7adf53779aab5390adc0b700f448bfeb4c43faec9a194598a323415d",
+    "materialHash": "43403597e930640b2dc97274485c7a8bf5dcd8913d12a9b45354153dd7e73c28",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -251,9 +262,9 @@
         "role": "lattice-review-topology-critic",
         "file": "lattice-review-topology-critic.md",
         "relPath": "templates/agents/lattice-review-topology-critic.md",
-        "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35",
-        "bytes": 1585,
-        "lines": 24
+        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
+        "bytes": 1626,
+        "lines": 25
       },
       {
         "role": "product-reviewer",
@@ -365,9 +376,9 @@
       },
       {
         "role": "lattice-review-topology-critic",
-        "sha256": "a923f7942b377cef4a3020176c2f38953db0f5e998db3954badfac57d568783a",
-        "bytes": 1586,
-        "lines": 25
+        "sha256": "c6f75dbf86b03450677fe5f550335cbd27513db2d5f821f0a26114ffdc821c28",
+        "bytes": 435,
+        "lines": 11
       },
       {
         "role": "product-reviewer",
@@ -616,7 +627,7 @@
     "machineChecks": [
       "Lock the exact 17 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
-      "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
+      "For six modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
       "Require every role-matrix field to be a non-empty string.",
       "Require JSON/Markdown parity and reject snapshot drift."
@@ -709,7 +720,7 @@
         {
           "role": "lattice-review-topology-critic",
           "relPath": "templates/agents/lattice-review-topology-critic.md",
-          "templateHash": "7db4368e21a0a2250ef7f8a7feee6b04fb85bfd518f72e8c188336ac90f80b35"
+          "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
         },
         {
           "role": "product-reviewer",

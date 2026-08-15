@@ -245,8 +245,8 @@ receipt-backed authority remain separate gate inputs.
 
 The package prompt registry (`packages/main/templates/agents/*.md` via
 `promptRegistryManifest()`) is the single source for ordinary role bodies and
-for the five migrated reviewer definitions. The registry host resolver exposes
-those five reviewers as a body-free bootstrap; `review_run_start` selects and
+for the six migrated reviewer definitions. The registry host resolver exposes
+those six reviewers as a body-free bootstrap; `review_run_start` selects and
 returns exactly one legacy or modular role body. Each host keeps only a *thin
 adapter* or that canonical bootstrap. The adapter shape is dictated by the
 host's loader, but the selected-body source remains the package registry.
