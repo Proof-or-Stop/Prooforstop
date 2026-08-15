@@ -75,7 +75,7 @@
           }
         ]
       },
-      "userSees": "probe"
+      "userSees": "Running two npm test invocations concurrently in one worktree, the user sees both complete without an ENOTEMPTY / EBUSY / MODULE_NOT_FOUND build crash — no build is aborted mid-run by another process stealing its lock, even for a build that runs longer than the stale threshold."
     },
     {
       "id": "CHK-002",
