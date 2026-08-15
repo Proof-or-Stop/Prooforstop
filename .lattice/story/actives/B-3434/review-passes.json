@@ -204,6 +204,36 @@
         "scanEscalationReason": null
       },
       "_hash": "62d71cef5ebe601599e46aeb6c906e5e9e814b43d1d95f740bba76890be2048b"
+    },
+    {
+      "id": "B-3434:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Narrow confirmation of commit 2717839123 (3 files, 10+/4-), all four items independently re-derived, not assumed. (1) Both claimed mutations reproduced byte-for-byte in a disposable scratch copy (never the worktree): redacting all 6 B-3434:F-037 mentions in the decision doc -> smoke fails on 'it names \"B-3434:F-037\"'; deleting only the deferred-table row (5 mentions survive) -> smoke still PASSes. Coverage verdict on 'is substring-level adequate for all four': the guard mechanism is uniform (presence-anywhere-in-doc) across F-033/F-035/F-036/F-037, but empirical protection is NOT uniform because it rides on how many times each id happens to be echoed in prose elsewhere. I independently deleted each of the other three rows in isolation: F-033 row-only deletion -> PASS (2 prose mentions survive); F-036 row-only deletion -> PASS (1 prose mention survives); F-035 row-only deletion -> FAILS (its table row is the ONLY mention anywhere in the document, so today it already behaves as row-level by accident of document structure, not by guard design). So the implementer's stated reason for leaving F-037 substring-level ('same substring semantics as F-033/F-035/F-036') is imprecise for F-035 specifically -- F-035 is not equivalently exposed today, though it would become exposed the moment a future edit adds a second F-035 prose mention, exactly the pattern that happened organically to F-033/036/037 over 9 rounds. Recommend the follow-up inherit a genuinely row-level (table-row-scoped) guard for all four ids rather than relying on narrative echoes. Not blocking: no code regression, informational for the coverage verdict as requested. (2) Re-ran 2 of the 4 round-8 mutation catches against the current HEAD's shipped dist code in a disposable copy: reverting the 9d array guard (dropping '|| Array.isArray(args.result)') -> caught, 'an oversized array reports withinBound false: true !== false'; reverting snapshotPersistedRecord to return the live record instead of the JSON.parse'd copy -> caught, by assertPlainJsonData ('function' !== 'undefined'), matching the prior round's exact characterisation. Both restored after. (3) 24 pinned selectors independently extracted from checklist_get (happy+edge+adversarial verification entries) and containment-tested against freshly captured output from the two bound commands: total=24 matched=23, sole miss = CHK-005:edge:0 (the permanently-waived stale byte-count pin), confirming the implementer's figure exactly rather than assuming it. verification_evidence_refresh_stale re-run directly: 'No stale verification evidence for B-3434' (23/23 current). (4) Real output at the actual worktree HEAD (unmutated): red-b3434-blob-buffer-ceiling.mjs -> PASS (all fixtures incl. over-ceiling read/silent-hook/talking-hook cases); validation-evidence-buffer-smoke.js -> PASS (findingIdsNamed includes B-3434:F-001,F-033,F-034,F-035,F-036,F-037). Also verified the F-037 row's cited verifier.ts:975-984 mutation-site line range against the live file: accurate (spans from the sizingAdvisory log line through the blank line immediately before the write call at 985). No findings filed. Not re-auditing the story; scoped strictly to the one commit and the four numbered items per dispatch.",
+      "createdAt": "2026-08-15T22:37:18.774Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-036",
+      "envelopeId": "60ac687df62bba5806318b79067ba9e2f19529d02f29c596a4c9be5f8ac7a308",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          "packages/main/dist/core/validation-executor.js",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b632412129994ad28886d72dd4f13bedf4868f04d36b903897b283cd54ad404"
     }
   ]
 }
