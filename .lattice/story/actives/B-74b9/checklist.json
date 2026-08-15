@@ -104,6 +104,18 @@
           "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
           "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
           "timestamp": "2026-08-15T20:49:58.328Z"
+        },
+        {
+          "intentRef": "INT-CHK001-DISCRIM",
+          "kind": "manual_transcript",
+          "result": "pass",
+          "note": "Verified: temporarily reverted the two new stub write() calls, rebuilt, and confirmed the ORIGINAL failure reproduced exactly (actual:'partial', expected:'complete', both blindSpots present) before restoring the real fix and rebuilding again (confirmed clean via git status and a passing re-run). Confirms the fixture still discriminates a real regression, not passing vacuously.",
+          "mechanical": false,
+          "nonMechanicalReason": "This is a one-time discriminating-power probe (temporarily reverting the fix, rebuilding, observing failure, then restoring); scripting it as a permanent pinned command would leave the repo in a broken state between runs, which is unsafe to re-execute automatically.",
+          "headHash": "11c96121ab0732ffd58d403bbcb575e3aadbf6c4",
+          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
+          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
+          "timestamp": "2026-08-15T20:49:59.328Z"
         }
       ]
     },
