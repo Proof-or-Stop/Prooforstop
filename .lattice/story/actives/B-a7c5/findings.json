@@ -124,7 +124,7 @@
       "desc": "packages/main/src/core/machine.ts:1259 (CHK-001 evaluateDevMemoryPreflightGate check in getGuardFailureReason targetPhase=DEV) runs unconditionally BEFORE proofStoryDevGateFailure at line 1310, so any story that is simultaneously missing a dev-memory-preflight-ack AND blocked by the ProofStory DEV gate now reports only the dev-memory message, hiding the ProofStory-specific reason. This is not hypothetical: it breaks the pre-existing packages/main/src/tasks/proofstory-intent-hardening-smoke.ts assertDevAdmissionBlocked assertion (line 111-115), which never calls dev_memory_preflight_ack and expects the guard reason to match /ProofStory DEV gate is enforce|required intent artifacts are incomplete/. Reproduced deterministically in isolation: `node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js` throws AssertionError (actual message is the dev-memory-preflight text, not the ProofStory text). This test is part of the root npm test (full-suite-runner.js, test:serial-reference), so `npm test` now fails on this branch -- a real, previously-passing regression introduced by this story that none of the 4 prior REVIEW rounds caught (lattice validate's validate.commands subset does not include this file, so it was invisible there). WHY high: breaks an existing, previously-green project test outside this story's own smoke, and masks the real blocking reason for any ProofStory-enforced story that also lacks the ack, which is a genuine UX/maintainability defect, not just a test-fixture staleness issue.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:38:59.454Z",
@@ -132,7 +132,9 @@
       "reviewRunId": "B-a7c5:RR-015",
       "_hash": "8bf402ba304fc94a01938f7ba300ce1608dde3ab9d46e4a395275359951e13f6",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: both fixture-builders in proofstory-intent-hardening-smoke.ts (the main PLAN-phase story at line ~193 and writeLifecycleGateBlockedStory for the REVIEW/TEST reentry cases) now call a new ackDevMemoryPreflightForProofstory helper that writes a satisfying dev-memory-preflight-ack.json, matching the same fix pattern already used for the 8 earlier collateral fixture fixes in this story. Confirmed: proofstory-intent-hardening-smoke.js now passes standalone (was previously failing with the wrong guard message due to CHK-001's check running before the ProofStory-specific check this fixture tests). Root cause for why this wasn't caught in 5 prior REVIEW rounds: the file is not registered in lattice.config.json's validate.commands, only reachable via the project's separate root npm test command.",
+      "resolvedAt": "2026-08-15T13:03:55.623Z"
     }
   ]
 }
