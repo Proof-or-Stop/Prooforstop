@@ -4320,6 +4320,11 @@ function assertReviewInventoryRemediationContract() {
   for (const [label, text] of [['AGENTS.md', agentsDocText], ['story-lifecycle.md', storyLifecycleText], ['testing-infra.md', testingInfraText]]) {
     assert(/fresh (?:non-latest )?PASS|fresh PASS/.test(text) && /open FINDING/.test(text), `${label}: latest-run guidance must preserve the kind-aware PASS/FINDING distinction`);
   }
+  const latestRunHintBody = reviewRunText.match(/function latestRunHint\([\s\S]*?\n\}/)?.[0] ?? '';
+  assert(
+    /resubmit finding_add/.test(latestRunHintBody) && !/review_pass_set/.test(latestRunHintBody),
+    'packages/main/src/core/review-run.ts: FINDING-only non-latest-run recovery hint must never tell a valid PASS to resubmit review_pass_set',
+  );
   const candidateHandlerText = read('packages/main/src/handlers/candidate-spec-routing.ts');
   assert(
     /withReviewInventoryMutationLock[\s\S]*writeCandidateSpecSet[\s\S]*refreshReviewInventoryContextLocked/.test(candidateHandlerText),

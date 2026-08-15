@@ -822,7 +822,7 @@ function startRunHint(storyId: string, lane: string): string {
 
 function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
   const latest = latestRunId ? `(current latest: ${latestRunId})` : '';
-  return `→ Current lane already has a newer reviewer run${latest}: use the latest reviewRunId to resubmit finding_add/review_pass_set; do not reuse the old reviewRunId`;
+  return `→ Current lane already has a newer reviewer run${latest}: use the latest reviewRunId to resubmit finding_add; do not reuse the old reviewRunId`;
 }
 
 function roundMismatchHint(storyId: string, lane: string): string {
