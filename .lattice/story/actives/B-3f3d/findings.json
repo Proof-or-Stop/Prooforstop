@@ -3447,7 +3447,7 @@
       "desc": ".lattice/story/actives/B-3f3d/checklist.json (B3F3D-006-H3) — HIGH post-F049 mechanical coverage regression distinct from the English-admission family. Current evidence is 54/54 result=pass but only 53/54 mechanical: H3 is mechanical=false with nonMechanicalReason saying verification_evidence_refresh_stale invalidated its receipt after material changed and the pinned command was not rerun. A live `node packages/main/dist/tasks/review-inventory-handler-smoke.js` run exits 0 and emits both `B3F3D-006-H3 docs/provenance: PASS` and `review inventory real handler smoke: PASS`, proving the implementation is currently green but the gate-consumed checklist row still lacks the fresh selector-matched receipt. Re-run H3 through verification_evidence_add/verification_run and persist its current mechanical receipt before claiming 54/54.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T01:46:10.372Z",
@@ -3526,7 +3526,11 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "verification-evidence-receipt-refresh-regression",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit dbdfe4d fixes pinned docs/manual receipt recovery; final refresh re-executed all 54 and B3F3D-006-H3 is mechanical=true with selectorMatched=true.",
+      "resolvedAt": "2026-08-15T02:36:29.539Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-052",
