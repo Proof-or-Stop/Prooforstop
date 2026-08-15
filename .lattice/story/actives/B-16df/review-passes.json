@@ -366,6 +366,34 @@
         "scanEscalationReason": null
       },
       "_hash": "3ded4c4b0205c4d60c6c8559efc5e9b50e5c22601389bf2ac4939d8465023ce9"
+    },
+    {
+      "id": "B-16df:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 34 verificationIntent items across CHK-001/002/003/004 have exactly one bound verificationEvidence entry each (0 missing, 0 orphaned refs, 0 fail results, 0 kind:waiver). 33/34 are mechanical:true; independently rebuilt (npm run build) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself, reproducing the identical outputDigest 1f6fd0ec... (45 assertions, exit 0) recorded in every mechanical receipt. Spot-verified the 5 rewritten intent texts (CHK-001:happy:1/happy:2/edge:2/adversarial:2, CHK-002:A-004) against current source: section 6a/6b exist exactly as newly described, and red-evidence.json genuinely records the claimed pre-fix baseline (head ce9f57f, timedOut=false). The sole remaining mechanical:false item (CHK-001:adversarial:4, docs_check, result:pass) is a legitimate non-runtime claim (no new lattice.config.json entry added), independently confirmed via git diff main -- lattice.config.json. No dishonest overclaiming found.",
+      "createdAt": "2026-08-15T11:09:33.416Z",
+      "reviewRound": "2026-08-15T11:00:58.353Z",
+      "reviewRunId": "B-16df:RR-019",
+      "envelopeId": "e1f4bfd089d20afb0a9483748a0c1978f7a304207108a2616c22e5ae489f06bc",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/proofstory.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "86537162a5fb09f369b5a7a85ca5c3dc31c24e84e1983802b23fa19be681bbbb"
     }
   ]
 }
