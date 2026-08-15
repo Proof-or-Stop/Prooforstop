@@ -312,6 +312,21 @@
       "resolvedAt": "2026-08-15T12:48:20.024Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-014",
+      "desc": "[codex host-B J1] Verified by main agent with an independent construction. The reducer measures the INNER JSON.stringify(result) string, but StoryStore places that string into TestEvidenceData.output and stringifies again, escaping it a second time; the 25 percent headroom cannot bound that expansion. My reproduction with 400 commands each carrying 12000 quote characters, duplicated into details as the producer does: inner output 19217147 bytes with withinBound true and reduced false - the reducer never engages - while the persisted file is 38422033 bytes, above the 33554432 read ceiling. So the refusal does not fire, the oversized file IS written, the immutable commit then hits the blob ceiling, the transaction rolls back, and that validation configuration can never persist evidence. The reuse path bypasses the reducer entirely via reusedStoryValidationResult. This is the story's own defect one layer out: measuring one thing and asserting it about another, which is the same shape as F-010. Fix by measuring the fully serialised TestEvidenceData at the writer boundary, escaping and outer fields included, and applying the bounded fallback there, reuse path included.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-15T12:54:21.915Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-011",
+      "_hash": "f25be0eebe4e489a1f716089eae169df8f3b75438f2090e707cf0e4eb7312f8a",
+      "signatureTag": "missing|unknown|codex-host-verified",
+      "signatureTagSource": "auto"
     }
   ]
 }
