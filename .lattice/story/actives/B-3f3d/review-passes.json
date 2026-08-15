@@ -14650,6 +14650,211 @@
       },
       "readDiagnostics": [],
       "_hash": "6b757938a5162f58734f6fac3b7fff03749b8658005f329b43ab64bb631c9660"
+    },
+    {
+      "id": "B-3f3d:RP-231",
+      "agent": "lattice-review-concept",
+      "note": "RI-021 wave2 bounded concept saturation found no third distinct family on unchanged material. All timeout, ordinary completion, scheduler cancellation, and external interrupt code paths depend on the same killProcessTree boundary and lack a bounded separate-process-group descendant reconciliation; these are manifestations of canonical F072, not separate findings. Residual phrases saying five migrated reviewers in init-generated guidance, registry and handler comments, and the agent_prompt process-fact rationale are manifestations of canonical F073. Statements saying five active REVIEW lanes are a different and currently valid roster fact because the topology critic is a migrated reviewer definition but not one of the five ordinary active review lanes. No heavy tests or material writes were performed.",
+      "createdAt": "2026-08-15T18:58:18.230Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-293",
+      "envelopeId": "5bd79e751f42fcfb0da6c2a4a0a33d6b4ebefe0deb9366753329de64316b4858",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "f7c90eaa427b4463cb6c9c412b8b5a724bf8e0804a6e9fd0a1269909640c2c91"
+    },
+    {
+      "id": "B-3f3d:RP-232",
+      "agent": "lattice-review-quality",
+      "note": "RI-021 wave2 quality saturation on unchanged cutoff found zero distinct new families. Timeout, killProcessTree, separate process-group, and terminal publication gaps remain F072; all five-versus-six migrated reviewer residues remain F073. No story material changed since wave1 and no heavy tests were run.",
+      "createdAt": "2026-08-15T18:58:49.336Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-294",
+      "envelopeId": "c84ad0da2064e2bfdfea1022bfe1844644c1d32ee978512d7fe6a2f3914828bf",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "aeb31b2d81d066c9213d7ee8efe8ae5f409f3298b56534c24b1578ae0a62bb03"
+      },
+      "readDiagnostics": [],
+      "_hash": "9cee6221a2bd242c045a03d6a9841b3f19fcff756185e275829eed99890fac3a"
+    },
+    {
+      "id": "B-3f3d:RP-233",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-021 wave2 coverage saturation found no third distinct family. Timeout, normal completion, scheduler cancellation, and external interruption all reuse killProcessTree and their fixtures keep descendants in the original process group; missing deterministic detached or separate-PG descendant reconciliation remains the single canonical F-072 family. The six-reviewer runtime path is covered by exact prompt registry/baseline checks; the missing assertion over both lifecycle prose count occurrences remains canonical F-073, not a second runtime family. No tests, root suite, heavy concurrency, or material writes were performed.",
+      "createdAt": "2026-08-15T19:00:01.014Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-295",
+      "envelopeId": "b1ecb5a10a7ea957ef5cd7e549d1f4cc3a8cded9f95f86de72fdb63efec9659a",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "46b0b1cac12b289ab1322d7d318592c2e236f8e82b785a4682d9219fefa3271c"
+      },
+      "readDiagnostics": [],
+      "_hash": "3c982da82bb69cfd066db01c36818c98863f9bf7bee6f7ad4f6cc18589621f88"
+    },
+    {
+      "id": "B-3f3d:RP-234",
+      "agent": "lattice-review-docs",
+      "note": "RI-021 wave2 docs saturation found no third distinct family. The unchanged full diff still mechanically extracts 701 declaration names; review narrowed to the two finding-affected public-contract paragraphs. Test Runner Consolidation Plan promises member-process-group termination and terminal no-retry; escaped detached or separate-PG descendants across timeout/completion/cancellation/interrupt are manifestations of canonical F-072. Lifecycle Artifact Scope retains the five-versus-six contradiction while all three baselines identify six modular reviewers and topology critic; remaining count residues are canonical F-073. Statements about five ordinary active review lanes are a separate valid roster fact, not drift. No duplicate finding or material edit.",
+      "createdAt": "2026-08-15T19:02:20.834Z",
+      "reviewRound": "2026-08-15T18:27:36.976Z",
+      "reviewRunId": "B-3f3d:RR-296",
+      "envelopeId": "fb5d7e8b14e20b7aa23c004e4db10eb67cf70a1c835f6b22f6ce7bff2e664c10",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d8a671798868c7d90d4a1dceb650f5520bceb66a12777a26eee138da2571f49f"
+      },
+      "readDiagnostics": [],
+      "_hash": "01fe7f87cfb17548d0e81795119dacd64abbfbaa36091a96de3193c4119870dd"
     }
   ]
 }
