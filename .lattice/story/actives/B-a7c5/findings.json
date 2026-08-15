@@ -90,7 +90,7 @@
       "desc": "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts:501-524 F-005 regression check is non-discriminating: it writeFileSync()s the finish-decision record 3x but never git-commits it, then asserts currentMaterialHash(...) is unchanged. currentMaterialHash (core/evidence-freshness.ts) reads only `git ls-tree -r HEAD` (committed tree state) so an uncommitted write can never change it, WITH OR WITHOUT the RUNTIME_ARTIFACT_REGISTRY exclusion this fix adds. Empirically confirmed via a targeted repro against packages/main/dist with the dev-memory-finish-decision registry entry deleted: (a) write-only (this test's exact pattern) still reports materialHash unchanged even with the fix broken; (b) write+commit (the real regression scenario, matching production commit 1a4a58f9b3's manual sweep-commit and the reverted auto-commit draft) correctly shows materialHash unchanged WITH the registry entry and CHANGED WITHOUT it. The underlying production fix is architecturally sound (verified), but this specific smoke assertion provides zero protection against a future accidental removal/typo of the registry entry silently reintroducing the exact historical bug (delivery-check materialHash freshness breakage) this story already had to build-test-revert once to discover. Fix: git add+commit the finish-decision.json (the `git()` helper already exists in this file) before comparing materialHash.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T12:01:08.170Z",
@@ -98,7 +98,9 @@
       "reviewRunId": "B-a7c5:RR-011",
       "_hash": "bc46cbcf2029b60b952e51a43e9b761f55355702e2d7394e186314709dbb1143",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the assertion now actually commits the finish-decision file (git add + git commit) inside the test and checks currentMaterialHash across that commit, matching the real regression scenario (currentMaterialHash reads git ls-tree, i.e. committed state, so a write-only check could never discriminate). Verified discriminating power empirically: deliberately removed the RUNTIME_ARTIFACT_REGISTRY entry, rebuilt, confirmed the new assertion fails; restored the entry, rebuilt, confirmed all 79 assertions pass again.",
+      "resolvedAt": "2026-08-15T12:28:36.027Z"
     },
     {
       "id": "B-a7c5:F-007",
