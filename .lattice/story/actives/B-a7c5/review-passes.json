@@ -566,6 +566,29 @@
         "scanEscalationReason": null
       },
       "_hash": "94552a9a36f4014f84f0cccb816b5d27a4a2ac2c8bfbae4a10136a59810938a3"
+    },
+    {
+      "id": "B-a7c5:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 rebinding-only review. Confirmed via git show d3baf12167 that the only change since round 7 (passed cleanly on all 3 lanes) is a single-line --help description fix in command-catalog.ts. No functional/logic code changed. No blockers.",
+      "createdAt": "2026-08-15T15:49:50.902Z",
+      "reviewRound": "2026-08-15T15:48:49.148Z",
+      "reviewRunId": "B-a7c5:RR-023",
+      "envelopeId": "30089d55998a9b4076267ca6b9f53f87bca9d1b4da1376c4f3835164ed3eacca",
+      "writerSessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a7c5/background.md",
+          ".lattice/story/actives/B-a7c5/checklist.json",
+          ".lattice/story/actives/B-a7c5/plan.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a89d80763acc2c0dc3b72e2bad73ee1fe8203ca1eb32c94e57c70164959bc02"
     }
   ]
 }
