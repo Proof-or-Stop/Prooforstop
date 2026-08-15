@@ -133,6 +133,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ea7c84023ac9d9aaf6a58ce2f9cc8a135dc564af59dd69229e4c7ca18426797f"
+    },
+    {
+      "id": "B-3434:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Mutation-tested section 13 (the CHK-004 hand-off guard) in a disposable git worktree at HEAD d9a11a37d6, real npm build, real run. 1) Deleted the decision document -> AssertionError naming the missing path, exit 1. 2) Removed each of the 8 required substrings one at a time ('## What ships', '## What does not ship', 'writer-owned canonical boundary', 'packages/main/src/core/store.ts', 'Object.prototype', 'B-3434:F-033', 'B-3434:F-035', 'B-3434:F-036') -> each produces its own AssertionError naming exactly that substring, exit 1 every time. 3) Corrupted the Disposition line (changed 'does not' to 'DOES') -> strictEqual AssertionError comparing actual vs the pinned expected sentence, exit 1. 4) Inserted a second 'Disposition:' line -> AssertionError 'declares exactly one CHK-004 disposition (found 2)', exit 1. Restored the document between each mutation and reran clean to confirm PASS each time. Section 13 is a real guard: every one of the requested mutations is caught with a message naming the specific problem, not a generic failure. Disclosed hole in that guard (B-3434:F-037's id absent from the required-substring list): reproduced empirically -- redacting every 'B-3434:F-037' mention, and separately deleting only the deferred-table row for F-037, both leave validation-evidence-buffer-smoke: PASS (exit 0) unaffected. This is a real, verified gap, and it is already filed as B-3434:F-038 by the concept lane (open, low, non-blocking) with the same characterisation; my mutation test independently corroborates it rather than duplicating the finding. I concur with F-038's low/non-blocking assessment: it constrains a future document edit, not current behaviour. VALIDATION_EVIDENCE_SCALAR_CHAR_CAP: confirmed exercised, not a bare rename -- section 8's 'verdict-bearing scalar' case drives a 30 MiB summary string through safeScalarRead and asserts fileBytes < 4000 for the whole verdict-only record, which only holds because the cap stays in the hundreds; this is the same coarse-magnitude coverage the code had pre-refactor (no exact-boundary test existed before either, so no coverage was lost). Regression safety: re-ran 2 of the 4 round-8 mutation catches against a real rebuild at current HEAD. Reverting the 9d array guard (removing '|| Array.isArray(args.result)') -> caught, 'an oversized array reports withinBound false: true !== false'. Reverting snapshotPersistedRecord to return the live record instead of the JSON.parse'd copy -> caught, even earlier than expected, by the generic assertPlainJsonData check ('bound.record.volatileField: a value with toJSON can serialise differently... + function - undefined'). Both restored and reverified clean (PASS) afterward. 24 pinned selectors / CHK-005:edge:0: confirmed live output at current HEAD reads 'realistic 100-command artifact is unbounded and silent' with fileBytes=2520038, not the pinned 'artifact (1212174 bytes) is unbounded and silent' -- the waiver is real. Checked out the true pre-round parent commit (a586100e89~1 = 5fbe45cdde, the commit immediately before the CHK-004 outcome-B commit; note 41d3bd4794 is a later metadata-recording commit, not the parent) in the same disposable worktree, rebuilt, and reran: fileBytes=2520038 there too, same non-match. So the pin was already stale before this round and this round did not break it, confirming the commit's claim. verification_evidence_refresh_stale run directly (not assumed): 'No stale verification evidence for B-3434.' Nothing found this round blocks from the test-coverage lane.",
+      "createdAt": "2026-08-15T21:54:13.301Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-032",
+      "envelopeId": "0583cafbf3e40262ae89ff75a7129b036a98264d6aece53399d020ab19c437bc",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "07bbd022df9683e489003383487f909044de7a7a83475673bbd6d8e6604f2b06"
     }
   ]
 }
