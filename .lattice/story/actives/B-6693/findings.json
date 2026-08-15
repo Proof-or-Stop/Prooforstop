@@ -264,7 +264,7 @@
       "desc": "doc-code-drift: docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 state that persistent release-isolation failure marks the exact ticket mechanically reclaimable for a successor; the plan also says that failure is reported without replacing an original callback error. packages/main/src/core/validation-execution-lock.ts:486-514 explicitly allows markValidationCapacityTicketReleased to fail, leaving the ticket fail-closed and requiring filesystem repair. Lines 643-650 discard releaseError when the callback already failed, so that release failure is not separately reported. Update the docs to describe both marker-success recovery and marker-failure filesystem-repair branches, and state accurately that an original callback error takes precedence rather than claiming both errors are reported.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-15T11:38:52.215Z",
@@ -278,14 +278,18 @@
         "packages/main/src/core/validation-execution-lock.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3aa0f14bc3 makes the operator documentation match runtime behavior: marker-success permits mechanical recovery, marker-failure remains fail-closed and requires filesystem repair, and the original callback or wait error remains primary.",
+      "resolvedAt": "2026-08-15T12:36:39.820Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-008",
       "desc": ".lattice/story/actives/B-6693/checklist.json:62 and :357 still pin the focused/full verification selectors to exact `5 assertion groups` and `16 assertion groups`, but packages/main/src/tasks/validate-execution-lock-smoke.ts:1424 and :1438 now emit exact `13 assertion groups` and `24 assertion groups`. Reproduction on HEAD f6b8ba8: build PASS; focused outputs 13; full outputs 24; exact58 PASS. Because verification_evidence_refresh_stale re-executes each immutable pin through selector matching, these current commands cannot refresh the affected stale mechanical receipts: the selector is absent and those rows are demoted. Session brief already reports all 29 must-intent evidence rows stale; 24 capacity-smoke intents have obsolete selectors. Update the intent pins/selectors in DEV and re-run/re-record current mechanical evidence before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T11:41:41.495Z",
@@ -326,14 +330,18 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 2bd3249f5a added the managed strict verification pin schema; commit 9d18e3dc78 repaired all 24 obsolete 5/16 selectors to exact 14/25; every pinned command was reexecuted at the current material and verification_evidence_refresh_stale dry-run reports no stale evidence.",
+      "resolvedAt": "2026-08-15T12:36:40.877Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6693:F-009",
       "desc": "packages/main/src/core/validation-execution-lock.ts:623-626 — queued waiter abort/deadline cleanup still bypasses the hardened releaseValidationCapacityTicket path: it calls quarantineValidationCapacityCandidate once and ignores false. Under the same deterministic parent-directory permission fault covered for acquired-owner release, the waiter deadline is preserved but its published UUID ticket remains. Because holder.json names the current live PID and the heartbeat identity still matches, classifyValidationCapacityLock at lines 187-201 keeps that abandoned ticket active indefinitely; after the true owner releases, a successor reaches its own deadline without entering. Reproduced on HEAD f6b8ba8b876895cdc532b096397791d4f10f1d94: two tickets were present before chmod 0555; waiter returned queued-waiter-deadline with both tickets remaining; after owner release the waiter ticket remained; successor returned successor-deadline and successorEntered=false. Route published-ticket cleanup in the acquisition catch through the same bounded ownership-safe release/mark-reclaimable mechanism while preserving the original abort/deadline error, and add a queued-waiter cancellation plus isolation-failure regression. Current smoke coverage at packages/main/src/tasks/validate-execution-lock-smoke.ts:1214-1284 exercises only post-acquisition callback release.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T11:42:44.351Z",
@@ -370,7 +378,11 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 3aa0f14bc3 routes abort and deadline cleanup through bounded exact-UUID ticket release, preserves the original sentinel error, leaves the active owner untouched, and proves post-repair successor entry with no ticket leak in deterministic regressions.",
+      "resolvedAt": "2026-08-15T12:36:41.979Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
