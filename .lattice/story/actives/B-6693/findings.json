@@ -477,6 +477,119 @@
       "resolvedAt": "2026-08-15T13:52:26.824Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-014",
+      "desc": "doc-code-drift: docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 describe direct validate structured watchdog/deadline cleanup but omit the repaired terminal-classification boundary. packages/main/src/cli-engine.ts:1062-1125 deliberately separates structuredDoneResult (done_prepare/done_required_validate only) from structuredWatchdog (also validate), so direct validate keeps isCanonicalCommandFailure rather than inheriting DONE structured-result classification. Add that distinction so structured cancellation is not read as a change to validate stdout/exit semantics.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T13:54:48.209Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "30d69b45cc16fb75c85ead58b05d22c9821d894240274a51836627ed42bd1d3a",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-015",
+      "desc": "doc-code-drift: the capacity documentation at docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 omits the final retained proof boundary added for F-011/F-013. packages/main/src/tasks/validate-execution-lock-smoke.ts:913-994 now runs checked-in independent child-process stale-reclaim stress with maxConcurrency=1, zero overlap, and zero queue leaks; lines 1742-1774 define exact focused/full terminal contracts of 15 and 26 assertion groups. Document the cross-process regression and current exact 15/26 terminal/pin values so operator assurance does not silently rely on the weaker prior in-process-only or stale 14/25 proof.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-15T13:54:59.964Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1154b9b442595916262a5e569bbb8974e0ab6c8e8add03f2b1da7aa23c60e229",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-capacity",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-016",
+      "desc": "packages/main/src/tasks/validate-execution-lock-smoke.ts:892-907 runs/asserts 12 waiters only as Promise calls inside one Node process. The genuinely independent child-process cohort at :958 spawns `length: 8` and at :987 asserts exactly 8 starts. Thus the checked-in focused15/full26 smoke does not prove the required exact-12 cross-process/execution-context stress; both commands pass while this requirement remains absent. Change the child cohort to 12 and assert 12 process starts, maxConcurrency=1, zero overlap, and zero leaked queue artifacts. The new detached-generation and real CLI-watchdog assertions are discriminating against the prior implementation, but they do not substitute for the missing 12-process capacity stress.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:57:27.390Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ce13368848f25300c7516268e7f08d598f2712333fb20b5280dc9bad9cddd8c",
+      "files": [
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }

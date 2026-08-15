@@ -257,6 +257,52 @@
         "scanEscalationReason": null
       },
       "_hash": "9d41c43f09a37befe490c373edae1adc9196d8b09debcd4cb33b85091b3752f0"
+    },
+    {
+      "id": "B-6693:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass at edf38591f2: workspace and story ownership are generation-token bound; direct story-lock detached-ALS probe preserved maxConcurrency=1, same-token nesting, exact-owner release, and successor entry. Fixed global-to-story ordering and UUID ticket quarantine remain fail-closed. Direct validate receives only watchdog abort/deadline propagation while DONE result classification remains separate; derived verdict exposes no public cancellation fields. Build and focused 15-group smoke passed.",
+      "createdAt": "2026-08-15T13:59:15.596Z",
+      "reviewRound": "2026-08-15T13:52:04.519Z",
+      "reviewRunId": "B-6693:RR-022",
+      "envelopeId": "3e8693d9dbf6d434cf3b7cedcb35ba8c0bc28bf39d69e1a27b861b9ceaf268c2",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d94a0da42c763cf7ab6553e2f495b33c4b336042271ea2db062282ad0c8b6574"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b8af18b28526306f0fb250807bf40ef2fbe4425a1f17961f10f400c8fcc847f"
     }
   ]
 }
