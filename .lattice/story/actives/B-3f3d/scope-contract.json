@@ -517,10 +517,54 @@
       "phase": "DEV",
       "headHash": "9d251a380c815d542adef0fcde7655c56c512d37",
       "materialHash": "a18109f21a98bbc31d81e8ccbf91e7413b88dac5d832c76bbc6b8097c828e634"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary closure for TEST-discovered failures: establish the signed inventory prerequisite in the ProofStory fixture, approve the topology critic modular rollout with regenerated canonical baselines, and make the 47-test liveness aggregate acyclic with bounded five-worker scheduling that preserves the 300-second budget.",
+      "timestamp": "2026-08-15T18:23:42.331Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "package.json",
+        "packages/main/src/core/global-agents.ts",
+        "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "package.json",
+        "packages/main/src/core/global-agents.ts",
+        "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "packages/main/src/tasks/provider-codex-smoke.ts",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "a2d7c9dbe1b9b7f9d8486edf38d5987a5b816006",
+      "materialHash": "4126abc5d8e0170179c9fc12b07e9400016fb95811911f6a84c8a91e978e730e"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T14:23:05.268Z",
+  "updatedAt": "2026-08-15T18:23:42.331Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -618,6 +662,21 @@
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
-    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "package.json": "package.json",
+    "packages/main/src/core/global-agents.ts": "packages/main/src/core/global-agents.ts",
+    "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/provider-codex-smoke.ts": "packages/main/src/tasks/provider-codex-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs"
   }
 }
