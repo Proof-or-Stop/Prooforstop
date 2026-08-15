@@ -163,6 +163,93 @@
       "resolvedAt": "2026-08-15T11:20:42.571Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6693:F-005",
+      "desc": "F-002 remains incompletely resolved for no-story validate. packages/main/src/handlers/verifier.ts:1066-1073 collapses unresolved project-level Git resolution to projectRoot, then decides requireGitIdentity only from Boolean(args.story) or the physical existence of <handlerGitCwd>/.git. In a metadata-wrapper project that explicitly configures gitRoot, an invalid or transiently failed Git probe makes resolveProjectGitCwd return the non-Git metadata root; because args.story is absent and that wrapper has no .git, requireGitIdentity becomes false. packages/main/src/core/validation-execution-lock.ts:249-264 then deliberately falls back to the wrapper root instead of failing closed, so this official no-story validate can mint a capacity namespace different from a live validation under the actual git-common-dir. Mechanical reproduction against current dist with an existing non-Git configured-repo printed {configuredGitRoot:\"configured-repo\", workspaceRoot:\"<metadata-wrapper>\", requireGitIdentity:false, capacityPath:\"<metadata-wrapper>/.lattice/locks/validation-capacity.lock\", underMetadataWrapper:true}; calling validationCapacityLockPath(wrapper,true) on the same identity rejects as intended. This contradicts docs/requirements/decisions/testing-infra.md:55 and docs/CLI.md:907, which promise that expected/configured Git identity resolution fails closed. The focused 11-group contract still passes because packages/main/src/tasks/validate-execution-lock-smoke.ts:1193-1216 calls withWorkspaceValidationCapacity directly with requireGitIdentity:true; it never drives the no-story verifier handler through a configured-gitRoot resolution failure. Preserve the genuine non-Git fallback, but derive expected-Git from the configured workspace contract/resolution result (not only args.story or .git existence) and add a handler-level wrapper regression proving callback non-entry on unresolved configured Git identity.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T11:27:06.503Z",
+      "reviewRound": "2026-08-15T11:20:16.320Z",
+      "reviewRunId": "B-6693:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbb93fcc6bb9815793a6458667293e3f05646e4d4b422a7bde8b98f3393bd5a9",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/story-signed-workspace-resolution.ts",
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/CLI.md"
+      ],
+      "signatureTag": "adversarial|ts|remains-incompletely-resolved",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6693:F-006",
+      "desc": "quality-cleanup: packages/main/src/core/validation-execution-lock.ts:593 ignores the boolean returned by quarantineValidationCapacityCandidate during release. A deterministic chmod fault probe made renameSync fail after a successful callback: withWorkspaceValidationCapacity still returned callback-ok, left its numbered .ticket owned by the still-live PID, and a same-process successor hit workspace validation capacity wait deadline exceeded. This violates CHK-002:edge:0 release/eventual-success semantics and can stall every later official validation in a long-lived CLI/MCP host without any release error. Treat release isolation failure explicitly (while preserving an original callback failure) and add fault-injection coverage for failed release rename/quarantine cleanup.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T11:27:53.313Z",
+      "reviewRound": "2026-08-15T11:20:16.320Z",
+      "reviewRunId": "B-6693:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6693/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3fa28651884ba24df718007eb341101a6190365c72ec51f6c58f5022fd0a468a",
+      "files": [
+        "packages/main/src/core/validation-execution-lock.ts",
+        "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
