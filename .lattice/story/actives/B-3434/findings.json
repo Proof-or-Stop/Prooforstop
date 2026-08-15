@@ -76,7 +76,7 @@
       "desc": "Of the 24 bound selectors, two embed a numeric count despite the stated policy that pinned selectors must carry no count (per the identical boilerplate note on every verificationEvidence entry, and the B-9ff1 history of stranded count-bearing selectors). CHK-001:happy:0's 'commitImmutableMetadataTree commits a 1,400,000-byte staged blob' is safe: 1,400,000 is a literal baked directly into the section() title string in red-b3434-blob-buffer-ceiling.mjs (line 144), chosen once by the author and immune to drift from unrelated code changes -- it can only change if someone edits that literal string itself. CHK-005:edge:0's 'artifact (1212174 bytes) is unbounded and silent' is NOT safe by the same reasoning: 1212174 is validation-evidence-buffer-smoke.ts line 131's runtime-computed bounded.measuredBytes (JSON.stringify of a synthetic 100-command fixture), interpolated into the console.log via template literal. Any future change to the shape of commandResult/validationResult (e.g. adding a field for closer fidelity to the real evidence.json shape, or changing trimOutput's 12,000-char cap) will silently shift this byte count and break the pinned selector -- reproducing exactly the B-9ff1 failure mode this policy exists to prevent. Notably the same file demonstrates awareness of this exact risk two sections later: line 212's marker/JSON-contract selector and line 239's entry-cap selector both deliberately pick number-free tails ('JSON contract intact', 'a diagnostic count') specifically to dodge adjacent printed byte counts ('30036374-byte artifact bounded to 25143521 bytes, 49 marker(s)'), but that same discipline was not applied to line 131's '(1212174 bytes)' text. Recommend re-binding CHK-005:edge:0 to a number-free substring of the same output line, e.g. 'is unbounded and silent'.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-15T11:23:00.890Z",
@@ -88,7 +88,11 @@
         ".lattice/story/actives/B-3434/checklist.json"
       ],
       "signatureTag": "edge|ts|bound-selectors-embed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The unsafe pin could not be repaired and is permanently waived with full reasoning; the safe one was left alone as intended. CHK-005:edge:0 was pinned to (1212174 bytes), a runtime measurement of a fixture that did not model details. F-001's repair made that fixture model the producer correctly, so the same shape now measures 2487463 bytes. The number changed because the fixture became more truthful, not because behaviour regressed. Printing the old literal would publish a number the code no longer produces, and wiping the pin to re-pin it would defeat the mechanism that exists to prevent exactly that, so both escapes were refused. Every other section line is now a count-free sentence with measured numbers moved to an indented line beneath, so no future selector can bind to a runtime measurement. CHK-001:happy:0's 1,400,000-byte literal is untouched because it is a literal in the section title and cannot drift. A second class emerged during the repair and is worth separating: a count-free sentence is still editable prose, so the reworded section broke CHK-004:adversarial:1 without any number being involved; that phrase was restored verbatim and marked load-bearing in a comment naming its pin.",
+      "resolvedAt": "2026-08-15T11:55:19.851Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-005",
