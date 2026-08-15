@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-3434",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:2b558d68ebc0794c5a9ccaf316d9f0251f742fa0019f3c3fd8c7ecc59deb31a1",
+  "acceptanceBindings": [],
+  "diagnosticGaps": [
+    {
+      "code": "missing_acceptance_binding",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs."
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "createdAt": "2026-08-15T10:49:04.305Z",
+  "updatedAt": "2026-08-15T10:49:04.305Z"
+}

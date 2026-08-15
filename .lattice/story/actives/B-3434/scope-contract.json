@@ -19,12 +19,14 @@
   "protectedFiles": [],
   "explicitExcludes": [
     "packages/main/src/core/done-required-timeout-budget.ts",
-    "packages/main/src/cli-engine.ts"
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
-  "scopeChangeReason": "The two excluded files carry the separate fifteen-minute watchdog asymmetry, which is a real but distinct defect handled on its own; touching them here would blur two independent fixes. The decisions doc is allowed to be created because CHK-004's rationale branch must land somewhere committed rather than in a story artifact.",
+  "scopeChangeReason": "Three exclusions, each for a stated reason rather than convenience. The watchdog-budget files carry a separate config-derived-versus-generic-default asymmetry that two decision documents already record as an independently owned subsystem; merging it here would produce one unreviewable change out of two independent defects. The process-fact files are excluded per OQ-B3434-1: bounding the serialised artifact introduces no new process fact, and if an implementer finds otherwise that is a real expansion to raise explicitly. Separately recorded rather than silently ignored: the scope reviewer identified done-required-evidence.json, written by the doneRequiredCommands runner rather than by handlers/verifier.ts, as carrying the IDENTICAL per-command aggregate growth shape. It is deliberately not folded in - a bugfix story that repairs one artifact and redesigns another is two changes - but it is a genuine sibling and is filed as its own work so the same cliff is not rediscovered from the other side.",
   "acknowledgements": [],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-15T10:29:19.650Z",
+  "updatedAt": "2026-08-15T10:48:39.414Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -38,6 +40,8 @@
     "packages/main/tests/red/*.mjs": "packages/main/tests/red/*.mjs",
     "packages/main/src/tasks/*-smoke.ts": "packages/main/src/tasks/*-smoke.ts",
     "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
-    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }

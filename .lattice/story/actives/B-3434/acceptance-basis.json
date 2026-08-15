@@ -1,0 +1,457 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-3434",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:f29ee68e7b4b7245bca86e96aa86e9281da920529b79d1ab4ee3b3ba67719ba7",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/verifier.ts:sha256:c262c29cba2d8b012051458464f7ca5edd265b59918eabec8eb779e686460cb0",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/*-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+          ]
+        },
+        "resultDigest": "sha256:8976055c529983302ba1c2ac2c34e03de5a4f91f665f7811090bc925c77d4580"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
+          "source-file:packages/main/src/registry.ts:sha256:64ea207cf5a4f7dc91b715870b2a1e09775e59fbac0eb2a982d6e18c5e339fed",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:dd0292586206f955a8f1d9c0c56c861ddf138754d3bcf245fdc51533bafeeeab"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/*-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+          ]
+        },
+        "resultDigest": "sha256:e7cd6b70d713e32331b79fb344079c63189c160406a6546ec601c256985023f2"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-3434:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/*-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+          ]
+        },
+        "resultDigest": "sha256:ae888087691641a61a6bb068a8340a1b84fb83f91511f06e04a7dbe797c30a69"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:checklist:CHK-005",
+          "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "scope:file:lattice.config.json",
+          "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+          "scope:file:packages/main/src/core/validation-executor.ts",
+          "scope:file:packages/main/src/handlers/verifier.ts",
+          "scope:file:packages/main/src/tasks/*-smoke.ts",
+          "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scope:file:packages/main/tests/red/*.mjs",
+          "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/*-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+          ]
+        },
+        "resultDigest": "sha256:f9b13ba7c2540c3e464c2a2366f6a03f535f4b1cf5effe3f791939b7d3b13ab2"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "source file is unreadable or disappeared: packages/main/src/tasks/*-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:docs/requirements/decisions/validation-evidence-artifact-growth.md:uninspectable",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/core/done-prepare-generated-metadata.ts:sha256:12013e13c5f8717b3c0418eaded28ddbbc2cf30401a7be7bcf19868fc8c340a8",
+          "source-file:packages/main/src/core/validation-executor.ts:sha256:be9e7d2c028329acb3dde80f347378a168776eafed8e7454d89ebf013e678d64",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
+          "source-file:packages/main/src/handlers/verifier.ts:sha256:c262c29cba2d8b012051458464f7ca5edd265b59918eabec8eb779e686460cb0",
+          "source-file:packages/main/src/tasks/*-smoke.ts:uninspectable",
+          "source-file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts:uninspectable",
+          "source-file:packages/main/tests/red/*.mjs:uninspectable",
+          "source-file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs:uninspectable",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:dd0292586206f955a8f1d9c0c56c861ddf138754d3bcf245fdc51533bafeeeab"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/*-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/tests/red/*.mjs",
+            "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+          ]
+        },
+        "resultDigest": "sha256:48aca33761efe09c9ae13043e9372f2012fdd5c82003bd7645040f06e666826c"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:checklist:CHK-005",
+      "scope:file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "scope:file:lattice.config.json",
+      "scope:file:packages/main/src/core/done-prepare-generated-metadata.ts",
+      "scope:file:packages/main/src/core/validation-executor.ts",
+      "scope:file:packages/main/src/handlers/verifier.ts",
+      "scope:file:packages/main/src/tasks/*-smoke.ts",
+      "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "scope:file:packages/main/tests/red/*.mjs",
+      "scope:file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "source-file:closure:lattice.config.json",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/done-prepare-generated-metadata.ts",
+      "source-file:closure:packages/main/src/core/validation-executor.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/handlers/verifier.ts",
+      "source-file:closure:packages/main/src/tasks/*-smoke.ts",
+      "source-file:closure:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "source-file:closure:packages/main/tests/red/*.mjs",
+      "source-file:closure:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:snapshot_missing:inventory:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/*-smoke.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/*.mjs",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+      "snapshot-seal:snapshot_missing:source_file:docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/*-smoke.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/*.mjs",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+      "source file is unreadable or disappeared: docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "source file is unreadable or disappeared: packages/main/src/tasks/*-smoke.ts",
+      "source file is unreadable or disappeared: packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "source file is unreadable or disappeared: packages/main/tests/red/*.mjs",
+      "source file is unreadable or disappeared: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:678ea1a2da392f1359d634696ac5b9e143956f2c5bde980839eaad71e8675d11",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:966708e6ce67e647261c9aa8f2c65c6b7885cc0265836cd7a12d3d8fbeb55e7f",
+      "sourceSnapshotCount": 794,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/tasks/*-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/*.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/tasks/*-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/*.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        }
+      ],
+      "sealDigest": "sha256:2ae3f7154f31ae5a3bb4310b1f49f3fd334c20bc706c353cb097b4bf14632585"
+    },
+    "binding": {
+      "headHash": "7b4417476d9ec6fd3bc34dc1b88151a2f45cbc51",
+      "materialHash": "599998e6946c6f469f142172e747c46afc7fa06f80c37705570cac79133d4eed",
+      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopeCheckDigest": "sha256:6434953f0e67689fa7b36562291f70f565cf11f1381d8cb88f2a06e455d9b633",
+      "scopeContractDigest": "sha256:a6fb3f58e9845723491a1cafa4b2a1a516fdb14b8073f4c3a8640e8e35926e45",
+      "closureFilesHash": "sha256:4014d235887dd5cc9fd60f36f2fdb72f368901724b6bcc14e5f3bc4436664b93"
+    },
+    "receiptRef": "receipt:coverage-basis:B-3434:plan:5fb514b7939f8a7e",
+    "basisDigest": "sha256:94de7872fe02696a1eaf8441ccaad66c23ea2b5517f0d6154e3add4a7409cd23"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-3434:plan:5fb514b7939f8a7e",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-3434",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:94de7872fe02696a1eaf8441ccaad66c23ea2b5517f0d6154e3add4a7409cd23",
+    "topologyDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "scopeCheckDigest": "sha256:6434953f0e67689fa7b36562291f70f565cf11f1381d8cb88f2a06e455d9b633",
+    "scopeContractDigest": "sha256:a6fb3f58e9845723491a1cafa4b2a1a516fdb14b8073f4c3a8640e8e35926e45",
+    "headHash": "7b4417476d9ec6fd3bc34dc1b88151a2f45cbc51",
+    "materialHash": "599998e6946c6f469f142172e747c46afc7fa06f80c37705570cac79133d4eed",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "closureFilesHash": "sha256:4014d235887dd5cc9fd60f36f2fdb72f368901724b6bcc14e5f3bc4436664b93",
+    "sealDigest": "sha256:2ae3f7154f31ae5a3bb4310b1f49f3fd334c20bc706c353cb097b4bf14632585",
+    "workspaceIdentityDigest": "sha256:a1793511247e0fb06b27ffc00165654eac80ac78dad0bc8d1fbb33061433182d",
+    "signature": "qXN+5geWdD4B5FdeF1NDAjwP9gX7vltSWSJUfVT7EwEHrOruZgAB6VnJD3omq+hz1WipztQCZEvrzHjaShvcDA=="
+  }
+}

@@ -402,6 +402,74 @@
         }
       ],
       "_hash": "f55558eb834e9f01b0d619f4cb353b60ae74f413546faab03f29ee6ff4d1e0dc"
+    },
+    {
+      "timestamp": "2026-08-15T10:48:40.178Z",
+      "issueCount": 11,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every execFileSync blob and tree read in done-prepare-generated-metadata an explicit maxBuffer + Stop the catch from turning an unreadable blob into a silent digest mismatch and surface the real cause are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): State Machine/Gate, Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-3434\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the aggregate artifact is bounded in this story or handed to a named successor change - CHK-004 requires the decision to be made and shipped either way; What warning fraction of the ceiling CHK-001 sets the advisory should use, measured against that ceiling rather than any external default"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature done-required-evidence.json -- the separate DONE-required validation artifact written outside handlers/verifier.ts by the doneRequiredCommands runner (see done-full-test-gate-execution-plan.md 'Runner And Artifact State' / 'Evidence Data Model') -- serialises one receipt per configured required command and may share the same unbounded per-command-count aggregate-growth architecture that CHK-004 binds a disposition for only on test-evidence.json orphan-suspect: see decisions:done-full-test-gate-execution-plan.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        }
+      ],
+      "_hash": "3590501ca4e1ef7a43b4a05deb6b139a458b596391bc9cf25cbb3dc3eb11ef67"
     }
   ]
 }
