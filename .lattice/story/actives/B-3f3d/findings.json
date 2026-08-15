@@ -3164,7 +3164,7 @@
       "desc": "packages/main/src/core/review-run.ts:823-826,1421-1428 and scripts/verify-process-fact-contract.mjs:4316-4322 — MEDIUM incomplete F045 remediation, same kind-aware latest-run guidance family. AGENTS.md, story-lifecycle.md and testing-infra.md now correctly say that a current-round material/scope-fresh non-latest PASS remains admissible and only an open FINDING must use the latest lane run. However the runtime latestRunHint still tells an operator with a non-latest finding to `use the latest reviewRunId to resubmit finding_add/review_pass_set; do not reuse the old reviewRunId`. The call site is explicitly restricted to evidence.kind !== pass, so naming review_pass_set is false guidance and can recreate unnecessary run/pass churn even though the gate accepts the old fresh pass. This exact stale text was emitted by session_brief in RI-008. The new contract assertion checks only the three prose documents and cannot detect the runtime hint regression. Make the hint kind-specific (this path should instruct only finding_add/latest FINDING recovery), and extend the process-fact assertion or focused test to reject generic latest-run wording that includes review_pass_set. F042/F044 acceptance locking/FINALIZED recomputation and F046 exact-pass retry/conflict behavior otherwise pass their real handler smokes on a73142f.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T00:09:09.701Z",
@@ -3221,7 +3221,214 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "kind-aware-latest-run-guidance",
+      "signatureTagSource": "confirmed",
+      "resolvedBy": "F-047@b277f1e"
+    },
+    {
+      "id": "B-3f3d:F-048",
+      "desc": "packages/main/src/handlers/english-artifact-gate.ts:27-38,180-222, packages/main/src/handlers/story-create.ts:343-377, packages/main/src/handlers/checklist.ts:1190-1351, and packages/main/src/tasks/english-only-guards-smoke.ts:150-247 — MEDIUM distinct english-artifacts checklist-anchor recovery coverage gap. The REVIEW-to-TEST gate intentionally scans the complete checklist.json, and this Story proves that a CJK relatedDocs anchor such as AGENTS.md#流程事实双层契约 is a blocking artifact line. But storyCreateAuthoringFields scans checklist title/context/userSees only, so relatedDocs can enter without shift-left refusal; checklist_update permits relatedDocs replacement in DEV, providing the supported non-scope recovery path. Existing English smokes cover generic plan.md metadata, title/context authoring refusal, hook warnings and English punctuation, but never the real sequence: checklist relatedDocs anchor triggers english-artifacts failure, DEV checklist_update replaces only that anchor, rerun passes while frozen title/context and 54 verification intents/evidence remain unchanged. Add a real handler/preflight regression for that fail-to-supported-recovery-to-pass sequence and document the exact recovery command; do not force INIT reopen for a mutable relatedDocs anchor.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T01:01:27.539Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-117",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": "The live REVIEW-to-TEST failure required tracing checklist.json whole-file scanning, the omitted relatedDocs authoring field, the DEV-mutable checklist_update recovery path, and all focused English-only smokes/docs to distinguish a new recovery family from generic CJK coverage.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "db031ec5ffdccd09b8d95b44f011b251dd84334f1df6ad82cade9b212fb3d872"
+      },
+      "readDiagnostics": [],
+      "_hash": "29d2f98e500eb9842434ccc792359b093fa8be45f2518fda4749711de63b54f1",
+      "files": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/review-preflight.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/tasks/english-only-guards-smoke.ts",
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "english-artifacts-relateddocs-recovery",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-049",
+      "desc": "packages/main/src/handlers/english-artifact-gate.ts:29-38,202-215; packages/main/src/handlers/story-create.ts:340-374; packages/main/src/handlers/checklist.ts:1189-1207,1348-1354; packages/main/src/core/command-policy.ts:171-173; packages/main/src/tasks/english-early-check-smoke.ts:162-198 — HIGH distinct framework admission/gate mismatch that forces late lifecycle recovery. REVIEW→TEST scans the entire checklist.json and currently reports checklist.json:328 (`AGENTS.md#流程事实双层契约`), but storyCreateAuthoringFields checks only checklist title/context/userSees and omits relatedDocs, while checklist_add/update have no assertEnglishAuthoringText admission at all. The existing early smoke passes because it covers only title/context and never relatedDocs or later checklist writers. Therefore CJK metadata can be accepted and frozen through PLAN/DEV, survive all four REVIEW lanes and quorum, and fail only at REVIEW→TEST. checklist_update is command-policy restricted to INIT/PLAN/DEV, so REVIEW cannot repair the rejected metadata in place and must complete a new finding inventory and remediation DEV cycle. This is not an unrecoverable permanent deadlock because the inventory receipt can authorize DEV, but it is a distinct fail-late framework correctness/efficiency defect. Apply the same canonical English-authoring predicate to every author-controlled checklist field the final gate scans (including relatedDocs, excludes and nested authored prose as policy intends) at story_create/checklist_add/checklist_update before persistence; add real CLI smoke cases proving CJK relatedDocs is rejected side-effect-free at create and update, and English replacement succeeds without weakening the final fail-closed scan.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T01:01:41.026Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-115",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "17599d41a437609ee8f2b93016f8f2dd35cb22cb48966dfa71bc842629e2ec09"
+      },
+      "readDiagnostics": [],
+      "_hash": "968ab8ee505739b83b285fd25d44e316ab3875c61a740c29c49a51c5232b3c1d",
+      "files": [
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/tasks/english-only-guards-smoke.ts"
+      ],
+      "signatureTag": "english-artifact-writer-gate-coverage-gap",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-050",
+      "desc": "packages/main/src/handlers/story-create.ts:340-374, packages/main/src/handlers/checklist.ts:1012-1048,1189-1207, packages/main/src/handlers/english-artifact-gate.ts:29-38, and packages/main/src/core/command-policy.ts:171-173 — HIGH distinct late English-artifact/recovery trap. A mechanical runEnglishArtifactGate on the unchanged current cutoff returns ok=false solely for checklist.json:328 (`AGENTS.md#流程事实双层契约`), while `git log main..HEAD` contains no CJK. The shift-left storyCreateAuthoringFields contract checks title/description/background/checklist title/context/userSees but omits relatedDocs, and checklist_add/checklist_update accept relatedDocs without the shared English authoring predicate. The CLI can therefore persist an author-controlled value that the later REVIEW→TEST english-artifacts gate rejects. Once in REVIEW, checklist_update is phase-blocked, so the supported repair requires recording a blocking finding, completing/finalizing the inventory, consuming REVIEW→DEV remediation authority, and only then updating relatedDocs in DEV; recover_evidence cannot repair author prose. Add same-predicate author-time validation for every author-controlled field scanned later (at minimum relatedDocs on story_create/checklist_add/checklist_update), add a round-trip smoke proving accepted author input cannot fail the later gate, and expose/document an exact supported recovery for already-persisted stories without direct metadata edits.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T01:03:02.852Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-116",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/recover-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "59d1cb9d132d1534e6a9dcc7a0d23556e777d95f4cdcded553263d00b1846bce"
+      },
+      "readDiagnostics": [],
+      "_hash": "58740d8432f1057eb3d4c89077d805b1a0f75c84ee1b66d295ab780e898c714d",
+      "files": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/english-artifact-gate.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/recover-evidence.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }

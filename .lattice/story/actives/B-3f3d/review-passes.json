@@ -5956,6 +5956,435 @@
       },
       "readDiagnostics": [],
       "_hash": "8d81645620f817a97482147eb313494cd531156046759deb69447119d11fcc07"
+    },
+    {
+      "id": "B-3f3d:RP-080",
+      "agent": "lattice-review-docs",
+      "note": "RI-010 recovery wave1 docs review passed after extracting 9 English-gate and checklist-writer symbols and comparing 14 focused operator paragraphs. No distinct documentation family exists beyond the concurrently registered F048/F049 overlap: both describe the same fail-late english-artifacts checklist relatedDocs admission and supported DEV recovery family. Current docs identify the final gate and general checklist_update lifecycle, but omit the exact anchor-only recovery command already requested by F048/F049; adding another docs finding would duplicate that family.",
+      "createdAt": "2026-08-15T01:02:29.268Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-118",
+      "envelopeId": "447390d5782cda27e5bb174bed7411c42b4eaa16a0a838f347febbf770c20e8b",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "db031ec5ffdccd09b8d95b44f011b251dd84334f1df6ad82cade9b212fb3d872"
+      },
+      "readDiagnostics": [],
+      "_hash": "def614cf6f10197ea6e9c5e2274db1e6cbbc518dd63e5df0cabdc95b25e6bb0f"
+    },
+    {
+      "id": "B-3f3d:RP-081",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-010 wave1 completeness critic PASS. Owner mechanically confirmed all four required lanes terminal on unchanged material 66dec0. Full finding records show current raw exactly F048/F049/F050. All three cite the same canonical mechanical fact: english-artifact gate scans whole checklist.json and rejects the CJK relatedDocs anchor at line 328, while storyCreateAuthoringFields omits relatedDocs and checklist_add/update omit the shared English authoring predicate; REVIEW phase prevents direct checklist_update recovery and forces inventory-to-DEV remediation. F049 is canonical because it captures writer admission, final gate, phase recovery and missing CLI smoke in one evidence-complete family; F048 is the test-coverage/recovery-test projection and F050 is the concept/recovery-path projection. No raw finding is omitted and no distinct second family exists.",
+      "createdAt": "2026-08-15T01:05:18.627Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-119",
+      "envelopeId": "797994c2638d5c5d33700694e2ad724961b675315fbfe3a45b674b7e713e4dc0",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "17599d41a437609ee8f2b93016f8f2dd35cb22cb48966dfa71bc842629e2ec09"
+      },
+      "readDiagnostics": [],
+      "_hash": "28a5980cf4acb383c327a58b5757cc1ac957e5553a1c54fc544f5e35746894c2"
+    },
+    {
+      "id": "B-3f3d:RP-082",
+      "agent": "lattice-review-concept",
+      "note": "RI-010 wave 2 unchanged-cutoff saturation: cross-family scan found no distinct concept finding beyond canonical F049. F048 and F050 are duplicate descriptions of the same checklist relatedDocs English admission-versus-REVIEW-to-TEST gate mismatch. Adjacent unchecked author-controlled metadata writers are the same admission family; the commit-message branch has a separate warn-before-commit surface and ordinary Git correction path, not a new metadata-recovery defect on this cutoff.",
+      "createdAt": "2026-08-15T01:08:16.478Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-120",
+      "envelopeId": "12cdf4818cb97afb9e80bf32e800d9f90923b1233cf7c48b484541a96baeee8d",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/hooks/english-only-guard.cjs",
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/decision.ts",
+          "packages/main/src/handlers/plan.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/understanding.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "59d1cb9d132d1534e6a9dcc7a0d23556e777d95f4cdcded553263d00b1846bce"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f45acaffa59493ef0f6d2aa415316bf8bd9407258441ef94281a1dd58c674f5"
+    },
+    {
+      "id": "B-3f3d:RP-083",
+      "agent": "lattice-review-quality",
+      "note": "RI-010 wave 2 saturation found no distinct family beyond canonical F-049. Rechecked the final English artifact scan against story_create, checklist_add, checklist_update, command policy and both English smoke suites; the uncovered relatedDocs/later-writer path is wholly carried by F-049, while existing smokes pass and expose no separate correctness root.",
+      "createdAt": "2026-08-15T01:08:41.003Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-122",
+      "envelopeId": "1f2cc3441c0982acd199496f26a307cc9250be880fca3896de519819f0361a16",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1000
+        },
+        "digest": "35465fb3a466be5eadf8cf6593cf58e45bd2ff76cf64cdf9dbc19ae32d1cbe81"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5944885f146551b5e14c2ee089a3bef6baac669c21dd52c728716dd2195c802"
+    },
+    {
+      "id": "B-3f3d:RP-084",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-010 wave2 saturation coverage passed: 54/54 must intents retain current mechanical PASS evidence, with zero gaps, failures, or waivers. Focused inspection found no distinct coverage family beyond canonical F049; F048 and F050 are recovery/test manifestations of the same checklist relatedDocs English admission versus final-gate mismatch, so another finding would duplicate the frozen inventory family.",
+      "createdAt": "2026-08-15T01:11:03.637Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-121",
+      "envelopeId": "2abd91873f8649f175d8febe339d582bd9f55c321fd849337ba4d6cc69af580b",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "70cf91a85062ea59cec462e608ad71c926187d86d2669cf9479588b850fb5a33"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5ce5f9b73f04b57649efb8bd89f35911186044b64067e90e3b7d9ae672e3d47"
+    },
+    {
+      "id": "B-3f3d:RP-085",
+      "agent": "lattice-review-docs",
+      "note": "RI-010 wave2 docs saturation passed after rechecking the unchanged-cutoff 9-symbol English gate/checklist writer set against 14 focused operator paragraphs. No distinct documentation family exists beyond canonical F049: exact anchor-only DEV recovery wording, recovery regression coverage, and writer admission are manifestations of that same checklist relatedDocs English admission-versus-final-gate mismatch; F048/F050 are duplicates, so another docs finding would duplicate the canonical family.",
+      "createdAt": "2026-08-15T01:12:14.924Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-123",
+      "envelopeId": "8dd5c24ad52e4ca700fae5dbf5aca75b242bada8e18c2956071e3f2b41e63bce",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 9,
+          "tokenCount": null
+        },
+        "digest": "157bf428cf8de4e9ba29f179723046be5e0ec76b61546e857fc73bdb24df3be5"
+      },
+      "readDiagnostics": [],
+      "_hash": "704157cf3023e5cc0d101e698d4a20f91e8bceade2d0c6eea66dc6c6fa2a68ba"
+    },
+    {
+      "id": "B-3f3d:RP-086",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-010 wave 2 completeness critic pass: owner mechanically confirmed all four required lanes have current terminal passes, the fresh critic basis reports no finding deltas, current raw/new verified findings are zero, and historical F-049 family remains preserved from wave 1. Empty current dispositions are therefore required.",
+      "createdAt": "2026-08-15T01:14:06.924Z",
+      "reviewRound": "2026-08-15T00:47:00.337Z",
+      "reviewRunId": "B-3f3d:RR-124",
+      "envelopeId": "5b4b973e1717e39a30194f880673cf656c5b5cbfc785fcd6f5f17def9a80e710",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 4200
+        },
+        "digest": "cc90fbfe643d17a3c5ce4c5624217c22094aea2579ca086ff5591bd255cc9c00"
+      },
+      "readDiagnostics": [],
+      "_hash": "437ca4e38ca276dbc4f573245ec5cb41c92b69eab8d579aef6305fb01a784ae8"
     }
   ]
 }

@@ -325,7 +325,7 @@
       "title": "Enforce the OPEN-epoch material mutation barrier at every authoritative write boundary",
       "context": "While an epoch is OPEN, reject edits or commits that change source, tests, verifier, workflow policy, prompt contract or other review-subject material. Prompt guidance is insufficient: handler admission, Codex or Claude mutation hooks where supported, Git or commit checks, finding and pass binding, and lifecycle transitions must consume the same epoch fact. Revalidate the cutoff before every receipt, finalization and transition. Any unmediated material drift fail-closes the epoch to INVALIDATED, makes prior verdicts advisory only, and status reports the changed lineage plus an exact recovery command: cancel and start a fresh epoch or return to DEV. Explicit cancel preserves unfinished verdicts only as advisory history.",
       "relatedDocs": [
-        "AGENTS.md#流程事实双层契约",
+        "AGENTS.md",
         "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/guide-scope-guard.md"
