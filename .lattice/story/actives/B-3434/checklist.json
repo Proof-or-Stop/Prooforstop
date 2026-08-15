@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Give every execFileSync blob and tree read in done-prepare-generated-metadata an explicit maxBuffer",
       "context": "isolatedBlobHash reads a staged blob with execFileSync and no maxBuffer, so Node's 1 MiB default applies and a larger blob throws ENOBUFS. Audit the whole module for sibling helpers reading blob or tree content the same way - isolatedGit and treeBlobHash are the likely candidates - and give each an explicit generous maxBuffer rather than fixing only the one observed to fail.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-15T11:09:39.502Z",
-      "endTime": null,
+      "endTime": "2026-08-15T11:09:40.313Z",
       "verificationIntent": {
         "happy": [
           {
@@ -40,6 +40,13 @@
         "test": [
           "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "19bd179941b2ec6bfa4632d6d2940746abf204e18acf38df13a69261c6c95dba",
+        "storyFilesHash": "742ae5f79b604a6426e8456ef0f9f21aa0fedf1f4ea03db0c2b1c944e61012cf",
+        "headHash": "d6195c4dd371a2854cc878b1289ddf7926243f26",
+        "attestedAt": "2026-08-15T11:09:40.491Z",
+        "materialHash": "e4c3509c7da73dda3704a5b9065557d6cd171d41f98421b93ae0d917681ed5e3"
       }
     },
     {
