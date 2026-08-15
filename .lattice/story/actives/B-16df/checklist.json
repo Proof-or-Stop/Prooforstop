@@ -235,123 +235,71 @@
           {
             "id": "H-001",
             "desc": "Configured timeoutMs flows to runSingleAllowlistedCommand: build succeeds (npm --prefix packages/main run build) and CHK-001 RED case now passes (node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0). The 700ms-configured command that sleeps ~1.5s yields timedOut===true and code===124, proving the config override was threaded through all the way to the spawn.",
-            "type": "cli",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "cli"
           },
           {
             "id": "H-002",
             "desc": "All 4 call sites route through the single shared resolvePinnedCommandTimeoutMs helper. Diff of checklist.ts shows exactly 4 call sites (~lines 1557, 1648, 1779, 1858) changed from (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }) to include timeoutMs: resolvePinnedCommandTimeoutMs(root, command). No duplicated matching logic exists outside the one helper.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "H-003",
             "desc": "validation-executor.ts and verifier.ts are byte-for-byte unmodified: git diff HEAD -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts produces empty output. resolveCommandTimeoutMs, runValidationCommand, executeValidationPlan, and configuredValidationCommands are all reused read-only.",
-            "type": "cli",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "cli"
           },
           {
             "id": "H-004",
             "desc": "Unmatched commands preserve the 270s default. resolvePinnedCommandTimeoutMs returns match?.timeoutMs. When no configuredValidationCommands entry matches by exact {command,args}, match is undefined so the return is undefined. This feeds into runSingleAllowlistedCommand options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000ms) at line 595, preserving today s behavior for unconfigured commands.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           }
         ],
         "edge": [
           {
             "id": "E-001",
             "desc": "Bare-string config entries (no args/timeoutMs object) do not inject a spurious timeout. configuredValidationCommands handles bare strings via commandFromString which never sets timeoutMs. resolvePinnedCommandTimeoutMs finds a match but match.timeoutMs is undefined, so it returns undefined and runSingleAllowlistedCommand falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. No behavioral change for bare-string configured commands.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "E-002",
             "desc": "Parsing parity between tokenizeCommandString (used by parseAllowlistedCommand on the pinned command) and splitShellWords (used by commandFromString on bare-string config entries). For allowlist-legal commands (no shell metacharacters — blocked by VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and SHELL_META_RE), both tokenizers produce identical {executable, args}. Verify no divergence for quoting or whitespace in allowlist-legal commands.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "E-003",
             "desc": "Shell-style config entries (shell:true) cannot false-positive-match pinned commands. configuredValidationCommands sets shell:true and stores the entire raw string in .command with empty .args for entries containing shell metacharacters. parseAllowlistedCommand rejects shell metacharacters via the allowlist. Therefore no pinned command can ever have an executable matching a shell-style entry. The strict {command,args} match correctly returns undefined.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "E-004",
             "desc": "Config entry with timeoutMs:0 or negative value. configuredValidationCommands passes through typeof entry.timeoutMs === number entries verbatim. resolvePinnedCommandTimeoutMs returns that value. runSingleAllowlistedCommand sets options.timeoutMs to 0 (not nullish). But resolveCommandTimeoutMs (line 76) rejects non-positive values and falls back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS. The existing safety net handles this — no new vulnerability introduced.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "E-005",
             "desc": "Import does not create a circular dependency. tsc build succeeds (npm --prefix packages/main run build). Import graph is one-way: checklist.ts imports from verifier.ts (new edge for configuredValidationCommands) and from validation-executor.ts (existing edge, now also parseAllowlistedCommand). Neither verifier.ts nor validation-executor.ts imports from checklist.ts.",
-            "type": "cli",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "cli"
           }
         ],
         "adversarial": [
           {
             "id": "A-001",
             "desc": "Attacker crafts a pinned command with extra whitespace or quoting to evade timeout matching. parseAllowlistedCommand normalizes via tokenizeCommandString (strips quotes, collapses whitespace). configuredValidationCommands normalizes via splitShellWords (identical behavior for allowlist-legal inputs). Both produce the same canonical {executable, args} for equivalent commands. Extra whitespace or redundant quoting is stripped during tokenization — an attacker cannot use formatting tricks to dodge a configured timeout because matching operates on parsed tokens, not raw strings.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "A-002",
             "desc": "Attacker pins a command sharing only the executable (same node binary, different args) to steal a high-timeout config entry budget. resolvePinnedCommandTimeoutMs matches by strict equality on BOTH c.command === executable AND full args array (length + element-wise ===). A command sharing only the executable but differing in any single arg returns no match, falling back to the 270s default. CHK-003 adds explicit regression coverage for this disambiguation case.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "A-003",
             "desc": "Attacker modifies lattice.config.json to inject a very large timeoutMs hoping to hang evidence collection indefinitely. Not a new attack surface — lattice.config.json is already trusted project configuration (same trust boundary as validate.commands used by lattice validate). resolveCommandTimeoutMs already clamps to MAX_NODE_TIMER_DELAY_MS. The fix reuses the identical code path (runValidationCommand -> resolveCommandTimeoutMs) that already enforces this ceiling. No new unbounded timeout vector.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "type": "logic"
           },
           {
             "id": "A-004",
-            "desc": "TOCTOU: config changes on disk between resolvePinnedCommandTimeoutMs read and runSingleAllowlistedCommand execution. Both calls happen in the same synchronous-then-await sequence. configuredValidationCommands reads lattice.config.json synchronously (loadConfig). The resolved timeoutMs is captured in a local variable before the async spawn. This is identical to the existing race window in the lattice-validate path. No new TOCTOU risk introduced beyond what already exists.",
-            "type": "logic",
-            "verification": {
-              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
-              "selector": "validate-command-timeout smoke passed: 27 assertions"
-            }
+            "desc": "TOCTOU architectural claim confirmed by direct source reading (not by a dynamic race-simulation test, since a single deterministic run cannot demonstrate a race's absence): resolvePinnedCommandTimeoutMs and runSingleAllowlistedCommand's call sites in checklist.ts read config synchronously via loadConfig then capture the resolved value in a local variable before the async spawn - byte-for-byte the same pattern as the pre-existing lattice-validate path (runValidationCommand -> resolveCommandTimeoutMs), independently confirmed by two REVIEW-phase reviewers reading the actual source.",
+            "type": "logic"
           }
         ]
       },
