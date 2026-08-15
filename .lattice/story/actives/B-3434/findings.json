@@ -527,6 +527,24 @@
       "resolvedAt": "2026-08-15T13:43:48.739Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-026",
+      "desc": "NEW, my own discovery, not from any cross-host source. boundPersistedValidationEvidence (core/validation-executor.ts) is documented as 'Total by construction: every serialisation goes through safeJsonStringify, so a cyclic, BigInt or throwing-getter input yields the bounded fallback or a refusal rather than an exception.' This is false for the fallback-construction call site itself. The reduction attempt (boundValidationEvidenceOutput + measurePersistedEvidenceBytes) is wrapped in try/catch, but the line immediately after that catch block -- const fallbackRecord = args.buildRecord(verdictOnlyRecord(args.result, measuredBytes)) -- sits OUTSIDE the try/catch. verdictOnlyRecord reads record[key] for each of the six VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS (provider, status, allPass, allPassed, failureKind, summary) via plain property access with no guard. I reproduced this against the built dist (packages/main/dist/core/validation-executor.js) with three separate hostile inputs, each throwing uncaught out of boundPersistedValidationEvidence itself: (1) { allPass: true, get status() { throw new Error(...) } } -- throws 'hostile status getter boom', stack trace shows the throw crossing verdictOnlyRecord then boundPersistedValidationEvidence with nothing catching it; (2) the same shape with get summary() throwing; (3) a Proxy({}, { get() { throw ... } }) as the whole result. All three throw uncaught. I distinguish this from the validation-evidence-buffer-smoke's own throwing-getter fixture (section 9, 'summary' getter that only throws when read>2): I traced the actual read count for that fixture through the real code path and it is read exactly twice (once in boundPersistedValidationEvidence's initial safeJsonStringify(args.result), once again inside boundValidationEvidenceOutput's own safeJsonStringify) before the object's small overall size triggers the early-return (non-reduction) branch, which never reaches verdictOnlyRecord at all -- so the smoke's own fixture, by construction, cannot exercise the gap I found, and does not catch it. This is not reachable via either current production caller (persistStoryValidationEvidence, reusedStoryValidationResult both build plain, non-adversarial objects), matching the exact reachability profile of the original F-015 this commit was fixing -- which this story's own earlier findings (F-001, F-008) rejected as sufficient basis for trusting a stated postcondition, and which is why F-015 itself was severity high despite the same caveat. Fix direction: move the const fallbackRecord = ... line inside the existing try block (or wrap verdictOnlyRecord's own body in a try/catch that degrades to the fixed VALIDATION_EVIDENCE_VERDICT_ONLY_RECORD_KEYS-only record using safe scalar coercion with no property reads that can throw uncaught, e.g. reading via Object.getOwnPropertyDescriptor + try/catch per key, or simply wrapping the whole verdictOnlyRecord call).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T13:44:07.604Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-016",
+      "_hash": "cf0f2f160a5e862333e3a4ac47b11ee97fcd36ae1f68aef9ed01ca6a8e8e6b00",
+      "files": [
+        "packages/main/src/core/validation-executor.ts"
+      ],
+      "signatureTag": "adversarial|ts|discovery-cross-host",
+      "signatureTagSource": "auto"
     }
   ]
 }
