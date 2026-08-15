@@ -5079,6 +5079,616 @@
       },
       "readDiagnostics": [],
       "_hash": "b597b6a32020b702a7ac4bf29c338b88adffee888e54c9ffd8c6f5dca30da86a"
+    },
+    {
+      "id": "B-3f3d:RP-066",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-009 wave1 coverage passed on frozen cutoff 132e35 with no distinct new family. F047 precisely captures the remaining regression boundary: latestRunHint is reached only for non-pass evidence yet still names review_pass_set, while the process-fact verifier asserts only prose documents and has no runtime-hint negative assertion. Repository search found no separate occurrence family beyond generic hints that are valid for absent, round-mismatched, material-stale, or workspace-invalid evidence. Existing checklist remains 54 of 54 must evidence passing with zero failures and waivers.",
+      "createdAt": "2026-08-15T00:12:19.644Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-103",
+      "envelopeId": "f7765dbfbb6495ebf51d30cfb3e7e1a5bfd385ffe6ea48f5f02359965c096ee2",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d6351a7b4cfa9e2a46bdad6625bda1ad0efd22616501a728c3ab223d206205a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3551f900901773529565ad9d910e913af15abf23df02fd462026106ad335b85"
+    },
+    {
+      "id": "B-3f3d:RP-067",
+      "agent": "lattice-review-concept",
+      "note": "RI-009 wave 1 exhaustive concept discovery on unchanged cutoff 132e35 found no distinct family beyond baseline F047 in the F045 kind-aware latest-run guidance family. Adjacent ProofStory acceptance writers are phase-bounded or share the inventory-first lock; FINALIZED consumption recomputes the complete semantic subject. Exact pass retries reuse one signed RP, conflicting semantics fail closed, pass-only conversion shares that writer, and historical duplicate terminals fail closed. No additional acceptance, terminal-idempotency, scope, or ordering bypass was found.",
+      "createdAt": "2026-08-15T00:12:37.146Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-102",
+      "envelopeId": "f5859a592672e1e09fcd3760788da673c1bab211ee71e122943480c564276a96",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "73ba5c67cd9833d5bb45b395abda3680374e4d16c0218a071e42c85f68b82376"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b27a7a7d216c71e7be5b3197a273c2fcd7b4affebac3cb11b16832c7db0516d"
+    },
+    {
+      "id": "B-3f3d:RP-068",
+      "agent": "lattice-review-docs",
+      "note": "RI-009 wave1 docs review passed after extracting 6 recovery-hint and evidence-kind symbols and comparing 12 focused authoritative paragraphs. F047 is the single documentation-guidance family: the prose truth sources are already kind-aware, while latestRunHint alone wrongly tells a FINDING-only call path to resubmit review_pass_set and the current contract assertion omits that runtime string. Other generic recovery hints correctly apply to absent, round-mismatched, material-stale, or workspace-invalid evidence, so they are not a distinct inconsistency.",
+      "createdAt": "2026-08-15T00:13:21.072Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-104",
+      "envelopeId": "158d5ec3c9feffcbddb5ef2a941b6a8ab78a1118ea8a9f14526d05ddf9282e14",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d6351a7b4cfa9e2a46bdad6625bda1ad0efd22616501a728c3ab223d206205a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "459cdf9e6cae0836534d41affb774d7bc137bccfc657e2af1d87c0a29e9e4fcc"
+    },
+    {
+      "id": "B-3f3d:RP-069",
+      "agent": "lattice-review-quality",
+      "note": "RI-009 wave1 quality PASS: reviewed F047 runtime latest-run hint and adjacent kind-aware review-run enforcement/idempotency. F047 remains the known guidance-family defect; no distinct new verified family found. Source and decision evidence confirm deliberate fail-closed semantics: material/scope-fresh non-latest passes remain admissible, while open findings on non-latest runs remain visible as stale_run rather than being hidden. finding_add write admission preserves such findings and collectReviewerEvidenceState blocks them, so this is not an authority bypass or a separate loss-of-finding defect. node scripts/verify-process-fact-contract.mjs passed. npm run test:flow-stability-smoke reached an unrelated acceptance-basis partial-vs-complete assertion before completing the suite, so it is not claimed as passing evidence for this lane.",
+      "createdAt": "2026-08-15T00:14:10.711Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-101",
+      "envelopeId": "3d4761934b0890342b24b3a45c7ffcd82cad97e68ee50494166b64ade15aeaef",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "6bc4f951afed068fb8df16ce86b4009255c4ead7e8bb0047fc69d9cb0005d727"
+      },
+      "readDiagnostics": [],
+      "_hash": "98c57a41391a1b73e7402ef5afb48efdf056598f5ebd0d9b6c2b8774daea5b27"
+    },
+    {
+      "id": "B-3f3d:RP-070",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-009 wave1 completeness critic terminal PASS. Mechanically confirmed all four required lanes are terminal on the frozen cutoff via owner snapshot: RR101/RP069 quality, RR102/RP067 concept, RR103/RP066 coverage, RR104/RP068 docs. Current canonical raw inventory contains exactly F047 as the evidence-complete runtime-guidance drift: review-run.ts latestRunHint incorrectly tells a stale finding path to resubmit finding_add/review_pass_set using the latest run even though kind-aware policy preserves material/scope-fresh non-latest passes. F047 is one distinct verified family, not a duplicate of historical resolved F045 because F045 covered docs drift while F047 is the runtime diagnostic and contract-check omission. No raw finding is omitted; critic disposition will bind F047 after owner verifies this pass.",
+      "createdAt": "2026-08-15T00:17:16.099Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-105",
+      "envelopeId": "400e91f42cb22403085b2df60ff746730b160376a243f1be14d15313df3f853e",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "1d3cf6534145eb71a280393dd4a30c0f5425eb60246d5cfe9b0bc2babd34c519"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf5cc651872491f6e8fb06285c88af1edf74a7247efe38853c9af3fa402140c6"
+    },
+    {
+      "id": "B-3f3d:RP-071",
+      "agent": "lattice-review-concept",
+      "note": "RI-009 wave 2 zero-new concept saturation on unchanged cutoff 132e35 found no distinct family beyond baseline F047/F045. The live session_brief output again reproduced the same generic latest-run finding_add/review_pass_set hint, confirming the known family but adding no separate acceptance, evidence-selection, or terminal-idempotency issue. Inventory baseline/disposition semantics retain the known finding while this fresh run reports no new family.",
+      "createdAt": "2026-08-15T00:20:39.223Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-107",
+      "envelopeId": "42b6d004fb0dd6b782cb9a62b86cccfd9c2e05143b8ad46e35fd8195f1d9a83d",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "73ba5c67cd9833d5bb45b395abda3680374e4d16c0218a071e42c85f68b82376"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff8ab86b97924e28f7527a076f8c9057af1a02f80d5d929e3e62131c4c05128f"
+    },
+    {
+      "id": "B-3f3d:RP-072",
+      "agent": "lattice-review-quality",
+      "note": "RI-009 wave2 zero-new saturation quality PASS on unchanged cutoff 132e35. Rechecked F047 runtime latestRunHint against the kind-aware gate branch and review-run-binding-race decision: the generic hint remains exactly the already-canonical F047 family, while non-latest fresh PASS admission, non-latest open FINDING stale_run surfacing, material/scope freshness, and terminal-pass idempotency retain their prior fail-closed behavior. scripts/verify-process-fact-contract.mjs still has the known F047 coverage omission but its idempotency and prose kind-aware assertions are present. No distinct finding beyond F047 or prior fixed roots was discovered; no material changed since RR101/RP069 and the incremental basis is SAFE_INCREMENTAL.",
+      "createdAt": "2026-08-15T00:21:07.860Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-106",
+      "envelopeId": "47619fbd3c818dc1a562eaef301fae71d48c4e26cdc6710a8f47de7f292267d8",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "6bc4f951afed068fb8df16ce86b4009255c4ead7e8bb0047fc69d9cb0005d727"
+      },
+      "readDiagnostics": [],
+      "_hash": "39c25cf46ee4b060c7cd2535906481d26ae4582822ef105ca79d02acbc0caf7e"
+    },
+    {
+      "id": "B-3f3d:RP-073",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-009 wave2 zero-new coverage saturation passed on unchanged cutoff 132e35. Rechecking the runtime hint call topology and the process-fact verifier found no distinct regression-test family beyond F047: latestRunHint remains the sole FINDING-only path with false review_pass_set recovery text, and the missing assertion family is already registered. All adjacent generic recovery hints have different valid preconditions; checklist coverage remains 54 of 54 must passing, zero failures and waivers.",
+      "createdAt": "2026-08-15T00:25:05.275Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-108",
+      "envelopeId": "405b5d3cc050fbea2f2838315d78393d19661293c444366c424ebc3b86364188",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d6351a7b4cfa9e2a46bdad6625bda1ad0efd22616501a728c3ab223d206205a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce015f0283b79bc743116f0564ec6a1a33388befbbede015f88f225ec28f1023"
+    },
+    {
+      "id": "B-3f3d:RP-074",
+      "agent": "lattice-review-docs",
+      "note": "RI-009 wave2 zero-new docs saturation passed after extracting 6 recovery-hint and evidence-kind symbols and comparing 12 focused authoritative paragraphs. No distinct documentation family exists beyond F047: the three truth-source documents correctly preserve the PASS/FINDING distinction, while only latestRunHint on the FINDING-only stale-run path retains false review_pass_set recovery wording. Other generic hints describe different valid recovery conditions.",
+      "createdAt": "2026-08-15T00:26:15.617Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-109",
+      "envelopeId": "b5298dd712e4c20e796aad995684c9877fd325d7c53387aa87edffedd9308577",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d6351a7b4cfa9e2a46bdad6625bda1ad0efd22616501a728c3ab223d206205a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ab48284cda6ecdd4ccc74df992c258b832b8d2641d0988028f1871139b51631"
+    },
+    {
+      "id": "B-3f3d:RP-075",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-009 wave2 final completeness critic PASS on unchanged cutoff 132e35. Owner mechanically confirmed all required lanes have exactly one current signed pass: RR106/RP072 quality, RR107/RP071 concept, RR108/RP073 coverage, RR109/RP074 docs. Current wave raw findings are empty; the immutable historical aggregate remains exactly F047 under family kind-aware-latest-run-runtime-hint-drift from CRIT-01. No lane output, raw finding, or historical canonical family is omitted, and no new verified family exists in wave2. After owner verifies this terminal, critic_set must use findingDispositions=[] for the empty current raw set while preserving historical aggregate F047.",
+      "createdAt": "2026-08-15T00:29:33.599Z",
+      "reviewRound": "2026-08-15T00:05:04.681Z",
+      "reviewRunId": "B-3f3d:RR-110",
+      "envelopeId": "569e4c41f3a51f251ed3fca49186b17acc0f0f0313098df1330c1a99a8ea200a",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1460
+        },
+        "digest": "6bc4f951afed068fb8df16ce86b4009255c4ead7e8bb0047fc69d9cb0005d727"
+      },
+      "readDiagnostics": [],
+      "_hash": "a11819ab5b2544b62855a8ea6b5700925048169e58ff3abe4f3f7d8a87ccfa19"
     }
   ]
 }
