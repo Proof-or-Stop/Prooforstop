@@ -269,6 +269,28 @@
         "scanEscalationReason": null
       },
       "_hash": "d2d77621a201d8cace7d359f0c9068c6e6eac955769ba35a2b2d251c6f743efa"
+    },
+    {
+      "id": "B-74b9:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-confirmation pass: verificationIntent content unchanged since last checklist_update (verified via git diff against commit 19a640a108 -- only pinned verification.command/selector metadata was added, matching each evidence entrys own command; no desc/priority/type changed). Coverage: 4 checklist items, 15 verificationIntent entries (8 must + 7 should), 0 gaps. All 8 must-priority intents have valid non-fail evidence: 3 permanent waivers (INT-CHK001-RED/INT-CHK002-RED/INT-CHK003-RED, pre-fix RED-state reproductions that legitimately cannot be mechanically re-verified post-fix, each with a clear explanatory note) plus 5 mechanical/manual pass evidences with receipts (exitCode 0, selectorMatched true) or specific source-grounded manual_transcript notes. All 7 should-priority intents have concrete pass evidence. All verificationEvidence entries carry the current materialHash (64950acbdac980850ef556102116d31fe0cab7912c6a31f50b00e749c07d79e1) and storyFilesHash (54351799707502cb96ac67a9b11a24167c86cd876ff2316a4532ffc83bc53ee5) matching this review runs head -- evidence is fresh, not stale. No blocker.",
+      "createdAt": "2026-08-15T23:41:37.563Z",
+      "reviewRound": "2026-08-15T23:39:41.435Z",
+      "reviewRunId": "B-74b9:RR-008",
+      "envelopeId": "a233cb89142c64d81c191142274eac78821f04d14d5596c8b27ea4c6f53c44d7",
+      "writerSessionId": "sess-6cfcf32edab02b39e231baf886c2be15",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74b9/background.md",
+          ".lattice/story/actives/B-74b9/checklist.json",
+          ".lattice/story/actives/B-74b9/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ebee788b11e76aca00ee0025b80787199e6659b4c3e63342ee79c7c401b0280"
     }
   ]
 }
