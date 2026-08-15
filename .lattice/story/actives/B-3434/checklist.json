@@ -30,6 +30,16 @@
             "type": "cli"
           }
         ]
+      },
+      "userSees": "The metadata commit succeeds for a story whose test-evidence.json exceeds one mebibyte, where it previously failed with verified metadata changed after manifest verification",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ]
       }
     },
     {
