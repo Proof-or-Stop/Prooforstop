@@ -1338,6 +1338,33 @@
         "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
       },
       "_hash": "a76ac051569a3e05f1534a9a13b95f031c6c1d00b13da2b5d5f192885954927b"
+    },
+    {
+      "id": "B-fb7b:RP-045",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior PASS: npm test bootstraps packages/utils/dist so it never hits Missing build artifacts; ensure-dist builds main-then-utils only when absent, present dist untouched.",
+      "createdAt": "2026-08-15T00:14:36.216Z",
+      "reviewRound": "2026-08-15T00:14:05.473Z",
+      "reviewRunId": "B-fb7b:RR-078",
+      "envelopeId": "619f565ea984fa302576c07aaa45b0bc97c9a8fb299f02731b636ac05bd5e843",
+      "writerSessionId": "sess-ed71999e6958c448f086c85914d5c800",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/tests/red/red-fb7b-guard-bite.mjs",
+          "packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": "changed surface (30-line existence-based bootstrap + structural smoke/RED/guard-bite) fully read."
+      },
+      "_hash": "1c891ce4166495a6fd8af190e333188a60afaea7081de037808d2d54cc8a279b"
     }
   ]
 }
