@@ -69,29 +69,29 @@
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
           "note": "Mechanically re-executable regression guard: the fixture now exits 0 and prints its pass line after stubbing the two missing files.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1fab61fa1f38ec6dcd8677d6b07de043761108e83720195276b25d2cf539fd39",
             "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T20:49:17.067Z"
+            "executedAt": "2026-08-15T22:06:58.159Z"
           },
-          "headHash": "19a640a108917f0ed66279d1f2fc10dd1140257a",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:49:17.210Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK001-ADV",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "The two new stub lines follow the exact same minimal one-liner pattern as every other stub in writeCanonicalAcceptanceRegistration (e.g. acceptance-topology.ts's 'export const acceptanceTopology = \"acceptance_basis acceptance_basis_generate\";'). deriveAcceptanceCoverageBasis's snapshot mechanism only checks presence+digest stability of closure files, not semantic content match against the real implementation -- confirmed by reading acceptance-coverage-basis.ts's blindSpot logic -- so a minimal stub is the correct, established pattern here, not a shortcut.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "9f477366129a864782a07fc3ba889916b4c03c9f",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:49:18.792Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK001-RED",
@@ -109,12 +109,12 @@
           "kind": "manual_transcript",
           "result": "pass",
           "note": "Verified: temporarily reverted the two new stub write() calls, rebuilt, and confirmed the ORIGINAL failure reproduced exactly (actual:'partial', expected:'complete', both blindSpots present) before restoring the real fix and rebuilding again (confirmed clean via git status and a passing re-run). Confirms the fixture still discriminates a real regression, not passing vacuously.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
           "nonMechanicalReason": "This is a one-time discriminating-power probe (temporarily reverting the fix, rebuilding, observing failure, then restoring); scripting it as a permanent pinned command would leave the repo in a broken state between runs, which is unsafe to re-execute automatically.",
-          "headHash": "11c96121ab0732ffd58d403bbcb575e3aadbf6c4",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:49:59.328Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         }
       ]
     },
@@ -198,29 +198,29 @@
           "command": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/field-regression-cli-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');console.log(out.includes('readManifest: Invalid input: expected object, received undefined')?'READMANIFEST_STILL_MISSING':'READMANIFEST_FIX_CONFIRMED');\"",
           "result": "pass",
           "note": "Mechanically re-executable regression guard: confirms the readManifest argument-validation error no longer appears anywhere in a fresh run's output, across all six review_pass_set call sites. The whole file still exits non-zero, but only due to the confirmed-unrelated, separately-tracked task_9f6b2322 retired-channel-lane defect further down the file -- this selector specifically isolates the readManifest defect class this checklist item targets.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "5f08334ef0648168453ef972b3d94f306ae4c1e6372d4a31580701554bd0ab3c",
             "outputTail": "READMANIFEST_FIX_CONFIRMED\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T20:50:46.347Z"
+            "executedAt": "2026-08-15T22:07:29.536Z"
           },
-          "headHash": "dcca4531fdc4a748701967077949abdc0846fefb",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:50:46.459Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK002-ADV",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "All six readManifest objects added use the shape { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, matching the established valid-manifest shape used elsewhere in the codebase (agent-dispatch-registry-smoke.ts). Each call site's downstream assertions were confirmed to reach their REAL target checks (staleness rejection, workspace-binding rejection, tampered-binding rejection) rather than short-circuiting earlier, by tracing execution progressing past each call in the full-file run.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "3f5b65d19fc3944f927be094b20421f3e93e7c4c",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:50:47.414Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK002-DISCRIM",
@@ -228,12 +228,12 @@
           "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
           "result": "pass",
           "note": "Confirmed by inspecting the real CLI stdout captured by assertReviewRunStartCliSurface after the fix: the stalePass.stderr now genuinely matches /already stale|stale/i against a real staleness rejection message from review_pass_set, not merely a non-crashing generic response -- traced by running the fixture and reading its captured stderr directly.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
           "nonMechanicalReason": "Verifying real staleness output required reading the fixture's own captured stderr during a live run rather than a standalone pinned command; the observation is a manual trace, not a repeatable single-command receipt.",
-          "headHash": "02dad3024a84987f9719bda18dbfc8802b9170f4",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T21:08:25.031Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         }
       ]
     },
@@ -319,18 +319,18 @@
           "command": "node -e \"const {spawnSync}=require('child_process');const r=spawnSync(process.execPath,['packages/main/dist/tasks/worktree-authority-smoke.js'],{encoding:'utf8'});const out=(r.stdout||'')+(r.stderr||'');console.log(out.includes('DONE post-merge version bump failed before any commit')?'VERSION_BUMP_STILL_BROKEN':'VERSION_BUMP_FIX_CONFIRMED');\"",
           "result": "pass",
           "note": "Mechanically re-executable regression guard: confirms the ENOENT/version-bump-failure signature no longer appears anywhere in a fresh run's output. The whole file still exits non-zero, but only due to the confirmed-unrelated, separately-tracked task_a8d49518 concurrent-DONE-race defect further down the file -- this selector specifically isolates the version-bump defect class this checklist item targets.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b299796f8838663404a9277a4d243b55b027cb170eb48934a6de49217296e4e6",
             "outputTail": "VERSION_BUMP_FIX_CONFIRMED\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T20:51:50.439Z"
+            "executedAt": "2026-08-15T22:08:14.912Z"
           },
-          "headHash": "5b616d328252a59b2b6a1558dbd2335082e5aeda",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:51:50.553Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK003-SCOPE",
@@ -338,11 +338,11 @@
           "file": "packages/main/src/core/version-bump.ts",
           "result": "pass",
           "note": "Investigation (core/version-bump.ts, functions applyPatchBump/readSyncedVersion): both read all five version sync-point files unconditionally via readFileSync (filesystem, not git history) -- confirmed by reading the source directly. Every real Proofbound repo root has these files by construction (they are the project's own package.json/lockfiles/brand file, always committed). The ENOENT can only occur on a synthetic fixture root that never had them, never on a genuine partial-DONE recovery -- fixture-only fix confirmed sufficient, matching decision.json's chosen option.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "c7a05bc9fe0a368754ffe10b05ac4c83d64dd894",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T21:07:20.529Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK003-ADV",
@@ -350,11 +350,11 @@
           "file": "packages/main/src/core/version-bump.ts",
           "result": "pass",
           "note": "Confirmed via direct source read of core/version-bump.ts: readSyncedVersion/applyPatchBump have no existence-check branch or conditional skip for a missing package.json -- they unconditionally assume it exists (matching every real npm-based Proofbound repo root). This confirms preMortem #1's concern does not materialize: the fixture-only fix does not mask a real production robustness gap, since a real repo root can never lack package.json.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "a4dfba250cee736631d5884ae02daedec69938bb",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T21:07:21.461Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         }
       ]
     },
@@ -418,11 +418,11 @@
           "file": ".lattice/story/actives/B-74b9/plan.md",
           "result": "pass",
           "note": "plan.md's CHK-004 section records an explicit per-fixture decision: proofstory-acceptance-basis-smoke.ts registered into lattice.config.json validate.commands (confirmed clean, ~57s runtime, matching the shape of the existing proofstory-acceptance-rollout-smoke.js entry); field-regression-cli-smoke.ts and worktree-authority-smoke.ts deliberately deferred with explicit rationale (each blocked only by a separately-tracked, confirmed-unrelated pre-existing bug: task_9f6b2322 and task_a8d49518 respectively).",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "0c1ab8b50c48490bf8392f505edace9395138220",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T20:52:15.442Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK004-EDGE",
@@ -430,18 +430,18 @@
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
           "note": "The one fixture actually registered into validate.commands (proofstory-acceptance-basis-smoke.js) still passes cleanly on its own; confirms registering it does not introduce flakiness. The two deferred fixtures were deliberately NOT registered, so no aggregate-command regression risk from them.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1fab61fa1f38ec6dcd8677d6b07de043761108e83720195276b25d2cf539fd39",
             "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-15T21:08:16.033Z"
+            "executedAt": "2026-08-15T22:09:10.808Z"
           },
-          "headHash": "cd6d235543d9918697b7eeee416b63bdf07b91f2",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T21:08:16.161Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         },
         {
           "intentRef": "INT-CHK004-ADV",
@@ -449,11 +449,11 @@
           "file": ".lattice/story/actives/B-74b9/plan.md",
           "result": "pass",
           "note": "plan.md's CHK-004 section gives each of the three fixtures an independent decision with distinct rationale: one registered (clean, ~57s, matches an existing similar entry's shape), two explicitly deferred citing their own separately-tracked blocking bug IDs (task_9f6b2322, task_a8d49518) -- not a blanket register-all-or-none choice.",
+          "headHash": "ac31d1559ec286380018d791bda23a84d87eed1c",
+          "materialHash": "66f5b46ae5b14bb57108243b906616d4efb72f912125d9b4cd7b1522a0f58d09",
+          "storyFilesHash": "96bbbc96c3adf8d2f805a9eeb5e8a2390aeb2c03f35f6019b8704d37f6514e28",
           "mechanical": false,
-          "headHash": "dd745e478332faaf685e7146290ce7f4aa8d5d22",
-          "materialHash": "e473def4422f138ccacd36ca677cef7b3cbc2dd5e10d2db872db48c0fc535fd1",
-          "storyFilesHash": "c3dc8a6374d8570d6c2ed766510d45f24838b2a62d98d60656a4dfae00cac0f0",
-          "timestamp": "2026-08-15T21:08:17.134Z"
+          "timestamp": "2026-08-15T22:09:10.818Z"
         }
       ]
     }
