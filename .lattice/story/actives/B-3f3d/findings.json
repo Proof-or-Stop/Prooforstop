@@ -3775,6 +3775,476 @@
       "resolvedAt": "2026-08-15T03:51:55.754Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-055",
+      "desc": "large-generated-metadata-blob-hash-buffer-limit: packages/main/src/core/done-prepare-generated-metadata.ts:565-592 hashes isolated-index/tree blobs with execFileSync('git show') using Node's default ~1 MiB maxBuffer and catches every failure as null. The current committed .lattice/story/actives/B-3f3d/process-events.jsonl is 1,394,935 bytes; an exact read-only reproduction of the same execFileSync call fails ENOBUFS/SIGTERM after 1,064,960 stdout bytes while streaming git show succeeds and the worktree blob is stable. Lines 717-743 then misclassify null as a digest mismatch, so quorum_submit immutable-metadata closeout fails solely because legitimate append-only metadata crossed the hidden buffer ceiling. packages/main/src/tasks/quorum-submit-smoke.ts:1304-1344 validates atomic clean closeout only with a small fixture and has no >1 MiB blob regression. Use bounded large-blob hashing (streaming or an explicitly justified upper bound) for both isolatedBlobHash and treeBlobHash, preserve atomic commit fail-closed behavior, and add a >1 MiB process-events regression proving exact hash/commit success plus true mutation mismatch rejection.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T04:07:46.413Z",
+      "reviewRound": "2026-08-15T03:51:37.543Z",
+      "reviewRunId": "B-3f3d:RR-157",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "01ae5477de28bfe63454ed43f300bd4b7eb8b58b08888b303ea53dce3ddde22b"
+      },
+      "readDiagnostics": [],
+      "_hash": "fdfbcc4eb3688cc30f03976bad7a26341b4508678cda104c3425125f5245e289",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "large-generated-metadata-blob-hash-buffer-limit",
+      "signatureTagSource": "confirmed",
+      "resolvedAt": "2026-08-15T04:49:46.806Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-056",
+      "desc": "immutable-metadata-index-rollback-head-divergence: packages/main/src/core/done-prepare-generated-metadata.ts:774-796 advances HEAD by CAS before refreshing the real index, but its refresh-failure handler restores index entries before attempting the HEAD rollback. If the same persistent index failure also makes restoreIndexEntries throw, control escapes to the outer catch and lines 781-787 never run, so the API returns ok:false while the metadata commit remains installed and the real index/worktree diverge. A hermetic temp-repo reproduction using the production dist primitive and the existing beforeCasUpdate seam created a persistent .git/index.lock: result was ok:false, reason 'isolated metadata commit failed', before HEAD 96e5eff..., after HEAD 95cf1da..., headAdvanced=true, and status 'MM meta.txt'. This is distinct from F-055's large-blob hash ceiling: even with small blobs, a failed closeout can mutate HEAD despite reporting rollback/failure. packages/main/src/tasks/quorum-submit-smoke.ts:1540-1811 covers several rollback races but has no real-index-refresh plus restore failure case. Make rollback failure ordering exception-safe so HEAD rollback is always attempted after CAS, explicitly surface any independent index-restore and ref-rollback failures, and add a regression asserting a failed closeout never silently leaves its commit installed (or reports a precise unrecovered critical state if concurrent ref movement makes rollback impossible).",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T04:10:51.694Z",
+      "reviewRound": "2026-08-15T03:51:37.543Z",
+      "reviewRunId": "B-3f3d:RR-159",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "01ae5477de28bfe63454ed43f300bd4b7eb8b58b08888b303ea53dce3ddde22b"
+      },
+      "readDiagnostics": [],
+      "_hash": "fcb39ec18da94913ddf525ac174a3118afdbcdee8306968113cdb3b539947cd1",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "immutable-metadata-index-rollback-head-divergence",
+      "signatureTagSource": "confirmed",
+      "resolvedAt": "2026-08-15T04:49:47.594Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-057",
+      "desc": "large-history-committed-verdict-reader-buffer-fail-open: packages/main/src/handlers/quorum-submit.ts:273-290 still reads HEAD process-events.jsonl through execFileSync('git show') with Node's default ~1 MiB maxBuffer and converts every error to [], while lines 474-489 rely on that array as the authoritative same-material duplicate guard. The current committed B-3f3d process-events blob is 1,394,935 bytes and the exact default-buffer call fails ENOBUFS after 1,064,960 bytes, proving the guard sees no committed host verdicts once history crosses the ceiling. After adb7f17's new >1 MiB positive quorum succeeds, an immediate same-material resubmit can therefore bypass the guard and append duplicate quorum evidence. The new test at packages/main/src/tasks/quorum-submit-smoke.ts:1777-1814 proves one large commit and one mutation rejection but never retries the successful large commit to verify idempotency. Independently, packages/main/src/core/acceptance-rollout.ts:361-365 uses the same unbounded-default git-show read for the immutable quorum commit and will throw on a >1 MiB quorum artifact, so the large-history closeout cannot reliably flow into rollout authority. This is distinct from F-055's isolated/tree hash false-mismatch: those helpers are fixed and their >1 MiB positive/negative tests pass, but downstream gate consumers remain fail-open/fail-stop. Introduce one shared bounded committed-blob reader (or streaming parser) for every gate-consumed process-events read; add a >1 MiB successful-quorum immediate same-material retry test that must refuse without writing, plus a >1 MiB acceptance-rollout observation test that must verify the immutable six rows.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T04:56:23.761Z",
+      "reviewRound": "2026-08-15T04:49:26.445Z",
+      "reviewRunId": "B-3f3d:RR-168",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "01ae5477de28bfe63454ed43f300bd4b7eb8b58b08888b303ea53dce3ddde22b"
+      },
+      "readDiagnostics": [],
+      "_hash": "1be31dc1e53c9331886af8831ec98c80333c00fcfb185e18700376ce0fc7f6df",
+      "files": [
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "large-history-committed-verdict-reader-buffer-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "56a467a replaces large committed verdict reads with bounded tri-state Git blob reads; quorum-submit smoke proves >1MiB success then same-material retry is rejected without writes, and rollout issuer mutations verify the same immutable history.",
+      "resolvedAt": "2026-08-15T08:24:56.876Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-058",
+      "desc": "large-fixture-committed-snapshot-read-fail-open: packages/main/src/core/review-incremental-context.ts:594-602 converts every git show failure to null, while fixtureCases at 605-608 converts null to an empty fixture and fixtureCaseClosure at 657-681 therefore treats two unreadable snapshots as equal empty case sets. Lines 947-960 consume true closure to classify related fixture drift as ELIGIBLE_PURE_STORY_FIXTURE. Verified in a temporary Git repo: a 1,400,000-byte fixture case changed between HEAD~1 and HEAD without any intentRef; the exact default-buffer git show failed ENOBUFS, yet fixtureCaseClosure(root, HEAD~1, B-test, tests/fixtures/large.json, emptySet) returned true. This can authorize incremental review while a changed large fixture has no Story-scoped case intent. This is distinct from F057 because it corrupts review impact and eligibility classification rather than committed quorum duplicate or acceptance-rollout verdict consumption. Preserve absence separately from read failure, fail closed on overflow or parse failure, use a size-safe committed blob reader, and add a >1 MiB changed-fixture regression that must return false without a current intentRef.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T05:08:25.190Z",
+      "reviewRound": "2026-08-15T04:49:26.445Z",
+      "reviewRunId": "B-3f3d:RR-179",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "80a5657c13b035d03102fdc964e4da27bd554b8f849ef41907a41c2c4b636738"
+      },
+      "readDiagnostics": [],
+      "_hash": "5a8a1602f5d7376ca06a0f75c809ffd4513ee665385991ba7d581334c6477b2d",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "large-fixture-committed-snapshot-read-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "56a467a preserves missing versus read-error for fixture snapshots; >1MiB changed fixture regression now rejects unsafe pure-fixture incremental eligibility.",
+      "resolvedAt": "2026-08-15T08:24:58.055Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-059",
+      "desc": "large-extensionless-script-material-classification-fail-open: packages/main/src/core/material-code-policy.ts:989-1010 and 1020-1034 read an entire extensionless git blob with an explicit 1 MiB maxBuffer and convert overflow/read failure to false; lines 1213-1217 feed that false into classifyMaterialCodePath, whose lines 664-671 label the file `extensionless non-script under path prefix` and exclude it from the material classification snapshot. Verified in a temporary Git repo with a non-executable `bin/deploy` beginning `#!/bin/sh` and sized 1,400,011 bytes on both main and HEAD: the exact git-show call failed ENOBUFS after 1,081,344 stdout bytes, while buildMaterialClassificationSnapshot returned `{path:\"bin/deploy\",materialCode:false,reason:\"extensionless non-script under path prefix\"}`. A changed large executable script can therefore disappear from materialHash/story impact and freshness gates solely because it crosses the buffer ceiling. This is distinct from F-057 (committed quorum/rollout verdict consumption) and F-058 (fixture case closure): it corrupts the repository-wide material-code classifier. Read only the first two blob bytes or use a size-safe reader, preserve read-error vs negative-signal semantics, and add current/deleted >1 MiB non-mode-executable shebang regressions that must remain material.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T05:17:32.120Z",
+      "reviewRound": "2026-08-15T04:49:26.445Z",
+      "reviewRunId": "B-3f3d:RR-182",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "d78d559ee1964779bf2886d067703e5f96307f04813b3741c5c57b9fd62b4751"
+      },
+      "readDiagnostics": [],
+      "_hash": "82919129bce0239f3ec2f519533b5e404ea195d41787d997c80b9ee79ffc0aa0",
+      "files": [
+        "packages/main/src/core/material-code-policy.ts",
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+      ],
+      "signatureTag": "large-extensionless-script-material-classification-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "56a467a makes extensionless shebang classification size-safe and conservative; language-neutral gates cover current, deleted, and renamed >1MiB non-mode-executable scripts.",
+      "resolvedAt": "2026-08-15T08:24:59.349Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-060",
+      "desc": "large-gap-log-genesis-history-reset-fail-open: packages/main/src/core/audit-meta-store.ts:322-331 converts every HEAD B-META findings git-show failure to null, and assertGapLogHistoryExtendable at 335-365 treats null plus a canonical-empty live file as legitimate no-artifact genesis. The gap_log handler does not separately prove whether the committed artifact exists before appendGapFinding creates the first provenance receipt. Verified in a temporary main repository: commit a 1,400,000-byte B-META findings history, observe the exact git show fail ENOBUFS, remove the live findings file, then call appendGapFinding with projectRoot. It succeeded, left liveFindingCount=1 instead of preserving the committed finding, and wrote officialReceiptCount=1. A large committed audit history can therefore be replaced by a fresh officially signed provenance chain when the worktree copy is missing. This is distinct from F057 verdict-ledger duplicate or rollout consumption, F058 fixture review eligibility, and F059 material-code classification. Use a size-safe committed artifact reader, distinguish missing path from read failure, require an explicit cat-file existence proof, and add a >1 MiB nonempty HEAD plus missing-worktree regression that must refuse without writing a receipt.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T05:31:27.720Z",
+      "reviewRound": "2026-08-15T04:49:26.445Z",
+      "reviewRunId": "B-3f3d:RR-189",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/gap-log.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "80a5657c13b035d03102fdc964e4da27bd554b8f849ef41907a41c2c4b636738"
+      },
+      "readDiagnostics": [],
+      "_hash": "01337eabbbab8c8d9475d7b448bb50fa2d4c4ead28499391d8d72697ef986d03",
+      "files": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ],
+      "signatureTag": "large-gap-log-genesis-history-reset-fail-open",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "56a467a makes committed B-META history reads size-safe and fail closed; gap-log smoke proves valid >1MiB extension and missing-worktree no-write rejection.",
+      "resolvedAt": "2026-08-15T08:25:00.446Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-061",
+      "desc": "large-gap-log-first-receipt-verifier-self-invalidates: post-56a467a packages/main/src/core/finding-verify.ts:189-199 still reads the first receipt parentHead B-META artifact through default-buffer execFileSync git show and collapses every error to null, while verifyGapLogArtifactBinding at 245-252 interprets null as a missing committed artifact whose preArtifactDigest must equal canonical empty. The writer was migrated to readGitBlobAt, so a valid >1 MiB legacy B-META history now extends successfully and emits an official first receipt whose preArtifactDigest correctly binds the nonempty history, but the unchanged verifier overflows and immediately rejects that same receipt as invalid_binding_shape. Verified end to end in a temporary main repo: commit a 1,400,000-byte legacy findings artifact, appendGapFinding with projectRoot succeeds, receiptCount=1, then verifyGapLogArtifactBinding returns trusted=false, reason=invalid_binding_shape, findingId=B-META-framework-audit:F-002. Existing gap-log regression only asserts the large extension command succeeds and does not verify the resulting receipt. This is distinct from F060 genesis history-reset fail-open: the live history is present and preserved, but the canonical provenance consumer makes valid newly generated evidence unusable. Migrate committedArtifactDigest to the shared tri-state reader, fail closed only on true error, and extend the >1 MiB valid-extension regression to assert the official receipt verifies trusted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-15T08:37:24.951Z",
+      "reviewRound": "2026-08-15T08:24:40.660Z",
+      "reviewRunId": "B-3f3d:RR-199",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/git-blob-reader.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "80a5657c13b035d03102fdc964e4da27bd554b8f849ef41907a41c2c4b636738"
+      },
+      "readDiagnostics": [],
+      "_hash": "497051b1168e05f45bd1deeab6eb0176e2755553f23a6de092a13f2bef46bf13",
+      "files": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ],
+      "signatureTag": "large-gap-log-first-receipt-verifier-self-invalidates",
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017",
+      "resolvedReason": "Fixed by 53830e97e50f06f03d88d21cc050e70c75d78894: finding-verify now consumes the shared bounded tri-state Git blob reader. The focused gap-log regression extends a >1MiB committed legacy B-META history and immediately verifies the new official receipt as trusted; content mutation and an unreadable parent remain rejected.",
+      "resolvedAt": "2026-08-15T09:35:52.532Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3f3d:F-062",
+      "desc": "large-gap-log-provenance-verifier-default-buffer: 56a467a introduces the shared 16 MiB tri-state readGitBlobAt reader and uses it in audit-meta-store before extending B-META history, but packages/main/src/core/finding-verify.ts:188-198 still reads the same committed GAP_LOG_ARTIFACT_PATH with execFileSync git show and no maxBuffer, catches every overflow as null, then lines 248-254 interpret null as committed absence. After a valid >1 MiB legacy history is extended, the first official provenance receipt has a nonempty preArtifactDigest; verifyGapLogArtifactBinding therefore rejects that newly written official chain as invalid_binding_shape. Existing gap-log large-history smoke only asserts extension and missing-worktree refusal and never calls the provenance verifier after the large extension. Route this final committed-artifact consumer through readGitBlobAt with explicit missing/error semantics and add a >1 MiB extend-then-verify trusted regression. This is a distinct consumer/test topology gap beyond the fixed genesis-reset write path in F060.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T08:44:43.651Z",
+      "reviewRound": "2026-08-15T08:24:40.660Z",
+      "reviewRunId": "B-3f3d:RR-200",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/git-blob-reader.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/gap-log-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5cd8d8dff40d01b3a6fb3b703089a2c0a4e9b490b3f32f0cd41e0ef425e27a44"
+      },
+      "readDiagnostics": [],
+      "_hash": "10aa2115cd8e9098ce01ee2cbbffc6b0c1b58102d9c43be0dd57bc780c524c49",
+      "files": [
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ],
+      "signatureTag": "large-gap-log-provenance-verifier-default-buffer",
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017",
+      "resolvedReason": "Duplicate coverage manifestation of canonical F061 / CL-017. Commit 53830e97e50f06f03d88d21cc050e70c75d78894 fixes the same finding-verify default-buffer consumer and adds the same extend-then-verify >1MiB regression.",
+      "resolvedAt": "2026-08-15T09:35:53.583Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

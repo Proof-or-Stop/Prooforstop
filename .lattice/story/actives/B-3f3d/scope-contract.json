@@ -417,10 +417,74 @@
       "phase": "DEV",
       "headHash": "dbdfe4d768e2b7a28b3e73e8df8d6c9ac88ab2fe",
       "materialHash": "bc689d6066f56e16398889aa9018344209836dc9f94b87faf45ad455e9e83ea4"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-055 and F-056 require large generated-metadata blob verification and post-CAS rollback hardening at the shared immutable metadata commit boundary, with direct regression smokes.",
+      "timestamp": "2026-08-15T04:34:56.846Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "adb7f178606b607bfc0d33d49df452a181269784",
+      "materialHash": "186e7cc505fd5a193b8bfb0e04d214c3547ff006e24f8d211d0a1941f8dc9c7f"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "Verified F-057 through F-060 require one bounded tri-state Git blob reader and direct gate-consumer regressions so large committed histories are readable while true read errors remain fail closed.",
+      "timestamp": "2026-08-15T07:32:20.776Z",
+      "paths": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/core/material-code-policy.ts",
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/core/material-code-policy.ts",
+        "packages/main/src/handlers/quorum-submit.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts",
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "56a467ad0c647410f8f4274c880462c8aa3a8449",
+      "materialHash": "67bb8ae28586ee95b7131d37ec7baea62c56a5282d697855c14d4c20dc570db0"
+    },
+    {
+      "actor": "lattice-owner",
+      "reason": "F-061 and F-062 require the provenance verifier for large committed B-META histories to consume the same bounded tri-state Git blob reader as the writer, while preserving fail-closed mutation and unreadable-parent behavior.",
+      "timestamp": "2026-08-15T09:14:08.482Z",
+      "paths": [
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "53830e97e50f06f03d88d21cc050e70c75d78894",
+      "materialHash": "a194e0d023025da03e81d2c272c2bcc2704a4b9be0cdc417b3b2eee77b6a2221"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T02:22:02.755Z",
+  "updatedAt": "2026-08-15T09:14:08.482Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -503,6 +567,17 @@
     "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
     "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
-    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/core/acceptance-rollout.ts": "packages/main/src/core/acceptance-rollout.ts",
+    "packages/main/src/core/audit-meta-store.ts": "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/core/git-blob-reader.ts": "packages/main/src/core/git-blob-reader.ts",
+    "packages/main/src/core/material-code-policy.ts": "packages/main/src/core/material-code-policy.ts",
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts": "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts"
   }
 }

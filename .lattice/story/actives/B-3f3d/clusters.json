@@ -262,6 +262,22 @@
       ],
       "severity": "high",
       "createdAt": "2026-08-14T18:49:34.306Z"
+    },
+    {
+      "clusterId": "CL-017",
+      "rootCause": "Multiple findings all involve packages/main/src/core/finding-verify.ts, packages/main/src/core/audit-meta-store.ts",
+      "findingIds": [
+        "B-3f3d:F-061",
+        "B-3f3d:F-062"
+      ],
+      "files": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/core/git-blob-reader.ts",
+        "packages/main/src/tasks/gap-log-smoke.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-15T08:47:46.283Z"
     }
   ]
 }
