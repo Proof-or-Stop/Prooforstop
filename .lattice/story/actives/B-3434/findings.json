@@ -465,7 +465,7 @@
       "desc": "Re-filed under the quality lane so it actually gates (story B-3434:F-014, agent=main/RR-011, is not reviewer evidence per core/review-run.ts isReviewerAgent). Independently re-verified against the pre-fix tree (before commit e1afeb346a) by reading the write path myself: boundValidationEvidenceOutput's postcondition (withinBound derived from Buffer.byteLength of the string it RETURNS) was enforced at the wrong boundary. handlers/verifier.ts persistStoryValidationEvidence assigned that already-bounded string to TestEvidenceData.output, a single string field, then StoryStore.writeJsonFile (core/store.ts) ran JSON.stringify(data, null, 2) on the OUTER object a second time, re-escaping every quote/backslash already present in the inner JSON string. I reproduced this myself on the pre-fix build with 400 commands x 12000 quote-heavy chars each, duplicated into details as the producer does: inner output ~19.2MB with withinBound true, while the persisted file measured 38,422,033 bytes, above the 33,554,432-byte read ceiling -- the exact incident this story exists to prevent, recreated one call frame further out. The reuse path (reusedStoryValidationResult) bypassed the reducer entirely via output: JSON.stringify(reused), with no bound at all. THIS IS NOW FIXED as of commit e1afeb346a, which I independently verified on the current tree (HEAD e1afeb346a): boundPersistedValidationEvidence({result, buildRecord}) now measures Buffer.byteLength(JSON.stringify(record,null,2)+\"\\n\") -- the exact bytes StoryStore.writeJsonFile writes -- on the FULLY BUILT record, and I confirmed this matches an actual on-disk file byte-for-byte in a live write test (22,555,544 bytes measured == 22,555,544 bytes on disk). The reuse path now calls the same boundPersistedValidationEvidence and checks .withinBound before writing (verifier.ts reusedStoryValidationResult, lines ~721-745). Filing as resolved; resolving in the next call with the verification detail.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-15T13:42:46.881Z",
@@ -478,7 +478,11 @@
         "packages/main/src/core/store.ts"
       ],
       "signatureTag": "missing|ts|filed-quality-lane",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e1afeb346a. Verified myself post-fix: measured 22,555,544 bytes via boundPersistedValidationEvidence on a 400-command quote-heavy fixture, then wrote it through the real StoryStore.writeTestEvidence into a temp story dir and stat'd the resulting test-evidence.json -- 22,555,544 bytes on disk, exact match. Reuse path also confirmed wired to the same function (verifier.ts reusedStoryValidationResult calls boundPersistedValidationEvidence and throws before writing if !withinBound).",
+      "resolvedAt": "2026-08-15T13:43:31.506Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-024",
