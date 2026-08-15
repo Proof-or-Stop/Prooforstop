@@ -1,99 +1,99 @@
 {
   "storyId": "B-a7c5",
-  "checkedAt": "2026-08-15T11:15:39.672Z",
-  "headHash": "288fd2596ba0839a15ba15d6b71e01fd50b57b31",
-  "materialHash": "dc1f2c3e20b7c326a5c094e5964f8b7506b4739effef7300c098ac544f61b066",
-  "storyFilesHash": "a4fedf3118f57a1c57b9daf138157f3ffe5ef51e325766e9a3d2d3711ac32172",
-  "reviewRound": "2026-08-15T10:45:44.244Z",
-  "agentId": "",
+  "checkedAt": "2026-08-15T15:43:23.123Z",
+  "headHash": "feb76f89a35bdb7fb7c6c016737e742d34df6e90",
+  "materialHash": "9d726dc1f59cf963bbf87e0a997f26032df7cd09759560b3484e000b3fa52274",
+  "storyFilesHash": "f7c34cb2eef5ec6028a7403ddd21396d8f09266f55c4aa0f15b3d66bea13c36b",
+  "reviewRound": "2026-08-15T14:53:25.129Z",
+  "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "background.md (Trigger Event / Solution Tradeoffs)",
-      "promise": "Three-gate design closing the dev-memory read/write gap: INIT_CHECK preflight requirement (hard gate at DEV entry), a non-blocking finding_resolve advisory, and a DONE finish-decision backstop.",
-      "verifiedBy": "diff/grep + rebuild+rerun on current HEAD",
-      "evidence": "packages/main/src/core/machine.ts: evaluateDevMemoryPreflightGate (new), canFinishGuard finish-decision check (new), getGuardFailureReason message twins for both. Rebuilt dist from current HEAD (post 209-commit main merge) and reran dev-memory-lifecycle-gates-smoke.js: 74/74 assertions pass."
-    },
-    {
-      "docPath": "plan.md CHK-001 (INIT_CHECK-phase dev-memory preflight requirement)",
-      "promise": "New DevMemoryPreflightAckData type, new store read/write methods, new dev_memory_preflight_ack handler with --reason(>=5 chars) bypass path, new evaluateDevMemoryPreflightGate existence-check function, wired into all four DEV doors (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard x2), message twin in getGuardFailureReason.",
-      "verifiedBy": "diff/grep + rebuild+rerun on current HEAD",
-      "evidence": "core/types.ts DevMemoryPreflightAckData; core/store.ts readDevMemoryPreflightAck/writeDevMemoryPreflightAck; handlers/dev-memory.ts dev_memory_preflight_ack (build-then-ack, --reason downgrade path with detail message on failure); core/machine.ts evaluateDevMemoryPreflightGate wired at all 4 call sites (lines near canStartDevGuard/canSkipPlanGuard/canReenterDevGuard) plus getGuardFailureReason DEV branch with [missing_dev_memory_preflight_ack] tag. smoke test asserts refusal-then-pass across all 4 named doors plus fail-closed corrupt-artifact and fail-open genuine-I/O-fault cases; confirmed passing on rebuilt current-HEAD dist."
-    },
-    {
-      "docPath": "plan.md CHK-002 (non-blocking advisory reminder on finding_resolve)",
-      "promise": "finding_resolve appends a try/catch-safe, non-blocking dev_memory_capture nudge after commitHint, using buildMemoryFreshnessPack/renderMemoryFreshnessPackSummary with consumer:'finding_resolve'; 'finding_resolve' added to RuntimeConsumer union but NOT to REGISTERED_CRITICAL/ADVISORY_ONLY consumer sets.",
-      "verifiedBy": "diff/grep + rebuild+rerun on current HEAD",
-      "evidence": "handlers/finding.ts: memoryHint computed in try/catch returning '' on failure, spliced after commitHint; core/playbook-runtime-memory.ts: 'finding_resolve' appended to RuntimeConsumer union, absent from both consumer-escalation sets (confirmed by grep). dist/handlers/finding.js on rebuilt current HEAD contains 'fully advisory, non-blocking' comment text. Smoke test's CHK-002 happy/scope/fail-safe/invalid-id cases all pass (advisory present after real finding_resolve, absent from finding_add/finding_list, survives a forced EISDIR memory-subsystem throw without breaking the resolve mutation, real errors like unknown findingId still propagate)."
-    },
-    {
-      "docPath": "plan.md CHK-003 (DONE-gate dev_memory_finish_decision requirement) + Architecture decision (shared core module)",
-      "promise": "finishDecisionPath and a new readDevMemoryFinishDecision(root, storyId) moved/added to core/playbook-runtime-memory.ts (no core->handlers import); canFinishGuard requires a finish-decision record to exist (existence-only, fail-closed on missing/corrupt); message twin in getGuardFailureReason DONE branch; deliberate-override code comment present.",
-      "verifiedBy": "diff/grep + rebuild+rerun on current HEAD",
-      "evidence": "core/playbook-runtime-memory.ts exports finishDecisionPath + readDevMemoryFinishDecision (fail-closed: null on missing/parse-error/wrong-decision-value/cross-story-id mismatch); handlers/playbook-runtime-memory.ts now imports finishDecisionPath from core (local duplicate deleted, confirmed by diff and by F-001 fix commit 5d5683018f); core/machine.ts imports readDevMemoryFinishDecision (core->core import, no core->handlers) and canFinishGuard blocks when null, with explicit override comment. Confirmed dist/core/machine.js on rebuilt current HEAD contains the core-module import. Smoke test's CHK-003 refusal/pass(x3 decisions)/corrupt-record/invented-decision-value/cross-story-record cases all pass."
-    },
-    {
-      "docPath": "plan.md CHK-004 / Testing strategy (new smoke test registered in validate.commands)",
-      "promise": "New smoke test packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts covering all three gates against a fresh temp-git fixture, registered in lattice.config.json validate.commands.",
-      "verifiedBy": "diff/grep + independent rebuild+rerun on current HEAD + fresh validate-suite artifact read",
-      "evidence": "lattice.config.json validate.commands[] gained an entry for packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js. Rebuilt packages/main from current (post-merge) HEAD via `npm --prefix packages/main run build` and ran `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` directly: exits 0, prints 'dev-memory-lifecycle-gates smoke passed: 74 assertions'. test-evidence.json's recorded validate run (details[]) independently shows 'configured validate.commands[94]: node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js' followed by the same 74-assertion pass line, confirming it actually executed inside the real validate command sequence, not just registered."
-    },
-    {
-      "docPath": "plan.md CHK-005 / docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md (M8 section)",
-      "promise": "Update M8's spec text to describe the actually-delivered escalated behavior (finish_decision now blocking at DONE, not purely advisory), preserving the original text as historical rationale via a 'Delivered differently' callout, per B-3144's precedent pattern.",
+      "docPath": "docs/requirements/decisions/dev-memory.md#Non-Goals",
+      "promise": "Add a 'Delivered differently (B-a7c5)' annotation to the Non-Goals bullet 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks', clarifying that dev-memory-preflight-ack.json and the dev_memory_finish_decision record are structurally separate artifact types from DevMemoryEntry rows, and that no gate ever reads an entry's gateEvidence/authority fields or lesson content.",
       "verifiedBy": "diff/grep",
-      "evidence": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md diff adds a 'Delivered differently (B-a7c5)' block after the M8 acceptance-test list describing canFinishGuard's new blocking check, the shared-core-module move, and the three decision values; original M8 text is preserved unmodified above the callout."
+      "evidence": "git diff main...HEAD -- docs/requirements/decisions/dev-memory.md shows the exact annotation appended after the Non-Goals bullet, current HEAD feb76f89a3. Cross-checked against implementation: core/types.ts DevMemoryPreflightAckData carries no gateEvidence/authority fields; readDevMemoryFinishDecision (core/playbook-runtime-memory.ts) and evaluateDevMemoryPreflightGate (core/machine.ts) both check only record EXISTENCE/shape, never lesson text."
     },
     {
-      "docPath": "plan.md CHK-006 / docs/requirements/decisions/dev-memory.md (Non-Goals)",
-      "promise": "Clarify dev-memory.md's Non-Goal ('entries NOT surfaced in validate/gate checks') to distinguish DevMemoryEntry content (still ungated) from the two new structurally-separate gate-checked record types (preflight-ack, finish-decision).",
-      "verifiedBy": "diff/grep + rebuild-confirmed string presence",
-      "evidence": "docs/requirements/decisions/dev-memory.md diff adds a 'Delivered differently (B-a7c5)' block directly under the relevant Non-Goals bullet, naming both new artifact types and reaffirming no gate reads DevMemoryEntry content/authority fields. Confirmed the added 'structurally SEPARATE' marker string is present in the file on disk."
-    },
-    {
-      "docPath": "plan.md CHK-007 / docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md section 4.3 (RuntimeConsumer union) + doc-wide staleness audit",
-      "promise": "Add finding_resolve to the RuntimeConsumer type union shown in the spec doc (matching code), and audit the doc for other now-stale references.",
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#RuntimeConsumer-union",
+      "promise": "Add 'finding_resolve' as the 9th documented RuntimeConsumer member (matching the code union order) plus a 'Delivered differently (B-a7c5)' annotation noting it is non-blocking/non-escalatable and absent from both REGISTERED_CRITICAL_RUNTIME_CONSUMERS and ADVISORY_ONLY_RUNTIME_CONSUMERS.",
       "verifiedBy": "diff/grep",
-      "evidence": "The same file diff shows 'finding_resolve' appended to the documented RuntimeConsumer union block, plus an explicit 'Doc-wide sweep performed for B-a7c5' note stating no other RuntimeConsumer-count or blocking-consumer claims in the doc were found stale beyond the union and M8 section."
+      "evidence": "git diff shows 'finding_resolve' appended to the documented union plus the annotation. Verified against packages/main/src/core/playbook-runtime-memory.ts: 'finding_resolve' appended as the 9th RuntimeConsumer union member (comment confirms B-a7c5 CHK-002); grepped REGISTERED_CRITICAL_RUNTIME_CONSUMERS/ADVISORY_ONLY_RUNTIME_CONSUMERS definitions (lines ~207-214) and confirmed finding_resolve is absent from both."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M8-Capture-Or-Noop-Decision",
+      "promise": "Add a 'Delivered differently (B-a7c5)' annotation to M8 describing the deliberate escalation of dev_memory_finish_decision's DONE-gate consumer from purely advisory to a required, blocking check (canFinishGuard), preserving the original advisory-only test list as historical rationale.",
+      "verifiedBy": "diff/grep + code cross-check",
+      "evidence": "git diff shows the annotation appended after M8's original deliverables/tests. Verified against packages/main/src/core/machine.ts canFinishGuard (lines ~935-944): calls readDevMemoryFinishDecision and returns false when no record exists, imported from core/playbook-runtime-memory.ts (not handlers/), matching the doc's claim that core/machine.ts never imports from handlers/ for this feature."
+    },
+    {
+      "docPath": "plan.md#CHK-001 (INIT_CHECK-phase dev-memory preflight requirement before DEV)",
+      "promise": "New DevMemoryPreflightAckData type in core/types.ts; new StoryStore.readDevMemoryPreflightAck/writeDevMemoryPreflightAck methods; new dev_memory_preflight_ack handler (builds the existing preflight pack, writes the ack, supports an optional >=5-char --reason reasoned-downgrade path when the pack build throws); new evaluateDevMemoryPreflightGate existence-check function in core/machine.ts wired into all four DEV-entry doors (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard x2 call sites for REVIEW/TEST rollback); a getGuardFailureReason DEV-branch message twin tagged [missing_dev_memory_preflight_ack].",
+      "verifiedBy": "diff/grep + rebuild + independent rerun on current HEAD",
+      "evidence": "core/types.ts DevMemoryPreflightAckData (schemaVersion/storyId/packDigest/topHitIds/acknowledgedAt/acknowledgedBy/downgradeReason); core/store.ts readDevMemoryPreflightAck/writeDevMemoryPreflightAck; handlers/dev-memory.ts dev_memory_preflight_ack (build-then-ack, throws without --reason, records downgradeReason with --reason>=5 chars); core/machine.ts evaluateDevMemoryPreflightGate called at canStartDevGuard L688, canSkipPlanGuard L754, canReenterDevGuard L786, plus getGuardFailureReason DEV branch L1257-1266 with the [missing_dev_memory_preflight_ack] tag and run-command hint. Rebuilt full dist from current HEAD (feb76f89a3) via `npm run build` (full-suite-build-binding PASS) and ran packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js directly: all CHK-001 door1-4 refusal-then-pass, round-trip, corrupt fail-closed, EISDIR fail-open/fail-closed-split, and --reason downgrade assertions pass."
+    },
+    {
+      "docPath": "plan.md#CHK-002 (non-blocking advisory reminder on finding_resolve)",
+      "promise": "finding_resolve appends a try/catch-safe, non-blocking dev_memory_capture nudge (built via buildMemoryFreshnessPack/renderMemoryFreshnessPackSummary with consumer:'finding_resolve') after the existing commitHint suffix; 'finding_resolve' added to the RuntimeConsumer union but never to REGISTERED_CRITICAL_RUNTIME_CONSUMERS/ADVISORY_ONLY_RUNTIME_CONSUMERS.",
+      "verifiedBy": "diff/grep + rebuild + independent rerun on current HEAD",
+      "evidence": "handlers/finding.ts finding_resolve: memoryHint computed in try/catch returning '' on any failure, spliced after commitHint in the return template literal; core/playbook-runtime-memory.ts RuntimeConsumer union includes finding_resolve, confirmed absent from both consumer-escalation sets by direct grep. dev-memory-lifecycle-gates-smoke.js CHK-002 happy/scope/fail-safe/invalid-findingId assertions independently rerun and pass (advisory present after successful resolve, absent from finding_add/finding_list, survives a forced EISDIR memory-subsystem throw without breaking finding_resolve, real errors like invalid findingId still surface)."
+    },
+    {
+      "docPath": "plan.md#CHK-003 (DONE-gate dev_memory_finish_decision requirement)",
+      "promise": "Move finishDecisionPath + a new readDevMemoryFinishDecision reader into core/playbook-runtime-memory.ts (exported, fail-closed on missing/corrupt/cross-story records); handlers/playbook-runtime-memory.ts's dev_memory_finish_decision write-handler imports finishDecisionPath from core instead of a local duplicate; canFinishGuard (core/machine.ts) refuses DONE when no finish-decision record exists (captured/no-reusable-lesson/defer-with-reason all satisfy it); getGuardFailureReason DONE-branch message twin tagged [missing_dev_memory_finish_decision]; runtime-artifact-registry entry so writing/committing the record never perturbs materialHash or trips unexpected_dirty_files.",
+      "verifiedBy": "diff/grep + rebuild + independent rerun on current HEAD",
+      "evidence": "core/playbook-runtime-memory.ts exports finishDecisionPath + readDevMemoryFinishDecision (fail-closed via try/catch, rejects non-enum decision values and cross-storyId records); handlers/playbook-runtime-memory.ts imports finishDecisionPath from core, local duplicate deleted (also fixed as F-001 finding during REVIEW); core/machine.ts canFinishGuard L940-944 calls readDevMemoryFinishDecision and returns false when null; getGuardFailureReason DONE branch L1417-1425 with the tag; core/runtime-artifact-registry.ts new 'dev-memory-finish-decision' entry (materialHash:'exclude', prefix matcher '.lattice/dev-memory/finish-decisions/'). Rebuilt dist from current HEAD and reran dev-memory-lifecycle-gates-smoke.js: all CHK-003 refusal-then-pass (3 decision values), F-005/F-006 materialHash-exclusion-across-write-and-commit regression checks, and corrupt/invented-value/cross-story-record fail-closed adversarial assertions pass."
+    },
+    {
+      "docPath": "plan.md#CHK-004 (new smoke test registered in validate.commands)",
+      "promise": "New file packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts covering all three gates against a fresh temp-git fixture, with genuine refusal-then-pass pairs (not just pass-after-write), registered in lattice.config.json validate.commands.",
+      "verifiedBy": "diff/grep + direct execution + full lattice validate + npm test rerun on current HEAD",
+      "evidence": "File exists at packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts (575 lines); lattice.config.json validate.commands array (96 entries total) contains the compiled dist path as the last entry. Independently ran `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` after a fresh `npm run build` from current HEAD: exits 0, prints 'dev-memory-lifecycle-gates smoke passed: 79 assertions', matching the checklist's own CHK-004:happy:0 waived-but-reconfirmed count. Independently ran the full `node bin/lattice.js validate` (all 96 configured commands, exit code 0, dev-memory-lifecycle-gates-smoke.js shown at validate.commands[95] with all 79 assertions printed) and the full `npm test` (full-suite-runner.js: 47/47 passed in 241.4s, retries=0) on current HEAD feb76f89a3."
+    },
+    {
+      "docPath": "dispatch prompt claim: 12 collateral fixture fixes + 1 structural-fingerprint repin across REVIEW rounds",
+      "promise": "Pre-existing smoke/test fixtures whose stories now also hit the new CHK-001/CHK-003 gates were updated to write a satisfying dev-memory-preflight-ack.json or dev_memory_finish_decision record so their own unrelated assertions are not masked by the new gates; one whole-file structural fingerprint (closeout-trust-smoke.ts) was repinned after its own fixture gained a satisfying write.",
+      "verifiedBy": "diff enumeration + per-file read",
+      "evidence": "Confirmed exactly 12 fixture files with a new satisfying dev-memory write: closeout-trust-smoke.ts, delivery-check-freshness-smoke.ts (2 call sites), done-premerge-mainsha-recheck-smoke.ts, parallel-decomposition-gate-integration-smoke.ts, playbook-runtime-memory-mvp2-smoke.ts (test-assertion update, not a write, but same driver), proofstory-intent-hardening-smoke.ts (2 call sites), repro-evidence-binding-dev-gate-smoke.ts (4 call sites), review-assurance-floor-smoke.ts, review-escalation-freshness-root-smoke.ts, worktree-authority-smoke.ts, packages/main/tests/milestone-status.test.mjs (3 call sites), packages/main/tests/red/red-b2aa7-chk006-receipt.mjs. Confirmed exactly 1 structural-fingerprint repin spanning 2 files: retired-authority-vocabulary-guard-smoke.ts's PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry for closeout-trust-smoke.ts (old 235d69...->new f41c10...) and its mirrored pin in scripts/verify-process-fact-contract.mjs (same old->new hash), both updated in lockstep."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass for all 4 DEV doors (canStartDevGuard PLAN->DEV, canSkipPlanGuard INIT_CHECK->DEV express, canReenterDevGuard from REVIEW and from TEST), ack round-trip/existence-only semantics, fail-closed on empty-object/wrong-schemaVersion/truncated-JSON artifacts (including re-corruption after a valid ack, proving no caching), a genuine-I/O-fault (EISDIR) regression test proving canReenterDevGuard stays fail-OPEN while canStartDevGuard stays fail-CLOSED, and the --reason>=5-chars downgrade bypass path (including the too-short-reason and no-ack-on-failure-without-reason cases). Independently rebuilt and rerun on current (post-merge) HEAD: all pass."
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass across all 4 DEV-entry doors (canStartDevGuard PLAN->DEV, canSkipPlanGuard INIT_CHECK->DEV express, canReenterDevGuard from REVIEW, canReenterDevGuard from TEST) plus getGuardFailureReason message-tag checks; round-trip/existence-only edge case; adversarial fail-closed on {}/wrong-schemaVersion/truncated-JSON and re-corruption after a valid ack (no caching); adversarial EISDIR genuine I/O fault split (canReenterDevGuard fail-OPENs per spec 4.8, canStartDevGuard still fail-CLOSEs); --reason reasoned-downgrade bypass path (fails without reason, fails on <5-char reason, succeeds and records downgradeReason/null packDigest/empty topHitIds on a valid reason). Independently rerun by this reviewer on rebuilt current-HEAD dist: all pass."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "dev-memory-lifecycle-gates-smoke.js: happy path (real finding_add + finding_resolve, advisory text present as a suffix after 'resolved'), scope check (finding_add/finding_list never carry the advisory), adversarial fail-safe (forced EISDIR in the memory subsystem does not throw or block the finding mutation, advisory silently becomes empty), and adversarial (an unrelated real error, unknown findingId, still propagates normally). Independently rebuilt and rerun on current HEAD: all pass."
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: happy path confirms advisory text mentioning dev_memory_capture is appended AFTER the base 'resolved' text; scope check confirms finding_add/finding_list never carry the advisory; adversarial fail-safe forces an EISDIR throw inside the memory pack builder and confirms finding_resolve does not throw, still reports resolved, silently omits the advisory, and the underlying finding mutation still completes; a separate adversarial case confirms an invalid findingId still throws its real 'not found' error (not masked by the advisory path). Independently rerun by this reviewer: all pass."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass for all three decision values (captured/no-reusable-lesson/defer-with-reason) against a fully DONE-ready fixture isolating the finish-decision record as the only toggled factor, plus adversarial corrupt-JSON, invented-decision-value, and cross-story-id-mismatch cases (all fail-closed to null/false). Independently rebuilt and rerun on current HEAD: all pass. Story also dogfoods its own gate: .lattice/dev-memory/finish-decisions/B-a7c5.json records decision=captured with a real captured lesson (entry c77064d) from this story's own REVIEW round."
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass for canFinishGuard across all 3 decision values (captured/no-reusable-lesson/defer-with-reason) against a fully DONE-ready fixture (PASS test-evidence, signed fresh delivery-check, docs-only diff) isolating the finish-decision record as the sole toggled factor; F-005 regression checks confirm the finish-decision path is a recognized runtime-artifact-registry entry, materialHash-excluded, and writing/updating it 3x never perturbs currentMaterialHash; F-006 regression check commits the file and reconfirms materialHash and canFinishGuard are unaffected even across the commit; adversarial fail-closed checks for corrupt JSON, an invented decision enum value, and a cross-story record naming a different storyId. Independently rerun by this reviewer: all pass."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Smoke test file exists, is registered in lattice.config.json validate.commands, and its real execution (74/74 assertions passing) appears inside test-evidence.json's recorded validate-suite output at position validate.commands[94], not merely as a standalone/unregistered script. A prior evidence pin on a total-assertion-count string ('72 assertions') was correctly waived permanently rather than falsely re-pinned after a legitimate 2-assertion regression-test addition (commit 1c150d07f3) raised the count to 74 -- independently reproduced here (fresh build, 74/74)."
+      "transcript": "The smoke test file itself is the feature under test here (its own existence + registration + real execution). This reviewer independently rebuilt dist from current HEAD (feb76f89a3) via `npm run build` and ran `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` directly (exit 0, 79/79 assertions), then ran the full `node bin/lattice.js validate` (96/96 configured commands including this one at index 95, exit 0) and the full `npm test` (full-suite-runner.js, 47/47 passed, retries=0) on current HEAD, confirming the registration is real (not dead config) and the test genuinely runs and passes end to end."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Documentation-only checklist item (spec-doc reconciliation text). No executable test applies to prose content; verification is by direct reading of the diff and confirming the described mechanism (canFinishGuard blocking check, shared-core-module move) matches the code delivered under CHK-003.",
-      "waiverReason": "Pure documentation edit describing already-tested code behavior (CHK-003); the underlying behavior is covered by CHK-003's real machine test, prose itself has no executable surface."
+      "transcript": "Pure documentation reconciliation (M8 'Delivered differently' annotation in playbook-runtime-memory-consumption-execution-plan.md). Not independently executable as a machine test; verified by direct diff read plus cross-reference against the canFinishGuard/readDevMemoryFinishDecision implementation it describes (see CHK-003 docsPromise evidence) -- the annotation's factual claims match the actual code.",
+      "waiverReason": "CHK-005 is a documentation-only spec-doc reconciliation with no executable behavior of its own; it is verified by direct textual diff inspection cross-checked against the CHK-003 code it describes, not by a runnable test, which is the correct and only meaningful verification method for a prose annotation."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "Documentation-only checklist item (Non-Goals wording clarification). No executable test applies; verified by reading the diff and confirming the added text accurately distinguishes DevMemoryEntry content (still non-gate-evidence) from the two new gate-checked record types this story ships.",
-      "waiverReason": "Pure documentation edit; the underlying artifacts it describes (preflight-ack, finish-decision records) are covered by CHK-001/CHK-003's real machine tests."
+      "transcript": "Pure documentation reconciliation (Non-Goals 'Delivered differently' annotation in dev-memory.md). Not independently executable as a machine test; verified by direct diff read plus cross-reference against DevMemoryPreflightAckData/FinishDecisionRecord field shapes (see CHK-001/CHK-003 docsPromise evidence) -- the annotation's claim that neither new artifact carries gateEvidence/authority fields, and that gates check only existence, matches the actual type definitions and gate code.",
+      "waiverReason": "CHK-006 is a documentation-only spec-doc reconciliation with no executable behavior of its own; it is verified by direct textual diff inspection cross-checked against the CHK-001/CHK-003 code and types it describes, not by a runnable test, which is the correct and only meaningful verification method for a prose annotation."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "Documentation-only checklist item (RuntimeConsumer union sync + doc staleness audit). No executable test applies to the prose audit claim itself; verified by reading the diff and confirming finding_resolve was added to the documented union and that the code's actual RuntimeConsumer union (core/playbook-runtime-memory.ts) matches.",
-      "waiverReason": "Pure documentation edit; the underlying finding_resolve advisory behavior it documents is covered by CHK-002's real machine test."
+      "transcript": "Pure documentation reconciliation (RuntimeConsumer union + doc-wide staleness sweep in playbook-runtime-memory-consumption-execution-plan.md). Not independently executable as a machine test; verified by direct diff read confirming 'finding_resolve' was appended to the documented union matching the real code union in core/playbook-runtime-memory.ts, plus a manual grep sweep by this reviewer for other stale RuntimeConsumer-count or consumer-classification references in the doc (none found beyond the union and M8 section, consistent with the doc's own stated sweep result).",
+      "waiverReason": "CHK-007 is a documentation-only spec-doc reconciliation (a type-union sync plus a staleness sweep) with no executable behavior of its own; it is verified by direct textual diff inspection cross-checked against the real RuntimeConsumer union in core/playbook-runtime-memory.ts, not by a runnable test, which is the correct and only meaningful verification method for this kind of doc-sync change."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 7 checklist items and all 8 docs promises are independently verified in code/docs on the current (post-209-commit-merge) HEAD: a fresh `npm --prefix packages/main run build` plus direct reruns of dev-memory-lifecycle-gates-smoke.js (74/74) and 7 collateral fixture smokes/tests (milestone-status, repro-evidence-binding, parallel-decomposition, playbook-runtime-memory-mvp2, review-assurance-floor, review-escalation-freshness-root, delivery-check-freshness, red-b2aa7-chk006) all pass against rebuilt dist, confirming the story's own diff survived the main merge intact and functional. No merge-conflict markers remain in tracked files, no TODO/FIXME/HACK were introduced in the diff outside .lattice metadata, and all 4 prior findings (F-001..F-004) are resolved with real code fixes visible in the commit log (5d5683018f duplicate-type removal, 1c150d07f3 fail-open I/O-fault propagation fix)."
+    "summary": "All 7 checklist items and every docsPromise (2 real spec docs + plan.md's CHK-001..004) are verified against current HEAD (feb76f89a3), not against a stale prior review round: the three gates (evaluateDevMemoryPreflightGate wired at 3 call sites for 4 doors, the finding_resolve advisory splice, and canFinishGuard's finish-decision check) exist in core/machine.ts/handlers exactly as promised, the new smoke test genuinely runs (79/79 assertions, independently rebuilt+rerun by this reviewer), and both `lattice validate` (96/96, exit 0) and `npm test` (47/47, retries=0) independently pass on current HEAD. All 12 collateral fixture fixes plus the 1 structural-fingerprint repin (2 files) claimed in the dispatch prompt were individually confirmed in the diff and are narrowly justified (each adds only a satisfying dev-memory write/assertion so a pre-existing, unrelated test is not masked by the new gate). One minor, non-blocking gap found and disclosed: packages/main/src/cli/command-catalog.ts's dev_memory_finish_decision schema description text still reads '...not gate evidence', which is now stale relative to command-policy.ts's gateEvidence:true and the documented M8 escalation -- this is a leftover CLI --help string, not a functional gap (no test or gate reads this description), and does not affect any of the delivered gate behavior."
   },
-  "_hash": "87d601766aea3cd019b7647c145329c3fec982cda42c5717fdeb87231833a122"
+  "_hash": "e03fb2cf652ea022ede938cc52ababcfafb46711b99dda103b3e31fd51f96615"
 }
