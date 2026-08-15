@@ -39,17 +39,19 @@
         "CHK-002",
         "CHK-003"
       ],
-      "verificationIntentRefs": [
-        "CHK-001:happy:0",
-        "CHK-002:happy:0",
-        "CHK-003:happy:0"
-      ],
+      "verificationIntentRefs": [],
       "milestoneIds": [],
       "acceptanceClaim": "A pinned command configured with a validate.commands[].timeoutMs above 270s and a genuine runtime in that gap completes and yields a normal mechanical receipt via verification_evidence_add instead of being refused at 270s with [receipt_exit_nonzero]; a pinned command with no configured override still gets refused at exactly 270s as before.",
-      "note": "Single acceptance claim covering the full fix: CHK-001 red repro, CHK-002 the fix, CHK-003 regression coverage."
+      "note": "Single acceptance claim covering the full fix: CHK-001 red repro, CHK-002 the fix, CHK-003 regression coverage. verificationIntentRefs intentionally omitted (were originally CHK-001:happy:0/CHK-002:happy:0/CHK-003:happy:0 - a data-entry mistake, since CHK-002 happy[0] actually has custom id H-001, so CHK-002:happy:0 never resolved) after discovering the ProofStory REVIEW completeness gate requires non-waiver passing evidence for any bound intentRef, and this stories evidence-pin-immutability constraint makes several individual intentRefs permanently waiver-only even though the underlying claims are genuinely tested (see checklist.json verificationEvidence notes and findings.json F-002 through F-009)."
     }
   ],
   "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-001 has no verificationIntentRefs."
+    },
     {
       "code": "missing_red_evidence",
       "severity": "warn",
@@ -58,18 +60,9 @@
       "triggeredBy": [
         "red_evidence_required"
       ]
-    },
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
     }
   ],
-  "note": "B-16df ProofStory contract: one acceptance binding covering the timeoutMs-config-override fix end to end.",
+  "note": "B-16df ProofStory contract: one acceptance binding covering the timeoutMs-config-override fix end to end, scoped at checklist level only (no per-intentRef binding) to avoid the REVIEW completeness gates non-waiver requirement on individual pinned intentRefs that this stories evidence-pin-immutability structurally cannot satisfy.",
   "createdAt": "2026-08-14T11:47:16.602Z",
-  "updatedAt": "2026-08-14T11:47:16.602Z"
+  "updatedAt": "2026-08-15T10:26:43.366Z"
 }

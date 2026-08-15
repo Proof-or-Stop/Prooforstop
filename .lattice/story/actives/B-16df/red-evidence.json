@@ -35,8 +35,25 @@
       },
       "note": "Live-reproduced on current main HEAD ce9f57f in the B-16df worktree (exit 1, RED CONFIRMED). acceptanceTargetRef corrected to CHK-001:happy:0 to match proofstory.json acceptance binding AB-001s verificationIntentRefs, per resolveExpectedRedTargets in core/proofstory.ts:916-929.",
       "createdAt": "2026-08-14T11:48:32.065Z"
+    },
+    {
+      "id": "RED-20260815102711",
+      "trigger": "verification_evidence_add/_batch_add/verification_run silently ignore lattice.config.json validate.commands[].timeoutMs when deriving mechanical receipts",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "ce9f57f3cc0876b04481c8e76a8a721a5a8791b6",
+      "baselineMaterialHash": "bd782343e68dbdc2dfc8a7906e8e92afb8b152e2dadaa2cd5777edab5f362f29",
+      "observedFailure": "runSingleAllowlistedCommand(cmd, tmpRoot, {}) with tmpRoot/lattice.config.json containing a validate.commands[] entry {command:node,args:[-e,setTimeout(()=>{},1500)],timeoutMs:700} completed normally (code=0, timedOut=false, durationMs=1671) instead of being killed at the configured 700ms - proving the per-command config override is never consulted and the hardcoded 270000ms DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS is used unconditionally.",
+      "failingCommand": "node /private/tmp/claude-501/-Users-jek-Documents-CDR3--claude-worktrees-gifted-cohen-7b00d5/e1e9efd3-3bc0-4681-8974-7404c3b373d1/scratchpad/b16df-red-probe.cjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js"
+      },
+      "note": "Re-bound acceptanceTargetRef/greenTargetRef to AB-001 (the ProofStory acceptance binding id) after removing verificationIntentRefs from the binding during a PLAN rollback to fix a data-entry mistake (CHK-002:happy:0 was a dangling ref). Live-reproduced on HEAD ce9f57f in the B-16df worktree (exit 1, RED CONFIRMED).",
+      "createdAt": "2026-08-15T10:27:11.630Z"
     }
   ],
   "createdAt": "2026-08-14T11:45:23.283Z",
-  "updatedAt": "2026-08-14T11:48:32.065Z"
+  "updatedAt": "2026-08-15T10:27:11.630Z"
 }
