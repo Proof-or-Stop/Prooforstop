@@ -178,6 +178,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a41462de5c6eedcf2c08d6cb81775c6d9d587c0de7a3f1cd5ef6e14789cd6db8"
+    },
+    {
+      "id": "B-3434:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Behaviour-preservation check on commit 2717839123 (3 files, 10+/4-, all prose+1 array entry) confirmed clean. git diff a586100e89 HEAD -- packages/main/src/ shows only: (1) 4 added comment lines in verifier.ts above persistStoryValidationEvidence's gate (no statement/expression/control-flow touched, function read in full 841-1011), and (2) one array-literal entry 'B-3434:F-037' in the smoke's required-substring loop. packages/main/src/core/validation-executor.ts, which owns 100% of the byte-computation/disposition logic, has zero diff since a586100e89. The comment shifted code down by 3 lines (972-981 -> 975-984, matching the doc's updated F-037 row); gate (line 976) still strictly precedes write (line 985) with nothing mutating the record between them. Re-ran the four-disposition probe through the real StoryStore.writeTestEvidence via scratch harness mirroring the gate-then-write shape exactly: unmodified/reduced/verdict_only all wrote successfully; refused (withinBound=false) never called writeTestEvidence and no test-evidence.json was produced. Byte counts differ numerically from the doc's historical unmodified=277/reduced=667/verdict_only=599/refused=27263587 figures because I used fresh synthetic fixtures rather than the original ones, but the mechanism producing those figures (validation-executor.ts) is byte-for-byte unchanged, so the doc's claim stands. Deliverable re-confirmed against real git blobs via scratch probe: 5 MiB blob reads correctly (ok=true), 40 MiB blob fails as kind=unreadable with byte counts in the message (33554432-byte ceiling; 33562624 bytes captured), missing path is kind=absent. Doc diff (validation-evidence-artifact-growth.md) is a pure prose correction: un-claims that the writer-owned boundary made F-036 moot, correctly reattributes F-036 as independent validation-executor.ts work, and updates F-037's verifier.ts line range 972-981->975-984 to match the shift; content is internally consistent with the code. Commands run, all green: npx tsc --noEmit -p packages/main (0 errors); packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs (PASS); packages/main/dist/tasks/validation-evidence-buffer-smoke.js (PASS, findingIdsNamed includes B-3434:F-037); packages/main/dist/tasks/done-prepare-auto-closeout-smoke.js (PASS); packages/main/dist/tasks/validation-evidence-reuse-smoke.js (PASS). No behaviour regression. No findings filed.",
+      "createdAt": "2026-08-15T22:36:26.491Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-034",
+      "envelopeId": "e5473ced08222f51d4d967e1bde429e7e04831c688b27974f9983166f57c4365",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "62d71cef5ebe601599e46aeb6c906e5e9e814b43d1d95f740bba76890be2048b"
     }
   ]
 }
