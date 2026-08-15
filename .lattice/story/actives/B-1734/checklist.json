@@ -88,9 +88,9 @@
       "id": "CHK-002",
       "title": "Make the build skip decision content-bound via the existing verifyBuildBinding (not mtime/existence) and add an analogous packages/utils binding -- applied to the three build call sites",
       "context": "Fixes the two Codex FRESHNESS findings: (3) single-file mtime misclassifying deleted-source orphans, partial builds, and tampered outputs as fresh, and (4) existence-only reuse with no freshness proof. Reuses scripts/full-suite-build-binding.mjs verifyBuildBinding (sha256 over all src+config and all dist) as the skip gate; adds a packages/utils binding covering utils/src plus the packages/main/dist it links against.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-15T12:26:30.308Z",
       "verificationIntent": {
         "happy": [
           {
@@ -183,7 +183,14 @@
           }
         ]
       },
-      "userSees": "The user sees npm test skip the rebuild instantly (no tsc) when dist already matches source, rebuild only when a source file actually changed, and never a TS2307 / MODULE_NOT_FOUND from a stale, partial, or orphaned dist; a deleted-source orphan or a tampered dist file triggers a rebuild instead of being silently reused."
+      "userSees": "The user sees npm test skip the rebuild instantly (no tsc) when dist already matches source, rebuild only when a source file actually changed, and never a TS2307 / MODULE_NOT_FOUND from a stale, partial, or orphaned dist; a deleted-source orphan or a tampered dist file triggers a rebuild instead of being silently reused.",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ce0a724b4d95c6e6c8f4d238df374d949a4ef46926b816ba2f7953dff202c68b",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headHash": "b52909dba7a20c2e0615b9e2a4c35b5316bcc0d8",
+        "attestedAt": "2026-08-15T12:26:30.558Z",
+        "materialHash": "599998e6946c6f469f142172e747c46afc7fa06f80c37705570cac79133d4eed"
+      }
     }
   ]
 }
