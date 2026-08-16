@@ -5437,6 +5437,38 @@
       ],
       "signatureTag": "missing|ts|behavior-lane-routing-gap",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-089",
+      "desc": "Correction/escalation to F-087's resolution: the topology-critic receipt path is not merely diagnostic drift, it is mechanically blocked right now. Both topology_critic_receipt_set (verdict=pass AND verdict=request_changes, tried directly with LATTICE_AGENT=lattice-review-topology-critic) and the read-only topology_critic_receipt_check unconditionally fail before reaching either verdict branch: currentTopologyReceiptStateForContext in packages/main/src/handlers/proofstory.ts:302-323 calls verifyAcceptanceBasisReceipt unconditionally at line 311-322 and throws at line 323 whenever basisVerification.ok is false, for BOTH verdicts (the pass-vs-partial-basis-only check in topology-critic-receipt.ts:407 is never reached because the earlier throw fires first). Live reproduction this round: lattice topology_critic_receipt_set with verdict=request_changes -> 'topology critic basis verification failed: AT_SCOPE_BINDING_MISSING: PR_PLANNED_PATH_UNRESOLVED: planned path is unresolved: planned:B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT; scope-contract digest mismatch'. lattice topology_critic_receipt_check (read-only canonical verification surface) independently confirms: 'Topology critic receipt: REJECTED, Code: AT_TOPOLOGY_CRITIC_CONTEXT_INVALID' with the identical diagnostic. This means the required WAVE-4-role output (a signed topology_critic receipt, pass or request_changes) cannot be produced at all while the acceptance-basis scopeContractDigest binding remains stale relative to current scope-contract.json (root cause: acceptance_basis_generate at commit 2c89711477 pinned the digest before the scope-contract acknowledgement commit 0a26d3d8c2 changed scope-contract.json one commit later -- confirmed by direct git log/diff inspection). F-087's resolution correctly identified the topology_check/pre_review_check FAIL states as real and unrepaired but characterized them as 'not currently gate-blocking for the remaining transitions of this specific story instance' -- that characterization was too narrow: it is true for story_advance phase transitions (which never consult these evaluators past DEV->REVIEW) but false for the topology-critic role itself, whose canonical receipt-issuance path is unconditionally blocked by the same stale binding. The newly surfaced PR_PLANNED_PATH_UNRESOLVED code for planned:B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT is additional evidence the acceptance-basis needs regeneration, not just the scope-contract digest: even a fresh acceptance_basis_generate run must resolve this planned-path binding before a topology-critic receipt becomes issuable. Remediation: re-run lattice acceptance_basis_generate AFTER any scope_contract_acknowledge/acceptance touching commit (not before), so the basis binding is generated last in the DEV-round sequence and pins a scopeContractDigest that matches the final scope-contract.json state; then re-run acceptance_topology_check and pre_review_check to confirm they clear before closing this out.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-16T11:03:10.950Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-373",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "198c8745ff42b2b7c22c664adef8e8c1c4f5a4ba62375a5305e801e22b00b87c",
+      "files": [
+        ".lattice/story/actives/B-3f3d/acceptance-basis.json",
+        ".lattice/story/actives/B-3f3d/scope-contract.json",
+        ".lattice/story/actives/B-3f3d/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|ts|wave-acceptance-gate",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
