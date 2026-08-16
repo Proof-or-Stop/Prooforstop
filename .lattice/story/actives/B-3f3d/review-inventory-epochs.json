@@ -4016,9 +4016,9 @@
       "epochId": "B-3f3d:RI-037",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-16T13:35:46.983Z",
-      "updatedAt": "2026-08-16T13:35:46.983Z",
+      "updatedAt": "2026-08-16T13:42:51.240Z",
       "cutoff": {
         "headHash": "2dd3fb856e253546851b0042d50ab1ffcc37c12f",
         "materialHash": "d7e18083c36b3c56b0249fa4cac557e35a22374d58ba8118d0fdc965aa77dced",
@@ -4038,7 +4038,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "eadcc6447737f10324c0d72277b5aaec581b41930926f42b94376feaa784403b"
+      "cancelledAt": "2026-08-16T13:42:51.240Z",
+      "cancelReason": "cancelling to run the non-dryRun evidence refresh, which is allowedPhases=all but mutates scope; resolving F-095 evidence staleness BEFORE reopening so the next epoch starts on non-stale evidence",
+      "terminalRunSequenceBoundary": 402,
+      "_hash": "0d71d42cc196b81cc9feecfcd93bfdcf059a8be449d615c720c0bd9d9fb54adb"
     }
   ],
   "receipts": [
