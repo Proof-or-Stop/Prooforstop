@@ -5122,6 +5122,21 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Keyed captured process ownership on (pid, birthIdentity) instead of numeric PID alone. readProcessRows now requests pid=,ppid=,pgid=,lstart= with lstart last; new exported parseProcessRows anchors the three leading numeric columns and takes the remainder as the birth value, so the space-containing lstart cannot be mis-parsed positionally. Added a permanent revoked set: revokeReusedPids drops any captured PID whose observed birth identity differs, capture() refuses to re-adopt revoked PIDs including the root row (previously overwritten unconditionally), signalKnown skips them, and liveTargetIds re-inspects and revokes before probing so a PID recycled between SIGKILL and probe is never signalled. birthIdentityMatches falls back to numeric identity when either side lacks a birth fact, preserving behaviour for adapters reporting none; inspection failure is recorded, never treated as revocation, keeping the fail-closed posture. Smoke fixture rewritten to genuinely reproduce reuse of an ALREADY-CAPTURED PID (the prior fixture only tested stale ancestry via a different foreignPid): latched the reused PID rather than unconditionally readFileSync-ing it in signal/probe (which threw ENOENT before the child wrote the file and failed the entry without exercising reuse), made the injected foreign process report permanently alive so a surviving ownership claim cannot converge, and split the collapsed assert into separate capture and injection assertions. Verified: full-suite-runner-smoke PASS (177 assertions) including all four birth-identity assertions and the three unregressed PID-reuse assertions; tsc --noEmit clean; lattice validate fully green. Mutation check: reverting birthIdentityMatches to return true makes the fixture hang past its cleanup budget, proving the test bites.",
       "resolvedAt": "2026-08-16T07:57:13.009Z"
+    },
+    {
+      "id": "B-3f3d:F-079",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:77,671,680 - module-scope activeChildren Set is write-only dead state left over from the pre-refactor design: it is still populated (add at 671) and cleaned up (delete at 680) on every runEntry call, but nothing in the file (or elsewhere in the repo) ever reads/iterates it anymore. requestInterrupt (line 631) and the scheduler cancellation path (line 786) both now iterate activeTerminators instead, following the migration to (pid, birthIdentity) ownership. A future reader will reasonably assume activeChildren still gates cleanup/interrupt behavior when it does nothing.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-16T08:01:26.785Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-336",
+      "_hash": "5a29afb2cd6539735a79f479797abf288a6ed223a966496425e5864e21cb4ec8",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
