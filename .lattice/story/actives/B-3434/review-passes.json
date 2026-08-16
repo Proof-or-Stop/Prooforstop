@@ -713,6 +713,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a38b1fd8bab783214301439d63058226f94122b359a6bcd49976df34af83c332"
+    },
+    {
+      "id": "B-3434:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Re-binds RP-023 with zero source change. Coordinator's initial premise (diff empty vs 00c534aea0) was false as stated; I stopped and reported. Corrected premise verified independently: 'git diff 00c534aea0 HEAD --stat -- . :(exclude).lattice :(exclude)CHANGELOG.md' is empty, and 'git show --stat 1dedc2dd78' + 'git branch --all --contains 1dedc2dd78' confirm that commit touches only CHANGELOG.md (adding main's v0.3.258 release note for four unrelated stories B-6693/B-fb7b/B-a7c5/B-74b9, plus a one-word wording edit on an old 0.3.254 entry), authored by a different agent, and present on main and several sibling story branches -- i.e. it arrived via done_prepare main-merge, not from B-3434 work. Non-.lattice, non-CHANGELOG delta is empty. Ran the four dispatched commands for real: npx tsc --noEmit -p packages/main -> exit 0, no output. node scripts/verify-process-fact-contract.mjs -> 'Process fact contract verified', exit 0. node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> all sections PASS including the over-ceiling ENOBUFS diagnostic and hook-reason assertions, exit 0. node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> all sections PASS including the CHK-004 outcome-B disposition line naming the committed rationale doc and F-001/F-033..F-037, exit 0. Judgement on the convergence-invariant question (done-prepare.ts:1587-1662, verifier.ts:786-896, read directly): unchangedSuiteExecutions groups validation_terminal events by commandSetHash:materialHash:storyFilesHash and counts duplicate executed terminals with commandExecutions>0 at/after facts.testEntryAt, without filtering by pass/fail (verifier.ts:814 sets result independently of the disposition/commandExecutions fields the convergence function reads), so an infra-timeout retry counts identically to a passing duplicate. The post-testEntryAt scoping is a deliberate B-f824 fix for a prior incident (B-956f) where whole-window counting permanently deadlocked DONE; the code comment at done-prepare.ts:1614-1623 states the blocking counter is scoped specifically so a fresh TEST entry resets it, mirroring the reviewerReattestations/postTestReviewerReattestations split. The TEST->DEV->REVIEW->TEST re-anchor is therefore the designed escape for exactly this situation, not a bypass of something the guard is trying to tell you about the code -- and it is not free, since it forces the real REVIEW re-attestation this round represents. Given the independently-verified root cause (concurrent-suite timing, ruled out as regression or temp-dir bloat) and that the same contention class is already being addressed structurally elsewhere (B-6693, visible in the CHANGELOG delta), re-anchoring is the correct remedy.",
+      "createdAt": "2026-08-16T21:51:36.392Z",
+      "reviewRound": "2026-08-16T21:44:16.358Z",
+      "reviewRunId": "B-3434:RR-057",
+      "envelopeId": "fb53dc87aca34d15b547f2c6b3d1109e3c21f1e19f66f64d6dbdfeb92387fb0b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f10e4d2c33b40f7f32f68a044f41ba63a0ace893d50ca701019585a68d5b0cc"
     }
   ]
 }
