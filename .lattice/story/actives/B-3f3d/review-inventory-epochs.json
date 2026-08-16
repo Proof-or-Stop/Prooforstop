@@ -3608,9 +3608,9 @@
       "epochId": "B-3f3d:RI-027",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T07:56:52.725Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-16T09:09:59.167Z",
-      "updatedAt": "2026-08-16T09:09:59.167Z",
+      "updatedAt": "2026-08-16T09:17:30.913Z",
       "cutoff": {
         "headHash": "d6f0d820bcd649c68f50808c5d4ecdb58a341077",
         "materialHash": "d9f40c894185e625ecb246ce0c672a44bb62cfe6c7a7c3f244319eca9e1ce907",
@@ -3631,7 +3631,10 @@
       "baselineFindingIds": [
         "B-3f3d:F-086"
       ],
-      "_hash": "27efb002219f5c253f4125cf1bc033b017390ce1fe497fa6ccbf8d7a64168a0a"
+      "cancelledAt": "2026-08-16T09:17:30.913Z",
+      "cancelReason": "baseline finding set changed; F-083/F-086 disposed after lane verdicts, reopening a fresh signed epoch with zero open findings",
+      "terminalRunSequenceBoundary": 359,
+      "_hash": "3868676c0d0ae97aa88f5ebeff36b5c631ece65ff7e85cf6988305198f791773"
     }
   ],
   "receipts": [
