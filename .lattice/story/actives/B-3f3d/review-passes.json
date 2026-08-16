@@ -16176,6 +16176,35 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "96af05f44c76f3e10dd8ea292b43cecca2aa0751256c60e1fcc4e6b151216e33"
+    },
+    {
+      "id": "B-3f3d:RP-274",
+      "agent": "lattice-review-quality",
+      "note": "Re-adjudicated inside epoch RI-027 at frozen cutoff. git diff 4daa1999b4..HEAD confirms zero packages/main/src or scripts diff (only .lattice/story/actives/B-3f3d/* metadata/evidence changed) since my prior RESOLVED F-084 verdict. Re-read terminateAndVerify: bounded SIGKILL retry still records surviving PIDs and breaks to the fail-closed AggregateError on deadline; no clean-tree path with a possibly-live captured child. test:unkillable-survivor fixture still explicitly reaps its real descendant. No as-any/empty-catch/dead-code regressions in review-inventory-epoch.ts, review-inventory.ts, review-run.ts, finding.ts, checklist.ts. No new findings this pass; F-083/F-086 are test-coverage-lane freshness findings outside this quality lane scope.",
+      "createdAt": "2026-08-16T09:12:56.184Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-356",
+      "envelopeId": "8255cde7e9f40ec0f3497235732a6e4d71f6f9c8de0765694a63029a7981f5e3",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83e3b8fb25d0c4a0d91d2f7f6802180b756eb67688cec67a42ee5bf6a95f14e0"
     }
   ]
 }
