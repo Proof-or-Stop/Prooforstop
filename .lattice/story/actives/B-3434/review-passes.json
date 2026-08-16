@@ -688,6 +688,31 @@
         "scanEscalationReason": null
       },
       "_hash": "73a6637e69a1cf4c0cd7039bd51ad5cefc1e6fce450ed821aca92746d27cab63"
+    },
+    {
+      "id": "B-3434:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-binds RP-024 after a TEST->DEV->REVIEW->TEST re-anchor taken solely to clear a post-TEST unchangedSuiteExecutions convergence-invariant counter (duplicate done_prepare terminals from shared-machine suite-timeout retries, not a code regression); zero source change. git diff 00c534aea0 HEAD --stat -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md' is empty; the only non-.lattice delta is CHANGELOG.md, which arrived via a main merge (commit 1dedc2dd78, 'chore: release Proof-or-Stop v0.3.258') documenting four unrelated workstreams (B-6693, B-fb7b, B-a7c5, B-74b9) with no B-3434 content or code touched. verification_evidence_refresh_stale found no stale evidence to refresh. All 24 pinned selectors across CHK-001..CHK-005 verified contained in fresh output of the two bound commands (node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs and node packages/main/dist/tasks/validation-evidence-buffer-smoke.js, both PASS, exit 0), with CHK-005:edge:0 ('artifact (1212174 bytes) is unbounded and silent') the sole miss, matching its permanently-waived status (the exact-byte-count guarantee was explicitly not shipped under CHK-004 outcome B, per docs/requirements/decisions/validation-evidence-artifact-growth.md). Both harnesses confirmed still registered in lattice.config.json validate.commands (indices 13 and 76) after the intervening mergeMain.",
+      "createdAt": "2026-08-16T21:49:37.431Z",
+      "reviewRound": "2026-08-16T21:44:16.358Z",
+      "reviewRunId": "B-3434:RR-058",
+      "envelopeId": "f6de64a30811950bf8913ad791e8fd680088f674bc540244bd7a5e9ee0e6fd86",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a38b1fd8bab783214301439d63058226f94122b359a6bcd49976df34af83c332"
     }
   ]
 }
