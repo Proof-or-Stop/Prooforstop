@@ -1078,6 +1078,44 @@ function runPolicyCases(): void {
     materialFiles: ['<story-files-changed>'],
   }, 'a'.repeat(40)), 'RELATED_STORY_MATERIAL_DRIFT');
   console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
+
+  // B-3f3d F-090: the post-remediation selector may only narrow the reviewer
+  // roster when the impact is provably benign. Every category that
+  // postRemediationReviewSelection routes to POLICY_IMPACT_REQUIRES_FULL_SET
+  // must actually be produced by classifyImpact, or the fail-closed branch
+  // silently stops firing and round-2+ reviews get narrowed after a
+  // remediation touched gate/policy source itself.
+  const FULL_SET_CATEGORIES = [
+    'public-contract', 'authority-or-permission', 'command-or-gate-policy',
+    'dependency-or-build', 'unsupported-rename', 'unknown',
+  ];
+  const gatePolicyImpact = classifyImpact({
+    changedFiles: ['packages/main/src/core/command-policy.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'packages/main/src/core/command-policy.ts': 'M' },
+  });
+  assert.ok(
+    gatePolicyImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'changing gate/policy source must classify into a category that forces the full reviewer set',
+  );
+  const buildImpact = classifyImpact({
+    changedFiles: ['package.json'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'package.json': 'M' },
+  });
+  assert.ok(
+    buildImpact.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'changing dependency/build material must classify into a category that forces the full reviewer set',
+  );
+  // The rename case is already asserted above to be FULL_UNSUPPORTED_RENAME;
+  // pin that its impact category is likewise in the full-set trigger list.
+  assert.ok(
+    renamed.impacts.some(impact => FULL_SET_CATEGORIES.includes(impact.category)),
+    'an unsupported rename must classify into a category that forces the full reviewer set',
+  );
+  console.log(`${MARKER} F-090: gate/policy, dependency and unsupported-rename impacts all force the full reviewer set PASS`);
 }
 
 function runFixtureDuplicateIdentityCases(): void {
