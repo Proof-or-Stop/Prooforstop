@@ -17282,6 +17282,52 @@
         "scanEscalationReason": null
       },
       "_hash": "678474fa1c45bd0d35ad389880d777dc10db179cc971b409828e76d04a6b08e4"
+    },
+    {
+      "id": "B-3f3d:RP-300",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency check for round bound to RR-407. git log confirms only metadata commits since RP-297 (review_pass_set/finding_resolve/verification-evidence-refresh metadata) -- no source or doc content changed, matching the incremental-review-basis ELIGIBLE_NO_MATERIAL_CHANGE signal. Re-confirmed the two specific items flagged for re-confirmation: (1) CLAUDE.md forceReviewer paragraph (lines 887-889, B-3f3d F-091/F-092) is present and accurate. (2) test-runner-consolidation-plan.md termination prose (lines 10-25) matches packages/main/src/tasks/full-suite-runner.ts exactly (terminateProcessTreeAndVerify wrapping ProcessTreeLifecycle.terminateAndVerify), confirmed line-by-line. finding_list shows 97 total findings, only 1 open (B-3f3d:F-089, non-docs, correctly scheduled for next DEV pass). Confirmed review_inventory_begin/wave_advance/finalize are registered in command-catalog.ts via direct grep. Filed one new low finding (F-098) on an undocumented operator gotcha around verification_evidence_refresh_stale allowedPhases:all vs epoch invalidation; advisory, not a blocker. No other doc/code drift found this round.",
+      "createdAt": "2026-08-16T14:02:21.820Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-407",
+      "envelopeId": "49d1630ad5d2bf09cee591022b944db6822b605b3653800b331100d666b158d8",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "766c78145c8628909751d1085364c39ca9c1a3fdcd09c072e039699cc16b2f46"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4be7c5d526931c38da8d7dafb04fd0592e08c348110692ab954aeda62cdbab9"
     }
   ]
 }
