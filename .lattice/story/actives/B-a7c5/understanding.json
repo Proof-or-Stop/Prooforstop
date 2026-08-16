@@ -1,0 +1,37 @@
+{
+  "task": "Add three lifecycle gates around Proofbound's existing dev-memory system (currently 100% voluntary/best-effort): a hard INIT_CHECK-phase preflight-acknowledgement requirement before DEV, a non-blocking advisory reminder on finding_resolve, and a hard DONE-gate finish-decision requirement.",
+  "outcome": "A story cannot enter DEV (via any of the four DEV-entry doors) without dev_memory_preflight_ack having been recorded; finding_resolve's output includes a short non-blocking advisory line suggesting dev_memory_capture when relevant; a story cannot reach DONE without dev_memory_finish_decision having been recorded (captured|no-reusable-lesson|defer-with-reason all satisfy it).",
+  "facts": [
+    "DEV-entry is gated by four separate xstate guard functions in core/machine.ts, not one choke point: canStartDevGuard (637-669, PLAN->DEV), canSkipPlanGuard (697-717, INIT_CHECK->DEV express), canReenterDevGuard (728-738, REVIEW/TEST->DEV rollback)",
+    "Each boolean guard has a byte-matched human-readable twin in getGuardFailureReason (1130+); boolean and message must be kept in sync by hand, there is no shared array/data structure enforcing parity",
+    "canFinishGuard (876-943, the DONE gate) is a sequential list of if(...) return false early-returns, not an array of pluggable checks",
+    "The existing scope_boundary_set/execution_boundary_set/scope_freeze_check INIT_CHECK-gating pattern (handlers/scope-anti-expansion.ts + core/machine.ts:286-378 evaluateScopeAntiExpansionGate) is the direct precedent for CHK-001",
+    "finding_resolve (handlers/finding.ts:759-791) already has a precedent for appending non-blocking advisory text: the commitHint suffix via autoCommitStoryMetadata",
+    "dev_memory_finish_decision currently writes to .lattice/dev-memory/finish-decisions/<storyId>.json via raw fs calls in handlers/playbook-runtime-memory.ts, with finishDecisionPath not exported -- must be moved to core/playbook-runtime-memory.ts to avoid a core-importing-from-handlers inversion in machine.ts",
+    "dev_memory_finish_decision's record has no _hash/material-binding field, unlike scope-boundary.json/delivery-check.json -- the simple existence-check pattern (canFinishGuard's test-evidence check, 877-882) is the correct model to follow, not the hash/staleness pattern (delivery-check)"
+  ],
+  "constraints": [
+    "The finding_resolve reminder must be non-blocking and must never change finding_resolve's exit code or fail the call, even if the memory subsystem throws -- wrap in try/catch",
+    "No minimum-count or positive-capture requirement for the DONE gate -- an honest no-reusable-lesson decision must be a fully valid, non-blocking answer",
+    "Must not modify dev_memory_capture/dev_memory_finish/dev_memory_preflight's existing core logic or schema beyond what's needed for the new acknowledgement/decision-tracking artifacts",
+    "Must not touch playbooks.json/signature-registry.json or the global (~/.lattice) dev-memory scope",
+    "The CHK-001 gate must apply uniformly to all four DEV-entry doors, not just PLAN->DEV, since a gameable implementation that only checks one door would defeat the purpose"
+  ],
+  "unknowns": [
+    "Exact RuntimeConsumer wiring details for finding_resolve's advisory (core/playbook-runtime-memory.ts:44-52 union, and whether it needs registration in any other lookup table) -- to be confirmed during implementation by reading the full file",
+    "Whether any existing test fixture already builds a full story lifecycle from INIT through DONE that the new smoke test can reuse/adapt, versus needing a from-scratch fixture"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/machine.ts (canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, canFinishGuard, getGuardFailureReason)",
+    "packages/main/src/core/types.ts (new DevMemoryPreflightAckData type)",
+    "packages/main/src/core/store.ts (new readDevMemoryPreflightAck/writeDevMemoryPreflightAck)",
+    "packages/main/src/handlers/dev-memory.ts (new dev_memory_preflight_ack handler)",
+    "packages/main/src/handlers/finding.ts (finding_resolve advisory splice)",
+    "packages/main/src/core/playbook-runtime-memory.ts (RuntimeConsumer union, finishDecisionPath + readDevMemoryFinishDecision)",
+    "packages/main/src/handlers/playbook-runtime-memory.ts (dev_memory_finish_decision import from core instead of local definition)",
+    "packages/main/src/core/command-policy.ts, core/config.ts, cli/command-catalog.ts (new command registration)",
+    "packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts (new smoke test)",
+    "lattice.config.json (register new smoke in validate.commands)"
+  ],
+  "timestamp": "2026-08-14T10:29:25.633Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1734",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a cross-platform proper-lockfile mutex around the build critical section (build currently has no lock)",
+    "Add an analogous packages/utils build-binding (new script) covering packages/utils/src + tsconfig + package.json + the packages/main/dist it links against",
+    "Add proper-lockfile to root package.json dependencies",
+    "Change the build skip decision to be content-bound via the existing scripts/full-suite-build-binding.mjs verifyBuildBinding instead of mtime/existence",
+    "CHANGELOG.md entry",
+    "Repro-first RED tests + guard-bite under packages/main/tests/red/ with validate.commands / REGISTRATION_EXCLUSIONS wiring",
+    "Unify the three distinct build call sites (scripts/ensure-dist.mjs, scripts/build-main-with-binding.mjs which is also the packages-main-build validate command, and the packages/utils build) on verify-then-skip-else-lock+rebuild+writeBinding"
+  ],
+  "excluded": [
+    "No atomic-publish / symlink dist-swap (YAGNI per approved design)",
+    "No changes to packages/core or packages/lab beyond build scripts if strictly required",
+    "No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)",
+    "No new CLI commands, gates, or lifecycle changes"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Maintainer approved in-session: cross-platform proper-lockfile mutex + content-bound skip via existing verifyBuildBinding + a utils binding, applied to the three build call sites — fixing the four Codex build-concurrency findings deferred from B-fb7b.",
+  "createdAt": "2026-08-15T11:31:01.633Z",
+  "updatedAt": "2026-08-15T11:31:01.633Z",
+  "_hash": "a77bbf2644a847a55b4405fcf1c97ec0b69e5d63a54b82ad315821467dffa6c5"
+}

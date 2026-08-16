@@ -597,6 +597,9 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId: runs[0].reviewRunId,
       note: 'stale run should be rejected after material change.',
+      // B-74b9 CHK-002: readManifest is a required argument (command-catalog.ts); without it the
+      // call fails argument validation before ever reaching the staleness check this test exercises.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(stalePass.code, 0);
     assert.match(stalePass.stderr, /already stale|stale/i);
@@ -667,6 +670,8 @@ async function assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift(): Promise
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'quality review pass remains valid after unrelated main drift because storyFilesHash matches.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.equal(pass.code, 0, pass.stderr);
     assert.match(pass.stderr, /whole-tree materialHash drift|storyFilesHash matches|re-attestation/i);
@@ -869,6 +874,8 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'split-root review pass should validate against configured gitRoot.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.equal(pass.code, 0, pass.stderr);
 
@@ -895,6 +902,9 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'old split-root review pass must be rejected after gitRoot changes.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts); a valid manifest here lets
+      // this reach the real workspace-binding staleness check, not fail earlier on argument validation.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(driftRejected.code, 0);
     assert.match(driftRejected.stderr, /workspace binding|signed workspace resolution|stale/i);
@@ -917,6 +927,9 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'tampered workspace binding should be rejected before pass evidence.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts); a valid manifest here lets
+      // this reach the real tampered-binding check, not fail earlier on argument validation.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(rejected.code, 0);
     assert.match(rejected.stderr, /workspace binding|workspaceBinding|invalid signature|tampered/i);
@@ -1230,6 +1243,8 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
       agent,
       reviewRunId: starts.get(agent)?.reviewRunId,
       note: `${agent} checked current round and found no blocking findings.`,
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     })));
     const ids = outputs.map(out => out.match(/B-rpcli:RP-\d+/)?.[0]).filter(Boolean);
     assert.equal(ids.length, agents.length);

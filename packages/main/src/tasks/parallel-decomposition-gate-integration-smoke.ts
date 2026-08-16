@@ -181,6 +181,20 @@ function buildRepo(opts: {
 
   const store = new StoryStore(root);
   store.writeStory(SELF_ID, story(SELF_ID, opts.selfPhase ?? 'PLAN', opts.selfParallelSafe));
+  // B-a7c5 CHK-001: canStartDevGuard/canSkipPlanGuard/canReenterDevGuard now ALSO
+  // require a dev-memory preflight acknowledgement. This file exists to test the
+  // PARALLEL-decomposition block specifically, so every fixture writes a
+  // satisfying ack up front — otherwise every DEV-door assertion below would
+  // observe missing_dev_memory_preflight_ack instead of the parallel-specific
+  // block/message this file exists to test.
+  store.writeDevMemoryPreflightAck(SELF_ID, {
+    schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+    storyId: SELF_ID,
+    packDigest: 'parallel-decomposition-gate-integration-smoke-synthetic-digest',
+    topHitIds: [],
+    acknowledgedAt: NOW,
+    acknowledgedBy: 'parallel-decomposition-gate-integration-smoke',
+  });
   store.writeChecklist(SELF_ID, opts.selfChecklist ?? doneChecklist);
   store.writeScopeContract(SELF_ID, contract(SELF_ID, opts.selfModify, opts.selfCreate));
   if (opts.review) store.writeReview(SELF_ID, opts.review);

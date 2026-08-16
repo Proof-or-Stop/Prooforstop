@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-74b9",
+  "mode": "custom",
+  "allowed": [
+    "lattice.config.json (validate.commands registration decision)",
+    "minor defensive fixes in core/version-bump.ts or handlers/done-recover.ts if the root cause requires a production-code change rather than a fixture-only fix",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/tests/red/"
+  ],
+  "excluded": [
+    "no changes to command-catalog.ts readManifest requirement (that is correct; the fixture is stale)",
+    "no changes to PROCESS_FACT_REGISTRY entries or acceptance-rollout.ts/run-proofstory-acceptance-rollout-cohort.mjs themselves (those are correct; the fixtures are stale)",
+    "no new features",
+    "no unrelated test fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly instructed: write a RED reproduction for each of the three problems first, then a GREEN fix, then bundle all three into one story and drive it to DONE.",
+  "createdAt": "2026-08-15T19:55:25.198Z",
+  "updatedAt": "2026-08-15T19:55:25.198Z",
+  "_hash": "bd5526503d17595ce8a06aab23ddf66082515dce4f94365fc204a2f2aa2e8381"
+}

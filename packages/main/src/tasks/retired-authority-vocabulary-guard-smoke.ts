@@ -355,10 +355,12 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
-  // B-235e: repinned after closeout fixtures began hashing the frozen legacy
-  // role body instead of an empty prompt. Approved compatibility calls and
-  // occurrence counts remain mechanically checked by the manifest above.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1'],
+  // B-a7c5 F-010: repinned after adding a satisfying dev_memory_finish_decision
+  // write to the 'B-receipt' fixture (CHK-003's new DONE-gate check runs before
+  // the review_lane_missing diagnostic this file exists to test). No approved
+  // call shape or occurrence count changed; the whole-file structural
+  // fingerprint just moves with any source edit to this file.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f41c10356d737d3ea83dcdf1fb05589aa6c08de546380902ff1205ee308af2bc'],
   // B-3144: repinned after quorum_prune CLI wiring was added to cli-engine.ts.
   // The approved non-literal loader call site (runCli → import(`file://${initPath}`))
   // is unchanged; this whole-file structural fingerprint gates both that call-site

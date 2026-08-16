@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-74b9",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*.js",
+    "npm run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/red/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Standard fixture-fix + repro-first RED evidence workflow; may touch core/version-bump.ts or handlers/done-recover.ts only if CHK-003's root cause turns out to require a defensive production fix rather than a fixture-only fix.",
+  "createdAt": "2026-08-15T19:52:49.767Z",
+  "updatedAt": "2026-08-15T19:52:49.767Z",
+  "_hash": "a0bead74bbe16a82bbf51c21e02bad609af24cc7baf8e8b3554cadf2d5ad5ae4"
+}
