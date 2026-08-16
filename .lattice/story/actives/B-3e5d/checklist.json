@@ -86,7 +86,37 @@
       "context": "field-regression-cli-smoke.ts assertReviewerListForceReviewerLaneContract: remove channel from the forceable-lane assertion and add a case asserting reviewer_list --forceReviewer=channel is rejected with 'not supported by review_run_start', matching prompt-role-contract-registry.ts's structural retirement of the lane.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "reviewer_list --forceReviewer for an active lane (e.g. docs, behavior) still returns that lane as forced, unaffected by the channel-lane change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "reviewer_list --storyId=<id> --forceReviewer=channel is rejected with an error matching 'not supported by review_run_start' and a non-zero exit code",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "assertReviewerListForceReviewerLaneContract no longer asserts channel as forceable anywhere in the function, confirmed by re-reading the diff after the edit",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
