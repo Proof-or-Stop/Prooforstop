@@ -6944,6 +6944,109 @@
       "resolvedBy": "B-3f3d:F-105@4f19f74",
       "resolvedReason": "Accepted and fixed. The finding was correct that commit fabca1ecc4 shipped a production barrier change with zero test coverage, and correct that the one existing test touching OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION (the F-039 candidateDrift fixture in review-inventory-handler-smoke.ts) cannot distinguish pre-F-103 from post-F-103 behaviour, because it calls candidate_spec_route immediately after review_inventory_begin with no intervening commit. This is the same class of gap filed earlier as F-102, and shipping the F-104 follow-up fix untested would have repeated it. Added regression coverage in packages/main/src/tasks/review-inventory-epoch-smoke.ts mirroring the exact shape captureReviewInventoryScope now builds, pinning BOTH directions. Positive case: candidate score/reasons churn driven by changedPaths must NOT move the barrier digest, which is precisely the F-104 leak. Negative controls: a changed contentHash, path, added candidate, removed candidate, mode, schemaVersion, queryFiltering or scanEscalationReason must each still move it, eight cases in total. Mutation check proving the coverage bites rather than passing vacuously: reverting the compiled dist so the barrier digest binds raw candidates again, reintroducing the score/reasons leak, makes the smoke exit 1; byte-restoring returns exit 0. Verified npx tsc --noEmit -p packages/main clean and both review-inventory smokes exit 0. Scope note recorded for honesty: this pins the digest SEMANTICS at the unit level, which is where both defects actually lived. It does not add an end-to-end fixture that commits an unrelated change and then re-runs candidate_spec_route against a live OPEN epoch; that needs real git manipulation inside the handler smoke and is a heavier fixture than this fix warrants, so the end-to-end path remains covered only by the pre-existing F-039 candidateDrift case.",
       "resolvedAt": "2026-08-16T15:38:05.822Z"
+    },
+    {
+      "id": "B-3f3d:F-106",
+      "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md lines 199-203 describe the epoch signing candidateSpecSetDigest/corpusDigest and candidate_spec_route invalidating an OPEN epoch on routing-universe change, but never names blocker code OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION (types.ts:1722; review-inventory.ts:129/242) and, after fabca1ecc4 (F-103) then 4f19f74f27 (F-104/F-105), no longer states what candidateSpecSetDigest actually binds. Current final state at review-inventory.ts:85-118 (captureReviewInventoryScope): candidateSpecSetDigest = reviewInventoryDigest({schemaVersion, mode, candidates: candidates.map(row=>({path,contentHash})), queryFiltering, scanEscalationReason}) -- deliberately dropping validCandidate.artifactDigest (which bakes in headHash/materialHash verbatim, per candidate-spec-routing.ts:757-761/764-800) AND dropping storyInputDigest entirely. The commit message (git show 4f19f74f27) documents why storyInputDigest was also removed after the F-103 fix, not just narrowed: storyInputDigest is digestCandidateRoutingValue(input) over a routing input that includes changedPaths (git diff --name-only main...HEAD), and changedPaths also seeds keyword weights that flow into candidates[].score/.reasons -- two independent freshness-leak channels, not one. So the barrier now binds WHICH specs were selected and WHAT they contain (path+contentHash per candidate) plus the routing policy knobs (schemaVersion/mode/queryFiltering/scanEscalationReason), never storyInputDigest and never score/reasons. artifactDigest itself is unchanged and verifyCandidateSpecSet (candidate-spec-routing.ts:764-800) still verifies the full identity digest including headHash/materialHash, so real tampering with the candidate set is still caught; only what the OPEN-epoch barrier (persistInvalidationIfDrifted candidateChanged) compares was narrowed. This mirrors the same semantic-content-not-bookkeeping rule already documented for verificationEvidence at lines 183-191 (bound by what a verifier OBSERVED, deliberately not by freshness pins headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt), but the candidate-routing paragraph was never updated to state the analogous rule for the candidate set, so a reader of lines 199-203 today would reasonably expect ANY candidate_spec_route re-run to invalidate the epoch whenever HEAD or the changed-file set moves, which is no longer true. Recommended replacement text, to insert immediately after the existing sentence ending '...ProofStory contract below.' and before the current 'The epoch also signs...' sentence (lines 192-199): 'The same semantic-content-not-bookkeeping rule applies to the candidate set. The epoch signs candidateSpecSetDigest as a routing-universe projection of the current valid CandidateSpecSetArtifact -- schemaVersion, mode, each selected candidate reduced to its path and content hash, queryFiltering, and scanEscalationReason -- and corpusDigest, deliberately NOT the artifact's own artifactDigest (which bakes in headHash/materialHash verbatim as the artifact's tamper-detection identity; verifyCandidateSpecSet still verifies that full identity digest, so genuine tampering with the candidate set is still caught) and deliberately NOT storyInputDigest or any candidate's score/reasons, both of which are seeded by the changed-file set from git diff and therefore leak freshness rather than routing-universe identity. So a candidate_spec_route re-run that reselects the same specs with the same content after HEAD or the changed-file set alone has moved no longer trips OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION; a re-run that changes which specs are selected, any selected spec's content, schemaVersion, mode, queryFiltering, or scanEscalationReason still invalidates the epoch with that blocker code, and lanes from pre-reroute and post-reroute candidate sets can never form one wave.' This keeps the existing next sentence (candidate_spec_route performs its durable replacement inside the inventory lock...) intact as-is; that sentence describes locking/serialization behavior unaffected by F-103/F-104.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-16T15:41:16.378Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-430",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "766c78145c8628909751d1085364c39ca9c1a3fdcd09c072e039699cc16b2f46"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "e7ba24d818121ea3b86380dac3fe4ae27737a0f764a4afc85dbbc9e8d1b41229",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
