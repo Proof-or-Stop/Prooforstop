@@ -1,0 +1,72 @@
+{
+  "storyId": "B-74b9",
+  "checkedAt": "2026-08-15T23:47:43.316Z",
+  "headHash": "0ef63b6b100b1679e4631dca7a973657c42a5bc1",
+  "materialHash": "64950acbdac980850ef556102116d31fe0cab7912c6a31f50b00e749c07d79e1",
+  "storyFilesHash": "54351799707502cb96ac67a9b11a24167c86cd876ff2316a4532ffc83bc53ee5",
+  "reviewRound": "2026-08-15T23:39:41.435Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-001",
+      "promise": "Fix proofstory-acceptance-basis-smoke.ts writeCanonicalAcceptanceRegistration by adding write() stubs for packages/main/src/core/acceptance-rollout.ts and scripts/run-proofstory-acceptance-rollout-cohort.mjs so the synthetic snapshot closure is complete and the fixture no longer reports partial status.",
+      "status": "verified",
+      "verifiedBy": "independent re-confirmation: git diff read + fresh command re-execution",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts directly: the two new write() calls for acceptance-rollout.ts and run-proofstory-acceptance-rollout-cohort.mjs are present exactly as promised. git diff 62e2a17ab3 (prior full-review TEST-entry head) to 0ef63b6b10 (current HEAD), restricted to packages/main/src, packages/main/tests, lattice.config.json, is completely empty, confirming zero material code drift across the intervening REVIEW round. Independently re-ran node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js on the current tree myself: exit 0, output line ProofStory acceptance coverage basis Wave 1A smoke passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-002",
+      "promise": "Fix field-regression-cli-smoke.ts by passing a valid readManifest object to every review_pass_set call site so calls reach the real staleness/workspace-binding checks instead of failing CLI argument validation.",
+      "status": "verified",
+      "verifiedBy": "independent re-confirmation: git diff read + fresh command re-execution",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/tasks/field-regression-cli-smoke.ts directly: six call sites each now pass readManifest: filesReadFully empty array, filesTriagedByName empty array, scanEscalationReason null. git diff 62e2a17ab3..HEAD on material paths is empty (no drift since original full review). Independently re-ran the pinned GREEN selector myself on the current tree: output READMANIFEST_FIX_CONFIRMED (the readManifest argument-validation string is absent from a fresh run's output)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-003",
+      "promise": "Fix worktree-authority-smoke.ts by extending the synthetic mkdtemp root with the five version sync-point files, fixture-only with no production code change, so bumpVersionOnDoneMerge post-merge path no longer throws ENOENT on package.json.",
+      "status": "verified",
+      "verifiedBy": "independent re-confirmation: git diff read + fresh command re-execution",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/tasks/worktree-authority-smoke.ts directly: writeVersionSyncFiles is added and wired into both assertDoneRecoverRunsPostMergeBuildForRuntimeChanges and assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup. Confirmed via git diff main...HEAD --stat that packages/main/src/core/version-bump.ts and packages/main/src/handlers/done-recover.ts are NOT present in the diff (fixture-only, as promised). git diff 62e2a17ab3..HEAD on material paths is empty. Independently re-ran the pinned GREEN selector myself: output VERSION_BUMP_FIX_CONFIRMED."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-74b9/plan.md#CHK-004",
+      "promise": "Register proofstory-acceptance-basis-smoke.js into lattice.config.json validate.commands; deliberately defer field-regression-cli-smoke.ts and worktree-authority-smoke.ts, each blocked only by its own separately-tracked, confirmed-unrelated pre-existing bug, task_9f6b2322 and task_a8d49518 respectively.",
+      "status": "verified",
+      "verifiedBy": "independent re-confirmation: git diff read",
+      "evidence": "Read git diff main...HEAD -- lattice.config.json directly: exactly one new validate.commands entry, node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js with timeoutMs 180000, matching the existing proofstory-acceptance-rollout-smoke.js entry shape. No entries added for field-regression-cli-smoke.js or worktree-authority-smoke.js, consistent with the deferral decision. Diff since prior TEST-entry head 62e2a17ab3 is empty."
+    },
+    {
+      "docPath": "packages/main/tests/red/red-b49d4-harness-registration.mjs#REGISTRATION_EXCLUSIONS",
+      "promise": "Register the three new RED scripts in the pre-existing B-49d4 harness-registration exclusion map with a stated reason each, so the total-population registration guard does not report them as undecided.",
+      "status": "verified",
+      "verifiedBy": "independent re-confirmation: git diff read",
+      "evidence": "Read git diff main...HEAD -- packages/main/tests/red/red-b49d4-harness-registration.mjs directly: three new REGISTRATION_EXCLUSIONS entries for red-B-74b9-chk001-acceptance-basis.mjs, red-B-74b9-chk002-readmanifest.mjs, and red-B-74b9-chk003-version-bump.mjs, each with a specific non-generic reason. Diff since prior TEST-entry head is empty."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-executed node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js on the current worktree (HEAD 0ef63b6b10): exit 0, stdout ProofStory acceptance coverage basis Wave 1A smoke passed. Confirmed via git diff that the underlying source (proofstory-acceptance-basis-smoke.ts) and its RED counterpart are byte-identical to the version verified in the original full delivery review at head 62e2a17ab3; only .lattice story-metadata files changed in the intervening REVIEW to TEST round."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-executed the pinned GREEN selector command on the current worktree: output READMANIFEST_FIX_CONFIRMED. Source diff for field-regression-cli-smoke.ts is unchanged since the original full review (verified via targeted git diff against head 62e2a17ab3)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently re-executed the pinned GREEN selector command on the current worktree: output VERSION_BUMP_FIX_CONFIRMED. Source diff for worktree-authority-smoke.ts is unchanged since the original full review; confirmed via git diff --stat that no production file (version-bump.ts, done-recover.ts) is touched by this story."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Config-only decision item; verified by direct read of lattice.config.json diff (one new entry, no entries for the two deferred fixtures) rather than an executable positive test.",
+      "waiverReason": "The deferral half of this decision (declining to register two fixtures) has no independent positive command to execute; verified by direct inspection of the config diff content, not by re-running old evidence text."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Focused fresh re-confirmation pass at HEAD 0ef63b6b10: independently read the full material diff (git diff main...HEAD on packages/main/src, packages/main/tests, lattice.config.json) and confirmed it is byte-for-byte identical to the diff at the original thorough TEST-entry head 62e2a17ab3; the only commits since are .lattice story metadata (REVIEW rollback, 3 review_pass_set rounds, dev-memory, summary). Personally re-executed all three pinned GREEN selector commands on the current tree and got matching PASS output. No TODO/FIXME/HACK found in the material diff. All 4 checklist items done with verification evidence. Delivery is genuinely confirmed clean, not rubber-stamped from prior review text."
+  },
+  "_hash": "7fb49c3aee45ca485faaa0d68bc395d0dab3c47bfc10477df891ced8b1a51f4d"
+}

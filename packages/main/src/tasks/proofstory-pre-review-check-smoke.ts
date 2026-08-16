@@ -41,8 +41,10 @@ const storyId = process.env.LATTICE_ROLLOUT_COHORT_STORY_ID ?? 'B-pre-review-smo
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
+const rolloutTerminalContractOnly = process.argv.includes('--rollout-terminal-contract-only');
 const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
 const activeStoryArgId = process.argv.find(arg => arg.startsWith('--story='))?.slice('--story='.length);
+const CANONICAL_ROLLOUT_SMOKE_PASS = 'ProofStory acceptance rollout smoke: PASS (58 assertions)';
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
 const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
 let scenarioEventSequence = 0;
@@ -56,6 +58,32 @@ const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
 const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
+
+function isCanonicalRolloutSmokePass(output: string): boolean {
+  return output.trim().split(/\r?\n/).at(-1)?.trim() === CANONICAL_ROLLOUT_SMOKE_PASS;
+}
+
+function assertCanonicalRolloutSmokeTerminalContract(): void {
+  assert.equal(isCanonicalRolloutSmokePass(`${CANONICAL_ROLLOUT_SMOKE_PASS}\n`), true,
+    'focused rollout consumer must accept the exact canonical 58-assertion terminal line');
+  assert.equal(isCanonicalRolloutSmokePass(`LATTICE_FULL_SUITE_SUMMARY={"assertions":[]}\n${CANONICAL_ROLLOUT_SMOKE_PASS}\n`), true,
+    'focused rollout consumer must accept the producer summary followed by the exact canonical terminal line');
+  for (const rejectedOutput of [
+    'ProofStory acceptance rollout smoke: PASS (57 assertions)',
+    'ProofStory acceptance rollout smoke: PASS',
+    'ProofStory acceptance rollout smoke: PASS (59 assertions)',
+    `${CANONICAL_ROLLOUT_SMOKE_PASS} extra`,
+  ]) {
+    assert.equal(isCanonicalRolloutSmokePass(rejectedOutput), false,
+      `focused rollout consumer must reject every non-canonical output: ${rejectedOutput}`);
+  }
+}
+
+if (rolloutTerminalContractOnly) {
+  assertCanonicalRolloutSmokeTerminalContract();
+  console.log('ProofStory pre-review rollout terminal contract: PASS (exactly 58 assertions)');
+  process.exit(0);
+}
 
 if (scenarioMode) {
   const activeStoryId = activeScenarioStoryId;
@@ -959,7 +987,8 @@ try {
       env: { ...process.env, LATTICE_ROLLOUT_COHORT_INPUT_PATH: frozenCohortPath },
     });
     const rolloutConsumerEvent = scenarioEvent('consumer-verified');
-    const rolloutControlPassed = /ProofStory acceptance rollout smoke: PASS \(57 assertions\)/.test(rolloutSmokeOutput);
+    assertCanonicalRolloutSmokeTerminalContract();
+    const rolloutControlPassed = isCanonicalRolloutSmokePass(rolloutSmokeOutput);
     assert.equal(rolloutControlPassed, true, `focused rollout enforce+rollback control did not pass: ${rolloutSmokeOutput}`);
     recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
     const executedRecords = [...scenarioLedger.values()];

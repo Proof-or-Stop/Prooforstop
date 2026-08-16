@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-74b9",
+  "checkedAt": "2026-08-15T19:55:25.721Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "bd5526503d17595ce8a06aab23ddf66082515dce4f94365fc204a2f2aa2e8381",
+  "executionBoundaryHash": "a0bead74bbe16a82bbf51c21e02bad609af24cc7baf8e8b3554cadf2d5ad5ae4",
+  "freshnessHash": "c537a58b19355f8753c9e98d3ea6c4ca8ae00fe2dc2dd1587f13b7a3d7a31445",
+  "effectiveExcludedKeywords": [
+    "no changes to command-catalog.ts readManifest requirement (that is correct; the fixture is stale)",
+    "no changes to PROCESS_FACT_REGISTRY entries or acceptance-rollout.ts/run-proofstory-acceptance-rollout-cohort.mjs themselves (those are correct; the fixtures are stale)",
+    "no new features",
+    "no unrelated test fixtures"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "no changes to command-catalog.ts readManifest requirement (that is correct; the fixture is stale)",
+      "source": "scopeBoundary.excluded",
+      "text": "no changes to command-catalog.ts readManifest requirement (that is correct; the fixture is stale)",
+      "excluded": true
+    },
+    {
+      "keyword": "no changes to PROCESS_FACT_REGISTRY entries or acceptance-rollout.ts/run-proofstory-acceptance-rollout-cohort.mjs themselves (those are correct; the fixtures are stale)",
+      "source": "scopeBoundary.excluded",
+      "text": "no changes to PROCESS_FACT_REGISTRY entries or acceptance-rollout.ts/run-proofstory-acceptance-rollout-cohort.mjs themselves (those are correct; the fixtures are stale)",
+      "excluded": true
+    },
+    {
+      "keyword": "no new features",
+      "source": "scopeBoundary.excluded",
+      "text": "no new features",
+      "excluded": true
+    },
+    {
+      "keyword": "no unrelated test fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "no unrelated test fixtures",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a4f777b9ca7baa34b24705f6973953bf3d0b0daf590f6324130ac22e938c4a72"
+}

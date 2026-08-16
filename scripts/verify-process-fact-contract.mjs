@@ -1871,8 +1871,11 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
-    'ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f',
+    'f41c10356d737d3ea83dcdf1fb05589aa6c08de546380902ff1205ee308af2bc',
+    // B-6693 changed cli-engine's whole-file canonical AST only to separate
+    // direct-validate watchdog cancellation from DONE-result classification.
+    // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
+    'c38c8402e4ae4a4ab38fe3dfeb69a99461c4a528ffbf76a1313c53b1912c8754',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',

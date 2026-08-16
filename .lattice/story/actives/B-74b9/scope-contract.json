@@ -1,0 +1,62 @@
+{
+  "storyId": "B-74b9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "lattice.config.json",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+    "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+    "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Widen to allow modifying red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS map -- a necessary consequence of adding 3 new packages/main/tests/red/ scripts: that meta-guard requires every red/ file to be either registered in validate.commands or explicitly excluded with a reason, and it correctly caught that my 3 new historical RED scripts were neither.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Shared cross-story dev-memory lesson log, appended by dev_memory_capture (a mandatory step for this story's dev_memory_finish_decision=captured record, per B-a7c5's dev-memory lifecycle gates). Not source code, not story-scoped, not registered in RUNTIME_ARTIFACT_REGISTRY (only .lattice/dev-memory/finish-decisions/ is excluded from materialHash) -- an expected, non-code side effect of doing dev-memory work, same as B-a7c5's own precedent for this exact path.",
+      "timestamp": "2026-08-15T23:39:32.275Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c11d2bb40a31dd0d2c42f6332bebfc6ec2121fef",
+      "materialHash": "64950acbdac980850ef556102116d31fe0cab7912c6a31f50b00e749c07d79e1"
+    }
+  ],
+  "createdAt": "2026-08-15T20:16:11.306Z",
+  "updatedAt": "2026-08-15T23:39:32.275Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
+    "packages/main/src/handlers/done-recover.ts": "packages/main/src/handlers/done-recover.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/plan.md": "plan.md",
+    "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs": "packages/main/tests/red/red-B-74b9-chk001-acceptance-basis.mjs",
+    "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs": "packages/main/tests/red/red-B-74b9-chk002-readmanifest.mjs",
+    "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs": "packages/main/tests/red/red-B-74b9-chk003-version-bump.mjs",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "storyId": "B-6693",
+  "checkedAt": "2026-08-15T13:18:04.306Z",
+  "features": [
+    {
+      "feature": "Canonical workspace capacity identity is derived from the git common directory, so linked worktrees serialize together while independent repositories do not.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts derives validationCapacityLockPath from the canonical workspace root; packages/main/src/tasks/validate-execution-lock-smoke.ts verifies linked-worktree sharing and independent-repository isolation."
+    },
+    {
+      "feature": "Every official lattice validate mode, including no-story, configured/fallback, validate-file, and selective --channel/--concept/--lint branches, enters workspace capacity before callback execution.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/verifier.ts wraps the complete validate handler; focused/full smoke and CHK-001/CHK-002 verification intents cover no-story and selective consumers."
+    },
+    {
+      "feature": "done_required_validate shares the workspace capacity boundary while retaining the inner story evidence lock and distinct DONE-required evidence semantics.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/done-required-validation.ts uses withOfficialValidationExecution; docs/requirements/decisions/done-full-test-gate-execution-plan.md preserves the separate DONE-required artifact and freshness contract."
+    },
+    {
+      "feature": "Derived host-verdict binding uses the same official workspace-to-story capacity path and does not bypass shared capacity.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/verdict.ts routes submitWithDerivedBindings through the official wrapper; full smoke covers the derived consumer and docs identify its outer host-timeout boundary."
+    },
+    {
+      "feature": "Contenders wait asynchronously, emit bounded holder and heartbeat progress on stderr, keep JSON stdout clean, and continue automatically after release.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts implements abortable async queue waits and bounded progress; packages/main/src/tasks/validate-execution-lock-smoke.ts covers wait/run/progress/JSON behavior."
+    },
+    {
+      "feature": "Lock order is workspace then story, and reentrancy is bound to the exact current acquisition generation so detached old async contexts and sibling work cannot bypass either lock.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "F-010 is covered by activeValidationLockTokens plus AsyncLocalStorage token equality in packages/main/src/core/validation-execution-lock.ts for both capacity and story locks, with detached-owner-A versus owner-B regression in validate-execution-lock-smoke.ts."
+    },
+    {
+      "feature": "Capacity stale-owner reclamation uses a strict capacity-specific liveness classifier; unknown, malformed, and age-only holders remain blocked while the legacy story classifier remains unchanged.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/core/validation-execution-lock.ts separates capacity classification from legacy story-lock classification; focused/full smoke covers live, unknown, malformed, local-dead, and identity-mismatch states."
+    },
+    {
+      "feature": "Queue publication and stale recovery are identity-stable and ABA-safe, with complete pre-publication metadata, UUID tickets, exact quarantine, and retained child-process concurrency stress.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "F-013 is covered by assertCapacityAtomicStaleQuarantineStress in packages/main/src/tasks/validate-execution-lock-smoke.ts, which spawns independent child processes, asserts maxConcurrency=1/zero overlap, and requires zero leaked queue artifacts; core recovery isolates only the exact ticket."
+    },
+    {
+      "feature": "Abort, deadline, callback throw, release failure, and direct validate watchdog timeout preserve the primary result while cleaning exact queue/owner artifacts before exit.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "F-012 is covered by packages/main/src/cli-engine.ts structuredWatchdog including direct validate while structuredDoneResult remains separate; real CLI contention smoke asserts classified exit, no callback/inner lock, waiter-ticket removal, and immediate successor acquisition."
+    },
+    {
+      "feature": "Workspace capacity covers evidence publication as part of the critical section while routine validation evidence and DONE-required evidence stay separate and freshness-bound.",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/handlers/verifier.ts and done-required-validation.ts keep evidence writes inside the official wrapper; testing-infra.md and done-full-test-gate-execution-plan.md retain distinct evidence semantics."
+    },
+    {
+      "feature": "Validation budgets, protected command inventories, full-suite thresholds, and representative read-only commands remain unchanged.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "scope_contract_check reports 0 violations; git diff --exit-code main...HEAD over lattice.config.json, package manifests, full-suite-runner.ts, and full-suite-runner-smoke.ts passes; smoke asserts 120/180/300-second sources remain."
+    },
+    {
+      "feature": "CLI help and decision docs accurately describe shared capacity, generation-bound reentrancy, structured direct-validate watchdog cleanup, derived host-verdict limits, and the bare npm boundary.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "docs/CLI.md:907, docs/requirements/decisions/testing-infra.md:55, and docs/requirements/decisions/done-full-test-gate-execution-plan.md:30 align with the current production and smoke consumers."
+    },
+    {
+      "feature": "All capacity verification consumers use the exact current terminals 15 focused and 26 full, with no stale 5/14 or 16/25 selector remaining.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "CLI checklist_get enumeration returns only focused 15 and full 26 selectors; packages/main/src/tasks/validate-execution-lock-smoke.ts emits exactly those terminals and its managed pin round-trip uses focused 15."
+    },
+    {
+      "feature": "Managed checklist_update can round-trip strict verification pin objects through the authorized schema without direct Story JSON edits or planned-path loss.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/cli/command-schemas.ts defines strict command/selector pin validation and validate-execution-lock-smoke.ts verifies preservation plus rejection of missing, empty, or unknown fields."
+    },
+    {
+      "feature": "ProofStory pre-review acceptance uses the exact 58-assertion terminal and rejects stale, count-free, or suffixed near-matches.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts implements the exact PASS (58 assertions) consumer and CHK-004 pins the canonical PROOFSTORY_PRE_REVIEW_PROOF output."
+    },
+    {
+      "feature": "Direct interception or wrapping of bare npm test and direct full-suite invocation is intentionally outside this Story.",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "CHK-001/CHK-003 exclusions, decision option D, and scope contract explicit exclude",
+      "source": "Understanding, decision, docs, and scope contract consistently define official Lattice handlers as the coordination boundary and warn that bare npm must not run concurrently."
+    },
+    {
+      "feature": "Doctor, runtime-fact registry, runtime-artifact registry, and process-fact registry modifications are intentionally excluded because existing lock storage and evidence facts already cover the mechanism.",
+      "covered_by": "none",
+      "status": "excluded",
+      "excluded_by": "Understanding constraints and unchanged scope-contract explicit exclude",
+      "source": "The scope contract leaves registry/doctor/process-fact exclusions unchanged; fe96056b33 changes only six allowed code/docs files and introduces no new gate artifact or runtime artifact class."
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-6693/background.md",
+      ".lattice/story/actives/B-6693/checklist.json",
+      ".lattice/story/actives/B-6693/decision.json",
+      ".lattice/story/actives/B-6693/plan.md",
+      ".lattice/story/actives/B-6693/understanding.json",
+      "packages/main/src/cli/command-schemas.ts",
+      "packages/main/src/handlers/done-required-validation.ts"
+    ],
+    "filesTriagedByName": [
+      "docs/CLI.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "packages/main/src/cli-engine.ts",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/validation-execution-lock.ts",
+      "packages/main/src/handlers/verdict.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+      "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 17,
+    "covered": 15,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-08-15T12:35:26.980Z",
+  "_hash": "4c99e1e0c50c014f680def8d8b4167c78ad2583e098455cd68bd9ce65b4519b9",
+  "openQuestions": []
+}

@@ -1059,7 +1059,13 @@ export async function runCli(opts?: {
     originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? 'LATTICE_MAX_TIMEOUT_MS' : effectiveMaxBudget.source}`);
   }
 
-  const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';
+  // Official validation waits on an async workspace-capacity queue. Give the
+  // direct validate entrypoint the same abort/deadline channel as DONE-time
+  // validators so its watchdog can unwind the exact waiter ticket instead of
+  // hard-exiting with process.exit(2). Keep DONE result classification separate:
+  // validate already has its own canonical PASS/FAIL exit contract below.
+  const structuredDoneResult = cmd === 'done_prepare' || cmd === 'done_required_validate';
+  const structuredWatchdog = structuredDoneResult || cmd === 'validate';
   const watchdogAbort = new AbortController();
   if (structuredWatchdog) {
     Object.assign(parsed, {
@@ -1090,7 +1096,7 @@ export async function runCli(opts?: {
   watchdog.unref();
 
   function isStructuredDoneFailure(result: unknown): boolean {
-    if (!structuredWatchdog) return false;
+    if (!structuredDoneResult) return false;
     let value: any = result;
     if (typeof result === 'string') {
       try { value = JSON.parse(result); } catch {

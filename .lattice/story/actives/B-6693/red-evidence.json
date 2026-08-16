@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6693",
+  "records": [
+    {
+      "id": "RED-20260814152147",
+      "trigger": "Workspace-scoped validation capacity is absent, so different-story and no-story official validations can overlap.",
+      "acceptanceTargetRef": "REQ-WORKSPACE-CAPACITY",
+      "baselineHeadHash": "4d6f40001b45f97d44f8632baf4953ed51a9c8a3",
+      "baselineMaterialHash": "88f9f7a339ce2e9c6fc8b6520edb3f54b21cc335f06231145963d9e6add0c42c",
+      "observedFailure": "After a fresh packages/main build, the validation-execution-lock module exports only story-scoped locking; validationCapacityLockPath is absent and the baseline contract probe exits 1 with \"missing workspace validation capacity lease\".",
+      "failingCommand": "node --input-type=module -e \"const m=await import('./packages/main/dist/core/validation-execution-lock.js'); if(typeof m.validationCapacityLockPath!=='function') throw new Error('missing workspace validation capacity lease');\"",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only",
+      "greenRelation": {
+        "targetRef": "REQ-WORKSPACE-CAPACITY",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only"
+      },
+      "note": "Baseline command was executed in the B-6693 worktree after a fresh build and exited 1. The green command additionally proves wait-and-run semantics rather than export presence alone.",
+      "createdAt": "2026-08-14T15:21:47.608Z"
+    }
+  ],
+  "createdAt": "2026-08-14T15:21:47.608Z",
+  "updatedAt": "2026-08-14T15:21:47.608Z"
+}
