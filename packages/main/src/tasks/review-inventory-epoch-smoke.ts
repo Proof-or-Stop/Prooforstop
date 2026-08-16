@@ -677,10 +677,23 @@ const digestRepinned = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow(
 }));
 assert.equal(digestRepinned, digestBaseline, 'a pure evidence re-pin must not change the acceptance subject digest');
 for (const [label, override] of [
+  // B-3f3d F-102: evidenceSemantics strips a NAMED five and spreads the rest, so
+  // every other field is bound by construction today. These negative cases exist so
+  // that a future refactor which accidentally widens the strip-list — folding in
+  // intentRef, kind, file, mechanical, or a receipt sub-field — fails loudly instead
+  // of silently letting a semantic change stop invalidating an epoch.
   ['result', { result: 'fail' }],
   ['command', { command: 'node other.js' }],
+  ['intentRef', { intentRef: 'CHK-001:edge:0' }],
+  ['kind', { kind: 'integration_test' }],
+  ['file', { file: 'other.ts' }],
+  ['note', { note: 'a different justification' }],
+  ['mechanical', { mechanical: false }],
+  ['nonMechanicalReason', { nonMechanicalReason: 'receipt invalidated by refresh' }],
   ['outputDigest', { receipt: { exitCode: 0, outputDigest: 'digest-CHANGED', outputTail: 'ok', selectorMatched: true, executedAt: '2026-01-01T00:00:00.000Z' } }],
   ['selectorMatched', { receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: false, executedAt: '2026-01-01T00:00:00.000Z' } }],
+  ['exitCode', { receipt: { exitCode: 1, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: true, executedAt: '2026-01-01T00:00:00.000Z' } }],
+  ['outputTail', { receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'DIFFERENT', selectorMatched: true, executedAt: '2026-01-01T00:00:00.000Z' } }],
 ] as const) {
   assert.notEqual(
     reviewInventoryAcceptanceSubjectDigest(null, evidenceRow(override)),
