@@ -5200,7 +5200,7 @@
       "desc": "All 54 verificationEvidence records (9 must-priority intents x 6 checklist items CHK-001..CHK-006, each intentRef individually cited with a concrete integration_test/logic_test/docs_check and result=pass -- the coverage MAPPING itself is sound) are bound to one stale snapshot headHash=6a5da86/materialHash=5b37c55/storyFilesHash=6b03f2e. Current HEAD has advanced far past that (checked twice during this review as concurrent lanes committed: 8d2a2a2 then b93ff86); checkEvidenceFreshnessForGit + classifyEvidenceFreshness classify this as RELATED_STORY_MATERIAL_DRIFT (evidence storyFilesHash does not match current story-owned file state, materialFiles=[<story-files-changed>]) at every recheck, NOT the KNOWN_UNRELATED_MATERIAL_DRIFT whole-tree-only case. Corroborated by frozen_claim_drift_check --json, which independently reports driftKind=material with a changed storyFilesHash for all 6 items. Concretely, review-incremental-context.ts (in this storys own allowedModify scope, referenced by CHK-004) diffed 34 insertions/30 deletions since the evidence snapshot, across 30+ in-branch commits including internal DEV remediation cycles (RI-020/RI-021/RI-023, F-078, F073). Per the storyFilesHash-drift rule this is story-owned drift requiring genuine re-verification (re-run the pinned verifiers via verification_evidence_refresh_stale, then re-record via verification_evidence_add), not a downgrade-to-attestation-advisory case, and must not be self-classified as pass from raw hashes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-16T08:07:55.925Z",
@@ -5213,7 +5213,9 @@
         "packages/main/src/core/review-incremental-context.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-records-priority",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved together with its reaffirmation B-3f3d:F-086 by the originating lattice-review-test-coverage lane in epoch RI-027 (review pass B-3f3d:RP-277, run B-3f3d:RR-353). F-083 was correct when filed: all 54 verificationEvidence records were bound to a stale snapshot and classified RELATED_STORY_MATERIAL_DRIFT via checkEvidenceFreshnessForGit plus classifyEvidenceFreshness and corroborated by frozen_claim_drift_check, which under the storyFilesHash-drift rule requires genuine re-verification rather than an attestation-advisory downgrade. An earlier refresh was genuine but bound to a cutoff predating the F-084 and F-085 commits, which moved storyFilesHash again; the lane detected that and correctly refused to close the finding. The remedy was then re-executed on a stable tree: verification_evidence_refresh_stale reported Refreshed 54/54 stale evidence item(s), re-running each pinned verifier so every record re-earned a mechanical receipt. Final lane verification confirms all 54 records are present with result=pass and mechanical kind (integration_test / logic_test / docs_check, zero waiver, zero manual_transcript), sharing a single materialHash and storyFilesHash byte-identical to the frozen epoch cutoff, with verification_evidence_refresh_stale --dryRun reporting No stale verification evidence for B-3f3d. Process note for future readers: the evidence refresh mutates scope and therefore invalidates an OPEN review-inventory epoch, so the correct ordering is refresh evidence, commit, then open the epoch.",
+      "resolvedAt": "2026-08-16T09:17:14.994Z"
     },
     {
       "id": "B-3f3d:F-084",
