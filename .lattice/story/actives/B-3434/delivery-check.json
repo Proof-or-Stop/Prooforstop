@@ -1,89 +1,77 @@
 {
   "storyId": "B-3434",
-  "checkedAt": "2026-08-16T03:44:14.108Z",
-  "headHash": "7605f0199f512b1c8502a31d701df3f571136607",
-  "materialHash": "69f664eaf5610e4c69ef84e162cb663b91b2bdd02a2a9d302abe7c98767a7e8c",
-  "storyFilesHash": "63773a8e713f4b23d1480e3d517a72b4803f66947fd388cdd3cff00b66e732a0",
+  "checkedAt": "2026-08-16T03:49:55.868Z",
+  "headHash": "78ff62539247e479536a979a732565d9974c2428",
+  "materialHash": "9663bdc713c1b2af4a31f705d649d2e457030e08d6f27b6a4586e01f5f5dff65",
+  "storyFilesHash": "086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034",
   "reviewRound": "2026-08-16T02:17:52.140Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md#what-ships",
       "promise": "boundPersistedValidationEvidence builds the record a write site would write, serialises it in the format core/store.ts uses, counts those bytes, and drives a staged reduction against that count; four dispositions come out: unmodified, reduced, verdict_only, refused.",
-      "verifiedBy": "diff (5e65c6f330..HEAD) + live execution at merged HEAD",
-      "evidence": "packages/main/src/core/validation-executor.ts has ZERO diff between the pre-merge story tip (5e65c6f330) and HEAD -- boundPersistedValidationEvidence, its four PersistedValidationEvidenceDisposition values, and the fraction constants are byte-identical. Ran node packages/main/dist/tasks/validation-evidence-buffer-smoke.js live at HEAD: all four dispositions reproduce with the exact byte counts the summary quotes (2520038 unmodified; 38878838->19617036 reduced; 148987 with 250200 elided detail lines and 16029894 with 180001 kept detail lines also reduced; 53489880 refused)."
+      "verifiedBy": "diff (ffe502702e..HEAD) + live execution at current HEAD",
+      "evidence": "The only commit since my prior signature (78ff625392) touches exactly two files, both under .lattice/dev-memory/: experience.jsonl (6 new reflective lesson entries) and finish-decisions/B-3434.json (decision=captured). git diff ffe502702e HEAD --stat -- . :(exclude).lattice is empty -- zero source/config/test/doc changes. Re-ran node packages/main/dist/tasks/validation-evidence-buffer-smoke.js live at HEAD: all four dispositions reproduce with the same byte counts as before (2520038 unmodified; 38878838->19617036 reduced; 148987/250200 and 16029894/180001 reduced; 53489880 refused)."
     },
     {
       "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md#the-thresholds",
       "promise": "Thresholds are derived from the metadata blob read ceiling rather than chosen beside it: read ceiling 33,554,432 bytes; advisory at 25% = 8,388,608 bytes; bound at 75% = 25,165,824 bytes.",
-      "verifiedBy": "read + arithmetic recomputation at merged HEAD",
-      "evidence": "done-prepare-generated-metadata.ts (0 diff since 5e65c6f330): METADATA_BLOB_READ_MAX_BUFFER_BYTES = 32*1024*1024 = 33554432, applied at exactly 10 maxBuffer call sites (grep count = 10). validation-executor.ts (0 diff since 5e65c6f330): VALIDATION_EVIDENCE_ADVISORY_FRACTION=0.25 -> 8388608; VALIDATION_EVIDENCE_BOUND_FRACTION=0.75 -> 25165824. Both match exactly and are unaffected by the merge."
+      "verifiedBy": "diff (ffe502702e..HEAD) confirms no touch to these files",
+      "evidence": "done-prepare-generated-metadata.ts and validation-executor.ts are not among the two files changed since my prior signature; both remain at the previously-verified values (33554432 / 8388608 / 25165824). Re-ran the smoke harness live: hashDelta window shows withoutHashes=25165823 (one byte under bound) and withHashes=refused at the bound, consistent with 25165824."
     },
     {
       "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md#the-refusal-is-wired",
-      "promise": "All three evidence write sites in packages/main/src/handlers/verifier.ts (reuse path, non-git FAIL fallback, primary git path) refuse the write when withinBound is false or the record is null, returning a structured failure naming the measured size and the bound.",
-      "verifiedBy": "diff (5e65c6f330..HEAD) + direct read of merged verifier.ts",
-      "evidence": "The merge diff on verifier.ts touches only lines 45, 55, and 1139-1560 (the validate-handler prologue: withValidationExecutionLock -> withOfficialValidationExecution hoisted around the whole handler; resolveProjectGitCwd -> resolveProjectGitRoot with a new fail-closed throw reachable only on the !args.story branch). All three write-site guards (reusedBound at line 742, fallbackBound at line 954, persistedBound at line 976) sit in an untouched region of the file (lines 634-1010) and are byte-identical to the pre-merge tip. Confirmed each still gates on withinBound===false or record===null before calling ctx.store.writeTestEvidence, and confirmed the persist call chain (decorateAndMaybePersistStoryValidation / reusedStoryValidationResult) still executes inside the new wrapper's callback, so all three sites remain reachable."
+      "promise": "All three evidence write sites in packages/main/src/handlers/verifier.ts refuse the write when withinBound is false or the record is null.",
+      "verifiedBy": "diff (ffe502702e..HEAD) confirms no touch to verifier.ts",
+      "evidence": "verifier.ts is not among the two files changed since my prior signature (only .lattice/dev-memory/experience.jsonl and .lattice/dev-memory/finish-decisions/B-3434.json changed, both process bookkeeping, neither under packages/). The three write-site guards verified in the prior signature stand unchanged."
     },
     {
       "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
-      "promise": "Two regression harnesses ship and are registered in lattice.config.json validate.commands: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs and packages/main/src/tasks/validation-evidence-buffer-smoke.ts (compiled to dist).",
-      "verifiedBy": "grep + live execution at merged HEAD",
-      "evidence": "lattice.config.json has 16 lines of merge-introduced diff (two unrelated commands added by another story), but both of B-3434's own entries are still present and unaffected: red-b3434-blob-buffer-ceiling.mjs at line 125 (red tier, timeoutMs 180000) and validation-evidence-buffer-smoke.js at line 62 (fast smoke tier). Ran both directly at HEAD: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS (all sub-assertions incl. over-ceiling read, hook-reason cases); node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (all four dispositions, CHK-004/005 lines)."
+      "promise": "Two regression harnesses ship and are registered in lattice.config.json validate.commands: packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs and packages/main/src/tasks/validation-evidence-buffer-smoke.ts.",
+      "verifiedBy": "live execution at current HEAD",
+      "evidence": "Re-ran both directly at current HEAD (post dev-memory commit): node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS; node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS. lattice.config.json is not among the files changed since my prior signature, so both registrations stand."
     },
     {
-      "docPath": "summary.json#actualTranscript",
-      "promise": "A 5 MiB blob reads correctly with sha256 matching an independently computed digest; a 40 MiB blob fails as unreadable with the literal message: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded; a missing path is absent with real git text -- measured against the shipped dist, not the RED harness's own 34554432-byte fixture.",
-      "verifiedBy": "independent live reproduction against merged HEAD, not a re-read of the prior review's self-report",
-      "evidence": "Wrote a throwaway probe script (scratch tmpdir, not committed) that imports treeBlobHash directly from packages/main/dist/core/done-prepare-generated-metadata.js, builds a fresh scratch git repo, commits a real 5 MiB and a real 40 MiB file, and reads both plus a missing path through the shipped dist at current HEAD. Result: 5 MiB gave ok=true with a hash that matched an independently computed sha256 of the same bytes; 40 MiB gave ok=false kind=unreadable with error text byte-for-byte identical to the summary's quoted ENOBUFS message; missing path gave ok=false kind=absent. All three exactly match the summary claim, reproduced independently rather than cited."
-    },
-    {
-      "docPath": "packages/main/src/core/store.ts (serialisation format referenced by the decision doc)",
-      "promise": "The persisted evidence file's serialisation format is the one core/store.ts's writeJson uses (two-space JSON.stringify plus trailing newline), and this file was not altered by the merge in a way that touches writeTestEvidence or writeJson.",
-      "verifiedBy": "diff (5e65c6f330..HEAD) + read",
-      "evidence": "store.ts's merge diff is 16 lines adding an unrelated readDevMemoryPreflightAck/writeDevMemoryPreflightAck method pair for a different story's feature; writeJson (line 164, two-space stringify plus trailing newline) and writeTestEvidence (line 286) are both outside the diff and byte-identical to pre-merge."
-    },
-    {
-      "docPath": "summary.json (no source file changed since second signing)",
-      "promise": "Nothing in the summary was edited since the prior signing, so a re-binding at the merged material is not silently ratifying a stale claim.",
+      "docPath": "summary.json (unchanged since prior signature)",
+      "promise": "Nothing in the summary was edited since the prior signing, so this re-binding is a re-bind rather than a new claim.",
       "verifiedBy": "git diff",
-      "evidence": "git diff a0cbaf10c7..HEAD -- .lattice/story/actives/B-3434/summary.json is empty (a0cbaf10c7 is the commit that recorded the second/corrected summary_set). All 7 files this story's own commits touch (docs/requirements/decisions/validation-evidence-artifact-growth.md, lattice.config.json, done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, validation-evidence-buffer-smoke.ts, red-b3434-blob-buffer-ceiling.mjs) were individually diffed 5e65c6f330..HEAD; only verifier.ts and lattice.config.json show any change, and both changes are outside what the summary describes."
+      "evidence": "git diff ffe502702e HEAD -- .lattice/story/actives/B-3434/summary.json is empty. git log --oneline ffe502702e..HEAD shows exactly one commit (78ff625392, dev_memory_finish_decision metadata), and its file list (git show 78ff625392 --stat) is exactly the two dev-memory files named above -- summary.json is not among them."
     },
     {
-      "docPath": "quorum/host_verdict process-events (re-anchored full-3x2 at merged material)",
-      "promise": "A fresh full-3x2 cross-vendor quorum (3 rounds x 2 hosts: claude-main-agent + codex-gpt-5.6-sol) was recorded at the current merged material, all decision=pass.",
-      "verifiedBy": "read process-events.jsonl",
-      "evidence": "Six host_verdict entries at 2026-08-16T02:45:16Z (runId B-3434-q-r1/r2/r3, hostId claude-main-agent and codex-gpt-5.6-sol) all show decision=pass, materialDigest=69f664eaf5610e4c69ef84e162cb663b91b2bdd02a2a9d302abe7c98767a7e8c and storyFilesHash=63773a8e713f4b23d1480e3d517a72b4803f66947fd388cdd3cff00b66e732a0, matching the current material exactly (also independently confirmed PASS in done_prepare's Review escalation / Review assurance floor checks)."
+      "docPath": "materialHash movement (mechanical, not a delivery change)",
+      "promise": "The materialHash moved from 69f664ea to a new value solely because the DONE gate required dev_memory_capture + dev_memory_finish_decision, which committed two process-bookkeeping files under .lattice/dev-memory/; nothing this story delivers changed.",
+      "verifiedBy": "git diff --stat with .lattice excluded (empty) + git show --stat of the single new commit + working tree clean",
+      "evidence": "git diff ffe502702e HEAD --stat -- . :(exclude).lattice returns nothing. git status shows a clean working tree. The single commit 78ff625392 changed only .lattice/dev-memory/experience.jsonl (+6 lesson entries, all reflective prose about this story, no code) and .lattice/dev-memory/finish-decisions/B-3434.json (a 11-line decision record, decision=captured). Read both diffs in full; neither contains anything beyond dev-memory bookkeeping."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Live-ran node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs at merged HEAD: stages a 1,400,000-byte and a 1,048,577-byte blob in a hermetic scratch git repo, asserts commitImmutableMetadataTree succeeds, and asserts isolatedBlobHash/isolatedGit/treeBlobHash each pass maxBuffer to execFileSync. All PASS."
+      "transcript": "Re-ran node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs at current HEAD (post dev-memory commit): all CHK-001 assertions (maxBuffer passed at isolatedBlobHash/isolatedGit/treeBlobHash, 1,400,000 and 1,048,577-byte staged blobs commit successfully) PASS."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Same live harness run at merged HEAD: absent vs unreadable blobs are textually distinct and never compare equal; an unreadable blob during the commit path never reports verified metadata changed; over-ceiling read reproduces the exact ENOBUFS message. Independently reproduced (not cited) the 5 MiB/40 MiB claim with a fresh scratch-repo probe script calling the shipped dist directly: 5 MiB ok=true hash-matched; 40 MiB ok=false kind=unreadable with identical message text; missing path ok=false kind=absent. PASS."
+      "transcript": "Same live harness re-run at current HEAD: over-ceiling read reproduces the exact ENOBUFS message; absent vs unreadable stay distinct; unreadable blob during commit never reports verified metadata changed. PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Same live harness run: the embedded pre-fix isolatedBlobHash (no maxBuffer, bare catch returning null) returns null on the identical fixture the shipped helper reads correctly, proving RED-before-GREEN from the committed file alone. PASS."
+      "transcript": "Same live harness re-run: embedded pre-fix isolatedBlobHash still returns null on the identical fixture the shipped helper reads correctly. PASS."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Live-ran node packages/main/dist/tasks/validation-evidence-buffer-smoke.js at merged HEAD. All four dispositions reproduce with the exact byte counts the summary quotes: 2520038 unmodified/within_budget; 38878838->19617036 reduced; 148987 bytes with 250200 elided detail lines; 16029894 bytes keeping 180001 detail lines; 53489880 refused. CHK-004 disposition line names findingIdsNamed=F-001,F-033,F-034,F-035,F-036,F-037 against the committed rationale doc (0 diff since pre-merge). PASS."
+      "transcript": "Re-ran node packages/main/dist/tasks/validation-evidence-buffer-smoke.js at current HEAD: all four dispositions reproduce the same byte counts as the prior signature (2520038 / 38878838->19617036 / 148987+250200 / 16029894+180001 / 53489880 refused); findingIdsNamed=F-001,F-033,F-034,F-035,F-036,F-037 against the still-unchanged rationale doc. PASS."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Same live smoke run at merged HEAD: advisory fires at 8388608 bytes (25% of ceiling, worded as non-failure); bound enforced at 25165824 bytes (75%). checklist_get confirms CHK-005 status=done with 24 pinned verification intents; one documented pre-existing selector-drift waiver (CHK-005:edge:0) unrelated to the merge. PASS.",
-      "waiverReason": "Pre-existing waiver, unrelated to the merge under review: CHK-005:edge:0 pinned a byte-count selector that went stale after an earlier fixture correction (F-001); the underlying no-advisory-below-threshold behavior is proven by an adjacent passing assertion in the same live smoke run at this material."
+      "transcript": "Same live smoke re-run: advisory/bound fractions unchanged (8388608 / 25165824). checklist_get (read-only) confirms CHK-005 status=done, unaffected by the dev-memory commit. PASS.",
+      "waiverReason": "Pre-existing waiver, unaffected by this re-binding: CHK-005:edge:0 pinned a byte-count selector that went stale after an earlier fixture correction (F-001); unrelated to the dev-memory commit under review here."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Re-signing at the merged material (storyFilesHash 63773a8e / materialDigest 69f664ea) is a genuine re-binding, not a stale ratification. Independently verified: the merge (from an unrelated hot-main story) touches only the validate-handler locking/gitRoot prologue in verifier.ts plus files this story does not own (validation-execution-lock.ts, store.ts dev-memory-preflight-ack addition, docs/CLI.md). Every one of B-3434's own 7 files was individually diffed against the pre-merge tip, and only verifier.ts (outside the write-site region) and lattice.config.json (additive, unrelated entries) changed at all. Both committed harnesses reproduce the exact sizing figures the summary quotes, and the summary's 5 MiB/40 MiB blob claim was independently reproduced against the shipped dist rather than trusting the prior review's self-report. A fresh full-3x2 cross-vendor quorum (codex + claude, 3 rounds) recorded pass at this exact materialHash/storyFilesHash, and zero new findings were opened in the post-merge review round. Nothing in the summary was falsified by the merge."
+    "summary": "This is a genuinely mechanical re-bind, verified independently rather than taken on the coordinators word. git diff ffe502702e HEAD --stat -- . :(exclude).lattice is empty; git log --oneline ffe502702e..HEAD shows exactly one commit; git show --stat of that commit lists exactly two files, both under .lattice/dev-memory/ (experience.jsonl lesson capture and finish-decisions/B-3434.json), both reflective process bookkeeping with no code, config, test, or documentation content. summary.json is byte-identical since the prior signature. Both harnesses were re-run fresh at current HEAD and reproduce identical PASS results and sizing figures. Nothing this story delivers changed; only DONE-gate-required dev-memory metadata was added and committed."
   },
-  "_hash": "c552490a26649bfaeb7bb219ec681acf36d5cec831535b9f726dd6600eb5d98d"
+  "_hash": "e8a090544a5ba37916927f91790838cf145c8489c5e525aed9d1107d3df040ad"
 }
