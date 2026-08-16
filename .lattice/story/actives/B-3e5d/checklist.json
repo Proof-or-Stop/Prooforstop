@@ -498,16 +498,14 @@
         },
         {
           "intentRef": "CHK-005:edge:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "kind": "waiver",
+          "waiverType": "permanent",
           "result": "pass",
-          "note": "Confirms the GREEN signal: each RED scripts own top-level defect-still-present assertion now fails, since the underlying smoke test it targets now passes.",
-          "mechanical": false,
-          "nonMechanicalReason": "Same inverted-semantics reasoning as CHK-005:happy:0: this tool derives pass/fail from exit code by convention, but a RED harness passing (proving the defect is fixed) means it exits non-zero. Manually observed both red-B-new-concurrent-done-race.mjs and red-B-new-retired-channel-lane.mjs each throw AssertionError RED: <target> is expected to fail (still exhibits the pre-fix defect) and exit 1 against the current dist build, moments earlier in this session -- exactly the expected GREEN signal.",
-          "headHash": "cff8cf99082f778287c87405eca826a03dd7cf21",
+          "note": "Same inverted-semantics reasoning as CHK-005:happy:0. This is the expected GREEN signal for a RED harness: each scripts own top-level defect-still-present assertion now fails (exit 1) precisely because the underlying smoke test it targets (worktree-authority-smoke.js / field-regression-cli-smoke.js) now passes end-to-end. Manually confirmed against the current dist build moments earlier in this session.",
+          "headHash": "750f3c9c78bef7925eaf3173feb4e72ba1630df5",
           "materialHash": "bf031be79bd6883b1568b65641b70d661d77111769d52ed8499a635c81e8ed1d",
           "storyFilesHash": "bddb83e47b59c444162d6a6f82f82ec29544dbf63fb49980d89dc05006ed1139",
-          "timestamp": "2026-08-16T12:40:42.227Z"
+          "timestamp": "2026-08-16T12:41:21.663Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
