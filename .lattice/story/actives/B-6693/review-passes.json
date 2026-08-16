@@ -985,6 +985,42 @@
       },
       "readDiagnostics": [],
       "_hash": "8db1473d7308485fb087a0280b9c2fec3fc4097d620455db0ebe061e257ae3f8"
+    },
+    {
+      "id": "B-6693:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review: no blocker and no incomplete concept deletion/replacement. The current candidate at 74a0142018 has no B-6693 source or decision-doc delta since prior signed review commit 4a3f5f8; intervening changes are lifecycle/reviewer metadata plus non-authoritative dev-memory finish-decision (capturedEntryIds empty, gateEvidence false). Canonical git-common capacity, configured gitRoot fail-closed behavior, AsyncLocal token reentrancy, fixed global-to-story lock order, independent direct-validate deadline classification, and finally-based release/abort cleanup remain unchanged. Process-fact contract verifier passed. Managed freshness check reports zero stale evidence; 29/29 intents have PASS evidence on current storyFilesHash, including the exact-15/exact-12 capacity cohort and exact-58 canonical proof receipts.",
+      "createdAt": "2026-08-16T01:36:16.648Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-046",
+      "envelopeId": "ac48e814ca5d4bd0e900dc6007502c1e13b674d446a946af42e026f6c0e99cfb",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7568fe61a9423b071ebaf9ae2fe12571d8e7c4509de00c534f3824b13edda531"
     }
   ]
 }
