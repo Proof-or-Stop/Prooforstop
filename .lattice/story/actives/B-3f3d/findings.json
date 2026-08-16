@@ -5220,7 +5220,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:581-589 ProcessTreeLifecycle.terminateAndVerify: the post-SIGKILL while(true) polling loop only breaks on `!live.length` (line 583). `exceededBudget` is set at line 587 once `performance.now() >= deadline`, but that flag is never checked to exit the loop -- it is only read afterward at line 591, which is unreachable while the loop keeps spinning. A genuinely unkillable process (e.g. Linux D-state / uninterruptible I/O, which SIGKILL cannot terminate) makes `liveTargetIds()` return non-empty forever, so the loop retries every retryIntervalMs (20ms default) indefinitely and terminateAndVerify() never resolves or rejects -- the documented bounded cleanup budget (test-runner-consolidation-plan.md: process tree termination verified before publishing a terminal result) is not actually enforced for this case; the whole runner (and callers like npm test) hangs instead of fail-closing with the AggregateError budget message. No fixture in full-suite-runner-smoke.ts exercises this true-infinite/never-dies case (grep for exceededBudget/deadline/while(true)/unkillable/infinite in the smoke file returns nothing); only PID-reuse and detached-descendant-cleanup scenarios are covered.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-16T08:09:36.155Z",
@@ -5228,7 +5228,9 @@
       "reviewRunId": "B-3f3d:RR-342",
       "_hash": "11112590eb8f823b76deb02fc153e0cac300c01465f4c508e7e7b035a23affad",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed real and fixed. The post-SIGKILL retry loop in ProcessTreeLifecycle.terminateAndVerify broke only on !live.length; it set exceededBudget when the deadline passed but never exited, so a PID that can never be reaped (Linux D-state / uninterruptible sleep) made the loop spin forever and the documented bounded-budget AggregateError below it was unreachable. Fix keeps the fail-closed contract rather than weakening it: on deadline expiry the loop now records a lifecycle error naming the surviving PIDs (captured PID(s) still live after SIGKILL within cleanup budget: <ids>) and breaks, so control reaches the existing AggregateError throw and the terminal result is still NEGATIVE. It never publishes a clean tree while a captured child may remain, preserving the never publish a terminal result with an unknown child guarantee. Added the missing true-infinite fixture the finding called out: test:unkillable-survivor stubs only probe to return true forever (unlike the existing persistent-survivor, which dies after 30 polls), asserting the run terminates well under 30s instead of hanging and that the reason names both the exceeded 50ms cleanup budget and still live after SIGKILL. It is written standalone rather than through lifecycleFixture because that helper asserts the descendant died, which cannot hold when the probe never reports death; only probe is stubbed so the real descendant is still genuinely signalled, and the fixture reaps it explicitly afterwards. Verified: npm run test:full-suite-runner-smoke PASS (185 assertions), up from 183; npx tsc --noEmit -p packages/main exits 0. Mutation check proving the new test bites: reverting the compiled dist to the unbounded form (deleting the record+break) makes the suite HANG with no output past a 90s timeout, exactly the runaway the finding predicted; the dist was then byte-restored and re-ran PASS (185).",
+      "resolvedAt": "2026-08-16T08:14:44.545Z"
     }
   ]
 }
