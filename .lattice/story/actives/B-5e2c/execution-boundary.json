@@ -2,6 +2,10 @@
   "schemaVersion": "lattice.execution_boundary.v1",
   "storyId": "B-5e2c",
   "allowedCommands": [
+    "git diff --check",
+    "git diff --exit-code main...HEAD -- <protected-paths>",
+    "node bin/lattice.js scope_contract_check --storyId=B-5e2c",
+    "node packages/main/dist/tasks/convergence-breaker-smoke.js",
     "node packages/main/dist/tasks/story-owner-lease-smoke.js",
     "node scripts/verify-process-fact-contract.mjs",
     "npm --prefix packages/main run build"
@@ -11,35 +15,51 @@
     "Bash",
     "Glob",
     "Grep",
+    "Lattice CLI",
     "Read"
   ],
   "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/owner-session-contract-execution-plan.md",
     "docs/requirements/decisions/session-ownership-and-write-leases.md",
     "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md",
     "packages/main/src/cli/ownership-gate.ts",
+    "packages/main/src/core/convergence-breaker.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
     "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts",
     "packages/main/src/tasks/story-owner-lease-smoke.ts",
     "scripts/verify-process-fact-contract.mjs"
   ],
   "excludedCommands": [
-    "git clean *",
-    "git push *",
-    "git reset --hard *"
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "manual edits under .lattice/story/actives"
   ],
-  "excludedTools": [],
+  "excludedTools": [
+    "direct Story JSON editors",
+    "omx"
+  ],
   "excludedPaths": [
     "lattice.config.json",
     "package-lock.json",
     "package.json",
+    "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
     "packages/main/src/core/validation-execution-lock.ts",
-    "packages/main/src/tasks/full-suite-runner.ts"
+    "packages/main/src/handlers/story-create.ts"
   ],
   "confirmedBy": "main-agent",
-  "confirmationNote": "Focused six-question Mechanism Placement Proof identifies the unified ownership gate as the single enforcement hook; explicit takeover already exists and all unrelated coordination mechanisms are excluded.",
-  "createdAt": "2026-08-16T11:41:02.625Z",
-  "updatedAt": "2026-08-16T11:41:02.625Z",
-  "_hash": "753bca06b0675e9d641e5e9642cd15701392d14cdaa1d67a860b52c316827a4e"
+  "confirmationNote": "Round-3 corrected boundary: auto is only PLAN/REVIEW/TEST storyScopedMutating. Required Story process-event authorization precedes atomic lease transfer; existing convergence counter is transferId-idempotent; agent_prompt remains manual-only.",
+  "createdAt": "2026-08-16T12:07:22.128Z",
+  "updatedAt": "2026-08-16T12:07:22.128Z",
+  "_hash": "f1b0a7e91da8ffd3f26d0a7d9fc8aa687fec04914b0e2f0d49d551f30a2be0b6"
 }
