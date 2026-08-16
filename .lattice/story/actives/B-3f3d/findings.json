@@ -6023,7 +6023,7 @@
       "desc": "packages/main/src/handlers/reviewer-list.ts:174 computeActiveReviewers persistedForced map: the F-093/F-094 zero-cast rewrite dropped the old String(...) wrapper around event.reviewer -- now .map(event => (event.reviewer ?? \"\").trim()). Nullish coalescing does not substitute a defined-but-non-string value, so if story.events ever holds a reviewer_forced entry whose reviewer is e.g. a number, .trim() throws TypeError and crashes every consumer of computeActiveReviewers (canPassReviewGuard, review-inventory requiredLanes capture, quorum-submit, transition-effects, reviewer-status, lifecycle-readiness) instead of the old versions benign String(x).trim() coercion. Not reachable via any current writer: both real writers are TS-typed literals producing only string|undefined (reviewer-list.ts:290 reviewer:name string; review-run.ts:473 omits the key). Requires out-of-band index.json tampering or a future third writer bug; store.ts readStory performs no runtime schema validation on events (readJson is an unchecked cast), so such tampering would reach this code unfiltered. Low severity: fails loud with a clear TypeError rather than silently misbehaving, and is currently unreachable through the API surface.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-16T13:27:36.531Z",
@@ -6070,7 +6070,9 @@
       ],
       "_hash": "23404c27d33267a2a3c7a32fb7b0ecb4704b46e26561ebe6aefe8d2ea803a0a1",
       "signatureTag": "edge|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed as a real regression I introduced and fixed. The F-093 zero-cast rewrite dropped the String() wrapper, so (event.reviewer ?? \"\").trim() would throw TypeError on a defined-but-non-string reviewer instead of coercing benignly, and because computeActiveReviewers is called by canPassReviewGuard, the epoch requiredLanes capture, quorum-submit, transition-effects, reviewer-status and lifecycle-readiness, that throw would crash every gate consumer rather than degrading. Verified the divergence mechanically before fixing: with String() the input [{reviewer:42},{reviewer:\"behavior\"}] yields [\"42\",\"behavior\"], without it .trim() throws TypeError. Restored String(event.reviewer ?? \"\").trim() with a comment naming the consumers at risk and stating that coercion keeps a malformed persisted event inert rather than fatal. Added a regression test in packages/main/src/tasks/review-assurance-floor-smoke.ts that drives computeActiveReviewers with a story whose events include a non-string reviewer (12345). Mutation check: removing the String() coercion from the compiled dist makes that smoke exit 1; byte-restoring returns exit 0. npx tsc --noEmit -p packages/main is clean. The reviewer correctly noted the case is unreachable through either current TS-typed writer and needs out-of-band tampering or a future third writer, so this is hardening rather than a live defect, but the cost of the coercion is zero and the blast radius without it is every gate consumer.",
+      "resolvedAt": "2026-08-16T13:32:50.250Z"
     }
   ]
 }
