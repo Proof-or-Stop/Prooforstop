@@ -1,0 +1,110 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify the only mechanically safe automatic takeover case",
+      "context": "Add a pure eligibility classifier over a foreign lease: stale heartbeat, canonical cwd equality, local hostname equality, and recorded owner PID proven dead. EPERM, live or reused PID, remote host, malformed identity, and unknown liveness are not eligible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md"
+      ],
+      "userSees": "A stale same-worktree lease with a dead local owner process is recovered automatically; all ambiguous cases remain blocked with a precise reason.",
+      "excludes": [
+        "Automatic takeover of active leases",
+        "Automatic takeover of remote or unknown-host leases",
+        "Age-only or cwd-only silent takeover"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Apply eligible automatic takeover at the unified ownership gate",
+      "context": "In enforceStoryOwnerLeaseGate, after reading and classifying the foreign lease but before the standard rejection, invoke the existing serialized takeover path only for auto-eligible leases. Preserve explicit --takeover and --forceTakeover semantics for every other case.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "The originally requested owner-gated command proceeds once after a safe automatic transfer and the new session becomes the sole owner.",
+      "excludes": [
+        "Bypassing ownership for reviewerWrite or readOnly commands",
+        "Changing main-write-lock behavior"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record distinct audit evidence and ownership guidance",
+      "context": "Every automatic transfer must append the same structured takeover lineage with an explicit automatic-stale-same-worktree-dead-pid reason and update the takeover counter. session_brief and rejection UX must say whether automatic recovery is eligible, refused, or explicit takeover remains required.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "session_brief explains why a lease was auto-recovered or why it remains read-only, and the activity log names the former owner, new owner, and automatic reason.",
+      "excludes": [
+        "Treating prose as gate evidence",
+        "Deleting takeover history"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove no false takeover under real competing processes",
+      "context": "Extend the existing owner-lease smoke with real child processes for stale dead owner success, live long-running owner refusal, PID reuse or start-time mismatch refusal, remote or unknown host refusal, canonical different-worktree refusal, two simultaneous auto-takers yielding one winner, and explicit takeover regression.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "The focused smoke prints PASS only when automatic recovery is single-winner and every live or ambiguous owner remains protected.",
+      "excludes": [
+        "Mock-only liveness proof",
+        "Weak wall-clock-only concurrency assertions"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

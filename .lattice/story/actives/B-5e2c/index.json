@@ -1,0 +1,30 @@
+{
+  "storyId": "B-5e2c",
+  "name": "automatic-stale-same-worktree-owner-takeover",
+  "title": "Automatically recover only mechanically dead stale same-worktree Story owner leases",
+  "description": "Add a bounded Proof-or-Stop recovery path that automatically transfers a foreign Story owner lease only when staleness, canonical worktree identity, local host identity, and dead owner process are all mechanically proven; retain explicit takeover for every ambiguous case.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "story-owner-lease",
+    "automatic-takeover",
+    "same-worktree",
+    "dead-pid",
+    "proof-or-stop"
+  ],
+  "createdAt": "2026-08-16T11:41:02.625Z",
+  "startedAt": "2026-08-16T11:41:02.625Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-16T11:41:03.769Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
+    }
+  ]
+}
