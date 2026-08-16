@@ -416,6 +416,35 @@
         "scanEscalationReason": null
       },
       "_hash": "0e7eb296c334c1c087a52830bc1c2d2cb0f1c60841439806b6243c423db2526f"
+    },
+    {
+      "id": "B-3434:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Confirmed the single commit since RP-012 (5e65c6f330, lattice.config.json only, +1/-0). (1) Placement: parsed validate.commands (96->97) and located the new entry by index -- 75=red-b49d4-chk002-receipt.mjs, 76=red-b3434-blob-buffer-ceiling.mjs (new), 77=red-s3-differential-probe.mjs -- exactly the described insertion point, timeoutMs=180000 matching every sibling RED harness in that block, no other entry touched/reordered/removed. git diff 5e65c6f330..HEAD (current HEAD 1190630250, moved only by my own read-only CLI calls' bookkeeping commits) is empty for packages/main, lattice.config.json, docs, scripts -- only .lattice/ story metadata changed since the commit under review. (2) lattice.config.json IS in scope-contract.json allowedModify, confirmed by direct read. One correction to the dispatch framing: this is not actually the first time the story touched the file -- commit 8250774c9d (CHK-005) already added the validation-evidence-buffer-smoke.js entry earlier in the story -- but that does not change the confirmation, since allowedModify authorizes the file regardless of touch count. I also checked the apparent tension with scope-boundary.json's excluded item 'Which entries lattice.config.json declares' (flagged excluded:true in scope-freeze-check.json's keywordHits) against this commit, since the commit's entire content is registering an entry. Concluded this is not a violation: allowedModify explicitly authorizes the file; the action is the same narrow category CHK-005 already exercised without objection (registering only an artifact this story itself created, one line, no reorganization of unrelated entries); and it satisfies a pre-existing systemwide obligation independent of this story's discretion -- packages/main/tests/red/red-b49d4-harness-registration.mjs (B-49d4's total-population registration guard) requires every file in tests/red/ be either registered in validate.commands or listed in REGISTRATION_EXCLUSIONS with a reason, and red-b3434-blob-buffer-ceiling.mjs was in neither state before this commit. Ran that guard directly: now OK (40 entries, 35 registered + 5 excluded, none undecided) -- before this commit it would have failed naming this file (confirmed indirectly: RP-014/RR-045, the round immediately before mine, already reproduced this via the harness-registration guard's own captured test-evidence.json rows). No scope_contract_acknowledge was filed for this, consistent with it not being a scope expansion. (3) Maintenance-lesson question: the honest read leans toward 'the guard caught it, the process worked' -- B-49d4's registration guard exists precisely for this failure class, is cheap (~1-2s, static config+directory audit), caught the gap before DONE/merge, and the fix is a correctly-scoped one-line correction with zero blast radius (nothing shipped broken; the story's actual code-level fix was independently reproduced and verified by multiple reviewer lanes across twelve rounds regardless of this gap). I don't think a new story or process change is warranted. The one concrete, non-invented observation: every one of RP-001 through RP-013's checklist verificationIntent selectors for CHK-002/CHK-003 bind to direct invocation (node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs), never to the registration guard or to lattice validate itself, so 'the regression passes' and 'the regression is wired into what everyone else's future changes will run' were silently different claims that no round's bound commands distinguished until RP-014. That is a narrow authoring detail (checklist items that create a new RED harness could bind one selector to the registration guard up front) worth naming plainly since it is the same measure-one-thing/claim-another shape this story's own findings (F-001, F-008, F-031, F-033) repeatedly found in the code -- but it is not a systemic failure: the guard existed, ran eventually, and worked. (4) Ran all five requested commands fresh in the review worktree, dist not rebuilt (no source changed): npx tsc --noEmit -p packages/main -> clean, exit 0. node scripts/verify-process-fact-contract.mjs -> Process fact contract verified, exit 0. node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS (8/8 sections incl. over-ceiling diagnostic and silent/talking-hook cases). node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (all sections incl. CHK-004 outcome-B disposition check). node packages/main/dist/tasks/quorum-submit-smoke.js -> PASS (71 checks, ~2min). Also ran red-b49d4-harness-registration.mjs as corroborating evidence for point 3 (not one of the five requested, but directly relevant and cheap): OK. finding_list confirms all 41/41 findings status=resolved. (5) FINAL MAINTENANCE VERDICT: SHIPPABLE, unchanged from RP-012. The registration line is well-formed, correctly placed, in-scope, closes a real (pre-existing, systemwide, guard-covered) gap with no behavioral change to any reviewed code path, and every requested verification plus the registration guard itself is green.",
+      "createdAt": "2026-08-16T00:12:52.139Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-044",
+      "envelopeId": "d4a00329f48d95819e270120ea688291a7d5266aa818c4cfdfff11f4dae6cef6",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-boundary.json",
+          ".lattice/story/actives/B-3434/scope-check.json",
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          ".lattice/story/actives/B-3434/scope-freeze-check.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f9f35bca70a559d00b9b182da44f1224fbde77b4f6c6fcb93333f339f8bdc27d"
     }
   ]
 }
