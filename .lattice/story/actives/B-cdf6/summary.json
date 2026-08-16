@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cdf6",
+  "changes": "Renamed the CLI from `lattice` to `proof-or-stop` under a two-tier freeze rule. Tier 1 (renamed, no bearing on past evidence): user-facing bin name, docs, CLAUDE.md, agent prompt templates, commit subjects (`proof-or-stop:`), version-bump messages, acceptance-topology wrapper recognition. Tier 2 (FROZEN, load-bearing on past evidence chains): signature salts, `.lattice/` paths, `LATTICE_*` env vars, and the 13 `lattice-*` role IDs — renaming any of these would invalidate historical signatures or break in-flight spawns. Multi-developer safety came from a read-both compatibility contract: every recognizer accepts BOTH names so teammates whose branches still emit `lattice:` keep working after merge. Key sites: core/auto-commit-metadata.ts (matchesRuntimeCommitSubject), handlers/validate-channel.ts (isMetadataOnlyLatticeCommit — this one had the runtime rejecting its own commits), core/acceptance-topology.ts (recognizer was backwards: deprecated accepted, canonical not), core/version-bump.ts. Added a brand-prose + brand-exec residue gate covering docs, host adapter mirrors (.claude/agents, .lattice-codex/agents), and the executable surface (bin/, .codex/, package.json) — none of which any gate had scanned before.",
+  "usage": "Run `proof-or-stop <command>` where you previously ran `lattice <command>`; e.g. `proof-or-stop session_brief`, `proof-or-stop validate --story=B-xxxx`. The old `lattice` bin still resolves, and both commit-subject forms are still recognized, so a teammate merging an older branch needs no migration step. `proof-or-stop --version` prints 0.3.254.",
+  "expectedOutcome": "A user typing `proof-or-stop session_brief` gets the same behavior `lattice session_brief` gave; docs and agent prompts teach only the new name; a teammate merging a branch that still writes `lattice:` commit subjects passes the channel gate unchanged.",
+  "actualTranscript": "`proof-or-stop --version` -> 0.3.254. `proof-or-stop done_closure --storyId=B-cdf6` runs and reports structured checks. 94/94 configured validate commands passed with zero failures. Three smokes remain red (prompt-token-cost, proofstory-acceptance-topology, lattice-cli-migration); each was independently confirmed to fail identically on pristine main via clean worktrees, so they are pre-existing, not caused by this story.",
+  "outcomeDiff": "Difference from expectation: three pre-existing red smokes remain red (unchanged by this story, verified on pristine main). Also 12 framework gaps found while working were deliberately NOT fixed here and were logged to B-META-framework-audit (F-021..F-032) as open, because they belong to other subsystems and fixing them mid-flight would invalidate reviewer evidence that had just been assembled. Otherwise no difference: the rename is delivered and the read-both contract holds.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "(1) The 13 `lattice-*` agent role IDs are deliberately NOT renamed — they are subagent_type values and renaming them would break in-flight story spawns; the target `proof-or-stop-*` prefix is owned by docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md. (2) Signature salts, `.lattice/` dirs and `LATTICE_*` env vars stay frozen by design so historical evidence keeps verifying. (3) 11 story findings were closed as accepted_risk rather than fixed, each with a recorded reason; 1 partially_mitigated. (4) 12 framework gaps logged to B-META remain open. (5) Three pre-existing red smokes were not repaired here.",
+  "pitfalls": "Cost me repeatedly: (1) My own approximating regex is not the gate. I reported \"~108 residue hits\" as measured when the gate actually counted 161/84 — always run the gate function, never an eyeball grep. (2) Grepping `lattice: ` with a colon looked thorough but was structurally blind to `chore: bump lattice cli to`, which had 205 historical instances. (3) Excluding `smoke|test` from sweeps missed a 4th copy of a duplicated rule — a test that recomputes expected content rots exactly like production does. (4) One AST fingerprint had TWO pinned copies (retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs); the coupling was documented in the comment directly above the literal and I still repinned only one. (5) Do not edit material mid-review-round: doing so five times cost an entire completed reviewer lane (diff_pack_changed). Resolve findings as they arrive but batch the FIXES until all lanes report. (6) Rebuilding dist/ during a live review caused a false-positive finding — dist/ is gitignored so mutating it produces zero hash movement and is invisible to every freshness check (logged as B-META F-032). (7) Quote evidence counts together with the HEAD they were read at; I asserted stale counts to reviewer lanes twice. (8) A query keyed by `role` silently collapsed 4 pass rows into 1 and I reported \"three lanes green\" when it was two — read run records, not aggregates. (9) Never conclude GREEN or RED from a run made while other suites are hammering the box; one assertion flipped purely at load average 35.9.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2430728
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 50978
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 34197591
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 57189422
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 393337950
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 4238963
+    }
+  },
+  "totalDurationMs": 491446207,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-16T10:04:58.423Z",
+  "updatedAt": "2026-08-16T10:04:58.423Z"
+}
