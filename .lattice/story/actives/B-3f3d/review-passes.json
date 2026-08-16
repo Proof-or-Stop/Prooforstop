@@ -15553,6 +15553,430 @@
       },
       "readDiagnostics": [],
       "_hash": "4133ec22b8ece45c5c6267d058bc87b8739562c4998f1eb1687e69a0eddfd4b5"
+    },
+    {
+      "id": "B-3f3d:RP-256",
+      "agent": "lattice-review-quality",
+      "note": "Final post-e180313 bounded quality review independently confirmed F078 as the existing distinct numeric-PID reuse/identity family: ProcessTreeLifecycle keys ownership by PID and historical PGID without birth identity, while the current fixture injects a different foreign PID under a vanished parent rather than reusing an already captured PID. Inspection-failure quarantine, normal/nonzero completion cleanup, synchronous/preset interrupt registration, own-PGID avoidance, and terminal fail-closed propagation were source-reviewed; no additional distinct family was found. F078 was not duplicated and no heavy/root test was run.",
+      "createdAt": "2026-08-15T21:11:06.943Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-323",
+      "envelopeId": "3c68c3b61cc7ea797d23b1597c84a6718a27d738c1d252473c9083dcf2a0daac",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded final remediation review focused on the runner lifecycle implementation, focused smoke, and current signed F078 evidence; no full decisions-corpus escalation was required.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "28204981ff712dd2b69ec5f572138b72de7fc65368fe276fd96e2f0e25166406"
+    },
+    {
+      "id": "B-3f3d:RP-257",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-e180313 coverage review found no distinct family beyond existing F-078. The remediation adds deterministic tests for detached normal/nonzero completion, initial/reinspection/poll/signal failures, persistent survivors, scheduler reuse, and synchronous/preset interrupts, closing F-074 through F-077 topology. F-078 remains canonical and is not duplicated: ownership still keys captured identity by numeric PID/PGID, while the added pid-reuse fixture injects a different foreign PID descended from a vanished PID and therefore does not bite reuse of an already captured numeric PID. Mechanical checklist projection is 54/54 mapped passing with zero waiver, but session_brief truthfully reports all 54 evidence bindings stale after HEAD 6fcc110; no heavy rerun was performed, so this pass does not claim current mechanical re-execution. Freshness must be recovered by the owner before TEST/DONE. No root/heavy tests or material edits.",
+      "createdAt": "2026-08-15T21:12:46.241Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-324",
+      "envelopeId": "a034019c1284b560f1a7593d7d62ea9b1af08f81918dedbbb0c36b24ae5f5aca",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "5480cbd83ad01bcda9660d1980361f58fbbc945c2a6f7b164f1a996754a151a2"
+    },
+    {
+      "id": "B-3f3d:RP-258",
+      "agent": "lattice-review-docs",
+      "note": "Final post-e180313 docs review passed with no distinct documentation finding. Step 1 identified six exported lifecycle symbols/signatures in the focused runner diff; none has a direct README/CLAUDE/docs reference, so fallback module review compared two authoritative public-contract paragraphs in Test Runner Consolidation and Workflow Convergence. Those paragraphs describe bounded worker scheduling, timeout process-group cleanup, terminal/no-retry, and timeout/liveness resource release without promising numeric PID birth-identity protection. F-078 is therefore the existing runtime ownership-identity gap, not an independent public CLI/signature/operator-doc drift. The new optional runEntry lifecycleOptions and exported test adapter do not change documented CLI commands or outputs. Evidence freshness remains a separate mechanical TEST/DONE recovery issue, not a docs contradiction.",
+      "createdAt": "2026-08-15T21:13:43.821Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-325",
+      "envelopeId": "6d5fd2c78c2fcfdf84b47628a771e7d191af0cea28dd56027595e499afddb62c",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "1b73ce1f378017cb8d9e8206da8a698dc81ee3ccbb0037f1e47b1c4fd29e02f1"
+    },
+    {
+      "id": "B-3f3d:RP-259",
+      "agent": "lattice-review-concept",
+      "note": "RI-024 wave1 bounded concept scan found no distinct family beyond verified F-078. F-078 is distinct from F-074 inspection uncertainty barrier, F-076 interrupt registration ordering, and F-077 normal-completion cleanup because it concerns signalling a reused numeric PID/PGID without birth identity. Adjacent root-row overwrite, PGID reuse, and own-PGID per-PID fallback are manifestations of F-078; permanent inspection uncertainty retaining scheduler ownership is the existing F-074 barrier. No heavy/root tests and no material edits.",
+      "createdAt": "2026-08-15T21:16:09.256Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-326",
+      "envelopeId": "76061becba0491a14b11aefa3707893d2965f3003bd0b2d20c6f6b1aa88f058a",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No full decisions-directory escalation; bounded adjacent-family scan around F-078 and runner lifecycle ownership.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "fcbf7d24a624d5509c889058db61eb74c4aecb7cb7927aff98945ccdfc655f3e"
+      },
+      "readDiagnostics": [],
+      "_hash": "f1bb5d7eb3d0ffdd7a2279e698b69a921ad5ed5777239e2ee8fbf6ffa855c48a"
+    },
+    {
+      "id": "B-3f3d:RP-260",
+      "agent": "lattice-review-quality",
+      "note": "RI-024 wave1 bounded quality review independently rechecked F078 and adjacent lifecycle cleanup. Numeric PID reuse, historical PGID reuse after owned members exit, and unconditional root-row replacement all share the same missing process birth-identity family F078; the current fixture does not reproduce captured-ID reuse. Inspection retry/quarantine, normal completion, interrupt pre-registration, group signaling, and fail-closed terminal propagation revealed no second distinct family. No heavy/root test or material edit was performed.",
+      "createdAt": "2026-08-15T21:18:16.478Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-327",
+      "envelopeId": "725fc00e0542946771d8e31ecc16c2c4365d02b396466cbfac4497d181290214",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded RI-024 wave1 review focused on F078 and adjacent runner lifecycle paths; no corpus-wide escalation was required.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "95db72a0de4d18ec37c3bde4a7aa2b87ed206b416a8f998670ff8293afe55aa1"
+    },
+    {
+      "id": "B-3f3d:RP-261",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-024 wave1 coverage passed with zero distinct family beyond canonical F-078. F-078 correctly classifies the remaining test gap: captured ownership uses numeric PID/PGID without a birth identity, while the existing reuse test injects a different foreign PID and only proves stale ancestry rejection. Adjacent root replacement, liveTargetIds probing, direct per-PID fallback signalling, and historical PGID reuse are manifestations of the same identity family, not new findings. Checklist projection remains 54/54 mapped passing with zero waiver, but session_brief still classifies all 54 evidence bindings stale after 6fcc110; no heavy rerun was performed and this pass does not claim current mechanical re-execution. No heavy tests or material edits.",
+      "createdAt": "2026-08-15T21:19:55.340Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-328",
+      "envelopeId": "fe93984fbcbac83f940706b14918538a8f55cce8a26f8b6f6fe7c946ee838bfb",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "cf1fc42e3a72be423b305f84f981b7f4308c2d2db9f3a4f0a9798465bd6b3816"
+    },
+    {
+      "id": "B-3f3d:RP-262",
+      "agent": "lattice-review-docs",
+      "note": "RI-024 wave1 docs passed with zero distinct family beyond F-078. Incremental material is unchanged from the post-e180313 review; six exported lifecycle symbols still have no direct public-doc references, and two fallback module-contract paragraphs remain consistent. Neither authoritative paragraph promises process birth-identity tracking or same-numeric-PID reuse protection, so F-078 is a runtime/test gap rather than an independent CLI/signature/operator-doc contradiction. Evidence staleness is correctly an operational TEST/DONE recovery fact, not documentation drift. No heavy tests or material edits.",
+      "createdAt": "2026-08-15T21:20:51.336Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-329",
+      "envelopeId": "71894bde4107824eff154e1d5ff2900d53095544f99e7ad2a82650ada9252d92",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "8f715f51d861481f2821bac6137a1915a77d034768d678facc82190afb741de0"
+    },
+    {
+      "id": "B-3f3d:RP-263",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-024 wave1 completeness critic mechanically confirmed all four required lane passes RP259-RP262, acceptance basis status complete with no blind spots, and raw exactly F078. F078 is a distinct verified family covering process birth-identity absence across captured numeric PID and historical PGID reuse, including foreign target kill risk; no raw finding is missing or duplicated.",
+      "createdAt": "2026-08-15T21:23:24.736Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-330",
+      "envelopeId": "e244d0b75ea84b7105b8a08cef3673a8cdce591a94cd73d6fff79f934e26d7d0",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/acceptance-basis.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded completeness review used the current signed lane, finding, acceptance-basis, and lifecycle source evidence; no corpus-wide escalation was required.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "875af8e88d1472a0543f598c3b4b0f3b028b54d28544fc401699699d5d079984"
+    },
+    {
+      "id": "B-3f3d:RP-264",
+      "agent": "lattice-review-concept",
+      "note": "RI-024 wave2 unchanged-cutoff concept saturation found zero new family beyond F-078. Current source remains unchanged: ProcessRow/known ownership lacks birth identity and bare PID probe/signal remains the canonical F-078 family; PGID and own-PGID variants are the same numeric-identity root cause. No additional lifecycle or concept family emerged. Bounded source grep only; no heavy/root tests and no material edits.",
+      "createdAt": "2026-08-15T21:25:50.802Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-331",
+      "envelopeId": "74300a455edddd47071db85637c0d8d035908c158d1d65206052181f0277a47b",
+      "writerSessionId": "sess-daa69d55ec66cfc431f9c632f76ebe68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "No full decisions-directory escalation; unchanged-cutoff incremental saturation around canonical F-078.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b72cb79864240032843c6602b9288c7449c8ea42d77827289c49425c1e205a1"
+    },
+    {
+      "id": "B-3f3d:RP-265",
+      "agent": "lattice-review-quality",
+      "note": "RI-024 wave2 bounded quality saturation reviewed the unchanged ProcessTreeLifecycle identity, capture, group-signal, probe, quarantine, and terminal paths. Numeric PID reuse, historical PGID reuse, and root-row rebinding remain one canonical F078 process-birth-identity family; no additional distinct finding family was found. No heavy/root test, material edit, or critic action was performed.",
+      "createdAt": "2026-08-15T21:28:50.758Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-332",
+      "envelopeId": "b93798a491719c4001ba649a700e281a58b3994cbe67d76cf2369a69389cbe3f",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded zero-new saturation review focused on unchanged F078-adjacent lifecycle paths; no corpus-wide escalation was required.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7158947b63592f3b0d09867e76c2bf0c5a128a4d8b45e996b4e7bf3191a737e3"
+    },
+    {
+      "id": "B-3f3d:RP-266",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-024 wave2 coverage zero-new saturation passed. F-078 remains the sole canonical family: same-numeric captured-PID reuse lacks process birth identity, while all adjacent numeric probe, root replacement, PGID and fallback signal cases are manifestations of that family. No second coverage family found. Checklist remains 54/54 mapped passing with zero waiver, but all 54 evidence bindings remain stale after 6fcc110 and were not mechanically re-executed. No heavy tests or material edits.",
+      "createdAt": "2026-08-15T21:31:04.849Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-333",
+      "envelopeId": "82c56950aef5d1253e1e1acaf62b5b686ad74e56801701611b8df95f2b56f6b5",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "9cb7ad4fee4421c2f644ab4c71f0a82161deabaff2175237b7eb2eaaf3fb233d"
+    },
+    {
+      "id": "B-3f3d:RP-267",
+      "agent": "lattice-review-docs",
+      "note": "RI-024 wave2 docs zero-new saturation passed. Unchanged post-e180 material still exposes six lifecycle symbols with no direct public-doc reference; two fallback module-contract paragraphs remain consistent. F-078 process birth-identity coverage gap does not create a separate documented CLI/signature/output/operator contradiction. No second docs family, heavy tests, or material edits.",
+      "createdAt": "2026-08-15T21:32:19.687Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-334",
+      "envelopeId": "999aafdb855e28c072e833a20c551b23ff29e6f971fd6cbcb7cc46f3a6d00254",
+      "writerSessionId": "sess-ba595ecc030f75ed4f954cef7de8dbc5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "d3abb0a40d49eeb2a40e55fa6841aed98d787850379228c409c505da6999942f"
+    },
+    {
+      "id": "B-3f3d:RP-268",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-024 wave2 final completeness critic mechanically confirmed current required-lane passes RP264-RP267 on the unchanged cutoff and no current-wave raw finding. Historical canonical F078 process-birth-identity family remains preserved from CRIT-01; wave2 contributes zero new verified family.",
+      "createdAt": "2026-08-15T21:35:10.909Z",
+      "reviewRound": "2026-08-15T21:05:42.531Z",
+      "reviewRunId": "B-3f3d:RR-335",
+      "envelopeId": "3ee131f003583126c81c850754635b2c7690d308311d953dd3330d85885b91e9",
+      "writerSessionId": "sess-db9d3c156109a5f5ff09af1401ffe455",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/acceptance-basis.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          ".lattice/story/actives/B-3f3d/review-passes.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json"
+        ],
+        "scanEscalationReason": "Bounded zero-new completeness review used current lane, finding, epoch, and acceptance-basis evidence; no corpus-wide escalation was required.",
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b53cd82d3baf4989007d1e225842dc8f55d8afb4cc0bf7b0e5ff4aef2fcbe2ab"
     }
   ]
 }
