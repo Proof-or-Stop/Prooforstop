@@ -5684,7 +5684,7 @@
       "desc": "packages/main/src/handlers/reviewer-list.ts:83,168-171 -- quality: computeActiveReviewers narrows story to Pick<StoryInfo,riskSignals> & Partial<Pick<...,riskSignalsDismissed>>, which omits events, so the F-091 persistedForced replay is forced to cast (story as Partial<Pick<StoryInfo,events>>).events and then double-cast each array element via (event as {action?:string}) / (event as {reviewer?:string}) to read fields that are already fully typed on StoryEvent (action is already the literal union including 'reviewer_forced'; reviewer is already string|undefined). This is a self-inflicted typing gap from an overly narrow parameter Pick, not genuinely unknown-shaped data. Fix: widen the parameter type to Pick<StoryInfo,'riskSignals'|'events'> (events stays optional, so all 11 existing call sites -- several of which pass bare object literals like {riskSignals:[]} with no events field -- remain compatible) and use a real type predicate '(e: StoryEvent): e is StoryEvent & {action:'reviewer_forced'}' over the now well-typed array. Verified this compiles with zero casts via tsc --noEmit -p packages/main. Reproduced the author's claimed tsc rejection: the real error is TS2339 'Property events does not exist on type ...Pick<StoryInfo,riskSignalsDismissed>...' (because events is missing from the Pick), not a predicate-assignability failure against StoryEvent as the author described; the predicate itself compiles fine once events is in scope on the parameter type.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-16T13:17:59.704Z",
@@ -5728,7 +5728,9 @@
         "packages/main/src/handlers/reviewer-list.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and my stated rationale was wrong. I had told the reviewer that tsc rejected a type predicate as not assignable to StoryEvent; the quality lane reproduced the real compiler error and showed it was TS2339 Property events does not exist on type, caused by my own narrowing of the story parameter to Pick<StoryInfo,riskSignals> & Partial<Pick<StoryInfo,riskSignalsDismissed>>, which omits events. So the casts were papering over a self-inflicted typing gap rather than a genuine limitation, exactly as the finding says. Fixed as the reviewer proposed: widened the parameter to Pick<StoryInfo,riskSignals> & Partial<Pick<StoryInfo,riskSignalsDismissed | events>> (events stays optional, so every existing call site including the ones passing bare literals such as {riskSignals: []} remains compatible) and rewrote the replay with no casts at all: story.events ?? [] then filter(event => event?.action === reviewer_forced) then map(event => (event.reviewer ?? ).trim()). Verified npx tsc --noEmit -p packages/main is clean and grep for the cast pattern in the file now returns 0. Rebuilt and confirmed behaviour is unchanged: reviewer_list still reports behavior (forced) and the final-review roster still contains lattice-review-behavior, so the F-091 durability fix is intact.",
+      "resolvedAt": "2026-08-16T13:22:06.917Z"
     },
     {
       "id": "B-3f3d:F-094",
