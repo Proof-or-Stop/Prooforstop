@@ -207,7 +207,11 @@
           {
             "desc": "verify-entrypoints.mjs passes after its pinned header assertions are updated, so the rename is not achieved by disabling a test",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-entrypoints.mjs",
+              "selector": "entrypoints verified"
+            }
           },
           {
             "desc": "invokedAs is actually consumed, not merely computed, so output mirrors how the CLI was invoked",
@@ -353,13 +357,29 @@
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "WAIVER (deferred_gate_evidence), user-approved 2026-08-11. The intent asks that scripts/verify-entrypoints.mjs pass after its pinned header assertions were updated. The header-assertion half IS delivered and verified; the suite cannot reach green because of a PRE-EXISTING framework defect recorded as B-META-framework-audit:F-005 with evidenceState=verified. F-005: init writes a MODULAR role body (marker proofbound:modular-role-body:v1, 3927 bytes) into .lattice-codex/agents while codex-adapter-checks.ts:387 expects the LEGACY-FULL-CONTEXT reconstruction (8896 bytes, marker lattice:start), so a freshly init-ed full-mode project fails its own verify_codex. Proven independent of this rename two ways: the identical DRIFT reproduces on the PRISTINE main checkout (expected 8896 / actual 3927), and git log -S attributes the marker to commit a260249f64 (story B-235e). Ownership: prompt-body render mode belongs to the agent-prompt consolidation plan, so fixing it inside a brand-rename story would mean editing another plan's territory. Waived as deferred rather than permanent because F-005 is a real defect someone will fix, and this intent should pass once it is. What this story DID fix in the same block, all verified: (1) an obsolete negated code shape pinned at :501; (2) seedClaudeAgentMirror seeded RAW templates where the checker compares host-rendered shims; (3) a hardcoded 16-prompt count against a 17-role registry, now derived from the registry so it cannot rot again; (4) a genuine regression from THIS story where codex-adapter-checks.ts static-grepped literal old env names while the generated wrapper composes them via setEnv(). Proof those four took effect: the failure message CHANGED - package/Claude drift is gone and only the codex render-mode mismatch remains.",
-          "headHash": "f82dd61952c2ca53e3e880c76bd5445ef0e00757",
-          "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
-          "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
-          "timestamp": "2026-08-11T15:34:26.303Z"
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "REAL MECHANICAL RECEIPT, replacing the deferred_gate_evidence waiver. The intent asks that verify-entrypoints.mjs PASS after its pinned header assertions were updated, proving the rename was not achieved by disabling a test. It now exits 0 with 28/28; the selector pins the terminal 'entrypoints verified' line, which the script prints only after every check passes.\n\nWHY THIS BECAME EARNABLE. Four defects had to be fixed first, each verified by execution: (1) cli-init.ts wrote raw modular templates for the 5 MODULAR_COMPLEX_ROLE_IDS instead of the digest-pinned legacy reconstruction; (2) the managed-assets codex mirror had the identical gap in the EXPECTATION; (3) a THIRD copy of the same branch in the .claude mirror (F-034, found by the quality lane); (4) the deprecated bin alias probes used packageRoot() where projectRoot was required, so neither alias ever registered.\n\nWHY IT WAS NOT RECORDED EARLIER, stated plainly: when I first got the script green, the receipt executor ran it and got exit 1 while my direct run got exit 0. I did NOT re-roll until it went green - that would convert a mechanical receipt into a lottery ticket. I investigated instead and found the script is load-sensitive (28/28, 11/28, 28/28, executor failure on one unchanged commit, stopping at different checks), logged as B-META-framework-audit:F-027, and left the honest deferred waiver in place. This attempt is made on a measured-quiet machine (load 5.64) and the executor is being allowed to reach its own verdict; if it refuses again the waiver stays.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c63d3b18dc6fdc271d1bb849d45d2e93bf239bc69648dd8aa34b39b547444b80",
+            "outputTail": "ok 1/28\nok 2/28\nok 3/28\nok 4/28\nok 5/28\nok 6/28\nok 7/28\nok 8/28\nok 9/28\nok 10/28\nok 11/28\nok 12/28\nok 13/28\nok 14/28\nok 15/28\nok 16/28\nok 17/28\nok 18/28\nok 19/28\nok 20/28\nok 21/28\nok 22/28\nok 23/28\nok 24/28\nok 25/28\nok 26/28\nok 27/28\nok 28/28\nentrypoints verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T08:53:03.459Z",
+            "timeoutMs": 1800000,
+            "timeoutOverride": {
+              "timeoutMs": 1800000,
+              "defaultTimeoutMs": 270000,
+              "reason": "verify-entrypoints.mjs runs 28 checks, most spawning a full init --profile=all --asset-mode=full into a temp dir and then executing the generated wrappers; a complete pass exceeds the 270s default budget on this repository."
+            }
+          },
+          "headHash": "72dc6f6dbbd4e610be43d8b4e3e3794c95384144",
+          "materialHash": "680d4e44ee0590141b7179a3703d7d4660fa6fe32b4e93c03345b878b084d1d1",
+          "storyFilesHash": "87f1438129ef5aea299fabf1978ad2cd17c50ef68cf8c1d5365bcfe1f16fb0fd",
+          "timestamp": "2026-08-16T08:53:03.593Z"
         }
       ]
     },
