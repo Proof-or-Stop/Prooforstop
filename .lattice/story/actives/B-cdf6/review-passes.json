@@ -1019,6 +1019,31 @@
         "scanEscalationReason": null
       },
       "_hash": "784985da95b7b200164c90de30c3f81e709c684a3098437a02d960d7ad60b08e"
+    },
+    {
+      "id": "B-cdf6:RP-034",
+      "agent": "lattice-review-docs",
+      "note": "Scope this round (review_incremental_context): 1 changed file since prior pass RP-030, scripts/verify-process-fact-contract.mjs. Verified commit 3ffbbe31ef and its comment: second-copy fingerprint updated 61136cc5...->34a45a752f..., byte-matches the guard own value (retired-authority-vocabulary-guard-smoke.ts:384). Comment accurately scopes what was checked (zero import()/require() touches in diff, byte-identical loader call site) and does not overstate. Ran verify-process-fact-contract.mjs directly: exit 0 (was 1). tsc clean. All three lattice-residue checks exit 0 (self-test 38/38). git status clean. finding_list: 59 findings, 0 open, matches claimed state. Independently reran prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke: all three genuinely red with the described failures, and spot-checked prompt-token-cost-smoke against a pristine-main worktree - identical assertion text, line offset explained by unrelated insertion. Confirmed CHK-002:adversarial:1 evidence entry is still kind=waiver/waiverType=deferred_gate_evidence, consistent with 35/36 coverage claim, no receipt re-rolled to green. No doc/comment/commit-message overstatement found. No blocker.",
+      "createdAt": "2026-08-16T08:14:09.050Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-093",
+      "envelopeId": "c06d30e5a99a89531f01b122ee0a7c5c79648e620d5d29c732a0732721e4eb98",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7856b32b6cc42dcc9a70209af756d56cc1619153ee11831a6b1c2a6e64368bee"
     }
   ]
 }
