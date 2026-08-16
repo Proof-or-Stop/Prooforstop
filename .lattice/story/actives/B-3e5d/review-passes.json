@@ -150,6 +150,36 @@
         "scanEscalationReason": null
       },
       "_hash": "106e0fd98ef9451a9f7ac9dbf61e82b0e2aad9d3c86a3d47af9b059a206a58a4"
+    },
+    {
+      "id": "B-3e5d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Final re-confirmation round. Both F-001 and F-002 are resolved. Verified: (1) findings.json shows both status=resolved with strong evidence; (2) commit aa9a5a877b (docs-only) corrects red-B-new-concurrent-done-race.mjs header comment to accurately narrate the actual fix mechanism (shared-rooted lock via resolveSharedLockRoot inside acquireStoryTransitionLock, real crash was ctx.store bound to worktree path at CLI bootstrap, fixed by the narrow StoryArtifactMissingError translation at CHK-002) -- cross-checked against packages/main/src/handlers/transition-orchestrator.ts:877-947, comment now matches code exactly; (3) re-ran packages/main/tests/red/red-B-new-concurrent-done-race.mjs directly: exits 1 with its own expected AssertionError (defect-still-present assertion correctly fails since worktree-authority-smoke.js now passes), the correct GREEN signal, confirming the doc-only edit did not alter script behavior; (4) git diff main...HEAD --name-only confirms scope is exactly the 5 checklist files (transition-orchestrator.ts, field-regression-cli-smoke.ts, red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs, red-b49d4-harness-registration.mjs) plus story lifecycle bookkeeping under .lattice/story/actives/B-3e5d/ -- no unexpected files changed since the prior review pass; (5) git log confirms the only non-bookkeeping commit since the last review round is aa9a5a877b (docs-only F-002 fix); dist build (packages/main/dist/handlers/transition-orchestrator.js) is newer than src, confirming a fresh build. No new quality issues (dead code, type-safety, I/O isolation) found across the 5 changed source/test files, consistent with prior REVIEW rounds RR-001..RR-008 on this same diff. No blockers.",
+      "createdAt": "2026-08-16T13:35:31.810Z",
+      "reviewRound": "2026-08-16T13:30:53.847Z",
+      "reviewRunId": "B-3e5d:RR-009",
+      "envelopeId": "4b8083f8062b9b4d0073a9e9bafa032c8bf54bcd0fa9a1c968be856dc3d62382",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-3e5d/findings.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": "field-regression-cli-smoke.ts, red-B-new-retired-channel-lane.mjs, and red-b49d4-harness-registration.mjs were fully reviewed in prior rounds (RR-001..RR-008) on this same diff and are unchanged since; this round is a focused re-confirmation of only the F-002 doc-only fix (aa9a5a877b) touching red-B-new-concurrent-done-race.mjs, which was read fully and cross-checked against the current source of transition-orchestrator.ts."
+      },
+      "_hash": "57d8c1097089095a44d9bd63a86a901380811b9e5d61e202936d8533b7733607"
     }
   ]
 }
