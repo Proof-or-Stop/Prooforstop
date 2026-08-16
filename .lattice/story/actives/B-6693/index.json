@@ -4,7 +4,7 @@
   "title": "Serialize workspace-level validation capacity across stories",
   "description": "Prevent concurrent lattice validate and done_required_validate executions from different stories/worktrees from oversubscribing one machine and producing false member/suite timeout failures. Keep per-story evidence serialization, but add a canonical git-common-dir workspace capacity lease with heartbeat, stale recovery, reentrancy, explicit contention diagnostics, and no timeout-budget weakening.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -330,6 +330,24 @@
       "user": "Harmonygo",
       "sessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-16T01:33:11.500Z",
+      "branch": "story/B-6693",
+      "user": "Harmonygo",
+      "sessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-16T01:33:20.935Z",
+      "branch": "story/B-6693",
+      "user": "Harmonygo",
+      "sessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -337,5 +355,5 @@
     "branch": "story/B-6693",
     "createdAt": "2026-08-14T15:11:37.434Z"
   },
-  "currentReviewRound": "2026-08-16T00:04:30.414Z"
+  "currentReviewRound": "2026-08-16T01:33:20.935Z"
 }
