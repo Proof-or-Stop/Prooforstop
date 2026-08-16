@@ -6524,6 +6524,48 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Resolved by F-099, which had already fixed precisely the barrier this finding flags as needing separate rigor. Two behavior-lane runs reached what looked like opposite verdicts on whether the OPEN-epoch barrier is over-broad, so I checked whether they actually conflict before acting on either. They do not: review-inventory.ts:94-97 computes TWO independent conditions, materialChanged (materialHash / storyFilesHash) and scopeChanged (scopeDigest, which is reviewInventoryAcceptanceSubjectDigest, plus requiredLanes). This finding explicitly judges only the MATERIAL dimension and concludes it is correct-by-design, which I confirm: currentMaterialHash and currentStoryFilesHash structurally exclude the whole .lattice/story/ tree via isStoryMetadataPath, so a metadata-only evidence refresh never trips the material barrier, and the earlier cancel-before-refresh was my own procedural caution rather than something the barrier forced. The other run judged only the SCOPE dimension and found it genuinely over-broad, because reviewInventoryAcceptanceSubjectDigest hashed verificationEvidence raw including headHash / materialHash / storyFilesHash / timestamp / receipt.executedAt, so a pure re-pin rotated those fields and flipped scopeDigest even though materialHash was untouched. That is fixed in commit f8e5a077f3 by the evidenceSemantics projection, which drops exactly those five volatile fields while keeping intentRef / kind / file / command / result / note / mechanical and receipt.exitCode / outputDigest / outputTail / selectorMatched, extending the withoutVolatileTimestamps precedent already present in the same function. Both directions are pinned by regression assertions in review-inventory-epoch-smoke.ts and mutation-verified: reverting to raw evidence hashing makes the smoke exit 1. On the 9th invalidation this run observed live on RI-038, that one was caused by my own F-099 source commit landing mid-epoch, a genuine material change, so it is a correct invalidation and not evidence of over-breadth. This finding therefore needs no further code change; its recommendation was already satisfied.",
       "resolvedAt": "2026-08-16T14:15:02.306Z"
+    },
+    {
+      "id": "B-3f3d:F-101",
+      "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:180-183 states the frozen acceptance-subject scope digest \"includes checklist context, status, related docs, user-visible claims, exclusions, file routing, verification intents/evidence, and the frozen claim snapshot\" -- listing verification evidence as flatly bound alongside literal fields. After f8e5a077f3 (F-099 fix), reviewInventoryAcceptanceSubjectDigest binds verificationEvidence only through the new evidenceSemantics projection, which deliberately excludes headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt (a pure evidence re-pin no longer changes the digest). The doc sentence is now inaccurate/overclaiming: it does not distinguish semantic evidence content (bound) from freshness pins (excluded), unlike the doc's own more precise phrasing elsewhere (line 278 \"semantic ProofStory contract\"). Line 182 should be updated to say verification intents/evidence semantics (excluding freshness pins/timestamps), mirroring the ProofStory wording, so the doc does not contradict shipped behavior.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-16T14:22:22.493Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-414",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b0a17e8cfb6befe7f6e4715256204b11c1f3e785352a26bfb4f1ee96818f91f",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
