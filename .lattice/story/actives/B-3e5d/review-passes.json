@@ -94,6 +94,37 @@
         "scanEscalationReason": null
       },
       "_hash": "58d69b322dcb5389d4b20a1a4bfd14742c37d5c88f11506eb8807ba9db619506"
+    },
+    {
+      "id": "B-3e5d:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-confirmation of F-001 revert. Diffed transition-orchestrator.ts against main: acquireStoryTransitionLock(ctx.root, args.storyId) is called exactly as pre-story (plain ctx.root, no reroute), with a clear inline comment (B-3e5d F-001) explaining why the earlier reroute was a no-op and pointing to CHK-002 (StoryArtifactMissingError translation) as the real fix. No leftover no-op code: grepped for detectDoneStoryWorktreeContext/resolveSharedLockRoot/mainRepoRoot -- the only remaining usages (line 1082 DONE-preflight branch check, line 1379 transition-CAS lock path) are pre-existing on main (confirmed via git show main:...), unrelated to the reverted reroute. No orphaned imports (existsSync already used pre-story at line 766; new CHK-002 use at line 941 is well-typed, catch(e:any) matches 3 pre-existing catch blocks in the same file, no swallowed errors -- non-matching StoryArtifactMissingError cases rethrow unchanged). Rebuilt from source (npm run build, full-suite-build-binding PASS) and re-ran all four story-relevant gates fresh against the built dist: worktree-authority-smoke.js (pass), field-regression-cli-smoke.js (pass), red-B-new-concurrent-done-race.mjs (GREEN-signal: its own defect-still-present assertion now throws, confirming the fix holds), red-B-new-retired-channel-lane.mjs (GREEN-signal, same), red-b49d4-harness-registration.mjs (OK, both new RED scripts correctly exempted with stated reasons). Diffed field-regression-cli-smoke.ts (CHK-003/004/006/007) and the two new RED scripts against main -- all match checklist claims, no dead code, no unused imports, no `as any` beyond pre-existing file conventions. Noted (non-blocking): CHK-001 checklist title/context still literally describes the reverted reroute mechanism; this is historical/pre-revert planning intent, the resolved finding F-001 and the in-code comment both fully document the actual current mechanism, and the checklist edge-case OUTCOME claim (lock rooted at stable main repo root) remains true via the pre-existing resolveSharedLockRoot inside acquireStoryTransitionLock -- not a functional or documentation-accuracy gap worth blocking on.",
+      "createdAt": "2026-08-16T13:19:04.018Z",
+      "reviewRound": "2026-08-16T13:05:43.588Z",
+      "reviewRunId": "B-3e5d:RR-004",
+      "envelopeId": "88b5f72e3ea2520f40e61328425f6d234533a5e29d6c85dee943e6cbc114b1bb",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/findings.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/story-transition-lock.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "247b7ee1031c5211fd45f88bb3b8714cfec33915c2a662839ae76627cce41179"
     }
   ]
 }
