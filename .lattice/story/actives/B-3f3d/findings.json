@@ -6375,6 +6375,153 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed over-broad and fixed at the source. I asked this lane to re-judge whether the OPEN-epoch barrier was correct-by-design now that far more empirical data existed, explicitly inviting it to overturn its earlier judgement; it did, and it was right. Verified the report independently: reviewInventoryAcceptanceSubjectDigest already strips volatile createdAt/updatedAt from proofStoryContract and scopeShrinkageDecision via withoutVolatileTimestamps, with an in-file comment stating the rationale (so an exact idempotent retry does not manufacture acceptance drift), yet hashed checklist.items[].verificationEvidence RAW including headHash/materialHash/storyFilesHash/timestamp and receipt.executedAt. Those are precisely the fields a pure verification_evidence_refresh_stale re-pin rotates while result/command/note/outputDigest stay identical, so a metadata-only refresh flipped the scope digest and tripped OPEN_REVIEW_INVENTORY_SCOPE_MUTATION even though currentMaterialHash already excludes the entire .lattice/story/ tree. That is not hypothetical: it invalidated an OPEN epoch in this very session and discarded other lanes completed verdicts, and I had routed around it manually by cancelling before refreshing. Fix extends the existing in-file precedent rather than inventing a new mechanism: a new evidenceSemantics projection drops headHash / materialHash / storyFilesHash / timestamp and receipt.executedAt before hashing, keeping intentRef / kind / file / command / result / note / mechanical and receipt.exitCode / outputDigest / outputTail / selectorMatched. The barrier is narrowed, not weakened. Direct verification of both directions: two evidence records differing ONLY in freshness pins now produce an IDENTICAL digest, while a changed result produces a DIFFERENT one. Added regression assertions to review-inventory-epoch-smoke.ts pinning both directions, including that a changed result, command, receipt.outputDigest or receipt.selectorMatched each still changes the digest. Verified npx tsc --noEmit -p packages/main clean, review-inventory-epoch-smoke and review-inventory-handler-smoke both exit 0. Mutation check proving the assertions bite: reverting the compiled dist to hash verificationEvidence raw makes the epoch smoke exit 1; byte-restoring returns exit 0.",
       "resolvedAt": "2026-08-16T14:12:07.202Z"
+    },
+    {
+      "id": "B-3f3d:F-100",
+      "desc": "review-inventory-epoch.ts:412-447 assertReviewInventoryCutoff judged NOT over-broad for the material-mutation dimension the story asked about, based on empirical invalidation history plus a live 9th invalidation observed during this very review pass. All 8 prior invalidations in .lattice/story/actives/B-3f3d/review-inventory-epochs.json trace to real causes (RI-025 real materialHash change, RI-026 scope mutation, RI-033/034/035 genuine source commits during the F-091 fix iteration, RI-036 the final real source fix at commit 942327fb36 touching packages/main/src/handlers/reviewer-list.ts). The metadata-only evidence refresh that ran AFTER 942327fb36 did NOT trigger any automatic invalidation on materialHash/storyFilesHash grounds: git diff 942327fb36..HEAD -- . :!.lattice is empty, and all 11 changed files sit under .lattice/story/actives/B-3f3d/, which currentStoryFilesHash and currentMaterialHash both exclude via isStoryMetadataPath (evidence-freshness.ts:143-165). So on the material/story-files axis the barrier is verified correct-by-design: zero false positives in 8 real invalidations plus one refresh that legitimately passed through untouched. HOWEVER a 9th invalidation fired live during this review pass on RI-038 (blockerCode OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, lineage materialHash UNCHANGED both sides: d7e18083...->d7e18083... identical, only the scope-contract digest moved 9762be5e...->465b69a4...), discarding concept/docs/test-coverage's completed passes for the third time this epoch's lifetime and forcing this reviewer to review_inventory_begin a fresh RI-039 mid-verdict. This is a DIFFERENT barrier (scope-mutation, not material-mutation) but produces the identical operational cost the story is asking about: every lane's completed work discarded for a change that did not touch story-owned source. Recommend: (1) keep assertReviewInventoryCutoff (materialHash/storyFilesHash) unchanged, it is proven correct-by-design; (2) treat the scope-mutation invalidation path as a SEPARATE open question requiring the same rigor -- does OPEN_REVIEW_INVENTORY_SCOPE_MUTATION distinguish real scope-contract changes from scope-contract re-attestation/re-signing the way the material barrier already distinguishes story-owned source from metadata refresh, or is it comparatively over-broad; (3) close F-098 by documenting that a metadata-only verification_evidence_refresh_stale run does not require cancel+reopen against an OPEN epoch on material grounds, while noting the scope-mutation path evidently still can churn the epoch and deserves its own targeted investigation before the story finalizes.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T14:13:59.735Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-410",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-authority-live-integration.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        }
+      ],
+      "_hash": "c27f330ff4effe1a0efe67bc109f145536ee456f1c9ce6a3f6046abb72714d0d",
+      "signatureTag": "missing|unknown|review-inventory-epoch",
+      "signatureTagSource": "auto"
     }
   ]
 }
