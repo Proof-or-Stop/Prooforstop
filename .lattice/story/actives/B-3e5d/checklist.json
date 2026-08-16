@@ -154,7 +154,11 @@
           {
             "desc": "A genuinely invalid/nonexistent storyId is passed while ctx.root still exists on disk; the original StoryArtifactMissingError must rethrow unchanged, not be misclassified as a concurrent-DONE explanation",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+              "selector": "worktree authority smoke passed"
+            }
           }
         ]
       },
@@ -196,6 +200,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:09:46.280Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: the translation catch is narrowly scoped to StoryArtifactMissingError AND ctx.root missing on disk together; re-read of the fix in transition-orchestrator.ts confirms any other StoryArtifactMissingError rethrows unchanged, and the full suite (which exercises many other story reads) still passes, showing no over-broad suppression.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5bea47a3fb7b1959ab5cb87b9a969fd8321f259fb88a1e1c06f6241c2127f5e7",
+            "outputTail": "✓ worktree authority smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:11:27.308Z"
+          },
+          "headHash": "9ad7b602a53057a08e73d96d9bd6132d82d906ed",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:11:27.551Z"
         }
       ]
     },
