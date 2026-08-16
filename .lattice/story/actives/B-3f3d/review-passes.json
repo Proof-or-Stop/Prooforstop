@@ -17197,6 +17197,44 @@
         "scanEscalationReason": null
       },
       "_hash": "ccb7b91d836ee48598b9bcb535a380254caf9eb8ad48dc3c2dbb2d9180a57ecf"
+    },
+    {
+      "id": "B-3f3d:RP-297",
+      "agent": "lattice-review-docs",
+      "note": "Story-level docs review for RI-037, scoped to the single source commit landed since RP-294 (942327fb36, resolving F-096/F-097 on packages/main/src/handlers/reviewer-list.ts and packages/main/src/tasks/review-assurance-floor-smoke.ts). Findings: (1) CLAUDE.md forceReviewer paragraph (lines 877-889) re-verified against current reviewer-list.ts: all three claims (persistent story.events reviewer_forced write; computeActiveReviewers replays on every call so canPassReviewGuard/review_inventory_begin/quorum_submit all inherit it durably across rounds and DEV round-trips; no unforceReviewer command exists) remain accurate. The commit only restores a String() coercion and adds a regression test -- no behavioural change to force durability -- so the paragraph neither over- nor under-states current behaviour. (2) The forced-replay behaviour (F-096/F-097 regression test in review-assurance-floor-smoke.ts lines 310-347) verified present and matching the resolvedReason claims: asserts a persisted reviewer_forced event mounts durably with forced:true, a non-reviewer_forced event carrying a reviewer field does not mount a lane, no empty lane name is ever admitted, and no duplicate lane mounting. No doc anywhere claimed this coverage existed before, and no doc claims it is still missing now, so there is no doc/coverage mismatch to report. (3) Re-confirmed standing conclusion: docs/requirements/decisions/test-runner-consolidation-plan.md lines 10-28 (terminateProcessTreeAndVerify / ProcessTreeLifecycle.terminateAndVerify: SIGSTOP-freeze until two stable snapshots, SIGKILL-and-repoll, cleanup-budget-bounded, birthIdentity-keyed revocation, fail-closed on inspection failure or budget exceeded) still matches packages/main/src/tasks/full-suite-runner.ts lines 431-678 exactly; this commit did not touch that file. (4) No other doc/code drift found; review-inventory-epoch-and-saturation-gate.md line 225 'forced lanes remain selected' claim also holds unaffected. On the F-095 scope question posed to me: I confirm packages/main/src/tasks/review-incremental-context-smoke.ts (146 diff lines) and packages/main/src/tasks/review-assurance-floor-smoke.ts (40 diff lines, this round's F-096/F-097 fix included) are both materially modified by this story but neither appears in the story's declared allowedTest scope (only prewrite-guard-smoke.ts and review-inventory-epoch-smoke.ts are declared). My view: both should be added to allowedTest during the upcoming DEV pass -- they are being used as the actual regression-test home for gate-consumed logic (computeActiveReviewers replay, review-incremental-context behaviour) introduced/hardened by this story's checklist items, so leaving them undeclared is a real scope-contract gap, not merely a paperwork nit. No new findings filed this round.",
+      "createdAt": "2026-08-16T13:40:34.334Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-401",
+      "envelopeId": "8041ae6540f8ec66f86d2a1bc0c9ed2e2524f09f31294612ed1d6ea9e0e3b105",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "fd441ef970f6e3761e2c86536c8be4b8479416208535f91d684ffdf854c3eaa5"
     }
   ]
 }
