@@ -1078,6 +1078,36 @@
         "scanEscalationReason": null
       },
       "_hash": "808f49f1f02677bd2ab39d5beb30aa07bc210b8c23f20dd95b9e87ee046db534"
+    },
+    {
+      "id": "B-cdf6:RP-036",
+      "agent": "lattice-review-concept",
+      "note": "Round bound to head f4c1e94/round 2026-08-16T08:06:30.924Z. review_incremental_context confirmed the ONLY material change since RP-032 (B-cdf6:RR-086) is scripts/verify-process-fact-contract.mjs. Independently re-derived the canonical AST fingerprint of cli-engine.ts using the guard's own algorithm (ts.createPrinter removeComments + sha256): got 34a45a75...31f09f, matching BOTH the guard pin and the new verifier pin -- verified against live source, not merely internally consistent. Ran test:process-fact-contract (PASS), guard smoke directly (PASS), red-evidence-target-binding-smoke and red-w2b-wiring-contract (both OK exit 0), tsc --noEmit on packages/main (clean), verify-lattice-residue.mjs self-test and both scan modes (all 3 PASS), verify-proof-or-stop-prompt-baseline.mjs (all PASS, 17 roles). Hunted whole repo for OTHER second copies of pinned/allowlisted values touched by this story: only two files hold a cli-engine.ts source fingerprint and both now agree with live source. Checked the LATTICE_CLI_VERSION/BRAND_EXPORT_RE coupling flagged in code comments: symbol deliberately unrenamed so regex still matches; version-bump-smoke passes 86 assertions. Verified the three claimed pre-existing red smokes fail with identical assertion shapes on a freshly rebuilt pristine main worktree, confirming unrelated to this story. Concept-residue hunt over active docs: remaining stray-spelling hits are documented FROZEN exceptions (GitHub repo slug matching live git remote, BibTeX citation key) or historical decision-doc prose out of CHK-003 scope. --version confirmed prints new prose name via both entrypoints. Root package name deliberately frozen; pre-push accepts both old/new package name so tsc gate does not self-disarm. Working tree clean throughout. No blocker found for the concept lane this round.",
+      "createdAt": "2026-08-16T08:35:30.792Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-091",
+      "envelopeId": "683cecf9f0fce39cef71b251dacef385421332ee181351e425cf27ba5d625d40",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/package.json",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5181ba3db0897d41bcea840f9f02dcc822bc5bcce0b472c004f34fb855f7d61"
     }
   ]
 }
