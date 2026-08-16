@@ -17760,6 +17760,33 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "4a5d697f647bfd14e79736a76b292368392bf9dc0e7579d09914f5968aa888ca"
+    },
+    {
+      "id": "B-3f3d:RP-314",
+      "agent": "lattice-review-concept",
+      "note": "Concept review re-bound to RI-042 (prior RP-311 verdict was bound to now-gone RI-041 and does not carry over per review_inventory_status). Re-verified all standing conclusions plus the new doc-only commit 2b71831058. (1) New passage in review-inventory-epoch-and-saturation-gate.md verified line-by-line against captureReviewInventoryScope (packages/main/src/handlers/review-inventory.ts:66-121): candidateSpecSetDigest = reviewInventoryDigest({schemaVersion, mode, candidates:[{path,contentHash}], queryFiltering, scanEscalationReason}) plus separate corpusDigest field -- matches doc exactly, no over/under-claim. Confirmed artifactDigest is deliberately excluded (code comments + doc agree) yet verifyCandidateSpecSet (packages/main/src/core/candidate-spec-routing.ts:764-800) still recomputes digestCandidateRoutingValue(base) against the full artifactDigest, so tampering detection is intact as claimed. Confirmed storyInputDigest/score/reasons exclusion claim against code comments at review-inventory.ts:97-101 referencing git diff --name-only-seeded changedPaths leaking via two channels (F-103/F-104 history). (2) Trim check: diffed 2b71831058^ vs 2b71831058 directly. The OLD two-sentence paragraph (epoch signs candidateSpecSetDigest/corpusDigest ... candidate_spec_route performs its durable replacement inside the inventory lock and immediately invalidates an OPEN epoch whose routing universe changed. Lanes ... can never form one wave.) was split: the invalidation/lanes content was absorbed verbatim-in-substance into the new expanded routing-universe paragraph (still ends with lanes from pre-reroute and post-reroute candidate sets can never form one wave), and the locking clause survives as its own new paragraph (candidate_spec_route performs its durable replacement inside the inventory lock, so a supported REVIEW re-route is serialized against epoch reads rather than racing them) -- verified against candidate-spec-routing.ts:361-366 where writeCandidateSpecSet + refreshReviewInventoryContextLocked run inside withReviewInventoryMutationLock. No residue, no unique fact lost -- confirmed by full unified diff read, not just doc skim. (3) Doc gap previously flagged (missing/imprecise candidate-routing barrier documentation) is genuinely closed by this commit. (4) Standing conclusions reconfirmed unchanged this pass: activeChildren zero residue, (pid, birthIdentity) coherence, reviewer-list.ts forced-replay unchanged, the three semantic-projection helpers (scope/candidate/baseline) remain coherent rather than duplicative. finding_list shows only F-089 open (high, DEV-phase, not concept-lane scope). No new findings from this lane.",
+      "createdAt": "2026-08-16T15:50:42.919Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-435",
+      "envelopeId": "a239bde82d24808a86693bc1a0d6f7c611be7965879d287f23a10dfb87051299",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92727affaae3ef9729d3dff216f99414c6cc31da395fe4ed2c59a87bdb84effb"
     }
   ]
 }
