@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3e5d",
+  "changes": "Fixed two defects: (1) a losing concurrent-DONE racer crashed with a raw StoryArtifactMissingError instead of a clean message, now translated when ctx.root no longer exists on disk; (2) field-regression-cli-smoke.ts exercised the deliberately-retired lattice-review-channel lane, now rejected and rerouted through lattice-review-test-coverage.",
+  "usage": "Run lattice story_advance --phase=DONE twice concurrently on the same story from its own worktree; the loser now prints a clear explanatory message. Run node packages/main/dist/tasks/field-regression-cli-smoke.js to see the channel lane correctly rejected.",
+  "expectedOutcome": "worktree-authority-smoke.js and field-regression-cli-smoke.js both print their success lines with zero errors; the two new RED scripts each correctly report their target defect is fixed.",
+  "actualTranscript": "node packages/main/dist/tasks/worktree-authority-smoke.js -> \"worktree authority smoke passed\"; node packages/main/dist/tasks/field-regression-cli-smoke.js -> \"field regression CLI smoke passed\"; both RED scripts exit non-zero with their own defect-still-present assertion failing (the expected GREEN signal).",
+  "outcomeDiff": "None -- actual matches expected exactly.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Genuine cross-host quorum via codex exec was attempted but blocked by an external codex usage-limit exhaustion (resets 2026-08-20); DONE review-assurance-floor was satisfied via the documented degraded-single-host 3x1 fallback instead of a real 3x2 quorum.",
+  "pitfalls": "A REVIEW finding (F-001) caught that an earlier revision of CHK-001 rerouted the transition lock root as a no-op fix -- acquireStoryTransitionLock already resolves through resolveSharedLockRoot internally, so the real fix is CHK-002 (the StoryArtifactMissingError translation) alone; a second finding (F-002) caught a stale comment describing that reverted mechanism, since fixed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 530911
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 97514
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 780571
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3271945
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 10151970
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 2346569
+    }
+  },
+  "totalDurationMs": 17180621,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-16T16:20:25.629Z",
+  "updatedAt": "2026-08-16T16:20:25.629Z"
+}

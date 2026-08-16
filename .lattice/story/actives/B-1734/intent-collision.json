@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-1734",
+  "id": "IC-20260815113839",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "One unified deliverable: a cross-platform proper-lockfile mutex (fixes the two LOCK findings — live-holder age-steal and reclaim TOCTOU) plus a content-bound verifyBuildBinding skip gate and a packages/utils binding (fixes the two FRESHNESS findings — mtime misclassification and existence-only reuse), applied to the three build call sites. Explicitly NOT atomic-publish / symlink dist-swap (YAGNI; Windows symlink perms fragile).",
+  "acceptedInterpretationHash": "sha256:d9241dc3c4c8e99c2a0905dbb1e725ce6d00f638f9849f9b73b2d73f85706b02",
+  "notes": "Multi-deliverable (lock + freshness) but coherent: both classes are the shared-worktree concurrent-build hazard, resolved as one content-bound-idempotent-build-with-cross-platform-mutex change. Maintainer approved this exact design in-session.",
+  "createdAt": "2026-08-15T11:38:39.970Z",
+  "updatedAt": "2026-08-15T11:38:39.970Z"
+}

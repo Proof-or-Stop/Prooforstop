@@ -1,0 +1,218 @@
+{
+  "storyId": "B-1734",
+  "checkedAt": "2026-08-15T12:06:41.462Z",
+  "features": [
+    {
+      "feature": "Cross-platform proper-lockfile mutex wraps the build critical section (build currently has no lock)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Mutex never age-steals a live long-running build (heartbeat: stale>=30000ms, update interval < stale/2)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Race-free reclaim of a dead/stale lock holder (fixes check-then-delete TOCTOU race)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lock wraps the entire critical section: acquired before rm(dist), released after writeBuildBinding",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lock implementation uses proper-lockfile mkdir strategy only, no native module (flock/fcntl) dependency, cross-platform Mac/Linux/Windows",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lock is acquired at all three build call sites (ensure-dist.mjs, build-main-with-binding.mjs, packages/utils build)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lock is released on build failure (tsc error) and on normal completion without leaking across sequential runs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add proper-lockfile as a new dependency in root package.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build skip decision becomes content-bound via existing verifyBuildBinding (sha256 over src+config+dist) instead of mtime/existence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Deleted-source orphan detection: sourceDigest change triggers rebuild and removes stale .js output for the deleted file",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Partial/interrupted build detection: distDigest change (missing dist file) triggers rebuild that restores the missing file",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tampered non-index dist file detection: any dist file content change triggers rebuild, not just index.js",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "sourceDigest is recomputed from actual source files on disk, never trusted from a copied/stale manifest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existence-only reuse is eliminated: skip decision is not based on existsSync(dist/index.js)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Absent/missing binding manifest is treated as unverified and triggers a rebuild, not silently skipped",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "New packages/utils build-binding covering utils/src + tsconfig + package.json + the packages/main/dist it links against",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Utils binding detects staleness when packages/main/dist changes (dependency-aware freshness across packages)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Content-bound skip applied in ensure-dist.mjs for BOTH packages/main and packages/utils",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Content-bound skip applied in build-main-with-binding.mjs (the packages-main-build validate command)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Concurrent npm test invocations in one worktree never corrupt dist (no ENOTEMPTY/TS2307/MODULE_NOT_FOUND)",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Any source change, including whitespace/comment-only edits, triggers a rebuild (fine-grained content sensitivity, not a coarse hash)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Repro-first RED tests (lock-liveness, content-binding, guard-bite) wired via validate.commands / REGISTRATION_EXCLUSIONS under packages/main/tests/red/",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No atomic-publish / symlink dist-swap mechanism (YAGNI per approved design)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[0]: 'No atomic-publish / symlink dist-swap (YAGNI per approved design)'",
+      "source": "description"
+    },
+    {
+      "feature": "No changes to packages/core or packages/lab beyond build scripts if strictly required",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[1] and scope-contract.json explicitExcludes: packages/core/**, packages/lab/**",
+      "source": "description"
+    },
+    {
+      "feature": "No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[2]: 'No changes to product feature source under packages/main/src (only build helper scripts/*.mjs and scripts/full-suite-build-binding.mjs)'",
+      "source": "description"
+    },
+    {
+      "feature": "No new CLI commands, gates, or lifecycle changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[3]: 'No new CLI commands, gates, or lifecycle changes'",
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG.md entry",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-delivery convention: a CHANGELOG entry is delivered at the DONE gate and verified by the delivery-check, not tracked as a distinct DEV checklist item (per B-fb7b/B-3783 precedent); scope-boundary.json lists it under 'allowed' (modifiable via scope contract) rather than as a checklist work item",
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-1734/background.md",
+      ".lattice/story/actives/B-1734/checklist.json",
+      ".lattice/story/actives/B-1734/original-intent-snapshot.json",
+      ".lattice/story/actives/B-1734/scope-boundary.json",
+      ".lattice/story/actives/B-1734/scope-contract.json",
+      ".lattice/story/actives/B-1734/understanding.json"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 27,
+    "covered": 22,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "05321fe6d552c4edefc95e5a918ed5ea50be40ea24f2b3decf0982a96da24865",
+  "openQuestions": []
+}

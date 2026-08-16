@@ -381,6 +381,15 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
   ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
   ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
+  // B-1734: bin/bootstrap-runner.js gained a build-aware importDistModules() wait loop
+  // (F-003/C4). Its runCli(...) and register(...) calls now resolve their callee through
+  // `await importDistModules()` (an opaque any-returning local function) instead of the
+  // previous inline `await Promise.all([import(),import()])` tuple, so the callee
+  // provenance is classified 'unresolved-index-source'. These are the SAME benign
+  // dynamically-imported dist entry points bootstrap-runner has always invoked; the
+  // refactor added NO eval/Function/new dynamic import(). Whole-source exemption pinned to
+  // the exact post-refactor fingerprint — any drift re-triggers the full dynamic-code scan.
+  ['bin/bootstrap-runner.js', 'c39177affce4001d9790296d2a4e15a4c2cd6669ed625e9a6a6dbff3f934c3cf'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1417,8 +1426,10 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   }],
   ['bin/bootstrap-runner.js', {
     calls: [
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(MAIN_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(UTILS_DIST).href' },
+      // B-1734: the MAIN_DIST/UTILS_DIST dist imports moved out of runLocalBootstrap into the
+      // new build-aware importDistModules() wait loop; the argument expressions are unchanged.
+      { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
+      { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
@@ -1429,7 +1440,12 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
-  ['bin/bootstrap-runner.js', '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765'],
+  // B-1734: repinned after the build-aware importDistModules() wait loop was added to
+  // bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist loader call
+  // sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into importDistModules,
+  // LAB_DIST/zod still in runLocalBootstrap); this whole-file structural fingerprint gates
+  // that call-site allowlist, so it moves with any edit to this security-sensitive entry.
+  ['bin/bootstrap-runner.js', 'c39177affce4001d9790296d2a4e15a4c2cd6669ed625e9a6a6dbff3f934c3cf'],
   ['bin/lattice-codex.js', '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8'],
 ]);
 
@@ -4065,8 +4081,8 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    6,
-    'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
+    7,
+    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
