@@ -15977,6 +15977,41 @@
       },
       "readDiagnostics": [],
       "_hash": "b53cd82d3baf4989007d1e225842dc8f55d8afb4cc0bf7b0e5ff4aef2fcbe2ab"
+    },
+    {
+      "id": "B-3f3d:RP-269",
+      "agent": "lattice-review-docs",
+      "note": "Extracted ~600 changed symbols from git diff main...HEAD; narrowed to two targeted checks per dispatch: (1) full-suite-runner.ts process-ownership rewrite doc coverage -> filed low finding F-080 (test-runner-consolidation-plan.md undersells new PID-reuse-safe termination guarantee, not a broken promise). (2) Independently re-verified F-043 already-remediated claim: review-run.ts:1421 stale_run rejection gated on evidence.kind !== pass; story-lifecycle.md:204+323, AGENTS.md:63, review-run-binding-race.md, CLAUDE.md:855 all accurately state the kind-aware PASS/FINDING distinction; verify-process-fact-contract.mjs ~4315-4319 regex guard passes live against AGENTS.md/story-lifecycle.md/testing-infra.md and is wired into test:serial-reference. No discrepancy found, no location missed. No other doc-code drift found in reviewed scope.",
+      "createdAt": "2026-08-16T08:02:07.753Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-339",
+      "envelopeId": "7fa937c05e375275fd97ff9859b94d4e12bb5fd5d41b2c0eca43b79bf2eab8fa",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e2141efee3474328ddebb5afbb2f5d8d9fb8a024a7aa003ab32be47a4168761"
     }
   ]
 }
