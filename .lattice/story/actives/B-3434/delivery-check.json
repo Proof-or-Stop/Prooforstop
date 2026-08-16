@@ -1,7 +1,7 @@
 {
   "storyId": "B-3434",
-  "checkedAt": "2026-08-16T01:37:55.728Z",
-  "headHash": "2443e1ba2950fdbff2a968f2d967edf82f15a45a",
+  "checkedAt": "2026-08-16T01:43:23.528Z",
+  "headHash": "a0cbaf10c78f0dcdaf45c047a18ebca9abdfb859",
   "materialHash": "a2660f998ca5d5401628114acdac8c011a850cfa259ddb84df837960f32d50f7",
   "storyFilesHash": "1609ed1bd97a63b6a1e3cc559425f7caedd07de5f3321b49ba4b4303fdfd8de6",
   "reviewRound": "2026-08-15T11:13:17.112Z",
@@ -48,6 +48,18 @@
       "promise": "METADATA_BLOB_READ_MAX_BUFFER_BYTES (33,554,432) is applied on all ten git read sites in the module.",
       "verifiedBy": "grep count",
       "evidence": "grep -c 'maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES' packages/main/src/core/done-prepare-generated-metadata.ts => 10."
+    },
+    {
+      "docPath": "summary.json#actualTranscript (corrected)",
+      "promise": "The 5 MiB / 40 MiB blob read/unreadable claims were measured by the behavior lane against a scratch git repository and the shipped dist, not the RED harness's own 34,554,432-byte fixture.",
+      "verifiedBy": "review-passes.json read",
+      "evidence": "review-passes.json RP-015 (agent lattice-review-behavior, reviewRunId B-3434:RR-043) states verbatim: committed a 5 MiB and a 40 MiB file to HEAD via real git commits in a fresh scratch repo, called the shipping dist's treeBlobHash and isolatedBlobHash directly; 5 MiB ok=true hash matched; 40 MiB ok=false kind=unreadable with the exact ENOBUFS message quoted in the summary. Matches the corrected actualTranscript wording exactly."
+    },
+    {
+      "docPath": "summary.json#pitfalls (corrected)",
+      "promise": "The standing suite is over its default watchdog: persisted evidence records 931983 ms of command time across 97 commands (941.9s wall) against a 900000 ms default; the 96-command predecessor measured 879647 ms (889.7s wall, roughly one percent margin); registering this story's own ~3.5s harness tipped it over.",
+      "verifiedBy": "git show of committed test-evidence.json snapshots (both revisions) + arithmetic recomputation",
+      "evidence": "git show b2e7a1d6ae:.lattice/story/actives/B-3434/test-evidence.json (current, HEAD) sums to exactly 931983 ms across 97 commands. git show ecf32e4bcd:.lattice/story/actives/B-3434/test-evidence.json (predecessor, before harness registration) sums to exactly 879647 ms across 96 commands and has result=FAIL, allPass=false, with the two failing commands being red-b49d4-harness-registration.mjs and red-b49d4-registration-derivation.mjs -- independently confirming the registration-guard-catch narrative. (900000-889700)/900000 = 1.14%, matching \"roughly one percent margin\". red-b3434-blob-buffer-ceiling.mjs measures durationMs=3337 in the current run (~3.3s, consistent with \"3.5s\" and with RP-015's own 3.24s/3.31s/3.80s three-run measurement). The specific 941.9s/889.7s wall-clock figures (as opposed to the summed per-command ms, which are exactly verified) could not be independently reproduced from a stored field -- test-evidence.json persists only per-command durationMs, not a wall-clock total -- and re-running the full validate suite to get a fresh stopwatch reading was out of scope per instructions; both wall figures are a plausible superset of the exactly-verified sums with a consistent ~10s implied overhead in both runs."
     }
   ],
   "realMachineTests": [
@@ -57,7 +69,7 @@
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Same live harness run: an absent blob and an unreadable blob are shown textually distinct and never compare equal; an unreadable blob during the commit path never reports 'verified metadata changed'; a read above the ceiling reproduces the exact message 'ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded', matching the summary's quoted text byte-for-byte. PASS."
+      "transcript": "Same live harness run: an absent blob and an unreadable blob are shown textually distinct and never compare equal; an unreadable blob during the commit path never reports 'verified metadata changed'; a read above the ceiling reproduces the exact message 'ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded'. Separately confirmed the summary actualTranscript's 5 MiB / 40 MiB blob claim: review-passes.json RP-015 (lattice-review-behavior, RR-043) documents committing a 5 MiB and a 40 MiB file to HEAD via real git commits in a fresh scratch repo (explicitly not the RED harness's own 34554432-byte fixture) and calling the shipped dist's treeBlobHash/isolatedBlobHash directly: 5 MiB ok=true hash matched an independently computed sha256; 40 MiB ok=false kind=unreadable with the identical ENOBUFS message text. The corrected actualTranscript wording now names this provenance explicitly. PASS."
     },
     {
       "featureId": "CHK-003",
@@ -77,7 +89,7 @@
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Independently ran both harnesses; every sizing/ceiling number and the exact ENOBUFS message text quoted in the summary match live output byte-for-byte, and all 10 git read sites carry the new maxBuffer. Both harnesses are genuinely registered in lattice.config.json (not merely present on disk), and the RED harness's differential is real (verbatim embedded pre-fix helper). CHK-004's 'accepted' verdict is honest, not overstated: it is outcome B under the checklist item's own definition ('ship the bounding OR commit a rationale naming the change that will'), backed by a thorough, self-critical decision document, and findings.json shows the four deferred findings closed as partially_mitigated (deferred-with-rationale), not silently marked fixed. The cross-vendor-codex and late-harness-registration pitfalls claims are corroborated in findings.json/review-passes.json (codex-tagged findings F-014-017, F-031/032, F-040/041 filed under agent 'main' then reproduced under Claude lanes; registration-only commit 5e65c6f330 confirmed by RP-015), and the LATTICE_MAX_TIMEOUT_MS/effectiveEnvironmentDigest claim matches validation-command-environment.ts exactly (the variable is not in the transport-key exclusion list, so it is semantic to the digest). Two minor items I could not pin to the exact figure quoted, though neither contradicts the underlying point: the summary's 'a 40 MiB blob' description is an approximate paraphrase of a real repro in findings.json (not the committed harness's own 34,554,432-byte fixture, which produces the identical message because Node's partial capture stops shortly after the ceiling regardless of total blob size), and 'about 884 seconds' is lower than the 931,983 ms sum of per-command durations in the currently persisted test-evidence.json (both numbers are on the same side of, and consistent with, the 900000 ms watchdog needing to be raised)."
+    "summary": "Re-verified against the corrected summary text; only actualTranscript and pitfalls changed (confirmed by field-by-field diff of summary_get before/after), everything else -- including acceptanceVerdict -- is byte-identical. Both corrections check out: (1) the 5 MiB/40 MiB blob provenance is now traceable to review-passes.json RP-015 (lattice-review-behavior, RR-043), which documents real git commits to a scratch repo read through the shipped dist, explicitly distinct from the RED harness's own 34554432-byte fixture, and reproduces the identical ENOBUFS message text. (2) The suite-timing correction is more accurate than my own first-pass check: git show of the two committed test-evidence.json snapshots gives exactly 931983 ms summed across 97 commands (current, b2e7a1d6ae) and exactly 879647 ms summed across 96 commands (predecessor, ecf32e4bcd) -- both figures match the corrected pitfalls text exactly. The predecessor run is recorded as result=FAIL with the two failing commands being the harness-registration guards, independently corroborating the whole registration-gap narrative. (900000-889700)/900000 is 1.14%, matching \"roughly one percent margin\"; the new harness's own measured durationMs (3337ms) matches \"3.5s\". The 941.9s/889.7s wall-clock figures themselves are not stored as a literal field in test-evidence.json (only per-command durationMs is), and I did not re-run the full validate suite to get an independent stopwatch reading, per instructions not to; they are a plausible, internally-consistent superset of the exactly-verified sums (~10s constant overhead in both runs). Everything previously verified in the first pass (all ten maxBuffer sites, the three-threshold arithmetic, the two-harness registration, the differential RED test, CHK-004 outcome-B legitimacy, the deferred-finding resolutionType) is unaffected since no source file changed (git status clean, diff --stat identical to the first review)."
   },
-  "_hash": "e865a34a428e8547ae96ea7cb63b584e32a6687e9afec075e62048a726a62901"
+  "_hash": "cce6ad8c7c3a9523a450b5905cda4a8d8c438601b6fff0af2cb1e991804084fa"
 }
