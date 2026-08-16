@@ -361,7 +361,11 @@
           {
             "desc": "The RP-004 desc text 'Test coverage review passed: no findings.' matches PASS_ONLY_REVIEW_FINDING_POLICY's wording heuristic so the conversion actually fires (verified previously by testing that a non-matching desc silently became a Finding instead)",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+              "selector": "field regression CLI smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -391,6 +395,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:21:20.056Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: the RP-004 assertion specifically checks the review pass is recorded and attributed to lattice-review-test-coverage (regex match), part of the passing suite run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f49fe2cd354fe1bb5124d9ae136e15af902a02f005d65476c5e1b547893d0d6",
+            "outputTail": "✓ field regression CLI smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:23:31.890Z"
+          },
+          "headHash": "2aae3c5cb6e206e06dec01a7d353a25b6eaf54ca",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:23:32.168Z"
         }
       ]
     },
