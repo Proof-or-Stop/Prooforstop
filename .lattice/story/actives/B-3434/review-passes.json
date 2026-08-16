@@ -739,6 +739,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0f10e4d2c33b40f7f32f68a044f41ba63a0ace893d50ca701019585a68d5b0cc"
+    },
+    {
+      "id": "B-3434:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Re-binds B-3434:RP-025 after a TEST->DEV->REVIEW->TEST re-anchor with zero source change: unchangedSuiteExecutions guard fired on convergent retries during a loaded machine, not on a code defect. Step 1 (revised): the coordinator's first diff command was wrong and I stopped on it per protocol; the corrected command (excluding CHANGELOG.md too) is empty, and I independently ran 'git show --stat 1dedc2dd78' myself rather than taking the correction on faith - it touches only CHANGELOG.md and is main's v0.3.258 release note for four unrelated stories (B-6693, B-fb7b, B-a7c5, B-74b9), present on main and sibling story branches. No source, test, config or decision-doc delta since RP-025. Step 2 (substantive): read current changes/outcomeDiff/limitations against the prior 'deferred, not delivered' wording. Traced the actual unconfirmed_single_outcome_shrinkage detector in core/proofstory.ts: its claimsShrinkageRegex includes the inflection defer(?:red|s|ring), so 'deferred' fires mechanically regardless of context (only bare 'defer' is excluded) - this is a lexical trip, not a judgment call by the gate, matching the coordinator's account. Checked original-intent-snapshot.json: the acceptanceClaim/normalizedOutcome never mention byte-for-byte disk agreement; that property was introduced solely by CHK-004's own text, which explicitly names two binding outcomes and requires shipping whichever is decided. So 'deferred' did overclaim - it read as an obligation of the story left undone, when outcome B is a first-class, fully-specified closure CHK-004 itself offers. The new text (is NOT claimed here, identified for future work, CHK-004 was satisfied through the second of the two binding outcomes) is the more accurate framing and does not soften the gap: limitations still states plainly that the code cannot prove the measured number equals the bytes on disk. Verified all three required facts survive verbatim in substance: (1) the measured number is not proven equal to disk bytes - present in outcomeDiff and limitations; (2) four routes remain open - outcomeDiff still enumerates all four (F-033 duplicated/unpinned format, unfiled cross-vendor inherited-toJSON finding, F-035 independent trusted params, F-037 mutation blindspot), matching the decision documents deferred-findings table (F-036 correctly excluded as a cost finding, not a divergence route, consistent both before and after); (3) where to find them - both changes and limitations name docs/requirements/decisions/validation-evidence-artifact-growth.md, which I read in full and confirmed is unchanged (not in the CHANGELOG-only diff) and still labeled Disposition: outcome B with its own deferred-findings table. Verdict: the reframing is accurate, not merely better-sounding than the code - it reads exactly as strong as the code is, no wider. Step 3: ran both commands for real. node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs exited 0, all assertions checked including the two edge cases (1,048,577-byte boundary, over-ceiling ENOBUFS diagnostic with captured-byte count) and the pre-fix-helper differential; printed red-b3434-blob-buffer-ceiling: PASS. node packages/main/dist/tasks/validation-evidence-buffer-smoke.js exited 0, all disposition tiers (unmodified/reduced/verdict_only/refused) exercised with real byte counts, the CHK-004 outcome-B assertion checked against the actual rationale file (18205 bytes, six finding ids named), and printed validation-evidence-buffer-smoke: PASS. Context/dispatch file read outside the repo at the scratchpad path supplied by the coordinator; omitted from this manifest because absolute paths are rejected.",
+      "createdAt": "2026-08-16T21:52:29.262Z",
+      "reviewRound": "2026-08-16T21:44:16.358Z",
+      "reviewRunId": "B-3434:RR-059",
+      "envelopeId": "dc4fe7304032d1366b570c3c0129be87a8a5310898e5235669c96708e2863f44",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/original-intent-snapshot.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/summary.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/acceptance-basis.json",
+          ".lattice/story/actives/B-3434/process-events.jsonl",
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ca3726c2500343b4587f8e5410242cb48e209c36be291e196405a2445e6e676"
     }
   ]
 }
