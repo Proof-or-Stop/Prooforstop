@@ -1,88 +1,92 @@
 {
   "storyId": "B-1734",
-  "checkedAt": "2026-08-16T15:47:53.580Z",
-  "headHash": "5890e61e1d1ff772fb9a8f9aa7e75b569827fdeb",
-  "materialHash": "a53df6690eb4012690302418b6bf1d11ae607eb9f65ded21efa6573cc7812fd1",
-  "storyFilesHash": "47d8b76b56862a0f7652662a7f31548810ea9395ef96e8da183da7c183177072",
-  "reviewRound": "2026-08-16T02:02:30.995Z",
+  "checkedAt": "2026-08-16T17:03:26.912Z",
+  "headHash": "958bbda0ef4e94e1367d067e4a68e82ec7436ed7",
+  "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+  "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+  "reviewRound": "2026-08-16T16:23:16.712Z",
   "agentId": "",
   "docsPromises": [
     {
       "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "scripts/build-lock.mjs exports withBuildLock(repoKey, fn), wrapping every build's rm+tsc+write critical section in a proper-lockfile mutex using the default cross-platform mkdir strategy (no flock/fcntl/native module)",
-      "verifiedBy": "diff/read",
-      "evidence": "scripts/build-lock.mjs imports lockfile from 'proper-lockfile', passes no fs/lockfilePath override, and withBuildLock() acquires/releases via a try/finally around fn()"
+      "promise": "scripts/build-lock.mjs adds withBuildLock(repoKey, fn) using proper-lockfile with stale:30000, update:10000 so a live build's heartbeat always beats the stale threshold and a dead holder's lock is race-safely reclaimed",
+      "verifiedBy": "diff/grep + isolated run",
+      "evidence": "scripts/build-lock.mjs (new, 65 lines) implements withBuildLock via proper-lockfile with BUILD_LOCK_OPTIONS.stale sourced from scripts/build-lock-target.mjs; package.json adds proper-lockfile ^4.1.2 (also present 4x in package-lock.json); node packages/main/tests/red/red-1734-lock-liveness.mjs passes in isolation (adversarial:5/6 assert heartbeat fires during an awaited async tsc child, never execFileSync)"
     },
     {
       "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "lock is configured stale:30000, update:10000 so update < stale/2 -- a live long-running build always refreshes its heartbeat before the stale threshold, and a dead holder's lock is reclaimed race-safely",
-      "verifiedBy": "diff/read",
-      "evidence": "scripts/build-lock-target.mjs exports BUILD_LOCK_STALE_MS=30000; scripts/build-lock.mjs's BUILD_LOCK_OPTIONS sets update:10000 (10000 < 30000/2=15000); red-1734-lock-liveness.mjs adversarial:1 asserts this invariant in code and PASSED in isolation"
+      "promise": "Build skip decision is content-bound via verifyBuildBinding (sha256 over src+config+dist) replacing mtime/existence checks; parallel packages/utils binding folds packages/main/dist into its sourceDigest; scripts/ensure-dist.mjs delegates to the two content-bound+locked build scripts, main before utils",
+      "verifiedBy": "diff/grep + isolated run",
+      "evidence": "scripts/build-main-with-binding.mjs (+83/-8), scripts/build-utils-with-binding.mjs (new, 77 lines), scripts/ensure-dist.mjs rewritten to run('build-main-with-binding.mjs') then run('build-utils-with-binding.mjs'); packages/utils/package.json build script changed from bare tsc to node ../../scripts/build-utils-with-binding.mjs; node packages/main/tests/red/red-1734-content-binding.mjs passes in isolation covering skip-on-match and reject on source-change/orphan/partial/tamper/absent-manifest/forged-manifest/main-dist-drift, plus real rebuild-after-hazard"
     },
     {
       "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "the build skip decision is content-bound via verifyBuildBinding (sha256 over src+config and dist), replacing mtime/existence checks; scripts/build-main-with-binding.mjs fast-path-skips when the binding verifies, and rm+rebuilds under the mutex (with a double-check) only when stale",
-      "verifiedBy": "diff/read",
-      "evidence": "scripts/build-main-with-binding.mjs calls verifyBuildBinding(projectRoot) pre-lock as a fast-path exit(0), then re-verifies inside withBuildLock before rebuilding; red-1734-content-binding.mjs exercises happy/edge/adversarial/rebuild cases and PASSED in isolation"
+      "promise": "red-1734-lock-liveness and red-1734-content-binding are wired into validate.commands; test-suite-utils-autobuild-smoke and red-fb7b-* harnesses updated to the content-bound behavior",
+      "verifiedBy": "diff/grep",
+      "evidence": "lattice.config.json validate.commands includes red-1734-lock-liveness.mjs and red-1734-content-binding.mjs; packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts (+/-117 lines) and packages/main/tests/red/red-fb7b-guard-bite.mjs (rewritten selector set incl. GB-ENSURE-EXISTENCE-BIT, GB-MAIN-NOVERIFY-BIT, GB-LOCK-RATIO-BIT, GB-LOCK-NOLIB-BIT etc.) verified in diff"
     },
     {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "a parallel packages/utils binding (writeUtilsBuildBinding/verifyUtilsBuildBinding, new scripts/build-utils-with-binding.mjs) folds packages/utils/src+config AND packages/main/dist into its sourceDigest, so utils rebuilds whenever main/dist changes",
-      "verifiedBy": "diff/read",
-      "evidence": "scripts/full-suite-build-binding.mjs's utilsSourceDigest() hashes packages/utils/src + tsconfig/package.json + packages/main/dist; red-1734-content-binding.mjs edge:2 proves a main/dist change makes the utils binding stale, PASSED in isolation"
+      "docPath": "CHANGELOG.md#Unreleased (REVIEW round)",
+      "promise": "Build-lock retry budget is real exponential backoff (minTimeout 200, factor 2, maxTimeout 1000, retries 600); lock target open no longer swallows errors in bare catch{}; build is an atomic staging-swap via a single rename so ~90 non-lock-holding readers (esp. bin/bootstrap-runner.js) never see an absent/partial dist; bootstrap-runner is lock-aware (waits/retries) while a genuine never-built repo still fails fast",
+      "verifiedBy": "diff/grep + isolated run",
+      "evidence": "scripts/build-lock.mjs BUILD_LOCK_OPTIONS retries config; bin/bootstrap-runner.js buildInProgress()/importDistModules() wait loop with recovery-hint fast-fail on absent dist + no active build; node packages/main/tests/red/red-1734-reader-race.mjs passes in isolation (44 concurrent readers, zero MODULE_NOT_FOUND)"
     },
     {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "scripts/ensure-dist.mjs (the pretest) is no longer existence-based: it delegates to the two content-bound + locked build scripts, main before utils",
-      "verifiedBy": "diff/read",
-      "evidence": "scripts/ensure-dist.mjs no longer imports existsSync; it runs build-main-with-binding.mjs then build-utils-with-binding.mjs via execFileSync in that order; packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts asserts !/existsSync/.test(ensureSrc) and main-before-utils ordering"
+      "docPath": "CHANGELOG.md#Unreleased (second Codex round)",
+      "promise": "C3: bootstrap-runner imports the dependency-free scripts/build-lock-target.mjs (node: built-ins only), never build-lock.mjs, so a fresh checkout without node_modules does not throw ERR_MODULE_NOT_FOUND before the recovery hint prints; C4: reader wait is an absolute 20-minute ceiling (IMPORT_WAIT_MAX_MS) gated on buildInProgress() freshness, not a fixed 60s cap; C1: build-utils-with-binding.mjs removed its pre-lock fast-path so utils always takes the shared lock; C2: scripts/promote-dist.mjs restores dist from trash if the second rename fails",
+      "verifiedBy": "diff/grep + isolated run",
+      "evidence": "scripts/build-lock-target.mjs (new, node:-only, exports buildLockTarget/BUILD_LOCK_STALE_MS); bin/bootstrap-runner.js imports only build-lock-target.mjs and defines IMPORT_WAIT_MAX_MS=20*60*1000; scripts/promote-dist.mjs (new) implements the trash-restore; node packages/main/tests/red/red-1734-bootstrap-depfree.mjs passes in isolation (dep-free assertion); red-1734-reader-race readerrace:2/3/4 cover C4 ceiling, C2 crash-restore, C1 no-fast-path"
     },
     {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "two concurrent npm test invocations in one worktree now both complete without ENOTEMPTY/MODULE_NOT_FOUND/TS2307; new REDs red-1734-lock-liveness and red-1734-content-binding are wired into validate.commands; test-suite-utils-autobuild-smoke and red-fb7b-* harnesses updated to the content-bound behavior",
-      "verifiedBy": "diff/read/execute",
-      "evidence": "red-1734-lock-liveness.mjs adversarial:0 races two withBuildLock holders; both red-1734-lock-liveness.mjs and red-1734-content-binding.mjs are registered in lattice.config.json validate.commands and PASSED in isolation this session; packages/main/tests/red/red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs diffs show content-bound+locked assertions replacing the old existence-based ones"
-    },
-    {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "REVIEW-round hardening: (1) real exponential backoff minTimeout 200/factor 2/maxTimeout 1000/retries 600 (~10min); (2) the lock target open no longer swallows errors in a bare catch{}; (3) atomic staging-swap (tsc emits into dist.staging, promoted by a single rename) so non-lock-holding readers never see an absent/partial dist; bin/bootstrap-runner.js is lock-aware (waits+retries); new RED red-1734-reader-race races real bin/lattice.js readers against a real rebuild; dist.staging/dist.trash-* are gitignored",
-      "verifiedBy": "diff/read/execute",
-      "evidence": "scripts/build-lock.mjs BUILD_LOCK_OPTIONS.retries={retries:600,minTimeout:200,maxTimeout:1000,factor:2}; withBuildLock's openSync/closeSync has no swallowing try/catch; build-main/utils-with-binding.mjs build into dist.staging and call promoteDist(); bin/bootstrap-runner.js's importDistModules() waits on buildInProgress(); .gitignore adds dist.staging and dist.trash-*; red-1734-reader-race.mjs PASSED in isolation this session (40 concurrent readers, zero MODULE_NOT_FOUND)"
-    },
-    {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "second Codex round: (C3) bin/bootstrap-runner.js no longer transitively imports proper-lockfile -- the lock target/stale threshold moved to dependency-free scripts/build-lock-target.mjs; (C4) the reader wait is now an absolute 20-minute IMPORT_WAIT_MAX_MS ceiling instead of a fixed 60s cap; (C1) build-utils-with-binding.mjs's pre-lock fast-path is removed (always takes the shared lock); (C2) scripts/promote-dist.mjs restores the old dist from trash if the second rename fails; new RED red-1734-bootstrap-depfree is wired into validate.commands; red-1734-reader-race gains readerrace:2/3/4",
-      "verifiedBy": "diff/read/execute",
-      "evidence": "bin/bootstrap-runner.js imports ONLY '../scripts/build-lock-target.mjs' (confirmed via grep, no build-lock.mjs or promote-dist.mjs import); IMPORT_WAIT_MAX_MS = 20*60*1000 exported from bootstrap-runner.js; build-utils-with-binding.mjs has no pre-lock verify/exit before withBuildLock (confirmed by red-1734-reader-race.mjs readerrace:4's static assertion); scripts/promote-dist.mjs restores dist from trash on failed second rename; red-1734-bootstrap-depfree.mjs is registered in validate.commands and PASSED in isolation (depfree:0/1/2/3); red-1734-reader-race.mjs readerrace:2/3/4 present and PASSED in isolation"
-    },
-    {
-      "docPath": "CHANGELOG.md#Unreleased",
-      "promise": "third Codex round: (D2) tsc now runs as an awaited async child (promisify(execFile)) inside async withBuildLock callbacks so the proper-lockfile heartbeat keeps firing during the compile; (D1) scripts/package-desktop.mjs's asset manifest ships scripts/build-lock-target.mjs, and new RED red-1734-desktop-asset-manifest (wired into validate.commands) computes bootstrap's transitive import graph and asserts every scripts/ module is shipped; (D3) a cross-process recoverOrphanedPromotion was implemented then REVERTED as a new race; only promote-dist.mjs's in-process crash-restore (C2) is kept, and bootstrap-runner.js again imports only the dependency-free build-lock-target.mjs; readerrace:5/6 were removed with the revert; red-1734-bootstrap-depfree's depfree:3 now asserts bootstrap's whole static graph is third-party-free",
-      "verifiedBy": "diff/read/execute",
-      "evidence": "build-main/utils-with-binding.mjs use execFileAsync = promisify(execFile) and await it inside async withBuildLock(...) callbacks; scripts/package-desktop.mjs's writeAssetManifest files array literally lists 'scripts/build-lock-target.mjs'; red-1734-desktop-asset-manifest.mjs computes the static graph and PASSED in isolation (manifest:0); bin/bootstrap-runner.js's only import is build-lock-target.mjs (no promote-dist.mjs import, confirming the D3 revert); red-1734-reader-race.mjs contains readerrace:0-4 only (no 5/6); red-1734-bootstrap-depfree.mjs depfree:3 asserts bootstrap's whole static graph is third-party-free and PASSED"
+      "docPath": "CHANGELOG.md#Unreleased (third Codex round)",
+      "promise": "D2: tsc runs as an awaited async child (promisify(execFile)) inside async withBuildLock so proper-lockfile's heartbeat is never blocked by the event loop; D1: scripts/build-lock-target.mjs is added to the desktop asset manifest files array so a packaged runtime does not crash at bootstrap module-init; D3: the cross-process auto-restore recovery was implemented then REVERTED (raced a concurrent builder's live staging) -- only the in-process promote-dist.mjs crash-restore (C2) and a locked-section sweep of stray siblings remain, with the residual mid-promotion crash window documented as a known limitation",
+      "verifiedBy": "diff/grep + isolated run",
+      "evidence": "scripts/build-main-with-binding.mjs and scripts/build-utils-with-binding.mjs run tsc via an awaited async child inside withBuildLock; scripts/package-desktop.mjs writeAssetManifest() files array includes 'scripts/build-lock-target.mjs' with an anchoring comment citing D1; scripts/promote-dist.mjs carries the D3 known-limitation comment (no cross-process auto-restore); node packages/main/tests/red/red-1734-desktop-asset-manifest.mjs passes in isolation asserting build-lock-target.mjs is shipped"
     },
     {
       "docPath": "CHANGELOG.md#Known limitations / follow-up (B-1734)",
-      "promise": "four deep concurrency residuals are deliberately DEFERRED to a dedicated follow-up story, each marked with an anchoring comment at its site in the source: (1) reader-lease TOCTOU in bin/bootstrap-runner.js's importDistModules(); (3) binding-vs-source TOCTOU in build-main-with-binding.mjs's writeBuildBinding timing; (4) scripts/package-desktop.mjs's buildPackages() bypasses the mutex (a 4th unlocked build call-site); crash between promote-dist.mjs's two renames leaves dist absent until the next build",
-      "verifiedBy": "diff/read",
-      "evidence": "each residual has a matching 'KNOWN LIMITATION / FOLLOW-UP (B-1734 ...)' comment at its source site: bin/bootstrap-runner.js's importDistModules() (#1), scripts/build-main-with-binding.mjs's writeBuildBinding call site (#3), scripts/package-desktop.mjs's buildPackages() (#4), and scripts/promote-dist.mjs's promoteDist() (crash-between-renames). These are honestly disclosed as intentionally deferred (assurance floor = degraded-single-host, per the maintainer converge decision), not silently undelivered; none is contradicted by an unqualified CHANGELOG claim."
+      "promise": "Four concurrency residuals are deliberately DEFERRED to a follow-up story, each anchored with a comment at its source site: (#1) reader-lease TOCTOU in bin/bootstrap-runner.js check-then-import; (#3) binding-vs-source TOCTOU in scripts/build-main-with-binding.mjs; (#4) scripts/package-desktop.mjs buildPackages() bypasses the build mutex as a 4th call-site; (crash window) a SIGKILL between promote-dist.mjs's two renames leaves dist absent until the next build",
+      "verifiedBy": "diff/grep (source-site anchor comments)",
+      "evidence": "bin/bootstrap-runner.js lines ~98-99 'KNOWN LIMITATION / FOLLOW-UP (B-1734 #1 ... reader-lease TOCTOU'; scripts/build-main-with-binding.mjs line ~88 'TOCTOU is inherent to editing source mid-build'; scripts/package-desktop.mjs 'KNOWN LIMITATION / FOLLOW-UP (B-1734 #4 ... this desktop packaging build is a 4TH build call-site that BYPASSES the build mutex'; scripts/promote-dist.mjs 'KNOWN LIMITATION / FOLLOW-UP ... A SIGKILL/host crash AFTER renameSync(dist, trash) but BEFORE renameSync(staging, dist) ... leaves dist ABSENT'. All four residuals are honestly disclosed as intentionally-deferred follow-up, not undelivered promises; the maintainer converge decision floors this story at degraded-single-host review assurance, consistent with story_get review escalation state."
+    },
+    {
+      "docPath": "CHANGELOG.md#Unreleased (.gitignore)",
+      "promise": "dist.staging / dist.trash-* transient swap siblings are gitignored so an interrupted build cannot dirty the tree",
+      "verifiedBy": "diff/grep",
+      "evidence": ".gitignore adds dist.staging and dist.trash-* with an explanatory comment referencing B-1734"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "red-1734-lock-liveness.mjs (10 verificationIntent cases, happy/edge/adversarial) covers: lock exists during the critical section and is released after (happy:0/1); a throwing fn still releases the lock (edge:0); a SIGTERM'd holder's lock is reclaimed (edge:1); default mkdir strategy, no native module (edge:2); two concurrent holders never overlap -- live holder never age-stolen (adversarial:0); stale>=30000 and update<stale/2 invariant asserted in code (adversarial:1); a dead holder (stale mtime) is reclaimed (adversarial:2); the lock wraps the whole rm+tsc+write section (adversarial:3); all three call sites share the same lock (adversarial:4); heartbeat mtime advances across a held ~12s async critical section (adversarial:5); tsc is an awaited async child, never execFileSync (adversarial:6). red-1734-reader-race.mjs additionally races 40 real bin/lattice.js readers against a real rebuild with zero MODULE_NOT_FOUND (readerrace:0), proves a stale orphaned lock does not brick readers (readerrace:1), the reader waits a live build past a fixed 60s cap via the 20-minute ceiling (readerrace:2), promote-dist restores dist on a failed second rename (readerrace:3), and build-utils has no pre-lock fast-path (readerrace:4). red-1734-bootstrap-depfree.mjs proves bootstrap's static import graph and a fresh-checkout (no node_modules) spawn never throw ERR_MODULE_NOT_FOUND on proper-lockfile. All three files independently re-executed in isolation this delivery-review session (fresh shell, sequential, no concurrent contention) and all printed their PASS line with exit 0; no MODULE_NOT_FOUND was observed."
+      "transcript": "node packages/main/tests/red/red-1734-lock-liveness.mjs run in isolation after a fresh binding build: exit 0, 12 VI-OK selectors (happy/edge/adversarial 0-6), covers mutex serializing live holders, reclaiming dead/SIGTERM'd holders, releasing on error, wrapping every rm+tsc+write call site, and heartbeat firing during an awaited async (non-blocking) critical section."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/tests/red/red-1734-bootstrap-depfree.mjs run in isolation: exit 0, 4 VI-OK selectors, asserts bin/bootstrap-runner.js's whole static import graph (bootstrap-runner.js + build-lock-target.mjs) is third-party-dependency-free and a fresh checkout without proper-lockfile prints the recovery hint instead of ERR_MODULE_NOT_FOUND."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/tests/red/red-1734-reader-race.mjs run in isolation: exit 0, 5 VI-OK selectors, races 44 concurrent real bin/lattice.js readers against a real rebuild with zero MODULE_NOT_FOUND; covers stale orphaned lock not bricking readers, a live-build 60s+ wait, in-process promotion restore-on-failure, and utils having no pre-lock fast-path."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "red-1734-content-binding.mjs (18 cases, happy/edge/adversarial/rebuild) covers: clean build from absent dist verifies (happy:0); unchanged dist re-verifies without mutating it (happy:1); the utils binding covers utils/src+main/dist and re-verifies (happy:2); deleted-source orphan, partial build, main/dist drift, read-only skip, and a source edit all make verify throw (edge:0-4); tampered dist file, forged manifest digest, dist-present-but-source-changed, and absent manifest all make verify throw (adversarial:0-3); ensure-dist and both build scripts are content-bound with no existsSync gate (adversarial:4/5); and the REAL build (scripts/build-main-with-binding.mjs) rebuilds a verifying dist end-to-end after an induced orphan/partial/tamper/absent-manifest hazard against the actual gitignored worktree dist, always restoring a clean state in a finally block (rebuild:0-3). red-1734-desktop-asset-manifest.mjs additionally proves the packaged desktop asset manifest ships every scripts/ module in bootstrap's static import graph (closing D1). All independently re-executed in isolation this delivery-review session and printed their PASS line with exit 0; `git status --short` was clean after all runs (no stray dist.staging/dist.trash-* or tracked-file mutation)."
+      "transcript": "node packages/main/tests/red/red-1734-content-binding.mjs run in isolation: exit 0, 18 VI-OK selectors, covers verifyBuildBinding/verifyUtilsBuildBinding skip-on-match and reject on source-change/orphan/partial/tamper/absent-manifest/forged-manifest/main-dist-drift, plus a real rebuild recovering a verifying dist after each hazard."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/tests/red/red-1734-desktop-asset-manifest.mjs run in isolation: exit 0, 1 VI-OK selector, asserts every scripts/ module in bin/bootstrap-runner.js's static import graph (build-lock-target.mjs) is present in the desktop packaging asset manifest, guarding against the D1 packaged-runtime ERR_MODULE_NOT_FOUND regression."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "packages/main/tests/red/red-fb7b-guard-bite.mjs and red-fb7b-pretest-builds-utils.mjs (pre-existing B-fb7b harnesses) were updated in-diff to bite each broken variant of the new content-bound + locked build wiring (GB-ENSURE-EXISTENCE-BIT, GB-MAIN-NOVERIFY-BIT, GB-MAIN-NOLOCK-BIT, GB-UTILS-NOVERIFY-BIT, GB-LOCK-RATIO-BIT, GB-LOCK-NOLIB-BIT, GB-UTILSPKG-TSC-BIT); per checklist verificationEvidence these pass as part of the recorded PASS test-evidence run at the current materialHash."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All CHANGELOG promises for B-1734 (cross-platform proper-lockfile mutex, content-bound skip via verifyBuildBinding/verifyUtilsBuildBinding, atomic dist.staging rename-swap promotion, dependency-free bootstrap import, absolute 20-min reader wait ceiling, and the three cross-host Codex hardening rounds C1-C4/D1-D3) are traceable to concrete code in the diff and match it exactly, including the D3 revert (bootstrap imports only build-lock-target.mjs, not promote-dist.mjs) and readerrace:5/6 removal. All 5 red-1734-* real-machine tests exist, are registered in lattice.config.json validate.commands, and were independently re-run in isolation this session -- all 5 passed cleanly with no transient MODULE_NOT_FOUND, and the worktree stayed clean. The four 'Known limitations / follow-up' residuals (reader-lease TOCTOU, binding-vs-source TOCTOU, desktop buildPackages outside the mutex, crash-between-renames) are honestly disclosed as intentionally deferred follow-up work with matching source-anchored comments, not misrepresented as delivered or silently dropped."
+    "summary": "All CHANGELOG promises (base + 3 Codex hardening rounds + known-limitations disclosure) are backed by code in the diff; all 5 red-1734-* tests exist, are registered in lattice.config.json validate.commands, and pass in isolation at the current material (re-run fresh after resync, no MODULE_NOT_FOUND observed). The 4 disclosed residuals (#1 reader-lease TOCTOU, #3 binding-vs-source TOCTOU, #4 desktop-packaging-bypasses-mutex, crash-between-two-renames) are honestly anchored with comments at their exact source sites and match the CHANGELOG's 'Known limitations / follow-up' section verbatim in substance -- these are intentionally deferred per the maintainer converge decision (floor = degraded-single-host), not silently-undelivered promises. No unresolved TODO/FIXME/HACK found in non-test added code."
   },
-  "_hash": "9c3dc61b1e134342c467b491a680d04101bb9a16e12f6bed042a4406e8d9ef05"
+  "_hash": "9784494ed5f52a0e0c99c12716cde8ae634c95c1459f58f5daf82a6d09ea5382"
 }
