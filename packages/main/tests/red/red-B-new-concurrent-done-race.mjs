@@ -3,28 +3,34 @@
  * RED (repro-first) for the concurrent-DONE-race bug in worktree-authority-smoke.ts's
  * assertConcurrentDoneSerializesWithoutPartialDone.
  *
- * Root cause (confirmed by source read): runStoryTransitionInner
- * (handlers/transition-orchestrator.ts) acquires the per-story transition lock via
- * `acquireStoryTransitionLock(ctx.root, args.storyId)`. For a `story_advance --phase=DONE`
- * invoked from inside the story's own worktree, `ctx.root` resolves to the WORKTREE path
- * itself (not the stable main repo root) -- unlike `acquireDoneMainMergeLock`, which already
- * correctly resolves to the main repo root via `resolveDoneLockMainRepoRoot` for exactly this
- * reason. When two `story_advance --phase=DONE` processes race from the same worktree, the
- * winner completes DONE and deletes the ENTIRE worktree (including the transition-lock
- * directory) as part of cleanup. The loser, which was blocked polling for that exact lock
- * directory, sees it "become available" the instant the winner deletes everything, re-creates
- * the (now-orphaned) lock directory, and then tries to read its own story index.json from a
- * directory tree that no longer exists -- producing a raw, unhelpful
- * "File not found: .../index.json" crash instead of a clean lock-contention or
- * already-advanced message.
+ * Root cause (confirmed by source read, corrected post-REVIEW F-001/F-002):
+ * `acquireStoryTransitionLock(root, storyId)` -> `storyTransitionLockPath` already resolves
+ * `root` through `resolveSharedLockRoot` (git-common-dir based, B-d877 R2 FIX B) BEFORE
+ * touching disk, so the lock directory itself is always anchored at the stable shared root
+ * regardless of whether `ctx.root` is a story worktree or the main repo root -- an earlier
+ * revision of this fix rerouted the root ARGUMENT at the transition-orchestrator.ts call site
+ * and turned out to be a no-op (F-001), since the lock never actually raced on a
+ * worktree-relative directory in the first place.
+ *
+ * The REAL crash: `ctx.store` (used to read story metadata inside runStoryTransitionInner) is
+ * bound to `ctx.root` at CLI bootstrap, well BEFORE the transition lock is even acquired. For a
+ * `story_advance --phase=DONE` invoked from inside the story's own worktree, that root IS the
+ * worktree path, fixed for the life of the process. When two `story_advance --phase=DONE`
+ * processes race from the same worktree, the winner completes DONE and deletes the ENTIRE
+ * worktree as part of cleanup. The loser -- which was correctly serialized behind the
+ * (already-shared-rooted) transition lock -- wakes the moment the winner releases it, and its
+ * OWN `store.readStory(args.storyId)` then runs against a root that no longer exists on disk,
+ * throwing a raw, unhelpful StoryArtifactMissingError ("File not found: .../index.json")
+ * instead of a clean lock-contention or already-advanced message.
  *
  * Before the fix: the losing racer's output does NOT match any of the three patterns
  * assertConcurrentDoneSerializesWithoutPartialDone accepts (/DONE main merge lock is held/,
  * /main write lock is held/, /DONE/), so that assertion throws
  * "the losing DONE racer must explain itself ... got: ... File not found: ... index.json".
- * After the fix (transitionLock resolved to the stable main repo root, same as the DONE
- * main-merge lock): the losing racer fails cleanly with a lock-contention message and this
- * specific assertion no longer throws.
+ * After the fix (a narrow catch in transition-orchestrator.ts: when this specific
+ * StoryArtifactMissingError is thrown AND ctx.root no longer exists on disk, translate it into
+ * a clear "a concurrent DONE transition already completed and removed this worktree" message):
+ * the losing racer fails cleanly and this specific assertion no longer throws.
  *
  * This directly runs the built worktree-authority-smoke.js and inspects its actual output
  * rather than re-implementing the race, so it exercises the exact same two-real-process race
