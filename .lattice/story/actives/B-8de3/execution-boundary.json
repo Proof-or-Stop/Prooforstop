@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8de3",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Antigravity CLI",
+    "Claude Code CLI",
+    "Codex CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/evidence-platform-architecture.md",
+    "packages/main/src/core/evidence/artifact-store-smoke.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/tasks/evidence-artifact-store-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push *",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src/handlers/story-create.ts"
+  ],
+  "confirmedBy": "codex-root",
+  "confirmationNote": "Keep the prerequisite limited to atomic object/ref persistence, corrupt-object healing, focused regression coverage, and any directly required evidence-platform documentation.",
+  "createdAt": "2026-08-16T11:16:51.881Z",
+  "updatedAt": "2026-08-16T11:16:51.881Z",
+  "_hash": "c3122f10551462bfcdc09e9d581b7341eba9bee3c7c526181a90b540328b452d"
+}

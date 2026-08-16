@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5e2c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Bounded automatic takeover for stale same-worktree same-host leases whose recorded owner process is mechanically dead",
+    "Reuse of the unified story owner lease gate and existing serialized takeover audit path",
+    "session_brief eligibility/refusal UX, focused real-process regression tests, and process-fact documentation"
+  ],
+  "excluded": [
+    "Automatic takeover of active, remote, malformed, PID-alive, or liveness-unknown leases",
+    "Changes to main write locking, validation capacity, pre-Story proof enforcement, or root npm test coordination",
+    "New timeout thresholds or force takeover semantics"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested one overall objective with three independent Stories and asked the mechanism to finish routine stale-owner recovery without repeated confirmation.",
+  "createdAt": "2026-08-16T11:41:02.625Z",
+  "updatedAt": "2026-08-16T11:41:02.625Z",
+  "_hash": "387d1bc323e35331be141c7ea511ab532998606bfb2b42f071b73b45ea8a80a8"
+}
