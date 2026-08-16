@@ -5250,6 +5250,112 @@
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto",
       "resolvedBy": "B-3f3d:F-085@4daa199"
+    },
+    {
+      "id": "B-3f3d:F-086",
+      "desc": "F-083 REAFFIRMED at this epochs frozen cutoff, still open, NOT resolved by the earlier verification_evidence_refresh_stale run. Re-checked using canonical (non-self-judged) freshness mechanisms only: (1) frozen_claim_drift_check --storyId=B-3f3d --json reports drifted=6/6, driftKind=material, actionRequired=re_attestation for CHK-001..CHK-006, previousStoryFilesHash != currentStoryFilesHash for every item (claim content/previousDigest==currentDigest unchanged, but the story-owned material lineage moved again after the earlier refresh); (2) verification_evidence_refresh_stale --storyId=B-3f3d --dryRun independently reports 54/54 verificationEvidence records STALE right now, each needing re-execution of review-inventory-epoch-smoke.js / review-inventory-handler-smoke.js; (3) lattice validate --story=B-3f3d --json independently refused routine reuse with refusalReasons material-hash-changed-or-missing, story-files-hash-changed-or-missing, current-verification-coverage-incomplete, and named untrusted-lineage-path entries for exactly the files touched by the post-refresh commits: docs/requirements/decisions/test-runner-consolidation-plan.md, packages/main/src/tasks/full-suite-runner-smoke.ts, packages/main/src/tasks/full-suite-runner.ts (the F-084 bounded-loop fix + fixture, and the F-085 doc fix). Root cause: the prior Refreshed 54/54 run was real but bound to a cutoff BEFORE F-084/F-085 landed; those commits moved storyFilesHash again, which per the storyFilesHash-drift rule requires genuine re-verification, not attestation-advisory downgrade. What must be re-run: verification_evidence_refresh_stale --storyId=B-3f3d (real run) to re-execute the pinned verifiers against CURRENT head/material/storyFilesHash, then re-record fresh mechanical receipts for all 54 must-priority intentRefs across CHK-001..CHK-006. Re-check with the same canonical freshness path afterward to confirm CURRENT_MATERIAL before closing this finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-16T08:36:53.781Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-348",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "fb9ce81d04a0cdd385c7ee322e8f66df9c06edd636253daeefeb022aee1b23f9",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "signatureTag": "missing|ts|reaffirmed-epochs-frozen",
+      "signatureTagSource": "auto"
     }
   ]
 }
