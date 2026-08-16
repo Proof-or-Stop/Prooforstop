@@ -665,6 +665,29 @@
         "scanEscalationReason": null
       },
       "_hash": "1456deb8bb90a9b13eada3a15e785cd3af9f89d2a557f03b40a42adff4076e8c"
+    },
+    {
+      "id": "B-3434:RP-026",
+      "agent": "lattice-review-behavior",
+      "note": "Re-binds RP-022 after a TEST to DEV to REVIEW re-anchor taken to clear a post-TEST unchangedSuiteExecutions counter, with zero source change -- not a fresh verification. git diff 00c534aea0 HEAD --stat -- . ':(exclude).lattice' ':(exclude)CHANGELOG.md' is empty (verified directly). The only non-.lattice delta since 00c534aea0 is main's v0.3.258 CHANGELOG release note (commit 1dedc2dd78, absorbed via a main merge into story/B-3434); git show --stat 1dedc2dd78 confirms it touches only CHANGELOG.md, appending release notes for four unrelated stories (B-6693, B-fb7b, B-a7c5, B-74b9) and rewording one line of the 0.3.254 entry -- not B-3434 work. This CHANGELOG delta was seen and characterised, not silently excluded. Dist confirmed not stale: packages/main/dist/core/done-prepare-generated-metadata.js and packages/main/dist/tasks/validation-evidence-buffer-smoke.js are newer than every packages/main/src/**/*.ts file (zero src files newer than the dist watermark). Re-ran the three commands per instruction: npx tsc --noEmit -p packages/main (exit 0, no output); node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs (PASS, all 11 assertions green); node packages/main/dist/tasks/validation-evidence-buffer-smoke.js (PASS, all assertions green, CHK-004 outcome B disposition confirmed with rationale doc and named finding IDs). Did not run full lattice validate or npm test per instruction (shared-machine contention avoidance).",
+      "createdAt": "2026-08-16T21:48:48.816Z",
+      "reviewRound": "2026-08-16T21:44:16.358Z",
+      "reviewRunId": "B-3434:RR-056",
+      "envelopeId": "b0439e6b9711f04c66136e03f79268daa445fe1bb124b0106f38acc5c6969a3b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CHANGELOG.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73a6637e69a1cf4c0cd7039bd51ad5cefc1e6fce450ed821aca92746d27cab63"
     }
   ]
 }
