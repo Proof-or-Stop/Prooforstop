@@ -882,20 +882,19 @@ async function runStoryTransitionInner(
     // ordering that makes a DONE and a concurrent same-story rollback mutually
     // exclude without any circular wait.
     //
-    // Root at the STABLE main repo root, not ctx.root verbatim. When invoked
-    // from inside the story's own worktree, ctx.root is the worktree path
-    // itself; a winning DONE transition deletes that entire worktree (including
-    // whatever lock directory lives under it) as part of cleanup. A concurrent
-    // loser polling for that same lock directory would see it "become
-    // available" the instant the winner deletes it, re-create the now-orphaned
-    // lock, and then crash on a raw ENOENT trying to read story metadata that
-    // no longer exists — instead of the clean lock-contention / already-
-    // advanced message callers are meant to see. Resolving through the same
-    // worktree-to-main-repo-root detection acquireDoneMainMergeLock already
-    // uses for exactly this reason keeps both racers serialized on a location
-    // that survives the winner's worktree teardown.
-    const transitionLockRoot = detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root;
-    transitionLock = acquireStoryTransitionLock(transitionLockRoot, args.storyId);
+    // B-3e5d F-001: `ctx.root` here may be a story worktree that a winning DONE
+    // later removes, but that is already handled INSIDE acquireStoryTransitionLock
+    // — storyTransitionLockPath resolves through resolveSharedLockRoot (git-
+    // common-dir based, B-d877 R2 FIX B) before touching disk, so the lock
+    // directory itself is always anchored at the stable shared root regardless of
+    // which worktree/root string is passed in here. Rerouting the ROOT ARGUMENT
+    // at this call site (an earlier revision of this fix) was therefore a no-op:
+    // confirmed by comparing storyTransitionLockPath(worktreePath, id) against
+    // storyTransitionLockPath(mainRepoRoot, id) on a real worktree layout — both
+    // resolve to the identical lock directory. The actual crash this story fixes
+    // is the loser's OWN story-metadata read after it wakes up (see the
+    // StoryArtifactMissingError translation below), not the lock's location.
+    transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
 
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);

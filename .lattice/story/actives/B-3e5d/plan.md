@@ -13,8 +13,8 @@
 - `node packages/main/tests/red/red-B-new-concurrent-done-race.mjs` exits non-zero (its own "defect still present" assertion now correctly fails, since the underlying smoke test passes)
 
 **DoneWhen**:
-- `transitionLockRoot` resolves via `detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root` before `acquireStoryTransitionLock`
-- Two concurrent `story_advance --phase=DONE` processes on the same story from the same worktree no longer race on a lock directory the winner's cleanup can delete out from under the loser
+- CORRECTED post-REVIEW (F-001, lattice-review-quality): the originally planned `transitionLockRoot` reroute was a no-op — `acquireStoryTransitionLock` already anchors its lock directory at the git-common-dir-derived shared root via `storyTransitionLockPath`/`resolveSharedLockRoot` (B-d877 R2 FIX B), regardless of which root string is passed in. Verified empirically: `storyTransitionLockPath(worktreePath, id)` and `storyTransitionLockPath(mainRepoRoot, id)` resolve to the identical directory. The reroute was reverted; `acquireStoryTransitionLock(ctx.root, args.storyId)` is called exactly as before this story. CHK-001 is now a no-op/non-issue confirmation, not an independent code change — the entire real fix for the concurrent-DONE-race crash is CHK-002 alone.
+- Two concurrent `story_advance --phase=DONE` processes on the same story from the same worktree no longer race on a lock directory the winner's cleanup can delete out from under the loser (this was already true before this story, via the pre-existing git-common-dir anchoring)
 
 ## CHK-002: Translate the losing racer's post-wakeup StoryArtifactMissingError into a clean, expected message
 
