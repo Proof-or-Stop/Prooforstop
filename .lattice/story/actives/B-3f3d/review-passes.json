@@ -17166,6 +17166,37 @@
         "scanEscalationReason": null
       },
       "_hash": "640c9ebe2d6adcccb0e98b78a3bcf0229a0bb4a25cdac75537c7296974702c72"
+    },
+    {
+      "id": "B-3f3d:RP-296",
+      "agent": "lattice-review-behavior",
+      "note": "F-097 fix independently verified via scratch-worktree mutation test (not this worktree): built commit 942327fb36 in a detached scratch worktree, ran computeActiveReviewers against a persisted reviewer_forced event with reviewer=12345 (non-string) — as-committed: NO_CRASH, coerces to \"12345\", mounted as forced lane; with String() coercion stripped from the scratch-only compiled dist: CRASHED with \"(event.reviewer ?? \"\").trim is not a function\", exit 1. Confirms the restored coercion is load-bearing and the regression test (review-assurance-floor-smoke.ts, wired into full-suite-runner.ts test:review-assurance-floor-smoke) genuinely exercises the crash path, matching the prior mutation-testing result. Re-read the two-guard structure at reviewer-list.ts:172-186: Guard A (.filter(name => name.length > 0) on persistedForced) and Guard B (if (!name) continue in the mount loop) are confirmed redundant specifically for the persisted-event path — Guard A already empties before Guard B runs, so pinning either alone via a unit assertion would not catch removal of the other. Judgment call requested: asserting the OBSERVABLE invariant (replayedNames.every(name => name.trim().length > 0)) rather than restructuring to pin each guard separately is the right call here — pinning each guard individually would require white-box mocking/removal of internal code paths from a black-box smoke test, which is more brittle and couples the test to an implementation detail (two guards) that is explicitly documented as redundant-by-design defense-in-depth. The current test already fails if BOTH guards are removed (verified by the implementer's own mutation note) which is the correct failure mode: it protects the invariant that matters (no empty lane ever mounts) without over-specifying HOW that invariant is enforced. No new finding raised for this; it is advisory judgment, not a defect. Re-confirmed standing epoch-state-machine facts unchanged from prior rounds: OPEN/FINALIZED/INVALIDATED/CANCELLED states present in review-inventory-epoch.ts (lines 406/425/455/467/475/489/515/573), authorizesTest:false enforced as a literal type in types.ts:1756, constructed in review-inventory.ts:530, and independently re-validated in review-inventory-epoch.ts:125 plus asserted in review-inventory-epoch-smoke.ts:474 (receipt never authorizes TEST). Did not re-litigate CHK-002 material-mutation-barrier depth (OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION at review-inventory-epoch.ts:433/443) as no new evidence suggests regression there and it is out of scope for this F-097 focused round. F-089 and F-095 remain open per the freeze notice and are DEV-phase work, not evaluated as blockers this round. No new behavioral findings found in this round.",
+      "createdAt": "2026-08-16T13:39:15.920Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-400",
+      "envelopeId": "c3fd16e521a4a2c6eb816294dd39e2468a0cc64e19554ab473ffdc55dfae834a",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ccb7b91d836ee48598b9bcb535a380254caf9eb8ad48dc3c2dbb2d9180a57ecf"
     }
   ]
 }
