@@ -881,7 +881,21 @@ async function runStoryTransitionInner(
     // acquireDoneMainMergeLock (see the DONE pre-check block) — a fixed lock
     // ordering that makes a DONE and a concurrent same-story rollback mutually
     // exclude without any circular wait.
-    transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
+    //
+    // Root at the STABLE main repo root, not ctx.root verbatim. When invoked
+    // from inside the story's own worktree, ctx.root is the worktree path
+    // itself; a winning DONE transition deletes that entire worktree (including
+    // whatever lock directory lives under it) as part of cleanup. A concurrent
+    // loser polling for that same lock directory would see it "become
+    // available" the instant the winner deletes it, re-create the now-orphaned
+    // lock, and then crash on a raw ENOENT trying to read story metadata that
+    // no longer exists — instead of the clean lock-contention / already-
+    // advanced message callers are meant to see. Resolving through the same
+    // worktree-to-main-repo-root detection acquireDoneMainMergeLock already
+    // uses for exactly this reason keeps both racers serialized on a location
+    // that survives the winner's worktree teardown.
+    const transitionLockRoot = detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root;
+    transitionLock = acquireStoryTransitionLock(transitionLockRoot, args.storyId);
 
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
@@ -907,10 +921,38 @@ async function runStoryTransitionInner(
     // above, so a concurrent transition cannot slip a reopen past it.
     // For every ordinary transition `pendingReopenAudit` is absent and this is a
     // pure no-op that returns the very object just read.
+    //
+    // `store` here is `ctx.store`, bound to this invocation's root at CLI
+    // bootstrap — for a CWD-gated phase run from inside the story's own
+    // worktree, that root IS the worktree path, fixed for the life of this
+    // process. The transitionLock above now blocks on the STABLE main repo
+    // root, so a concurrent DONE racer can win, finish, and delete this
+    // worktree entirely WHILE this process is still parked waiting on that
+    // lock. The moment it wakes, this read runs against a root that no longer
+    // exists on disk, and StoryStore surfaces that as a raw
+    // StoryArtifactMissingError ("File not found: .../index.json") — a
+    // confusing crash instead of the clean "someone else already finished
+    // this" explanation callers are meant to see. Recognized narrowly (missing
+    // artifact AND the invocation root itself is gone, not just this one
+    // story record) and translated; any other StoryArtifactMissingError
+    // (a genuinely unknown story id, root still present) rethrows unchanged.
+    let initialStoryRead: StoryInfo;
+    try {
+      initialStoryRead = store.readStory(args.storyId);
+    } catch (e: any) {
+      if (e?.name === 'StoryArtifactMissingError' && !existsSync(ctx.root)) {
+        throw new Error(
+          `Cannot advance ${args.storyId} to ${args.phase}: this worktree no longer exists — ` +
+          `a concurrent DONE transition for ${args.storyId} already completed and removed it. ` +
+          `Retry from main.`,
+        );
+      }
+      throw e;
+    }
     const reconciledReopenAudit = reconcilePendingReopenAudit(
       store,
       args.storyId,
-      store.readStory(args.storyId),
+      initialStoryRead,
     );
     if (reconciledReopenAudit.status === 'recovered') {
       ctx.log?.(
