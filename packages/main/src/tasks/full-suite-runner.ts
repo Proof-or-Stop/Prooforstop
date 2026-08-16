@@ -577,6 +577,12 @@ class ProcessTreeLifecycle {
       if (stableInspections < 2) await new Promise(resolveWait => setTimeout(resolveWait, this.retryIntervalMs));
     }
 
+    // Retry SIGKILL until nothing captured is live, but stay BOUNDED: a process
+    // wedged in uninterruptible sleep (Linux D-state) can never be reaped, and an
+    // unbounded loop would spin forever instead of reaching the fail-closed
+    // AggregateError below. Exhausting the budget records the surviving PIDs as a
+    // lifecycle error, so the terminal result is still negative and never claims a
+    // clean tree while a captured child may remain.
     this.signalKnown('SIGKILL');
     while (true) {
       const live = this.liveTargetIds();
@@ -584,7 +590,11 @@ class ProcessTreeLifecycle {
       for (const id of live) {
         try { this.adapter.signal(id, 'SIGKILL'); } catch (error) { this.record(new Error(`SIGKILL target ${id}: ${(error as Error).message}`)); }
       }
-      if (performance.now() >= deadline) this.exceededBudget = true;
+      if (performance.now() >= deadline) {
+        this.exceededBudget = true;
+        this.record(new Error(`captured PID(s) still live after SIGKILL within cleanup budget: ${live.join(', ')}`));
+        break;
+      }
       await new Promise(resolveWait => setTimeout(resolveWait, this.retryIntervalMs));
     }
 

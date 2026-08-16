@@ -544,6 +544,38 @@ async function main(): Promise<void> {
     const persistentSurvivorResult = await lifecycleFixture('persistent-survivor', persistentSurvivor, 50);
     assertWithDetail(persistentSurvivorResult.status === 'FAIL' && persistentSurvivorResult.reason?.includes('exceeded 50ms cleanup budget') && performance.now() - survivorStarted >= 50, 'persistent survivor quarantines past budget before negative terminal', `${persistentSurvivorResult.status}/${(performance.now() - survivorStarted).toFixed(1)}ms: ${persistentSurvivorResult.reason ?? 'no reason'}`);
 
+    // True-infinite survivor: unlike persistent-survivor above (which dies after 30
+    // polls), this PID NEVER becomes unprobeable, modelling a process wedged in
+    // uninterruptible sleep. The post-SIGKILL retry loop must stay bounded by the
+    // cleanup budget and fail closed, rather than spinning forever.
+    // Written standalone rather than through lifecycleFixture: that helper asserts
+    // the real descendant died, which cannot hold here because the whole point is a
+    // PID that never becomes unprobeable. Only the probe is stubbed, so the genuine
+    // descendant is still really signalled and really reaped afterwards.
+    const unkillablePidPath = join(root, 'unkillable-survivor.pid');
+    const unkillableProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(unkillablePidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(unkillableProgram)}],{detached:true,stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(unkillablePidPath)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(unkillablePidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,100);\n`);
+    const unkillableStarted = performance.now();
+    const unkillable: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      probe: () => true,
+    };
+    const unkillableResult = await runEntry(entry('test:unkillable-survivor'), root, process.execPath, undefined, { adapter: unkillable, cleanupBudgetMs: 50, retryIntervalMs: 10 });
+    const unkillableElapsed = performance.now() - unkillableStarted;
+    const unkillablePid = Number(readFileSync(unkillablePidPath, 'utf8'));
+    if (pidIsAlive(unkillablePid)) { try { process.kill(-unkillablePid, 'SIGKILL'); } catch { try { process.kill(unkillablePid, 'SIGKILL'); } catch {} } }
+    assertWithDetail(
+      unkillableResult.status === 'FAIL' && unkillableElapsed < 30_000,
+      'permanently unkillable captured PID terminates the retry loop instead of spinning forever',
+      `${unkillableResult.status} after ${unkillableElapsed.toFixed(1)}ms: ${unkillableResult.reason ?? 'no reason'}`,
+    );
+    assertWithDetail(
+      unkillableResult.reason?.includes('exceeded 50ms cleanup budget') === true
+        && unkillableResult.reason?.includes('still live after SIGKILL') === true,
+      'permanently unkillable captured PID fails closed naming the surviving PID and the exceeded budget',
+      `${unkillableResult.status}: ${unkillableResult.reason ?? 'no reason'}`,
+    );
+
     writeFileSync(join(root, 'run'), 'process.exit(0);\n');
     const reuseAfterInspectionFailure = await runEntry(entry('test:reuse-after-inspection-failure'), root, process.execPath);
     assert(reuseAfterInspectionFailure.status === 'PASS', 'scheduler reuse follows only after injected lifecycle failures have no residual PID');
