@@ -17528,6 +17528,37 @@
         "scanEscalationReason": null
       },
       "_hash": "0a516deaa63b705749b743b9f79df4ccf33a63effac07cd4fb3123ad4b94cf45"
+    },
+    {
+      "id": "B-3f3d:RP-308",
+      "agent": "lattice-review-docs",
+      "note": "Audited commit 2bcaf8b644 (docs-only, resolves F-098+F-101) against reviewInventoryAcceptanceSubjectDigest. Verified digest fn strips headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt per evidence row while binding intentRef/kind/file/command/result/note/mechanical/receipt.exitCode/outputDigest/outputTail/selectorMatched -- matches the doc passage at line ~186 exactly, no over/under-claim. Second recommended location (line ~289 complete checklist semantics) is a summary sentence that does not contradict line 186. Grepped full doc: only one occurrence of the corrected passage, no stale pre-F-099 wording elsewhere. finding_list confirms F-098/F-101 status=resolved evidenceState=verified; F-089 remains the sole open finding (DEV-phase, scheduled). verify-process-fact-contract.mjs passes after the doc-only change. Standing checks: CLAUDE.md forceReviewer paragraph matches code (reviewer_forced persists via computeActiveReviewers replay, no unforceReviewer command exists anywhere in packages/main/src). test-runner-consolidation-plan.md termination prose (SIGSTOP-freeze/two-stable-snapshots/bounded-SIGKILL-repoll/fail-closed-on-budget) matches ProcessTreeLifecycle.terminateAndVerify exactly. Doc command promises (review_inventory_* x6, scope_shrinkage_decision_set, declare_unreachable-as-action) all resolve to real registrations in command-catalog.ts/verify-process-fact-contract.mjs. No code modified. No blockers found this round.",
+      "createdAt": "2026-08-16T14:28:31.605Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-417",
+      "envelopeId": "8af326d12b1af694338f636e0faec412b1a14dbb667b0686797420cc3946a3b8",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "d5a44f0feabbdea071a0e26976d680bbe9912fb144123f559e8fe465895383d0"
     }
   ]
 }
