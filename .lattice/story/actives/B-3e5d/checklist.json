@@ -664,7 +664,11 @@
           {
             "desc": "assertDoneMergeCleansMainUntrackedReviewPasses's DONE-ready fixture loops over all three opt-in lanes (lattice-review-quality, lattice-review-concept, lattice-review-test-coverage), each with a real review_run_start-bound review_pass_set",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+              "selector": "field regression CLI smoke passed"
+            }
           }
         ],
         "edge": [
@@ -681,7 +685,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: the 3-lane loop (lattice-review-quality, lattice-review-concept, lattice-review-test-coverage, each with a real review_run_start-bound review_pass_set) is exercised end-to-end within the passing suite run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f49fe2cd354fe1bb5124d9ae136e15af902a02f005d65476c5e1b547893d0d6",
+            "outputTail": "✓ field regression CLI smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:34:37.036Z"
+          },
+          "headHash": "ef02dddb9ecfeb51f1e14beb3e2ba88d2db36061",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:34:37.288Z"
+        }
+      ]
     }
   ]
 }
