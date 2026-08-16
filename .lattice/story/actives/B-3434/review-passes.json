@@ -561,6 +561,26 @@
         "scanEscalationReason": null
       },
       "_hash": "cdd9da75a942c474eba4f74082df2d4d4ac99c6caba289f401fa1893a16d3ff0"
+    },
+    {
+      "id": "B-3434:RP-022",
+      "agent": "lattice-review-behavior",
+      "note": "Re-binding of RP-019 (RR-047), not a fresh verification. Root cause of the storyFilesHash move: dev_memory_capture --scope=project appended to .lattice/dev-memory/experience.jsonl after RP-019/RR-047 passes were recorded, invalidating them; this was a dev-memory bookkeeping ordering error, not new source work. Verified emptiness myself: 'git diff 00c534aea0 HEAD --stat -- . :(exclude).lattice' is empty, and 'git diff 00c534aea0 HEAD --stat' shows only 13 .lattice/story and .lattice/dev-memory bookkeeping files -- zero source or test files changed. Confirmed dist still matches source: both packages/main/src/core/done-prepare-generated-metadata.ts and its compiled dist/core/done-prepare-generated-metadata.js last changed together in commit e1afeb34 (2026-08-15), and 'git status --porcelain -- packages/main' is clean -- no rebuild happened this round, none was needed. Cheap re-check (not full battery): 'node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs' PASS (all assertions incl. the 32 MiB ceiling against real git blobs and the silent/talking pre-commit hook cases); 'node packages/main/dist/tasks/validation-evidence-buffer-smoke.js' PASS (all assertions incl. CHK-004 outcome-B disposition check naming the rationale doc and its six finding ids); 'npx tsc --noEmit -p packages/main' exit 0, clean. This reaffirms my RP-019 conclusions -- withOfficialValidationExecution brace-matched around every decorateAndMaybePersistStoryValidation call site, all four dispositions re-run through StoryStore.writeTestEvidence, 32 MiB ceiling re-confirmed against real git blobs -- against unchanged source; I am not re-deriving them. Out-of-repo re-binding context file (scratchpad/rebind-context.md) was read in full but is excluded from readManifest as it is outside the project tree and not a manifest-eligible path.",
+      "createdAt": "2026-08-16T04:01:06.914Z",
+      "reviewRound": "2026-08-16T03:58:30.355Z",
+      "reviewRunId": "B-3434:RR-051",
+      "envelopeId": "e6a50a605eb665a000d8e130dd5a8bec8bf678f90121dc8b9aa6df47322946b6",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "009cf52c012d6e07d7b2a21899e3eb3becf61d4d3c8410aec6d7811baad57cae"
     }
   ]
 }
