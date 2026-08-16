@@ -17453,6 +17453,31 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "1821e56562ddcd60e2840d98ed77042ee199ad38a3a79f87673043150ac08028"
+    },
+    {
+      "id": "B-3f3d:RP-305",
+      "agent": "lattice-review-quality",
+      "note": "Quality audit of commit f8e5a077f3 (F-099 fix) plus re-confirmation of standing ProcessTreeLifecycle conclusions. evidenceSemantics in review-inventory-epoch.ts:72-84 is sound: underscore-prefixed destructure-to-exclude bindings (_headHash/_materialHash/_storyFilesHash/_timestamp/_executedAt) match the pervasive existing codebase idiom (grep found 15+ prior instances: acceptance-basis-receipt.ts:58, acceptance-coverage-basis.ts:240/250, acceptance-rollout.ts:71/82/87/126, authority-contracts.ts:447, authority-signing.ts:217, lattice-autopilot.ts:593/834, learning-store.ts:658/1442, playbook-runtime-memory-index.ts:313, prompt-envelope.ts:230-232/261, red-evidence-artifact-validation.ts:560), and packages/main/tsconfig.json has no noUnusedLocals/noUnusedParameters (default false) so tsc will not flag them either way -- not a finding. Verified fail-closed shape handling directly: wrote an isolated harness replicating evidenceSemantics and exercised undefined/null/string/number/{}/[]/[null]/[undefined]/[primitive-in-array]/[{receipt:null}]/[{receipt:non-object}]/[{}] -- zero throws across all cases; non-array input passes through unchanged, non-object rows pass through unchanged, missing/non-object receipt yields the row without a receipt key. This function feeds a gate and does not throw on malformed input. Confirmed no dead code, no unnecessary as any, no empty catch introduced by this commit (only review-inventory-epoch.ts + review-inventory-epoch-smoke.ts + story metadata changed). Independently bite-tested the fix in a scratch git-worktree copy (not the main worktree): built fresh with npm run build (which rmSync-es dist first, so a build failure cannot leave stale output), ran node dist/tasks/review-inventory-epoch-smoke.js against the fresh build -> PASS; then reverted only the production evidenceSemantics change (kept the new smoke assertions) and rebuilt -> the new re-pin-must-not-change-digest assertion failed with a real digest mismatch, confirming the regression assertions are mutation-verified and not tautological. tsc --noEmit -p packages/main was clean on the current commit. On the ChecklistData/Record<string,unknown> smoke fixture typing question: I could not find an F-093 finding in this story's finding_list matching a fixture-typing shortcut (B-3f3d:F-093 on file is an unrelated computeActiveReviewers String() coercion finding by lattice-review-quality); the actual fixture here (review-inventory-epoch-smoke.ts new evidenceRow helper) is typed as a plain function returning ChecklistData with a Record<string,unknown> overrides param spread into one evidence-array literal, ordinary object-literal typing, not an as-any cast or a Record<string,unknown> escape hatch on the return type, so it is not the same pattern as an unsound typing shortcut; no finding. On the stale-dist risk the requester flagged: full-suite-runner.ts:830 already calls scripts/verify-full-suite-build-binding.mjs, which mechanically compares a source-tree digest against a dist digest recorded by writeBuildBinding and rejects both stale-source and tampered-dist cases (self-test in that script exercises both), and scripts/build-main-with-binding.mjs removes dist before invoking tsc via execFileSync (which throws on nonzero exit), so the lattice validate/full-suite path this story runs through already fails closed against the exact stale-dist-green-result trap encountered manually; this is pre-existing infrastructure, not new in this commit, so it is not filed as a finding, only reported as reviewer context. Re-confirmed standing conclusions on ProcessTreeLifecycle.terminateAndVerify and test:unkillable-survivor from my own prior passes RR-352/RR-356 (untouched by this commit): bounded SIGKILL retry records surviving PIDs and breaks into the existing fail-closed AggregateError; no clean-tree-reported-while-child-live path exists; the unkillable-survivor fixture only stubs the probe while real SIGKILL is still delivered and the real descendant is explicitly reaped afterward. No new findings this pass.",
+      "createdAt": "2026-08-16T14:22:32.745Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-412",
+      "envelopeId": "42bd2686340cc8eededbb1f785066f7bd27ab0d0d53df5e01addbc04b115d4c2",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/tsconfig.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1c9fae9b6c0497d64e7df7545203b9c842a8d3a170a83a78b75230acf1eda5a"
     }
   ]
 }
