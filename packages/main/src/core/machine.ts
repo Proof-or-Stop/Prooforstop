@@ -57,6 +57,7 @@ import {
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
+import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -403,6 +404,48 @@ export function renderScopeAntiExpansionSummary(
   ];
 }
 
+/**
+ * B-a7c5 CHK-001: dev-memory preflight-acknowledgement gate, checked at every
+ * DEV-entry door (canStartDevGuard / canSkipPlanGuard / canReenterDevGuard).
+ *
+ * SIMPLE existence-check model (mirrors canFinishGuard's test-evidence check:
+ * read → check truthy), NOT the hash/staleness model scope-freeze-check uses
+ * — the ack just needs to exist once per story; it is never re-validated
+ * against current material.
+ *
+ * A missing artifact (store.readDevMemoryPreflightAck returns null) and a
+ * corrupt/hand-crafted artifact (malformed JSON -- a SyntaxError from
+ * JSON.parse, or a well-formed-but-wrong-shape object) are both treated as
+ * ABSENT (return false, no throw) -- a `{}` or truncated file can never
+ * satisfy the gate. A genuine unexpected read fault (permission denied,
+ * EISDIR, disk error -- anything that is not a missing artifact or a JSON
+ * parse failure) is deliberately NOT swallowed here: it propagates to the
+ * caller. canStartDevGuard/canSkipPlanGuard's own outer catches are
+ * fail-CLOSED (infra error -> block, same net effect as before), but
+ * canReenterDevGuard's outer catch is fail-OPEN by design (F-006/spec
+ * §4.8: a rollback door must never be stranded by a gate/config error) --
+ * catching every error class here unconditionally would have silently
+ * broken that guarantee for this one check, which is exactly what the
+ * REVIEW quality lane caught (empirically, via a forced EISDIR on the ack
+ * path making canReenterDevGuard wrongly return false instead of true).
+ */
+export function evaluateDevMemoryPreflightGate(storyId: string, store: StoryStore): boolean {
+  let ack;
+  try {
+    ack = store.readDevMemoryPreflightAck(storyId);
+  } catch (e) {
+    if (e instanceof SyntaxError) return false;
+    throw e;
+  }
+  if (!ack) return false;
+  if (ack.schemaVersion !== 'lattice.dev_memory_preflight_ack.v1') return false;
+  if (typeof ack.storyId !== 'string' || ack.storyId !== storyId) return false;
+  if (!Array.isArray(ack.topHitIds)) return false;
+  if (typeof ack.acknowledgedAt !== 'string' || !ack.acknowledgedAt) return false;
+  if (typeof ack.acknowledgedBy !== 'string' || !ack.acknowledgedBy) return false;
+  return true;
+}
+
 export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   const cl = context.store.readChecklist(context.storyId);
   // B-1909 CHK-002: advance when every item is TERMINAL (done OR withdrawn); a
@@ -640,6 +683,9 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
+    // B-a7c5 CHK-001: dev-memory preflight ack, checked on EVERY door into DEV
+    // (not just this primary PLAN→DEV path) — see evaluateDevMemoryPreflightGate.
+    if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
@@ -704,6 +750,8 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
+    // B-a7c5 CHK-001: the express channel is ALSO a door into DEV — same ack requirement.
+    if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
@@ -730,6 +778,12 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
+    // B-a7c5 CHK-001: a rollback (REVIEW/TEST→DEV) is ALSO a door into DEV. The ack
+    // persists for the story's whole lifetime once written by the first PLAN/INIT_CHECK
+    // entry, so a legitimate rollback finds it already present and passes through with
+    // zero added friction — but a story that somehow never wrote one (e.g. predates this
+    // gate) is refused here too, not silently fail-opened like an infra error would be.
+    if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
   } catch {
@@ -880,6 +934,16 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
   const bugs = context.store.readBugs(context.storyId);
   const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
   if (!hasEvidence || !bugsOk) return false;
+
+  // B-a7c5 CHK-003: dev_memory_finish_decision presence (existence-only, like
+  // the test-evidence check above). DELIBERATE OVERRIDE: `authority:
+  // 'non_authoritative'`/`gateEvidence:false` on the record describe LESSON
+  // CONTENT's status, not a promise that no gate reads record EXISTENCE as a
+  // completeness signal. Any of captured/no-reusable-lesson/defer-with-reason
+  // satisfies this — see playbook-runtime-memory-consumption-execution-plan.md
+  // M8/4.3 for the full reconciliation.
+  const finishDecision = readDevMemoryFinishDecision(context.projectRoot, context.storyId);
+  if (!finishDecision) return false;
 
   // delivery-check.json must exist, be untampered, and be bound to current material.
   const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(
@@ -1188,6 +1252,16 @@ export function getGuardFailureReason(
   if (targetPhase === 'DEV') {
     // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
+    // B-a7c5 CHK-001: dev-memory preflight ack, checked before any door-specific
+    // branching below — applies uniformly to every DEV door (PLAN→DEV, the
+    // express channel, and the REVIEW/TEST→DEV rollbacks alike), same slot as
+    // the proofStoryDevGateFailure check further down.
+    if (!evaluateDevMemoryPreflightGate(storyId, store)) {
+      return `Cannot enter DEV: dev-memory preflight has not been acknowledged for this story. ` +
+        `[missing_dev_memory_preflight_ack]\n` +
+        `→ Run \`lattice dev_memory_preflight_ack --storyId=${storyId}\` first (or, if the ` +
+        `preflight pack build itself is failing, --reason="<why>" to record a reasoned downgrade).`;
+    }
     // F-003: when the story takes the express (INIT_CHECK→DEV quickPath) channel, the
     // story-review record gate does NOT apply (express skips review), so the review-reason block
     // below must be skipped — otherwise an eligible express story shows a spurious "no review
@@ -1338,6 +1412,16 @@ export function getGuardFailureReason(
     const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');
     if (openBugs.length > 0) {
       return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
+    }
+
+    // B-a7c5 CHK-003: dev_memory_finish_decision presence, same slot as the
+    // test-evidence message above.
+    const finishDecision = readDevMemoryFinishDecision(projectRoot ?? process.cwd(), storyId);
+    if (!finishDecision) {
+      return `Cannot enter DONE: dev_memory_finish_decision has not been recorded. ` +
+        `[missing_dev_memory_finish_decision]\n` +
+        `→ Run \`lattice dev_memory_finish_decision --storyId=${storyId} ` +
+        `--decision=captured|no-reusable-lesson|defer-with-reason\`.`;
     }
 
     // delivery-check.json signature and material freshness verification

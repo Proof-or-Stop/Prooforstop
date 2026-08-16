@@ -11,8 +11,10 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
 import { createDoneRecoverHandlers } from '../handlers/done-recover.js';
+import { VERSION_SYNC_FILES } from '../core/version-bump.js';
 import {
   isDoneMainRuntimeBuildInput,
   runDoneMainPackageBuildAfterMerge,
@@ -43,6 +45,34 @@ function gitSucceeds(cwd: string, args: string[]): boolean {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+// B-74b9 CHK-003: bumpVersionOnDoneMerge (wired into done_recover's post-merge path) requires
+// all five version sync points to exist and agree on a version, or applyPatchBump throws ENOENT
+// reading them from the filesystem (they are never absent on any real repo root -- every real
+// Proofbound checkout has package.json et al. by construction). Synthetic fixture roots that
+// exercise done_recover's post-merge path need this same scaffold.
+function writeVersionSyncFiles(root: string, version: string): void {
+  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "lattice",\n  "version": "${version}",\n  "description": ""\n}\n`);
+  write(root, VERSION_SYNC_FILES.rootPackageLock, JSON.stringify({
+    name: 'lattice',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: 'lattice', version },
+      'packages/main': { name: '@lattice/core', version },
+    },
+  }, null, 2) + '\n');
+  write(root, VERSION_SYNC_FILES.mainPackageJson, `{\n  "name": "@lattice/core",\n  "version": "${version}",\n  "type": "module"\n}\n`);
+  write(root, VERSION_SYNC_FILES.mainPackageLock, JSON.stringify({
+    name: '@lattice/core',
+    version,
+    lockfileVersion: 3,
+    packages: {
+      '': { name: '@lattice/core', version },
+    },
+  }, null, 2) + '\n');
+  write(root, VERSION_SYNC_FILES.brand, `export const LATTICE_CLI_VERSION = '${version}' as const;\n`);
 }
 
 function runLattice(root: string, command: string, args: Record<string, unknown>): string {
@@ -565,6 +595,16 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
     closingSelfCheck,
     _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
+
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This shared fixture helper drives real story_advance DONE calls in
+  // 4 places in this file -- without a satisfying record here, every one of
+  // them would refuse before reaching the DONE-cleanup/worktree-authority
+  // behavior this file exists to test. No explicit git add/commit needed --
+  // every call site already runs `git add . && git commit` immediately after
+  // this function returns, which picks up this write too.
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') })
+    .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'worktree-authority-smoke fixture; no lesson to capture' });
 }
 
 function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
@@ -925,8 +965,9 @@ function assertDoneRecoverRunsPostMergeBuildForRuntimeChanges(): void {
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proofbound Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
-    git(root, ['add', '.gitignore']);
-    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    writeVersionSyncFiles(root, '0.1.0');
+    git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
+    git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
     markStoryBranchPartialDone(worktreePath, storyId);
 
     let buildCalls = 0;
@@ -966,8 +1007,9 @@ function assertDoneRecoverFailingPostMergeBuildThrowsAfterCleanup(): void {
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proofbound Smoke']);
     write(root, '.gitignore', '.worktrees/\n');
-    git(root, ['add', '.gitignore']);
-    git(root, ['commit', '-m', 'ignore recovery worktrees']);
+    writeVersionSyncFiles(root, '0.1.0');
+    git(root, ['add', '.gitignore', ...Object.values(VERSION_SYNC_FILES)]);
+    git(root, ['commit', '-m', 'ignore recovery worktrees; add version sync points']);
     markStoryBranchPartialDone(worktreePath, storyId);
 
     let buildCalls = 0;

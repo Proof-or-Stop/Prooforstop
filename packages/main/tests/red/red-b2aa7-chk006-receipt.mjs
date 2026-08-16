@@ -121,6 +121,22 @@ store.writeStory(storyId, {
 store.writeChecklist(storyId, {
   items: [{ id: 'CHK-001', title: 'auth fix', status: 'done', startTime: NOW, endTime: NOW }],
 });
+// B-a7c5 CHK-001: getGuardFailureReason's DEV branch now checks dev-memory
+// preflight-ack FIRST, before the proofStoryDevGateFailure/red-evidence checks
+// this receipt exists to exercise. Without this, every consumer variant
+// (absent/clean/rejected/quarantined) would short-circuit to the SAME
+// missing-ack message, making the 'core/machine.ts proofStoryDevGateFailure'
+// row indistinguishable across cases -- not a real corruption-detection
+// regression, just an earlier gate shadowing a later one this fixture never
+// satisfied.
+store.writeDevMemoryPreflightAck(storyId, {
+  schemaVersion: 'lattice.dev_memory_preflight_ack.v1',
+  storyId,
+  packDigest: 'red-b2aa7-chk006-receipt-synthetic-digest',
+  topHitIds: [],
+  acknowledgedAt: NOW,
+  acknowledgedBy: 'red-b2aa7-chk006-receipt',
+});
 const milestones = [{
   id: 'M1', sourceRequirementId: 'REQ-1', claim: 'auth fix', doneMeans: 'test passes',
   requiredEvidence: [], checklistRefs: ['CHK-001'], verificationIntentRefs: ['CHK-001:happy:0'], status: 'planned',
