@@ -32,7 +32,11 @@
           {
             "desc": "Two concurrent story_advance --phase=DONE processes race the same story from its own worktree; exactly one succeeds and the loser blocks on a lock rooted at the stable main repo root, which the winner's worktree teardown cannot delete out from under it",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+              "selector": "worktree authority smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -62,6 +66,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:00:21.666Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Re-executed to mechanically pin the edge-case intent: two real story_advance --phase=DONE child processes race the same story; exactly one wins, confirmed by the same smoke suite passing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5bea47a3fb7b1959ab5cb87b9a969fd8321f259fb88a1e1c06f6241c2127f5e7",
+            "outputTail": "✓ worktree authority smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:04:42.567Z"
+          },
+          "headHash": "b3a3fc0870254fe60aa558b312914a69725f5187",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:04:42.824Z"
         }
       ]
     },
