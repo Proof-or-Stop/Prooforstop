@@ -924,6 +924,67 @@
       },
       "readDiagnostics": [],
       "_hash": "dc85221d53c2eb4413e269585aba66d24dfc7446674800b140cb715d04adb7ff"
+    },
+    {
+      "id": "B-6693:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 final-HEAD coverage review passed at 8b6a50b68c. All 29 must intents have evidence, with 0 gaps, 0 waivers, 0 failures, and evidence_inspect reports every ref fresh. The 28 mechanical receipts remain 14 focused exact-15, 10 full exact-26, 3 canonical exact-58 live-proof, and 1 build receipt, all exit 0 and selector matched; one docs check completes the matrix. Checklist receipts retain the prior execution hash but current storyFilesHash is unchanged, so the freshness reader classifies the whole-tree material drift as re-attestation advisory, while current test-evidence directly matches material c89ea9ce. Diff from the prior reviewed material changes no B-6693 scoped implementation or test file; it contains unrelated main/version work and the final dev-memory decision. Existing exact-12 child-process, direct CLI watchdog, detached-generation, F-017, F-018, and process-fact coverage therefore remain discriminating. No coverage blocker.",
+      "createdAt": "2026-08-16T01:35:02.585Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-044",
+      "envelopeId": "f48a83fe1db12c6c1295147614c87a2e858d1ef27e6c685edbf8e0d7b6a5f943",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "ba2827785c7ba1362de7e40cbe9824846003e636bc5e9f9c5acf4d84a42a1316"
+      },
+      "readDiagnostics": [],
+      "_hash": "8db1473d7308485fb087a0280b9c2fec3fc4097d620455db0ebe061e257ae3f8"
     }
   ]
 }
