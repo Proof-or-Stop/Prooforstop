@@ -11,7 +11,7 @@ import {
   DEFAULT_JOBS, DEFAULT_PROCESS_LIFECYCLE_ADAPTER, FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
-  observedOutputSignatures, pathIsContained, validateJsonOutputPath,
+  observedOutputSignatures, parseProcessRows, pathIsContained, validateJsonOutputPath,
   type FullSuiteEntry, type FullSuiteResult, type ProcessLifecycleAdapter, type ResourceClaim,
 } from './full-suite-runner.js';
 
@@ -352,6 +352,52 @@ async function main(): Promise<void> {
     }
     assertWithDetail(completedWithDetachedGrandchild.status === 'PASS', 'normal completion with a detached descendant remains PASS after verified cleanup', `${completedWithDetachedGrandchild.status}: ${completedWithDetachedGrandchild.reason ?? 'no reason'}`);
     assertWithDetail(!completionDetachedAlive, 'normal completion terminal waits for detached descendant PID to disappear', `live PID ${completionDetachedPid}`);
+
+    // parseProcessRows is the only string-parsing step underpinning the whole
+    // (pid, birthIdentity) ownership scheme, so its branches are exercised
+    // against real `ps -axo pid=,ppid=,pgid=,lstart=` text rather than against
+    // synthesized ProcessRow objects.
+    const realPsOutput = execFileSync('ps', ['-axo', 'pid=,ppid=,pgid=,lstart='], { encoding: 'utf8' });
+    const realPsRows = parseProcessRows(realPsOutput);
+    const selfRow = realPsRows.find(row => row.pid === process.pid);
+    assertWithDetail(selfRow !== undefined, 'parseProcessRows recovers this process from real ps output', `pid ${process.pid} absent from ${realPsRows.length} parsed rows`);
+    assertWithDetail(
+      selfRow !== undefined && selfRow.ppid === process.ppid && typeof selfRow.birthIdentity === 'string' && selfRow.birthIdentity.length > 0,
+      'parseProcessRows binds a nonempty birth identity to the correct ppid from real ps output',
+      `${selfRow?.ppid} vs ${process.ppid}, birth ${JSON.stringify(selfRow?.birthIdentity)}`,
+    );
+    assert(
+      realPsRows.every(row => Number.isInteger(row.pid) && row.pid > 0 && Number.isInteger(row.ppid) && Number.isInteger(row.pgid)),
+      'parseProcessRows never emits a row with a non-integer or nonpositive numeric column from real ps output',
+    );
+
+    // The birth value contains spaces; the three numeric columns must still be
+    // read positionally and the entire remainder kept as the birth identity.
+    const spacedBirth = parseProcessRows('  4321   1  4321 Mon Aug 11 09:15:42 2026\n');
+    assertWithDetail(
+      spacedBirth.length === 1 && spacedBirth[0].pid === 4321 && spacedBirth[0].ppid === 1 && spacedBirth[0].pgid === 4321
+        && spacedBirth[0].birthIdentity === 'Mon Aug 11 09:15:42 2026',
+      'parseProcessRows keeps a space-containing lstart whole instead of mis-attributing a date fragment to a numeric column',
+      JSON.stringify(spacedBirth),
+    );
+    assertWithDetail(
+      parseProcessRows('4321 1 4321 Mon   Aug    11   09:15:42   2026\n')[0]?.birthIdentity === 'Mon Aug 11 09:15:42 2026',
+      'parseProcessRows collapses internal whitespace so the same birth instant compares equal across ps padding',
+      JSON.stringify(parseProcessRows('4321 1 4321 Mon   Aug    11   09:15:42   2026\n')),
+    );
+
+    // Malformed / hostile lines are skipped rather than producing a row whose
+    // identity could be mistaken for an owned descendant.
+    const malformed = parseProcessRows([
+      '', '   ', 'header garbage', '4321 1', '4321 1 4321', 'abc 1 4321 Mon Aug 11 09:15:42 2026',
+      '0 1 4321 Mon Aug 11 09:15:42 2026', '-5 1 4321 Mon Aug 11 09:15:42 2026',
+      '77 2 77 Tue Aug 12 10:00:00 2026',
+    ].join('\n'));
+    assertWithDetail(
+      malformed.length === 1 && malformed[0].pid === 77,
+      'parseProcessRows skips blank, truncated, non-numeric, zero and negative PID lines while keeping the one well-formed row',
+      JSON.stringify(malformed),
+    );
 
     const nonzeroDetachedPidPath = join(root, 'detached-nonzero.pid');
     const nonzeroDetachedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(nonzeroDetachedPidPath)},String(process.pid));setInterval(()=>{},1000)`;

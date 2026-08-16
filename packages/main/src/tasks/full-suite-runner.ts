@@ -74,7 +74,6 @@ const MAX_JOBS = 64;
 export const DEFAULT_JOBS = 5;
 export const OWNERSHIP_MARKER_FILENAME = 'owner';
 const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
-const activeChildren = new Set<ReturnType<typeof spawn>>();
 const activeTerminators = new Map<ReturnType<typeof spawn>, () => Promise<void>>();
 let interruptSignal: NodeJS.Signals | undefined;
 let interruptError: Error | undefined;
@@ -668,7 +667,6 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       ? lifecycle.terminateAndVerify()
       : terminateProcessTreeAndVerify(child.pid, process.platform, lifecycleOptions);
     activeTerminators.set(child, ensureTerminated);
-    activeChildren.add(child);
     let launchFreezeError: Error | undefined;
     if (lifecycle && child.pid) {
       try { lifecycleAdapter.signal(-child.pid, 'SIGSTOP'); }
@@ -677,7 +675,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     if (interruptSignal || schedulerCancellationReason) void ensureTerminated().catch(error => { interruptError ??= error as Error; });
     onSpawn?.();
     const done = (result: FullSuiteResult) => {
-      if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child); activeTerminators.delete(child);
+      if (settled) return; settled = true; clearTimeout(timer); activeTerminators.delete(child);
       result = {
         cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
         assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'runner-terminal',

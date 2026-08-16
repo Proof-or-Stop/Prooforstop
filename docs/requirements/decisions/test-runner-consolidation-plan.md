@@ -7,7 +7,16 @@ The root `npm test` contract is now distinct from smoke auto-discovery. It uses
 bidirectionally against `test:serial-reference` before execution. Unknown,
 duplicate, missing, or extra members fail closed. Compatible isolated/read-only
 members share a bounded worker pool; repo writers take an exclusive lock.
-Timeouts kill the member process group, output is bounded, and a first-run FAIL
+Timeouts terminate the member process tree and verify it is gone before
+publishing a terminal result: `terminateProcessTreeAndVerify` freezes the
+captured tree (SIGSTOP until two stable snapshots add no new members), then
+SIGKILLs and polls until no captured PID remains, so a detached descendant that
+called `setsid` cannot outlive the member. Captured ownership is keyed on
+`(pid, birthIdentity)` — `parseProcessRows` reads a per-process birth fact from
+`ps` alongside pid/ppid/pgid — so a PID that exits and is recycled before
+terminal reconciliation is permanently revoked rather than re-adopted, and is
+never signalled. Inspection failures are recorded and fail closed; they are
+never treated as revocation. Output is bounded, and a first-run FAIL
 or TIMEOUT is terminal: the canonical path never retries to green. The prior
 `run-all-smokes` discovery runner remains available for its broader noncanonical
 smoke/coverage use cases.
