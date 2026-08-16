@@ -319,6 +319,41 @@
         "scanEscalationReason": null
       },
       "_hash": "b8cf02643f5ad32f7b24fa1d183b028155c903bd4378262e067f4dbbd2d594b0"
+    },
+    {
+      "id": "B-1734:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin verified, red-b49d4 mis-derivation fixed (both red-1734 tests fall outside the derivation predicate, red-b49d4 untouched), full suite 100/100 green.",
+      "createdAt": "2026-08-16T02:03:04.233Z",
+      "reviewRound": "2026-08-16T02:02:30.995Z",
+      "reviewRunId": "B-1734:RR-013",
+      "envelopeId": "6cf612902f1f8cf59ba188f2abe9117937d08b72d76f6a2d98a3b01ac1c78c7a",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d3cd016b103954a449f80d76101321ab122ce3177068190ba0545b1d37a9d1e1"
     }
   ]
 }
