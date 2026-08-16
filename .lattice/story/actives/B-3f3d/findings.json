@@ -5081,7 +5081,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:395,413-429,481-520 — HIGH adversarial: captured process ownership is keyed only by numeric PID plus historical PGID, with no birth identity such as start time. If a captured member exits and its PID is reused before terminal reconciliation, liveTargetIds probes the reused PID as alive and terminateAndVerify sends SIGKILL directly to that unrelated process. The root path is worse because capture unconditionally replaces the stored root row for the reused numeric root PID. packages/main/src/tasks/full-suite-runner-smoke.ts:369-392 does not reproduce this case: it allocates a different foreignPid whose PPID equals the vanished PID, so it tests stale ancestry only, not reuse of an already captured PID. This leaves the promised PID-reuse safeguard incomplete while inspection/error barriers, normal completion, synchronous and preset interrupt registration, and own-PGID avoidance are otherwise structurally present. Focused source/diff review only; root final-HEAD and formal TEST remain unverified.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-15T21:09:03.797Z",
@@ -5117,7 +5117,9 @@
         "packages/main/src/tasks/full-suite-runner-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Keyed captured process ownership on (pid, birthIdentity) instead of numeric PID alone. readProcessRows now requests pid=,ppid=,pgid=,lstart= with lstart last; new exported parseProcessRows anchors the three leading numeric columns and takes the remainder as the birth value, so the space-containing lstart cannot be mis-parsed positionally. Added a permanent revoked set: revokeReusedPids drops any captured PID whose observed birth identity differs, capture() refuses to re-adopt revoked PIDs including the root row (previously overwritten unconditionally), signalKnown skips them, and liveTargetIds re-inspects and revokes before probing so a PID recycled between SIGKILL and probe is never signalled. birthIdentityMatches falls back to numeric identity when either side lacks a birth fact, preserving behaviour for adapters reporting none; inspection failure is recorded, never treated as revocation, keeping the fail-closed posture. Smoke fixture rewritten to genuinely reproduce reuse of an ALREADY-CAPTURED PID (the prior fixture only tested stale ancestry via a different foreignPid): latched the reused PID rather than unconditionally readFileSync-ing it in signal/probe (which threw ENOENT before the child wrote the file and failed the entry without exercising reuse), made the injected foreign process report permanently alive so a surviving ownership claim cannot converge, and split the collapsed assert into separate capture and injection assertions. Verified: full-suite-runner-smoke PASS (177 assertions) including all four birth-identity assertions and the three unregressed PID-reuse assertions; tsc --noEmit clean; lattice validate fully green. Mutation check: reverting birthIdentityMatches to return true makes the fixture hang past its cleanup budget, proving the test bites.",
+      "resolvedAt": "2026-08-16T07:57:13.009Z"
     }
   ]
 }

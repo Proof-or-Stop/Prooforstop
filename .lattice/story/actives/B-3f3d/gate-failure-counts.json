@@ -1,14 +1,1 @@
-{
-  "story_advance/8e244f0ce4bb": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "B-3f3d is owned by Proofbound session sess-f1ed9b2259394f1c881ce217585b79dc, heartbeat 10h ago (owner cwd: /Users/qipan/work/repo/Prooforstop/.worktrees/B-3f3d). \"story_advance\" is an owner-gated storyScopedMutating command, so this session (sess-60b0d01cf32ddaf04d1ef8467d5fcef8) cannot run it. The owner lease is STALE (no heartbeat for 30+ minutes). Owner cwd matches the current cwd (/Users/qipan/work/repo/Prooforstop/.worktrees/B-3f3d), so this may be a same-worktree context switch. Run lattic",
-    "lastAt": "2026-08-16T07:54:16.985Z"
-  },
-  "story_advance/48ae1ac35657": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=fail; blocking=true\n  receipt=stale; quorum=full-3x2\n  codes=AR_REPORT_STALE\n\n-> Run lattice acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
-    "lastAt": "2026-08-16T07:54:36.392Z"
-  }
-}
+{}
