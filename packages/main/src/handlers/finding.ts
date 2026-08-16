@@ -28,6 +28,7 @@ import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { BRAND_ENV_PREFIX } from '../core/brand-env.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import {
@@ -646,7 +647,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        ? '\n⚠ finding_add is missing agent/LATTICE_AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.'
+        // B-cdf6: teach the canonical env var name. `lattice-review-*` in this same
+        // string is a FROZEN role ID (subagent_type value) and must NOT be renamed.
+        ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.`
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'
