@@ -877,6 +877,53 @@
         "scanEscalationReason": null
       },
       "_hash": "0e87a042311915852fce447caf853372571fd22bd294900580c1ac1d79e1d629"
+    },
+    {
+      "id": "B-6693:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 final post-merge docs review PASS: extracted 186 changed declaration symbols and compared 14 load-bearing documentation paragraphs/sections across docs/CLI.md, testing-infra, DONE full-test gate, and the pre-story Mechanism Placement Proof plan. Merge 590aad96d7 preserves every B-6693 capacity implementation/doc byte and resolves only the two expected mechanical fingerprint combinations: main branch closeout-trust f41c1035 pin plus B-6693 cli-engine c38c8402 pin in both retired-authority-vocabulary-guard-smoke and verify-process-fact-contract. The structuredWatchdog/structuredDoneResult split and exact 15/26 terminal contracts still match source. The pre-story document remains explicit that its six-proof/placement mechanism is an audited proposal with no current runtime enforcement; its dated B-fb7b example still selects root pretest as the authoritative hook, while main ensure-dist implementation is a narrower implementation detail rather than a contradictory promise. No doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-16T00:10:46.667Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-041",
+      "envelopeId": "a39139f7631f33ef82104b1f4be0292471f5d5cb1cade3e88b0f5f6b53ad6fbb",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/ensure-dist.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c3b4e38ffe3cf775d08b707721013d7744e0c6e49f114036ccf504f10798704"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc85221d53c2eb4413e269585aba66d24dfc7446674800b140cb715d04adb7ff"
     }
   ]
 }
