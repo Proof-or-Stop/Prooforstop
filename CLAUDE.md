@@ -884,6 +884,10 @@ lattice reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # �
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
 
+**forceReviewer 是持久且当前不可撤销的（B-3f3d F-091 / F-092）**：`--forceReviewer` 写入 `story.events` 的 `reviewer_forced` 事件，`computeActiveReviewers` 每次调用都会重放这些事件。因此 force 对**全部** consumer 生效——包括 `canPassReviewGuard` 门禁、`review_inventory_begin` 冻结的 epoch `requiredLanes`、`quorum_submit` 等，且**跨 review round 与 DEV round-trip 持久**，符合 `review-inventory-epoch-and-saturation-gate.md` 的「forced lanes remain selected」承诺。
+
+代价是：**没有 `unforceReviewer` 命令**。一旦挂载，该 lane 在 story 余下生命周期内都是必需 lane；唯一的移除方式是手改 `story.events`，而那本身是未经审计的绕过。所以 force 前先确认这条 lane 确实该长期参与门禁，不要用它做一次性试探。
+
 **Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。`reviewRound: string (ISO 8601 review round id)`，来自 `story.currentReviewRound`；`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
 
 **story_review 轮次命名**：`story_review.planReviewRound: number (PLAN review round count)` 是 PLAN 阶段 `review.json.reviews.length` 的 1-based 数字计数。`story_review.reviewRound` 只作为 legacy numeric PLAN review alias 保留给旧调用方；它不是 finding / review pass / delivery check 里的签名 `reviewRound`。签名 artifact 的 `reviewRound` 仍必须是 `reviewRound: string (ISO 8601 review round id)`。
