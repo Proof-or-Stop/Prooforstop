@@ -113,7 +113,15 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
           path: row?.path,
           contentHash: row?.contentHash,
         })),
-        queryFiltering: validCandidate.queryFiltering,
+        // B-3f3d F-107: queryFiltering is NOT bound. It records HOW candidates were
+        // selected, not WHAT was selected, and it is freshness-derived through the
+        // same channel as F-104: changedPaths (git diff --name-only main...HEAD)
+        // seeds buildKeywordSeeds at weight 50, those seeds feed orderedQueryTerms,
+        // and that produces filteredTerms. So an unrelated commit that only shifts
+        // the changed-file set could add or drop a filteredTerms entry and invalidate
+        // an OPEN epoch while the selected candidates[].{path,contentHash} stayed
+        // byte-identical. scanEscalationReason stays bound: it is a routing-policy
+        // outcome (whether the bounded search had to escalate), not diff-derived.
         scanEscalationReason: validCandidate.scanEscalationReason,
       }),
       corpusDigest: validCandidate.corpusDigest,

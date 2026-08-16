@@ -715,16 +715,54 @@ const candidateBarrierDigest = (candidates: Array<Record<string, unknown>>, over
     schemaVersion: 'candidate-spec-set/v1',
     mode: 'warn',
     candidates: candidates.map(row => ({ path: row.path, contentHash: row.contentHash })),
-    queryFiltering: { filteredTerms: [] },
     scanEscalationReason: null,
     ...overrides,
   });
+// Mirrors captureReviewInventoryScope's projection by taking a WHOLE artifact and
+// selecting from it, so a field the production code does not bind cannot influence
+// the result no matter what the caller puts in the artifact. (Passing an unbound
+// field as a top-level override would move any digest and prove nothing.)
+const candidateBarrierProjection = (artifact: Record<string, unknown>) => {
+  const full = {
+    schemaVersion: 'candidate-spec-set/v1',
+    mode: 'warn',
+    candidates: [{ path: 'docs/a.md', contentHash: 'sha-a', score: 10, reasons: [{ kind: 'changedPath' }] }],
+    queryFiltering: { filteredTerms: [] },
+    scanEscalationReason: null,
+    storyInputDigest: 'sid-baseline',
+    artifactDigest: 'artifact-baseline',
+    ...artifact,
+  } as Record<string, unknown>;
+  return reviewInventoryDigest({
+    schemaVersion: full.schemaVersion,
+    mode: full.mode,
+    candidates: (full.candidates as Array<Record<string, unknown>>).map(row => ({ path: row.path, contentHash: row.contentHash })),
+    scanEscalationReason: full.scanEscalationReason,
+  });
+};
 const candidateBaseline = [{ path: 'docs/a.md', contentHash: 'sha-a', score: 10, reasons: [{ kind: 'changedPath' }] }];
 assert.equal(
   candidateBarrierDigest([{ path: 'docs/a.md', contentHash: 'sha-a', score: 97, reasons: [{ kind: 'seed' }, { kind: 'changedPath' }] }]),
   candidateBarrierDigest(candidateBaseline),
   'candidate score/reasons churn driven by changedPaths must not move the epoch barrier digest',
 );
+// B-3f3d F-107: queryFiltering must not be bound at all. filteredTerms derives from
+// orderedQueryTerms over buildKeywordSeeds, which seeds every changedPaths entry at
+// weight 50 — so binding it re-admitted the same git-diff freshness channel F-104
+// closed. This asserts against the REAL production projection rather than a local
+// override, because an override would trivially move any digest and prove nothing.
+assert.equal(
+  candidateBarrierProjection({ queryFiltering: { filteredTerms: [{ term: 'x', documentCount: 3, documentFrequencyRatio: 0.4, reason: 'overbroad' }] } }),
+  candidateBarrierProjection({ queryFiltering: { filteredTerms: [] } }),
+  'queryFiltering churn driven by changedPaths must not move the epoch barrier digest',
+);
+for (const unbound of ['storyInputDigest', 'artifactDigest'] as const) {
+  assert.equal(
+    candidateBarrierProjection({ [unbound]: `${unbound}-rotated` }),
+    candidateBarrierProjection({}),
+    `${unbound} is freshness-bearing and must not move the epoch barrier digest`,
+  );
+}
 for (const [label, candidates, overrides] of [
   ['contentHash', [{ path: 'docs/a.md', contentHash: 'sha-CHANGED' }], {}],
   ['path', [{ path: 'docs/b.md', contentHash: 'sha-a' }], {}],
@@ -732,7 +770,6 @@ for (const [label, candidates, overrides] of [
   ['removed candidate', [], {}],
   ['mode', candidateBaseline, { mode: 'enforce' }],
   ['schemaVersion', candidateBaseline, { schemaVersion: 'candidate-spec-set/v2' }],
-  ['queryFiltering', candidateBaseline, { queryFiltering: { filteredTerms: [{ term: 'x', documentCount: 1, documentFrequencyRatio: 0.5, reason: 'overbroad' }] } }],
   ['scanEscalationReason', candidateBaseline, { scanEscalationReason: 'budget_exhausted' }],
 ] as const) {
   assert.notEqual(
