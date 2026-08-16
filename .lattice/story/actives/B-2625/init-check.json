@@ -1,14 +1,41 @@
 {
   "storyId": "B-2625",
-  "checkedAt": "2026-08-16T11:16:55.560Z",
+  "checkedAt": "2026-08-16T11:17:52.201Z",
   "reviewRound": "",
-  "agentId": "product-reviewer",
-  "issues": [],
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "high",
+      "desc": "CHK-001 and CHK-003 name packages/main/src/tasks/validation-execution-lock-smoke.ts, but that file does not exist; the existing B-6693 capacity regression authority is packages/main/src/tasks/validate-execution-lock-smoke.ts. Correct the frozen checklist/file scope so implementation extends the authoritative suite instead of omitting it or creating a duplicate misnamed runner."
+    },
+    {
+      "id": "I-2",
+      "severity": "medium",
+      "desc": "INIT preflight is mechanically blocked because the excluded scope keyword Authority appears in background.md (in the phrase describing one workspace capacity authority). Rephrase the non-expansion statement or record/decide an explicit scope extension, then rerun scope_freeze_check."
+    }
+  ],
   "agentResults": [
     {
       "agentId": "product-reviewer",
       "checkedAt": "2026-08-16T11:16:55.560Z",
       "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-16T11:17:52.201Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "high",
+          "desc": "CHK-001 and CHK-003 name packages/main/src/tasks/validation-execution-lock-smoke.ts, but that file does not exist; the existing B-6693 capacity regression authority is packages/main/src/tasks/validate-execution-lock-smoke.ts. Correct the frozen checklist/file scope so implementation extends the authoritative suite instead of omitting it or creating a duplicate misnamed runner."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "INIT preflight is mechanically blocked because the excluded scope keyword Authority appears in background.md (in the phrase describing one workspace capacity authority). Rephrase the non-expansion statement or record/decide an explicit scope extension, then rerun scope_freeze_check."
+        }
+      ]
     }
   ],
   "_hash": "d6a9186d8b972825d5a31bf270c3bed65c8c898d10d037d0afb89cbb9b313425"
