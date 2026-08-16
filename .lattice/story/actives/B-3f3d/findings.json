@@ -5183,7 +5183,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:381-396 (parseProcessRows) has zero direct unit test coverage anywhere in the repo. All birth-identity tests in full-suite-runner-smoke.ts synthesize ProcessRow objects directly (e.g. line 413: rows.map(row => ({...row, birthIdentity: `native:${row.pid}`}))) and never feed real 'ps -axo pid=,ppid=,pgid=,lstart=' formatted text through the regex. The function docstring itself calls out a subtle invariant -- lstart is requested last because its value contains internal whitespace and everything after the third numeric column is folded into birthIdentity via whitespace-collapse -- but no fixture string exercises that whitespace-collapsing/positional-split behavior, the malformed-line-skip branch, or the non-integer pid/ppid/pgid rejection branch. This is the one new piece of string-parsing logic underpinning the whole (pid, birthIdentity) ownership model and is currently only exercised indirectly through whatever the live ps binary happens to emit during CI.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-16T08:02:11.023Z",
@@ -5191,7 +5191,9 @@
       "reviewRunId": "B-3f3d:RR-336",
       "_hash": "668d0380f28305985115103c709354afe8d49643ce3a2d080a24b6e8d9f31cad",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Gap accepted as real and closed with direct coverage. The finding was correct: every prior birth-identity test synthesized ProcessRow objects, so parseProcessRows (the sole string-parsing step underpinning the whole (pid, birthIdentity) ownership scheme) had zero direct coverage of the branches its own doc comment calls out. Added six assertions to packages/main/src/tasks/full-suite-runner-smoke.ts that drive the real function, three of them against genuine live ps -axo pid=,ppid=,pgid=,lstart= output rather than fixtures: (1) this process is recovered from real ps output by pid; (2) its parsed ppid matches process.ppid and its birthIdentity is a nonempty string; (3) no parsed row from real ps output ever carries a non-integer or nonpositive numeric column. Three further assertions pin the branches the finding named: a space-containing lstart is kept whole so no date fragment is mis-attributed to a numeric column (4321 1 4321 Mon Aug 11 09:15:42 2026 parses with birthIdentity intact); internal whitespace is collapsed so the same birth instant compares equal across ps padding; and blank, whitespace-only, header, truncated (two- and three-column), non-numeric-pid, zero-pid and negative-pid lines are all skipped while the single well-formed row survives. Verified: npm run test:full-suite-runner-smoke now reports PASS (183 assertions), up from 177, with the six new labels present in the emitted assertion inventory; npx tsc --noEmit -p packages/main exits 0. Mutation check proving the new tests bite rather than passing vacuously: patching the compiled dist to drop the whitespace-collapse (match[4].replace(/s+/g, chr32) -> match[4]) turns the run FAIL with the exact diagnostic parseProcessRows collapses internal whitespace so the same birth instant compares equal across ps padding: [{pid:4321,...,birthIdentity:Mon   Aug    11   09:15:42   2026}]; the dist was then byte-restored (diff -q confirms identity with the pre-mutation copy) and re-ran PASS (183 assertions).",
+      "resolvedAt": "2026-08-16T08:06:11.757Z"
     }
   ]
 }
