@@ -17394,6 +17394,37 @@
         "scanEscalationReason": null
       },
       "_hash": "f0cb324d876d44afd505ebfe37525f09b4c9fa3ce93d4810e96e55b377723d28"
+    },
+    {
+      "id": "B-3f3d:RP-303",
+      "agent": "lattice-review-behavior",
+      "note": "Audited F-099 fix (commit f8e5a077f3) as new code. evidenceSemantics strips exactly headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt from verificationEvidence rows before hashing -- exactly the fields writeStaleRefresh/makeEvidence rewrite on a pure re-pin (checklist.ts:940-991), and nothing else. Confirmed a changed result/command/receipt.outputDigest/receipt.selectorMatched each still flip the digest (pinned in review-inventory-epoch-smoke.ts:679-690, and re-derived independently: reverted dist to hash verificationEvidence raw in a detached scratch worktree at 32a1e48 -> smoke exits 1 with AssertionError on the re-pin-must-not-change-digest assertion; byte-restored dist -> exits 0). Confirmed attestation/actorTrust/factProvenance nested metadata (which DO contain their own timestamp-like fields: attestation.attestedAt, factProvenance.fetchedAt/expiresAt) are never rewritten by the refresh handler (checklist.ts:943-945,986-988 copy them through unchanged), so evidenceSemantics correctly leaves them unstripped -- no narrowing gap there. Confirmed executedAt has no other gate/freshness consumer (only written at evidence-create time, checklist.ts:710) so dropping it from the digest is safe. Confirmed the projection handles malformed/legacy shapes safely: non-array verificationEvidence returned as-is, non-object rows returned unchanged (no destructure crash), missing receipt short-circuits before receipt destructure, non-object receipt falls back to omitting it entirely -- verified by direct inspection plus a manual node repro of the destructuring behavior. Re-confirmed verifyReviewInventoryReceipt (review-inventory-epoch.ts:143-149) mechanically checks authorizesTest===false and authority===inventory-completeness-only as literal boolean/string equality, not just type-level -- standing conclusion holds. Re-confirmed this commit touches only the digest fn + its smoke test (git show --stat), no epoch state-machine transition code changed, so prior epoch-state-machine conclusions are unaffected. No blocking issues found.",
+      "createdAt": "2026-08-16T14:18:48.600Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-411",
+      "envelopeId": "12e261e96cf5feaefaf9046d623bfb7d6718a19f413225d05ab16821508c8c45",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62d58c439d3378e6873c0ee88caaa39d13ad5f8dcb3a766efacbf1a8fa3cd7ae"
     }
   ]
 }
