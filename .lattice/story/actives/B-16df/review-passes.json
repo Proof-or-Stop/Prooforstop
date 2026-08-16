@@ -483,6 +483,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f6d0fc5f77c308068f80fac7b0cc0f7fbb01a99552986d208cf03a4f70ef463b"
+    },
+    {
+      "id": "B-16df:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Rebind pass: verified 34/34 verificationIntent entries (CHK-001:12, CHK-002:13, CHK-003:8, CHK-004:1) have matching verificationEvidence intentRefs, 33/34 mechanical:true unchanged. Confirmed via git diff against last review_pass_set commit (edecca7182) that checklist.ts, validation-executor.ts, verifier.ts, validate-command-timeout-smoke.ts, and checklist.json are byte-for-byte unchanged - only story metadata (dev-memory, delivery-check, index, scope-contract) landed since. Rebuilt packages/utils and packages/main clean, re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js fresh: 45 assertions pass, matches recorded receipts. Spot-checked checklist.ts source: resolvePinnedCommandTimeoutMs exported and threaded into all 4 runSingleAllowlistedCommand call sites (lines 1576, 1667, 1798, 1877) exactly as CHK-002 claims. No blocker.",
+      "createdAt": "2026-08-16T21:48:12.937Z",
+      "reviewRound": "2026-08-16T21:45:28.540Z",
+      "reviewRunId": "B-16df:RR-023",
+      "envelopeId": "1fcd51ea2c34a94f70640a431d973801a37e785e2a649e13d885ab8bdb778efa",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b19d075b1301002c3ca9cb0f15cbb129bbfc89b29c6d534957366f52a74cdde"
     }
   ]
 }
