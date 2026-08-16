@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { ChecklistData } from '../core/types.js';
 import {
   assertReviewInventoryCutoff,
   assertReviewInventoryEvidenceWritable,
@@ -645,5 +646,47 @@ assert.equal(replayA.requiredHostCountAfter, 2);
 assert.equal(replayA.requiredLaneCountAfter, replayA.requiredLaneCountBefore);
 assert.equal(replayA.requiredLaneCountBefore, requiredLanes.length);
 assert.equal(replayA.criticalHighEscapes + replayA.budgetManufacturedPasses, 0);
+
+// B-3f3d F-099: the acceptance-subject digest must bind what a verifier OBSERVED,
+// not when it last ran. A pure verification_evidence_refresh_stale re-pin rotates
+// headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt while leaving
+// result/command/note/outputDigest identical; hashing those freshness pins made a
+// metadata-only refresh trip OPEN_REVIEW_INVENTORY_SCOPE_MUTATION and discard other
+// lanes' completed verdicts on an OPEN epoch. Narrowing must NOT go so far that a
+// genuine change stops invalidating, so both directions are pinned here.
+const evidenceRow = (overrides: Record<string, unknown>): ChecklistData => ({
+  items: [{
+    id: 'CHK-001',
+    title: 'digest fixture',
+    status: 'done',
+    startTime: '2026-01-01T00:00:00.000Z',
+    endTime: '2026-01-01T00:00:00.000Z',
+    verificationEvidence: [{
+      intentRef: 'CHK-001:happy:0', kind: 'logic_test', command: 'node x.js',
+      result: 'pass', note: 'covers the happy path', mechanical: true,
+      headHash: 'h0', materialHash: 'm0', storyFilesHash: 's0', timestamp: '2026-01-01T00:00:00.000Z',
+      receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: true, executedAt: '2026-01-01T00:00:00.000Z' },
+      ...overrides,
+    }],
+  }],
+});
+const digestBaseline = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({}));
+const digestRepinned = reviewInventoryAcceptanceSubjectDigest(null, evidenceRow({
+  headHash: 'h1', materialHash: 'm1', storyFilesHash: 's1', timestamp: '2026-09-09T09:09:09.000Z',
+  receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: true, executedAt: '2026-09-09T09:09:09.000Z' },
+}));
+assert.equal(digestRepinned, digestBaseline, 'a pure evidence re-pin must not change the acceptance subject digest');
+for (const [label, override] of [
+  ['result', { result: 'fail' }],
+  ['command', { command: 'node other.js' }],
+  ['outputDigest', { receipt: { exitCode: 0, outputDigest: 'digest-CHANGED', outputTail: 'ok', selectorMatched: true, executedAt: '2026-01-01T00:00:00.000Z' } }],
+  ['selectorMatched', { receipt: { exitCode: 0, outputDigest: 'digest-0', outputTail: 'ok', selectorMatched: false, executedAt: '2026-01-01T00:00:00.000Z' } }],
+] as const) {
+  assert.notEqual(
+    reviewInventoryAcceptanceSubjectDigest(null, evidenceRow(override)),
+    digestBaseline,
+    `a changed ${label} must still change the acceptance subject digest`,
+  );
+}
 
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));

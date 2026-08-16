@@ -4048,9 +4048,9 @@
       "epochId": "B-3f3d:RI-038",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-16T13:57:07.068Z",
-      "updatedAt": "2026-08-16T13:57:07.068Z",
+      "updatedAt": "2026-08-16T14:11:20.792Z",
       "cutoff": {
         "headHash": "6ce1188eb32e148df6e095686530ff1499e457e4",
         "materialHash": "d7e18083c36b3c56b0249fa4cac557e35a22374d58ba8118d0fdc965aa77dced",
@@ -4070,7 +4070,32 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "192a1cd7251683adb7a6f76b914e8b73d8854c0e7d8d829394926195811028e7"
+      "invalidation": {
+        "detectedAt": "2026-08-16T14:11:20.792Z",
+        "oldMaterialHash": "d7e18083c36b3c56b0249fa4cac557e35a22374d58ba8118d0fdc965aa77dced",
+        "currentMaterialHash": "d7e18083c36b3c56b0249fa4cac557e35a22374d58ba8118d0fdc965aa77dced",
+        "oldStoryFilesHash": "e9ef87c3788b4b4501ac48884364b7677180b699ef2906b3c6162ca037d67947",
+        "currentStoryFilesHash": "e9ef87c3788b4b4501ac48884364b7677180b699ef2906b3c6162ca037d67947",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "9762be5e7d96be203186e11912e1130468c4db0647ccc278094ba608f11321c5",
+        "currentScopeDigest": "465b69a474d7a93cc1d8d7b7c180f8cce73274db641d8d370cc81d40b97f9390",
+        "oldRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage",
+          "lattice-review-behavior",
+          "lattice-review-docs"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage",
+          "lattice-review-behavior",
+          "lattice-review-docs"
+        ]
+      },
+      "terminalRunSequenceBoundary": 409,
+      "_hash": "36d03d92233efe55ba32782e3e6540c65c31ffb82ddec478b6cc3857acb38f64"
     }
   ],
   "receipts": [

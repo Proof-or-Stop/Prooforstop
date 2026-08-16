@@ -59,6 +59,29 @@ export function reviewInventoryAcceptanceSubjectDigest(
     const { createdAt: _createdAt, updatedAt: _updatedAt, ...semantic } = value;
     return semantic;
   };
+  // B-3f3d F-099: bind what a verifier OBSERVED, not when it last ran. A pure
+  // `verification_evidence_refresh_stale` re-pin rewrites headHash/materialHash/
+  // storyFilesHash/timestamp (and receipt.executedAt) while result/command/note/
+  // outputDigest stay identical. Hashing those freshness pins made an evidence
+  // re-pin flip this digest and trip OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, even
+  // though currentMaterialHash already excludes the whole .lattice/story/ tree —
+  // so a metadata-only refresh invalidated an OPEN epoch and discarded other
+  // lanes' completed verdicts. Same principle as withoutVolatileTimestamps above:
+  // semantic content in, bookkeeping out. Anything that should still invalidate
+  // (a changed result, command, selector or captured output) remains bound.
+  const evidenceSemantics = (value: unknown): unknown => {
+    if (!Array.isArray(value)) return value;
+    return value.map(row => {
+      if (!row || typeof row !== 'object') return row;
+      const {
+        headHash: _headHash, materialHash: _materialHash, storyFilesHash: _storyFilesHash,
+        timestamp: _timestamp, receipt, ...semantic
+      } = row as Record<string, unknown>;
+      if (!receipt || typeof receipt !== 'object') return semantic;
+      const { executedAt: _executedAt, ...receiptSemantic } = receipt as Record<string, unknown>;
+      return { ...semantic, receipt: receiptSemantic };
+    });
+  };
   return reviewInventoryDigest({
     scopeContract,
     checklist: checklist.items.map(row => ({
@@ -71,7 +94,7 @@ export function reviewInventoryAcceptanceSubjectDigest(
       excludes: row.excludes,
       files: row.files,
       verificationIntent: row.verificationIntent,
-      verificationEvidence: row.verificationEvidence,
+      verificationEvidence: evidenceSemantics(row.verificationEvidence),
       userSeesSnapshot: row.userSeesSnapshot,
     })),
     // ProofStory is a second acceptance-authority surface beside checklist.
