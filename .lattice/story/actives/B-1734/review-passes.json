@@ -284,6 +284,41 @@
         "scanEscalationReason": null
       },
       "_hash": "728e5a0b0eb28aedb2feeefeccbbb9baee8dd639db4c410dcf9a50e43dcc5e46"
+    },
+    {
+      "id": "B-1734:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin verified, red-b49d4 mis-derivation fixed (both red-1734 tests fall outside the derivation predicate, red-b49d4 untouched), full suite 100/100 green.",
+      "createdAt": "2026-08-16T02:03:00.681Z",
+      "reviewRound": "2026-08-16T02:02:30.995Z",
+      "reviewRunId": "B-1734:RR-012",
+      "envelopeId": "d1956714825d9cd01df0b70a5d2328415220385ae25edcf687ee96a126597465",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8cf02643f5ad32f7b24fa1d183b028155c903bd4378262e067f4dbbd2d594b0"
     }
   ]
 }
