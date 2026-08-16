@@ -3761,9 +3761,9 @@
       "epochId": "B-3f3d:RI-030",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-16T11:43:18.620Z",
-      "updatedAt": "2026-08-16T11:43:18.620Z",
+      "updatedAt": "2026-08-16T11:52:43.039Z",
       "cutoff": {
         "headHash": "27e7ca0daac2a73caaf098414151380c5a0b59d1",
         "materialHash": "7dfb770fe81abe55a59a600cb94d0dbdeddf1a0acd8999373038365719c251e1",
@@ -3782,7 +3782,108 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "e7ea401d4b7697ea6260f0659857a5e70d714511c8d792129acd80dbd2e7f031"
+      "cancelledAt": "2026-08-16T11:52:43.039Z",
+      "cancelReason": "reopen so epoch requiredLanes picks up the persisted forced behavior lane after the F-091 fix",
+      "terminalRunSequenceBoundary": 377,
+      "_hash": "bbd095e5bd6eb8bdab7c54ecd47267c91ff59a17336729c8caf902d4bc67a056"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-031",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-16T11:52:43.812Z",
+      "updatedAt": "2026-08-16T11:52:55.721Z",
+      "cutoff": {
+        "headHash": "28dfeee0371f1811eb39b66209f35af3fcc966e9",
+        "materialHash": "7dfb770fe81abe55a59a600cb94d0dbdeddf1a0acd8999373038365719c251e1",
+        "storyFilesHash": "526e82caaedc9dd2b750ce7361c5b4bdb7a784f9b4555c865bac3e52f4b90e02"
+      },
+      "scopeDigest": "78f939dde5a5c718e24dcb2328ba71508bbe09abc8a0dd4e4c2a632e9c18ac78",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 377,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-3f3d:F-091"
+      ],
+      "cancelledAt": "2026-08-16T11:52:55.721Z",
+      "cancelReason": "mutation check that the persisted forced-lane replay is load-bearing for epoch scope",
+      "terminalRunSequenceBoundary": 377,
+      "_hash": "2344e72fc469ad1500967fb182fd50daa01ee2f57c1f3b74ad47f2113b07fd21"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-032",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-16T11:52:56.515Z",
+      "updatedAt": "2026-08-16T11:52:57.905Z",
+      "cutoff": {
+        "headHash": "28dfeee0371f1811eb39b66209f35af3fcc966e9",
+        "materialHash": "7dfb770fe81abe55a59a600cb94d0dbdeddf1a0acd8999373038365719c251e1",
+        "storyFilesHash": "526e82caaedc9dd2b750ce7361c5b4bdb7a784f9b4555c865bac3e52f4b90e02"
+      },
+      "scopeDigest": "78f939dde5a5c718e24dcb2328ba71508bbe09abc8a0dd4e4c2a632e9c18ac78",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 377,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-3f3d:F-091"
+      ],
+      "cancelledAt": "2026-08-16T11:52:57.905Z",
+      "cancelReason": "restore after mutation check; reopen with the corrected forced-lane replay in effect",
+      "terminalRunSequenceBoundary": 377,
+      "_hash": "a0c6f1a3dcdb0a5efadf4433f3804b08e0e83e588aa88b3054d4c303b7c69fa5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-033",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-16T11:52:58.681Z",
+      "updatedAt": "2026-08-16T11:52:58.681Z",
+      "cutoff": {
+        "headHash": "28dfeee0371f1811eb39b66209f35af3fcc966e9",
+        "materialHash": "7dfb770fe81abe55a59a600cb94d0dbdeddf1a0acd8999373038365719c251e1",
+        "storyFilesHash": "526e82caaedc9dd2b750ce7361c5b4bdb7a784f9b4555c865bac3e52f4b90e02"
+      },
+      "scopeDigest": "78f939dde5a5c718e24dcb2328ba71508bbe09abc8a0dd4e4c2a632e9c18ac78",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 377,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-3f3d:F-091"
+      ],
+      "_hash": "5428613760b455fbeb59e28ac805f1238489fad977be2106e032ebfbb934e180"
     }
   ],
   "receipts": [

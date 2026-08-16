@@ -155,12 +155,24 @@ export function computeActiveReviewers(
 
   // forced override: command-line --forceReviewer=a,b,c explicitly mounts (input already constrained to lanes supported by review_run_start)
   // Auto reviewers with the same name will be overridden to reason='forced' + forced=true
-  if (forced && forced.length > 0) {
-    for (const f of forced) {
-      const name = String(f).trim();
-      if (!name) continue;
-      map.set(name, { name, reason: 'forced', forced: true });
-    }
+  //
+  // B-3f3d F-091: a force is an OPERATOR DECISION about review coverage, so it must
+  // outlive the single reviewer_list invocation that carried the flag. Only that one
+  // call site passes `forced`; every gate-facing consumer (canPassReviewGuard,
+  // captureReviewInventoryScope's epoch requiredLanes, quorum-submit, transition
+  // effects, reviewer-status, lifecycle-readiness) calls without it. Replaying the
+  // durable `reviewer_forced` events here makes all of them inherit the decision,
+  // honouring review-inventory-epoch-and-saturation-gate.md ("forced lanes remain
+  // selected") and stopping a DEV round-trip from silently dropping a lane that was
+  // mounted precisely because auto-routing missed it.
+  const persistedForced = ((story as Partial<Pick<StoryInfo, 'events'>>).events ?? [])
+    .filter(event => Boolean(event) && (event as { action?: string }).action === 'reviewer_forced')
+    .map(event => String((event as { reviewer?: string }).reviewer ?? '').trim())
+    .filter(name => name.length > 0);
+  for (const f of [...persistedForced, ...(forced ?? [])]) {
+    const name = String(f).trim();
+    if (!name) continue;
+    map.set(name, { name, reason: 'forced', forced: true });
   }
 
   // F-002: fixed baseline-first order rather than alphabetical. Supported forced names that are not auto-enabled are appended at the end.
