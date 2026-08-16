@@ -487,16 +487,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-005:happy:0",
-          "kind": "manual_transcript",
-          "command": "node packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "kind": "waiver",
+          "waiverType": "permanent",
           "result": "pass",
-          "note": "Both RED scripts run without crashing due to any bug in the RED script itself; the failure observed is the intended, well-formed defect-still-present assertion, not a raw JS error.",
-          "mechanical": false,
-          "nonMechanicalReason": "A RED harness has inverted pass/fail semantics vs this tool convention: post-fix, the script correctly exits non-zero (its own defect-still-present assertion fails), which this tool would mechanically derive as a failing receipt via plain exit-code convention. Manually re-ran both red-B-new-concurrent-done-race.mjs and red-B-new-retired-channel-lane.mjs directly against the current dist build moments earlier in this session and observed exactly that: each printed AssertionError RED: <target> is expected to fail (still exhibits the pre-fix defect) and exited 1, confirming both are clean, non-crashing scripts.",
-          "headHash": "52fa1e66e53afb57e845d7180f537fd800609e79",
+          "note": "A RED harness has inverted pass/fail semantics vs this tool exit-code convention: post-fix, red-B-new-concurrent-done-race.mjs and red-B-new-retired-channel-lane.mjs correctly exit non-zero (their own defect-still-present assertion fails), which this tool would mechanically derive as a failing receipt via plain exit-code convention -- not a genuine failure. Manually re-ran both directly against the current dist build moments earlier in this session: each printed a clean AssertionError RED: <target> is expected to fail (still exhibits the pre-fix defect) and exited 1, confirming both are well-formed, non-crashing scripts with no bug of their own.",
+          "headHash": "b660a2bca5b31f05ca8a366b4092c3dcf65eeae1",
           "materialHash": "bf031be79bd6883b1568b65641b70d661d77111769d52ed8499a635c81e8ed1d",
           "storyFilesHash": "bddb83e47b59c444162d6a6f82f82ec29544dbf63fb49980d89dc05006ed1139",
-          "timestamp": "2026-08-16T12:40:36.180Z"
+          "timestamp": "2026-08-16T12:41:10.324Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
