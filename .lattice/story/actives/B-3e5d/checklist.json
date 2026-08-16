@@ -247,7 +247,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertDoneMergeCleansMainUntrackedReviewPasses's DONE-ready fixture loops over all three opt-in lanes (lattice-review-quality, lattice-review-concept, lattice-review-test-coverage), each with a real review_run_start-bound review_pass_set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dev_memory_finish_decision is called before story_advance --phase=DONE in the fixture, matching the B-a7c5 dev-memory lifecycle gate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Omitting any one of the three lanes would reproduce 'Expected 3 reviewers ... Covered N/3' (review_lane_missing) -- this was the actual failure observed and fixed during this story's own investigation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
