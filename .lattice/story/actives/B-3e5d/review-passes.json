@@ -66,6 +66,34 @@
         "scanEscalationReason": null
       },
       "_hash": "3959322b4cfc76742dc872691119edccd23329a575e62ac3053684b9518fc22e"
+    },
+    {
+      "id": "B-3e5d:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-confirmation of the F-001 revert (commit 023a09f932): grepped transition-orchestrator.ts for transitionLockRoot post-revert (zero code residue, only historical mentions remain in checklist.json context / plan.md CORRECTED note, which is expected documentation not code residue). Confirmed acquireStoryTransitionLock(ctx.root, args.storyId) call matches pre-story behavior exactly (diff vs main shows only comment additions + the CHK-002 StoryArtifactMissingError translation as net behavioral change). Confirmed detectDoneStoryWorktreeContext, resolveSharedLockRoot, sanitizeLockSegment, existsSync remain genuinely used elsewhere in the file (not orphaned imports). Empirically re-verified storyTransitionLockPath(worktreePath, id) === storyTransitionLockPath(mainRepoRoot, id) via node -e against the built dist, confirming the no-op premise. Ran tsc --noEmit -p packages/main/tsconfig.json (clean), worktree-authority-smoke.js (pass), field-regression-cli-smoke.js (pass), red-B-new-concurrent-done-race.mjs (exits 1 as expected post-fix, confirming CHK-002 alone resolves the race). No duplicate/orphaned concept introduced by the revert.",
+      "createdAt": "2026-08-16T13:18:56.540Z",
+      "reviewRound": "2026-08-16T13:05:43.588Z",
+      "reviewRunId": "B-3e5d:RR-006",
+      "envelopeId": "a9d5ad35832d9017432d84a76836e6a026679aefa7c265a2a62433cf079fb66c",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58d69b322dcb5389d4b20a1a4bfd14742c37d5c88f11506eb8807ba9db619506"
     }
   ]
 }
