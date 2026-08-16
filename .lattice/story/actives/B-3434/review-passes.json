@@ -606,6 +606,33 @@
         "scanEscalationReason": null
       },
       "_hash": "ee26222dd806b444175d9836e92593e8e76d2851fdbdf579f10ab61e56f9ec47"
+    },
+    {
+      "id": "B-3434:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-binds RP-020 after a storyFilesHash move caused by a dev-memory bookkeeping commit (dev_memory_capture/dev_memory_finish_decision writing .lattice/dev-memory/experience.jsonl + finish-decisions/B-3434.json), with zero source change. (1) Verified emptiness myself: git diff 00c534aea0 HEAD --stat -- . ':(exclude).lattice' is empty at every HEAD I checked, including the final HEAD (eae572023c) after other lanes' concurrent re-binding commits landed; git log 00c534aea0..HEAD shows only lattice bookkeeping commits (quorum-submit, validate, test-transition, done_required_validate, delivery_check_set, dev_memory_finish_decision, review_pass_set from sibling lanes, REVIEW-phase metadata). (2) 24 pinned checklist selectors independently re-extracted from checklist_get (CHK-001..CHK-005, happy+edge+adversarial) and containment-tested against fresh real output of both bound commands, executed directly: 23/24 matched; sole miss is the pre-existing permanent waiver CHK-005:edge:0 ('artifact (1212174 bytes) is unbounded and silent'), identical to RP-020's figure. verification_evidence_refresh_stale, run for real (not assumed): first invocation reported exactly the storyFilesHash-move symptom predicted in the dispatch -- all 23 non-waived pinned items (CHK-001 through CHK-005, excluding the waived CHK-005:edge:0) were stale, each bound to headHash e2ba9e7 (the commit immediately preceding this round's REVIEW-metadata commit), and it refreshed 23/23 cleanly (auto-committed as 1d77923afb). A second dry-run invocation immediately after confirmed 'No stale verification evidence for B-3434'. This is exactly the one thing flagged as most likely to have genuinely moved, and it had moved (a hash-pin staleness, not a content divergence -- my own independent containment re-check above, run before the refresh, already showed the underlying command output was unchanged). (3) Registration guards re-run fresh at current HEAD: red-b49d4-harness-registration.mjs -> OK, 43 tests/red entries, 35 registered + 8 excluded with a stated reason, exit 0. red-b49d4-registration-derivation.mjs -> 0 RED / 26 GREEN, exit 0, including the newcomer-target-set completeness and blindness-mirror checks. Both of this story's harnesses confirmed still registered in lattice.config.json validate.commands: validation-evidence-buffer-smoke.js at line 62, red-b3434-blob-buffer-ceiling.mjs at line 125 (grep-confirmed). (4) Real output, both commands executed directly at current worktree HEAD: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> exit 0, all assertions PASS including the over-ceiling ENOBUFS diagnostic, absent-vs-unreadable distinction, silent-hook and talking-hook cases, ending 'red-b3434-blob-buffer-ceiling: PASS'. node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> exit 0, all 20 assertions PASS including the four-disposition property, the CHK-004 outcome-B disposition line (rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205, findingIdsNamed includes B-3434:F-001,F-033..F-037), ending 'validation-evidence-buffer-smoke: PASS'. (5) finding_list re-checked: all 41/41 findings remain status=resolved; no new findings surfaced by the bookkeeping commits. No blocker found.",
+      "createdAt": "2026-08-16T04:05:54.210Z",
+      "reviewRound": "2026-08-16T03:58:30.355Z",
+      "reviewRunId": "B-3434:RR-053",
+      "envelopeId": "bab5d2b856a557652702d0e34c56bdd457bcb1494d7a28ae3cf53f9a383de781",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/delivery-check.json",
+          ".lattice/story/actives/B-3434/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/review-runs.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "453f5eac0e32d3e99c470216cc32e56e57f36757eef0fc45ddbeceec114da366"
     }
   ]
 }
