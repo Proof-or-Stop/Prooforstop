@@ -6530,7 +6530,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:180-183 states the frozen acceptance-subject scope digest \"includes checklist context, status, related docs, user-visible claims, exclusions, file routing, verification intents/evidence, and the frozen claim snapshot\" -- listing verification evidence as flatly bound alongside literal fields. After f8e5a077f3 (F-099 fix), reviewInventoryAcceptanceSubjectDigest binds verificationEvidence only through the new evidenceSemantics projection, which deliberately excludes headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt (a pure evidence re-pin no longer changes the digest). The doc sentence is now inaccurate/overclaiming: it does not distinguish semantic evidence content (bound) from freshness pins (excluded), unlike the doc's own more precise phrasing elsewhere (line 278 \"semantic ProofStory contract\"). Line 182 should be updated to say verification intents/evidence semantics (excluding freshness pins/timestamps), mirroring the ProofStory wording, so the doc does not contradict shipped behavior.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-16T14:22:22.493Z",
@@ -6565,7 +6565,9 @@
         "packages/main/src/core/review-inventory-epoch.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed and fixed. This was a doc-sync obligation I should have handled in the same commit as the F-099 code change and did not — the concept and docs lanes independently identified the same sentence. Verified the drift directly: review-inventory-epoch-and-saturation-gate.md listed verification intents/evidence as a flat unqualified inclusion in the acceptance subject, which stopped being true once reviewInventoryAcceptanceSubjectDigest began binding evidence only through the evidenceSemantics projection. Rewrote that passage to state what is now actually bound: evidence is bound by what a verifier OBSERVED (intentRef, kind, file, command, result, note, mechanical, and receipt.exitCode / outputDigest / outputTail / selectorMatched) and deliberately NOT by its freshness pins (headHash, materialHash, storyFilesHash, timestamp, receipt.executedAt); a pure verification_evidence_refresh_stale re-pin therefore no longer moves the digest or invalidates an OPEN epoch on scope grounds, while a refresh that changes an observed result, command or captured output still does. Also noted it mirrors the same semantic-content-not-bookkeeping rule the doc already applies to the ProofStory contract, which is the precise phrasing the finding pointed at. Ran node scripts/verify-process-fact-contract.mjs to confirm the doc-contract checks still pass. On the separate question the finding did not raise but I had asked this lane: it judged that keeping withoutVolatileTimestamps and evidenceSemantics as two sibling helpers rather than unifying them was the right call, since they operate on structurally different shapes and a shared abstraction would add indirection without removing real duplication; no change made there.",
+      "resolvedAt": "2026-08-16T14:23:05.177Z"
     }
   ]
 }
