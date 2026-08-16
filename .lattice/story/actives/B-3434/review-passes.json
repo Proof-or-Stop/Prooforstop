@@ -581,6 +581,31 @@
         "scanEscalationReason": null
       },
       "_hash": "009cf52c012d6e07d7b2a21899e3eb3becf61d4d3c8410aec6d7811baad57cae"
+    },
+    {
+      "id": "B-3434:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Re-binding round, not re-audit. (1) Verified emptiness myself: git diff 00c534aea0 HEAD --stat -- . ':(exclude).lattice' is empty; all 13 intervening commits are lattice bookkeeping (quorum-submit/validate/test-transition/done_required_validate/delivery_check_set/dev_memory_finish_decision/scope_contract_acknowledge/phase transitions). This re-binds RP-021 (SHIPPABLE) after a storyFilesHash move caused solely by a dev-memory bookkeeping commit (.lattice/dev-memory/experience.jsonl + finish-decisions/B-3434.json), with zero source change; my RP-021 conclusions (boundEvidence(hashes) computed once, all three write sites gating on !withinBound||record===null with no cast, F-039 comment naming B-3434:F-037, VALIDATION_EVIDENCE_SCALAR_CHAR_CAP intact) stand unchanged. (2) Judged the scope_contract_acknowledge for .lattice/dev-memory/experience.jsonl: concur it is an honest classification of a lifecycle-required process artifact, not a code-scope expansion. Verified independently: the DONE gate's dev_memory_finish_decision(decision=captured) chain genuinely requires prior dev_memory_capture --scope=project output; core/dev-memory.ts writes scope=project entries only to <projectRoot>/.lattice/dev-memory/experience.jsonl, a single file shared across every story (not story-namespaced), so no individual story's allowedModify set could ever legitimately name it. Confirmed the six experience.jsonl entries added by commit 78ff625392 (ffd0cc9, bf1ab72, dbf15c3, cde49d9, d4df7c1, 906d3df) all carry sourceStoryId=B-3434 and match every lesson enumerated in the acknowledgement's reason text (claim-wider-than-code/derive-not-remember, pre-committed stopping rule, cross-vendor 4-round catch, validate-suite 900s watchdog margin, wired-vs-passes-by-hand harness registration, hot-main storyFilesHash cascade) -- non-fabricated, on-topic, non_authoritative/gateEvidence:false. The 'no source/config/test/doc file touched' claim is independently true per the diff check above. Flagging one thing as worth filing separately, not as a B-3434 blocker: core/runtime-artifact-registry.ts registers '.lattice/dev-memory/finish-decisions/' with materialHash:'exclude' (added for this exact failure mode under B-a7c5 F-005, per its own comment) but has no equivalent entry for its sibling '.lattice/dev-memory/experience.jsonl' -- that asymmetry is the mechanical reason this round exists at all (finish-decisions/B-3434.json is excluded from storyFilesHash, experience.jsonl is not), and the same class of failure already recurred once before being fixed for the other file. Minor, non-blocking observation also noted: finish-decisions/B-3434.json's capturedEntryIds is [] despite 6 matching entries existing -- record-hygiene only, no gate consumes it (gateEvidence:false). (3) Cheap re-checks, all green from this worktree: npx tsc --noEmit -p packages/main exit 0 clean; node scripts/verify-process-fact-contract.mjs -> 'Process fact contract verified' exit 0; node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> all asserts PASS exit 0; node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> all asserts PASS including CHK-004 outcome-B disposition check, exit 0. Verdict: SHIPPABLE, re-bound.",
+      "createdAt": "2026-08-16T04:04:25.032Z",
+      "reviewRound": "2026-08-16T03:58:30.355Z",
+      "reviewRunId": "B-3434:RR-052",
+      "envelopeId": "ce10ec58b52b45a9cbc0c03461a084c35c05740c040ccbd86e7f46215d31b252",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/playbook-runtime-memory.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/playbook-runtime-memory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee26222dd806b444175d9836e92593e8e76d2851fdbdf579f10ab61e56f9ec47"
     }
   ]
 }
