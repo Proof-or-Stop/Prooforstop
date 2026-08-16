@@ -5401,6 +5401,38 @@
       ],
       "signatureTag": "missing|ts|wave-acceptance-gate",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-088",
+      "desc": "Reviewer opt-in routing mounted no lattice-review-behavior lane on this story despite its substance being centrally a state machine / guard / gate: CHK-001 encodes a signed epoch state (frozen review-inventory epoch, states OPEN/FINALIZED/INVALIDATED/CANCELLED), CHK-002 is explicitly an OPEN-epoch material mutation barrier (a guard) enforced at every authoritative write boundary, CHK-003/CHK-004 are gate-consumed process facts and gate wiring for the remediation-DEV and final-review transitions, and CHK-006 is a post-remediation impact closure state machine. The mounting rule in packages/main/src/handlers/reviewer-list.ts (BEHAVIOR_TRIGGERS = ['state machine','guard','gate']) matches only against story.riskSignals[].category, a coarse auto-detected label; this story's only recorded riskSignal category is 'Validation Framework' (matched keyword 'verifier'), even though the checklist context text itself literally contains the word 'gate' in CHK-001, CHK-004, and CHK-005 (verified by direct grep of checklist_get output). No dismissal record exists for a gate/guard/state-machine riskSignal category (index.json riskSignals array has exactly one entry, 'Validation Framework'/'verifier'; no story_review_dismiss event). The four active lanes (concept, quality, test-coverage, docs) never independently exercised state-transition adversarial scenarios (e.g. concurrent OPEN-epoch mutation attempts across two writers, wave-advance racing epoch finalize, invalidate-after-finalize ordering) as their primary lens; their opt-in conditions are baseline/touchpoint-driven, not state-machine-adversarial. This is a genuine discovery-lens completeness hole, not a routing-rule satisfaction: the routing mechanism keys off an auto-detected keyword category rather than the actual checklist/description content, so a story whose entire subject matter is a guard+gate+state-machine can silently route around the one lane built to adversarially probe exactly that.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-16T11:00:15.844Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-373",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea4d1fb749f3333cbc7640dbb859aabc442c98fb24835c0c95f784d119177bb6",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/core/prewrite-guard.ts",
+        ".lattice/story/actives/B-3f3d/index.json",
+        ".lattice/story/actives/B-3f3d/checklist.json"
+      ],
+      "signatureTag": "missing|ts|behavior-lane-routing-gap",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
