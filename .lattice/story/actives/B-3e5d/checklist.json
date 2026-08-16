@@ -143,7 +143,11 @@
           {
             "desc": "The loser's store.readStory throws StoryArtifactMissingError while ctx.root no longer exists on disk (worktree deleted by the winner); the loser's stderr contains 'a concurrent DONE transition ... already completed and removed it' instead of a raw 'File not found' stack trace",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+              "selector": "worktree authority smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -173,6 +177,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:08:08.933Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: assertConcurrentDoneSerializesWithoutPartialDone asserts the loser's stderr matches a benign explanation pattern (DONE main merge lock is held / main write lock is held / DONE), which the clean translation message satisfies, confirmed by the suite passing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5bea47a3fb7b1959ab5cb87b9a969fd8321f259fb88a1e1c06f6241c2127f5e7",
+            "outputTail": "✓ worktree authority smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:09:45.994Z"
+          },
+          "headHash": "e055efe8149301d450c960d07c9a4b1a2ade4cfa",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:09:46.280Z"
         }
       ]
     },
