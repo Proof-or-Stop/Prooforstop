@@ -124,7 +124,37 @@
       "context": "field-regression-cli-smoke.ts assertPassOnlyFindingConvertsToReviewPassCliSurface: swap the RP-004 case from lattice-review-channel to lattice-review-test-coverage (start a real review_run_start for that lane), matching finding wording to the PASS_ONLY_REVIEW_FINDING_POLICY pattern so the conversion behavior under test is still exercised.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real review_run_start for lattice-review-test-coverage returns a reviewRunId, and the RP-004 finding_add call with matching pass-only wording converts to a recorded review pass attributed to lattice-review-test-coverage",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The RP-004 desc text 'Test coverage review passed: no findings.' matches PASS_ONLY_REVIEW_FINDING_POLICY's wording heuristic so the conversion actually fires (verified previously by testing that a non-matching desc silently became a Finding instead)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No lingering reference to lattice-review-channel remains anywhere in assertPassOnlyFindingConvertsToReviewPassCliSurface after the swap",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
