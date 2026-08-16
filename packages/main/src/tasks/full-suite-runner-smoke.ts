@@ -392,6 +392,58 @@ async function main(): Promise<void> {
     assertWithDetail(pidReuseResult.status === 'PASS' && !foreignReuseSignalled, 'historical PID reuse cannot contaminate ownership or signal a foreign process group', `${pidReuseResult.status}/${foreignReuseSignalled}: ${pidReuseResult.reason ?? 'no reason'}`);
     assertWithDetail(!pidIsAlive(reuseOwnedPid), 'PID reuse reconciliation still removes the genuinely owned detached descendant', `live PID ${reuseOwnedPid}`);
 
+    const birthReusePidPath = join(root, 'birth-reuse.pid');
+    const birthOwnedPidPath = join(root, 'birth-owned.pid');
+    const birthOwnedProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(birthOwnedPidPath)},String(process.pid));setInterval(()=>{},1000)`;
+    const birthShortProgram = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(birthReusePidPath)},String(process.pid));setTimeout(()=>{},80)`;
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');spawn(process.execPath,['-e',${JSON.stringify(birthShortProgram)}],{stdio:'ignore'});const owned=spawn(process.execPath,['-e',${JSON.stringify(birthOwnedProgram)}],{detached:true,stdio:'ignore'});owned.unref();for(let i=0;i<100&&(!fs.existsSync(${JSON.stringify(birthReusePidPath)})||!fs.existsSync(${JSON.stringify(birthOwnedPidPath)}));i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(birthReusePidPath)})||!fs.existsSync(${JSON.stringify(birthOwnedPidPath)}))process.exit(2);Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,250);\n`);
+    let capturedBirthTarget = false;
+    let injectedForeignBirth = false;
+    let foreignBirthSignalled = false;
+    const foreignBirthAlive = true;
+    const foreignBirthPgid = 876_543;
+    // Latched once the short-lived owned child is first observed, so signal/probe
+    // compare against a stable number instead of re-reading the pid file (an
+    // unconditional read throws ENOENT before the child writes it and would be
+    // recorded as a lifecycle error rather than exercising the reuse path).
+    let birthReusedPid = 0;
+    const birthReuseAdapter: ProcessLifecycleAdapter = {
+      ...DEFAULT_PROCESS_LIFECYCLE_ADAPTER,
+      inspect: () => {
+        const rows = DEFAULT_PROCESS_LIFECYCLE_ADAPTER.inspect().map(row => ({ ...row, birthIdentity: `native:${row.pid}` }));
+        const reusedPid = birthReusedPid || (existsSync(birthReusePidPath) ? Number(readFileSync(birthReusePidPath, 'utf8')) : 0);
+        if (reusedPid > 0 && rows.some(row => row.pid === reusedPid)) {
+          capturedBirthTarget = true;
+          birthReusedPid = reusedPid;
+        }
+        // The exact PID we already captured has exited; re-present that same
+        // number carrying a different birth identity, which is precisely the
+        // PID-reuse case a numeric-only ownership key cannot detect.
+        if (capturedBirthTarget && reusedPid > 0 && !rows.some(row => row.pid === reusedPid)) {
+          injectedForeignBirth = true;
+          rows.push({ pid: reusedPid, ppid: 1, pgid: foreignBirthPgid, birthIdentity: `foreign:${reusedPid}` });
+        }
+        return rows;
+      },
+      signal: (pid, signal) => {
+        if (injectedForeignBirth && (pid === birthReusedPid || pid === -foreignBirthPgid)) {
+          foreignBirthSignalled = true;
+          return;
+        }
+        DEFAULT_PROCESS_LIFECYCLE_ADAPTER.signal(pid, signal);
+      },
+      probe: (pid) => injectedForeignBirth && pid === birthReusedPid
+        ? foreignBirthAlive
+        : DEFAULT_PROCESS_LIFECYCLE_ADAPTER.probe(pid),
+    };
+    const birthReuseResult = await runEntry(entry('test:birth-identity-reuse'), root, process.execPath, undefined, { adapter: birthReuseAdapter, retryIntervalMs: 10 });
+    const birthOwnedPid = Number(readFileSync(birthOwnedPidPath, 'utf8'));
+    if (pidIsAlive(birthOwnedPid)) { try { process.kill(-birthOwnedPid, 'SIGKILL'); } catch { try { process.kill(birthOwnedPid, 'SIGKILL'); } catch {} } }
+    assertWithDetail(capturedBirthTarget, 'birth identity fixture first captures the short-lived owned child by PID', `short PID was never observed from ${birthReusePidPath}`);
+    assertWithDetail(injectedForeignBirth, 'birth identity fixture re-presents that exact captured PID with a foreign birth identity', `captured PID ${birthReusedPid} never vanished before terminal reconciliation`);
+    assertWithDetail(birthReuseResult.status === 'PASS' && !foreignBirthSignalled, 'reused numeric PID with a new birth identity is permanently revoked before any signal', `${birthReuseResult.status}/${foreignBirthSignalled}: ${birthReuseResult.reason ?? 'no reason'}`);
+    assertWithDetail(!pidIsAlive(birthOwnedPid), 'birth identity revocation still converges cleanup of genuinely owned descendants', `live PID ${birthOwnedPid}`);
+
     const lifecycleFixture = async (label: string, adapter: ProcessLifecycleAdapter, cleanupBudgetMs = 500) => {
       const pidPath = join(root, `${label}.pid`);
       const program = `const fs=require('fs');fs.writeFileSync(${JSON.stringify(pidPath)},String(process.pid));setInterval(()=>{},1000)`;

@@ -355,7 +355,7 @@ export function killProcessTree(pid: number | undefined, kill: Kill = process.ki
   }
 }
 
-export interface ProcessRow { pid: number; ppid: number; pgid: number }
+export interface ProcessRow { pid: number; ppid: number; pgid: number; birthIdentity?: string }
 export interface ProcessLifecycleAdapter {
   inspect(): ProcessRow[];
   signal(pid: number, signal: NodeJS.Signals): void;
@@ -370,11 +370,34 @@ const TERMINATION_VERIFY_TIMEOUT_MS = 2_000;
 const TERMINATION_VERIFY_INTERVAL_MS = 20;
 const PROCESS_INSPECTION_TIMEOUT_MS = 500;
 
+/**
+ * `lstart` is the per-process birth wall-clock and is the portable birth fact
+ * that distinguishes a reused numeric PID from the PID we originally captured.
+ * It is requested LAST because its value contains spaces: the first three
+ * whitespace-separated tokens are the numeric columns and the entire remainder
+ * of the line is the birth identity, so a positional split never mis-attributes
+ * a date fragment to a numeric column.
+ */
+export function parseProcessRows(output: string): ProcessRow[] {
+  const rows: ProcessRow[] = [];
+  for (const line of output.split(/\r?\n/)) {
+    const match = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\S.*?)\s*$/.exec(line);
+    if (!match) continue;
+    const pid = Number(match[1]);
+    const ppid = Number(match[2]);
+    const pgid = Number(match[3]);
+    const birthIdentity = match[4].replace(/\s+/g, ' ');
+    if (!Number.isInteger(pid) || pid <= 0 || !Number.isInteger(ppid) || !Number.isInteger(pgid)) continue;
+    if (!birthIdentity) continue;
+    rows.push({ pid, ppid, pgid, birthIdentity });
+  }
+  return rows;
+}
+
+const PROCESS_INSPECTION_FIELDS = 'pid=,ppid=,pgid=,lstart=';
+
 function readProcessRows(): ProcessRow[] {
-  return execFileSync('ps', ['-axo', 'pid=,ppid=,pgid='], { encoding: 'utf8', timeout: PROCESS_INSPECTION_TIMEOUT_MS }).split(/\r?\n/).map(line => {
-    const [pid, ppid, pgid] = line.trim().split(/\s+/).map(Number);
-    return { pid, ppid, pgid };
-  }).filter(row => Number.isInteger(row.pid) && row.pid > 0 && Number.isInteger(row.ppid) && Number.isInteger(row.pgid));
+  return parseProcessRows(execFileSync('ps', ['-axo', PROCESS_INSPECTION_FIELDS], { encoding: 'utf8', timeout: PROCESS_INSPECTION_TIMEOUT_MS }));
 }
 
 function signalIgnoringMissing(pid: number, signal: NodeJS.Signals): void {
@@ -391,8 +414,24 @@ export const DEFAULT_PROCESS_LIFECYCLE_ADAPTER: ProcessLifecycleAdapter = Object
   },
 });
 
+/**
+ * Ownership is keyed on (pid, birthIdentity), never on the bare numeric PID.
+ * If a captured PID is later observed carrying a different birth identity the
+ * kernel has recycled that number onto an unrelated process, so ownership of
+ * that number is permanently revoked: it is dropped from the captured set, is
+ * never re-adopted (not even as the root row), is never signalled, and never
+ * counts as a live termination target. Rows whose birth identity is unknown on
+ * both sides fall back to numeric identity so adapters that do not report a
+ * birth fact keep their previous behaviour.
+ */
+function birthIdentityMatches(captured: ProcessRow, observed: ProcessRow): boolean {
+  if (captured.birthIdentity === undefined || observed.birthIdentity === undefined) return true;
+  return captured.birthIdentity === observed.birthIdentity;
+}
+
 class ProcessTreeLifecycle {
   private readonly known = new Map<number, ProcessRow>();
+  private readonly revoked = new Set<number>();
   private readonly errors: Error[] = [];
   private monitor: ReturnType<typeof setInterval> | undefined;
   private terminating = false;
@@ -410,17 +449,37 @@ class ProcessTreeLifecycle {
 
   private record(error: unknown): void { this.errors.push(error as Error); }
 
+  /**
+   * Revoke every captured PID whose currently observed birth identity differs
+   * from the one we captured. Revocation is permanent so a later inspection
+   * cannot re-adopt the recycled number.
+   */
+  private revokeReusedPids(rows: readonly ProcessRow[]): void {
+    for (const row of rows) {
+      const captured = this.known.get(row.pid);
+      if (!captured || birthIdentityMatches(captured, row)) continue;
+      this.known.delete(row.pid);
+      this.revoked.add(row.pid);
+    }
+  }
+
   private capture(): number {
     const rows = this.adapter.inspect();
+    this.revokeReusedPids(rows);
     const before = this.known.size;
     this.ownPgid = rows.find(row => row.pid === process.pid)?.pgid ?? this.ownPgid;
     const root = rows.find(row => row.pid === this.rootPid);
-    if (root) this.known.set(root.pid, root);
-    const activeParents = new Set(rows.filter(row => this.known.get(row.pid)?.pgid === row.pgid).map(row => row.pid));
+    // The root row is adopted on the same (pid, birthIdentity) terms as any
+    // descendant: a recycled root PID must not be re-adopted.
+    if (root && !this.revoked.has(root.pid)) this.known.set(root.pid, root);
+    const activeParents = new Set(rows.filter(row => {
+      const captured = this.known.get(row.pid);
+      return captured !== undefined && captured.pgid === row.pgid && birthIdentityMatches(captured, row);
+    }).map(row => row.pid));
     let changed = true;
     while (changed) {
       changed = false;
-      for (const row of rows) if (activeParents.has(row.ppid) && !activeParents.has(row.pid)) {
+      for (const row of rows) if (activeParents.has(row.ppid) && !activeParents.has(row.pid) && !this.revoked.has(row.pid)) {
         this.known.set(row.pid, row);
         activeParents.add(row.pid);
         changed = true;
@@ -453,7 +512,7 @@ class ProcessTreeLifecycle {
     let allSucceeded = true;
     const groups = new Map<number, number[]>();
     for (const row of this.known.values()) {
-      if (row.pgid <= 0) continue;
+      if (row.pgid <= 0 || this.revoked.has(row.pid)) continue;
       const members = groups.get(row.pgid) ?? [];
       members.push(row.pid);
       groups.set(row.pgid, members);
@@ -483,9 +542,16 @@ class ProcessTreeLifecycle {
     // unreaped zombies on macOS. The stable frozen snapshots above guarantee
     // that every owned group member is captured, so captured PIDs are the
     // portable terminal-liveness authority; PGIDs remain termination targets.
+    // Re-check birth identity first: a captured PID that has been recycled onto
+    // an unrelated process must be revoked here rather than probed as "live"
+    // and then SIGKILLed. Inspection failure is not treated as revocation, so a
+    // transient ps failure can never silently drop a genuinely owned child.
+    try { this.revokeReusedPids(this.adapter.inspect()); }
+    catch (error) { this.record(error); }
     const ids = new Set<number>(this.known.keys());
     const live: number[] = [];
     for (const id of ids) {
+      if (this.revoked.has(id)) continue;
       try { if (this.adapter.probe(id)) live.push(id); }
       catch (error) { this.record(error); live.push(id); }
     }
