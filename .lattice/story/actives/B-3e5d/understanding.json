@@ -1,0 +1,28 @@
+{
+  "task": "Fix a raw-crash concurrent-DONE-race in story_advance and remove a retired review-lane reference from field-regression-cli-smoke.ts",
+  "outcome": "Terminal transcript for the concurrent-DONE-race fix: two operators run 'lattice story_advance --phase=DONE' on the same story from the same worktree at the same time. One prints 'Story B-xxxx advanced to DONE'. The other now prints 'Cannot advance B-xxxx to DONE: this worktree no longer exists -- a concurrent DONE transition for B-xxxx already completed and removed it. Retry from main.' and exits non-zero -- never a raw 'Error: File not found: .../index.json' stack trace. Terminal transcript for the channel-lane fix: running 'lattice reviewer_list --storyId=B-xxxx --forceReviewer=channel' prints an error containing 'forceReviewer channel is not supported by review_run_start' and exits non-zero, and 'node packages/main/dist/tasks/field-regression-cli-smoke.js' prints '✓ field regression CLI smoke passed' end-to-end with no reference to the retired lane.",
+  "facts": [
+    "transitionLock in transition-orchestrator.ts was rooted at ctx.root, which for a worktree-invoked story_advance is the worktree path itself; a winning DONE deletes that whole worktree as part of cleanup, including any lock directory living under it",
+    "ctx.store is bound to ctx.root at CLI bootstrap, before the transition lock is ever acquired, so even a correctly-rooted lock does not protect the loser reading story.readStory(args.storyId) once the worktree it was invoked from no longer exists",
+    "StoryArtifactMissingError is intentionally not exported from core/store.ts; existing code in transition-orchestrator.ts already matches it by e.name (duck-typing), not by imported class, at the reconcileReopenAuditBeforeOutOfBandPhaseChange call site",
+    "prompt-role-contract-registry.ts hard-asserts lattice-review-channel is status:retired and defaultDispatch:false at registry-construction time; isPromptRoleEligibleForReviewEvidence therefore always returns false for it",
+    "PASS_ONLY_REVIEW_FINDING_POLICY in flow-fact-policy.ts already lists channel alongside concept/quality/test-coverage in its wording regex, confirming it was a legitimate lane historically, before being structurally retired",
+    "finding_add requires readManifest whenever its desc text matches a pass-only wording pattern; a hand-crafted review pass without a valid _hash and reviewRunId fails validateEvidenceRunBinding's signature and binding checks",
+    "DONE for this project requires the full opt-in 3-lane review-assurance-floor quorum (concept, quality, test-coverage), not a single lane",
+    "Both fixes were already implemented, RED-then-GREEN verified standalone in the main checkout before this story existed: worktree-authority-smoke.js and field-regression-cli-smoke.js both now pass end-to-end, and both new RED scripts (red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs) correctly report their target defect is gone"
+  ],
+  "constraints": [
+    "No changes to prompt-role-contract-registry.ts or flow-fact-policy.ts -- both are already correct; the smoke test was asserting stale behavior against them",
+    "No broader refactor of the DONE lifecycle, review-run binding, or reviewer-lane registry beyond the two defects in scope",
+    "Preserve the existing narrow-catch-by-e.name pattern for StoryArtifactMissingError rather than exporting the class"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "timestamp": "2026-08-16T11:45:29.978Z"
+}
