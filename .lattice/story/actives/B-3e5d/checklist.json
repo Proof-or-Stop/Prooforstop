@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Root the per-story transition lock at the stable main repo root instead of the worktree path",
       "context": "transition-orchestrator.ts: resolve transitionLockRoot via detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root before acquireStoryTransitionLock, so a winning DONE's worktree teardown cannot delete the lock directory a concurrent loser is polling on.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-16T12:39:29.932Z",
-      "endTime": null,
+      "endTime": "2026-08-16T12:39:51.084Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/transition-orchestrator.ts"
