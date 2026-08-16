@@ -17478,6 +17478,31 @@
         "scanEscalationReason": null
       },
       "_hash": "a1c9fae9b6c0497d64e7df7545203b9c842a8d3a170a83a78b75230acf1eda5a"
+    },
+    {
+      "id": "B-3f3d:RP-306",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmation pass. git diff 2bcaf8b644..HEAD --name-only shows zero files outside .lattice/story/actives/B-3f3d/** changed since prior pass RP-305 (doc-only commit updating review-inventory-epoch-and-saturation-gate.md for F-098/F-101). Diffs since then are: findings.json resolving F-098, review-inventory-epochs.json auto-INVALIDATING epoch RI-039 via the framework OPEN-epoch material-mutation guard (mechanical, expected), and owner-lease/process-metrics heartbeat bookkeeping. No packages/main/src or scripts/ files changed. Standing conclusions from RP-305 stand unmodified: ProcessTreeLifecycle.terminateAndVerify and test:unkillable-survivor untouched; evidenceSemantics projection (review-inventory-epoch.ts) and reviewer-list.ts forced-replay remain correct; no dead code / type-safety / IO-isolation regressions since source diff is empty. No findings this round.",
+      "createdAt": "2026-08-16T14:25:39.946Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-418",
+      "envelopeId": "8027c17a9bdbd1f50140b8adf211d2d06824c132f49554a99360843fcc4f986f",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/owner-lease.json",
+          ".lattice/story/actives/B-3f3d/process-metrics.json",
+          ".lattice/story/actives/B-3f3d/review-inventory-epochs.json",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1badc51c17f539fb6e9755233e5fbf29830d5f4903b8562544a86b4c3ed1a8b5"
     }
   ]
 }
