@@ -5579,6 +5579,101 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed and fixed at the source rather than worked around. Verified the behavior lane report independently: computeActiveReviewers accepts forced as an optional parameter, but of its 10 call sites ONLY reviewer-list.ts:254 (the reviewer_list CLI command itself) ever passes it. Every gate-facing consumer omitted it, including core/machine.ts:829 (canPassReviewGuard, the REVIEW->TEST gate), handlers/review-inventory.ts:81 (captureReviewInventoryScope, which freezes epoch requiredLanes), handlers/quorum-submit.ts:134, handlers/transition-effects.ts:265, core/reviewer-status.ts:106 and core/lifecycle-readiness.ts:214. The reviewer_forced events were durably written to story.events but never read back by anything, so a force lived only for the single invocation carrying the flag. This contradicted the explicit promise at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:225 (forced lanes remain selected). Fix: computeActiveReviewers now replays the durable reviewer_forced events from story.events and merges them ahead of any explicit forced argument, so all 10 call sites inherit the operator decision without touching their signatures. Empirical before/after on this story, which had two persisted reviewer_forced events for behavior: epochs RI-029 and RI-030 both froze requiredLanes as concept/quality/test-coverage/docs, while RI-031 after the fix freezes concept/quality/test-coverage/behavior/docs. Mutation check proving the replay is load-bearing and not decorative: replacing persistedForced with an empty array in the compiled dist and reopening the epoch drops behavior back out of requiredLanes; byte-restoring the dist and reopening restores it. Verified npx tsc --noEmit -p packages/main is clean. This matters beyond bookkeeping: the behavior lane was mounted precisely because F-088 proved auto-routing missed it (BEHAVIOR_TRIGGERS matches riskSignal.category, here Validation Framework/verifier, while the checklist contains gate 69 times), and it then found F-090, a real zero-coverage gap all four auto-routed lanes missed. Without this fix a DEV round-trip silently discarded that coverage decision.",
       "resolvedAt": "2026-08-16T11:53:27.915Z"
+    },
+    {
+      "id": "B-3f3d:F-092",
+      "desc": "packages/main/src/handlers/reviewer-list.ts:168-176 (F-091 fix): computeActiveReviewers now replays every historical reviewer_forced event from story.events, correctly making a --forceReviewer mount durable across DEV round-trips and fresh review-inventory epochs (verified: RI-029/RI-030 froze requiredLanes without behavior, RI-031+ include it; mutation-check style byte-diff not needed since this is a design-gap finding, not a correctness bug). However this same fix removes the ONLY escape hatch that previously existed by accident: because forced was ephemeral before this fix (only reviewer-list.ts:254 threaded it), a mistaken or stale force silently expired on the next reviewer_list-independent call. Now that the force is durably read back from story.events with no expiry, no round/phase scoping, and no filtering by relevance, there is no unforceReviewer/remove-force command anywhere in the codebase (grep across packages/main/src and packages/main/src/cli/command-catalog.ts for unforce/remove.*[Rr]eviewer/reviewer_unforced returns zero hits) and no documented way to reverse an operator mistake. CLAUDE.md CLAUDE.md:882 (\"Reviewer opt-in 路由\") documents only the add path (`reviewer_list --forceReviewer=docs,behavior` writes story.events) and never mentions removal. Concretely: every future REVIEW round for this story now permanently requires a fresh current-round verdict from any lane ever force-mounted (canPassReviewGuard core/machine.ts:829 via computeFinalReviewRoster requiredReviewers), and every fresh review-inventory epoch permanently freezes it into requiredLanes (review-inventory.ts:81 captureReviewInventoryScope) -- with no code path to undo it short of manually hand-editing story.events (which is exactly the kind of unaudited bypass the signed-artifact architecture elsewhere in this story is designed to prevent). This is not a gate-bypass or unsatisfiable-gate risk (a force can only ever target a name already validated by normalizeForceReviewerName as a real review_run_start lane, so the gate remains satisfiable by dispatching that reviewer every round) -- it is a missing reversibility/lifecycle-completeness gap that the fix newly makes load-bearing. Suggest: add an explicit reviewer_unforce (or forceReviewer removal syntax, e.g. --forceReviewer=-behavior) that writes an auditable reviewer_unforced/reviewer_force_removed story event, and have the persistedForced replay in reviewer-list.ts:168-176 net the two event streams (last-write-wins per reviewer name) instead of only ever accumulating additions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T13:14:45.368Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-380",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesReadFully self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesReadFully self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "5a25d835d6e2193e5d422c44a6005595b736fb09212b04b4e8ce1ab799d7997a",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts",
+        "docs/story/actives/B-3f3d/index.json",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
