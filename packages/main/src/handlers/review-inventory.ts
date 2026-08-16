@@ -90,14 +90,31 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
     // tripped OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. Same defect class as
     // F-099, different consumer. artifactDigest is left untouched so verifyCandidateSpecSet
     // keeps detecting real tampering; only what the BARRIER compares is narrowed.
+    // B-3f3d F-103/F-104: bind the candidate set's ROUTING UNIVERSE, not its
+    // freshness. artifactDigest is the artifact's tamper-detection identity and
+    // deliberately covers headHash/materialHash verbatim, so reusing it here fired
+    // the OPEN-epoch barrier on freshness alone (F-103). Narrowing to a semantics
+    // subset was still not enough (F-104): storyInputDigest is
+    // digestCandidateRoutingValue(input) over a routing input that includes
+    // changedPaths (git diff --name-only main...HEAD), and changedPaths ALSO seeds
+    // keyword weights, so it leaks into candidates[].score/.reasons too — two
+    // independent channels by which an unrelated commit flips the digest.
+    // What actually defines the routing universe is WHICH specs were selected and
+    // WHAT they contain, so bind path+contentHash per candidate plus the routing
+    // policy knobs. A real corpus/selection change still invalidates; a re-route
+    // that reselects the same specs with the same content does not.
+    // artifactDigest stays untouched so verifyCandidateSpecSet keeps detecting
+    // genuine tampering; only the BARRIER comparator is narrowed.
     ...(validCandidate ? {
       candidateSpecSetDigest: reviewInventoryDigest({
         schemaVersion: validCandidate.schemaVersion,
         mode: validCandidate.mode,
-        candidates: validCandidate.candidates,
+        candidates: (validCandidate.candidates ?? []).map(row => ({
+          path: row?.path,
+          contentHash: row?.contentHash,
+        })),
         queryFiltering: validCandidate.queryFiltering,
         scanEscalationReason: validCandidate.scanEscalationReason,
-        storyInputDigest: validCandidate.storyInputDigest,
       }),
       corpusDigest: validCandidate.corpusDigest,
     } : {}),

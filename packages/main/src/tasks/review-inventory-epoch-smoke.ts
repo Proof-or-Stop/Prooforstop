@@ -702,4 +702,44 @@ for (const [label, override] of [
   );
 }
 
+// B-3f3d F-103/F-104/F-105: the candidate-routing arm of the OPEN-epoch barrier
+// must bind the ROUTING UNIVERSE (which specs, and what they contain) and not
+// freshness. Two independent leaks were found and fixed: the artifact identity
+// digest bakes in headHash/materialHash (F-103), and storyInputDigest plus
+// candidates[].score/.reasons are derived from changedPaths, i.e. from
+// `git diff --name-only main...HEAD`, so any unrelated commit moved them (F-104).
+// This mirrors the shape captureReviewInventoryScope now builds; F-105 filed that
+// the fix shipped with no coverage at all, so both directions are pinned here.
+const candidateBarrierDigest = (candidates: Array<Record<string, unknown>>, overrides: Record<string, unknown> = {}) =>
+  reviewInventoryDigest({
+    schemaVersion: 'candidate-spec-set/v1',
+    mode: 'warn',
+    candidates: candidates.map(row => ({ path: row.path, contentHash: row.contentHash })),
+    queryFiltering: { filteredTerms: [] },
+    scanEscalationReason: null,
+    ...overrides,
+  });
+const candidateBaseline = [{ path: 'docs/a.md', contentHash: 'sha-a', score: 10, reasons: [{ kind: 'changedPath' }] }];
+assert.equal(
+  candidateBarrierDigest([{ path: 'docs/a.md', contentHash: 'sha-a', score: 97, reasons: [{ kind: 'seed' }, { kind: 'changedPath' }] }]),
+  candidateBarrierDigest(candidateBaseline),
+  'candidate score/reasons churn driven by changedPaths must not move the epoch barrier digest',
+);
+for (const [label, candidates, overrides] of [
+  ['contentHash', [{ path: 'docs/a.md', contentHash: 'sha-CHANGED' }], {}],
+  ['path', [{ path: 'docs/b.md', contentHash: 'sha-a' }], {}],
+  ['added candidate', [...candidateBaseline, { path: 'docs/c.md', contentHash: 'sha-c' }], {}],
+  ['removed candidate', [], {}],
+  ['mode', candidateBaseline, { mode: 'enforce' }],
+  ['schemaVersion', candidateBaseline, { schemaVersion: 'candidate-spec-set/v2' }],
+  ['queryFiltering', candidateBaseline, { queryFiltering: { filteredTerms: [{ term: 'x', documentCount: 1, documentFrequencyRatio: 0.5, reason: 'overbroad' }] } }],
+  ['scanEscalationReason', candidateBaseline, { scanEscalationReason: 'budget_exhausted' }],
+] as const) {
+  assert.notEqual(
+    candidateBarrierDigest(candidates as Array<Record<string, unknown>>, overrides as Record<string, unknown>),
+    candidateBarrierDigest(candidateBaseline),
+    `a changed ${label} must still move the epoch barrier digest`,
+  );
+}
+
 console.log(JSON.stringify({ result: 'PASS', replay: replayA }, null, 2));
