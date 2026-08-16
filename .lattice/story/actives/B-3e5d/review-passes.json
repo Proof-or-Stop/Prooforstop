@@ -30,6 +30,42 @@
         "scanEscalationReason": null
       },
       "_hash": "ba5eacf6ce399f68e4d84e48b9f9c8640d8bcd8a9e3a768c08f28c3eb61fe04e"
+    },
+    {
+      "id": "B-3e5d:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 checklist items (CHK-001..CHK-007) carry happy/edge/adversarial verificationIntent at priority=must, each with concrete, non-generic verificationEvidence notes. Independently re-verified beyond the recorded receipts: (1) diffed transition-orchestrator.ts against main and confirmed the transitionLockRoot fix (detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root, reusing the pre-existing helper already used by acquireDoneMainMergeLock) and the narrow StoryArtifactMissingError translation (only fires when root is missing; rethrows unchanged otherwise) exactly match CHK-001/CHK-002; (2) ran node packages/main/dist/tasks/worktree-authority-smoke.js directly -> exit 0, printed the expected pass line, exercising assertConcurrentDoneSerializesWithoutPartialDone (two real concurrent story_advance DONE child processes); (3) diffed field-regression-cli-smoke.ts and confirmed the invalidChannel reviewer_list rejection case, the RP-004 lattice-review-test-coverage swap with matching pass-only wording, readManifest added to every RP-001..RP-008 pass-only finding_add call, the writeDoneReadyStory/finishDoneReadyStory REVIEW->TEST split, and the 3-lane (quality/concept/test-coverage) quorum loop plus dev_memory_finish_decision call, all matching CHK-003/004/006/007; ran node packages/main/dist/tasks/field-regression-cli-smoke.js directly -> exit 0, printed the expected pass line; (4) ran both new RED scripts (red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs) directly against the current fixed dist -> each threw the expected AssertionError (their own defect-still-present assertion now correctly fails, exit 1), matching the CHK-005 waiver notes verbatim; ran red-b49d4-harness-registration.mjs -> OK, confirming both RED scripts are registered in REGISTRATION_EXCLUSIONS; (5) empirically ran `story_advance` against a genuinely nonexistent story ID from a root that exists and confirmed the raw StoryArtifactMissingError (\"File not found: .../index.json\") still propagates unchanged, matching CHK-002 adversarial intent (no misclassification as a concurrent-DONE explanation). No missing-evidence, no fabricated/generic-only receipts, no fail results found. Minor non-blocking observation (not filed as a finding): CHK-001 adversarial verificationIntent text describes the loser as \"deliberately given a slow poll interval,\" but the actual pre-existing smoke assertion just races two real processes under Promise.all with no artificial poll skew — the described race window is still genuinely produced because the transition lock is held across the winner's full DONE critical section (including worktree teardown), so the loser can only wake after teardown by construction; this is a wording imprecision in the checklist's own intent text, not a coverage gap.",
+      "createdAt": "2026-08-16T12:54:47.296Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-002",
+      "envelopeId": "973914628cb1c3b3afdcbbb8ae75d286ef667808bea391f518a327870f687da6",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3e5d/review-passes.json",
+          ".lattice/story/actives/B-3e5d/review-runs.json",
+          ".lattice/story/actives/B-3e5d/review.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3959322b4cfc76742dc872691119edccd23329a575e62ac3053684b9518fc22e"
     }
   ]
 }
