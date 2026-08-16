@@ -17621,6 +17621,40 @@
         "scanEscalationReason": null
       },
       "_hash": "f89e4c4d0530003d67931b72a3dad588e0a7b4719c8e6816d156d530d9d6c7f2"
+    },
+    {
+      "id": "B-3f3d:RP-311",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed all source commits since RP-307, including one that landed mid-review: 6c4f7eb7fe (F-102, test-only, broadened acceptance-digest negative cases 4->12 fields), fabca1ecc4 (F-103, production: bound OPEN-epoch candidate barrier to a semantics digest over schemaVersion/mode/candidates/queryFiltering/scanEscalationReason/storyInputDigest instead of validCandidate.artifactDigest), and 4f19f74f27 (F-104/F-105, production, committed during this review pass: narrowed the F-103 semantics digest further to path+contentHash per candidate and dropped storyInputDigest entirely, because storyInputDigest and candidates[].score/.reasons both derive from changedPaths i.e. git diff --name-only main...HEAD, so an unrelated commit could still flip the barrier; added review-inventory-epoch-smoke.ts regression coverage pinning both directions). No concept deletion/replacement en masse in any of the three commits -- these are successive narrowings of one comparator, not a rename. artifactDigest is untouched throughout and remains correctly used everywhere else via full-repo grep (candidate-spec-routing.ts identity/tamper-detection, evidence/artifact-store.ts, story-dispatch.ts readManifest prompts, scope-check.ts, finding.ts) -- confirmed no confusion between the barrier-comparator digest and the artifact tamper-detection digest. storyInputDigest remains a legitimate field on CandidateSpecSetArtifact used by its own freshness contract elsewhere (candidate-spec-routing.ts:184/509/756/845, handlers/candidate-spec-routing.ts:360, candidate-spec-routing-smoke.ts) -- removing it only from this one barrier projection is surgical, not a concept deletion. path/contentHash are pre-existing CandidateSpec fields (candidate-spec-routing.ts:135-136), so the new per-candidate mapping is well-formed, not invented. reviewInventoryDigest remains the single pre-existing exported helper (core/review-inventory-epoch.ts:46), reused not duplicated; this is the third instance of the same semantics-not-identity projection pattern alongside withoutVolatileTimestamps and evidenceSemantics (still only a documentation cross-reference gap, not a defect). No unused imports (storyInputDigest was a field access, not an import; import list at review-inventory.ts:1-29 unchanged and all still used). No stale comments referencing the old artifactDigest-based or F-103-only candidate binding -- all comments were updated in the F-104 commit to describe the current path+contentHash mechanism. OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION blocker code consistently referenced across handler/types/smoke test. Working tree is clean (git status verified) at time of this pass. changedPaths as a symbol is reused legitimately and unambiguously elsewhere (artifact-release.ts, capability-release.ts, done-effects.ts) with no naming collision or confusion introduced by this change. Doc paragraph at review-inventory-epoch-and-saturation-gate.md:199-203 (already scheduled for the DEV pass per this epoch prior notes) is now, if anything, more accurate post-F-104 (routing-universe wording matches the path+contentHash mechanism); not filing a duplicate finding for it. Confirming standing conclusions: activeChildren zero residue, (pid, birthIdentity) coherence, reviewer-list.ts forced-replay unchanged -- all still hold. No blocker this round.",
+      "createdAt": "2026-08-16T15:41:10.980Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-429",
+      "envelopeId": "2d065c4606d5af28bad814f2926144183fd2fe06a0c0f150cc0f54bbb54ead08",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "24791fcf9ef030322f9961424eb130c2739008b49b3b518c5055090ef04f2dbd"
     }
   ]
 }
