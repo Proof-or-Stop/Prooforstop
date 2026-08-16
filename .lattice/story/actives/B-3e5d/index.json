@@ -4,7 +4,7 @@
   "title": "Fix concurrent DONE racer crash and retired channel-lane reference in field-regression-cli-smoke",
   "description": "Two unrelated defects surfaced while working B-74b9 (dev-memory + acceptance-basis + field-regression smoke fixes): (1) when two `story_advance --phase=DONE` processes race the same story from its own worktree, the losing racer crashed with a raw StoryArtifactMissingError (\"File not found: .../index.json\") instead of a clean, expected explanation, because the losing process's own read of story metadata is bound to the worktree path at CLI bootstrap, and the winner's DONE cleanup deletes that entire worktree while the loser is still waiting on the transition lock; (2) field-regression-cli-smoke.ts still exercised the deliberately-retired lattice-review-channel lane via forceReviewer and via a pass-only finding_add call, even though prompt-role-contract-registry.ts hard-asserts that lane is retired and non-dispatchable, so the smoke test was asserting behavior the product code structurally forbids elsewhere.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "concurrent-done-race",
@@ -59,11 +59,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-16T12:41:32.748Z",
+      "branch": "story/B-3e5d",
+      "user": "Harmonygo",
+      "sessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-3e5d",
     "branch": "story/B-3e5d",
     "createdAt": "2026-08-16T11:42:52.402Z"
-  }
+  },
+  "currentReviewRound": "2026-08-16T12:41:32.748Z"
 }
