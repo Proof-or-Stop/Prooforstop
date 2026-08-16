@@ -6077,6 +6077,109 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed as a real regression I introduced and fixed. The F-093 zero-cast rewrite dropped the String() wrapper, so (event.reviewer ?? \"\").trim() would throw TypeError on a defined-but-non-string reviewer instead of coercing benignly, and because computeActiveReviewers is called by canPassReviewGuard, the epoch requiredLanes capture, quorum-submit, transition-effects, reviewer-status and lifecycle-readiness, that throw would crash every gate consumer rather than degrading. Verified the divergence mechanically before fixing: with String() the input [{reviewer:42},{reviewer:\"behavior\"}] yields [\"42\",\"behavior\"], without it .trim() throws TypeError. Restored String(event.reviewer ?? \"\").trim() with a comment naming the consumers at risk and stating that coercion keeps a malformed persisted event inert rather than fatal. Added a regression test in packages/main/src/tasks/review-assurance-floor-smoke.ts that drives computeActiveReviewers with a story whose events include a non-string reviewer (12345). Mutation check: removing the String() coercion from the compiled dist makes that smoke exit 1; byte-restoring returns exit 0. npx tsc --noEmit -p packages/main is clean. The reviewer correctly noted the case is unreachable through either current TS-typed writer and needs out-of-band tampering or a future third writer, so this is hardening rather than a live defect, but the cost of the coercion is zero and the blast radius without it is every gate consumer.",
       "resolvedAt": "2026-08-16T13:32:50.250Z"
+    },
+    {
+      "id": "B-3f3d:F-098",
+      "desc": "doc-code-drift: verification_evidence_refresh_stale (packages/main/src/core/command-policy.ts:176, allowedPhases:'all') has an undocumented operator-facing gotcha: being allowed in every lifecycle phase does NOT mean it is unconstrained while a review-inventory epoch is OPEN -- invoking it mutates verification-evidence scope and immediately invalidates the OPEN epoch. docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:183-187 names verification-evidence writers generically as subject to this invalidation, but no doc states the specific actionable sequence (cancel-or-let-invalidate -> refresh -> reopen epoch, with no DEV round-trip required). This session's own transcript shows the operator mis-remembered allowedPhases:'all' as a phase restriction requiring a DEV round-trip, costing an unneeded planned round-trip, until checking command-policy.ts directly. Suggest a short operator note in CLAUDE.md's review-inventory section (or a comment beside allowedPhases in command-policy.ts) stating this specific interaction so the next operator does not rediscover it by trial.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-16T14:01:19.314Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-407",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "766c78145c8628909751d1085364c39ca9c1a3fdcd09c072e039699cc16b2f46"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "5bbdb2d30cb925a5d354318c7a2fc5bf3cbbd826ef5930fd00f1b0d9b302c980",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/command-policy.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing|md|code-drift-verification",
+      "signatureTagSource": "auto"
     }
   ]
 }
