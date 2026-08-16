@@ -6,7 +6,39 @@
       "context": "transition-orchestrator.ts: resolve transitionLockRoot via detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root before acquireStoryTransitionLock, so a winning DONE's worktree teardown cannot delete the lock directory a concurrent loser is polling on.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A single story_advance --phase=DONE call still acquires and releases the transition lock normally and the story reaches DONE, confirmed by worktree-authority-smoke.js's other assertions continuing to pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Two concurrent story_advance --phase=DONE processes race the same story from its own worktree; exactly one succeeds and the loser blocks on a lock rooted at the stable main repo root, which the winner's worktree teardown cannot delete out from under it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The loser is deliberately given a slow poll interval so it wakes up strictly after the winner has already deleted the worktree, forcing the exact race window this fix targets",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
