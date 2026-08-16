@@ -4,7 +4,7 @@
   "title": "Coordinate root bare npm test with workspace validation capacity without parent-child deadlock",
   "description": "Mechanism Placement Proof: A1 existing official validation capacity was delivered by B-6693, but root bare npm test remains intentionally outside it. A2 the official chain is done_required_validate -> withOfficialValidationExecution -> npm test -> full-suite-runner, while a direct npm test enters full-suite-runner without workspace capacity. A3 repeated B-d0b8 DONE-required failures while unrelated direct tests were live, followed by isolated member PASS, prove a runtime coordination gap rather than configuration, build-artifact, or operator error. A4 no active Story covers the root bare entry; B-6f23 concerns nested agent-liveness parallelism and B-6693 is DONE. A5 a naive second acquire deadlocks the official parent and child, so delegation must be workspace-, holder-, and process-bound and must preserve existing budgets, inventory, evidence persistence, and stdout/stderr contracts. A6 the minimum authoritative hook is the root full-suite-runner entry plus the existing validation-capacity ownership implementation; official callers expose a narrowly bounded verifiable delegation and bare callers acquire normally.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "User requested one total goal with three independent Stories; this is Story C.",
   "depends": [
@@ -35,6 +35,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-16T11:23:46.936Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2625",
+    "branch": "story/B-2625",
+    "createdAt": "2026-08-16T11:23:41.888Z"
+  }
 }
