@@ -3635,6 +3635,34 @@
       "cancelReason": "baseline finding set changed; F-083/F-086 disposed after lane verdicts, reopening a fresh signed epoch with zero open findings",
       "terminalRunSequenceBoundary": 359,
       "_hash": "3868676c0d0ae97aa88f5ebeff36b5c631ece65ff7e85cf6988305198f791773"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-028",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-16T09:17:38.464Z",
+      "updatedAt": "2026-08-16T09:17:38.464Z",
+      "cutoff": {
+        "headHash": "cc08b40919570f5fcecda54eda13baf6c3b70e7e",
+        "materialHash": "d9f40c894185e625ecb246ce0c672a44bb62cfe6c7a7c3f244319eca9e1ce907",
+        "storyFilesHash": "3c36373e448cc4e3b8901dc0c25933e7d52fbafe80dcfc2d29c12cdf7c209edd"
+      },
+      "scopeDigest": "389453abb8c9dbf7926524eafb611b7b7a6dbc41a4b5e298f0a98f58a03bfa9f",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 359,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "9d1d15d77d1d6c9fe4db5ffdcdeca706d066360571e5b391eb2f96dc22c76892"
     }
   ],
   "receipts": [
