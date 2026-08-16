@@ -17366,6 +17366,34 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "3bf5a26f4ffc2185259bf01a10b9d701f9ded226fc6991dc444ab85514d325a7"
+    },
+    {
+      "id": "B-3f3d:RP-302",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmation pass at RR-405 (bound head 6ce1188, materialHash d7e18083.., storyFilesHash e9ef87c3..). Independently verified via git diff that RR-399 (my last-pass RP-298 binding, head 2dd3fb8) and RR-405 share identical materialHash+storyFilesHash, and that the head-to-head file diff touches only .lattice/story/actives/B-3f3d/* metadata (findings.json, checklist.json, review-passes.json, review-runs.json, prompt-envelopes.json, review-inventory-epochs.json, process-events.jsonl, process-metrics.json, closeout-write-receipts.jsonl, owner-lease.json, test-evidence.json) -- zero packages/main/src changes, confirmed by empty git diff ..packages/main/src output. test-evidence.json diff is the described 54 verificationEvidence re-pin: both old and new show total=54/required=54/covered=54/missingRequired=0 (same 54/54 coverage, only evidence hashes/timestamps refreshed); F-095 is now status=resolved in findings.json, consistent with the evidence half being closed. (1) ProcessTreeLifecycle.terminateAndVerify (full-suite-runner.ts) and full-suite-runner-smoke.ts (test:unkillable-survivor) are byte-identical to RP-298 baseline (git diff between the two bounding commits is empty for both files) -- bounded-retry fail-closed behavior and descendant-reaping conclusion stand unchanged. (2) reviewer-list.ts:180 still has the String(event.reviewer ?? \"\").trim() coercion in place; file byte-identical to RP-298 baseline -- dual guards and consumer-list accuracy conclusions stand unchanged, no dead code introduced. (3) noUnusedLocals confirmed still absent/off in packages/main/tsconfig.json. (4) Answering the open debuggability-nit question explicitly: (a) fine to fold into the upcoming DEV pass alongside F-089 and the allowedTest scope declaration. It is a non-blocking, test-file-only naming/structure nit (assertions for a new behavior nested inside an unrelated existing check(...) callback name) with no correctness or security impact, no impact on gate behavior, and no impact on any currently-open finding; filing it as a standalone finding now would only force reopening this OPEN epoch/story-files-hash-material-drift territory for a purely cosmetic test-debuggability improvement. It should be picked up as a small opportunistic cleanup in the same DEV pass that already touches review-assurance-floor-smoke.ts for F-089, not filed as a new finding in this closing round. No new findings this round; also noted, F-089 (topology-critic receipt blocked by stale acceptance-basis binding) remains open/high and correctly scoped to lattice-review-topology-critic, not quality -- out of scope for this lane, left untouched.",
+      "createdAt": "2026-08-16T14:04:41.056Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-405",
+      "envelopeId": "27da90d5b723d0c088caa1582f568b3dc86b9106f1a972ec5d3aa31e6239d75e",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/test-evidence.json",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tsconfig.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f0cb324d876d44afd505ebfe37525f09b4c9fa3ce93d4810e96e55b377723d28"
     }
   ]
 }
