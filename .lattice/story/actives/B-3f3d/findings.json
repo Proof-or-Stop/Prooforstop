@@ -5490,6 +5490,93 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed real and covered. Verified the gap independently before fixing: grep across packages/main/src/tasks and packages/main/tests found ZERO references to POLICY_IMPACT_REQUIRES_FULL_SET, EMPTY_IMPACT_SELECTION or SOURCE_CUTOFF_NOT_ANCESTOR, so the fail-closed branches of the post-remediation dependency-closure selector (core/review-incremental-context.ts:402-414) were genuinely untested. Also confirmed the safety property those branches implement: every fallback() call signs selection=full-set with selectedLanes=activeLanes (lines 320-340), so a fail-closed branch always reviews ALL active lanes and can never narrow the roster. Added coverage in packages/main/src/tasks/review-incremental-context-smoke.ts asserting the load-bearing predicate directly: changing gate/policy source (core/command-policy.ts), changing dependency/build material (package.json), and an unsupported rename each classify into a category present in the selector list [public-contract, authority-or-permission, command-or-gate-policy, dependency-or-build, unsupported-rename, unknown] that routes to POLICY_IMPACT_REQUIRES_FULL_SET. This pins the exact coupling the finding identified as unverified: the selector depends on classifyImpact emitting command-or-gate-policy, a category otherwise unused elsewhere in the repo, so nothing would have caught its removal. Verified: npm --prefix packages/main run build clean; node packages/main/dist/tasks/review-incremental-context-smoke.js exits 0. Mutation check proving the assertions bite rather than passing vacuously: deleting command-or-gate-policy from the asserted trigger list in the compiled dist makes the smoke exit 1; byte-restoring it returns exit 0. Note the deeper end-to-end branches (EMPTY_IMPACT_SELECTION, SOURCE_CUTOFF_NOT_ANCESTOR, DEPENDENCY_CLOSURE_INCOMPLETE) still require a full StoryStore plus git fixture to drive through postRemediationReviewSelection and remain uncovered; this resolution closes the specific unverified coupling the finding named, not every branch of that function.",
       "resolvedAt": "2026-08-16T11:18:41.072Z"
+    },
+    {
+      "id": "B-3f3d:F-091",
+      "desc": "packages/main/src/handlers/reviewer-list.ts:225-260 reviewer_list is the ONLY call site (of 10 total call sites of computeActiveReviewers) that ever passes the fifth forced argument (parseForceReviewers(args.forceReviewer)); it writes a durable reviewer_forced audit event to story.events (reviewer-list.ts:264-280) but every gate/epoch consumer calls computeActiveReviewers with only 4 args, omitting forced: packages/main/src/core/machine.ts:829 (canPassReviewGuard, the REVIEW-to-TEST gate), packages/main/src/handlers/review-inventory.ts:81 (captureReviewInventoryScope, which freezes epoch requiredLanes consumed by review_inventory_begin/finalize), packages/main/src/handlers/transition-effects.ts:265 (story_advance REVIEW next-step echo), reviewer-batch.ts:303, quorum-submit.ts:134, core/reviewer-status.ts:106, core/lifecycle-readiness.ts:214. The reviewer_forced events are never read back anywhere (grep confirms reviewer_forced appears only as a write, in reviewer-list.ts:272 and unrelated review-run.ts:475, never as a read/filter target). packages/main/src/core/review-incremental-context.ts:283 impactedLanes() already special-cases (if reviewer.forced) return true to preserve forced lanes through post-remediation narrowing, but this branch is dead in practice because the ActiveReviewer[] every gate/epoch consumer builds always has forced=false/undefined. This directly contradicts the explicit design promise in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md line 225: A proven narrow repair requires exactly its impacted active lanes; forced lanes remain selected. Empirically reproduced on this exact story: .lattice/story/actives/B-3f3d/index.json contains two reviewer_forced events for reviewer=behavior at 2026-08-16T11:04:23.121Z and 2026-08-16T11:43:08.915Z; yet .lattice/story/actives/B-3f3d/review-inventory-epochs.json shows requiredLanes=[lattice-review-concept,lattice-review-quality,lattice-review-test-coverage,lattice-review-docs] (no behavior) for every epoch including RI-030 (current OPEN epoch, created after both force events). Practical consequence demonstrated by this very story: F-088 established behavior was a genuine uncovered discovery lens the auto-router missed; an operator force-mounted it via --forceReviewer twice and it immediately found F-090, a real bug all 4 auto-routed lanes missed -- yet neither review_inventory_begin/status, canPassReviewGuard, nor the REVIEW next-step echo ever required or reflected that force-mount. A DEV round-trip or fresh epoch silently discards the operators explicit lane decision with no warning, no blocker, no visible drift. Fix: thread forced through every gate/epoch-facing call site (at minimum machine.ts:829, review-inventory.ts:81, transition-effects.ts:265), persisting the forced set read back from story.events reviewer_forced rather than accepting it only as an ephemeral CLI arg to reviewer_list.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T11:51:01.486Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-377",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "a3d7d110cc68bdfb9d2601aa2c61a4e4d9bda4a53a0e0dbebc4ed7950e408462"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        }
+      ],
+      "_hash": "f9300c6c63df38f0e9190c9f468e51231c2a79a9ef8a63e14f7932ac3b4e2b73",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/transition-effects.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
