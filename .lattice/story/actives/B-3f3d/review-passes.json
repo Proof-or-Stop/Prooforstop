@@ -17425,6 +17425,34 @@
         "scanEscalationReason": null
       },
       "_hash": "62d58c439d3378e6873c0ee88caaa39d13ad5f8dcb3a766efacbf1a8fa3cd7ae"
+    },
+    {
+      "id": "B-3f3d:RP-304",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified F-099 fix (commit f8e5a077f3, only 2 code files changed: review-inventory-epoch.ts + its smoke test) against docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md. Symbols from Step 1: reviewInventoryAcceptanceSubjectDigest (modified), evidenceSemantics (new). Step 2 grep hits: paragraphs referencing acceptance-subject/scope-digest semantics at lines 71-100, 168-215 (Freshness and mutation enforcement), 262-292 (Process-fact contract). Step 3 comparison: lines 180-187 ('verification intents/evidence' is part of the acceptance subject; 'verification-evidence writers... takes the inventory lock... the next... boundary persists OPEN_REVIEW_INVENTORY_SCOPE_MUTATION') is now OVERBROAD for the specific case fixed here: traced handlers/review-inventory.ts:96-97 scopeChanged = currentScope.scopeDigest !== epoch.scopeDigest, where scopeDigest is exactly reviewInventoryAcceptanceSubjectDigest, the function F-099 patched. A pure verification_evidence_refresh_stale re-pin (rotating only headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt while result/command/note/outputDigest are unchanged) NO LONGER flips scopeDigest and therefore no longer trips OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, contradicting the doc's current generic claim that verification-evidence writers as a category invalidate an OPEN epoch. This is NOT a new/duplicate finding: it is the exact same doc gap already tracked as open B-3f3d:F-098 (created 2026-08-16T14:01, scheduled for the DEV pass), whose own desc already names this precise interaction (cancel-or-invalidate then refresh then reopen, no DEV round-trip needed) and requests an operator note in CLAUDE.md or beside allowedPhases in command-policy.ts. Per the requesting agent's question, the ACCURATE F-098 remediation text (to write during the DEV pass, superseding what would have been true before this fix) should state BOTH: (1) a pure verification_evidence_refresh_stale re-pin no longer invalidates an OPEN epoch's scope digest as of B-3f3d:F-099 (packages/main/src/core/review-inventory-epoch.ts reviewInventoryAcceptanceSubjectDigest / evidenceSemantics), because the digest now binds what a verifier OBSERVED (intentRef/kind/file/command/result/note/mechanical, receipt.exitCode/outputDigest/outputTail/selectorMatched) rather than freshness pins (headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt); (2) verification_evidence_refresh_stale remains allowedPhases:'all' in command-policy.ts:176 and this is correct and no longer a gotcha for the pure-refresh case, the old operator confusion (mis-remembering allowedPhases as requiring a DEV round-trip) no longer has a live failure mode to document as a workaround, since a plain refresh-stale no longer forces cancel-then-reopen; the surviving accurate doc note is narrower: only a refresh that ALSO changes result/command/note/receipt.outputDigest/receipt.selectorMatched (i.e. re-executes the verifier and gets a different observed outcome) still invalidates the epoch, which is correct-by-design since semantic re-verification should still count as new evidence. Positive doc statement recommended: add one sentence at lines approximately 182-183 and optionally near line 279 ('complete checklist semantics') stating the acceptance digest binds verifier-observed fields, explicitly excluding headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt from verificationEvidence hashing, so a reader does not assume ANY verification-evidence write invalidates OPEN epochs. Standing conclusions re-confirmed unchanged since RP-300 (no touching files in this diff): CLAUDE.md forceReviewer paragraph (lines 887-889) is internally consistent with F-091/F-092 resolution evidence (durable reviewer_forced event replay, no unforceReviewer command), verified via finding_list, no drift. test-runner-consolidation-plan.md and ProcessTreeLifecycle.terminateAndVerify: out of scope for this diff (neither file touched by f8e5a077f3), no new claim to check. Doc command promises: this commit introduces zero new CLI-facing commands/fields, only an internal digest projection change with no new lattice command examples added to CLAUDE.md or README, so the doc-promise-undelivered reverse-check has no new surface to check. No blocker recorded this pass; the one real doc gap remains correctly tracked as open F-098 with corrected guidance supplied above rather than duplicated as a new finding.",
+      "createdAt": "2026-08-16T14:22:18.027Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-415",
+      "envelopeId": "edf8c1965bda15829ad62c5fd441cb574d437dfd8a9278993ab3215c5482b683",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/findings.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "1821e56562ddcd60e2840d98ed77042ee199ad38a3a79f87673043150ac08028"
     }
   ]
 }
