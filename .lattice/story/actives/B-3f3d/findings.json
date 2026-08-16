@@ -5171,6 +5171,21 @@
       "_hash": "a8cdc76fb8ad5e8e55873f03548781af63eda6c63579d2aec72c786fd3c01d7a",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-082",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:381-396 (parseProcessRows) has zero direct unit test coverage anywhere in the repo. All birth-identity tests in full-suite-runner-smoke.ts synthesize ProcessRow objects directly (e.g. line 413: rows.map(row => ({...row, birthIdentity: `native:${row.pid}`}))) and never feed real 'ps -axo pid=,ppid=,pgid=,lstart=' formatted text through the regex. The function docstring itself calls out a subtle invariant -- lstart is requested last because its value contains internal whitespace and everything after the third numeric column is folded into birthIdentity via whitespace-collapse -- but no fixture string exercises that whitespace-collapsing/positional-split behavior, the malformed-line-skip branch, or the non-integer pid/ppid/pgid rejection branch. This is the one new piece of string-parsing logic underpinning the whole (pid, birthIdentity) ownership model and is currently only exercised indirectly through whatever the live ps binary happens to emit during CI.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-16T08:02:11.023Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-336",
+      "_hash": "668d0380f28305985115103c709354afe8d49643ce3a2d080a24b6e8d9f31cad",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
