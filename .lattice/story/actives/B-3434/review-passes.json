@@ -472,6 +472,35 @@
         "scanEscalationReason": null
       },
       "_hash": "a22e053b79694a1d33bcd03d4527d3361c9918e7e4d9327219b767b8bfd2b555"
+    },
+    {
+      "id": "B-3434:RP-019",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge merge-interaction check. Confirmed by execution, not just diff read: (1) the merged validate handler wraps the ENTIRE body incl. all persistStoryValidationEvidence call sites inside withOfficialValidationExecution's callback (brace-matched 1158-1560 in verifier.ts), and the wrapper is a transparent pass-through (no result rewriting, no error swallowing) verified by reading withOfficialValidationExecution/withValidationExecutionLock; grepped the full merge diff (verifier.ts + validation-execution-lock.ts + done-required-validation.ts) for persist/writeTestEvidence/withinBound/persistedBound/fallbackBound/reusedBound - zero hits, confirming no interaction. (2) Re-ran all four dispositions through the REAL StoryStore.writeTestEvidence at an isolated temp git repo built from this merged dist: unmodified (414B), reduced (18033480B and 1757B), verdict_only (830B via the summary-field fixture pattern) all showed measured fileBytes==actual on-disk bytes; refused (41943173B, non-object oversized string) triggered no write call and the story file was byte-and-hash-identical before/after the refusal attempt. No drift from the shipped bounding contract. (3) Real git blobs at this material: 5 MiB blob read correctly (sha256 returned, ok=true) via treeBlobHash; 40 MiB blob failed as kind=unreadable with captured byte count in the error text (33562624 bytes captured before the 33554432-byte ceiling); missing path returned kind=absent. (4) Confirmed via actual loadConfig(worktreeRoot) that this repo's lattice.config.json has no gitRoot key, so configuredGitRootExpected=false at runtime - the new fail-closed throw (gated on !args.story && configuredGitRootExpected && !resolvedProjectGitRoot) is unreachable here for two independent reasons: this worktree always validates with --story set, and gitRoot is not configured at all. This is a real git worktree (.git is a gitdir-pointer file to ../.git/worktrees/B-3434), not a wrapper-root layout. (5) Ran and confirmed clean: npx tsc --noEmit -p packages/main (exit 0, no output); red-b3434-blob-buffer-ceiling.mjs (PASS, all assertions incl. ceiling/absent/unreadable/hook cases); validation-evidence-buffer-smoke.js (PASS, all CHK-004/005, F-014/029-037 assertions incl. the 3-write-site source-grep against the shipped verifier.ts); done-prepare-auto-closeout-smoke.js (PASS); validation-evidence-reuse-smoke.js (PASS, fresh-PASS GREEN transition). No blocking findings; no interaction between the merged lock/gitRoot change and this story's evidence-bounding path.",
+      "createdAt": "2026-08-16T02:27:08.785Z",
+      "reviewRound": "2026-08-16T02:17:52.140Z",
+      "reviewRunId": "B-3434:RR-047",
+      "envelopeId": "eac594afea75005f6dc67463d82647f643972701d56418f04b7d94dd3ce82258",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5bae06b14fdad42f4e8165c0ac4a6df39a2c2be8f5d8ba33069cd7aada3df862"
     }
   ]
 }
