@@ -43,7 +43,11 @@
           {
             "desc": "The loser is deliberately given a slow poll interval so it wakes up strictly after the winner has already deleted the worktree, forcing the exact race window this fix targets",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+              "selector": "worktree authority smoke passed"
+            }
           }
         ]
       },
@@ -85,6 +89,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:04:42.824Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: the smoke suite's race harness inherently forces the loser to wake up after the winner has already deleted the worktree (Promise.all on two real child processes), exercising exactly this adversarial timing window.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5bea47a3fb7b1959ab5cb87b9a969fd8321f259fb88a1e1c06f6241c2127f5e7",
+            "outputTail": "✓ worktree authority smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:06:19.939Z"
+          },
+          "headHash": "0194a050860880c2997c8084f350611f451b4d0f",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:06:20.211Z"
         }
       ]
     },
