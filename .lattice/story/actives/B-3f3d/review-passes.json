@@ -16706,6 +16706,30 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "ce9ed9042bf08ff233e4dffbead26a742551ef7bc7c62d0eafbf242705fde3dc"
+    },
+    {
+      "id": "B-3f3d:RP-285",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmed on round 2026-08-16T10:48:07.896Z. review_incremental_context confirms freshnessClassification=CURRENT_MATERIAL, changedFiles=none, isFirstPass=false since prior pass RP-280 at head cc08b40919; only delta is finding F-087 (topology-critic lane, not mine). ProcessTreeLifecycle.terminateAndVerify (full-suite-runner.ts) unchanged: bounded post-SIGKILL retry remains fail-closed, exits only on !live.length or, on cleanup-budget expiry, after recording surviving PIDs and falling through to the AggregateError throw. test:unkillable-survivor still stubs only probe and reaps its real descendant explicitly. No dead code, unnecessary as any, or empty catches in the story diff. Wave-4 quality-boundary re-check requested by this round: acceptance_rollout_check and acceptance_rollout_report_read now both report status=pass/PASS, receipt=current, quorum=full-3x2, mode=enforce, blocking=false, codes=none - the F-087-flagged stale rollout receipt has been refreshed. acceptance_topology_check and pre_review_check_read still report fail/FAIL but self-report mode=observe / blocking=false / diagnostic_only via the same production fields (topology.blocking, report.blocking) that transition-orchestrator.ts throws on when true - confirmed by reading runPreReviewCheckGate and the PLAN-DEV topology gate call site. These remain non-blocking diagnostics by design, not a regression. No product source changed this round; only acceptance/rollout artifacts, a scope-contract acknowledgement, and story metadata were regenerated.",
+      "createdAt": "2026-08-16T10:51:36.240Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-368",
+      "envelopeId": "698d14ee9e0e370c0323432b55394e9cd08843f024c69736cc1d0c56b1bc5fc8",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-3f3d/findings.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb585e355a319e696a67998b3782b34198614fc1e26f4c3518ff2225878d34f6"
     }
   ]
 }
