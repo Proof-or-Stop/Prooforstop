@@ -444,8 +444,8 @@
       "id": "CHK-005",
       "title": "Add standalone RED scripts proving both defects pre-fix, registered or exempted per the RED-harness registration guard",
       "context": "tests/red/red-B-new-concurrent-done-race.mjs and tests/red/red-B-new-retired-channel-lane.mjs, each using spawnSync with a real file-descriptor for stdio (execFileSync's pipe capture truncates large synchronous crash dumps at 8192 bytes on macOS); register both in red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS since each throws once its own fix lands.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-16T12:39:36.055Z",
       "endTime": null,
       "files": {
         "modify": [
