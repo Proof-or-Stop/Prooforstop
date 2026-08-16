@@ -17503,6 +17503,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1badc51c17f539fb6e9755233e5fbf29830d5f4903b8562544a86b4c3ed1a8b5"
+    },
+    {
+      "id": "B-3f3d:RP-307",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation of doc-only commit 2bcaf8b644 (F-101/F-098 fix): reviewInventoryAcceptanceSubjectDigest wording matches code exactly, no residue.",
+      "createdAt": "2026-08-16T14:25:55.061Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-416",
+      "envelopeId": "f483efa768d514e5ec90eadd1aa166d8d507ad7ce08d4df4ac179902c619b6ac",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a516deaa63b705749b743b9f79df4ccf33a63effac07cd4fb3123ad4b94cf45"
     }
   ]
 }
