@@ -7049,6 +7049,152 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Fixed by writing the docs lane exact recommended wording rather than paraphrasing it. I asked this lane to specify the text instead of writing it myself and having it be subtly wrong, which is the same pattern that worked for F-098/F-101. Two things it corrected in my own briefing are worth recording. First, I had described only one relevant commit; there were two, and the F-103 fix was superseded almost immediately by 4f19f74f27 (F-104/F-105). The lane reviewed against the FINAL state rather than the intermediate one, so its wording describes what the code actually does now: the barrier binds schemaVersion, mode, each candidate reduced to path plus contentHash, queryFiltering and scanEscalationReason, and deliberately drops both artifactDigest and storyInputDigest as well as per-candidate score/reasons. Second, it noted the doc was not strictly false before, it was SILENT on the mechanism, which today reads as implying the raw artifact identity is compared, i.e. the pre-F-103 behaviour. Inserted the recommended paragraph after the ProofStory-contract sentence, naming the blocker code OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION explicitly, stating that verifyCandidateSpecSet still verifies the full identity digest so genuine tampering is still caught, and stating both directions: a re-route reselecting the same specs with the same content after HEAD alone moved no longer invalidates, while a change to which specs are selected, any selected spec content, schemaVersion, mode, queryFiltering or scanEscalationReason still does. Also trimmed the following sentence, which had duplicated the routing-universe and one-wave claims now covered above, down to the locking/serialization fact it uniquely carries. Verified node scripts/verify-process-fact-contract.mjs still passes and re-read the surrounding passage to confirm it reads cleanly with no leftover duplication.",
       "resolvedAt": "2026-08-16T15:42:54.928Z"
+    },
+    {
+      "id": "B-3f3d:F-107",
+      "desc": "review-inventory.ts:109-118 captureReviewInventoryScope binds candidateSpecSetDigest to the candidate artifact's queryFiltering field verbatim (schemaVersion,mode,candidates-projected,queryFiltering,scanEscalationReason). This is a fifth, still-open freshness leak of the F-099/F-103/F-104 defect class: queryFiltering.filteredTerms is NOT a corpus-only invariant. candidate-spec-routing.ts:528 unfilteredQueryTerms = orderedQueryTerms(args.seeds.seeds, proposals); args.seeds.seeds is buildKeywordSeeds output, which at candidate-spec-routing.ts:334 seeds a term for every entry in input.changedPaths (weight 50); changedPaths is git diff --name-only main...HEAD (handlers/candidate-spec-routing.ts:141,252,294, live in production). filteredTerms (candidate-spec-routing.ts:546-553) is queryTerms.filter(overbroad-or-zero-hits) computed from documentCounts keyed by these same query terms. Concretely: an unrelated commit during the OPEN epoch that changes the diff file set (touches e.g. scripts/some-unrelated-script.mjs) shifts changedPaths, adds/removes a changedPath-derived term from seeds.seeds, and can add/remove an entry in filteredTerms (or change its documentCount/documentFrequencyRatio) EVEN WHEN the selected candidates[].{path,contentHash} set is byte-identical (same specs, same content, no genuine corpus/selection change). Because candidateSpecSetDigest hashes queryFiltering verbatim, this flips candidateChanged=true in persistInvalidationIfDrifted (review-inventory.ts:131-132), invalidating the OPEN epoch on a commit unrelated to the routing universe -- the same OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION false-positive class F-104 was filed to close, now recurring through the one field the fix left bound verbatim. The F-105 coverage in review-inventory-epoch-smoke.ts:735 only asserts a hand-constructed queryFiltering override moves reviewInventoryDigest (a digest-sensitivity self-check on the hash function itself, tautological w.r.t. hashing) -- it never calls buildKeywordSeeds/routeCandidateSpecs end-to-end to prove queryFiltering stays stable when candidates[].{path,contentHash} is unchanged but changedPaths churns, so this leak has zero regression coverage. Fix: (a) exclude queryFiltering (and any other seeds/changedPaths-derived diagnostic field) from candidateSpecSetDigest entirely -- it is diagnostic metadata about HOW candidates were selected, not WHAT was selected; keep only schemaVersion/mode/candidates-projected/scanEscalationReason, or (b) if queryFiltering must stay bound, strip changedPath-sourced seeds from the term set used to compute filteredTerms so it reflects only story-stable seed sources. Add an end-to-end regression test that holds candidates+corpus fixed, varies only changedPaths across two routeCandidateSpecs calls, and asserts candidateSpecSetDigest is unchanged.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T16:00:22.785Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-433",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "d78d559ee1964779bf2886d067703e5f96307f04813b3741c5c57b9fd62b4751"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-authority-live-integration.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-lifecycle.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-lifecycle.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        }
+      ],
+      "_hash": "e4f33990811d63428f87919602a53d63c59a7d364629ab4167ef877ebbeac65f",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|review-inventory-capturereviewinventoryscope",
+      "signatureTagSource": "auto"
     }
   ]
 }
