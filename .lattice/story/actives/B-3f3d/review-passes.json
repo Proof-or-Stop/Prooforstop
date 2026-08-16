@@ -17730,6 +17730,36 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "c7f89ce3bc6ea1a5ccd1801650edfaa4414eb1054183bc22d1a3851acfcb94a7"
+    },
+    {
+      "id": "B-3f3d:RP-313",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the two commits since RP-307: 6c4f7eb7fe (test-only, broadened acceptance-digest negative cases to 12 fields) and fabca1ecc4 (F-103, bound the OPEN-epoch candidate-routing barrier to a semantics digest instead of validCandidate.artifactDigest). Confirmed grep-wide that artifactDigest itself remains untouched and still has all its live consumers (candidate-spec-routing, delivery-context-pack, closeout-trust, repro-intake) -- narrowing was scoped correctly to just this one barrier consumer, no residue. Flagged that docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:199-203 was stale for F-103 (described candidateSpecSetDigest as the artifact identity digest, no mention of the new semantics-only projection) -- this was independently resolved by commit 2b71831058 (F-106) which landed between my prior pass and this run, plus F-104/F-105 (commit 4f19f74f27) which further narrowed the projection (dropped storyInputDigest, switched candidates to path+contentHash pairs) after finding storyInputDigest/score/reasons also leaked git-diff-derived freshness. Verified current code (packages/main/src/handlers/review-inventory.ts:96-112) matches the now-updated doc exactly, and OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION is referenced consistently across types.ts, the handler, the doc, and review-inventory-handler-smoke.ts with no stale references. On coherence: there are now three semantic-content-not-bookkeeping projections (withoutVolatileTimestamps, evidenceSemantics, and this candidate-routing-universe digest) in two files, but each guards a genuinely distinct artifact shape (ProofStory/scope-shrinkage timestamps vs verification-evidence freshness pins vs candidate-routing freshness leaks) with independent bugs found per case (F-099, F-103, F-104) -- this is convergent evidence for a real recurring principle, not accidental duplication, and the doc now names the shared rule explicity ('the same semantic-content-not-bookkeeping rule applies to the candidate set') rather than reinventing it silently. No new finding this round.",
+      "createdAt": "2026-08-16T15:50:19.328Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-431",
+      "envelopeId": "434eda1f574d43591542973de92fca938c819578c510ac8c050808f7b74e3e03",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "4a5d697f647bfd14e79736a76b292368392bf9dc0e7579d09914f5968aa888ca"
     }
   ]
 }
