@@ -16012,6 +16012,28 @@
         "scanEscalationReason": null
       },
       "_hash": "3e2141efee3474328ddebb5afbb2f5d8d9fb8a024a7aa003ab32be47a4168761"
+    },
+    {
+      "id": "B-3f3d:RP-270",
+      "agent": "lattice-review-concept",
+      "note": "Re-review targeting F-079 and F-082 resolution. F-079 (dead activeChildren Set): confirmed fully removed, zero grep hits repo-wide including rebuilt dist; surviving activeTerminators Map has correct add/delete lifecycle at spawn and settle plus two cleanup loops. F-082 (parseProcessRows coverage): confirmed genuine, not superficial -- 6 assertions in full-suite-runner-smoke.ts exercise real ps output plus space-containing-lstart, whitespace-collapse, and 9 malformed-line variants via the actual regex parser, not synthesized objects; ran the compiled smoke suite (node dist/tasks/full-suite-runner-smoke.js) and observed a clean PASS at 183 assertions including all 6 new parseProcessRows labels (subsequent runs hit an unrelated pre-existing timing flake under heavy concurrent host load, since independently fixed by a concurrent lane in commit 4dbe425cf5 which is orthogonal to my scope files concept-wise -- re-checked activeChildren/parseProcessRows are still intact after that commit landed). F-080 doc prose (test-runner-consolidation-plan.md) checked against code: terminateProcessTreeAndVerify, birthIdentityMatches PID-reuse revocation, and the (pid,ppid,pgid,birthIdentity) tuple all match documented claims, no doc/code drift. No new concept-lane findings.",
+      "createdAt": "2026-08-16T08:15:23.002Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-343",
+      "envelopeId": "93c7760b4b2ca73e8abe90359c99bbd7ef2470d519dca03281d405e5f0c652f2",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba6820f7bd838ebeef45468ccbae059ada57dd20f6d01317125009c03a444719"
     }
   ]
 }
