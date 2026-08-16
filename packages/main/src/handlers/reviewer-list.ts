@@ -116,7 +116,7 @@ export function parseForceReviewers(forceReviewer?: string): string[] | undefine
  * @param forced      optional list of reviewer names to force-mount (comma-separated string already parsed)
  */
 export function computeActiveReviewers(
-  story: Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed'>>,
+  story: Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed' | 'events'>>,
   checklist: Pick<ChecklistData, 'items'> | { items: Array<unknown> },
   decision?: Pick<DecisionData, 'options' | 'chosen'> | null,
   touchpoints?: string[],
@@ -165,9 +165,13 @@ export function computeActiveReviewers(
   // honouring review-inventory-epoch-and-saturation-gate.md ("forced lanes remain
   // selected") and stopping a DEV round-trip from silently dropping a lane that was
   // mounted precisely because auto-routing missed it.
-  const persistedForced = ((story as Partial<Pick<StoryInfo, 'events'>>).events ?? [])
-    .filter(event => Boolean(event) && (event as { action?: string }).action === 'reviewer_forced')
-    .map(event => String((event as { reviewer?: string }).reviewer ?? '').trim())
+  // F-094: `reviewer_forced` is also written by review-run.ts's ensureCurrentReviewRound
+  // purely to audit auto-initialising a missing currentReviewRound, and that writer sets
+  // no `reviewer`. Requiring a non-empty `reviewer` is therefore the load-bearing
+  // disambiguation between the two writers, not incidental input hygiene.
+  const persistedForced = (story.events ?? [])
+    .filter(event => event?.action === 'reviewer_forced')
+    .map(event => (event.reviewer ?? '').trim())
     .filter(name => name.length > 0);
   for (const f of [...persistedForced, ...(forced ?? [])]) {
     const name = String(f).trim();
