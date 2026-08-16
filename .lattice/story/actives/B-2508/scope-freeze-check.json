@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2508",
+  "checkedAt": "2026-08-14T09:09:43.018Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "a67f1e5a164d608acfb72147f545b17738438deba3c735b6c281984979d193e1",
+  "executionBoundaryHash": "c4e128b04e0ab048b046426cf1be752bc0194e116afc4976934a028fb67ac5dd",
+  "freshnessHash": "5c90655fc5e63ddbf571284f9e166d6f3549123001a61c7864806f007dc662cd",
+  "effectiveExcludedKeywords": [
+    "packages/main/**",
+    "scripts/**",
+    "tests/**"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/**",
+      "excluded": true
+    },
+    {
+      "keyword": "scripts/**",
+      "source": "scopeBoundary.excluded",
+      "text": "scripts/**",
+      "excluded": true
+    },
+    {
+      "keyword": "tests/**",
+      "source": "scopeBoundary.excluded",
+      "text": "tests/**",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "039823fec5133774f87b866dfe3c94b30d2cb06bf20ed779186a6dc115a63cf3"
+}

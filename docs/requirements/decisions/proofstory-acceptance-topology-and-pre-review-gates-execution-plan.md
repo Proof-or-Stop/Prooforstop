@@ -1708,6 +1708,13 @@ to find genuinely unmodeled issues.
 
 Wave 4 measured flat cohort:
 
+The canonical test producer executes the twelve hermetic production cases with
+a bounded three-process pool. The focused consumer then reuses that exact
+verifier-owned frozen cohort after proving the copied runner digest is
+byte-identical; it does not regenerate the same cohort a second time. All six
+pairs, signed source records, mutation diagnostics, and the real consumer
+enforce/rollback checks remain unchanged.
+
 | Metric | Result |
 |---|---|
 | Seeded matched pairs | `3` baseline + `3` candidate |

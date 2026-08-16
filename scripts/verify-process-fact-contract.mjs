@@ -2731,7 +2731,12 @@ function assertCloseoutTrustBoundary() {
     assert(!closeoutTrustText.includes(removedHelper), `closeout trust must not expose unused pseudo-authority helper ${removedHelper}`);
   }
   const packageText = read('package.json');
-  assert(packageText.includes('test:closeout-trust') && /"test"[^\n]+npm run test:closeout-trust/.test(packageText), 'package.json: closeout trust handler/replay smoke must remain in routine npm test');
+  const rootPackage = JSON.parse(packageText);
+  const canonicalRoutineIncludes = (pkg, name) => [pkg.scripts?.['test:serial-reference-prefix'], pkg.scripts?.['test:serial-reference']]
+    .filter(Boolean).join(' && ').split(/\s*&&\s*/).includes(`npm run ${name}`);
+  assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js' && canonicalRoutineIncludes(rootPackage, 'test:closeout-trust'), 'package.json: closeout trust handler/replay smoke must remain in canonical routine npm test membership');
+  assert(!canonicalRoutineIncludes({ scripts: { ...rootPackage.scripts, 'test:serial-reference': rootPackage.scripts['test:serial-reference'].replace('npm run test:closeout-trust', '') } }, 'test:closeout-trust'), 'package.json: deleting closeout trust from the main serial-reference must fail membership');
+  assert(!canonicalRoutineIncludes({ scripts: { ...rootPackage.scripts, 'test:serial-reference-prefix': '' } }, 'test:full-suite-runner-smoke'), 'package.json: deleting the prefix serial-reference must fail membership');
 }
 
 // ── B-70a6 F-003 (cross-host MAJOR): PLAN->INIT reopen audit semantics ──

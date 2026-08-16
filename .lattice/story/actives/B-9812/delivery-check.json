@@ -1,0 +1,86 @@
+{
+  "storyId": "B-9812",
+  "checkedAt": "2026-08-13T14:18:13.245Z",
+  "headHash": "6c7d9210dcea6652ecfb87f9df8efde4e6370396",
+  "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
+  "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
+  "reviewRound": "2026-08-13T13:54:26.204Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution-b-9812",
+      "promise": "The root suite emits a complete machine-readable 47-member report and fails closed on missing, duplicate or unclassified membership.",
+      "status": "verified",
+      "verifiedBy": "current source inspection and PASS52 replay",
+      "evidence": "The runner derives the manifest bidirectionally from the serial reference and records per-member outcome, duration, assertions and mutations; current replay passed every CHK-001 selector."
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution-b-9812",
+      "promise": "The scheduler safely overlaps compatible tests, serializes protected resources, reports lock waits, and cleans complete process trees on timeout, interruption and normal completion.",
+      "status": "verified",
+      "verifiedBy": "runner source, F053 regression and scheduler receipt",
+      "evidence": "F053 calls killProcessTree after normal parent exit and fails closed on cleanup error; serial and all three jobs4 artifacts include normal parent completion remains PASS and normal parent completion kills complete descendant process group. Protected resource and cleanup mutations also pass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-4-measured-flat-cohort",
+      "promise": "Acceptance rollout produces one digest-bound 12-case cohort with bounded concurrency and reuses the byte-identical frozen cohort.",
+      "status": "verified",
+      "verifiedBy": "cohort source and jobs1/jobs3 evidence",
+      "evidence": "Both cohort receipts contain 12 records and an equal semantic digest; the consumer verifies copied runner byte identity and restoration."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#canonical-race-burn-in-execution-b-9812",
+      "promise": "Canonical incremental testing retains deterministic race coverage while twenty-iteration burn-in remains available as an opt-in tier.",
+      "status": "verified",
+      "verifiedBy": "source and stress20 receipt",
+      "evidence": "The stress receipt records 20 restored iterations, six mutation kills, deterministic masks, schedule mutation detection, missing-seed rejection and timeout isolation."
+    },
+    {
+      "docPath": "package.json#scripts.test",
+      "promise": "npm test runs all 47 canonical members through the scheduler, reports a critical path, and never retries a failure to green.",
+      "status": "verified",
+      "verifiedBy": "package script, source, final serial and three jobs4 reports",
+      "evidence": "Every final report has 47 launches, 47 PASS, retries=0, stable start/end identity and critical-path telemetry; terminal failure and timeout mutations pass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md#runner-and-artifact-state",
+      "promise": "Three consecutive complete parallel runs finish below 300000 ms with serial equivalence, current DONE-required evidence and safety mutations retained.",
+      "status": "verified",
+      "verifiedBy": "final material-bound artifacts, fresh 93-command validation and PASS52 replay",
+      "evidence": "At material e836ff7f, jobs4 runs took 216146, 220808 and 223474 ms with 47/47 and no drift; jobs1 passed 47/47 semantic equivalence; DONE-required PASS and current TEST transition ran 93 commands exit0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current TEST-phase replay at HEAD 6c7d9210dc emitted all 52 VERIFIED selectors and FULL_SUITE_CONTRACT=PASS; reports retain complete 47-member assertion and mutation inventories."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "F053 real fixture starts an unref grandchild heartbeat, lets the parent exit zero, verifies the member remains PASS, then observes the heartbeat stop. This exact assertion appears in serial and all three jobs4 result inventories."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Cohort jobs1/jobs3 contain 12 source records with equal semantic digests; frozen-cohort consumer identity and restoration checks pass in the current verifier."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Stress20 evidence contains 20 completed/restored iterations, six observed guard classes, six executed and detected mutations, deterministic replay and isolated timeout behavior."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Final material-bound serial and three jobs4 reports each show 47/47, processLaunchCount=47, retries=0, identityDrift=false and critical-path telemetry; failure, timeout and normal-completion descendant cleanup are covered."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Three jobs4 durations are 216146.1, 220807.9 and 223473.5 ms, all below five minutes; jobs1 reports 47/47 equivalence. DONE-required validation passed and REVIEW-to-TEST fresh validation executed 93 commands with exit0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All six delivery promises are independently verified on round-12 material e836ff7f. F053 normal-completion descendant cleanup is exercised by a real heartbeat process and retained in serial plus all three sub-five-minute parallel reports; DONE-required, 93-command validation and PASS52 are green."
+  },
+  "_hash": "ca48f6deeb4ef3ff375051539babf5b906762ba7e7c414c2798a22e4dcd7c8d8"
+}

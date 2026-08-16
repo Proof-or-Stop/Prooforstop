@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-9812",
+  "records": [
+    {
+      "id": "RED-BASELINE-1688S",
+      "trigger": "The canonical serial root npm test suite exceeds the required 300000 ms ceiling.",
+      "acceptanceTargetRef": "ACC-FULL-SUITE-UNDER-5M",
+      "baselineHeadHash": "58c7cdc816674bfa5c091bfe8a18c32d51bbadb0",
+      "baselineMaterialHash": "f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2",
+      "observedFailure": "A clean temporary clone completed all 46 historical canonical members in 1688918 ms; the equivalent current B-9812 base inventory has 45 members and still violates the same five-minute acceptance target.",
+      "failureReceiptHash": "sha256:43f2eb4847d3035fdcdc927bfd56107cc08475d4d5ffdb406896af3c7e090d35",
+      "expectedGreenCommand": "npm test",
+      "greenRelation": {
+        "targetRef": "ACC-FULL-SUITE-UNDER-5M",
+        "relation": "regression_to_green",
+        "command": "npm test"
+      },
+      "note": "Receipt is /tmp/prooforstop-test-bench.sBJrDQ/repo/benchmark-results.json from the pre-fix benchmark; historical descendant member count is not treated as the authoritative B-9812 inventory.",
+      "createdAt": "2026-08-12T12:51:01.022Z"
+    }
+  ],
+  "createdAt": "2026-08-12T12:51:01.022Z",
+  "updatedAt": "2026-08-12T12:51:01.022Z"
+}

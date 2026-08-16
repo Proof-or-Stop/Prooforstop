@@ -1,5 +1,33 @@
 # Test Runner Consolidation Plan
 
+## Canonical root-suite execution (B-9812)
+
+The root `npm test` contract is now distinct from smoke auto-discovery. It uses
+`full-suite-runner.ts`, whose explicit resource-classified inventory is checked
+bidirectionally against `test:serial-reference` before execution. Unknown,
+duplicate, missing, or extra members fail closed. Compatible isolated/read-only
+members share a bounded worker pool; repo writers take an exclusive lock.
+Timeouts kill the member process group, output is bounded, and a first-run FAIL
+or TIMEOUT is terminal: the canonical path never retries to green. The prior
+`run-all-smokes` discovery runner remains available for its broader noncanonical
+smoke/coverage use cases.
+
+Exclusive path claims may additionally declare runner-cleanable ownership. The
+runner records each canonical target's pre-spawn existence, type, and owner
+marker, limits targets to the exact project `.lattice/runtime` and
+`.lattice/locks` subtrees, rejects any pre-existing/symlinked/out-of-bound target
+before spawn, and uses a per-launch ownership token. PASS requires every declared
+owned target already absent. FAIL, TIMEOUT, and INTERRUPT remove a target only
+when it was absent before launch and now carries the exact launch token; an empty,
+missing-marker, tampered, foreign, or nonempty target is retained and makes the
+result fail closed.
+
+The canonical runner smoke itself creates the fixed-path collision fixture and
+probes port 43127, so its manifest declares the same exclusive fixed-path and
+fixed-port keys as the resource sentinel. This keeps the real fixture writer and
+port probe mutually exclusive with the sentinel at all worker counts; the smoke
+is not treated as a read-only member.
+
 This decision document records the chosen architecture for consolidating the
 project's test runner and decomposes the implementation into follow-up Proof-or-Stop
 stories. The deliberation history is captured under Proof-or-Stop story **B-35aa**.

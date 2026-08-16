@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3f3d",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git merge",
+    "git merge-base",
+    "git rev-parse",
+    "git status",
+    "lattice *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node packages/main/tests/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "collaboration",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "npm publish",
+    "rm -rf"
+  ],
+  "excludedTools": [
+    "production mutation",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".remember",
+    "docs/story",
+    "experiments",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "All Story metadata and evidence writes must go through Lattice CLI. No remote branch or production mutation. Destructive reviewer bite tests must use an isolated scratch worktree or serialize with byte-restore verification.",
+  "createdAt": "2026-08-14T13:44:46.645Z",
+  "updatedAt": "2026-08-14T13:44:46.645Z",
+  "_hash": "a14072eedc7ebde463d02c09426130607be9bd618fb5518562710550b0e12d8c"
+}

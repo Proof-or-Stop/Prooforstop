@@ -42,6 +42,7 @@ import { readHealthIssues } from '../core/health.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
+import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 import {
   ACTIVE_LIFECYCLE_PHASES,
   COMMAND_LIFECYCLE_PHASES,
@@ -4232,6 +4233,11 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     // reviewer Agent call lines and the liveness reminder unchanged.
     assert.match(nextSteps.REVIEW, /launch the above reviewers in parallel to review code/);
     assert.match(nextSteps.REVIEW, /reviewer liveness: each reviewer should first output REVIEW_START after starting/);
+    assert.match(nextSteps.REVIEW, /Host-native task liveness policy/);
+    assert.match(nextSteps.REVIEW, /foreground, running, or background/);
+    assert.match(nextSteps.REVIEW, /unknown or temporarily unavailable/);
+    assert.match(nextSteps.REVIEW, /authoritative failed, cancelled, missing, or dead status/);
+    assert.doesNotMatch(nextSteps.REVIEW, /no result for 10 minutes\/600s treat as stalled, restart/i);
 
     // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
     //     line shape must be byte-identical to the inline original.
@@ -5146,6 +5152,7 @@ await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 
+runAgentLivenessSuiteForPinnedEvidence();
 // ── B-cdf6:F-052 — the read-both branch must be PROVEN, not just present ────────
 // The quality lane observed that every smoke exercising purgeSafeInitCommit only ever
 // hand-writes the CANONICAL subject, so the tests proved the writer emits the new form
@@ -5177,5 +5184,4 @@ assertAutoCommitMetadataAcrossHandlers();
   assert.equal(COMMIT_SUBJECT_PREFIX, 'proof-or-stop:', 'writer prefix is the canonical bin name');
   assert.equal(DEPRECATED_COMMIT_SUBJECT_PREFIX, 'lattice:', 'deprecated prefix is retained verbatim for compatibility');
 }
-
 console.log('✓ flow stability smoke passed');

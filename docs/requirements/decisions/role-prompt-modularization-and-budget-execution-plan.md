@@ -5,6 +5,16 @@ Source story: B-7ffc
 Source proposal: DDP-001
 Created: 2026-07-17
 
+## Canonical race burn-in execution (B-9812)
+
+`review-incremental-context-smoke` always retains the three deterministic
+concurrent-writer masks (`11111`, `01010`, and `10101`) and all gate/mutation
+assertions. Canonical root testing runs the `10101` burn-in once because the
+historical twenty iterations are identical repetitions of that fixed mask.
+Soak testing retains the original twenty repetitions by setting
+`LATTICE_INCREMENTAL_STRESS=1`; this is an opt-in stress tier, not a substitute
+for the deterministic canonical matrix.
+
 ## Decision
 
 Adopt the evidence-calibrated role prompt modularization and budget governance plan as the canonical execution plan for future sequential Stories; this planning decision is not implementation evidence and does not change runtime behavior by itself.

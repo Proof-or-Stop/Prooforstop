@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-74af",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "lattice",
+    "node packages/main/dist/tasks/flow-stability-smoke.js",
+    "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "lattice CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".remember",
+    "B-cdf6-flow.html",
+    "B-cdf6-flow.md",
+    "CODEX-FINDINGS.md",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Scope is prompt/guidance correctness and regression tests only; preserve explicit subprocess timeout behavior and unrelated local files.",
+  "createdAt": "2026-08-12T09:36:21.175Z",
+  "updatedAt": "2026-08-12T09:36:21.175Z",
+  "_hash": "8ce4f1317c566aee95ced3008d699c6d1ec5313eef2ecdc49e9e30c7b78031b2"
+}
