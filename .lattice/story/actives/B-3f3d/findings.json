@@ -5469,6 +5469,25 @@
       ],
       "signatureTag": "missing|ts|wave-acceptance-gate",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-3f3d:F-090",
+      "desc": "packages/main/src/core/review-incremental-context.ts:402-410 postRemediationReviewSelection consumes classifyImpact categories (command-or-gate-policy, authority-or-permission, public-contract, dependency-or-build, unknown) to force full-set review after remediation, but command-or-gate-policy is otherwise UNUSED anywhere in the repo (grep confirms only review-incremental-context.ts and impact-classification-policy.ts reference it) and packages/main/src/tasks/review-inventory-handler-smoke.ts has zero test exercising POLICY_IMPACT_REQUIRES_FULL_SET, EMPTY_IMPACT_SELECTION, CHANGED_FILE_OUTSIDE_FROZEN_SCOPE, or SOURCE_CUTOFF_NOT_ANCESTOR fallback reasons (only DIRTY_MATERIAL, UNTRACKED_OR_IGNORED_MATERIAL, UNSUPPORTED_RENAME_OR_DELETE, DEPENDENCY_CLOSURE_INCOMPLETE, and the happy-path PROVEN_CANONICAL_DEPENDENCY_CLOSURE are covered). This is the exact mechanism meant to prevent narrowing the round-2+ reviewer roster after a remediation touches gate/policy source itself, and it is unverified by any test in this story or elsewhere: a regression in classifyImpact categorization for gate/policy files, or a bug in the .some() filter at line 403, would silently under-select reviewers with no test to catch it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T11:13:12.895Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-375",
+      "_hash": "df8ca0e3640d484cfe217f47226e53702204071575d9450dd10379ee7f268dc8",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
