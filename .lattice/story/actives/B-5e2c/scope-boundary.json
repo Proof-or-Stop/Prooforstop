@@ -3,18 +3,26 @@
   "storyId": "B-5e2c",
   "mode": "correctness_fix",
   "allowed": [
-    "Bounded automatic takeover for stale same-worktree same-host leases whose recorded owner process is mechanically dead",
-    "Reuse of the unified story owner lease gate and existing serialized takeover audit path",
-    "session_brief eligibility/refusal UX, focused real-process regression tests, and process-fact documentation"
+    "Automatically hand off only storyScopedMutating commands in PLAN, REVIEW, or TEST when stale same-host same-canonical-worktree and no prior owner lattice CLI process is in flight.",
+    "Distinguish absent owner lease from malformed lease.",
+    "Keep DEV, dangerousMutating, agent_prompt direct acquisition, terminal, active, malformed, remote, derived-identity, PID-live, EPERM, and unknown states manual or fail-closed.",
+    "Persist required Story process-event handoff authorization before lease publication.",
+    "Serialize acquire, refresh, release, explicit takeover, and automatic handoff under one per-story owner-lease transaction lock with atomic publication.",
+    "Update session UX, process-fact contract, owner and convergence focused smokes, adopted ownership decisions, story lifecycle, AGENTS.md, and CLAUDE.md.",
+    "Upgrade the existing convergence-breaker takeover-count as the sole atomic idempotent operational counter keyed by transferId, with lease pending reconciliation."
   ],
   "excluded": [
-    "Automatic takeover of active, remote, malformed, PID-alive, or liveness-unknown leases",
-    "Changes to main write locking, validation capacity, pre-Story proof enforcement, or root npm test coordination",
-    "New timeout thresholds or force takeover semantics"
+    "A direct file-system or git worktree write fence",
+    "A second takeover counter or lease-only durable audit",
+    "Automatic agent_prompt foreign takeover",
+    "Automatic ownership handoff in DEV or for dangerousMutating",
+    "Changes to main-write-lock, validation capacity, pre-story intake, release push, or full-suite behavior",
+    "Host-session death detection or new host liveness adapter protocol",
+    "Remote branch publication"
   ],
   "confirmedBy": "main-agent",
-  "confirmationNote": "User explicitly requested one overall objective with three independent Stories and asked the mechanism to finish routine stale-owner recovery without repeated confirmation.",
-  "createdAt": "2026-08-16T11:41:02.625Z",
-  "updatedAt": "2026-08-16T11:41:02.625Z",
-  "_hash": "387d1bc323e35331be141c7ea511ab532998606bfb2b42f071b73b45ea8a80a8"
+  "confirmationNote": "User requested the stale-owner Story through DONE without repeated confirmation; INIT Proof-or-Stop narrowed the safe result to TEST and other non-code phases, not DEV or dangerous commands.",
+  "createdAt": "2026-08-16T12:07:11.953Z",
+  "updatedAt": "2026-08-16T12:07:11.953Z",
+  "_hash": "73725c87c6bdaf847baa45f3c926ba246f6ad089d5db08dc2ba60c93acd2305b"
 }
