@@ -1,0 +1,123 @@
+{
+  "storyId": "B-cdf6",
+  "checkedAt": "2026-08-16T10:20:01.001Z",
+  "headHash": "681d78aa534d78c7c969ea5facbc2fc2ea1e9b14",
+  "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
+  "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+  "reviewRound": "2026-08-16T08:06:30.924Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/package.json#bin",
+      "promise": "bin map exposes both proof-or-stop (canonical) and lattice (deprecated alias), both pointing at dist/cli.js",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "packages/main/package.json bin: {\"proof-or-stop\":\"dist/cli.js\",\"lattice\":\"dist/cli.js\"}; node bin/proof-or-stop.js --version and node bin/lattice.js --version both print identical 'Proof-or-Stop 0.3.254'"
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_PRODUCT_NAME",
+      "promise": "--version and help output print 'Proof-or-Stop <version>' instead of 'Proofbound CLI <version>'",
+      "verifiedBy": "manual run",
+      "evidence": "PROOF_OR_STOP_PRODUCT_NAME='Proof-or-Stop' in packages/main/src/core/lattice-brand.ts:19; live run confirms both bin wrappers print 'Proof-or-Stop 0.3.254'"
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#LATTICE_* env vars",
+      "promise": "LATTICE_* env vars are RENAMED (additive): canonical PROOF_OR_STOP_* wins when both set, old name still read as fallback forever, never required",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "packages/main/src/core/brand-env.ts implements readBrandEnv() with documented precedence-by-presence semantics; used across cli-engine.ts, activity-policy.ts, done-required-timeout-budget.ts etc. Read-both is real."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md / CLAUDE.md",
+      "promise": "New writes/output should use the canonical PROOF_OR_STOP_* env var name, old name kept only for backward-compat reads",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "PARTIAL GAP, not full miss: CLAUDE.md:77 still teaches only the deprecated 'LATTICE_SESSION_BRIEF_FRESH_MINUTES' name (this exact line was edited by this story's diff for an adjacent 'lattice init'->'proof-or-stop init' substitution, but the env var name beside it was left unchanged), even though .claude/hooks/session-brief-reminder.cjs:43-45 already implements read-both with PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES as canonical. Separately, live-reproduced: `LATTICE_MAX_TIMEOUT_MS=999999 node bin/proof-or-stop.js done_prepare ...` prints 'source=LATTICE_MAX_TIMEOUT_MS' verbatim in its own diagnostic log line (cli-engine.ts:1068), and packages/main/src/handlers/checklist.ts:774 tells the user to raise 'LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS' in user-facing error text -- both are current runtime output surfacing the deprecated name as if it were canonical, contradicting the doc's own 'new writes use the new name' rule for RENAMED (additive) tokens. Functionally harmless (reads still work via readBrandEnv) but it is a real, reproducible doc/code drift, not a frozen item."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#.lattice state dir",
+      "promise": ".lattice/ state dir, .lattice-serve.json, lattice.config.json path/filenames renamed additively with read-both; string VALUES of paths stay frozen",
+      "verifiedBy": "diff/grep + manual init run",
+      "evidence": "Fresh `proof-or-stop init` in a scratch git repo writes .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md with zero stray 'lattice <cmd>' invocation prose and zero generated bin/ wrapper; only frozen markers (<!-- lattice:start/end -->, .lattice/ path) remain, matching CHK-006's userSees claim exactly."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#salt literals",
+      "promise": "The 13 signature salt string literals stay FROZEN verbatim (hashed into persisted _hash fields)",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep -rhoE \"'lattice-[a-z0-9-]*-v[0-9]+'\" packages/*/src still returns the 13 listed salts unchanged; init-check.ts / delivery-check.ts signature domains unchanged."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#role IDs",
+      "promise": "13 lattice-prefixed agent role IDs (of 17 registry templates) stay FROZEN-THIS-STORY; subagent_type values unchanged",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/templates/agents/*.md filenames unchanged (lattice-review-concept.md etc still present); .claude/agents/*.md thin-shims still reference lattice-* subagent_type names; verify-proof-or-stop-prompt-baseline.mjs confirms roleCount=17 with 13 lattice-prefixed, matching the mapping doc's enumeration."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#CHANGELOG / story archives",
+      "promise": "CHANGELOG.md stays byte-frozen; the 390 pre-existing frozen story archives under .lattice/story/ are never rewritten",
+      "verifiedBy": "diff/grep",
+      "evidence": "`git diff --stat main...HEAD -- CHANGELOG.md` is empty. `git diff --name-only main...HEAD -- '.lattice/story/**'` touches only this story's own B-cdf6 artifacts and B-META-framework-audit's live append-only findings/gap-log ledger -- zero rewrites of other pre-existing story archives."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#GitHub slug / BibTeX",
+      "promise": "GitHub repo slug Proof-or-Stop/Prooforstop and BibTeX citation key huang2026proofstop stay FROZEN as external identifiers",
+      "verifiedBy": "diff/grep + live remote check",
+      "evidence": "`git remote -v` confirms origin is exactly git@github-pagepeek:Proof-or-Stop/Prooforstop.git; README.md:5,106,140 use the identical slug; README.md:125 keeps @misc{huang2026proofstop,...} unchanged."
+    },
+    {
+      "docPath": "CLAUDE.md / docs/CLI.md#pre-push hook",
+      "promise": ".githooks/pre-push arms its recursive tsc gate on @lattice/core package name and must not silently self-disarm if the package name changes",
+      "verifiedBy": "diff/grep",
+      "evidence": ".githooks/pre-push:155-157 widens the check to a name SET (case '@lattice/core'|'@proof-or-stop/core') specifically to survive a future rename without silent disarm, per an explicit inline comment referencing B-cdf6; exceeds the mapping doc's minimum bar."
+    },
+    {
+      "docPath": "CLAUDE.md#lattice-residue gate table",
+      "promise": "verify-lattice-residue.mjs runs three independent checks: [koala] zero-tolerance on packages/*/src, [brand-prose] active-docs scan incl. .claude/agents + .lattice-codex/agents, [brand-exec] executable-surface scan (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src) with no exemption",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "`node scripts/verify-lattice-residue.mjs` prints 'PASS lattice-residue [koala]', '[brand-prose]' (3 documented exemptions), '[brand-exec]' (0 hits) exactly as documented; scripts/verify-lattice-residue.mjs:119,139-147,175-185 show SRC_SCAN_ROOTS/DOC_SCAN_ROOTS/EXECUTABLE_SCAN_ROOTS matching the doc's claimed roots verbatim, including the .claude/agents + .lattice-codex/agents follow-up and packages/utils/src promotion."
+    },
+    {
+      "docPath": "CLAUDE.md#docs/CLI.md bin alias section",
+      "promise": "docs/CLI.md's bin alias section is reduced to a one-line pointer rather than teaching the deprecated names as a reference",
+      "verifiedBy": "diff/grep",
+      "evidence": "docs/CLI.md:16-19 is exactly the one-line pointer described, citing brand-rename-mapping.md for rationale."
+    },
+    {
+      "docPath": "CLAUDE.md#version bump discipline",
+      "promise": "CLI version bumped by 1 patch after this rename story merges, package.json/lockfile/LATTICE_CLI_VERSION in sync, `proof-or-stop --version` reflects it",
+      "verifiedBy": "diff/grep + manual run",
+      "evidence": "packages/main/package.json and root package.json both read 0.3.254 (bumped from 0.3.251 baseline mentioned in story background); node bin/proof-or-stop.js --version prints 'Proof-or-Stop 0.3.254' matching LATTICE_CLI_VERSION in lattice-brand.ts."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed brand-rename-mapping.md's canonical mapping table (26 rows) plus verdict-reconciliation addendum (F-004); cross-checked against live repo state (git remote, CHANGELOG.md diff, salt grep, role registry count) -- all verified consistent with the table's claims."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Live-ran node bin/proof-or-stop.js --version and node bin/lattice.js --version: both print identical 'Proof-or-Stop 0.3.254'. Live-ran node scripts/verify-entrypoints.mjs after a clean packages/main rebuild: exits 0, 'ok 1/28'..'ok 28/28', 'entrypoints verified' -- matches the CHK-002:adversarial:1 mechanical receipt exactly (this script is documented as load-sensitive by the story's own finding B-META-framework-audit:F-027; a stale dist/ build in my working copy produced a false MODULE_NOT_FOUND on the first attempt, resolved by rebuilding)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Grepped README.md/CLAUDE.md/AGENTS.md for stray 'lattice <cmd>' invocation prose outside frozen contexts (.lattice/, lattice-review-*, lattice-implementer, lattice.config, lattice-codex, managed-block markers): zero hits. Live-ran the lattice-residue [brand-prose] check: 0 hits with 3 documented exemptions."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Live-ran node scripts/verify-lattice-residue.mjs: all three [koala]/[brand-prose]/[brand-exec] checks PASS with 0 hits (brand-prose has 3 live-verified exemptions). Read the three SCAN_ROOTS constants in the script and confirmed they match the checks CLAUDE.md documents byte-for-byte."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Live-ran node packages/main/dist/tasks/audit-scan-bin-token-smoke.js after rebuild: all 8 sub-tests pass (mixed-token doc detection, vacuous-scan distinguishability, renamed-bin bogus-command detection). Live-ran node scripts/verify-process-fact-contract.mjs: exit 0. Live-ran node scripts/verify-proof-or-stop-prompt-baseline.mjs: all PASS lines, roleCount=17, 17-role sidecar verified (an earlier apparent exit 1 during a background/kill test artifact was reproduced cleanly on a direct foreground rerun -- exit 0, false alarm from my own test harness, not the tool)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "No verificationIntent/evidence entries exist directly on CHK-006 (it carries 0 must-intents) -- its substance is verified transitively through the extensive finding/fix cycle (59 findings, all resolved, 0 open) and the CHK-002/003/004/005 evidence above, plus this reviewer's own live init/rebuild/residue reproductions.",
+      "waiverReason": "CHK-006 restates and supersedes CHK-001's mapping under a corrected freeze criterion rather than adding a new isolated feature surface; its actual verification is distributed across every other checklist item's evidence and the 59-finding review history (RP-033..RP-041 in the current round alone independently re-derived AST fingerprints, re-ran all mechanical gates, and re-confirmed the three known pre-existing red smokes against a freshly rebuilt pristine-main worktree), so a standalone per-item transcript would be redundant with evidence already captured elsewhere."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The rename is substantively and mechanically delivered: both bin entrypoints work identically, the three lattice-residue checks and process-fact/prompt-baseline/entrypoints/audit-scan-bin-token gates all pass live after a clean rebuild, the freeze boundary (13 salts, CHANGELOG, 390 story archives, GitHub slug, BibTeX key, role IDs) is genuinely respected in the diff, and the three pre-existing red smokes (prompt-token-cost, proofstory-acceptance-topology, lattice-cli-migration) were independently reproduced as identically red on a freshly built pristine-main worktree, confirming they are not regressions. One concrete, reproducible gap remains: CLAUDE.md's own prose and several current-facing runtime diagnostic strings (cli-engine.ts:1068's 'source=LATTICE_MAX_TIMEOUT_MS' log line, checklist.ts:774's user-facing hint) still surface the deprecated LATTICE_* env var spelling as if canonical, even though the code already supports PROOF_OR_STOP_* as the preferred name and this story's own diff edited the adjacent CLAUDE.md line for an unrelated substitution -- this is a real doc/code-output drift against the mapping doc's own 'new writes use the new name' rule, not a frozen item, and should be swept before or shortly after DONE."
+  },
+  "_hash": "7d19b045ea6a9ba4b1c2e83188691b124aa96f4e579644300fd8deb9501920cc"
+}
