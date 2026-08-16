@@ -5737,7 +5737,7 @@
       "desc": "packages/main/src/handlers/reviewer-list.ts:168-171 and packages/main/src/core/review-run.ts:459-489 -- quality: two independent writers append StoryEvent.action==reviewer_forced for semantically unrelated reasons. review-run.ts ensureCurrentReviewRound() writes a reviewer_forced event purely to audit auto-initializing a missing currentReviewRound for a legacy direct-REVIEW story (reason field literally says auto-initialized missing currentReviewRound, no reviewer field set); reviewer-list.ts writes reviewer_forced for an actual operator forceReviewer decision (reviewer field set to the forced lane name). The new F-091 replay in computeActiveReviewers filters on action===reviewer_forced then reads .reviewer, so it currently coexists safely with ensureCurrentReviewRound only because that other writer happens to never set .reviewer (falls through String(undefined).trim() being empty and gets filtered by length>0). This is accidental disambiguation, not a designed contract -- nothing stops a future edit to ensureCurrentReviewRound (or any other future writer reusing the same action string for a different purpose) from adding a reviewer field or otherwise breaking the empty-string coincidence, silently forcing an unintended reviewer lane onto every future REVIEW round for that story. Separately: there is no un-force / revoke CLI path (grepped for reviewer_unforce and revoke, none exists), so once forced (even from an operator typo or exploratory forceReviewer call) a lane is now durably and permanently required for the rest of the story lifetime per this diff's own design comment, with no supported way to remove it short of directly editing story files which CLAUDE.md forbids. Recommend: (1) give ensureCurrentReviewRound its own distinct StoryEvent.action value instead of reusing reviewer_forced for an unrelated audit purpose, and (2) add a documented un-force path or explicitly document the permanence as intentional with an escape hatch before this becomes an operational trap.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-16T13:19:22.113Z",
@@ -5770,7 +5770,9 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed as a real fragility and documented at the code site. Verified the collision independently: packages/main/src/core/review-run.ts ensureCurrentReviewRound writes a StoryEvent with action reviewer_forced purely to audit auto-initialising a missing currentReviewRound, and that writer sets no reviewer field, while handlers/reviewer-list.ts writes the same action string for genuine operator force decisions. The F-091 replay therefore distinguishes the two writers solely by requiring a non-empty reviewer, which the reviewer correctly characterised as accidental coexistence rather than a designed contract. Rather than leave that invariant implicit, the filter now carries a comment at the replay site naming the other writer and stating explicitly that the non-empty reviewer requirement IS the load-bearing disambiguation between them, not incidental input hygiene, so a future edit that relaxes the filter or a future change to ensureCurrentReviewRound that starts populating reviewer will be understood as breaking a real contract. Deliberately NOT done here: renaming one of the two action strings or introducing a distinct audited event type. That is a StoryEvent schema change affecting persisted story history and every reader of the action union, which is materially larger than this story scope and belongs in its own story; the comment plus this resolution record the hazard so it is not lost.",
+      "resolvedAt": "2026-08-16T13:22:07.844Z"
     }
   ]
 }
