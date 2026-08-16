@@ -5678,6 +5678,57 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Accepted as a real consequence of my own F-091 fix and documented rather than silently shipped. Verified the claim independently: grep across packages/main/src and the CLI command catalog for unforce / remove-reviewer / reviewer_unforced returns zero hits, so there is genuinely no removal path, and the StoryEvent action union has no revoke event type. Before F-091 a mistaken force expired by accident because only reviewer-list.ts threaded the flag; making the force durable removed that accidental escape hatch, so the gap became load-bearing precisely because of my change. Documented in CLAUDE.md under the Reviewer opt-in routing section: forceReviewer now writes a durable reviewer_forced event that computeActiveReviewers replays on every call, so it reaches ALL consumers (canPassReviewGuard, the epoch requiredLanes frozen by review_inventory_begin, quorum_submit) and persists across review rounds and DEV round-trips, honouring the review-inventory-epoch-and-saturation-gate.md promise that forced lanes remain selected; and explicitly that there is NO unforceReviewer command, so a mounted lane stays required for the rest of the story lifetime, the only removal being an unaudited hand-edit of story.events, therefore an operator should force only lanes intended to gate long-term rather than as a one-off probe. Adding a real revocation command is deliberately NOT done here: it needs its own audited event type, a signature story about who may revoke reviewer coverage, and gate semantics for revoking mid-epoch, which is materially larger than this story scope and should be its own story. Both the behavior lane (F-092) and the concept lane (RP-290 observation) independently identified this gap and both classified it as a design tradeoff rather than a correctness or gate-bypass defect; the behavior lane separately confirmed no double-application, no ordering instability, no cross-round leakage bug, no unsatisfiable gate (normalizeForceReviewerName only accepts real dispatchable lanes), and no spurious injection from the legacy review-run.ts:475 reviewer_forced writer that carries no reviewer field.",
       "resolvedAt": "2026-08-16T13:16:01.460Z"
+    },
+    {
+      "id": "B-3f3d:F-093",
+      "desc": "packages/main/src/handlers/reviewer-list.ts:83,168-171 -- quality: computeActiveReviewers narrows story to Pick<StoryInfo,riskSignals> & Partial<Pick<...,riskSignalsDismissed>>, which omits events, so the F-091 persistedForced replay is forced to cast (story as Partial<Pick<StoryInfo,events>>).events and then double-cast each array element via (event as {action?:string}) / (event as {reviewer?:string}) to read fields that are already fully typed on StoryEvent (action is already the literal union including 'reviewer_forced'; reviewer is already string|undefined). This is a self-inflicted typing gap from an overly narrow parameter Pick, not genuinely unknown-shaped data. Fix: widen the parameter type to Pick<StoryInfo,'riskSignals'|'events'> (events stays optional, so all 11 existing call sites -- several of which pass bare object literals like {riskSignals:[]} with no events field -- remain compatible) and use a real type predicate '(e: StoryEvent): e is StoryEvent & {action:'reviewer_forced'}' over the now well-typed array. Verified this compiles with zero casts via tsc --noEmit -p packages/main. Reproduced the author's claimed tsc rejection: the real error is TS2339 'Property events does not exist on type ...Pick<StoryInfo,riskSignalsDismissed>...' (because events is missing from the Pick), not a predicate-assignability failure against StoryEvent as the author described; the predicate itself compiles fine once events is in scope on the parameter type.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-16T13:17:59.704Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-385",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        }
+      ],
+      "_hash": "0ebc02c2a1dd69ade0a7baf3cbf83095d03f74ac5e3508d1dc39a9a91d8d41b0",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
