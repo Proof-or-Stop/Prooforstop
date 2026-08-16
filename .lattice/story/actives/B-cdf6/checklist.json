@@ -77,12 +77,12 @@
           "command": "test -f docs/requirements/decisions/brand-rename-mapping.md",
           "result": "pass",
           "note": "Mapping table created with 24 rows; verdict distribution verified by grep: 8 RENAMED / 10 FROZEN / 2 FROZEN-THIS-STORY / 1 PRESERVE.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -91,12 +91,12 @@
           "command": "grep -oE '\\| (RENAMED|FROZEN-THIS-STORY|FROZEN|PRESERVE) ' docs/requirements/decisions/brand-rename-mapping.md | sort | uniq -c",
           "result": "pass",
           "note": "Every FROZEN row carries both a reason and a user-visible-in-runtime-output value; the table has an explicit 'User-visible in runtime output' column.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -105,12 +105,12 @@
           "command": "grep -c ProofStory docs/requirements/decisions/brand-rename-mapping.md",
           "result": "pass",
           "note": "ProofStory present with PRESERVE verdict (1 PRESERVE row), confirmed distinct domain concept not a brand variant.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -119,12 +119,12 @@
           "command": "grep -c CHANGELOG docs/requirements/decisions/brand-rename-mapping.md",
           "result": "pass",
           "note": "CHANGELOG.md has an explicit FROZEN verdict (records shipped releases = past record); no longer unclassified.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -133,12 +133,12 @@
           "command": "grep -n 'FROZEN-THIS-STORY' docs/requirements/decisions/brand-rename-mapping.md",
           "result": "pass",
           "note": "OQ-1 action satisfied: the 13 lattice-prefixed role IDs are FROZEN-THIS-STORY citing proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43 as the owning plan, so the deferral reads as intentional. A 14th row covers the 4 non-lattice roles so all 17 are accounted for.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -147,12 +147,12 @@
           "command": "for k in CHANGELOG remote-push-approval 'lattice:start' 'LATTICE_\\*' lattice.config.json '@lattice/core' LATTICE_PRODUCT_NAME; do grep -c \"$k\" docs/requirements/decisions/brand-rename-mapping.md; done",
           "result": "pass",
           "note": "All load-bearing identifiers present: 13 salts, npm package names, lattice.config.json, LATTICE_* env prefix, managed-block markers, push-approval schema literal. Verified each row exists by grep.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         }
       ]
     },
@@ -257,12 +257,12 @@
           "command": "node bin/proof-or-stop.js --version",
           "result": "pass",
           "note": "Prints 'Proof-or-Stop 0.3.251'. Independently re-run by the main agent, not only self-reported by the implementer.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -271,12 +271,12 @@
           "command": "node bin/lattice.js --version",
           "result": "pass",
           "note": "Prints 'Proof-or-Stop 0.3.251' - identical version to the new bin, proving the deprecated lattice alias is intact. Load-bearing: 32 stories are in flight and hooks call lattice.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -285,12 +285,12 @@
           "command": "node bin/proof-or-stop.js help",
           "result": "pass",
           "note": "Help output uses the new bin name; invokedAs is now genuinely consumed via a usageBin field so usage lines mirror the invocation.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -299,12 +299,12 @@
           "command": "node bin/proof-or-stop.js session_brief | head -1",
           "result": "pass",
           "note": "Prints '# proof-or-stop session brief'. This is the most-seen string in the product because CLAUDE.md rule 0 makes session_brief the first command of every session.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -313,12 +313,12 @@
           "command": "node bin/proof-or-stop.js proof-or-stop --version",
           "result": "pass",
           "note": "Forgiven symmetrically with the lattice lattice form; nested variants proof-or-stop lattice and lattice lattice also verified by the implementer.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -327,12 +327,12 @@
           "command": "node bin/proof-or-stop.js help | grep -c 'Usage: lattice'",
           "result": "pass",
           "note": "Returns 0 - re-run independently by the main agent. No help or usage line prints the old bin name when invoked as proof-or-stop.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -341,19 +341,19 @@
           "command": "node packages/main/dist/tasks/rollout-check-smoke.js",
           "result": "pass",
           "note": "Re-earned as a real tool-executed receipt on current material. Prior receipt had been downgraded to non_mechanical by verification_evidence_refresh_stale. Re-running the pinned command instead of trusting that label revealed it genuinely exited 1: two assertions pinned the PRE-rename brand (/lattice story_create/, /lattice session_brief/) and so failed because the rename succeeded. Measured help output: 5x 'proof-or-stop story_create', 2x 'proof-or-stop session_brief', zero 'lattice'. Fixed in 602bf8b8dd; command now exits 0 with 'rollout-check-smoke: PASS'. This intent asserts invokedAs is actually CONSUMED rather than merely computed, and the smoke covers exactly that: it asserts help renders 'Entrypoint: proof-or-stop' and never 'Usage: lattice '.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "5411cd97d362a699611c39cd91d6f7454967bd0caf8bfb0a9a57fbbb7cd78729",
             "outputTail": "rollout-check-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:15.823Z",
+            "executedAt": "2026-08-16T10:29:57.998Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -362,16 +362,16 @@
           "command": "node scripts/verify-entrypoints.mjs",
           "result": "pass",
           "note": "REAL MECHANICAL RECEIPT, replacing the deferred_gate_evidence waiver. The intent asks that verify-entrypoints.mjs PASS after its pinned header assertions were updated, proving the rename was not achieved by disabling a test. It now exits 0 with 28/28; the selector pins the terminal 'entrypoints verified' line, which the script prints only after every check passes.\n\nWHY THIS BECAME EARNABLE. Four defects had to be fixed first, each verified by execution: (1) cli-init.ts wrote raw modular templates for the 5 MODULAR_COMPLEX_ROLE_IDS instead of the digest-pinned legacy reconstruction; (2) the managed-assets codex mirror had the identical gap in the EXPECTATION; (3) a THIRD copy of the same branch in the .claude mirror (F-034, found by the quality lane); (4) the deprecated bin alias probes used packageRoot() where projectRoot was required, so neither alias ever registered.\n\nWHY IT WAS NOT RECORDED EARLIER, stated plainly: when I first got the script green, the receipt executor ran it and got exit 1 while my direct run got exit 0. I did NOT re-roll until it went green - that would convert a mechanical receipt into a lottery ticket. I investigated instead and found the script is load-sensitive (28/28, 11/28, 28/28, executor failure on one unchanged commit, stopping at different checks), logged as B-META-framework-audit:F-027, and left the honest deferred waiver in place. This attempt is made on a measured-quiet machine (load 5.64) and the executor is being allowed to reach its own verdict; if it refuses again the waiver stays.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c63d3b18dc6fdc271d1bb849d45d2e93bf239bc69648dd8aa34b39b547444b80",
             "outputTail": "ok 1/28\nok 2/28\nok 3/28\nok 4/28\nok 5/28\nok 6/28\nok 7/28\nok 8/28\nok 9/28\nok 10/28\nok 11/28\nok 12/28\nok 13/28\nok 14/28\nok 15/28\nok 16/28\nok 17/28\nok 18/28\nok 19/28\nok 20/28\nok 21/28\nok 22/28\nok 23/28\nok 24/28\nok 25/28\nok 26/28\nok 27/28\nok 28/28\nentrypoints verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:10.914Z",
+            "executedAt": "2026-08-16T10:29:52.891Z",
             "timeoutMs": 1800000,
             "timeoutOverride": {
               "timeoutMs": 1800000,
@@ -379,7 +379,7 @@
               "reason": "verify-entrypoints.mjs runs 28 checks, most spawning a full init --profile=all --asset-mode=full into a temp dir and then executing the generated wrappers; a complete pass exceeds the 270s default budget on this repository."
             }
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         }
       ]
     },
@@ -472,12 +472,12 @@
           "command": "grep -n 'proof-or-stop' README.md",
           "result": "pass",
           "note": "Verified by the main agent: README.md:89 reads 'Proof-or-Stop ships as a CLI (proof-or-stop)', :92-93 show 'proof-or-stop session_brief' / 'proof-or-stop validate'. 137 files rewritten via a protect-first transform that vaults FROZEN tokens before renaming, then restores them.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -486,12 +486,12 @@
           "command": "grep -n 'deprecated alias' README.md",
           "result": "pass",
           "note": "Verified: README.md:96 no longer says 'a rename in progress'. It now states proof-or-stop is the command, lattice is a retained deprecated alias resolving to the same binary, and internal identifiers intentionally keep the older name so persisted state and signatures stay valid.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -500,12 +500,12 @@
           "command": "grep -n 'EXPECTED_ROLE_COUNT = 17' CLAUDE.md",
           "result": "pass",
           "note": "Verified: the stale '16 thin-shim' counts are gone. CLAUDE.md now states 17 role templates pinned by EXPECTED_ROLE_COUNT=17, of which 13 carry the lattice- prefix, plus why those 13 are deliberately frozen and which plan owns their migration.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -514,12 +514,12 @@
           "command": "grep -c 'only active runtime/product command' docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Verified: returns 0 - the stale claim is gone. Line 217 now reads 'proof-or-stop is the primary active runtime/product command' with lattice as a deprecated alias, while the paragraph's normative fresh-init managed-asset content is preserved (the OQ-2 resolution action).",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -528,12 +528,12 @@
           "command": "wc -l .claude/agents/*.md | tail -1",
           "result": "pass",
           "note": "HOST-NEUTRAL INVARIANT HELD. Verified by the main agent: shim total is exactly 2079 lines, byte-identical to the pre-CHK-003 baseline captured at commit 6a953d45d8. No prompt body was inlined into a host directory, so packages/main/templates/agents remains the single body source.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -542,12 +542,12 @@
           "command": "git diff --stat 6a953d45d8..HEAD -- CHANGELOG.md",
           "result": "pass",
           "note": "Past-record freeze held under a 137-file sweep: CHANGELOG.md and all foreign story archives byte-unchanged. Independently re-verified by the main agent.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -556,12 +556,12 @@
           "command": "grep -rIoE Prooforstop README.md CLAUDE.md AGENTS.md docs",
           "result": "pass",
           "note": "Stray spellings normalized in prose; the 4 surviving README hits are FROZEN external identifiers (repo slug + citation key) now explicitly classified in the mapping table.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -570,12 +570,12 @@
           "command": "grep -c FROZEN docs/requirements/decisions/brand-rename-mapping.md",
           "result": "pass",
           "note": "Traceability closed over the active-doc surface. Two tokens CHK-003 surfaced as unclassified (GitHub repo slug Proof-or-Stop/Prooforstop, verified against the live git remote, and BibTeX key huang2026proofstop) were added as explicit FROZEN external-identifier rows in commit f13b6f0d69 rather than left ambiguous. Frozen-token parity was verified across 18 token classes before/after the sweep (salts 13/13, @lattice/core intact, ProofStory preserved).",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         }
       ]
     },
@@ -687,19 +687,19 @@
           "command": "node scripts/verify-lattice-residue.mjs --self-test",
           "result": "pass",
           "note": "Self-test passes 29/29 detector unit tests. Tool-executed receipt.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "777da3e14d6e92b7fd3fee48dcb6171317fd2000229cd0acab8e7aa834ab208d",
             "outputTail": "PASS lattice-residue self-test: 38/38 detector unit tests\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:16.004Z",
+            "executedAt": "2026-08-16T10:29:58.211Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -708,19 +708,19 @@
           "command": "npm run test:lattice-residue",
           "result": "pass",
           "note": "npm run test:lattice-residue passes; both checks green - koala zero-tolerance and the new brand-prose check.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "57c11f758a6ebdf5f4026dd52fdae29cecd79ac2ef51e75e08954d3189ac7de0",
             "outputTail": "\n> lattice@0.3.254 test:lattice-residue\n> node scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:16.405Z",
+            "executedAt": "2026-08-16T10:29:58.632Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -740,19 +740,19 @@
           "command": "node scripts/verify-residue-inject-repro.mjs",
           "result": "pass",
           "note": "The inject-repro harness still proves the koala gate catches an injected hit (tracked inject exits 1, revert exits 0), so the previous rebrand's zero-tolerance guarantee did not regress. isResidue remains byte-identical: /koala/i, allowlist-free over packages/*/src.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4c2c6b8e848720762c0c4352df87eb4ba637443c747d4e8bf4d57e5836f01e2c",
             "outputTail": "OK   step 1: tracked koala inject -> gate exited 1 (FAIL caught it)\nOK   step 2: after git revert -> gate exited 0 (PASS, tree restored clean)\n\nPASS inject-check: gate caught the tracked koala inject and the worktree was restored clean.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:17.901Z",
+            "executedAt": "2026-08-16T10:30:00.106Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -761,19 +761,19 @@
           "command": "node scripts/verify-lattice-residue.mjs",
           "result": "pass",
           "note": "Gate is NOT allowlist-free over packages/*/src, which would be impossible since ~605 files there legitimately contain the token (salts, .lattice/ paths, LATTICE_* env vars, @lattice/core imports, frozen role IDs). Instead the new check targets the single RENAMED token shape - a bare 'lattice <lowercase-subcommand>' invocation in active-doc markdown - and excludes FROZEN classes STRUCTURALLY via the regex (requiring whitespace then a lowercase word means .lattice/, LATTICE_*, lattice-review-*, @lattice/core and lattice.config.json cannot match). Only 3 prose exemptions exist, each self-policing: verifyProseExemptions() fails the gate if an exempted file stops existing or stops having a hit, so an exemption cannot decay into a silent hole.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "3ae1213087a3eaa42701de7be472f1d4cc83cff9dfb762910572ef9b36aa6780",
             "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:18.283Z",
+            "executedAt": "2026-08-16T10:30:00.443Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -782,19 +782,19 @@
           "command": "node scripts/verify-lattice-residue.mjs",
           "result": "pass",
           "note": "Filename verify-lattice-residue.mjs deliberately UNCHANGED (FROZEN per the mapping table), so packages/main/src/handlers/review-preflight.ts:91 - which hardcodes this exact path and returns ok:false when absent - keeps resolving, as does package.json:19 test:lattice-residue and scripts/verify-residue-inject-repro.mjs:31. Only the script content changed. The implementer confirmed the gate passes through the exact execFileSync path review-preflight.ts uses.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "3ae1213087a3eaa42701de7be472f1d4cc83cff9dfb762910572ef9b36aa6780",
             "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:16.704Z",
+            "executedAt": "2026-08-16T10:29:58.945Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -803,19 +803,19 @@
           "command": "node scripts/verify-brand-gate-negative.mjs",
           "result": "pass",
           "note": "MECHANIZED, not attested. The earlier non-mechanical attestation was correctly REFUSED by the DEV->REVIEW gate, which is the right outcome - a claim that a gate bites should itself be executable. The proof is now a Node script asserting BOTH directions: inject an un-renamed `lattice validate` invocation into a real active doc (docs/guide.md) and require the brand gate to FAIL, then revert and require it to PASS. Neither a blind gate nor a permanently-red gate can satisfy it, and a finally-block restores the doc even on early exit.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e377ffa5d69e9a96755855be9ffd01598d39031acda3de1e1e617dd5069c0528",
             "outputTail": "NEGATIVE-TEST OK: injected regression detected, clean tree passes\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-16T09:17:17.201Z",
+            "executedAt": "2026-08-16T10:29:59.443Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         }
       ]
     },
@@ -931,19 +931,12 @@
           "command": "npm run test:proof-or-stop-prompt-baseline",
           "result": "pass",
           "note": "Passes after re-approving the per-role templateHash manifest and regenerating the baselines via the script's own --write flag. EXPECTED_ROLE_COUNT remains 17. Before repinning, the implementer proved the drift was brand-only by showing the normalized new slice is byte-identical to HEAD's.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "07576ff2c5aece5a8e24d28b833ee55a8396c8724005e9950294a6f06242d214",
-            "outputTail": "\n> lattice@0.3.254 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nPASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-16T09:22:01.327Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -952,19 +945,12 @@
           "command": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
           "result": "pass",
           "note": "8-case regression smoke wired into root npm test proves scanCommandDrift detects bogus commands under BOTH bin tokens, so mixed-token docs stay covered during the transition. Main agent independently reproduced: a doc containing proof-or-stop no_such_command plus lattice also_missing plus proof-or-stop validate yields exactly 2 drifts - both bogus commands flagged, real validate correctly not flagged.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "aad6689faa74f80d3a5e262d07147383a5f7e711a69275599ecb1a71abe95ec8",
-            "outputTail": "  test1 ok: proof-or-stop no_such_command -> drift (proof-or-stop no_such_command)\n  test2 ok: lattice no_such_command -> drift\n  test3 ok: mixed-token doc reports both drifts\n  test4 ok: real command + real flag -> no drift, extraction non-empty\n  test5 ok: flag drift caught under proof-or-stop\n  test6 ok: renamed-bin bogus command is NOT a vacuous pass\n  test7 ok: empty extraction is mechanically distinguishable from a clean scan\n  test8 ok: runMechanicalAudit propagates drift + extractedCommands, no duplicate advisory\naudit-scan-bin-token-smoke ok\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-16T09:22:01.773Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -973,19 +959,12 @@
           "command": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
           "result": "pass",
           "note": "Vacuous-vs-clean is now mechanically distinguishable: drifts=0 with extracted=0 reports VACUOUS SCAN, drifts=0 with extracted>0 reports clean. Surfaced in handler stdout, AuditResult.extractedCommandCount and report text. Real repo CLAUDE.md now extracts 29 commands where the pre-fix extractor found 0 - proven RED-first by forcing BIN_TOKEN_ALTERNATION back to lattice, which fails with an explicit passes-vacuously regression message.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "aad6689faa74f80d3a5e262d07147383a5f7e711a69275599ecb1a71abe95ec8",
-            "outputTail": "  test1 ok: proof-or-stop no_such_command -> drift (proof-or-stop no_such_command)\n  test2 ok: lattice no_such_command -> drift\n  test3 ok: mixed-token doc reports both drifts\n  test4 ok: real command + real flag -> no drift, extraction non-empty\n  test5 ok: flag drift caught under proof-or-stop\n  test6 ok: renamed-bin bogus command is NOT a vacuous pass\n  test7 ok: empty extraction is mechanically distinguishable from a clean scan\n  test8 ok: runMechanicalAudit propagates drift + extractedCommands, no duplicate advisory\naudit-scan-bin-token-smoke ok\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-16T09:22:01.994Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -994,19 +973,12 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Exit 0 with the contract header on stdout. Passes after reconciling 10 prompt-registry legacy reconstruction digests plus 4 doc-literal pins (lattice validate to proof-or-stop validate, the subagent-isolation sentence, lattice acceptance_basis_generate, and two Proofbound CLI regexes). No assertion deleted or weakened - each repin carries a comment. Selector targets a stdout line because the final Process fact contract verified confirmation is written to stderr, which the receipt matcher does not capture.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "7cb7d69ab7c2b71d2fc7375040ba6d952df2508ec2934c20d80f738caa21b4d1",
-            "outputTail": "W completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] producer=handlers/lattice-autopilot\n- autopilot_policy_create [L1/command] producer=handlers/lattice-autopilot\n- autopilot_policy_get [L0/command] producer=handlers/lattice-autopilot\n- autopilot_resume [L1/command] producer=handlers/lattice-autopilot\n- autopilot_review [L0/command] producer=handlers/lattice-autopilot\n- autopilot_review_status [L0/command] producer=handlers/verdict\n- autopilot_revi\n...[truncated 40905 chars]",
-            "selectorMatched": true,
-            "executedAt": "2026-08-16T09:21:49.233Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -1015,12 +987,12 @@
           "command": "node bin/proof-or-stop.js --version",
           "result": "pass",
           "note": "Verified by the main agent: prints 'Proof-or-Stop 0.3.252'. Version bumped 0.3.251 to 0.3.252 per CLAUDE.md discipline across packages/main/package.json, root package.json, package-lock.json and the brand constant. node bin/lattice.js --version prints the identical string, proving the deprecated alias still resolves after the bump.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -1029,19 +1001,12 @@
           "command": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
           "result": "pass",
           "note": "NEGATIVE regression proven. The smoke asserts a bogus proof-or-stop no_such_command reference IS reported as drift. Main agent independently reproduced via direct scanCommandDrift call on a doc containing proof-or-stop no_such_command + lattice also_missing + proof-or-stop validate: exactly 2 drifts returned, symbols proof-or-stop no_such_command and lattice also_missing, with the real validate command correctly NOT flagged. The implementer additionally proved it RED-first by forcing BIN_TOKEN_ALTERNATION back to lattice, which fails with an explicit passes-vacuously regression message.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "aad6689faa74f80d3a5e262d07147383a5f7e711a69275599ecb1a71abe95ec8",
-            "outputTail": "  test1 ok: proof-or-stop no_such_command -> drift (proof-or-stop no_such_command)\n  test2 ok: lattice no_such_command -> drift\n  test3 ok: mixed-token doc reports both drifts\n  test4 ok: real command + real flag -> no drift, extraction non-empty\n  test5 ok: flag drift caught under proof-or-stop\n  test6 ok: renamed-bin bogus command is NOT a vacuous pass\n  test7 ok: empty extraction is mechanically distinguishable from a clean scan\n  test8 ok: runMechanicalAudit propagates drift + extractedCommands, no duplicate advisory\naudit-scan-bin-token-smoke ok\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-16T09:22:01.545Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-16T10:31:31.118Z"
         },
         {
           "intentRef": "CHK-005:happy:0",
@@ -1050,12 +1015,12 @@
           "command": "node scripts/verify-done-suite-green.mjs",
           "result": "pass",
           "note": "Root DONE-blocking suite green, earned as a REAL tool-executed receipt under the new bounded audited timeout override rather than a waiver. Replaces the deferred_gate_evidence waiver that F-021/F-024 forced when no receipt was obtainable.",
-          "headHash": "1630add8004e690c32708cb6527bb9a6f831a5f0",
-          "materialHash": "d934207e98d8c84f446b086acd9488fba4e6e5f51ac1a33154ccd58e8db1b19e",
-          "storyFilesHash": "3372aaade96586934f0670900706c6e893b874c31c57739f1a2234abe5df10d9",
+          "headHash": "f86b68ec1e8f1d26a70dba2c12eedb436cebc51f",
+          "materialHash": "901adcc3e287e453e02c613648dd8a18ffb0e6097a812ab8caa1a919f92533c6",
+          "storyFilesHash": "457c6cab0e8a7c82536201c522b5e8ad7f715ff49d069942f29a7b723f8b2350",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-16T09:22:02.006Z"
+          "timestamp": "2026-08-16T10:31:31.118Z"
         }
       ]
     },
