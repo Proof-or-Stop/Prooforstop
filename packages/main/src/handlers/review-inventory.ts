@@ -81,8 +81,24 @@ export function captureReviewInventoryScope(ctx: HandlerContext, storyId: string
     requiredLanes: computeActiveReviewers(story, checklist, decision, touchpoints)
       .map(row => `lattice-review-${row.name}`),
     scopeDigest: reviewInventoryAcceptanceSubjectDigestForStore(ctx.store, storyId),
+    // B-3f3d F-103: bind the candidate set's SEMANTICS, not its identity digest.
+    // artifactDigest is the artifact's tamper-detection identity and deliberately
+    // covers headHash/materialHash verbatim (candidate-spec-routing.ts), so reusing
+    // it here made the OPEN-epoch barrier fire on freshness alone: re-running
+    // candidate_spec_route (permitted in REVIEW) with byte-identical candidate
+    // content after an unrelated commit ticked HEAD forward flipped the digest and
+    // tripped OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. Same defect class as
+    // F-099, different consumer. artifactDigest is left untouched so verifyCandidateSpecSet
+    // keeps detecting real tampering; only what the BARRIER compares is narrowed.
     ...(validCandidate ? {
-      candidateSpecSetDigest: validCandidate.artifactDigest,
+      candidateSpecSetDigest: reviewInventoryDigest({
+        schemaVersion: validCandidate.schemaVersion,
+        mode: validCandidate.mode,
+        candidates: validCandidate.candidates,
+        queryFiltering: validCandidate.queryFiltering,
+        scanEscalationReason: validCandidate.scanEscalationReason,
+        storyInputDigest: validCandidate.storyInputDigest,
+      }),
       corpusDigest: validCandidate.corpusDigest,
     } : {}),
   };
