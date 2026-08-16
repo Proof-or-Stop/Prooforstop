@@ -252,7 +252,11 @@
           {
             "desc": "reviewer_list --storyId=<id> --forceReviewer=channel is rejected with an error matching 'not supported by review_run_start' and a non-zero exit code",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+              "selector": "field regression CLI smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -282,6 +286,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:14:03.351Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: the new invalidChannel case (reviewer_list --forceReviewer=channel asserting rejection with 'not supported by review_run_start') is part of the same passing suite run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f49fe2cd354fe1bb5124d9ae136e15af902a02f005d65476c5e1b547893d0d6",
+            "outputTail": "✓ field regression CLI smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:16:25.905Z"
+          },
+          "headHash": "e39bcfeaf756b609bf60d86d849d80ec3f7b7055",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:16:26.137Z"
         }
       ]
     },
