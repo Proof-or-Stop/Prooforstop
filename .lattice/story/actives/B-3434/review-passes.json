@@ -362,6 +362,29 @@
         "scanEscalationReason": null
       },
       "_hash": "27dfe4f0541ee4183751dc9e929afd32e59c4cc7827c3af39966d48ac3de0af0"
+    },
+    {
+      "id": "B-3434:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Confirmed: HEAD 5e65c6f330 is a single-line registration-only change (lattice.config.json +1: registers red-b3434-blob-buffer-ceiling.mjs at timeoutMs=180000, matching sibling RED entries). git diff cd7372f15c..HEAD -- packages/main/ is empty and --stat shows only .lattice/ + lattice.config.json outside it; the RED harness file itself is byte-identical to baseline (no commits touch it since cd7372f15c). Ran the harness exactly as registered: 3 runs measured 3.24s/3.31s/3.80s wall-clock, ~47-56x margin under the 180000ms timeout -- not close. tsc --noEmit -p packages/main clean. validation-evidence-buffer-smoke, done-prepare-auto-closeout-smoke, and validation-evidence-reuse-smoke all PASS. dist is not stale: newest packages/main/src *.ts mtime (1786831516) predates newest packages/main/dist file mtime (1786836823); dist/core/done-prepare-generated-metadata.js matches src 1:1 (METADATA_BLOB_READ_MAX_BUFFER_BYTES=32*1024*1024, ok/hash|ok/kind/error shape). Spot-confirmed the deliverable directly against real git blobs in a fresh scratch repo (not the RED harness's own fixtures): committed a 5 MiB and a 40 MiB file to HEAD via real git commits, then called the shipping dist's treeBlobHash and isolatedBlobHash. 5 MiB: ok=true, hash matched independently computed sha256(small.bin) exactly (954fa3f0...). 40 MiB: ok=false, kind=unreadable, error='ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded' -- byte counts present, no blob content leaked. Missing path: ok=false, kind=absent, with a distinct git fatal: path ... does not exist diagnostic for both the isolated-index and tree-side readers. All 41 findings show status=resolved in findings.json. Working tree at HEAD, no source changed, no build run per instructions.",
+      "createdAt": "2026-08-16T00:06:47.354Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-043",
+      "envelopeId": "2362684e027287abe2db71f37429128778c22a88e44eadf76d5ae46c6c8c90c7",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/findings.json",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "be636d91e88076807ddffbe5b9f03aa8435ca9dcfcde5db2281f4c2accdc20e4"
     }
   ]
 }
