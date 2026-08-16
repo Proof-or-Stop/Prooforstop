@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-df57",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/milestone-done-gate-reconciliation-smoke.js",
+    "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+    "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Lattice CLI",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/verification-intent-ref.ts",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "npm test"
+  ],
+  "excludedTools": [
+    "network publication",
+    "remote push"
+  ],
+  "excludedPaths": [
+    ".lattice/story/actives/**",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Story metadata is touched only through Lattice CLI. Production/test/doc writes are limited to the declared canonical ref consumers and focused regressions.",
+  "createdAt": "2026-08-16T12:48:49.438Z",
+  "updatedAt": "2026-08-16T12:48:49.438Z",
+  "_hash": "585b6d4848ffb91f46e1faf23c919c5916ea90b0e6e434d58028baba2b335912"
+}
