@@ -5137,6 +5137,25 @@
       "_hash": "5a29afb2cd6539735a79f479797abf288a6ed223a966496425e5864e21cb4ec8",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-080",
+      "desc": "doc-code-drift: docs/requirements/decisions/test-runner-consolidation-plan.md:10 says only \"Timeouts kill the member process group\"; full-suite-runner.ts now implements a materially stronger guarantee (birth-identity-keyed ownership via ProcessTreeLifecycle/parseProcessRows/terminateProcessTreeAndVerify, freeze-then-verify-then-SIGKILL with PID-reuse revocation) that the doc does not mention. Not a false claim (the summary is still technically true) and not a broken external promise, so low severity; but the doc is the only place readers would look for runner cleanup semantics and it undersells the new PID-reuse-safety contract added by this story (see resolved finding F-078).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-16T08:01:37.520Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-339",
+      "_hash": "79b2fccdb9c1f2b895abd5a86151a2d8deeec989d61c5548904db7275df4acfb",
+      "files": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
