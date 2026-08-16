@@ -10,5 +10,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: lattice validate execution error\nvalidate is blocked: validation execution for story B-3f3d is already running in /Users/qipan/work/repo/Prooforstop/.worktrees/B-3f3d by validate for B-3f3d (pid 35474 on qipandeMacBook-Pro.local), heartbeat 1s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\n\n→ 修复 validate runner 后重跑 lattice validate --story=B-3f3d --json\n→ 然后重跑 lattice story_advance --phase=TEST",
     "lastAt": "2026-08-16T10:58:55.716Z"
+  },
+  "story_advance/561cb8ec5e50": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter remediation DEV: missing valid unconsumed FINALIZED review inventory receipt. Next: lattice review_inventory_status --storyId=B-3f3d",
+    "lastAt": "2026-08-16T11:42:43.105Z"
   }
 }

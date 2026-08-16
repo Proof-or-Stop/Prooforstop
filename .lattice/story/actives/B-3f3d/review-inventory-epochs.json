@@ -3724,6 +3724,37 @@
       "consumedAt": "2026-08-16T10:43:58.846Z",
       "consumedByReviewRound": "2026-08-16T07:56:52.725Z",
       "_hash": "8178e57780c974e8b5933d370805fd787caa9ba2020a950b2a0bac9222a63302"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-029",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-16T11:42:55.385Z",
+      "updatedAt": "2026-08-16T11:43:17.605Z",
+      "cutoff": {
+        "headHash": "8bfa02e85bec1550a553c74c5cd156e5333d4552",
+        "materialHash": "7dfb770fe81abe55a59a600cb94d0dbdeddf1a0acd8999373038365719c251e1",
+        "storyFilesHash": "526e82caaedc9dd2b750ce7361c5b4bdb7a784f9b4555c865bac3e52f4b90e02"
+      },
+      "scopeDigest": "78f939dde5a5c718e24dcb2328ba71508bbe09abc8a0dd4e4c2a632e9c18ac78",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 375,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-16T11:43:17.605Z",
+      "cancelReason": "reopen with the behavior lane in the required set; F-088 established it was a genuine uncovered discovery lens and it found F-090 that four lanes missed",
+      "terminalRunSequenceBoundary": 375,
+      "_hash": "81afdb4ea09eebdfb34c1beaaae7bf7e1b927c7f3b86a27ca6aaba8ccad3bb26"
     }
   ],
   "receipts": [
