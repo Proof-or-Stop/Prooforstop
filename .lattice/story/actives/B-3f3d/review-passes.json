@@ -16962,6 +16962,32 @@
         "scanEscalationReason": null
       },
       "_hash": "0eefd41777684ce50a8918919d9d1ee6813c30b4cbef459874d5d8593d9d97a0"
+    },
+    {
+      "id": "B-3f3d:RP-290",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation at review round RR-378 (round 2026-08-16T10:48:07.896Z), triggered by two real source changes since prior pass RP-284/RR-367: reviewer-list.ts (F-091 forced-replay) and review-incremental-context-smoke.ts (F-090 assertions). Concept-lens findings: (1) F-091 forced-replay coherence verified -- computeActiveReviewers now reads persisted reviewer_forced events from story.events and merges them ahead of the explicit forced arg via Map.set keyed on reviewer short name, so no double-apply is possible (Map dedupes; both persistedForced and explicit forced use the same normalizeForceReviewerName output). All 10 non-definition call sites of computeActiveReviewers (lifecycle-readiness.ts:214, reviewer-status.ts:106, machine.ts:829, transition-effects.ts:265, review-inventory.ts:81, quorum-submit.ts:134, reviewer-batch.ts:303, plus 3 smoke fixtures) pass a story object as the first arg, so the replay engages for every gate/epoch consumer as F-091 claims -- matches review-inventory-epoch-and-saturation-gate.md:225 (forced lanes remain selected) which I re-read and confirms only that forced lanes survive dependency-closure narrowing, not any claim about ephemerality or revocation, so no doc/code contradiction exists. (2) Checked revocability: grepped for reviewer_unforce/revoke and StoryEvent action union (types.ts:144, action: create|advance|discard|reviewer_forced) -- there is no un-force event type, so a persisted reviewer_forced event is replayed forever once written (permanent pin for the story lifetime). This is a real, not-previously-documented consequence of the fix, but it is not a contradiction of any existing written guarantee (the doc only promises forced lanes remain selected across post-remediation narrowing, and does not claim or require temporal scoping/expiry of an operator force) and is a plausible intentional stance (an operator force is deliberately durable, matching F-088s use case where auto-routing missed a lane) rather than an accidental residue -- filing this as a low-severity observation is a design-tradeoff question for behavior/quality lanes or a future story, not a concept-lens residue/contradiction finding. impactedLanes() forced-branch (review-incremental-context.ts:283, if reviewer.forced return true) confirmed no longer dead code: a forced entry from either replay or explicit arg always survives requiredLanes filtering in computeFinalReviewRoster (Set-based filter over already-deduped activeReviewers, no duplication risk). (3) F-090 assertions in review-incremental-context-smoke.ts pin real production behavior, not test-only theater: verified impact-classification-policy.ts (unchanged in this diff) already has COMMAND_GATE_RE matching command-policy.ts and DEPENDENCY_BUILD_RE matching package.json, both routing into the FULL_SET_CATEGORIES list consumed by review-incremental-context.ts:403 (POLICY_IMPACT_REQUIRES_FULL_SET). (4) Re-confirmed standing conclusions per dispatch: grep -rn activeChildren packages/main/src (excluding node_modules/dist/.git/@deprecated) returns zero results -- zero residue holds. (pid, birthIdentity) ownership model in full-suite-runner.ts (rootPid constructor seed at line 131/136, reconciled by first capture() at line 155-166 via birthIdentityMatches) is unchanged in this diff (git diff main...HEAD -- full-suite-runner.ts shows this section is pre-existing content, not newly touched) -- coherence holds, no contradiction found in any doc. No concept deletion/replacement or residue found this round; no blocker.",
+      "createdAt": "2026-08-16T13:14:42.778Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-378",
+      "envelopeId": "5ded87ba6a17973b88d4b2b6391f5f41bcc7b0565de7779b819c45dd4e43a035",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f561d254e4410af9aebc3bca318e7c1b7068c1f10e38408140872557a616cd2e"
     }
   ]
 }
