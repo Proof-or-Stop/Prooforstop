@@ -1,0 +1,78 @@
+{
+  "storyId": "B-df57",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/verification-intent-ref.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "package-lock.json",
+    "lattice.config.json",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/story-machine.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/validation-execution-lock.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/validation-execution-lock.ts"
+  ],
+  "scopeChangeReason": "Minimum correctness repair: one canonical verification-intent row resolver, all ProofStory coverage consumers, process-fact projection, focused regressions, and exact docs. Evidence writing and frozen contract mutation paths remain protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-16T12:49:06.406Z",
+  "updatedAt": "2026-08-16T12:49:06.406Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/milestone-status.ts": "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/core/verification-intent-ref.ts": "packages/main/src/core/verification-intent-ref.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts": "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts": "packages/main/src/tasks/milestone-done-gate-reconciliation-smoke.ts",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/story-machine.ts": "packages/main/src/core/story-machine.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/evidence/artifact-store.ts": "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/story-owner-lease.ts": "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts"
+  }
+}
