@@ -5156,6 +5156,21 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-081",
+      "desc": "quality-cleanup: packages/main/src/tasks/full-suite-runner.ts:77,671,680 activeChildren is a write-only Set (added in runEntry at line 671, deleted at line 680) with zero read consumers anywhere in the file; requestInterrupt (line 631) and the terminal-failure cancellation loop in runScheduled (line 786) were both switched to iterate activeTerminators instead, leaving activeChildren as dead state that should be removed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-16T08:02:04.373Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-337",
+      "_hash": "a8cdc76fb8ad5e8e55873f03548781af63eda6c63579d2aec72c786fd3c01d7a",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
