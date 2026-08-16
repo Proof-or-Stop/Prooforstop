@@ -16930,6 +16930,38 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "ccac0542633c46501b9a8a690867cfc6a3ae664e32440e56b4dbef84cb2e57c8"
+    },
+    {
+      "id": "B-3f3d:RP-289",
+      "agent": "lattice-review-behavior",
+      "note": "Behavior/functional-correctness review of the frozen review-inventory epoch state machine (review-inventory-epoch.ts, handlers/review-inventory.ts) and its DEV/TEST gate integration (machine.ts canReenterDevGuard/reviewInventoryRemediationGate/canPassReviewGuard, transition-orchestrator.ts consumeReviewInventoryReceipt call site) plus the CHK-006 post-remediation dependency-closure selector (core/review-incremental-context.ts). Verified against checklist userSees/verificationIntent claims and re-ran review-inventory-epoch-smoke.js and review-inventory-handler-smoke.js myself (both PASS, matching recorded dist digests). Checked: (1) OPEN-epoch material-mutation barrier uses a ReviewRun-sequence boundary (not wall-clock) so equal-timestamp races cannot bypass it (F033/F034 smoke cases verified); (2) mid-wave finding-then-pass on the same lane cannot erase the finding from the verified-family accounting because rawFindings aggregates every same-wave run for a lane, not just the canonical selected terminal; (3) the shared mkdir lock (withReviewInventoryMutationLock) serializes epoch mutation against finding_add/review_pass_set/critic_set/finalize, closing the original B-cdf6 RR-043..046 race; (4) consumeReviewInventoryReceipt replays the live aggregate via finalizedLiveAggregateError before publishing DEV and is proven TOCTOU-safe by a real story_advance CLI call in review-inventory-handler-smoke.ts, not just a unit call; (5) receipt.authorizesTest is never read by any code path outside review-inventory-epoch.ts/handlers/review-inventory.ts/types.ts, so the inventory receipt genuinely cannot be consumed as TEST authority; (6) CANCELLED path only mutates the epoch/receipt store, never findings/passes, matching the advisory-history claim; (7) evaluateReviewVerdict wraps computeFinalReviewRoster/postRemediationReviewSelection in an outer try/catch that fails CLOSED (review_verdict_error) on any unexpected exception, so an impact-classification bug cannot silently narrow the reviewer set; (8) ReviewInventoryEpochState is a closed 4-value union and assertReviewInventoryEvidenceWritable exhaustively handles all 4, so the apparent open fall-through in the OPEN branch is not reachable. One gap filed as B-3f3d:F-090 (medium): the CHK-006 post-remediation dependency-closure selector has no test proving POLICY_IMPACT_REQUIRES_FULL_SET / EMPTY_IMPACT_SELECTION / CHANGED_FILE_OUTSIDE_FROZEN_SCOPE / SOURCE_CUTOFF_NOT_ANCESTOR fallbacks actually fire, and command-or-gate-policy classification is otherwise unused/unverified anywhere in the repo. No other functional-correctness blockers found.",
+      "createdAt": "2026-08-16T11:14:20.716Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-375",
+      "envelopeId": "ae78596dbe3c39e31b6ee7a1f13fc2220171e12fdc7dc9758ab9c7f3ca8e7d41",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0eefd41777684ce50a8918919d9d1ee6813c30b4cbef459874d5d8593d9d97a0"
     }
   ]
 }
