@@ -426,6 +426,36 @@
         "scanEscalationReason": null
       },
       "_hash": "bce225d9293e1087136a47c64f446ee6168e1c8b873760d0207172a75867e3f9"
+    },
+    {
+      "id": "B-16df:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Mechanical re-anchor pass (REVIEW->DEV->REVIEW bounce, no code touched; two more main merges caught up). Independently re-verified rather than trusting the prior pass: rebuilt packages/main (npm --prefix packages/main run build, exit 0) and re-ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself -> validate-command-timeout smoke passed: 45 assertions, matching the outputDigest 1f6fd0ec... recorded in every mechanical receipt. Programmatically recomputed checklist.json coverage: 34 verificationIntent items across CHK-001/002/003/004, exactly 34 verificationEvidence entries, 0 missing refs, 0 orphaned refs, all result:pass, 33/34 mechanical:true and exactly 1 mechanical:false (CHK-001:adversarial:4, kind:docs_check, attesting no new lattice.config.json entry was added -- a legitimate non-runtime claim, confirmed by inspection that the smoke writes its temp config only under os.tmpdir()). Confirmed via git diff main...HEAD --stat that this story only materially changes packages/main/src/handlers/checklist.ts and packages/main/src/tasks/validate-command-timeout-smoke.ts; validation-executor.ts and verifier.ts carry only unrelated upstream changes picked up by the two new main merges (a withValidationExecutionLock to withOfficialValidationExecution refactor), never touched by this story, matching CHK-002 excludes. Read the checklist.ts diff directly: resolvePinnedCommandTimeoutMs is declared exactly once and all 4 runSingleAllowlistedCommand call sites (verification_evidence_add, batch_add, verification_run, its refresh loop) now pass timeoutMs: resolvePinnedCommandTimeoutMs(root, command), matching the plan CHK-002 design and H-002. Confirmed checklist.json and both source files are byte-identical (git diff, 0 lines) between the last checklist-content commit (d2cd02d40c, 2026-08-15T11:42 UTC) and current HEAD, across both intervening main-merge commits -- this really is a pure re-anchor, not silent drift. Confirmed 0 open findings in findings.json (all 9 prior findings resolved) and story HEAD is a descendant of the fetched main tip. No blocker for this reviewer lane; coverage remains complete and accurate.",
+      "createdAt": "2026-08-16T16:07:58.891Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-021",
+      "envelopeId": "84faedd92a4c0685d19ef8231069c4c45cf20d9999e0abbfb2b49dd9a09a30cd",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7cf8841d14c19647c15f7afa9ff5320ff426bc39f84b959fc48f292001a402d2"
     }
   ]
 }
