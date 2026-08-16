@@ -1,0 +1,35 @@
+{
+  "passes": [
+    {
+      "id": "B-3e5d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. transition-orchestrator.ts reuses the existing detectDoneStoryWorktreeContext helper (already used by acquireDoneMainMergeLock) for the lock-root fix; no new concept. field-regression-cli-smoke.ts swaps two stale test-fixture usages of the already-retired lattice-review-channel lane for lattice-review-test-coverage / an explicit-rejection assertion, aligning tests with prompt-role-contract-registry.ts (status:retired, out of story scope, confirmed unchanged) and reviewer-list.ts/review-run.ts which already reject that lane. grep -rln lattice-review-channel packages/main confirms zero leftover channelRunId/channelPassOutput identifiers in the touched file; tsc --noEmit clean.",
+      "createdAt": "2026-08-16T12:44:17.297Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-003",
+      "envelopeId": "c4a36bf4eb5433a134e97c0c7e7e590b4bbb91da6eeb6580736e283ba97c3d9b",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba5eacf6ce399f68e4d84e48b9f9c8640d8bcd8a9e3a768c08f28c3eb61fe04e"
+    }
+  ]
+}
