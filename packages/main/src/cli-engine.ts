@@ -135,7 +135,7 @@ export {
   parseFlags,
   parseFlagsTest,
 } from './cli/flag-parser.js';
-import { readBrandEnv } from './core/brand-env.js';
+import { BRAND_ENV_PREFIX, readBrandEnv } from './core/brand-env.js';
 export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
 export { MAIN_TOOLS };
@@ -1065,7 +1065,10 @@ export async function runCli(opts?: {
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
   if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
-    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? 'LATTICE_MAX_TIMEOUT_MS' : effectiveMaxBudget.source}`);
+    // B-cdf6 delivery review: this diagnostic named the deprecated env var, so a
+    // user copying it back would set the pre-rename name. The resolver reads both
+    // (brand-env.ts), but new user-visible output must teach the canonical form.
+    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? `${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS` : effectiveMaxBudget.source}`);
   }
 
   const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';

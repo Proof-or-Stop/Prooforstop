@@ -23,7 +23,7 @@ import {
   validatePlannedPathDeclarationsForChecklistItem,
   verificationIntentHasPlannedPathDeclarations,
 } from '../core/acceptance-topology.js';
-import { readBrandEnv } from '../core/brand-env.js';
+import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -771,7 +771,7 @@ async function enforceAndStampEvidence(
       : `If this witness legitimately needs longer, re-run with commandTimeoutMs (≤ ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms) plus a ` +
         `commandTimeoutReason ≥ ${MIN_COMMAND_TIMEOUT_REASON} characters; the raised budget is recorded on the receipt. NOTE: the ` +
         `outer CLI watchdog still applies (5 min without output / 15 min total by default), so a multi-minute silent command also ` +
-        `needs LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS raised for the same invocation.`;
+        `needs ${BRAND_ENV_PREFIX}IDLE_TIMEOUT_MS / ${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS raised for the same invocation.`;
     throw new Error(
       `verification evidence refused: pinned command was KILLED at its ${armed}ms wall-clock ceiling after ~${elapsed}s ` +
       `(exit ${run.code}) for ${input.intentRef}, so it never printed a verdict and NO receipt can be minted. ` +

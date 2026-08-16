@@ -30,7 +30,7 @@ This hook is only a soft reminder: it locates the repository from the hook JSON'
 Run proof-or-stop session_brief first to restore context
 ```
 
-The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Proof-or-Stop init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
+The threshold can be adjusted with `PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES` (the deprecated `LATTICE_SESSION_BRIEF_FRESH_MINUTES` is still read; the canonical name wins when both are set — see `core/brand-env.ts`). Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Proof-or-Stop init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
 
 ## When to Use
 

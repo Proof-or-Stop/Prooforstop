@@ -74,7 +74,7 @@ proof-or-stop decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"opt
 建议先运行 proof-or-stop session_brief 恢复现场
 ```
 
-阈值可用 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `proof-or-stop init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/lattice-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
+阈值可用 `PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES` 配置（旧名 `LATTICE_SESSION_BRIEF_FRESH_MINUTES` 仍被读取，两者同时设置时新名优先；见 `core/brand-env.ts`）。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。每个 host 的 hook/settings 都是框架在 `proof-or-stop init` 时按 host 生成的 managed asset：Claude host 落在 `.claude/`（如 `.claude/hooks/lattice-scope-pretool.cjs`，已纳入 git），Codex adapter 落在其各自的 adapter 目录（同样由框架生成对应的 scope-guard hook）。这些是框架管理的生成产物，不要手写或手改；要调整 hook 行为请改生成源（`init-assets` / `core/managed-assets`），而不是直接编辑产物。
 
 ## 框架自省 audit 配置
 
@@ -841,7 +841,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 **双层校验（Handler 编码约定）**：Zod（`command-catalog.ts` 的 `.int().positive().max(CAP)` / `.min(30)`）只是第一道防线；`resolveEvidenceCommandTimeout` 在**两个 handler 入口**和**共享执行边界 `enforceAndStampEvidence`** 各再校验一次，故绕开 Zod 的内部 fn 调用 / 老 JSON 同样被拒。cap 与 default 常量由 `core/validation-executor.ts` 单点导出、schema 与 handler 同时 import，两层不会漂移。
 
-**注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `LATTICE_IDLE_TIMEOUT_MS` / `LATTICE_MAX_TIMEOUT_MS`。超时报错文案里会提示这一点。
+**注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `PROOF_OR_STOP_IDLE_TIMEOUT_MS` / `PROOF_OR_STOP_MAX_TIMEOUT_MS`（旧 `LATTICE_*` 名仍被 `core/brand-env.ts` 读取，新名优先）。超时报错文案里会提示这一点。
 
 #### verify_codex heartbeat 超时：独立报错 + 有界受审计的 override（B-cdf6 / B-META F-013）
 
