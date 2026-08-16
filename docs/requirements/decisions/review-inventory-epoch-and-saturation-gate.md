@@ -179,8 +179,18 @@ consumption; any scope or lane drift atomically changes the epoch to
 unsupported-hook bypass is therefore detected by the next authoritative consumer.
 The scope digest is the complete acceptance subject, not a title/files summary:
 it includes checklist context, status, related docs, user-visible claims,
-exclusions, file routing, verification intents/evidence, and the frozen claim
-snapshot. Every checklist writer (including `verification_intent_repair` and
+exclusions, file routing, verification intents, verification evidence
+*semantics*, and the frozen claim snapshot. Evidence is bound by what a verifier
+OBSERVED — `intentRef`, `kind`, `file`, `command`, `result`, `note`,
+`mechanical`, and `receipt.exitCode` / `outputDigest` / `outputTail` /
+`selectorMatched` — and deliberately NOT by its freshness pins
+(`headHash`, `materialHash`, `storyFilesHash`, `timestamp`,
+`receipt.executedAt`). So a pure `verification_evidence_refresh_stale` re-pin,
+which rotates only those pins while the observed result is unchanged, no longer
+moves the digest and no longer invalidates an OPEN epoch on scope grounds; a
+refresh that changes an observed result, command, or captured output still does.
+This mirrors the same semantic-content-not-bookkeeping rule already applied to
+the ProofStory contract below. Every checklist writer (including `verification_intent_repair` and
 verification-evidence writers) takes the inventory lock before its checklist
 lock. A supported REVIEW mutation is therefore serialized, and the next status,
 evidence, critic, wave, finalize, or consume boundary persists
