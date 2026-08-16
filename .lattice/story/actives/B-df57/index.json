@@ -4,7 +4,7 @@
   "title": "Make ProofStory completeness resolve positional and authored verification-intent references to one canonical row",
   "description": "B-8de3 has 13 fresh tool-executed receipts keyed by immutable authored verificationIntent IDs, while its pre-DEV ProofStory acceptance contract references the same rows by CHK-xxx:lane:index. The REVIEW completeness gate compares raw strings and reports all 13 missing; the evidence writer correctly refuses fabricating positional evidence because only authored IDs resolve. Add one canonical intent-reference resolver consumed by ProofStory acceptance/completeness so authored IDs and valid positional refs identify the same row, while unknown, wrong-item, wrong-lane, out-of-range, duplicate, and ambiguous refs fail closed. Preserve immutable evidence pins and do not add a REVIEW-phase contract mutation bypass.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-16T12:55:30.449Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-1891a70e464a9061254e4db64da92f30",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-df57",
+    "branch": "story/B-df57",
+    "createdAt": "2026-08-16T12:55:26.502Z"
+  }
 }
