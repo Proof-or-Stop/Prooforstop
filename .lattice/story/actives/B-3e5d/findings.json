@@ -24,7 +24,7 @@
       "desc": "packages/main/tests/red/red-B-new-concurrent-done-race.mjs:24-27 (the \"After the fix (transitionLock resolved to the stable main repo root, same as the DONE main-merge lock)\" line) still narrates the reverted CHK-001 lock-reroute as the causal mechanism that makes the losing racer fail cleanly. Per F-001's resolution (commit 023a09f932), that reroute was reverted as a no-op -- acquireStoryTransitionLock is called with ctx.root exactly as before this story, and the lock directory was always resolved to the shared root internally via resolveSharedLockRoot regardless of the argument. The real fix this RED script actually proves is CHK-002 (the StoryArtifactMissingError translation at transition-orchestrator.ts:942-947), not a lock reroute. This is documentation-only (the script's assert.notEqual/assert.match/assert.doesNotMatch logic at lines 61-64 is unaffected and still correctly detects the pre-fix defect signature; re-ran it directly and it correctly exits 1 post-revert, confirming no functional regression), but a future maintainer reading this RED script for why it constitutes evidence for CHK-001/CHK-002 would be misled about the actual mechanism, mirroring the exact class of issue F-001 already caught once in the production code comment. Low severity: no functional/coverage impact, comment-only.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-16T13:26:19.539Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-3e5d:RR-005",
       "_hash": "63fcc9bd3374b0e6bb0d11393ef47bcf140ce401da618267293ad3da87b04b56",
       "signatureTag": "missing|unknown|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected the RED script's header comment at commit aa9a5a877b: it now describes the actual mechanism (the transition lock was always shared-rooted via resolveSharedLockRoot inside acquireStoryTransitionLock; the real crash was ctx.store bound to the worktree path at CLI bootstrap, fixed by the narrow StoryArtifactMissingError translation) instead of narrating the reverted, no-op lock reroute as the fix. Documentation-only; re-verified the script's assertions are unaffected (still exits 1 with the correct GREEN signal against the current dist build).",
+      "resolvedAt": "2026-08-16T13:31:08.191Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
