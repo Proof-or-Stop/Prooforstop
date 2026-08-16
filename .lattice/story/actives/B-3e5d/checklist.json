@@ -226,9 +226,9 @@
       "id": "CHK-003",
       "title": "Reject the retired lattice-review-channel lane in reviewer_list forceReviewer instead of exercising it as forceable",
       "context": "field-regression-cli-smoke.ts assertReviewerListForceReviewerLaneContract: remove channel from the forceable-lane assertion and add a case asserting reviewer_list --forceReviewer=channel is rejected with 'not supported by review_run_start', matching prompt-role-contract-registry.ts's structural retirement of the lane.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-16T12:39:32.853Z",
-      "endTime": null,
+      "endTime": "2026-08-16T12:39:54.148Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/field-regression-cli-smoke.ts"
