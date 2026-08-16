@@ -1894,7 +1894,10 @@ function assertCloseoutTrustBoundary() {
     // so they must always move together. Same re-approval basis as the guard: the
     // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
     // path producers, and the approved loader call site is byte-identical to main.
-    '34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f',
+    // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
+    // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
+    // both copies were updated in the same commit, as the note above requires.
+    'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d',
     '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
     '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',

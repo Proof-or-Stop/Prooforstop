@@ -381,7 +381,16 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // readBrandEnv, or the bin-name check. The approved call site itself
   // (anchor runCli, argument `file://${initPath}`) is byte-identical to main, so the
   // loader behaviour being approved is unchanged.
-  ['packages/main/src/cli-engine.ts', '34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f'],
+  // Repinned again by commit 32a083b987 (delivery-review follow-up), which added a
+  // BRAND_ENV_PREFIX import and rewrote ONE diagnostic string so the timeout-budget
+  // line stops teaching the deprecated env-var name. Re-approval basis, checked
+  // before repinning rather than after: `git diff main...HEAD` on cli-engine.ts still
+  // touches ZERO import()/require() calls, arguments, or path producers, and the
+  // approved call site itself (anchor runCli, `await import(\`file://${initPath}\`)`,
+  // with its initPath producer) is byte-identical to main — only its line number moved
+  // (807 -> 812). The loader behaviour being approved is therefore unchanged; the digest
+  // moved solely because this algorithm fingerprints the whole enclosing file.
+  ['packages/main/src/cli-engine.ts', 'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
