@@ -388,6 +388,40 @@
         "scanEscalationReason": null
       },
       "_hash": "bd5d7b62370f53bd64382c6cea9358f4e074fa980945968c09dd110efedf2d6b"
+    },
+    {
+      "id": "B-1734:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-anchor pass at post-merge material: converged core sound (5 Codex rounds), residuals documented + deferred to infra follow-up, guard re-pin + red-b49d4 fix verified, full suite green in isolation, merged up-to-date with main.",
+      "createdAt": "2026-08-16T16:23:44.044Z",
+      "reviewRound": "2026-08-16T16:23:16.712Z",
+      "reviewRunId": "B-1734:RR-015",
+      "envelopeId": "90d847824a188f69f7ec6e8ce44f3333253d54fdf9d046c8201eea5ae2095b7e",
+      "writerSessionId": "sess-1f7ee7188c4071b3c7bb2ff9c71b58a5",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "scripts/build-lock-target.mjs",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-1734-content-binding.mjs",
+          "packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "packages/main/tests/red/red-1734-reader-race.mjs",
+          "scripts/package-desktop.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5aa471b0169f1bd00c6b5b1505db0cd4879e41a16779728e08083cf1d0494781"
     }
   ]
 }
