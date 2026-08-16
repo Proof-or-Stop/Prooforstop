@@ -5128,7 +5128,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:77,671,680 - module-scope activeChildren Set is write-only dead state left over from the pre-refactor design: it is still populated (add at 671) and cleaned up (delete at 680) on every runEntry call, but nothing in the file (or elsewhere in the repo) ever reads/iterates it anymore. requestInterrupt (line 631) and the scheduler cancellation path (line 786) both now iterate activeTerminators instead, following the migration to (pid, birthIdentity) ownership. A future reader will reasonably assume activeChildren still gates cleanup/interrupt behavior when it does nothing.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-16T08:01:26.785Z",
@@ -5136,7 +5136,9 @@
       "reviewRunId": "B-3f3d:RR-336",
       "_hash": "5a29afb2cd6539735a79f479797abf288a6ed223a966496425e5864e21cb4ec8",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-081 (same dead activeChildren Set, independently reported by the concept and quality lanes in the same round); resolved by the same change. Removed the declaration at line 77, the .add at 671, and the .delete at 680 after grep confirmed the Set was never read or iterated anywhere in full-suite-runner.ts. Both former consumers (requestInterrupt and the runScheduled terminal-failure cancellation loop) already iterate activeTerminators instead, so no behaviour depended on it. Rebuilt and re-ran npm run test:full-suite-runner-smoke: PASS (183 assertions) with every interrupt/lifecycle assertion intact; npx tsc --noEmit -p packages/main exits 0.",
+      "resolvedAt": "2026-08-16T08:05:49.454Z"
     },
     {
       "id": "B-3f3d:F-080",
