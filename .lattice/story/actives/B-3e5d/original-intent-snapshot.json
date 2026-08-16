@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3e5d",
+  "sourceText": "User request (translated from Chinese): For both newly-discovered bugs (concurrent DONE race crash, retired channel-lane reference), write a RED script and a GREEN fix to verify the problem and whether GREEN actually resolves it; then bundle both into one story and drive it to DONE.",
+  "normalizedOutcome": "A losing concurrent DONE racer prints a clear explanatory message instead of crashing with a raw ENOENT stack trace, and field-regression-cli-smoke.js no longer exercises the retired lattice-review-channel lane as if it were forceable; both smoke test files pass end-to-end.",
+  "acceptanceClaim": "node packages/main/dist/tasks/worktree-authority-smoke.js and node packages/main/dist/tasks/field-regression-cli-smoke.js both print their respective success lines with zero errors, and both new RED scripts correctly report their target defect is fixed (their own defect-still-present assertion fails).",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:7a6f13ff8921cac77e010b0ddb81452f5677ef97eb1a36e5bef2727866806c9e",
+  "createdAt": "2026-08-16T11:55:46.061Z",
+  "updatedAt": "2026-08-16T11:55:46.061Z"
+}
