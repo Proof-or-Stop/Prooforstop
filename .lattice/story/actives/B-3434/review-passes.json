@@ -534,6 +534,33 @@
         "scanEscalationReason": null
       },
       "_hash": "3dbf5eaeb3caf067b860ac61f87c0bfa70b5fff1d6e579259dc843a733530573"
+    },
+    {
+      "id": "B-3434:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge re-anchor, narrow scope per instructions. Read the whole validate handler (not just the diff): the merge is exactly the 32/31-line change the context describes, isolated to lock/gitRoot logic - withValidationExecutionLock (3 inner call sites) -> withOfficialValidationExecution hoisted around the entire handler callback (grep confirms zero stray old-lock calls remain), plus resolveProjectGitCwd -> resolveProjectGitRoot with a fail-closed throw. That throw only fires when !args.story && configuredGitRootExpected && !resolvedProjectGitRoot - resolvedProjectGitRoot is forced null whenever args.story is set, so it structurally cannot fire on any story-scoped validate call and never reaches persistStoryValidationEvidence or its callers. persistStoryValidationEvidence's own resolveGitCwd call (and its siblings in decorateStoryVerification/routineVerificationSnapshot) are untouched pre-existing independent resolutions, deterministic against the same story/config state as handlerGitCwd - that duplication predates this merge and is not something it introduced. No two competing ideas of lock or git-root source were found in this file. Confirmed nothing this story shipped was reverted: diffed 5e65c6f330 (pre-merge story tip, itself already carrying the F-037/F-039/F-040/F-041 fixes) against HEAD. validation-executor.ts and story-signed-workspace-resolution.ts show ZERO diff - boundPersistedValidationEvidence, VALIDATION_EVIDENCE_SCALAR_CHAR_CAP=200, and the F-037 comment there are all untouched. In verifier.ts: boundEvidence(hashes) is computed once at line 973 after hashes are known (built at lines 917-921); all three write sites gate on '!withinBound || record === null' with no cast (reusedBound:742, fallbackBound:954, persistedBound:976); the F-037-naming comment sits at verifier.ts:972 unmodified. core/store.ts's 16-line diff is an unrelated dev-memory-preflight-ack addition (another story) that never touches writeJsonFile/writeTestEvidence. done-required-validation.ts got the identical lock-hoist treatment for a different handler - consistent pattern, not our territory. Ran the required checks at merged material: npx tsc --noEmit -p packages/main clean; node scripts/verify-process-fact-contract.mjs -> 'Process fact contract verified'; node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS; node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (findingIdsNamed=F-001,F-033,F-034,F-035,F-036,F-037); node packages/main/dist/tasks/quorum-submit-smoke.js -> PASS (71 checks). finding_list shows 41/41 resolved, 0 open, attention.suspected/disproven both empty. Did not re-audit the bounding machinery (frozen under the stopping rule) and did not run the full validate suite, per instructions. Verdict: SHIPPABLE. The merge does not change that - it is confined to lock/gitRoot plumbing that this story's evidence-bounding code neither calls into nor is called from in any new way.",
+      "createdAt": "2026-08-16T02:30:13.516Z",
+      "reviewRound": "2026-08-16T02:17:52.140Z",
+      "reviewRunId": "B-3434:RR-048",
+      "envelopeId": "22bcdc1383764ac7d7b4ba3adcc1498a990206e0c47ad85248f823f8e884eb8e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cdd9da75a942c474eba4f74082df2d4d4ac99c6caba289f401fa1893a16d3ff0"
     }
   ]
 }
