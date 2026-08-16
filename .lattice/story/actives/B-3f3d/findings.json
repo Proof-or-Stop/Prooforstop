@@ -6902,6 +6902,43 @@
       ],
       "signatureTag": "adversarial|ts|incomplete-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-105",
+      "desc": "F-103 commit fabca1ecc4 (git show --stat) touches only packages/main/src/handlers/review-inventory.ts plus two JSON metadata files -- no test file was added or modified. packages/main/src/tasks/review-inventory-handler-smoke.ts:778-788 (the candidateDrift/F-039 fixture) is the only test exercising OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION, and it calls candidate_spec_route immediately after review_inventory_begin with no intervening commit, so it passes identically whether or not the F-103 narrowing landed -- it does not distinguish old vs new barrier behavior. There is no test proving the claimed positive case (a byte-identical candidate_spec_route rerun after an unrelated commit no longer trips the barrier) nor the required negative control (a real candidates/mode/queryFiltering/scanEscalationReason/storyInputDigest change still trips it). Per CLAUDE.md handler-coding-convention self-check and the checklist verificationIntent B3F3D-002-E1 (non-material metadata-only update must not spuriously invalidate; story-owned material change must), this specific narrowing fix ships with zero regression coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T15:32:17.412Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-426",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "466cbc3cc598c4c5aa87a949f16c33e92b84309239029ef04e3f4272e83f3065",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|commit-fabca1ecc4-show",
+      "signatureTagSource": "auto"
     }
   ]
 }
