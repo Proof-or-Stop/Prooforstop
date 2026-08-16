@@ -125,6 +125,31 @@
         "scanEscalationReason": null
       },
       "_hash": "247b7ee1031c5211fd45f88bb3b8714cfec33915c2a662839ae76627cce41179"
+    },
+    {
+      "id": "B-3e5d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation round after F-002 fix (aa9a5a877b): verified the fix is a comment-only rewrite in red-B-new-concurrent-done-race.mjs (no assertion/logic change) via git show. Re-ran full concept-residue check: this story does not delete/replace a concept globally, it only aligns 2 stale test usages of the already-retired lattice-review-channel lane (registry status=retired, defaultDispatch=false, set by a prior story) in field-regression-cli-smoke.ts with that pre-existing retirement -- confirmed explicitExcludes correctly kept prompt-role-contract-registry.ts and flow-fact-policy.ts untouched (empty diff). No lingering treatment of channel as forceable/active anywhere in the diff; the one remaining channel reference (red-B-new-retired-channel-lane.mjs) is the RED script naming the retired lane by design, not residue. No blocker.",
+      "createdAt": "2026-08-16T13:32:49.264Z",
+      "reviewRound": "2026-08-16T13:30:53.847Z",
+      "reviewRunId": "B-3e5d:RR-008",
+      "envelopeId": "4ea59cdf7ef15619f3d4f40659de4afcaaf23017cce405875885a6cc62777791",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "106e0fd98ef9451a9f7ac9dbf61e82b0e2aad9d3c86a3d47af9b059a206a58a4"
     }
   ]
 }
