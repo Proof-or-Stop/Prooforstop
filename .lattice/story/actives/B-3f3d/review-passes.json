@@ -16115,6 +16115,27 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "1cc18f2f97935e7d277ab054ebe564f136bd3ab31362b1e93791fc9100db69ff"
+    },
+    {
+      "id": "B-3f3d:RP-272",
+      "agent": "lattice-review-quality",
+      "note": "Adjudicated F-084 fix (commit 4dbe425cf5): full-suite-runner.ts:576-599 post-SIGKILL loop now bounded, records surviving PIDs, breaks into existing AggregateError; verified no clean-tree-reported-while-child-live path exists. New unkillable-survivor test only stubs probe, real SIGKILL still delivered, real descendant explicitly reaped after. Independently ran current compiled dist smoke: PASS 185 assertions including both new assertions, matches reported evidence. No dead code / as any / empty catch / unused imports found in diff; not a shell/bridge file so I/O isolation rule N/A. No blocking issues.",
+      "createdAt": "2026-08-16T08:33:52.248Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-352",
+      "envelopeId": "65b19219167f012f3ffa9d970ca347fc38cd601bd08d7321fc96c64cc0caa3c8",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c1bb10ababc33d59592a480921e4f4e75490472a8574901ac7ddfa47abbbe63"
     }
   ]
 }
