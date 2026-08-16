@@ -220,7 +220,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "note": "Both RED scripts run without crashing due to any bug in the RED script itself; the failure observed is the intended, well-formed defect-still-present assertion, not a raw JS error.",
+          "mechanical": false,
+          "nonMechanicalReason": "A RED harness has inverted pass/fail semantics vs this tool convention: post-fix, the script correctly exits non-zero (its own defect-still-present assertion fails), which this tool would mechanically derive as a failing receipt via plain exit-code convention. Manually re-ran both red-B-new-concurrent-done-race.mjs and red-B-new-retired-channel-lane.mjs directly against the current dist build moments earlier in this session and observed exactly that: each printed AssertionError RED: <target> is expected to fail (still exhibits the pre-fix defect) and exited 1, confirming both are clean, non-crashing scripts.",
+          "headHash": "d7722d1d7a34d8c185a34a83f08c57ae93c96be7",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:01:57.458Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
