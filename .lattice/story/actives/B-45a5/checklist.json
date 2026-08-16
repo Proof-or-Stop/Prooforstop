@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Prove both gates ignore an item-level withdrawal, repro-first",
+      "context": "Isolated fixture (mkdtemp, never a real story): take it to REVIEW, withdraw one checklist item that SHARES an acceptance binding with a delivered item, then observe story_advance --phase=TEST refused twice - evaluateReviewCompleteness with review_completeness_missing_evidence naming the withdrawn intents, and the channel gate with 'has no dispatch/subagent_result evidence'. Both must be OBSERVED. Include controls: a non-withdrawn item with genuinely missing evidence must still be refused (rules out 'skips everything'), and a fully-covered item must still pass (rules out 'refuses everything'). If either gate already handles item-level withdrawal, the premise is refuted and items 2-5 must be re-scoped rather than executed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire evaluateReviewCompleteness to the decision-backed item-level helper",
+      "context": "core/proofstory.ts:2084. The helper withdrawnChecklistItemIdsFrom(decision) already exists at core/proofstory.ts:1622 and is currently called only by tasks/scope-shrinkage-withdrawal-floor-smoke.ts. Use IT, not a status comparison: it takes the decision record as input, so the backing requirement is structural. Do NOT route this through core/checklist-status.ts - that module has zero decisionRef awareness in its 42 lines, and using it would yield a naive status==='withdrawn' skip that anyone can trigger by editing one JSON field.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Give the normal-channel gate the same decision-backed skip",
+      "context": "handlers/validate-channel.ts checkDispatchEvidence, which today has zero status or withdrawal awareness. A withdrawn item must not require dispatch/subagent_result evidence because no work was dispatched by design. Same structural backing as the previous item. Do not weaken the dispatch requirement for any item that is not withdrawn - the normal-channel discipline is correct and must stay strict.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove an unbacked withdrawal skips nothing",
+      "context": "This is the anti-bypass deliverable and is as important as the skip. Cover at least: status=withdrawn with NO decisionRef; a decisionRef naming a decision that does not exist; a decisionRef naming a real decision that does NOT list that item; and a decision whose userConfirmed is absent or false. Each must still be refused by both gates. Without these the fix converts a correct gate into a back door.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Delete the three B-8df9 waivers this unblocks",
+      "context": "B-8df9 CHK-004:happy:0 / edge:0 / adversarial:0 currently carry kind=waiver rows whose note states they are a framework gap and must not be read as evidence. Once this story lands they are obsolete and must be removed so the withdrawal completes mechanically with no prose in the DONE path. This must happen BEFORE B-8df9 reaches DONE; evidence recorded into a completed story cannot practically be revised afterwards. Verify afterwards that B-8df9's REVIEW completeness and channel gates both pass with zero waivers present.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
