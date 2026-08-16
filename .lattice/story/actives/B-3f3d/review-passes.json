@@ -17559,6 +17559,45 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "d5a44f0feabbdea071a0e26976d680bbe9912fb144123f559e8fe465895383d0"
+    },
+    {
+      "id": "B-3f3d:RP-309",
+      "agent": "lattice-review-test-coverage",
+      "note": "Story-level test-coverage re-verification for RI-040: only doc-only commit since RP-301 (2bcaf8b644). 54/54 must-intent evidence coverage confirmed mechanical/pass. verification_evidence_refresh_stale --dryRun reports all 54 stale at this cutoff (expected, doc-only materialHash bump). F-099 gap probe: empirically confirmed every semantic VerificationEvidence field still moves reviewInventoryAcceptanceSubjectDigest; only the 5 named freshness pins do not; unknown/new fields are bound by default (spread-except-named design). No gap found. Only open finding remains F-089 (DEV-phase, out of lane scope).",
+      "createdAt": "2026-08-16T14:30:45.109Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-420",
+      "envelopeId": "9d320f915393dad5d7bae7b3e67402e41c06b2bd967499f1a3a46708bb1e71c9",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "5f00aa088c76cdcdb00e90303bf215420afc3ffc1356f6d32c782e8383194aeb"
     }
   ]
 }
