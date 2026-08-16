@@ -335,9 +335,9 @@
       "id": "CHK-004",
       "title": "Route the pass-only finding_add CLI-surface assertion through an active review lane instead of the retired channel lane",
       "context": "field-regression-cli-smoke.ts assertPassOnlyFindingConvertsToReviewPassCliSurface: swap the RP-004 case from lattice-review-channel to lattice-review-test-coverage (start a real review_run_start for that lane), matching finding wording to the PASS_ONLY_REVIEW_FINDING_POLICY pattern so the conversion behavior under test is still exercised.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-16T12:39:34.349Z",
-      "endTime": null,
+      "endTime": "2026-08-16T12:39:55.654Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/field-regression-cli-smoke.ts"
