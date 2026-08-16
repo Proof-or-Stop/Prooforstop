@@ -1886,7 +1886,15 @@ function assertCloseoutTrustBoundary() {
     'ead33ddd7eae65fe2c2baf1411b7f0cf26b74ab16d28d9e5132fe777aef71663',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
-    '61136cc574a0afbfe3949ae9b1bfba11c861be6dcc7769873403eb98b5b97f04',
+    //
+    // B-cdf6:F-057 follow-on: this is the SECOND copy of that fingerprint. When the
+    // guard's own allowlist was repinned I updated only that file, and this verifier —
+    // which cross-checks that the guard pins the expected value — kept the old hash and
+    // failed closed. The two are coupled by design (the comment above already said so),
+    // so they must always move together. Same re-approval basis as the guard: the
+    // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
+    // path producers, and the approved loader call site is byte-identical to main.
+    '34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f',
     '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
     '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
