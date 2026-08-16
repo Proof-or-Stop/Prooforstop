@@ -68,10 +68,28 @@
       "phase": "DEV",
       "headHash": "83b36cc61d5b53ffc18517a3ad67afcec564992f",
       "materialHash": "5394d8cee3654fc635bd698093e42089b5ff5eb5d60a7f8e73c6a9cfdac328c5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Mandatory guard re-pin caused by the in-scope bootstrap-runner.js reader-resilience change: retired-authority-vocabulary-guard pins bootstrap-runner's canonical AST fingerprint, so B-1734's bootstrap edits require re-pinning its (unchanged) approved dynamic dist-import sites and exempting the 2 new unresolved-index-source sites the importDistModules refactor introduced. verify-process-fact-contract.mjs is the second independent tracker of the same fingerprint (per the B-3144 lesson that this fingerprint lives in two mechanisms). Both are the guard-side counterpart of the already-acknowledged bin/bootstrap-runner.js touchpoint.",
+      "timestamp": "2026-08-16T00:41:39.244Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "6f0ce0a9d4b4883d0959fb30817f24be6dccf59c",
+      "materialHash": "1bbdfaf0c9300e0156d5160189d903a6b385e866e0c113c983964c70f6b8105f"
     }
   ],
   "createdAt": "2026-08-15T11:38:40.619Z",
-  "updatedAt": "2026-08-15T20:32:35.506Z",
+  "updatedAt": "2026-08-16T00:41:39.244Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -101,6 +119,8 @@
     "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
     "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
     "scripts/promote-dist.mjs": "scripts/promote-dist.mjs",
-    "scripts/package-desktop.mjs": "scripts/package-desktop.mjs"
+    "scripts/package-desktop.mjs": "scripts/package-desktop.mjs",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
