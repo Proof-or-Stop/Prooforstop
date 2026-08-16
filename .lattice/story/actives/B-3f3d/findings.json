@@ -5475,7 +5475,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:402-410 postRemediationReviewSelection consumes classifyImpact categories (command-or-gate-policy, authority-or-permission, public-contract, dependency-or-build, unknown) to force full-set review after remediation, but command-or-gate-policy is otherwise UNUSED anywhere in the repo (grep confirms only review-incremental-context.ts and impact-classification-policy.ts reference it) and packages/main/src/tasks/review-inventory-handler-smoke.ts has zero test exercising POLICY_IMPACT_REQUIRES_FULL_SET, EMPTY_IMPACT_SELECTION, CHANGED_FILE_OUTSIDE_FROZEN_SCOPE, or SOURCE_CUTOFF_NOT_ANCESTOR fallback reasons (only DIRTY_MATERIAL, UNTRACKED_OR_IGNORED_MATERIAL, UNSUPPORTED_RENAME_OR_DELETE, DEPENDENCY_CLOSURE_INCOMPLETE, and the happy-path PROVEN_CANONICAL_DEPENDENCY_CLOSURE are covered). This is the exact mechanism meant to prevent narrowing the round-2+ reviewer roster after a remediation touches gate/policy source itself, and it is unverified by any test in this story or elsewhere: a regression in classifyImpact categorization for gate/policy files, or a bug in the .some() filter at line 403, would silently under-select reviewers with no test to catch it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-16T11:13:12.895Z",
@@ -5487,7 +5487,9 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed real and covered. Verified the gap independently before fixing: grep across packages/main/src/tasks and packages/main/tests found ZERO references to POLICY_IMPACT_REQUIRES_FULL_SET, EMPTY_IMPACT_SELECTION or SOURCE_CUTOFF_NOT_ANCESTOR, so the fail-closed branches of the post-remediation dependency-closure selector (core/review-incremental-context.ts:402-414) were genuinely untested. Also confirmed the safety property those branches implement: every fallback() call signs selection=full-set with selectedLanes=activeLanes (lines 320-340), so a fail-closed branch always reviews ALL active lanes and can never narrow the roster. Added coverage in packages/main/src/tasks/review-incremental-context-smoke.ts asserting the load-bearing predicate directly: changing gate/policy source (core/command-policy.ts), changing dependency/build material (package.json), and an unsupported rename each classify into a category present in the selector list [public-contract, authority-or-permission, command-or-gate-policy, dependency-or-build, unsupported-rename, unknown] that routes to POLICY_IMPACT_REQUIRES_FULL_SET. This pins the exact coupling the finding identified as unverified: the selector depends on classifyImpact emitting command-or-gate-policy, a category otherwise unused elsewhere in the repo, so nothing would have caught its removal. Verified: npm --prefix packages/main run build clean; node packages/main/dist/tasks/review-incremental-context-smoke.js exits 0. Mutation check proving the assertions bite rather than passing vacuously: deleting command-or-gate-policy from the asserted trigger list in the compiled dist makes the smoke exit 1; byte-restoring it returns exit 0. Note the deeper end-to-end branches (EMPTY_IMPACT_SELECTION, SOURCE_CUTOFF_NOT_ANCESTOR, DEPENDENCY_CLOSURE_INCOMPLETE) still require a full StoryStore plus git fixture to drive through postRemediationReviewSelection and remain uncovered; this resolution closes the specific unverified coupling the finding named, not every branch of that function.",
+      "resolvedAt": "2026-08-16T11:18:41.072Z"
     }
   ]
 }
