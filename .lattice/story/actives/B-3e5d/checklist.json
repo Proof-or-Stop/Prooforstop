@@ -162,7 +162,40 @@
       "context": "tests/red/red-B-new-concurrent-done-race.mjs and tests/red/red-B-new-retired-channel-lane.mjs, each using spawnSync with a real file-descriptor for stdio (execFileSync's pipe capture truncates large synchronous crash dumps at 8192 bytes on macOS); register both in red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS since each throws once its own fix lands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "create": [
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Both RED scripts run cleanly (exit 0, no crash) against the current, already-fixed dist build",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each RED script's own top-level assertion (that the target smoke test STILL exhibits the pre-fix defect) now itself fails with exit 1, since the underlying smoke test now passes -- this is the expected GREEN signal for a RED script",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red-b49d4-harness-registration.mjs's meta-guard passes with both new RED scripts either registered in validate.commands or listed in REGISTRATION_EXCLUSIONS with a reason",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
