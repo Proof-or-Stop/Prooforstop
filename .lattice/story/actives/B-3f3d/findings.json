@@ -6576,7 +6576,7 @@
       "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:679-689 F-099 regression assertions for reviewInventoryAcceptanceSubjectDigest only pin 4 of the many semantically-significant VerificationEvidence fields (result/command/receipt.outputDigest/receipt.selectorMatched). Empirically verified against compiled dist/core/review-inventory-epoch.js that intentRef, kind, file, note, mechanical, nonMechanicalReason, receipt.exitCode, receipt.outputTail, verdict, waiverType, attestation, actorTrust, and factProvenance all correctly still change the digest today (evidenceSemantics only strips headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt via a destructure+spread, so no live production gap exists). But the shipped smoke test would not catch a future regression that widens the strip-list to include any of these untested fields (e.g. folding intentRef or mechanical into the volatile set). Recommend adding negative-case assertions for at least intentRef, kind, and mechanical/nonMechanicalReason-flip alongside the existing 4, to close the test-coverage gap without changing current (correct) production behavior.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-16T14:30:55.938Z",
@@ -6758,7 +6758,9 @@
         "packages/main/src/core/review-inventory-epoch.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted and fixed. The finding is precise about what was and was not wrong: there is NO live production gap, because evidenceSemantics strips a NAMED five fields and spreads everything else, so any other field (including future ones) is bound by construction — the lane verified that empirically against the compiled dist across roughly 13 semantically significant fields. The gap was in TEST coverage: the shipped assertions pinned only 4 of them (result, command, receipt.outputDigest, receipt.selectorMatched), so a future refactor that accidentally widened the strip-list would not have been caught. Broadened the negative cases from 4 to 12, adding intentRef, kind, file, note, mechanical, nonMechanicalReason, receipt.exitCode and receipt.outputTail, with a comment stating explicitly why they exist: not because those fields are at risk today, but so that widening the strip-list fails loudly instead of silently letting a semantic change stop invalidating an epoch. Verified npx tsc --noEmit -p packages/main clean and review-inventory-epoch-smoke exits 0 with all 12 cases. Mutation check reproducing the exact regression the finding predicted: adding intentRef to the destructured strip-list in the compiled dist makes the smoke exit 1; byte-restoring returns exit 0. Also recording the ordering fact the same lane established this round, because it prevents a future misdiagnosis: F-099 decoupled only the review-inventory acceptance-subject digest from freshness pins, and it deliberately does NOT suppress evidence staleness classification, which is a separate consumer (checkEvidenceFreshnessForGit). So all 54 records reporting stale after a source or doc commit is correct behaviour, not a regression of F-099.",
+      "resolvedAt": "2026-08-16T14:32:56.339Z"
     },
     {
       "id": "B-3f3d:F-103",
