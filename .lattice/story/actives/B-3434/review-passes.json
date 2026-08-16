@@ -501,6 +501,39 @@
         "scanEscalationReason": null
       },
       "_hash": "5bae06b14fdad42f4e8165c0ac4a6df39a2c2be8f5d8ba33069cd7aada3df862"
+    },
+    {
+      "id": "B-3434:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-anchor, test-coverage scope only. (1) Registration guards re-run fresh at current HEAD (00c534aea0): red-b49d4-harness-registration.mjs -> OK, 43 tests/red entries, 35 registered + 8 excluded with reasons, exit 0. red-b49d4-registration-derivation.mjs -> 26/26 GREEN (0 RED), exit 0, including the newcomer-target-set completeness check. Confirmed this story's two harnesses (red-b3434-blob-buffer-ceiling.mjs, validation-evidence-buffer-smoke.js) are both still present in lattice.config.json validate.commands after the Auto-merged config (grep-confirmed at lines 125 and 62; also independently named in the derivation guard's NEWCOMER_TARGET_SET_IS_COMPLETE row). (2) 24 pinned checklist selectors independently re-extracted from checklist_get and containment-tested against fresh real output of both bound commands run at current HEAD: 23/24 match; sole miss is CHK-005:edge:0 (selector 'artifact (1212174 bytes) is unbounded and silent'), confirmed via evidence_inspect (read-only) as the sole non-fresh checklist ref, matching the documented byte-count-drift waiver in delivery-check.json (pin taken before F-001's fixture correction moved the comparable fixture from ~1.21MB to ~2.52MB; the underlying no-advisory-below-threshold behavior is proven by the adjacent passing assertion in the same run). verification_evidence_refresh_stale --dryRun reports 'No stale verification evidence for B-3434', confirming no drift beyond that one documented waiver. The only other stale evidence_inspect ref is the separate full-suite test-evidence.json aggregate (out of scope per dispatch - full validate not re-run here). (3) Mutation safety re-verified against the merged code: in a disposable filesystem copy (never the worktree), reverted 2 of the 4 previously-verified mutation catches directly in the compiled dist -- (a) dropping '|| Array.isArray(args.result)' from boundPersistedValidationEvidence's non-object branch: caught, AssertionError 'an oversized array reports withinBound false: true !== false', exit 1; (b) reverting snapshotPersistedRecord to return the live record instead of the JSON.parse'd copy: caught, AssertionError on bound.record.volatileField ('function' !== 'undefined'), exit 1, matching the prior round's exact characterisation. Both mutations reverted cleanly afterward; the disposable copy's dist file is byte-identical to the real worktree's file post-revert, and the real worktree's git status stayed clean throughout. (4) Real output, current worktree HEAD, both commands executed directly: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS (all fixtures incl. over-ceiling read/silent-hook/talking-hook cases), exit 0. node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (all check lines including the CHK-004 disposition line), exit 0. Also ran scripts/verify-process-fact-contract.mjs (touched by the merge for an unrelated B-6693 fingerprint pin) fresh: 'Process fact contract verified', exit 0, no FAIL lines. No regression, no coverage gap, no interaction between the merge and this story's evidence-bounding/write path found. Not re-auditing the bounding machinery (frozen under stopping rule); did not run the full lattice validate suite. No blocker.",
+      "createdAt": "2026-08-16T02:28:59.423Z",
+      "reviewRound": "2026-08-16T02:17:52.140Z",
+      "reviewRunId": "B-3434:RR-049",
+      "envelopeId": "1d1818c87a71509cf8daabd7a2689d613ad3ee713d345bc43d667ada29bca0df",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/delivery-check.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/test-evidence.json",
+          "lattice.config.json",
+          "packages/main/dist/core/validation-executor.js",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3dbf5eaeb3caf067b860ac61f87c0bfa70b5fff1d6e579259dc843a733530573"
     }
   ]
 }
