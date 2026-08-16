@@ -10,8 +10,14 @@ members share a bounded worker pool; repo writers take an exclusive lock.
 Timeouts terminate the member process tree and verify it is gone before
 publishing a terminal result: `terminateProcessTreeAndVerify` freezes the
 captured tree (SIGSTOP until two stable snapshots add no new members), then
-SIGKILLs and polls until no captured PID remains, so a detached descendant that
-called `setsid` cannot outlive the member. Captured ownership is keyed on
+SIGKILLs and re-polls until no captured PID remains, so a detached descendant
+that called `setsid` cannot outlive the member. That retry is bounded by the
+cleanup budget rather than unbounded: a process that can never be reaped (for
+example one wedged in uninterruptible sleep) would otherwise spin the loop
+forever, so on budget expiry the runner records the surviving PIDs as a
+lifecycle error and stops retrying. Exiting that way is still fail-closed — the
+terminal result is negative and never claims a clean tree while a captured child
+may remain alive. Captured ownership is keyed on
 `(pid, birthIdentity)` — `parseProcessRows` reads a per-process birth fact from
 `ps` alongside pid/ppid/pgid — so a PID that exits and is recycled before
 terminal reconciliation is permanently revoked rather than re-adopted, and is
