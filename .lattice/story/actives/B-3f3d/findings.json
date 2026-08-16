@@ -2908,7 +2908,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, and packages/main/src/core/review-run.ts:1413-1428 define and implement the kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. This contradictory operator guidance can cause unnecessary fresh review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion if this workflow fact remains duplicated.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-14T22:24:39.286Z",
@@ -2922,7 +2922,9 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified remediated; the drift no longer exists at the cited locations. Authority re-read: packages/main/src/core/review-run.ts:1416-1428 gates the id-recency stale_run rejection on evidence.kind !== pass, so a current-round material/scope-fresh non-latest PASS stays valid while an open FINDING must bind the lane latest run. Both locations the finding named now state exactly that contract: story-lifecycle.md:323 (review run freshness is kind-aware: a current-round, material/scope-fresh PASS remains admissible even after the same lane starts a newer run; an open FINDING must still bind the lane latest run so a newer pass cannot hide it) and AGENTS.md:63 (current round fresh PASS valid even when not the lane latest run; only open FINDING must bind the lane latest run). Grepped every superseded phrasing (latest run / 最新 run / latest ReviewRun / only the latest) across story-lifecycle.md, AGENTS.md, review-run-binding-race.md and CLAUDE.md: all four surviving occurrences carry the kind-aware PASS/FINDING distinction and none reproduce the generic latest-run-only claim, including CLAUDE.md:855 and review-run-binding-race.md:7. The finding also asked for a doc-contract assertion because the fact is duplicated; that assertion exists at scripts/verify-process-fact-contract.mjs:4321 and asserts the kind-aware distinction over AGENTS.md, story-lifecycle.md and testing-infra.md, which covers both files named by the finding and blocks regression. Ran node scripts/verify-process-fact-contract.mjs: Process fact contract verified, exit 0. No doc edit was required; recording verification rather than a code change.",
+      "resolvedAt": "2026-08-16T07:58:13.369Z"
     },
     {
       "id": "B-3f3d:F-044",
