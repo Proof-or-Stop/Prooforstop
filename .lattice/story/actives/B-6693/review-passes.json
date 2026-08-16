@@ -747,6 +747,40 @@
         "scanEscalationReason": null
       },
       "_hash": "e928a34273b67b08c4731ae88957e07f3ac4fe1234cd698b748f5df172e11c5e"
+    },
+    {
+      "id": "B-6693:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Post-main-merge concept review found no blocker. Merge 590aad96d7 had one combined conflict in scripts/verify-process-fact-contract.mjs and correctly retained both main's updated closeout-trust fingerprint and B-6693's audited c38c840 cli-engine fingerprint. All B-6693 runtime, handler, schema, smoke, and documentation files are byte-unchanged from merge parent a339b55682. Production call sites still converge validate, done_required_validate, and derived verdict binding through withOfficialValidationExecution with the inner story lock retained. Process-fact contract and retired-authority guard pass; old fingerprint residue is absent. Lattice reports 29/29 passing evidence with stale=0, including three mechanical canonical cohort receipts bound to current storyFilesHash.",
+      "createdAt": "2026-08-16T00:06:43.335Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-038",
+      "envelopeId": "241e34a927684e1c806a23027dae370fd742309fd2c0115397d958c5d39b61f0",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45a49d09585f3c1d15923fc6784bf0ef82c9514d4e7982ad19f2de9bd07e7236"
     }
   ]
 }
