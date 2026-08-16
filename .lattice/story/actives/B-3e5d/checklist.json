@@ -115,9 +115,9 @@
       "id": "CHK-002",
       "title": "Translate the losing racer's post-wakeup StoryArtifactMissingError into a clean, expected message",
       "context": "transition-orchestrator.ts: when store.readStory(args.storyId) throws StoryArtifactMissingError AND ctx.root no longer exists on disk, throw a clear 'a concurrent DONE transition already completed and removed this worktree' error instead of letting the raw ENOENT-style message propagate.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-16T12:39:31.381Z",
-      "endTime": null,
+      "endTime": "2026-08-16T12:39:52.584Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/transition-orchestrator.ts"
