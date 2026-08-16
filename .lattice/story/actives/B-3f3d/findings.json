@@ -5964,6 +5964,59 @@
       ],
       "signatureTag": "missing|ts|priority-verificationevidence-records",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-096",
+      "desc": "computeActiveReviewers (packages/main/src/handlers/reviewer-list.ts) now disambiguates its own force-mount reviewer_forced events from review-run.ts ensureCurrentReviewRound auto-init reviewer_forced events purely via non-empty StoryEvent.reviewer (documented in an F-094 code comment). This is correct today (verified: ensureCurrentReviewRound never sets reviewer; reviewer-list.ts always sets a non-empty reviewer via parseForceReviewers/normalizeForceReviewerName before writing), but the invariant is enforced only by convention/comment, not by a regression test. No dedicated test exercises the two-writer disambiguation (e.g. call ensureCurrentReviewRound then computeActiveReviewers and assert the auto-init event contributes nothing to persistedForced). A future refactor of ensureCurrentReviewRound that incidentally sets a non-empty reviewer field would silently start being treated as an operator force-mount decision with no test failure. Not a concept collision requiring a rename (the shared action string with field-based disambiguation is a reasonable, low-risk design); recommend adding a small regression test to lock in the invariant. Non-blocking.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-16T13:27:15.620Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-391",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/reviewer-status.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "9caceaff8d25599a2f12938e72ccbb1f77a6648332bf6233a68c9fd21870da6f",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|ts|computeactivereviewers-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
