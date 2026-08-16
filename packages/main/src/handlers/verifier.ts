@@ -45,7 +45,7 @@ import {
   runValidationCommand,
   stripAnsi,
 } from '../core/validation-executor.js';
-import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -55,7 +55,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
-import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import type { ChecklistData, TestEvidenceData, VerificationEvidence } from '../core/types.js';
 import {
@@ -1139,12 +1139,33 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       // headSha read below (currentHead / `git rev-parse --short HEAD`) runs from
       // the REAL gitRoot on a wrapper-root layout. With a real --story use the
       // id-keyed resolveGitCwd; otherwise the id-independent project-level resolver.
-      // Both fall back to projectRoot verbatim when no gitRoot resolves, so plain
-      // repos stay byte-identical and the existing `undefined`/not-git graceful
-      // degradation of each reader is preserved.
+      // Genuine non-Git projects still use projectRoot verbatim. An explicit
+      // configured gitRoot is authoritative, however: if it cannot resolve,
+      // stop before capacity acquisition rather than mint a wrapper-local lock.
+      const projectConfig = loadConfig(projectRoot);
+      const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
+      const resolvedProjectGitRoot = args.story
+        ? null
+        : resolveProjectGitRoot(projectRoot, projectConfig.gitRoot);
+      if (!args.story && configuredGitRootExpected && !resolvedProjectGitRoot) {
+        throw new Error(
+          `validate: configured gitRoot could not be resolved for workspace validation capacity under ${projectRoot}`,
+        );
+      }
       const handlerGitCwd = args.story
-        ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot })
-        : resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+        ? resolveGitCwd({ store: ctx.store, storyId: args.story, metadataRoot: projectRoot, projectRoot, config: projectConfig })
+        : (resolvedProjectGitRoot ?? projectRoot);
+      return await withOfficialValidationExecution({
+        root: projectRoot,
+        storyId: args.story,
+        workspaceRoot: handlerGitCwd,
+        requireGitIdentity: Boolean(args.story) || configuredGitRootExpected || existsSync(join(handlerGitCwd, '.git')),
+        command: 'validate',
+        abortSignal: args.abortSignal,
+        deadlineAt: args.deadlineAt,
+        deadlineError: args.deadlineError,
+        onWaitProgress: (message) => ctx.log?.(message),
+      }, async () => {
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
@@ -1281,14 +1302,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
-          const decorated = args.story
-            ? await withValidationExecutionLock({
-              root: projectRoot,
-              storyId: args.story,
-              workspaceRoot: handlerGitCwd,
-              command: 'validate',
-            }, buildNoValidatorResult)
-            : buildNoValidatorResult();
+          const decorated = buildNoValidatorResult();
           if (args.json) return JSON.stringify(decorated);
           return renderExternalResult(decorated);
         }
@@ -1359,14 +1373,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
-        const decorated = args.story
-          ? await withValidationExecutionLock({
-            root: projectRoot,
-            storyId: args.story,
-            workspaceRoot: handlerGitCwd,
-            command: 'validate',
-          }, runPlanAndPersist)
-          : await runPlanAndPersist();
+        const decorated = await runPlanAndPersist();
         for (const cmd of decorated.commands ?? []) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -1549,14 +1556,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
         return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
-      return args.story
-        ? await withValidationExecutionLock({
-          root: projectRoot,
-          storyId: args.story,
-          workspaceRoot: handlerGitCwd,
-          command: 'validate',
-        }, runValidateFileAndRender)
-        : await runValidateFileAndRender();
+      return await runValidateFileAndRender();
+      });
     },
 
     /**

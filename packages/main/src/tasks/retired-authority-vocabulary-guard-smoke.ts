@@ -361,12 +361,16 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f41c10356d737d3ea83dcdf1fb05589aa6c08de546380902ff1205ee308af2bc'],
-  // B-3144: repinned after quorum_prune CLI wiring was added to cli-engine.ts.
+  // B-6693: repinned after direct validate joined the structured watchdog while
+  // DONE-result classification remained separate. The approved non-literal
+  // loader still has the same runCli anchor, cli-init initPath producer, and
+  // import(`file://${initPath}`) call site. The relocation, producer mutation,
+  // nested-anchor, and loader-replacement controls below still make this pin bite.
   // The approved non-literal loader call site (runCli → import(`file://${initPath}`))
   // is unchanged; this whole-file structural fingerprint gates both that call-site
   // approval and the pinned-source drift check, so it moves with any cli-engine.ts
   // edit (same precedent as the B-1507 repin above).
-  ['packages/main/src/cli-engine.ts', 'ef1c4e9659f81c8cd6b5ee57a54bce6a470191135b6373d5f028fe17fbff050f'],
+  ['packages/main/src/cli-engine.ts', 'c38c8402e4ae4a4ab38fe3dfeb69a99461c4a528ffbf76a1313c53b1912c8754'],
   ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
