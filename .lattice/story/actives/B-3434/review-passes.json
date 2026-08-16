@@ -633,6 +633,38 @@
         "scanEscalationReason": null
       },
       "_hash": "453f5eac0e32d3e99c470216cc32e56e57f36757eef0fc45ddbeceec114da366"
+    },
+    {
+      "id": "B-3434:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Re-bind of RP-018 after a dev-memory bookkeeping commit moved storyFilesHash, with zero source change. Verified myself: git diff 00c534aea0 HEAD --stat -- . ':(exclude).lattice' is empty; all 13 intervening commits are lattice metadata (quorum-submit/validate/test-transition/done_required_validate/delivery_check_set/dev_memory_finish_decision/scope_contract_acknowledge/phase transitions), confirmed by inspecting each commit's changed-file stat. Checked the three new prose artifacts named in the dispatch, all written since my prior pass and all in my lane: (1) the six dev_memory_capture lessons appended to .lattice/dev-memory/experience.jsonl -- cross-checked their factual claims against finding_list (41 findings, all resolved; F-033/035/036/037 correctly partially_mitigated) and against test-evidence.json (99/99 validate commands pass, verificationCoverage total=24 required=24 covered=24 missingRequired=0) and against activity.jsonl quorum_submit notes (six genuine codex exec reviews, confirmed by the notes' own revision lists at 01:25:52 'Five independent codex exec reviews' and 02:45:12 'Six genuine codex exec reviews have now run'); these numbers hold. (2) the scope_contract_acknowledge reason for that same file -- matches the dev-memory content and the DONE-gate dependency chain it describes. (3) the story_resume --ack reason that cleared the convergence breaker -- found one real inaccuracy and filed it as B-3434:F-042 (low, non-blocking): it claims story_advance --phase=DONE failed three times, but .lattice/activity.jsonl records four failed DONE attempts (missing_dev_memory_finish_decision at 03:45:31, then stale_closeout_review/diff_pack_changed at 03:47:09, stale_delivery_check at 03:48:05, stale_closeout_review/storyFilesHash-mismatch at 03:56:04); the reason silently drops the first attempt and renumbers the rest as the whole set. This does not touch code, gate logic, or any of the substantive completion numbers, which independently check out. Confirmed the summary (summary_get) is unchanged since my prior pass: summary.json's last write (commit a0cbaf10c7, updatedAt 2026-08-16T01:38:46.353Z) is an ancestor of my prior-pass commit 00c534aea0, and no commit since has touched it. Ran the RED harness (node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs) and the buffer smoke (node packages/main/dist/tasks/validation-evidence-buffer-smoke.js) directly against the built dist: both PASS with real output (RED harness: all fixture/ceiling/hook assertions green; buffer smoke: all disposition/advisory/refusal assertions green, ending 'validation-evidence-buffer-smoke: PASS'). No blocker found. F-042 filed for the audit-trail record and does not gate this pass.",
+      "createdAt": "2026-08-16T04:08:08.366Z",
+      "reviewRound": "2026-08-16T03:58:30.355Z",
+      "reviewRunId": "B-3434:RR-054",
+      "envelopeId": "639d23d721505e9df53f3e54ac10921cb46aa28e7d1c6f1ecffcd2cee156e78e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/process-events.jsonl",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          ".lattice/story/actives/B-3434/summary.json",
+          ".lattice/story/actives/B-3434/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/activity.jsonl",
+          ".lattice/story/actives/B-3434/index.json",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1456deb8bb90a9b13eada3a15e785cd3af9f89d2a557f03b40a42adff4076e8c"
     }
   ]
 }
