@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Root the per-story transition lock at the stable main repo root instead of the worktree path",
+      "context": "transition-orchestrator.ts: resolve transitionLockRoot via detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root before acquireStoryTransitionLock, so a winning DONE's worktree teardown cannot delete the lock directory a concurrent loser is polling on.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Translate the losing racer's post-wakeup StoryArtifactMissingError into a clean, expected message",
+      "context": "transition-orchestrator.ts: when store.readStory(args.storyId) throws StoryArtifactMissingError AND ctx.root no longer exists on disk, throw a clear 'a concurrent DONE transition already completed and removed this worktree' error instead of letting the raw ENOENT-style message propagate.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reject the retired lattice-review-channel lane in reviewer_list forceReviewer instead of exercising it as forceable",
+      "context": "field-regression-cli-smoke.ts assertReviewerListForceReviewerLaneContract: remove channel from the forceable-lane assertion and add a case asserting reviewer_list --forceReviewer=channel is rejected with 'not supported by review_run_start', matching prompt-role-contract-registry.ts's structural retirement of the lane.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Route the pass-only finding_add CLI-surface assertion through an active review lane instead of the retired channel lane",
+      "context": "field-regression-cli-smoke.ts assertPassOnlyFindingConvertsToReviewPassCliSurface: swap the RP-004 case from lattice-review-channel to lattice-review-test-coverage (start a real review_run_start for that lane), matching finding wording to the PASS_ONLY_REVIEW_FINDING_POLICY pattern so the conversion behavior under test is still exercised.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add standalone RED scripts proving both defects pre-fix, registered or exempted per the RED-harness registration guard",
+      "context": "tests/red/red-B-new-concurrent-done-race.mjs and tests/red/red-B-new-retired-channel-lane.mjs, each using spawnSync with a real file-descriptor for stdio (execFileSync's pipe capture truncates large synchronous crash dumps at 8192 bytes on macOS); register both in red-b49d4-harness-registration.mjs's REGISTRATION_EXCLUSIONS since each throws once its own fix lands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
