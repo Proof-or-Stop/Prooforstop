@@ -46,7 +46,39 @@
       "context": "transition-orchestrator.ts: when store.readStory(args.storyId) throws StoryArtifactMissingError AND ctx.root no longer exists on disk, throw a clear 'a concurrent DONE transition already completed and removed this worktree' error instead of letting the raw ENOENT-style message propagate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A normal read of an existing story's index.json (root present) never triggers the translation catch and behaves exactly as before",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The loser's store.readStory throws StoryArtifactMissingError while ctx.root no longer exists on disk (worktree deleted by the winner); the loser's stderr contains 'a concurrent DONE transition ... already completed and removed it' instead of a raw 'File not found' stack trace",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A genuinely invalid/nonexistent storyId is passed while ctx.root still exists on disk; the original StoryArtifactMissingError must rethrow unchanged, not be misclassified as a concurrent-DONE explanation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
