@@ -1194,7 +1194,7 @@ Behavior:
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),
   }},
-  { name: 'done_required_validate', description: 'Run opt-in DONE-required validation commands and write done-required-evidence.json', schema: {
+  { name: 'done_required_validate', description: 'Run opt-in DONE-required validation under shared workspace capacity and write done-required-evidence.json; bare npm test is outside this lease', schema: {
     storyId: z.string().describe('Story ID'),
     story: z.string().optional().describe('Alias for storyId.'),
     json: z.boolean().optional().describe('Return done-required-evidence.json content as JSON.'),
@@ -2001,7 +2001,7 @@ Behavior:
   }},
 
   // Verifier (Proofbound built-in code verification).
-  { name: 'validate', description: 'Run project verification (static, logic, and integration tests)', longHelp: VALIDATE_LONG, schema: {
+  { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
