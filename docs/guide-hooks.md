@@ -83,21 +83,23 @@ Each stage is a `Record<string, string[]>`: the key is the match condition, and 
 
 ## Environment Variables
 
-Each hook command receives the full `process.env` through `child_process.spawn`, plus the injected `LATTICE_*` environment variable names listed below:
+Each hook command receives the full `process.env` through `child_process.spawn`, plus the injected environment variables listed below.
 
-| Variable | Stages it appears in | Meaning |
-|---|---|---|
-| `LATTICE_STAGE` | all | legacy env var; the current Proof-or-Stop stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
-| `LATTICE_COMMAND` | all | legacy env var; the current Proof-or-Stop command name (e.g. `story_advance`) |
-| `LATTICE_CWD` | all | legacy env var; the process cwd when the hook fired |
-| `LATTICE_ROOT` | all | legacy env var; the current Proof-or-Stop project root (after `--root` resolution) |
-| `LATTICE_ARGS_JSON` | preCommand / postCommand / onError | legacy env var; the argument JSON passed to the handler (truncated to 8KB) |
-| `LATTICE_RESULT_JSON` | postCommand | legacy env var; the handler return value JSON (truncated to 8KB) |
-| `LATTICE_ERROR` | onError | legacy env var; the error.message string |
-| `LATTICE_STORY_ID` | onPhaseChange + any stage when an active story exists | legacy env var; the current Proof-or-Stop story id (`B-xxxx`) |
-| `LATTICE_PHASE` | any stage when an active story exists | legacy env var; the current phase (at the time the hook runs) |
-| `LATTICE_OLD_PHASE` | onPhaseChange | legacy env var; the phase before the transition |
-| `LATTICE_NEW_PHASE` | onPhaseChange | legacy env var; the phase after the transition |
+**Both spellings are always exported.** `buildHookEnv` ([core/hooks.ts](../packages/main/src/core/hooks.ts)) dual-writes every variable under the canonical `PROOF_OR_STOP_*` name *and* the deprecated `LATTICE_*` name, so an existing hook script reading `LATTICE_STAGE` and a new one reading `PROOF_OR_STOP_STAGE` both keep working — that is the additive-rename contract in [core/brand-env.ts](../packages/main/src/core/brand-env.ts). Write new hooks against the canonical column; the deprecated column is listed only so you can recognize it in older scripts.
+
+| Variable (canonical) | Also exported as (deprecated) | Stages it appears in | Meaning |
+|---|---|---|---|
+| `PROOF_OR_STOP_STAGE` | `LATTICE_STAGE` | all | the current Proof-or-Stop stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
+| `PROOF_OR_STOP_COMMAND` | `LATTICE_COMMAND` | all | the current Proof-or-Stop command name (e.g. `story_advance`) |
+| `PROOF_OR_STOP_CWD` | `LATTICE_CWD` | all | the process cwd when the hook fired |
+| `PROOF_OR_STOP_ROOT` | `LATTICE_ROOT` | all | the current Proof-or-Stop project root (after `--root` resolution) |
+| `PROOF_OR_STOP_ARGS_JSON` | `LATTICE_ARGS_JSON` | preCommand / postCommand / onError | the argument JSON passed to the handler (truncated to 8KB) |
+| `PROOF_OR_STOP_RESULT_JSON` | `LATTICE_RESULT_JSON` | postCommand | the handler return value JSON (truncated to 8KB) |
+| `PROOF_OR_STOP_ERROR` | `LATTICE_ERROR` | onError | the error.message string |
+| `PROOF_OR_STOP_STORY_ID` | `LATTICE_STORY_ID` | onPhaseChange + any stage when an active story exists | the current Proof-or-Stop story id (`B-xxxx`) |
+| `PROOF_OR_STOP_PHASE` | `LATTICE_PHASE` | any stage when an active story exists | the current phase (at the time the hook runs) |
+| `PROOF_OR_STOP_OLD_PHASE` | `LATTICE_OLD_PHASE` | onPhaseChange | the phase before the transition |
+| `PROOF_OR_STOP_NEW_PHASE` | `LATTICE_NEW_PHASE` | onPhaseChange | the phase after the transition |
 
 ## Behavior Contract
 
@@ -106,7 +108,7 @@ Each hook command receives the full `process.env` through `child_process.spawn`,
 3. **stdout limit**: a hook's stdout is echoed to stderr only for the first 200 characters, to avoid polluting the main command's JSON output (this matters most for postCommand: an agent piping into jq does not want hook notes mixed into the JSON).
 4. **Sequential execution**: commands within the same stage are awaited serially in array order, each one waiting for the previous to finish. preCommand fully completes before the handler runs; postCommand fully completes before `process.exit(0)`.
 5. **Concurrency**: exact-match + wildcard commands also run in order—the exact match runs to completion first, then the wildcard.
-6. **Environment variable truncation**: both `LATTICE_RESULT_JSON` and `LATTICE_ARGS_JSON` are truncated to 8KB to prevent blowing up the env (the default ARG_MAX on macOS / Linux is roughly 256KB; Windows is far stricter).
+6. **Environment variable truncation**: both `PROOF_OR_STOP_RESULT_JSON` and `PROOF_OR_STOP_ARGS_JSON` (and their deprecated `LATTICE_*` twins) are truncated to 8KB to prevent blowing up the env (the default ARG_MAX on macOS / Linux is roughly 256KB; Windows is far stricter).
 7. **stage validation**: an invalid stage key under `hooks` is silently ignored (PROBE class, no health written).
 
 ## Examples
@@ -134,7 +136,7 @@ This is hooked into preCommand rather than postCommand because merging after the
   "hooks": {
     "onPhaseChange": {
       "*": [
-        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"proof-or-stop $LATTICE_STORY_ID: $LATTICE_OLD_PHASE→$LATTICE_NEW_PHASE\""
+        "curl -s -XPOST \"https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage\" -d chat_id=$TG_CHAT_ID -d text=\"proof-or-stop $PROOF_OR_STOP_STORY_ID: $PROOF_OR_STOP_OLD_PHASE→$PROOF_OR_STOP_NEW_PHASE\""
       ]
     }
   }
@@ -150,7 +152,7 @@ This is hooked into preCommand rather than postCommand because merging after the
   "hooks": {
     "onPhaseChange": {
       "TEST_CASE_REVIEW->TEST": [
-        "tar czf /tmp/lattice-fixtures-$LATTICE_STORY_ID.tgz tests/fixtures/"
+        "tar czf /tmp/lattice-fixtures-$PROOF_OR_STOP_STORY_ID.tgz tests/fixtures/"
       ]
     }
   }
@@ -166,7 +168,7 @@ When `test_auto` finishes, it runs `git restore + git clean -fd` on the fixtures
   "hooks": {
     "onError": {
       "*": [
-        "curl -s -XPOST $WEBHOOK_URL -H 'Content-Type: application/json' -d \"{\\\"command\\\":\\\"$LATTICE_COMMAND\\\",\\\"error\\\":\\\"$(echo $LATTICE_ERROR | head -c 200)\\\"}\""
+        "curl -s -XPOST $WEBHOOK_URL -H 'Content-Type: application/json' -d \"{\\\"command\\\":\\\"$PROOF_OR_STOP_COMMAND\\\",\\\"error\\\":\\\"$(echo $PROOF_OR_STOP_ERROR | head -c 200)\\\"}\""
       ]
     }
   }

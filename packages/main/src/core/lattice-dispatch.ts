@@ -53,7 +53,7 @@ import {
   recordDispatchPreflight,
   type DispatchUsageContext,
 } from './usage-ledger/dispatch-usage.js';
-import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
+import { BRAND_ENV_PREFIX, deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
 
 export type HostRuntimeId = 'fake' | 'codex' | 'claude-code' | 'antigravity' | 'gemini';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
@@ -2293,7 +2293,7 @@ function buildBudgetBlockedDispatchResult(
     warnings: [...baseWarnings, blockedWarning],
     nextAction:
       `Claude Code dispatch ${record.dispatchId} was blocked before spawn by the hard token budget ` +
-      `(${policyLabel}). Raise LATTICE_HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
+      `(${policyLabel}). Raise ${BRAND_ENV_PREFIX}HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
       `No provider call was made.`,
   });
   writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));

@@ -606,6 +606,24 @@
         "B-cdf6:F-040"
       ],
       "_hash": "5d5e3a2e63a881fccf0e00122e4c8038e7226b7f87e5bb8286375c2e2ba94d6b"
+    },
+    {
+      "id": "B-META-framework-audit:F-033",
+      "desc": "Concurrent dist/ rebuild during a DONE-required suite run produces a FALSE RED indistinguishable from a real regression, leaving no trace in any evidence record. Observed in B-cdf6: done_required_validate ran `npm test` while packages/main/dist was being regenerated in the same worktree; a spawned CLI hit the half-written tree and failed with \"proof-or-stop local bootstrap is not ready. Missing build artifacts: packages/main/dist/cli-engine.js\" (npm test exitCode=1 at 85s). The identical suite passes exit 0 in ~254s with dist stable, so the red was purely a race. This is the concrete failure mode of the invisibility logged as F-032 (dist/ is gitignored, so mutating it moves no hash and every freshness/binding check stays blind). Impact: the message names missing build artifacts, so it reads like a packaging defect and sends debugging into the wrong subsystem; and the run is recorded as executed/failed, making the false red durable evidence in a DONE-blocking gate. Occurred THREE times in this one story: (1) a destructive dist rebuild during a live reviewer round caused a false-positive concept finding, (2) this false suite red, (3) a gap_log invocation itself failed bootstrap while a refresh rebuilt dist. Suggested remedy: have done_required_validate/validate hold or observe a build lock (or assert dist mtime stability across the run) and classify bootstrap-not-ready as an infrastructure refusal, like the existing timeout/lock refusals, rather than command-failed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-16T10:32:03.999Z",
+      "reviewRound": "",
+      "gapFingerprint": "815afa47e23d2db0530b167b6bf66d9751a05eb7829cde6e45385af722063cae",
+      "files": [
+        "packages/main/src/handlers/done-required-validate.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "_hash": "8fd3e01282f083e638862325e765c5aaf0545964b6188e11c1da48c908c45f58"
     }
   ]
 }
