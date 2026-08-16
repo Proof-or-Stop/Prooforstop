@@ -456,6 +456,33 @@
         "scanEscalationReason": null
       },
       "_hash": "7cf8841d14c19647c15f7afa9ff5320ff426bc39f84b959fc48f292001a402d2"
+    },
+    {
+      "id": "B-16df:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-diff pass vs main (main fully caught up, 0 behind, confirmed ancestor). Diff vs main is purely additive: checklist.ts (+29/-8) adds one exported resolvePinnedCommandTimeoutMs helper and threads it into its 4 existing runSingleAllowlistedCommand call sites; validate-command-timeout-smoke.ts (+457/-1) adds new test sections 6-16. No concept word was deleted or replaced en masse, so per this role scope (concept-deletion-residue grep scan) there is nothing to grep for and no blocker. Closing doc-promise-undelivered self-check: no CLAUDE.md/README/schema/ENV additions in the diff. Independently rebuilt (npm run build exit 0) and reran the pinned smoke directly (validate-command-timeout-smoke.js: 45/45 assertions pass), matching CHK-004s pinned mechanical receipt at headHash fa4e0f1 which is an ancestor of current HEAD with zero further diff on the touched source files since. All 9 prior findings (F-001..F-009) remain resolved, 0 open.",
+      "createdAt": "2026-08-16T16:09:29.942Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-022",
+      "envelopeId": "927f888d53e1fda2cfd1430210be4b501998aa23c5047415976870cf9544bd6c",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f6d0fc5f77c308068f80fac7b0cc0f7fbb01a99552986d208cf03a4f70ef463b"
     }
   ]
 }
