@@ -5194,6 +5194,26 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Gap accepted as real and closed with direct coverage. The finding was correct: every prior birth-identity test synthesized ProcessRow objects, so parseProcessRows (the sole string-parsing step underpinning the whole (pid, birthIdentity) ownership scheme) had zero direct coverage of the branches its own doc comment calls out. Added six assertions to packages/main/src/tasks/full-suite-runner-smoke.ts that drive the real function, three of them against genuine live ps -axo pid=,ppid=,pgid=,lstart= output rather than fixtures: (1) this process is recovered from real ps output by pid; (2) its parsed ppid matches process.ppid and its birthIdentity is a nonempty string; (3) no parsed row from real ps output ever carries a non-integer or nonpositive numeric column. Three further assertions pin the branches the finding named: a space-containing lstart is kept whole so no date fragment is mis-attributed to a numeric column (4321 1 4321 Mon Aug 11 09:15:42 2026 parses with birthIdentity intact); internal whitespace is collapsed so the same birth instant compares equal across ps padding; and blank, whitespace-only, header, truncated (two- and three-column), non-numeric-pid, zero-pid and negative-pid lines are all skipped while the single well-formed row survives. Verified: npm run test:full-suite-runner-smoke now reports PASS (183 assertions), up from 177, with the six new labels present in the emitted assertion inventory; npx tsc --noEmit -p packages/main exits 0. Mutation check proving the new tests bite rather than passing vacuously: patching the compiled dist to drop the whitespace-collapse (match[4].replace(/s+/g, chr32) -> match[4]) turns the run FAIL with the exact diagnostic parseProcessRows collapses internal whitespace so the same birth instant compares equal across ps padding: [{pid:4321,...,birthIdentity:Mon   Aug    11   09:15:42   2026}]; the dist was then byte-restored (diff -q confirms identity with the pre-mutation copy) and re-ran PASS (183 assertions).",
       "resolvedAt": "2026-08-16T08:06:11.757Z"
+    },
+    {
+      "id": "B-3f3d:F-083",
+      "desc": "All 54 verificationEvidence records (9 must-priority intents x 6 checklist items CHK-001..CHK-006, each intentRef individually cited with a concrete integration_test/logic_test/docs_check and result=pass -- the coverage MAPPING itself is sound) are bound to one stale snapshot headHash=6a5da86/materialHash=5b37c55/storyFilesHash=6b03f2e. Current HEAD has advanced far past that (checked twice during this review as concurrent lanes committed: 8d2a2a2 then b93ff86); checkEvidenceFreshnessForGit + classifyEvidenceFreshness classify this as RELATED_STORY_MATERIAL_DRIFT (evidence storyFilesHash does not match current story-owned file state, materialFiles=[<story-files-changed>]) at every recheck, NOT the KNOWN_UNRELATED_MATERIAL_DRIFT whole-tree-only case. Corroborated by frozen_claim_drift_check --json, which independently reports driftKind=material with a changed storyFilesHash for all 6 items. Concretely, review-incremental-context.ts (in this storys own allowedModify scope, referenced by CHK-004) diffed 34 insertions/30 deletions since the evidence snapshot, across 30+ in-branch commits including internal DEV remediation cycles (RI-020/RI-021/RI-023, F-078, F073). Per the storyFilesHash-drift rule this is story-owned drift requiring genuine re-verification (re-run the pinned verifiers via verification_evidence_refresh_stale, then re-record via verification_evidence_add), not a downgrade-to-attestation-advisory case, and must not be self-classified as pass from raw hashes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-16T08:07:55.925Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-340",
+      "_hash": "6dea044816d3aa9fe60fe7d7f45008ea421747d3382a1f9e673dfdc330a3eb94",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "missing|ts|verificationevidence-records-priority",
+      "signatureTagSource": "auto"
     }
   ]
 }
