@@ -24,9 +24,26 @@
     "scripts/verify-process-fact-contract.mjs"
   ],
   "scopeChangeReason": "Three exclusions, each for a stated reason rather than convenience. The watchdog-budget files carry a separate config-derived-versus-generic-default asymmetry that two decision documents already record as an independently owned subsystem; merging it here would produce one unreviewable change out of two independent defects. The process-fact files are excluded per OQ-B3434-1: bounding the serialised artifact introduces no new process fact, and if an implementer finds otherwise that is a real expansion to raise explicitly. Separately recorded rather than silently ignored: the scope reviewer identified done-required-evidence.json, written by the doneRequiredCommands runner rather than by handlers/verifier.ts, as carrying the IDENTICAL per-command aggregate growth shape. It is deliberately not folded in - a bugfix story that repairs one artifact and redesigns another is two changes - but it is a genuine sibling and is filed as its own work so the same cliff is not rediscovered from the other side.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lifecycle-required process artifact, not a code-scope expansion. The DONE gate refuses without a recorded dev_memory_finish_decision, and recording --decision=captured requires dev_memory_capture to have written its lessons; dev_memory_capture --scope=project appends them to this shared project-level file, which no story's allowedModify set names, so the classifier fails it closed as an unknown path. Six lessons from this story were captured there: the recurring claim-wider-than-the-code defect and the delete-rather-than-narrow remedy; the pre-committed stopping rule that produced CHK-004 outcome B; cross-vendor review catching in four consecutive rounds what four Claude lanes missed, and the fact that its findings gate nothing until a lane reproduces them; the validate suite sitting about two percent under its 900000 ms watchdog and the LATTICE_MAX_TIMEOUT_MS digest trap; a regression harness that passes by hand not being the same claim as one wired into the standing suite; and the hot-main storyFilesHash cascade that forced this story's TEST-to-DEV-to-REVIEW re-anchor. No source, config, test or document file is touched by this acknowledgement - git diff over everything outside .lattice is empty. The ordering lesson is recorded separately: dev-memory capture must happen BEFORE the final review round, because appending to this file moves storyFilesHash and invalidates reviewer passes recorded earlier.",
+      "timestamp": "2026-08-16T03:57:27.848Z",
+      "paths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e1cab96f55c96acc0863b3b90b59ff8b789df328",
+      "materialHash": "9663bdc713c1b2af4a31f705d649d2e457030e08d6f27b6a4586e01f5f5dff65"
+    }
+  ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-15T10:48:39.414Z",
+  "updatedAt": "2026-08-16T03:57:27.848Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -42,6 +59,7 @@
     "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
-    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl"
   }
 }
