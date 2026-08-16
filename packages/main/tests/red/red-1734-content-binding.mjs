@@ -50,9 +50,21 @@ import {
 } from '../../../../scripts/full-suite-build-binding.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-let repoRoot = here;
-while (!existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
-assert.ok(existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+// Repo root is a fixed four levels up (packages/main/tests/red -> root) — the same
+// relative anchor as the scripts/full-suite-build-binding.mjs import above, and the
+// same idiom the genuine registration guards (e.g. red-w2c-validate-registration.mjs)
+// use. Root is resolved by DEPTH, not by scanning for the root config file, on
+// purpose: this is a build-concurrency RED test, not a registration decider, and
+// red-b49d4-registration-derivation.mjs derives its target guards from red *.mjs that
+// reference that config file AND enumerate a directory. Naming the config here (even
+// only as a root-finding sentinel) would mis-derive this test into that meta-guard's
+// symlink mirror, where treeDigest sees no real dist and verifyBuildBinding throws for
+// a reason unrelated to anything this test asserts.
+const repoRoot = join(here, '..', '..', '..', '..');
+assert.ok(
+  existsSync(join(repoRoot, 'scripts', 'full-suite-build-binding.mjs')),
+  'could not locate repo root (expected scripts/full-suite-build-binding.mjs four levels above this test)',
+);
 
 const write = (root, rel, body) => {
   const abs = join(root, rel);
