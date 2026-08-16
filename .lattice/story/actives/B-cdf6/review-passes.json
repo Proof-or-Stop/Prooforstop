@@ -985,6 +985,40 @@
         "scanEscalationReason": null
       },
       "_hash": "939c95a7208933830c944e25adddcb03b98d0ec1bbc1fe9501a99f069bd594da"
+    },
+    {
+      "id": "B-cdf6:RP-033",
+      "agent": "lattice-review-quality",
+      "note": "Round scoped to the single material change since last round (commit 3ffbbe31ef; verified via git diff 988fa34204..f4c1e94fac --stat = only .lattice metadata + this one commit): the 10-line fingerprint repin in scripts/verify-process-fact-contract.mjs. Independently recomputed the canonical-AST-fingerprint (typescript-printer-remove-comments-sha256-v1) of packages/main/src/cli-engine.ts from scratch in a standalone node script (not copy-pasted from either pinned file) and got 34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f, matching both the verifier's new value AND the guard's own allowlist at retired-authority-vocabulary-guard-smoke.ts:384 -- so the two pins now agree with each other AND with ground truth, not just with each other. Grepped for a third stale copy of the old value 61136cc5...: none found. Grepped for other cli-engine.ts hash-pin consumers: verify-runtime-fact-contract.mjs reads source directly (no frozen literal, no staleness class). Ran the exact commands named in the escalation rather than trusting the commit message: node scripts/verify-process-fact-contract.mjs (exit 0); built dist and ran packages/main/dist/tasks/red-evidence-target-binding-smoke.js (exit 0) and packages/main/tests/red/red-w2b-wiring-contract.mjs (exit 0); npx tsc --noEmit -p packages/main/tsconfig.json (exit 0); verify-lattice-residue.mjs plain + --self-test (all 3 checks + 38/38 unit tests, exit 0); verify-runtime-fact-contract.mjs and verify-entrypoints.mjs (exit 0). For the 3 claimed-pre-existing red smokes (prompt-token-cost, proofstory-acceptance-topology, lattice-cli-migration) I did not take the claim on faith: built a disposable detached git worktree of pristine main (abe666af4f) at a scratch path, linked node_modules, built dist, and ran all three there -- got the same failure modes (missing lattice managed block assertion; assertion mismatch on checklist_update_executable_evidence_unenforced regex; assertion mismatch on host status regex), confirming they are pre-existing and unrelated to this story. Cleaned up the scratch worktree afterward. No dead code, type-safety escape, or swallowed error in the diff -- it is a pure string-literal edit plus an explanatory comment. Quality lane clean for this round; no blocking finding.",
+      "createdAt": "2026-08-16T08:12:56.747Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-092",
+      "envelopeId": "763ae24d7c9bfd5b5bd3b7df44a150d7f7aad85889748416988e178940723059",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "784985da95b7b200164c90de30c3f81e709c684a3098437a02d960d7ad60b08e"
     }
   ]
 }
