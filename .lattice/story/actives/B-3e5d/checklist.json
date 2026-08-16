@@ -21,7 +21,11 @@
           {
             "desc": "A single story_advance --phase=DONE call still acquires and releases the transition lock normally and the story reaches DONE, confirmed by worktree-authority-smoke.js's other assertions continuing to pass",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+              "selector": "worktree authority smoke passed"
+            }
           }
         ],
         "edge": [
@@ -38,7 +42,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "Full smoke suite (includes assertConcurrentDoneSerializesWithoutPartialDone and all other worktree-authority assertions) passes end-to-end after the transition-lock rooting fix.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5bea47a3fb7b1959ab5cb87b9a969fd8321f259fb88a1e1c06f6241c2127f5e7",
+            "outputTail": "✓ worktree authority smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:00:21.416Z"
+          },
+          "headHash": "14a6038d627a63df4fec090676d06596f93d213c",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:00:21.666Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

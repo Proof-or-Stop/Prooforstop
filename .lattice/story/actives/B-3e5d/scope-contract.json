@@ -1,0 +1,36 @@
+{
+  "storyId": "B-3e5d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts",
+    "packages/main/src/Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts"
+  ],
+  "scopeChangeReason": "Initialized from PLAN checklist files (7 items, all with files.modify/create/test declared) and decision.json's chosen=narrow-catch-and-translate option.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-16T11:56:21.365Z",
+  "updatedAt": "2026-08-16T11:56:21.365Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/tests/red/red-b49d4-harness-registration.mjs": "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+    "packages/main/tests/red/red-B-new-concurrent-done-race.mjs": "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+    "packages/main/tests/red/red-B-new-retired-channel-lane.mjs": "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+    "packages/main/src/Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts": "Broadly re-rooting ctx.store to protect every read site during a DONE race, beyond the one StoryArtifactMissingError call site in transition-orchestrator.ts",
+    "packages/main/src/Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts": "Changes to prompt-role-contract-registry.ts or flow-fact-policy.ts"
+  }
+}

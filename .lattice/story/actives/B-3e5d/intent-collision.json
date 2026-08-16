@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3e5d",
+  "id": "IC-20260816115552",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The story implements exactly two narrow fixes: (1) transition-orchestrator.ts stable-root transition lock + clean StoryArtifactMissingError translation for the concurrent-DONE-race loser, (2) field-regression-cli-smoke.ts rejecting the retired lattice-review-channel lane and rerouting its pass-only-finding assertion through lattice-review-test-coverage, plus the resulting cascade of dependent test-fixture fixes needed to keep that file green end-to-end. No broader ctx.store re-rooting or DONE-lifecycle refactor is in scope, matching decision.json chosen=narrow-catch-and-translate.",
+  "acceptedInterpretationHash": "sha256:86445c3140f4261ea2599fcef40067cf723dade56385bdb1ed3a1e7d6402935c",
+  "notes": "No ambiguity found between the user's request and the checklist/plan.md scope; scope-plan reviewer already confirmed 11/12 extracted features covered and 1 explicitly excluded with no gaps.",
+  "createdAt": "2026-08-16T11:55:52.595Z",
+  "updatedAt": "2026-08-16T11:55:52.595Z"
+}
