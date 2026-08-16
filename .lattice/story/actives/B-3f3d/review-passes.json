@@ -17328,6 +17328,44 @@
       },
       "readDiagnostics": [],
       "_hash": "f4be7c5d526931c38da8d7dafb04fd0592e08c348110692ab954aeda62cdbab9"
+    },
+    {
+      "id": "B-3f3d:RP-301",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified verificationIntent/verificationEvidence coverage, no blocker. Re-checked F-095 evidence half after prior-round dispute: all 54 must-priority intents covered, mechanical, pass, fresh at cutoff (dryRun genuinely zero-stale, re-executed not hash-rebound, confirmed by reading the async refresh handler and executedAt timestamps). F-096 forced-replay regression test independently verified non-tautological against reviewer-list.ts guards. F-089/F-098 remain open but outside test-coverage lane remit.",
+      "createdAt": "2026-08-16T14:04:17.547Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-403",
+      "envelopeId": "74a4999d6be64d02c83b6a03938432e51107b15b1014c98a1b23e9516377e915",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "3bf5a26f4ffc2185259bf01a10b9d701f9ded226fc6991dc444ab85514d325a7"
     }
   ]
 }
