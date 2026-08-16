@@ -206,7 +206,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All RP-001..RP-008 pass-only finding_add calls in assertPassOnlyFindingConvertsToReviewPassCliSurface succeed with readManifest supplied",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "writeDoneReadyStory now writes phase=REVIEW (not TEST) and no hand-crafted review-passes.json; finishDoneReadyStory writes phase=TEST only after real review evidence has landed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hand-signed review pass without a valid _hash/reviewRunId would fail validateEvidenceRunBinding -- confirmed this restructure avoids that path entirely by using real review_run_start + review_pass_set calls instead",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
