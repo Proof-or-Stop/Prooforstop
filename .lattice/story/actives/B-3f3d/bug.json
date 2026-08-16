@@ -71,6 +71,13 @@
         "fixEvidence": "a2d7c9dbe1 makes the aggregate acyclic, adds structural negative checks, uses a bounded five-worker pool allowed by resource policy, and npm test passes 47/47 in 288.9 seconds with no timeout",
         "reproTest": "packages/main/src/tasks/full-suite-runner-smoke.ts"
       }
+    },
+    {
+      "id": "BUG-F107-INCOMPLETE",
+      "title": "F-107 resolution inaccurate: candidate-routing barrier still leaks freshness after unbinding queryFiltering (corpusDigest identical, candidateSpecSetDigest moved); repro stashed at stash@{0}",
+      "status": "open",
+      "foundAt": "2026-08-16T23:35:21.430Z",
+      "fixedAt": null
     }
   ]
 }

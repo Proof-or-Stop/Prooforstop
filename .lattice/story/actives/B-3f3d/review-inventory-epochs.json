@@ -4220,9 +4220,9 @@
       "epochId": "B-3f3d:RI-042",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "INVALIDATED",
       "begunAt": "2026-08-16T15:43:10.733Z",
-      "updatedAt": "2026-08-16T15:43:10.733Z",
+      "updatedAt": "2026-08-16T16:07:40.136Z",
       "cutoff": {
         "headHash": "6ca8cc2c86a491c48612fc03b0db0ecff4710d86",
         "materialHash": "9a606e38043bbf5a1ce45743785fc578502d9fdd8215cfa5aee275f8a5616d08",
@@ -4242,7 +4242,20 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "65829dc33483b169647f595d112345fa6b2dda4d161c802c9f1e5b2011e481e3"
+      "invalidation": {
+        "detectedAt": "2026-08-16T16:07:40.136Z",
+        "oldMaterialHash": "9a606e38043bbf5a1ce45743785fc578502d9fdd8215cfa5aee275f8a5616d08",
+        "currentMaterialHash": "80a16b21e28c1cba00b6cd82c2fa6cf5ac8f81fe15b9e864df52bd519bff0c13",
+        "oldStoryFilesHash": "9f7d0959206b9405943a00c72984324516870c10e75b4248a37ddecdd11e6393",
+        "currentStoryFilesHash": "8f6c1cab60e7ce1f9788689d0eb56f1ad947168796af64957e8219a6a93c5418",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION",
+        "oldCandidateSpecSetDigest": "a087ba1d649bda234c7c55e1627e2818bb6293e1d2c929b5a83a21eb3e782404",
+        "currentCandidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+        "oldCorpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+        "currentCorpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "terminalRunSequenceBoundary": 437,
+      "_hash": "6b2ad103018598bc38b332825294d3c87d93ecad2cc42966c026077640f093d7"
     }
   ],
   "receipts": [
