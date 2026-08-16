@@ -6910,7 +6910,7 @@
       "desc": "F-103 commit fabca1ecc4 (git show --stat) touches only packages/main/src/handlers/review-inventory.ts plus two JSON metadata files -- no test file was added or modified. packages/main/src/tasks/review-inventory-handler-smoke.ts:778-788 (the candidateDrift/F-039 fixture) is the only test exercising OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION, and it calls candidate_spec_route immediately after review_inventory_begin with no intervening commit, so it passes identically whether or not the F-103 narrowing landed -- it does not distinguish old vs new barrier behavior. There is no test proving the claimed positive case (a byte-identical candidate_spec_route rerun after an unrelated commit no longer trips the barrier) nor the required negative control (a real candidates/mode/queryFiltering/scanEscalationReason/storyInputDigest change still trips it). Per CLAUDE.md handler-coding-convention self-check and the checklist verificationIntent B3F3D-002-E1 (non-material metadata-only update must not spuriously invalidate; story-owned material change must), this specific narrowing fix ships with zero regression coverage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-16T15:32:17.412Z",
@@ -6940,7 +6940,10 @@
         "packages/main/src/tasks/review-inventory-handler-smoke.ts"
       ],
       "signatureTag": "missing|ts|commit-fabca1ecc4-show",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-3f3d:F-105@4f19f74",
+      "resolvedReason": "Accepted and fixed. The finding was correct that commit fabca1ecc4 shipped a production barrier change with zero test coverage, and correct that the one existing test touching OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION (the F-039 candidateDrift fixture in review-inventory-handler-smoke.ts) cannot distinguish pre-F-103 from post-F-103 behaviour, because it calls candidate_spec_route immediately after review_inventory_begin with no intervening commit. This is the same class of gap filed earlier as F-102, and shipping the F-104 follow-up fix untested would have repeated it. Added regression coverage in packages/main/src/tasks/review-inventory-epoch-smoke.ts mirroring the exact shape captureReviewInventoryScope now builds, pinning BOTH directions. Positive case: candidate score/reasons churn driven by changedPaths must NOT move the barrier digest, which is precisely the F-104 leak. Negative controls: a changed contentHash, path, added candidate, removed candidate, mode, schemaVersion, queryFiltering or scanEscalationReason must each still move it, eight cases in total. Mutation check proving the coverage bites rather than passing vacuously: reverting the compiled dist so the barrier digest binds raw candidates again, reintroducing the score/reasons leak, makes the smoke exit 1; byte-restoring returns exit 0. Verified npx tsc --noEmit -p packages/main clean and both review-inventory smokes exit 0. Scope note recorded for honesty: this pins the digest SEMANTICS at the unit level, which is where both defects actually lived. It does not add an end-to-end fixture that commits an unrelated change and then re-runs candidate_spec_route against a live OPEN epoch; that needs real git manipulation inside the handler smoke and is a heavier fixture than this fix warrants, so the end-to-end path remains covered only by the pre-existing F-039 candidateDrift case.",
+      "resolvedAt": "2026-08-16T15:38:05.822Z"
     }
   ]
 }
