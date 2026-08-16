@@ -1,5 +1,47 @@
 # Changelog
 
+## Proof-or-Stop v0.3.258 - 2026-08-16
+
+This release strengthens validation reliability, lifecycle decision quality,
+and regression coverage across four completed workstreams.
+
+**Validation infrastructure**
+
+- **Workspace-wide validation serialization (B-6693).** Reworked the validation
+  execution lock so concurrent stories share one bounded capacity policy instead
+  of competing independently. The lock now covers routine validation,
+  DONE-required validation, verifier execution, and verdict paths; exposes clearer
+  ownership and contention diagnostics; and is backed by expanded smoke coverage,
+  including a live concurrency transcript.
+- **Reliable full-suite bootstrapping (B-fb7b).** Added a root `pretest` step that
+  ensures both `packages/main` and `packages/utils` build outputs exist before the
+  full suite starts. The bootstrap is idempotent and preserves already-present
+  outputs, preventing a parallel test invocation from deleting artifacts another
+  invocation is using.
+
+**Lifecycle safeguards**
+
+- **Mandatory development-memory checkpoints (B-a7c5).** DEV now requires an
+  acknowledged memory preflight, DONE requires a recorded finish decision, and
+  finding resolution surfaces a capture reminder. New registry, policy, handler,
+  storage, documentation, and smoke-test coverage keeps these facts mechanically
+  enforced rather than relying on narrative guidance.
+
+**Regression hardening**
+
+- **Three previously silent fixture failures now bite (B-74b9).** Repaired the
+  acceptance-basis, review-pass read-manifest, and DONE-recovery version-bump
+  fixtures so each proves its intended failure mode. Dedicated RED checks and
+  validate registration prevent the fixtures from passing vacuously after future
+  shared-path changes.
+
+**Verification**
+
+- Each workstream completed routine validation and DONE-required validation.
+- The release adds focused smoke and RED coverage for validation locking, package
+  bootstrapping, lifecycle gates, acceptance-basis checks, read manifests, and
+  version-bump recovery.
+
 ## Proofbound 0.3.254 - 2026-08-14
 
 **Fixed**
@@ -42,7 +84,7 @@
   (`red-fb7b-guard-bite.mjs`) keep the bootstrap from regressing. The worktree handler and
   `bootstrap-runner.js` are intentionally left untouched (their human recovery hint stays).
 
-  Scope note: an independent cross-host (Codex) review of an in-story attempt to also add a
+  Scope note: an independent cross-host review of an in-story attempt to also add a
   crash-safe concurrent-build mutex + content-bound idempotent build surfaced several MAJOR
   correctness bugs in a hand-rolled `mkdir` lock and `mtime` freshness heuristic (age-steal
   of a live holder; a check-then-delete reclaim race; `mtime` misclassifying deleted-source
