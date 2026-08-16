@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-3e5d:F-001",
+      "desc": "packages/main/src/handlers/transition-orchestrator.ts:897 — CHK-001's transitionLockRoot reroute is behaviorally a no-op layered on an already-correct mechanism, and the 12-line rationale comment above it (lines 885-896) misdiagnoses the crash. acquireStoryTransitionLock(root, storyId) -> storyTransitionLockPath (packages/main/src/core/story-transition-lock.ts:211) already calls resolveSharedLockRoot(root), which independently re-derives the git-common-dir-based shared main-repo root from WHATEVER root string is passed (worktree path or main root), per its own docstring (story-transition-lock.ts:199-217, B-d877 R2 FIX B, added specifically so the lock 'SURVIVEs worktree removal'). Verified empirically against the built dist: calling storyTransitionLockPath(worktreePath, id) and storyTransitionLockPath(mainRepoRoot, id) on a real git worktree layout produced the IDENTICAL lockDir string. acquireMkdirLock (mkdir-lock.ts:253) also resolves lockDir ONCE up front (never re-resolved during the poll loop), so this was never actually vulnerable to being deleted out from under a poller the way the comment claims. The real, load-bearing fix for the observed crash is CHK-002's StoryArtifactMissingError translation (line ~943) alone -- confirmed by running the RED test (red-B-new-concurrent-done-race.mjs) against the current build: it now throws its own GREEN-signal assertion (worktree-authority-smoke.js passes), which is fully explained by CHK-002 since the lock path was unaffected by CHK-001 either way. Net effect of CHK-001: three extra git subprocess spawns (detectDoneStoryWorktreeContext calls rev-parse --abbrev-ref HEAD, rev-parse --show-toplevel, rev-parse --path-format=absolute --git-common-dir) added to the hot path of EVERY story_advance transition of EVERY phase (not just DONE, not just racing ones) for zero behavioral gain, plus a misleading root-cause narrative that could mislead a future maintainer investigating this exact lock. Recommend either removing the redundant reroute (letting acquireStoryTransitionLock's existing resolveSharedLockRoot do the job it already does) or, if kept for defense-in-depth, correcting the comment to say so rather than asserting a causal mechanism that does not hold.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-16T12:58:20.935Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-001",
+      "_hash": "12b738ad3cf7a4b4e481931f37ac15795c2244b28068724f176c65a3dfdebf73",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
