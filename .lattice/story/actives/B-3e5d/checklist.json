@@ -39,6 +39,28 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add readManifest to every pass-only finding_add call and restructure the DONE-ready story fixture to bind real reviewRunId evidence",
+      "context": "field-regression-cli-smoke.ts: finding_add requires readManifest (filesReadFully/filesTriagedByName/scanEscalationReason) whenever the desc text matches PASS_ONLY_REVIEW_FINDING_POLICY, across all RP-001..RP-008 pass-only calls in assertPassOnlyFindingConvertsToReviewPassCliSurface. In assertDoneMergeCleansMainUntrackedReviewPasses, split writeDoneReadyStory into writeDoneReadyStory (writes phase=REVIEW, no hand-crafted review-passes.json) plus a new finishDoneReadyStory (writes phase=TEST after real review evidence lands), since a hand-crafted review pass lacks both a valid _hash signature and a genuine reviewRunId binding that validateEvidenceRunBinding now requires.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-3e5d/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Satisfy the full 3-lane review-assurance-floor quorum and record dev_memory_finish_decision before the DONE-ready fixture advances to DONE",
+      "context": "field-regression-cli-smoke.ts assertDoneMergeCleansMainUntrackedReviewPasses: DONE now requires all three opt-in reviewer lanes (concept, quality, test-coverage) each with a genuine review_run_start-bound review_pass_set, not just one lane (review_lane_missing); also call dev_memory_finish_decision before story_advance phase=DONE, matching the B-a7c5 dev-memory lifecycle gate added earlier this session.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-3e5d/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
