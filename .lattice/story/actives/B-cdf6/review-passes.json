@@ -1044,6 +1044,40 @@
         "scanEscalationReason": null
       },
       "_hash": "7856b32b6cc42dcc9a70209af756d56cc1619153ee11831a6b1c2a6e64368bee"
+    },
+    {
+      "id": "B-cdf6:RP-035",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage round 2 (round 2026-08-16T08:06:30.924Z, head f4c1e94fac): coverage is 36/36 must-intents (34 non-waiver evidence + 2 correctly-typed waivers: CHK-002:adversarial:1=deferred_gate_evidence citing pre-existing B-META-framework-audit:F-005, CHK-004:edge:0=permanent for the unsatisfiable-by-construction live-counter pin), verified by mechanically byte-diffing checklist.json between the pre-refresh (5762cdea04) and post-refresh (194cc53572) commits: all 21 mechanical:false entries only moved headHash/materialHash/storyFilesHash/timestamp forward with result unchanged and an honest nonMechanicalReason citing refresh_stale (no silent demotion masquerading as pass), while all 13 mechanical:true entries carry a fresh receipt.executedAt inside this refresh window. I independently re-executed 8 of the 13 mechanical commands myself just now (rollout-check-smoke, verify-lattice-residue --self-test/plain, verify-residue-inject-repro x3 runs, verify-brand-gate-negative, audit-scan-bin-token-smoke, verify-process-fact-contract.mjs, test:proof-or-stop-prompt-baseline) and all exit 0 with the tree left clean, so zero-demotion holds and none of them rest on something that did not execute. Fingerprint fix (3ffbbe31ef, second copy of the cli-engine.ts AST fingerprint in verify-process-fact-contract.mjs): recomputed the canonical AST fingerprint myself with ts.createPrinter({removeComments:true}) directly against the current cli-engine.ts source and got 34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f byte-identical to the new pin and to the value already present in retired-authority-vocabulary-guard-smoke.ts - genuine pin refresh reflecting real current source, not a fabricated/relaxed value. Confirmed red-evidence-target-binding-smoke, red-w2b-wiring-contract and retired-authority-vocabulary-guard-smoke all exit 0 now. Reviewed the full main...HEAD diff of verify-process-fact-contract.mjs: every hunk is a string-literal rename (lattice validate -> proof-or-stop validate, product-name prose, acceptance_basis_generate command literal, additional hash re-pins of the same class) or an additive bin-token widening (commandBlocks regex now also matches proof-or-stop, still matches lattice/koala) - no assert() removed, no threshold loosened. Three red smokes (prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke): built a fresh detached worktree of pristine main (npm install + packages/main npm install + build), ran all three there and on this branch - both fail identically at the same assertion (expected lattice managed block / checklist_update_executable_evidence_unenforced regex miss / help exposes alias lattice host status), confirming genuinely pre-existing and unrelated to this story, not weakened or newly broken. State re-verified mechanically at f4c1e94fac: 59/59 findings resolved (0 open) via finding_list --json, tree clean via git status, tsc clean across all three tsconfigs (packages/main, packages/lab, packages/utils), all three lattice-residue checks pass (self-test, plain scan, inject-repro - one transient non-reproducing exit-1 on inject-repro was investigated and does not repro across 3 subsequent runs, tree left clean each time), checklist 6/6 done. No blocking findings from this lane this round.",
+      "createdAt": "2026-08-16T08:20:21.476Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-094",
+      "envelopeId": "ab085c0ba3bf0e45f837b0d8871a5ea77ba269ca392f3b0e7807540a5f8cd4ef",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "scripts/verify-brand-gate-negative.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-residue-inject-repro.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "808f49f1f02677bd2ab39d5beb30aa07bc210b8c23f20dd95b9e87ee046db534"
     }
   ]
 }
