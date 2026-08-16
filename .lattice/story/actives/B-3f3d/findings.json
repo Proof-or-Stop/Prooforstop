@@ -5237,7 +5237,7 @@
       "desc": "docs/requirements/decisions/test-runner-consolidation-plan.md at committed HEAD (d8e6d1f) still reads: SIGKILLs and polls until no captured PID remains -- with no mention of any bound. But commit 4dbe425 (already merged at HEAD) changed the post-SIGKILL retry loop in packages/main/src/tasks/full-suite-runner.ts to be BOUNDED: on cleanup-budget expiry it records a lifecycle error naming the surviving PIDs and breaks (terminateAndVerify, lines ~593-596), rather than polling forever. The committed doc prose therefore overstates the guarantee (implies unconditional polling to a clean tree) and omits the bounded/fail-closed exit path entirely. A corrected paragraph describing the bound (re-polls...bounded by the cleanup budget...records the surviving PIDs as a lifecycle error and stops retrying...still fail-closed) exists ONLY as an uncommitted working-tree edit (git diff HEAD -- docs/requirements/decisions/test-runner-consolidation-plan.md shows it uncommitted); it was never committed to the story branch. Fix: commit the corrected paragraph so the reviewable HEAD state matches the code.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-16T08:28:24.465Z",
@@ -5248,7 +5248,8 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-3f3d:F-085@4daa199"
     }
   ]
 }
