@@ -16680,6 +16680,32 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "41d169af9174a45361b6ce7004481a1d6139e01b748f2e6013a630c50d0561ef"
+    },
+    {
+      "id": "B-3f3d:RP-284",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation at new review round (RR-367, round 2026-08-16T10:48:07.896Z), superseding prior passes RP-282/RP-283 bound to an older round. Verified: (1) grep across packages/main/src for activeChildren returns zero hits -- no residue outside .lattice/ audit-trail JSON. (2) The (pid, birthIdentity) ownership model in packages/main/src/tasks/full-suite-runner.ts is coherent: birthIdentityMatches gates every adoption/revocation/signal decision; ProcessTreeLifecycle constructor seeds a bare {pid,ppid,pgid} root row with no birthIdentity, but both call sites invoke lifecycle.prepare() -> capture() immediately after construction and before any signal/adopt use, reconciling the seed before it can matter -- intentional bootstrap placeholder, not half-migrated. (3) No guarantee documented in one place is contradicted elsewhere: only test-runner-consolidation-plan.md documents the termination guarantee and it matches the code. (4) NEW: scope-contract.json acknowledgement for test-runner-consolidation-plan.md (citing F-080/F-085) accurately describes the doc edit as a correction from an understated guarantee to the current accurate one; the diff matches this description and introduces no conceptual contradiction with code. No concept deletion/replacement requiring further residue cleanup found. No blocker.",
+      "createdAt": "2026-08-16T10:50:38.752Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-367",
+      "envelopeId": "71ed7336405b02baef2771caaec288407ac39a52198082b23f2069382e6e50c5",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/scope-contract.json",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "git diff main...HEAD --stat"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "ce9ed9042bf08ff233e4dffbead26a742551ef7bc7c62d0eafbf242705fde3dc"
     }
   ]
 }
