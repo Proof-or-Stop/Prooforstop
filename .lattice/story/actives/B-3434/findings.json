@@ -1017,6 +1017,43 @@
       "resolvedAt": "2026-08-15T22:52:26.720Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-042",
+      "desc": "The story_resume convergence_breaker_resume reason (process-events.jsonl line 128, timestamp 2026-08-16T03:58:20.166Z) states story_advance --phase=DONE failed three times and numbers them Failure 1/2/3 as diff_pack_changed, stale_delivery_check, and the storyFilesHash mismatch. The activity log (.lattice/activity.jsonl) shows FOUR failed story_advance --phase=DONE calls for B-3434, not three: (1) 2026-08-16T03:45:31.583Z status=fail code=missing_dev_memory_finish_decision, (2) 03:47:09.519Z code=stale_closeout_review (diff_pack_changed), (3) 03:48:05.436Z code=stale_delivery_check, (4) 03:56:04.130Z code=stale_closeout_review (storyFilesHash mismatch). The reason text silently omits the first attempt and renumbers the remaining three as if they were the whole set, so the permanent audit-trail claim 'failed three times, and all three failures had ONE cause' undercounts the true DONE-attempt tally by one. It is also imprecise about cause: the omitted first failure (missing_dev_memory_finish_decision) is what triggered writing dev-memory in the first place, a distinct and earlier cause from the storyFilesHash-move class the other three share, so folding it silently into 'all three failures had ONE cause' would have been wrong too, and leaving it out entirely makes the stated total wrong instead. Non-blocking: does not affect gate logic, does not touch any source file (git diff over everything outside .lattice remains empty), and the substantive completion claims in the same reason (41 findings resolved, six genuine codex reviews, 99 of 99 validate, coverage gap 0) were independently re-verified this round and hold.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-16T04:07:41.599Z",
+      "reviewRound": "2026-08-16T03:58:30.355Z",
+      "reviewRunId": "B-3434:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/process-events.jsonl",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          ".lattice/story/actives/B-3434/summary.json",
+          ".lattice/story/actives/B-3434/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/activity.jsonl",
+          ".lattice/story/actives/B-3434/index.json",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "619b6c5dda653b98b4954104f5d8af24ecf63ea8f4436cd66da202730f543abd",
+      "files": [
+        ".lattice/story/actives/B-3434/process-events.jsonl"
+      ],
+      "signatureTag": "doc-code-drift|jsonl|story-resume-convergence",
+      "signatureTagSource": "auto"
     }
   ]
 }
