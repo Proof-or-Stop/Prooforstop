@@ -5145,7 +5145,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/test-runner-consolidation-plan.md:10 says only \"Timeouts kill the member process group\"; full-suite-runner.ts now implements a materially stronger guarantee (birth-identity-keyed ownership via ProcessTreeLifecycle/parseProcessRows/terminateProcessTreeAndVerify, freeze-then-verify-then-SIGKILL with PID-reuse revocation) that the doc does not mention. Not a false claim (the summary is still technically true) and not a broken external promise, so low severity; but the doc is the only place readers would look for runner cleanup semantics and it undersells the new PID-reuse-safety contract added by this story (see resolved finding F-078).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-16T08:01:37.520Z",
@@ -5157,7 +5157,9 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Doc updated rather than waived. docs/requirements/decisions/test-runner-consolidation-plan.md previously summarised termination as only Timeouts kill the member process group, which understated the guarantee the runner now implements. Rewrote that sentence to record the actual contract: terminateProcessTreeAndVerify freezes the captured tree (SIGSTOP until two stable snapshots add no new members), then SIGKILLs and polls until no captured PID remains, so a detached descendant that called setsid cannot outlive the member; captured ownership is keyed on (pid, birthIdentity) with parseProcessRows reading a per-process birth fact from ps alongside pid/ppid/pgid, so a PID that exits and is recycled before terminal reconciliation is permanently revoked rather than re-adopted and is never signalled; and inspection failures are recorded and fail closed rather than being treated as revocation. This keeps the doc the reliable reference for the runner-cleanup contract instead of leaving the stronger guarantee recorded only in code.",
+      "resolvedAt": "2026-08-16T08:05:50.383Z"
     },
     {
       "id": "B-3f3d:F-081",
