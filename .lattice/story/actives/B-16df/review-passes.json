@@ -394,6 +394,38 @@
         "scanEscalationReason": null
       },
       "_hash": "86537162a5fb09f369b5a7a85ca5c3dc31c24e84e1983802b23fa19be681bbbb"
+    },
+    {
+      "id": "B-16df:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round re-anchor pass (REVIEW->DEV->REVIEW bounce, no code touched, done_prepare convergence-invariant reset). git diff main...HEAD --name-only confirms only 2 source files changed: packages/main/src/handlers/checklist.ts (resolvePinnedCommandTimeoutMs helper + 4 call sites threading configured timeoutMs) and packages/main/src/tasks/validate-command-timeout-smoke.ts (16 sections, 45 assertions). Both are byte-identical to the RR-016/RR-018 quality-passed state (confirmed via git diff on those two paths against the prior reviewed head, empty). Rebuilt from scratch (rm -rf packages/main/dist; npm --prefix packages/main run build, exit 0) and ran node packages/main/dist/tasks/validate-command-timeout-smoke.js myself: prints validate-command-timeout smoke passed: 45 assertions, exit 0, matching every mechanical receipt outputTail/outputDigest already pinned in checklist.json. Confirmed HEAD is caught up with main via git merge-base --is-ancestor origin/main HEAD (two additional main merges since the last pass are already incorporated, worktree fully synced). Quality checks: (1) Dead code - none; checklistMod/verifierMod declared any and reused across sections is intentional (dynamic import required so the file compiles before CHK-002 adds the export, per plan.md CHK-001 CORRECTION), no unused imports/functions. (2) Type safety - no unnecessary as-any; the one try/catch (execSync git-diff call, smoke lines 381-388) only soft-skips execSync environment failures via console.warn, the check() content assertion runs unguarded outside the try (F-006 fix verified still in place, re-read source directly). (3) I/O shell isolation - N/A, task script. (4) Proof metadata review coverage - N/A, diff does not touch job/run metadata semantics. No CLAUDE.md/README changes in this diff (git diff origin/main...HEAD --stat shows no doc files), so no doc-promise-undelivered risk. All 9 prior findings (F-001..F-009) remain resolved (findings.json). No blockers this round.",
+      "createdAt": "2026-08-16T16:06:45.268Z",
+      "reviewRound": "2026-08-16T16:03:13.155Z",
+      "reviewRunId": "B-16df:RR-020",
+      "envelopeId": "963a7c88bdbc03b394e8c045cd912d63979a34bbf9dad262923221e11d64f409",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/findings.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/scope-boundary.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/index.json",
+          ".lattice/story/actives/B-16df/process-events.jsonl",
+          ".lattice/story/actives/B-16df/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bce225d9293e1087136a47c64f446ee6168e1c8b873760d0207172a75867e3f9"
     }
   ]
 }
