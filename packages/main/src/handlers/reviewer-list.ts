@@ -171,7 +171,13 @@ export function computeActiveReviewers(
   // disambiguation between the two writers, not incidental input hygiene.
   const persistedForced = (story.events ?? [])
     .filter(event => event?.action === 'reviewer_forced')
-    .map(event => (event.reviewer ?? '').trim())
+    // F-097: keep the String() coercion. `??` only substitutes null/undefined, so a
+    // persisted event whose `reviewer` is a non-string (hand-edited or written by a
+    // future non-TS path) would make .trim() throw and crash EVERY consumer of this
+    // function — canPassReviewGuard, the epoch requiredLanes capture, quorum-submit,
+    // transition-effects, reviewer-status, lifecycle-readiness. Coercing keeps a
+    // malformed event inert instead of fatal.
+    .map(event => String(event.reviewer ?? '').trim())
     .filter(name => name.length > 0);
   for (const f of [...persistedForced, ...(forced ?? [])]) {
     const name = String(f).trim();
