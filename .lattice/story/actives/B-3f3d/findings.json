@@ -6863,6 +6863,45 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed and fixed. I had asked this lane whether the barrier was now correctly scoped in BOTH dimensions after F-099, explicitly inviting it to say no; it said no and found a third live over-broad path, which is exactly why the question was worth asking. Verified the report at source: capture at review-inventory.ts:85 used validCandidate.artifactDigest as the barrier input, and artifactDigest is built in candidate-spec-routing.ts:757-761 over a base that includes headHash and materialHash verbatim. Because candidate_spec_route is permitted during REVIEW and is not itself blocked by the OPEN-epoch barrier, re-running it with byte-identical candidate content after any unrelated commit ticked HEAD forward would flip that digest and trip OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. Same defect class as F-099 in a different consumer. Fix deliberately placed at the CONSUMER rather than at the artifact: artifactDigest is the candidate set tamper-detection identity, so narrowing what IT covers would weaken verifyCandidateSpecSet. Instead the barrier now compares a semantics digest over schemaVersion, mode, candidates, queryFiltering, scanEscalationReason and storyInputDigest, leaving artifactDigest untouched. Verified all four directions: a freshness-only change is now ignored, while a candidates change, a mode change and a storyInputDigest change each still trip the barrier. Confirmed verifyCandidateSpecSet is unchanged and artifactDigest still covers headHash, so real tampering is still detected. npx tsc --noEmit -p packages/main clean; review-inventory-epoch-smoke and review-inventory-handler-smoke both exit 0. Note corpusDigest was already content-hash based and correctly scoped, so it is left as is. Also recording that this lane declined to force a review_pass_set once epoch RI-040 was invalidated mid-review by my own F-102 commit; that refusal was correct, the invalidation was a genuine material change to a required test file, and its finding persisted independently of epoch state.",
       "resolvedAt": "2026-08-16T14:37:25.207Z"
+    },
+    {
+      "id": "B-3f3d:F-104",
+      "desc": "F-103 fix is incomplete: packages/main/src/handlers/review-inventory.ts:94-101 correctly drops artifactDigest (which embeds headHash/materialHash verbatim), but the replacement digest still folds in validCandidate.storyInputDigest, and storyInputDigest is NOT freshness-free. packages/main/src/handlers/candidate-spec-routing.ts:360 computes storyInputDigest as digestCandidateRoutingValue(input) where input = currentStoryRoutingInput(...) includes changedPaths: materialChangedPaths (line 294), which is git diff --name-only main...HEAD (candidate-spec-routing.ts:141-157, changedPaths()). Any commit that changes the file list on the branch -- including one that touches zero files in the candidate corpus -- changes storyInputDigest, which changes the new barrier digest, which still fires OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. This is the exact failure mode F-103 claims to fix, just relocated one field over. Compounding this: changedPaths also seeds buildKeywordSeeds at weight 50 as source=changedPath (candidate-spec-routing.ts:334), which can add/change candidates[].reasons and candidates[].score entries for otherwise-unchanged candidates -- and candidates is also included verbatim in the new barrier digest (review-inventory.ts:97), so the leak is present via two independent paths into the same narrowed digest. Fix is not narrow enough in the storyInputDigest/changedPaths dimension; a byte-identical candidate rerun after an unrelated whole-tree commit can still flip the barrier.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-16T15:31:57.092Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-426",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d7a19113a8f8946a031aab64284dd70f8abcf4fa50932c3530ac91d65b941f90",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/handlers/candidate-spec-routing.ts",
+        "packages/main/src/core/candidate-spec-routing.ts"
+      ],
+      "signatureTag": "adversarial|ts|incomplete-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
