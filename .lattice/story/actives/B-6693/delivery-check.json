@@ -1,60 +1,60 @@
 {
   "storyId": "B-6693",
-  "checkedAt": "2026-08-16T00:41:07.207Z",
-  "headHash": "c803d9890f0353ab5fbaf4e3891ca9ef08b2e9ab",
-  "materialHash": "abc4962cb5fdb7ae26a3632aa47d0c361e4d2cf72c6af2068a56ac8bddf09aaa",
+  "checkedAt": "2026-08-16T01:42:14.370Z",
+  "headHash": "500abce0426383b4a400bbab9bd75fa6ef163a11",
+  "materialHash": "c89ea9ce35c2153e0482f4b8cd78c6d981254ddd0c4404e2d965c8a9f96cdc1b",
   "storyFilesHash": "1afe1907261706599a13ccda038c993ae73fd437a0faa5b3643bb97caf3f6a58",
-  "reviewRound": "2026-08-16T00:04:30.414Z",
+  "reviewRound": "2026-08-16T01:33:20.935Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/CLI.md",
       "promise": "All official validate modes, done_required_validate, and derived host-verdict binding share git-common-dir workspace capacity; wait diagnostics stay on progress/stderr; bare npm test remains excluded.",
       "status": "verified",
-      "verifiedBy": "Independent delivery review of current diff plus focused exact-15 real-machine smoke.",
-      "evidence": "Focused command exited 0 with exact selector: validate-execution-lock workspace capacity contract passed: 15 assertion groups."
+      "verifiedBy": "Round 10 delivery review of current merged material plus focused exact-15 real-machine smoke.",
+      "evidence": "Current focused command exited 0 with exact selector: validate-execution-lock workspace capacity contract passed: 15 assertion groups."
     },
     {
       "docPath": "docs/requirements/decisions/testing-infra.md",
       "promise": "Workspace capacity serializes official execution without changing command inventories, budgets, evidence freshness, or the routine versus DONE-required split.",
       "status": "verified",
-      "verifiedBy": "Current TEST transition and 29/29 mechanical verification evidence.",
-      "evidence": "Formal REVIEW-to-TEST validation passed 96/96; checklist reports 29/29 must evidence current and zero stale."
+      "verifiedBy": "Current TEST validation and 29/29 mechanical verification evidence.",
+      "evidence": "Round 10 formal TEST validation PASS; checklist reports 29/29 must evidence current and zero missing."
     },
     {
       "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
       "promise": "done_required_validate uses the same workspace capacity while retaining separate DONE-required evidence semantics; direct full-suite npm remains outside the lease.",
       "status": "verified",
-      "verifiedBy": "Handler/source wiring review and focused capacity contract.",
-      "evidence": "Current implementation routes done_required_validate through withOfficialValidationExecution; focused exact-15 contract passed and docs explicitly preserve the separate evidence gate."
+      "verifiedBy": "Current handler/source wiring review, Round 10 docs pass, and focused capacity contract.",
+      "evidence": "Current implementation routes done_required_validate through withOfficialValidationExecution; exact focused15 passed and the DONE classifier remains separate from direct validate."
     },
     {
       "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
       "promise": "The new execution-capacity lease does not replace the existing story owner, story evidence, or main write coordination contracts.",
       "status": "verified",
-      "verifiedBy": "Acquisition-order/source review and CHK-001 exclusions.",
-      "evidence": "withOfficialValidationExecution acquires workspace capacity before the retained story lock; focused contract passed lock-order and reentrancy groups."
+      "verifiedBy": "Current acquisition-order/source review and CHK-001 exclusions.",
+      "evidence": "withOfficialValidationExecution acquires workspace capacity before the retained story lock; current focused15 passed lock-order and reentrancy groups."
     },
     {
       "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
       "promise": "The canonical pre-review executable proof remains exact and current-worktree bound.",
       "status": "verified",
-      "verifiedBy": "Current CHK-004 mechanical receipts.",
+      "verifiedBy": "Current CHK-004 mechanical receipts and Round 10 reviewer passes.",
       "evidence": "Three current receipts exited 0 and matched the exact PROOFSTORY_PRE_REVIEW_PROOF selector containing the 58-assertion acceptance rollout proof."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "TEST stable-window command `node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only` exited 0: validate-execution-lock workspace capacity contract passed: 15 assertion groups."
+      "transcript": "Round 10 TEST stable-window command `node packages/main/dist/tasks/validate-execution-lock-smoke.js --workspace-capacity-contract-only` exited 0: validate-execution-lock workspace capacity contract passed: 15 assertion groups."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "The focused exact-15 real-machine contract passed after TEST entry; current mechanical evidence also records full `validate-execution-lock smoke passed: 26 assertion groups` across all eight CHK-002 intents."
+      "transcript": "Current focused exact-15 real-machine contract passed; current mechanical evidence also records full `validate-execution-lock smoke passed: 26 assertion groups` across all eight CHK-002 intents."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Formal REVIEW-to-TEST validation completed PASS for all 96 configured commands; current build/focused/full receipts retain exact commands and selectors, and source/docs inspection confirms bare npm test is not wrapped."
+      "transcript": "Round 10 formal TEST validation completed PASS on the main-synced material; current build/focused/full receipts retain exact commands and selectors, and source/docs inspection confirms bare npm test is not wrapped."
     },
     {
       "featureId": "CHK-004",
@@ -65,7 +65,7 @@
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery PASS: current TEST material fulfills user-visible serialization, bounded waiting diagnostics, strict recovery/reentrancy, unchanged validation semantics, explicit bare-npm exclusion, and exact pre-review proof. Focused15 passed in a stable window; 29/29 must evidence, 96/96 formal validation, four merged-head review lanes, and three rounds of two-host assurance are current. No delivery blocker or unresolved TODO found."
+    "summary": "Round 10 delivery PASS on the current main-synced material: official validations serialize across stories with bounded holder diagnostics, strict recovery and generation-token reentrancy, direct validate keeps its classifier, DONE validation remains separate, bare npm stays excluded, and exact pre-review proof remains valid. Focused15 passed now; 29/29 must evidence, current formal TEST validation, four fresh reviewer lanes, and the existing full 3x2 assurance are green. No delivery blocker or unresolved TODO found."
   },
-  "_hash": "2cf5c1c5447bf812defdbebb4708945129f6de30b99f4f343cc11c09717cfecb"
+  "_hash": "0122098e892237b36138b2e13a47ca3fd589f0b3933f0d106dfc8e30853589aa"
 }
