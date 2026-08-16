@@ -6083,7 +6083,7 @@
       "desc": "doc-code-drift: verification_evidence_refresh_stale (packages/main/src/core/command-policy.ts:176, allowedPhases:'all') has an undocumented operator-facing gotcha: being allowed in every lifecycle phase does NOT mean it is unconstrained while a review-inventory epoch is OPEN -- invoking it mutates verification-evidence scope and immediately invalidates the OPEN epoch. docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:183-187 names verification-evidence writers generically as subject to this invalidation, but no doc states the specific actionable sequence (cancel-or-let-invalidate -> refresh -> reopen epoch, with no DEV round-trip required). This session's own transcript shows the operator mis-remembered allowedPhases:'all' as a phase restriction requiring a DEV round-trip, costing an unneeded planned round-trip, until checking command-policy.ts directly. Suggest a short operator note in CLAUDE.md's review-inventory section (or a comment beside allowedPhases in command-policy.ts) stating this specific interaction so the next operator does not rediscover it by trial.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-16T14:01:19.314Z",
@@ -6179,7 +6179,9 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "missing|md|code-drift-verification",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved, and the note written is the CORRECTED version rather than the one that would have been accurate when this finding was filed. I asked the docs lane explicitly what the note should now say given that the F-099 fix had landed in between, precisely so I would not document a gotcha that no longer exists. Its answer: after F-099 a pure verification_evidence_refresh_stale re-pin no longer invalidates an OPEN epoch on scope grounds, so the original framing (allowedPhases:all is an operator trap requiring cancel-before-refresh) has no live failure mode left for the plain-refresh case; the accurate remaining statement is the narrower one, that only a refresh which also changes an observed result, command or captured output still invalidates, which is correct-by-design. Wrote exactly that into docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md alongside the F-101 correction: the passage now states which evidence fields are bound (intentRef, kind, file, command, result, note, mechanical, receipt.exitCode / outputDigest / outputTail / selectorMatched), which are deliberately excluded (headHash, materialHash, storyFilesHash, timestamp, receipt.executedAt), that a pure re-pin therefore does not move the digest or invalidate an OPEN epoch, and that a refresh changing an observed result still does. This is the operator-facing fact F-098 asked for, in its post-fix form. Verified node scripts/verify-process-fact-contract.mjs still passes. Both the docs lane and the concept lane independently identified the same underlying doc sentence; the docs lane declined to file a duplicate and folded its guidance into this finding instead, which is why this one resolution covers the corrected note.",
+      "resolvedAt": "2026-08-16T14:23:23.198Z"
     },
     {
       "id": "B-3f3d:F-099",
