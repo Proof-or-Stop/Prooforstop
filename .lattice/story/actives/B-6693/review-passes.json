@@ -781,6 +781,67 @@
         "scanEscalationReason": null
       },
       "_hash": "45a49d09585f3c1d15923fc6784bf0ef82c9514d4e7982ad19f2de9bd07e7236"
+    },
+    {
+      "id": "B-6693:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage review passed after merge 590aad96d7: 29/29 must intents have current evidence, 0 waivers and 0 stale; 14 focused15, 10 full26, 3 exact58 live-proof, and build receipts are selector-matched/exit 0. Static review confirms the genuine child-process cohort spawns and asserts exact 12 with maxConcurrency=1/zero overlap/leaks, direct validate uses the structured watchdog and cleans its waiter before the story lock, detached ALS generations queue behind the later acquisition token, F-017 fingerprint mutation controls remain registered, and the F-018 Git-backed fixture still reaches configured exit 5 and persists FAIL. Main merge touched only catalog/dev-memory registration and coordinated test fingerprints among story-relevant files; process-fact contract remains PASS. No coverage blocker.",
+      "createdAt": "2026-08-16T00:07:58.505Z",
+      "reviewRound": "2026-08-16T00:04:30.414Z",
+      "reviewRunId": "B-6693:RR-039",
+      "envelopeId": "78d6fb40307460377096ea9654f7ef6ab7aba528ad744645b213dea1d6d19963",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6693/background.md",
+          ".lattice/story/actives/B-6693/checklist.json",
+          ".lattice/story/actives/B-6693/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "ba2827785c7ba1362de7e40cbe9824846003e636bc5e9f9c5acf4d84a42a1316"
+      },
+      "readDiagnostics": [],
+      "_hash": "1fd0be3d7ffee5f333c03ac50f09d80fa9d8ef1269f28b06d8bfe23e43acbfe0"
     }
   ]
 }
