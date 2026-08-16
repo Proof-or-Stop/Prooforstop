@@ -17054,6 +17054,53 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "3463c94e8896c7f554497366e38cbde26449901c72217f707a0cc8d75c2b94d2"
+    },
+    {
+      "id": "B-3f3d:RP-293",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmed prior RP-290 concept conclusions after the F-093/F-094 quality-lane follow-up change to computeActiveReviewers in reviewer-list.ts. No blocking finding. Verified: (1) widened story param to Partial<Pick<StoryInfo,'riskSignalsDismissed'|'events'>> requires zero casts at any call site, since every call passes a full StoryInfo where events?:StoryEvent[] matches structurally (confirmed tsc --noEmit -p packages/main clean); (2) the reviewer_forced replay (story.events ?? [], filter action==='reviewer_forced', map reviewer??'' trim, filter non-empty) is idempotent Map.set keyed by name, so no double-apply risk from repeated events; (3) the second writer of the same action string, review-run.ts ensureCurrentReviewRound, never sets a reviewer field (confirmed by reading its object literal), while the only other writer, reviewer-list.ts's own force-mount path, always sets a non-empty reviewer via parseForceReviewers/normalizeForceReviewerName before pushing -- so the non-empty-reviewer disambiguation is sound today and not a concept collision needing a rename; (4) no cross-doc contradiction -- review-inventory-epoch-and-saturation-gate.md states forced-lane selection semantics abstractly and does not assert single-writer semantics for the reviewer_forced action, so the code comment documenting the two-writer distinction does not contradict it. Filed one non-blocking low-severity finding (F-096) recommending a regression test to lock in the disambiguation invariant against future refactors; it is advisory, not a defect.",
+      "createdAt": "2026-08-16T13:27:43.009Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-391",
+      "envelopeId": "9aa90b0e97de4bbaa792ea1e3fed853ae7a271f1be01fa08eec97233dfccbf84",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/reviewer-status.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "47800b1014457b566f5c2d7fb3e406bdc02fd200639061d8cfe07eedf1ece20b"
     }
   ]
 }
