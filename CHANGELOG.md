@@ -1,11 +1,19 @@
 # Changelog
 
-## Unreleased
+## Proof-or-Stop v0.3.260 - 2026-08-16
+
+This release lands the cross-platform build-concurrency hardening deferred from
+B-fb7b (finalized as B-1734): a portable `proper-lockfile` build mutex, a
+content-bound idempotent build skip, an atomic `dist` staging-swap, and an
+async-`tsc` heartbeat — so concurrent builders and the ~90 non-holding `dist`
+readers (above all `bin/bootstrap-runner.js`) can no longer corrupt or observe a
+half-built `dist`. Four deep concurrency residuals are documented and deferred to
+a dedicated build-concurrency infrastructure follow-up.
 
 **Fixed**
 
 - **Cross-platform build mutex + content-bound idempotent build (B-1734).** Closes
-  the four Codex concurrency findings deferred from B-fb7b. Added
+  the four independent concurrency findings deferred from B-fb7b. Added
   `scripts/build-lock.mjs` — `withBuildLock(repoKey, fn)` wraps every build's
   rm+tsc+write critical section in a [`proper-lockfile`](https://www.npmjs.com/package/proper-lockfile)
   mutex using the portable default mkdir strategy (no `flock`/`fcntl`/native module,
@@ -52,13 +60,13 @@
   gone. `bin/bootstrap-runner.js` is additionally made lock-aware: while a build
   lock is held it WAITS and retries across the microsecond rename gap instead of
   crashing (the wait ceiling is revised to an absolute 20-minute wall-clock bound
-  in the second Codex round below), while a genuine "never built" (no lock active)
+  in the second review round below), while a genuine "never built" (no lock active)
   still fails fast with the recovery hint. New live-reproduced RED
   `red-1734-reader-race` races dozens of real `bin/lattice.js` readers against a
   real rebuild and asserts zero `MODULE_NOT_FOUND`; `red-1734-lock-liveness` now
   also asserts the derived retry wait budget exceeds any single build (≥ 5 min).
   The transient `dist.staging` / `dist.trash-*` swap siblings are gitignored.
-- **Concurrent-build hardening, second Codex cross-host round (B-1734).** Four
+- **Concurrent-build hardening, second independent cross-host round (B-1734).** Four
   MAJOR findings against the concurrent-build-safety changes:
   (C3) `bin/bootstrap-runner.js` transitively imported `proper-lockfile` (via
   `scripts/build-lock.mjs`), so a fresh checkout without `node_modules` threw
@@ -96,7 +104,7 @@
   and `readerrace:4` (C1 no pre-lock fast-path). The `test-suite-utils-autobuild-smoke`
   guard and `red-fb7b-guard-bite` fixtures read the stale threshold from the new
   dependency-free module.
-- **Concurrent-build hardening, third Codex cross-host round (B-1734).** Three MAJOR
+- **Concurrent-build hardening, third independent cross-host round (B-1734).** Three MAJOR
   findings against the concurrent-build-safety changes:
   (D2) `tsc` ran via `execFileSync`, which BLOCKS the Node event loop for the whole
   ~15s+ compile. `proper-lockfile`'s heartbeat (`setInterval`, every 10 s) cannot
