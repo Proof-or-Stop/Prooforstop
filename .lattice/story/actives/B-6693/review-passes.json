@@ -1021,6 +1021,61 @@
         "scanEscalationReason": null
       },
       "_hash": "7568fe61a9423b071ebaf9ae2fe12571d8e7c4509de00c534f3824b13edda531"
+    },
+    {
+      "id": "B-6693:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "Current HEAD c3a1c66 Round 10 docs review: Step 1 exact prescribed regex extracted 186 symbols, including 7 exported declarations; exact symbol-name docs search had no hits, so behavior and module anchors were used under fallback 2. Compared 14 load-bearing paragraphs or sections across the three capacity docs and related Proof-or-Stop, ownership, and pre-review plans against the current implementation. Direct validate structured watchdog only propagates abort/deadline and cleans waiters while preserving its prior classifier and exit contract; structuredDoneResult and DONE classification remain limited to done_prepare and done_required_validate. Exact-12 child-process and exact-12 Promise cohorts, test-evidence-only guarantee, exact focused 15 and full 26 pins, derived-verdict cancellation boundary, bare npm exclusion, and unchanged protected inventory plus 120/180/300-second sources all match. Final finish-decision commit 55f21b57c3 and intervening review-pass commits are metadata-only. No blocker or promised-but-undelivered documentation.",
+      "createdAt": "2026-08-16T01:37:09.419Z",
+      "reviewRound": "2026-08-16T01:33:20.935Z",
+      "reviewRunId": "B-6693:RR-047",
+      "envelopeId": "e071cd00217c2798142dadcbc29734f0f15ccb90b59109643e4c8755dac28ab3",
+      "writerSessionId": "sess-9985c2d45049458f4645f75fc2d14ab9",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "scripts/ensure-dist.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "40920176f95584812b66aba69d602566b22b81ce5808073e841982cf59780be6"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2ace023b9f037561771e3ba4413af4c22e59ac2ded4cf8bbce802f08f42cf45"
     }
   ]
 }
