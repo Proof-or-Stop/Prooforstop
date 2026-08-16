@@ -5214,6 +5214,21 @@
       ],
       "signatureTag": "missing|ts|verificationevidence-records-priority",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-084",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:581-589 ProcessTreeLifecycle.terminateAndVerify: the post-SIGKILL while(true) polling loop only breaks on `!live.length` (line 583). `exceededBudget` is set at line 587 once `performance.now() >= deadline`, but that flag is never checked to exit the loop -- it is only read afterward at line 591, which is unreachable while the loop keeps spinning. A genuinely unkillable process (e.g. Linux D-state / uninterruptible I/O, which SIGKILL cannot terminate) makes `liveTargetIds()` return non-empty forever, so the loop retries every retryIntervalMs (20ms default) indefinitely and terminateAndVerify() never resolves or rejects -- the documented bounded cleanup budget (test-runner-consolidation-plan.md: process tree termination verified before publishing a terminal result) is not actually enforced for this case; the whole runner (and callers like npm test) hangs instead of fail-closing with the AggregateError budget message. No fixture in full-suite-runner-smoke.ts exercises this true-infinite/never-dies case (grep for exceededBudget/deadline/while(true)/unkillable/infinite in the smoke file returns nothing); only PID-reuse and detached-descendant-cleanup scenarios are covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-16T08:09:36.155Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "reviewRunId": "B-3f3d:RR-342",
+      "_hash": "11112590eb8f823b76deb02fc153e0cac300c01465f4c508e7e7b035a23affad",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
