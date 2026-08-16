@@ -445,6 +445,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f9f35bca70a559d00b9b182da44f1224fbde77b4f6c6fcb93333f339f8bdc27d"
+    },
+    {
+      "id": "B-3434:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-anchor, narrow scope. Diffed ORIG_HEAD..HEAD on verifier.ts: the merge (B-6693) touches only the locking/git-root-resolution prologue of the validate handler (withValidationExecutionLock->withOfficialValidationExecution hoisted around the whole handler; resolveProjectGitCwd->resolveProjectGitRoot with a new fail-closed throw for an unresolvable configured gitRoot, reachable only on the !args.story branch, upstream of and orthogonal to this story's evidence-write paths). Checked every specific, checkable claim this story's prose makes against the merged tree: (1) F-037's cited mutation site packages/main/src/handlers/verifier.ts:975-984 (gate at 976, write at 985) is unchanged by the merge and still accurate - persistStoryValidationEvidence (841-1010ish) sits entirely above the merge's diff, which starts at line 1139. (2) core/store.ts (writeJson/writeJsonFile private, serialisation exactly JSON.stringify(data, null, 2) + '\\n') was not touched by the merge at all (empty diff); the decision doc's claims about it stand. (3) Residual scan: of B-3434's 4 allowedModify files, only verifier.ts appears in the merge diff; resolveProjectGitCwd still exists as a thin wrapper over the new resolveProjectGitRoot (both exported from story-signed-workspace-resolution.ts, untouched by merge) so validation-executor.ts's existing import is unaffected; withOfficialValidationExecution still delegates to withValidationExecutionLock for the story case and rethrows callback errors verbatim (no new swallowing); all three writeTestEvidence call sites (759, 960, 985) and all decorateAndMaybePersistStoryValidation call sites now execute inside the hoisted wrapper's callback, structurally unchanged relative to each other. No B-3434 prose anywhere references lock-wrapping shape, call-site counts of the lock, or resolveGitCwd's new config argument, so none of it could be falsified by this rename/hoist. (4) Ran both harnesses fresh against the merged tree: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> red-b3434-blob-buffer-ceiling: PASS (all sub-assertions incl. over-ceiling read/error and hook-reason cases). node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> validation-evidence-buffer-smoke: PASS, including the F-029 source-text check (reads live packages/main/src/handlers/verifier.ts off disk) and the CHK-004 rationale-doc check (reads docs/requirements/decisions/validation-evidence-artifact-growth.md off disk) - both executed against the actual post-merge files and both green. No regression, no falsified claim, no interaction between the merge and this story's code found. Nothing to file.",
+      "createdAt": "2026-08-16T02:25:22.627Z",
+      "reviewRound": "2026-08-16T02:17:52.140Z",
+      "reviewRunId": "B-3434:RR-050",
+      "envelopeId": "eba2c8f8df5cc19c5b981984288b745e8f6bb4efbee8174f2567c25d745f7fac",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a22e053b79694a1d33bcd03d4527d3361c9918e7e4d9327219b767b8bfd2b555"
     }
   ]
 }
