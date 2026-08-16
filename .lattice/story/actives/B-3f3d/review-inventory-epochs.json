@@ -4042,6 +4042,35 @@
       "cancelReason": "cancelling to run the non-dryRun evidence refresh, which is allowedPhases=all but mutates scope; resolving F-095 evidence staleness BEFORE reopening so the next epoch starts on non-stale evidence",
       "terminalRunSequenceBoundary": 402,
       "_hash": "0d71d42cc196b81cc9feecfcd93bfdcf059a8be449d615c720c0bd9d9fb54adb"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-038",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-16T13:57:07.068Z",
+      "updatedAt": "2026-08-16T13:57:07.068Z",
+      "cutoff": {
+        "headHash": "6ce1188eb32e148df6e095686530ff1499e457e4",
+        "materialHash": "d7e18083c36b3c56b0249fa4cac557e35a22374d58ba8118d0fdc965aa77dced",
+        "storyFilesHash": "e9ef87c3788b4b4501ac48884364b7677180b699ef2906b3c6162ca037d67947"
+      },
+      "scopeDigest": "9762be5e7d96be203186e11912e1130468c4db0647ccc278094ba608f11321c5",
+      "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 402,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "192a1cd7251683adb7a6f76b914e8b73d8854c0e7d8d829394926195811028e7"
     }
   ],
   "receipts": [
