@@ -5231,6 +5231,24 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed real and fixed. The post-SIGKILL retry loop in ProcessTreeLifecycle.terminateAndVerify broke only on !live.length; it set exceededBudget when the deadline passed but never exited, so a PID that can never be reaped (Linux D-state / uninterruptible sleep) made the loop spin forever and the documented bounded-budget AggregateError below it was unreachable. Fix keeps the fail-closed contract rather than weakening it: on deadline expiry the loop now records a lifecycle error naming the surviving PIDs (captured PID(s) still live after SIGKILL within cleanup budget: <ids>) and breaks, so control reaches the existing AggregateError throw and the terminal result is still NEGATIVE. It never publishes a clean tree while a captured child may remain, preserving the never publish a terminal result with an unknown child guarantee. Added the missing true-infinite fixture the finding called out: test:unkillable-survivor stubs only probe to return true forever (unlike the existing persistent-survivor, which dies after 30 polls), asserting the run terminates well under 30s instead of hanging and that the reason names both the exceeded 50ms cleanup budget and still live after SIGKILL. It is written standalone rather than through lifecycleFixture because that helper asserts the descendant died, which cannot hold when the probe never reports death; only probe is stubbed so the real descendant is still genuinely signalled, and the fixture reaps it explicitly afterwards. Verified: npm run test:full-suite-runner-smoke PASS (185 assertions), up from 183; npx tsc --noEmit -p packages/main exits 0. Mutation check proving the new test bites: reverting the compiled dist to the unbounded form (deleting the record+break) makes the suite HANG with no output past a 90s timeout, exactly the runaway the finding predicted; the dist was then byte-restored and re-ran PASS (185).",
       "resolvedAt": "2026-08-16T08:14:44.545Z"
+    },
+    {
+      "id": "B-3f3d:F-085",
+      "desc": "docs/requirements/decisions/test-runner-consolidation-plan.md at committed HEAD (d8e6d1f) still reads: SIGKILLs and polls until no captured PID remains -- with no mention of any bound. But commit 4dbe425 (already merged at HEAD) changed the post-SIGKILL retry loop in packages/main/src/tasks/full-suite-runner.ts to be BOUNDED: on cleanup-budget expiry it records a lifecycle error naming the surviving PIDs and breaks (terminateAndVerify, lines ~593-596), rather than polling forever. The committed doc prose therefore overstates the guarantee (implies unconditional polling to a clean tree) and omits the bounded/fail-closed exit path entirely. A corrected paragraph describing the bound (re-polls...bounded by the cleanup budget...records the surviving PIDs as a lifecycle error and stops retrying...still fail-closed) exists ONLY as an uncommitted working-tree edit (git diff HEAD -- docs/requirements/decisions/test-runner-consolidation-plan.md shows it uncommitted); it was never committed to the story branch. Fix: commit the corrected paragraph so the reviewable HEAD state matches the code.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-16T08:28:24.465Z",
+      "reviewRound": "2026-08-16T07:56:52.725Z",
+      "_hash": "db440d14d9c3918860407052a4de5126da5900a2e8c5899e5010c477e5b6d93c",
+      "files": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
