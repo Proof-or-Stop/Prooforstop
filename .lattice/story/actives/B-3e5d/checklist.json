@@ -675,7 +675,11 @@
           {
             "desc": "dev_memory_finish_decision is called before story_advance --phase=DONE in the fixture, matching the B-a7c5 dev-memory lifecycle gate",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+              "selector": "field regression CLI smoke passed"
+            }
           }
         ],
         "adversarial": [
@@ -705,6 +709,25 @@
           "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-16T12:34:37.288Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "Mechanically pinned: dev_memory_finish_decision is called before story_advance --phase=DONE in the fixture, part of the passing suite run reaching DONE without a dev-memory-gate failure.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f49fe2cd354fe1bb5124d9ae136e15af902a02f005d65476c5e1b547893d0d6",
+            "outputTail": "✓ field regression CLI smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T12:36:53.096Z"
+          },
+          "headHash": "cefd0bcf77015fa8f11faa0a2f493707fc47a0f3",
+          "materialHash": "b20b9152f1a30335e5e0c2112ded70ef1a569e7b2747028d9111f6b3060e8308",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-16T12:36:53.362Z"
         }
       ]
     }
