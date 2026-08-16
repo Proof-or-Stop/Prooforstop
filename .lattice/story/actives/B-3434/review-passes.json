@@ -385,6 +385,37 @@
         "scanEscalationReason": null
       },
       "_hash": "be636d91e88076807ddffbe5b9f03aa8435ca9dcfcde5db2281f4c2accdc20e4"
+    },
+    {
+      "id": "B-3434:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Commit 5e65c6f330 is genuinely one JSON line (command/args/timeoutMs matching sibling red-*.mjs entries), no comment or justification text embedded that could go stale; confirmed red-b3434-blob-buffer-ceiling.mjs was absent from every REGISTRATION_EXCLUSIONS map both before and after, so the commit message's stated reason is accurate. Staleness check across findings.json (all 41 resolutions), review-passes.json (all 13 pass notes), review-runs.json, checklist.json, acceptance-basis.json, review.json and the decision doc: found no statement, explicit or implied, that the RED harness ran as part of the standing validate.commands suite before this commit -- every reference describes direct manual invocation by path (e.g. ran the committed red-b3434-blob-buffer-ceiling.mjs against it / re-ran ... fresh from the current dist / Verified after the change: red-b3434-blob-buffer-ceiling PASS). The buffer smoke, by contrast, was genuinely registered in validate.commands since the story's very first commit (8250774c9d) and every claim about it running in the suite has been true throughout; only the RED harness had the gap, and this commit closes it cleanly with no prior overclaim in the record. Decision-doc numbers: read validation-evidence-buffer-smoke.ts in full -- the '100 commands x 12,000 chars (today's repository shape)' row and every other fixture size (400/300/180,000/200,000-entry cases) is a hardcoded literal in the test file, never a dynamic read of lattice.config.json; the real command count moved 96->97 but that number appears nowhere in the doc, so no figure went stale. Ran both commands fresh, no build: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> red-b3434-blob-buffer-ceiling: PASS (exit 0, all 8 sections green); node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> validation-evidence-buffer-smoke: PASS (exit 0, dist mtime 1786836823 postdates src mtime 1786831516); every number printed live matches the decision doc's table exactly (fileBytes=2520038; unboundedFile=38878838/boundedFile=19617036; fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200; fileBytes=16029894 detailsKept=180001; verdict_only 939/939/1109; fileBytes=53489880 refused; hashDelta=232 withoutHashes=25165823). No blocking issues found; no findings filed.",
+      "createdAt": "2026-08-16T00:08:05.057Z",
+      "reviewRound": "2026-08-15T11:13:17.112Z",
+      "reviewRunId": "B-3434:RR-046",
+      "envelopeId": "42a13f1520a5f63ea0462a21144f99b888438554756797eba5a04f86d4c9c245",
+      "writerSessionId": "sess-506efb3c29b8d24af74d5564d79ed07a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/acceptance-basis.json",
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/decision.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/red-evidence.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          ".lattice/story/actives/B-3434/review.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e7eb296c334c1c087a52830bc1c2d2cb0f1c60841439806b6243c423db2526f"
     }
   ]
 }
