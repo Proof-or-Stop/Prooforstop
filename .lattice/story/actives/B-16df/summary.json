@@ -1,0 +1,56 @@
+{
+  "storyId": "B-16df",
+  "changes": "packages/main/src/handlers/checklist.ts: added exported resolvePinnedCommandTimeoutMs(root, command) helper that matches a pinned commands parsed {executable,args} against configuredValidationCommands(root) entries and returns the matched timeoutMs; threaded timeoutMs: resolvePinnedCommandTimeoutMs(root, command) into all 4 existing runSingleAllowlistedCommand call sites (verification_evidence_add, verification_evidence_batch_add, verification_run, verification_evidence_refresh_stale). packages/main/src/tasks/validate-command-timeout-smoke.ts: added 16 new sections (45 total assertions) exercising the config-override matching, unmatched-default fallthrough, args-disambiguation, bare-string/shell-style config entries, zero/negative timeoutMs passthrough, byte-for-byte-unmodified checks on validation-executor.ts/verifier.ts, exact-call-site-count structural check, huge-timeoutMs clamping, and tokenizer parity/evasion-resistance.",
+  "usage": "No new CLI surface. Any pinned command in a checklist items verificationIntent whose {executable,args} matches an entry in lattice.config.json validate.commands[] now honors that entrys configured timeoutMs when verification_evidence_add / _batch_add / verification_run / verification_evidence_refresh_stale executes it, instead of always capping at the hardcoded 270s default.",
+  "expectedOutcome": "Running verification_evidence_add against a command configured with validate.commands[].timeoutMs above 270s, whose genuine runtime also falls in the 270s-to-budget gap, completes and yields a normal mechanical receipt instead of being refused at 270s with [receipt_exit_nonzero]; a command with no configured override still gets refused at exactly 270s as before.",
+  "actualTranscript": "node packages/main/dist/tasks/validate-command-timeout-smoke.js prints validate-command-timeout smoke passed: 45 assertions and exits 0, covering the configured-override case (honored), the unmatched-default case (still 270s), args-disambiguation, bare-string/shell-style config entries, zero/negative timeoutMs safety net, byte-for-byte-unmodified validation-executor.ts/verifier.ts, exact-4-call-site structural check, huge-timeoutMs clamping, and tokenizer parity - matching the expected outcome exactly. Full project lattice validate (97 commands) allPass:true.",
+  "outcomeDiff": "No difference - implemented behavior matches the expected outcome exactly, independently re-verified by 3 REVIEW-phase reviewer lanes across 5 rounds and a TEST-phase delivery reviewer that reverted the fix, confirmed a red failure, then restored it and confirmed green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "By design, resolveCommandTimeoutMs, executeValidationPlan, runValidationCommand, and configuredValidationCommands (the lattice validate execution path) are untouched - this fix only affects the evidence-pinning tools timeout resolution, not lattice validate itself (which already worked correctly). A-004s TOCTOU-absence claim and CHK-001s original red-state claims are not independently re-derivable from a single deterministic test run; they are backed by red-evidence.json plus reviewer-witnessed stash-based reproductions instead of a dedicated assertion - documented in checklist.json verification notes. Review assurance used degraded single-host fallback (review_host_availability_probe mechanically confirmed no second host is currently executionReady), not a genuine cross-host 3x2 quorum.",
+  "pitfalls": "Extremely long TEST/REVIEW rework cycle driven by tooling behavior discovered live: (1) verification_evidence_add pins a checklist intents command+selector IMMUTABLY on first write - an early batch used a selector embedding the assertion count, which became permanently unsatisfiable as real coverage grew (27->33->40->45). Recovery required a PLAN rollback and wholesale-replacing verificationIntent via checklist_update (clears the embedded .verification pin field) then re-pinning with a stable prefix-only selector. Lesson: never embed a monotonically-changing value in an evidence selector. (2) kind:waiver bypasses the pin check and satisfies REVIEW but NOT the DEV->TEST verification-coverage gate, which requires genuinely mechanical evidence for every declared verificationIntent story-wide. (3) A convergence-breaker tripped (gate-repeat 2>=2) requiring a genuinely interactive human terminal for story_resume --ack; combining --ack with --takeover is independently blocked by the same breaker while frozen. (4) story_advance/done_prepare/validate have internal watchdogs (~900s to 3600s) separate from individual command timeouts; LATTICE_MAX_TIMEOUT_MS overrides them but risks an effective-environment-digest-mismatch later. (5) this is a hot-main repo: main moved 211 then 497 commits during REVIEW/TEST, requiring repeated merge+revalidate cycles (done_prepare autoCloseGeneratedMetadata:true does merge+refresh+validate atomically). (6) sustained shared-machine load (other worktrees concurrent builds/validates/global validation-capacity lock) caused DIFFERENT unrelated tests to intermittently timeout each full-suite run (flow-stability-smoke, review-pass-discard-smoke, validate-progress-heartbeat-smoke) - confirmed not a regression via isolated reproduction and via the same tests passing cleanly on other attempts; required patient retries, not a code fix. (7) review-escalation degraded fallback requires an EXPLICIT review_escalation_fallback_set record (preceded by review_host_availability_probe) - raw autopilot_review_submit rounds alone do not auto-satisfy it even with 3/3 submitted.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 4144946
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46693
+    },
+    "PLAN": {
+      "count": 3,
+      "durationMs": 1847331
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 4311030
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 81228339
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 98248781
+    }
+  },
+  "totalDurationMs": 189828185,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-16T15:00:26.687Z",
+  "updatedAt": "2026-08-16T15:00:26.687Z"
+}
