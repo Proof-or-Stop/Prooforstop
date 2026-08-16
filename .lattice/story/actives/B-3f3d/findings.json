@@ -5970,7 +5970,7 @@
       "desc": "computeActiveReviewers (packages/main/src/handlers/reviewer-list.ts) now disambiguates its own force-mount reviewer_forced events from review-run.ts ensureCurrentReviewRound auto-init reviewer_forced events purely via non-empty StoryEvent.reviewer (documented in an F-094 code comment). This is correct today (verified: ensureCurrentReviewRound never sets reviewer; reviewer-list.ts always sets a non-empty reviewer via parseForceReviewers/normalizeForceReviewerName before writing), but the invariant is enforced only by convention/comment, not by a regression test. No dedicated test exercises the two-writer disambiguation (e.g. call ensureCurrentReviewRound then computeActiveReviewers and assert the auto-init event contributes nothing to persistedForced). A future refactor of ensureCurrentReviewRound that incidentally sets a non-empty reviewer field would silently start being treated as an operator force-mount decision with no test failure. Not a concept collision requiring a rename (the shared action string with field-based disambiguation is a reasonable, low-risk design); recommend adding a small regression test to lock in the invariant. Non-blocking.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-16T13:27:15.620Z",
@@ -6016,7 +6016,9 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|ts|computeactivereviewers-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted and covered by a regression test, with one correction to the finding premise that I verified empirically rather than assuming. Added to packages/main/src/tasks/review-assurance-floor-smoke.ts a test driving computeActiveReviewers with a story whose events mix: an ensureCurrentReviewRound-shaped reviewer_forced event with NO reviewer field, a genuine operator reviewer_forced event for behavior, a non-reviewer_forced event that DOES carry a reviewer field, and a reviewer_forced event whose reviewer is a non-string. It asserts the real operator force mounts durably and is marked forced:true, that the non-reviewer_forced event does not mount a lane, that replay does not duplicate a lane, and that no empty lane name is ever admitted. CORRECTION to the finding as written and to my own initial restatement of it: the non-empty reviewer check is NOT the sole disambiguation. I mutation-tested it and removing .filter(name => name.length > 0) alone changed nothing observable, because the mount loop independently guards with if (!name) continue. The two are redundant defense-in-depth, so no test can bite the removal of just one. The test therefore asserts the OBSERVABLE invariant (an auto-init event never mounts a lane, no empty lane name is ever produced) instead of pinning a single line, and the code comment now records that both guards exist and that either alone suffices. Mutation evidence: dropping ONE guard leaves the smoke green, which is why I did not claim coverage there; dropping BOTH makes it exit 1, and byte-restoring returns exit 0. This is the honest scope of the protection: the invariant is pinned, a single-line refactor of either guard remains safe by construction, and a refactor removing both is now caught.",
+      "resolvedAt": "2026-08-16T13:33:06.474Z"
     },
     {
       "id": "B-3f3d:F-097",
