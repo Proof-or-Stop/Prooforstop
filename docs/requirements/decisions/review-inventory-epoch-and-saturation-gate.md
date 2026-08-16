@@ -196,11 +196,28 @@ lock. A supported REVIEW mutation is therefore serialized, and the next status,
 evidence, critic, wave, finalize, or consume boundary persists
 `OPEN_REVIEW_INVENTORY_SCOPE_MUTATION` before accepting old reviewer evidence.
 
-The epoch also signs the current valid `candidateSpecSetDigest` and
-`corpusDigest`. `candidate_spec_route` performs its durable replacement inside
-the inventory lock and immediately invalidates an OPEN epoch whose routing
-universe changed. Lanes from pre-reroute and post-reroute candidate sets can
-never form one wave.
+The same semantic-content-not-bookkeeping rule applies to the candidate set. The
+epoch signs `candidateSpecSetDigest` as a routing-universe projection of the
+current valid `CandidateSpecSetArtifact` — `schemaVersion`, `mode`, each selected
+candidate reduced to its `path` and content hash, `queryFiltering`, and
+`scanEscalationReason` — and `corpusDigest`, deliberately NOT the artifact's own
+`artifactDigest` (which bakes in `headHash`/`materialHash` verbatim as the
+artifact's tamper-detection identity; `verifyCandidateSpecSet` still verifies that
+full identity digest, so genuine tampering with the candidate set is still caught)
+and deliberately NOT `storyInputDigest` or any candidate's `score`/`reasons`, both
+of which are seeded by the changed-file set from `git diff` and therefore leak
+freshness rather than routing-universe identity. So a `candidate_spec_route`
+re-run that reselects the same specs with the same content after HEAD or the
+changed-file set alone has moved no longer trips
+`OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`; a re-run that changes which
+specs are selected, any selected spec's content, `schemaVersion`, `mode`,
+`queryFiltering`, or `scanEscalationReason` still invalidates the epoch with that
+blocker code, and lanes from pre-reroute and post-reroute candidate sets can never
+form one wave.
+
+`candidate_spec_route` performs its durable replacement inside
+the inventory lock, so a supported REVIEW re-route is serialized against epoch
+reads rather than racing them.
 
 `review_run_start` holds the inventory lock from its run-start snapshot and
 cutoff/subject precheck through monotonic RR allocation, Prompt Envelope write,
