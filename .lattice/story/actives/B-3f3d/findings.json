@@ -5162,7 +5162,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/full-suite-runner.ts:77,671,680 activeChildren is a write-only Set (added in runEntry at line 671, deleted at line 680) with zero read consumers anywhere in the file; requestInterrupt (line 631) and the terminal-failure cancellation loop in runScheduled (line 786) were both switched to iterate activeTerminators instead, leaving activeChildren as dead state that should be removed.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-16T08:02:04.373Z",
@@ -5170,7 +5170,9 @@
       "reviewRunId": "B-3f3d:RR-337",
       "_hash": "a8cdc76fb8ad5e8e55873f03548781af63eda6c63579d2aec72c786fd3c01d7a",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed and removed. Verified independently before acting: grep showed activeChildren appeared only at its declaration (line 77), an .add (671) and a .delete (680) with no read/iterate anywhere in the file, so it was genuinely write-only state left behind when requestInterrupt and the runScheduled terminal-failure cancellation loop both migrated to iterating activeTerminators in this diff. Deleted the declaration, the .add, and the .delete; activeTerminators.delete(child) remains on the settle path so terminator bookkeeping is unchanged. Rebuilt and re-ran npm run test:full-suite-runner-smoke: PASS (183 assertions), no lifecycle/interrupt assertion regressed (synchronous onSpawn interrupt, already-set interrupt, external interruption and the scheduler-reuse assertions all still pass). npx tsc --noEmit -p packages/main exits 0. Note tsc alone would not have caught this because noUnusedLocals is not enabled in packages/main/tsconfig.json, which is why the manual grep was the authority.",
+      "resolvedAt": "2026-08-16T08:05:36.688Z"
     },
     {
       "id": "B-3f3d:F-082",
