@@ -585,10 +585,26 @@
       "phase": "DEV",
       "headHash": "1a24428bb8c6d64437d8ad7db2821280281e8d22",
       "materialHash": "bd5d485538e19aa0c5220bf5085e667bed3d945337ee373e6650019703bf5751"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer-driven doc correction required by findings F-080 and F-085. The docs lane found this file understated the runner termination guarantee: it said timeouts only kill the member process group, and later still said termination polls until no captured PID remains, while the code this story changed had introduced (pid, birthIdentity) ownership keying and then a BOUNDED post-SIGKILL retry that exits on cleanup-budget expiry. Leaving it unedited would have shipped a doc promising a guarantee the code no longer makes. The edit is documentation-only, adds no behaviour, and was verified against the implementation by the docs reviewer lane (RP-273, RP-275, RP-281) and re-confirmed by the concept lane; scripts/verify-process-fact-contract.mjs still passes.",
+      "timestamp": "2026-08-16T10:47:53.483Z",
+      "paths": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5e4c90933515cfe0862174c11b50e06d428c9a4b",
+      "materialHash": "d9f40c894185e625ecb246ce0c672a44bb62cfe6c7a7c3f244319eca9e1ce907"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-15T19:41:34.252Z",
+  "updatedAt": "2026-08-16T10:47:53.483Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -706,6 +722,7 @@
     "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
     "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts"
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md"
   }
 }
