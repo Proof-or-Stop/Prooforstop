@@ -1682,8 +1682,15 @@ export function buildCanonicalHostRuntimeEnv(
   const env = buildRequiredCommandEnv(policy) as NodeJS.ProcessEnv;
   const allowedEnvNames = new Set(policy.envAllowlist.map(name => name.trim()).filter(Boolean));
   const deniedEnvNames = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
-  const deliberateOverride = allowedEnvNames.has('LATTICE_SESSION_ID')
-    && !deniedEnvNames.has('LATTICE_SESSION_ID')
+  // B-cdf6:F-061 — the allow/deny lookup must accept EITHER spelling. It previously
+  // tested only the deprecated literal, so an operator whose dispatch policy allowlists
+  // the CANONICAL `PROOF_OR_STOP_SESSION_ID` had the override silently dropped: the
+  // rename broke the new name while the old one kept working, which is backwards.
+  // Denylist is checked across both names so denying either spelling still denies.
+  const sessionIdEnvNames = [`${BRAND_ENV_PREFIX}SESSION_ID`, 'LATTICE_SESSION_ID'] as const;
+  const sessionIdAllowed = sessionIdEnvNames.some(name => allowedEnvNames.has(name));
+  const sessionIdDenied = sessionIdEnvNames.some(name => deniedEnvNames.has(name));
+  const deliberateOverride = sessionIdAllowed && !sessionIdDenied
     ? readBrandEnv('SESSION_ID')?.trim()
     : undefined;
   if (deliberateOverride) {

@@ -175,7 +175,11 @@ function recognizedLiveSmokeCommand(
   // inert inline assignment needed by the owner-lease workflow.
   if (!trimmed || /[;&|<>\n\r`]|\$\(/.test(trimmed)) return null;
   const match = trimmed.match(
-    /^(?:LATTICE_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
+    // B-cdf6:F-062 — accept EITHER session-id env prefix. This recognizer previously
+    // matched only the deprecated `LATTICE_SESSION_ID=` spelling, so a caller using the
+    // canonical `PROOF_OR_STOP_SESSION_ID=` silently lost the wider live-smoke timeout
+    // budget with no error. Read-both applies to parsing too, not just to env lookup.
+    /^(?:(?:PROOF_OR_STOP|LATTICE)_SESSION_ID=[A-Za-z0-9_.:-]+\s+)?([^\s]+)\s+(done_required_validate|done_prepare)(?:\s|$)/,
   );
   if (!match || !trustedLatticeExecutable(root, match[1], env)) return null;
   return match[2] === 'done_required_validate' || match[2] === 'done_prepare' ? match[2] : null;

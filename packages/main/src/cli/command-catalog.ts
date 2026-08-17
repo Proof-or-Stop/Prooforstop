@@ -85,11 +85,11 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
 } satisfies Record<string, z.ZodType>;
 
 // B-7c05: brief-by-default output flags. --full restores the current verbose
-// shape; --brief forces brief over the LATTICE_BRIEF_OUTPUT=0 env hatch.
+// shape; --brief forces brief over the PROOF_OR_STOP_BRIEF_OUTPUT=0 env hatch.
 // Rendering-only — no gate/state-machine change (validate deliberately excluded).
 const BRIEF_OUTPUT_FLAGS = {
   full: z.boolean().optional().describe('Show the full (verbose) output instead of the brief default.'),
-  brief: z.boolean().optional().describe('Force the brief output even when LATTICE_BRIEF_OUTPUT=0 is set.'),
+  brief: z.boolean().optional().describe('Force the brief output even when PROOF_OR_STOP_BRIEF_OUTPUT=0 is set.'),
 } satisfies Record<string, z.ZodType>;
 
 // B-7c05: explicit machine-JSON opt-in (frozen full shape) for commands whose
@@ -1159,7 +1159,7 @@ Behavior:
   }},
   { name: 'live_smoke_transcript', description: 'Explicit live-smoke transcript producer: default is read-only status (expected userSees output, current transcript artifact status, V1 live-smoke readiness row). --capture="<command>" runs ONLY that one provided command (runCommands) and records the actual transcript; --write persists the expected-vs-actual artifact (writeEvidence, ownership/scope gated). --capture and --write are independent. Never advances phase, launches reviewers, widens local assurance, writes verificationEvidence/delivery checks, or accepts a metadata-only waiver.', schema: {
     storyId: z.string().describe('Story ID'),
-    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the lattice executable resolves to the exact active CLI realpath and the optional inline environment is limited to LATTICE_SESSION_ID; project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
+    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the lattice executable resolves to the exact active CLI realpath and the optional inline environment is limited to PROOF_OR_STOP_SESSION_ID (the deprecated LATTICE_SESSION_ID spelling is also accepted); project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
     write: z.boolean().optional().describe('Opt-in artifact writer: persist the expected-vs-actual transcript to <storyDir>/evidence/live-smoke-transcript.json. Ownership/scope gated. Write alone runs no command. Independent of --capture.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -1958,7 +1958,7 @@ Behavior:
   }},
 
   // Doctor (health issue inspection).
-  { name: 'doctor', description: 'View Proof-or-Stop health issues (silent-caught PERSIST fails); scan orphan worktrees. Also runs the B-623a ADVISORY host burn scan: read-only stream over recently-active ~/.codex/sessions and ~/.claude/projects transcripts flagging long-thread token burn (env-tunable thresholds; LATTICE_BURN_ALERT_RECENT_HOURS=0 disables; never gates, no gate evidence, exit code unchanged)', schema: {
+  { name: 'doctor', description: 'View Proof-or-Stop health issues (silent-caught PERSIST fails); scan orphan worktrees. Also runs the B-623a ADVISORY host burn scan: read-only stream over recently-active ~/.codex/sessions and ~/.claude/projects transcripts flagging long-thread token burn (env-tunable thresholds; PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS=0 disables; never gates, no gate evidence, exit code unchanged)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
@@ -3134,7 +3134,7 @@ Behavior:
     codexSessionsDir: z.string().optional().describe('Override the codex sessions dir (default ~/.codex/sessions)'),
     claudeProjectsDir: z.string().optional().describe('Override the claude projects dir (default ~/.claude/projects)'),
     out: z.string().optional().describe('Write the JSON report to this path (must resolve INSIDE the project root); the only write this command performs'),
-    alert: z.boolean().optional().describe('B-623a advisory burn alert: evaluate the swept sessions against the env-tunable burn thresholds (LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS) and exit non-zero when any session exceeds them, after printing the full report — cron-friendly; performs no writes and never gates anything'),
+    alert: z.boolean().optional().describe('B-623a advisory burn alert: evaluate the swept sessions against the env-tunable burn thresholds (PROOF_OR_STOP_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS) and exit non-zero when any session exceeds them, after printing the full report — cron-friendly; performs no writes and never gates anything'),
     json: z.boolean().optional().describe('Emit the full report object as JSON (carries the same NON-AUTHORITATIVE ESTIMATE label)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
