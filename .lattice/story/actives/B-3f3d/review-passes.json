@@ -18195,6 +18195,49 @@
       },
       "readDiagnostics": [],
       "_hash": "7299c03180c40591c1a1018585a98f3c19de57cdaa1db70dc10d1532ae6eeaf7"
+    },
+    {
+      "id": "B-3f3d:RP-323",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 re-verification, no new findings. Confirmed via git diff that zero non-metadata source files changed since commit c01daa57c4 (the last real code commit; all commits after are lattice: record ... metadata-only), consistent with reReviewReasonCodes ELIGIBLE_NO_MATERIAL_CHANGE / ELIGIBLE_TRUSTED_PRIOR_BINDINGS. Re-checked wave-1 finding dispositions directly: F-111 (review-inventory.ts:112 non-array candidates crash gap) resolved as split to B-8af0 checklist item 2, not fixed here; verified the gap is still present unchanged (guards only null/undefined via ?? [], no Array.isArray check), consistent with deliberate non-fix mid-epoch. F-112 resolved as duplicate of F-111 with credible root cause (RI-045 invalidation orphaned an in-flight run). finding_list confirms F-089 (high, not mine) is the only open finding story-wide. Independently re-ran the F-096/F-097 correction: executed review-assurance-floor-smoke.js directly and confirmed live that the named check runs and passes as check 18 of 19, followed by the wrapper-root DONE guard check as 19 of 19 -- correction is accurate. Quality re-check of the unchanged src diff: no empty catch blocks added; of 3 'as any' hits, 2 are comment prose (not casts) and 1 is a legitimate test-fixture overload cast mocking execFileSync's variadic signature, not a maintainability concern. No dead code or I/O shell-isolation issues found. No new findings this wave.",
+      "createdAt": "2026-08-17T04:19:43.213Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-455",
+      "envelopeId": "dbdcad7c3110dcaeb1c920a4653b266dbe2f030b675a931246409bc3e8968183",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f6c6a20b2bc02fcf8ce05bdd65b80d012e3b5c5e10f79518f873bd3696add55"
     }
   ]
 }
