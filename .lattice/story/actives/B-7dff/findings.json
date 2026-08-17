@@ -5,7 +5,7 @@
       "desc": ".lattice/story/actives/B-7dff/checklist.json CHK-001/CHK-002/CHK-003/CHK-005 verificationEvidence (12 of 15 must-intent evidence entries): lattice evidence_inspect --storyId=B-7dff reports overall freshness.status=stale, staleRefs listing all 3 CHK-001, all 3 CHK-002, all 3 CHK-003, and all 3 CHK-005 intent refs (reason: evidence storyFilesHash does not match current story-owned file state, currentStoryFilesHash=9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85). Only CHK-004 evidence is fresh. CHK-004s two DEV commits (7a05d565f1, 827758a4a8) modified lattice.config.json and package.json, which are also in CHK-002/CHK-005 files.modify, expanding the story-owned file set after CHK-001/002/003/005 evidence was captured. Per CLAUDE.md storyFilesHash-drift doctrine this is the strong-signal case (storyFilesHash itself moved, not just an unrelated materialHash-only drift), so the intentToEvidence coverage this reviewer certifies is not currently provably bound to HEAD for 80% of the storys must intents. Recommend running verification_evidence_refresh_stale (or the equivalent tests) before TEST/DONE so the recorded pass evidence is rebound to the current commit.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-17T15:18:33.741Z",
@@ -16,7 +16,11 @@
         ".lattice/story/actives/B-7dff/checklist.json"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All verificationEvidence re-executed and re-bound on the final tree. Two refresh passes were needed because each evidence write itself moves storyFilesHash: the first refreshed 15/15 after the F-003/F-004/F-005 fix commit 613bea5432, then the F-002 work (benchmark plus the two integration_test rows) rebound it again, and the second pass re-ran the remainder at HEAD 4bf43ee749. milestone_status now reports 4 done / 0 in progress, all four ledger rows Pending Review with Risks: none, where before it reported M3 and M4 Blocked on missing fresh integration_test coverage. The refresh re-executes each evidence command rather than restamping hashes, so every row is a fresh passing receipt, not a re-labelled stale one.",
+      "resolvedAt": "2026-08-17T18:58:57.769Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7dff:F-002",
