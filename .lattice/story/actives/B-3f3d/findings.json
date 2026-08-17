@@ -7759,6 +7759,52 @@
       ],
       "signatureTag": "missing|json|wave-topology-critic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-114",
+      "desc": "packages/main/src/core/command-policy.ts:22-23 and packages/main/src/core/config.ts:491-497 [HIGH] self-diagnosed-but-not-fixed: the widening of acceptance_basis_generate to REVIEW (commit 783dc6105e) claims it breaks a deadlock where a stale acceptance basis refuses the topology critic receipt, which blocks review-inventory finalize, which blocks REVIEW->DEV. This chain is not what the code does. (1) review_inventory_finalize (handlers/review-inventory.ts:534-541) consumes criticReceiptForCurrentWave / ReviewInventoryCriticReceipt written by review_inventory_critic_set -- a structurally separate artifact/store slot from topology_critic_receipt_set / TopologyCriticReceiptV1 (proofstory.ts:560-574, store.ts:872-877); grep confirms zero references to topology_critic_receipt_set or readTopologyCriticReceipt anywhere in review-inventory.ts, machine.ts or transition-orchestrator.ts. Live reproduction on this exact story: lattice review_inventory_status --storyId=B-3f3d currently shows OPEN epoch RI-048 blocked only by REVIEW_INVENTORY_LANES_INCOMPLETE (pending peer reviewer lanes), with topology-critic not even in requiredLanes. (2) Even granting the (incorrect) premise, the fix is inert for its own stated goal: acceptance_basis_generate always writes phaseBasis=plan (proofstory.ts:591-624 default), but currentTopologyReceiptStateForContext (proofstory.ts:302-310) prefers store.readPreReviewCheck(storyId)?.preReviewBasisArtifact over the plan artifact whenever pre-review-check.json exists -- which it does on this story. Regenerating the plan basis via acceptance_basis_generate in REVIEW never changes what topology_critic_receipt_set/topology_critic_receipt_check verify against. Confirmed live: acceptance_basis_generate already ran this round (commit 15ea94a); lattice acceptance_basis --storyId=B-3f3d --json now reports status=verified/basisStatus=complete, but lattice topology_critic_receipt_check --storyId=B-3f3d STILL returns REJECTED/AT_TOPOLOGY_CRITIC_CONTEXT_INVALID with identical AT_SCOPE_BINDING_MISSING/PR_PLANNED_PATH_UNRESOLVED diagnostics. pre_review_check (the command that reissues the artifact actually consulted) remains DEV-only (command-policy.ts:435) and was not widened. This exact live defect is already tracked as still-open B-3f3d:F-089 (severity high, evidenceState verified); this finding documents that the REVIEW-phase acceptance_basis_generate widening merged afterward does not close F-089, and its own commit-message/code-comment justification misdescribes the actual gate wiring (no self-exculpation risk found, since the widened command is not consumed by any REVIEW-adjacent lifecycle gate -- but the comments overclaim a benefit the code does not provide). Fix: correct the comments in command-policy.ts/config.ts to state the true (narrower or nonexistent) benefit, and resolve F-089 rather than leaving it open under an unrelated merged fix.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T08:32:16.564Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-467",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b267408c55542c12166370b613992e4aca0f3cc7451ca1a50e886289a35a863",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
