@@ -271,10 +271,40 @@
         "scripts/verify-lattice-residue.mjs",
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "node scripts/verify-lattice-residue.mjs passes and fails loudly if a bare .lattice or @lattice/core is reintroduced into packages/*/src",
+      "userSees": "`node scripts/verify-lattice-residue.mjs` prints \"PASS lattice-residue\" for every check; a deliberately reintroduced .lattice literal flips it to a non-zero exit",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node scripts/verify-lattice-residue.mjs prints PASS for all checks after the migration",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reintroducing a bare .lattice literal into packages/main/src makes the gate FAIL, proving it is enforcing not merely reporting",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The two coupled AST fingerprint copies stay in sync: both retired-authority-vocabulary-guard-smoke and verify-process-fact-contract exit 0",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
