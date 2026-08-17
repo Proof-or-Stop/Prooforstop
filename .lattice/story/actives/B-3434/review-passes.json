@@ -797,6 +797,28 @@
         "scanEscalationReason": null
       },
       "_hash": "7a0f698e833c75c67f1c1ed556ebaa1d136a7f870e9352a29d7aeac3655d43df"
+    },
+    {
+      "id": "B-3434:RP-031",
+      "agent": "lattice-review-concept",
+      "note": "Merge forensics after main moved 345 commits (rev-list count 0, fully merged). Verified with git set-arithmetic that both conflict resolutions are lossless unions: lattice.config.json validate.commands 104 = |main(102) union story-pre(99)|, zero entries lost from either side, zero duplicates; experience.jsonl 33 lines = |main(27) union story-pre(29)| via 23-line common ancestor, all 33 ids unique, all 6 sourceStoryId=B-3434 lessons intact. Checked every checkable claim in the decision doc and story comments against the live merged tree: core/store.ts writeJson/writeJsonFile are private (no measure-only export), JSON.stringify(data,null,2)+newline confirmed verbatim; verifier.ts:975-984 F-037 citation still lands inside the actual gate-to-write gap (persistedBound at 973, write at 985); all 10 done-prepare-generated-metadata.ts git-read maxBuffer sites use METADATA_BLOB_READ_MAX_BUFFER_BYTES=33554432; persistStoryValidationEvidence/snapshotPersistedRecord/measurePersistedEvidenceBytes/VALIDATION_EVIDENCE_SCALAR_CHAR_CAP symbols all present as described; deferred-table row-echo counts (F-033=2, F-036=1, F-037=5, F-035=0 other mentions) re-measured exact against current doc text; F-034 fixed via single named constant used at both sites. git log confirms zero commits touched store.ts/validation-executor.ts/verifier.ts/done-prepare-generated-metadata.ts anywhere in main's 345-commit move, so no interaction to correct. B-16df (closed by main) only added resolvePinnedCommandTimeoutMs in checklist.ts threading validate.commands[].timeoutMs into runSingleAllowlistedCommand call sites for command-execution timeout; it imports parseAllowlistedCommand/configuredValidationCommands read-only and does not touch the evidence-serialization boundary the decision docs follow-up work order is scoped to (store.ts+validation-executor.ts+verifier.ts) - no overlap, no contradiction, work order stands as written. experience.jsonl lesson ffd0cc9s forty-one findings is a correct point-in-time count: its createdAt precedes F-042s createdAt by ~21 minutes, so it was accurate when written and 42 (current total) is simply one round later, not a contradiction. Ran both required commands with real output: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS exit 0, all asserts incl over-ceiling/absent/unreadable/hook-reason cases; node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS exit 0; every one of the decision docs quoted measured numbers (2520038, 38878838/19617036, 148987+300+250200, 16029894/180001, 939-1109, 53489880, hashDelta=232/25165823, findingIdsNamed list, doc byte count 18205) matched the live run output exactly. Also ran npx tsc --noEmit -p packages/main exit 0 and confirmed clean git status. No lost hunks, no falsified claims, no interaction requiring correction. Nothing blocks.",
+      "createdAt": "2026-08-17T08:54:37.017Z",
+      "reviewRound": "2026-08-17T08:44:55.845Z",
+      "reviewRunId": "B-3434:RR-063",
+      "envelopeId": "624b7fceb58e9a19a5db72c31502b88447ed4fc1b3526cd6a12ebc6337eb7075",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e5439a793238c0e642593bcb33762bf4da72cf1bdccbb578c05df0deae57d87f"
     }
   ]
 }
