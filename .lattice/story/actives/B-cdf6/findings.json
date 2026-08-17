@@ -1359,7 +1359,7 @@
       "desc": "Low-severity remainder of the same LATTICE_AGENT sibling class, not user-visible but same file/function pattern as the fixed sites: (a) stale code comments still naming LATTICE_AGENT instead of the canonical form -- handlers/finding.ts:497 (\\\"Record caller identity (env var LATTICE_AGENT is set by subagent)\\\", same function whose warning strings were fixed at :649/:634), handlers/checklist.ts:1361 (\\\"Only an explicit actor/agent or LATTICE_AGENT participates...\\\"), handlers/init-check.ts:75 (\\\"A registered LATTICE_AGENT is the authoritative dispatched identity\\\"). (b) three internal child-process spawn env overlays that set the deprecated name directly instead of the canonical one (functionally harmless today because readBrandEnv dual-reads, but inconsistent with the teach-the-new-name rule and in files this story already actively touches): core/acceptance-rollout.ts:250-251 (LATTICE_SESSION_ID/LATTICE_AGENT in an execFileSync env, also spawns via bin/lattice.js not the new bin), core/codex-adapter-checks.ts:669 (LATTICE_AGENT:\\\"main\\\" in an execFileSync env, in the same function already carrying a B-cdf6/F-013 comment two lines above), handlers/proofstory.ts:108 (LATTICE_AGENT:\\\"acceptance-rollout-verifier\\\" in an execFileSync env). None of these are user-visible output and none change behavior, so this is advisory/cleanup rather than blocking, but flagging because the coordinator has now missed this sibling class twice and asked for an exhaustive re-check.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T02:30:27.082Z",
@@ -1375,7 +1375,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|severity-remainder-same",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c09259d868 rather than accepted as advisory. Three stale comments now name PROOF_OR_STOP_AGENT with the deprecated alias noted; three internal execFileSync env overlays (acceptance-rollout.ts SESSION_ID+AGENT, codex-adapter-checks.ts AGENT, proofstory.ts AGENT) now write the canonical name, which is safe because every reader goes through readBrandEnv and accepts both spellings (verified directly). tasks/*-smoke.ts assignments deliberately left on the deprecated name to preserve read-both coverage.",
+      "resolvedAt": "2026-08-17T02:37:06.068Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
