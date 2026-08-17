@@ -115,7 +115,30 @@
       "userSees": "A critic dispatched through a host adapter records a receipt, and topology_critic_receipt_check reports the recorded verdict instead of no current registered dispatch provenance.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A genuinely dispatched critic that did not receive its session id from the implementer records request_changes successfully",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If the real host does not supply provider plus task plus agent, the resulting failure blocks the story rather than being worked around",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "pass is still refused while the acceptance basis is stale, so the 9f9f53a514 asymmetry survives this change",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
