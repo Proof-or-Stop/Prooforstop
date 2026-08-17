@@ -238,7 +238,11 @@
           {
             "desc": "git log --follow on a moved archive file still shows its pre-move history",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-state-dir-migration.mjs",
+              "selector": "historyFollows=true"
+            }
           }
         ],
         "adversarial": [
@@ -270,6 +274,27 @@
           "materialHash": "ac8c424c5df5987e11b4f3b7f985b1aab8bb7ce4c28b49ab2bc6a66f16c0369c",
           "storyFilesHash": "d636308586160aceacc9c961cba3c37247be72ef77ea6b519dc6b65d32a51c44",
           "timestamp": "2026-08-17T15:28:21.856Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-state-dir-migration.mjs",
+          "command": "node scripts/verify-state-dir-migration.mjs",
+          "result": "pass",
+          "note": "git log --follow traces 3 commits through the rename for .proof-or-stop/story/actives/B-0168/background.md, proving git mv preserved history rather than recording delete+add.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5862924e53501b757cd2a53d8df2d014b4be9ce4ed81e3b73b4c551315b43b5",
+            "outputTail": "canonicalStateDir=true\nok .proof-or-stop/story/actives exists\narchive B-0168 phase=INIT\nok B-0168 (earliest-era archive) phase INIT matches pre-move baseline\narchive B-META-framework-audit phase=META\nok B-META-framework-audit (signed cross-story ledger) phase META matches pre-move baseline\nhistoryFollows=true\nok git log --follow traces 3 commits through the rename\ntrackedArchiveFiles=7583\nok 7583 archive files tracked at canonical path\nstate dir migration verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:28:42.931Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0e676a6a297a88b03b441fdf686492f143058024",
+          "materialHash": "ac8c424c5df5987e11b4f3b7f985b1aab8bb7ce4c28b49ab2bc6a66f16c0369c",
+          "storyFilesHash": "d636308586160aceacc9c961cba3c37247be72ef77ea6b519dc6b65d32a51c44",
+          "timestamp": "2026-08-17T15:28:43.097Z"
         }
       ]
     },
