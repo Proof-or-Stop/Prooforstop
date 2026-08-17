@@ -149,7 +149,9 @@
       { "command": "node", "args": ["packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] },
       { "command": "node", "args": ["packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] },
       { "command": "node", "args": ["packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"], "timeoutMs": 180000, "env": { "LATTICE_VALIDATE_JOBS": "4" }, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] },
-      { "command": "node", "args": ["packages/main/tests/validate-plan-scheduling.test.mjs"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] }
+      { "command": "node", "args": ["packages/main/tests/validate-plan-scheduling.test.mjs"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] },
+      { "command": "node", "args": ["packages/main/tests/validate-resource-claims.test.mjs"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] },
+      { "command": "node", "args": ["packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"], "timeoutMs": 180000, "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }] }
     ]
   },
   "doneRequiredCommands": [
