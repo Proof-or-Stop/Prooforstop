@@ -420,7 +420,11 @@
           {
             "desc": "The regression detects a resource collision (two conflicting commands overlapping) and fails rather than reporting a faster but unsafe run",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:validate-parallel-equivalence",
+              "selector": "B7DFF-CHK004-COLLISION-PROBE-BITES"
+            }
           }
         ]
       },
@@ -476,6 +480,26 @@
           "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411",
           "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
           "timestamp": "2026-08-17T15:04:20.501Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "command": "npm run test:validate-parallel-equivalence",
+          "result": "pass",
+          "note": "Collision detection is observed from the CHILD processes own clocks (each probe records the wall-clock interval it was alive into its own marker file), not from the scheduler bookkeeping under test. Two probes hold the SAME exclusive claim and the undeclared probe holds the fail-closed barrier: any overlap among those pairs fails the smoke with the pair and the overlap in ms, and a vacuity guard requires that compatible probes DID overlap in the same run, so a clean report cannot come from a run with no concurrency. The pinned marker is the NEGATIVE CONTROL: the same two probes are run again through the real scheduler with DISJOINT claims - a plan in which overlapping them would be the very collision the fixture forbids - and the same probe must report the overlap. Verified end to end by mutating a copy of the compiled smoke so the contended pair got disjoint keys: the smoke then FAILED with FAIL: no forbidden pair overlapped in the parallel run (conflict X overlapped conflict Y by 681ms), exit 1.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7fd05fd35a59890b2524550eae144ae92fa8b75e44fc9f9d72b34db6dc026c54",
+            "outputTail": "\n> lattice@0.3.261 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.74s parallel=2.37s speedup=2.00x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:04:37.892Z"
+          },
+          "headHash": "701685854ca8c2d81d2e94ea6d304c75c7d5995a",
+          "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411",
+          "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
+          "timestamp": "2026-08-17T15:04:38.007Z"
         }
       ]
     },
