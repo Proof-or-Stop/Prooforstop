@@ -18,12 +18,14 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: validation-executor.ts and verifier.ts remain byte-for-byte unmodified
- *     from main (git diff, soft-skip on environment failure); checklist.ts's own source
- *     text invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at
- *     exactly 4 call sites (declared exactly once — no duplicated matching logic outside
- *     it); and a very large configured timeoutMs is clamped end-to-end via
- *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector);
+ *   - B-16df F-004: checklist.ts's own source text invokes the shared
+ *     resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites (declared
+ *     exactly once — no duplicated matching logic outside it); and a very large configured
+ *     timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS
+ *     (not an unbounded-timeout vector). B-16df's companion H-003 assertion — that
+ *     validation-executor.ts and verifier.ts are byte-for-byte unmodified from main — is no
+ *     longer made here; see section 12 and BUG-B16DF-BYTEPIN for why a standing registered
+ *     suite command cannot carry a per-story scope claim;
  *   - B-16df F-008: tokenizeCommandString (validation-executor.ts) and splitShellWords
  *     (verifier.ts) normalize equivalently for allowlist-legal, whitespace/quoting-varied
  *     input on BOTH the config side and the pinned-command side (parsing parity + evasion
@@ -32,9 +34,9 @@
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
  * side effects leak in. Sections 12-13 are the sole exception: they read this repo's own
- * source/git state (REPO_ROOT, resolved from this file's own compiled location) rather than
- * a temp dir, since H-003/H-002 are claims ABOUT this repo's actual source, not synthesized
- * fixtures. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
+ * source state (REPO_ROOT, resolved from this file's own compiled location) rather than
+ * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
+ * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
  * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
  * Registered in lattice.config.json validate.commands for ongoing regression protection.
  *
@@ -42,7 +44,6 @@
  */
 
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
-import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -360,38 +361,36 @@ void (async () => {
       rmSync(zeroTimeoutRoot, { recursive: true, force: true });
     }
 
-    // 12. B-16df F-004 (H-003): validation-executor.ts and verifier.ts — the shared
-    //     validate-command execution/config-parsing primitives this story's fix builds on
-    //     top of — must remain byte-for-byte unmodified from main. The fix lives entirely
-    //     in checklist.ts's new resolvePinnedCommandTimeoutMs helper + its call sites,
-    //     never by editing either shared primitive. First a hard sanity check that
-    //     REPO_ROOT actually resolved to the real repo root (so a broken path computation
-    //     fails loudly here rather than being silently swallowed by the soft-skip below);
-    //     then `git diff main` against both files must produce empty output. Soft-skip
-    //     (console.warn, no hard failure) only if `git diff` ITSELF throws (e.g. `git` is
-    //     missing or `main` is unresolvable in some CI checkout) -- that guard covers ONLY the
-    //     execSync call. B-16df F-006: the check(...) assertion on the diff CONTENT must NEVER
-    //     live inside that same try/catch, or a genuine modification (check() throwing) would
-    //     be caught by the environment-only catch and silently downgraded to a console.warn
-    //     SOFT-SKIP instead of failing the smoke -- so it runs unguarded below, gated only on
-    //     whether execSync actually produced output (diffOutput !== null), never on whether
-    //     that output happens to be empty.
+    // 12. REPO_ROOT sanity check. Section 13 below reads this repo's OWN checklist.ts source
+    //     through REPO_ROOT (not process.cwd(), since a caller can invoke this smoke from
+    //     anywhere), so a broken path computation must fail loudly here rather than silently
+    //     reading the wrong file or nothing at all.
+    //
+    //     WHAT WAS REMOVED HERE, AND WHY (BUG-B16DF-BYTEPIN).
+    //     This section also used to assert, as B-16df's F-004 / H-003, that
+    //     packages/main/src/core/validation-executor.ts and packages/main/src/handlers/verifier.ts
+    //     were byte-for-byte unmodified from main. It ran
+    //       git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts
+    //     via execSync inside a try/catch that soft-skipped (console.warn) only if execSync
+    //     itself threw (B-16df F-006 kept the content assertion outside that catch), then
+    //     asserted the diff output was empty. B-16df's own fix was confined to checklist.ts's
+    //     new resolvePinnedCommandTimeoutMs helper and its call sites, and this assertion was
+    //     how that story evidenced it had not edited either shared primitive.
+    //
+    //     A standing registered validate.commands entry cannot express a per-story scope
+    //     claim. On main the diff is trivially empty, so the assertion proves nothing where it
+    //     actually runs; off main it is a blanket prohibition on ever editing two actively
+    //     developed core files, no matter how correct or well reviewed that edit is. It
+    //     therefore deterministically failed for B-3434, whose entire purpose is to change both
+    //     of those files (the one-mebibyte execFileSync ceiling lives in them) -- an
+    //     unconditional red for that story regardless of its correctness, and the same for
+    //     every future story that touches either file.
+    //
+    //     "This story did not modify file X" is a statement about ONE story's diff. It belongs
+    //     to that story's own scope contract (allowedModify / protectedFiles) and to its diff
+    //     review, both of which are evaluated per story against that story's declared
+    //     boundary -- not to a suite command every later story is forced to satisfy.
     check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
-    let diffOutput: string | null = null;
-    try {
-      diffOutput = execSync(
-        'git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts',
-        { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-      );
-    } catch (e) {
-      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — execSync itself failed (e.g. git missing / main unresolvable), not a content evaluation — ${e instanceof Error ? e.message : String(e)}`);
-    }
-    if (diffOutput !== null) {
-      check(
-        'validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff)',
-        diffOutput.trim().length === 0,
-      );
-    }
 
     // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
     //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
