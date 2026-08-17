@@ -45,7 +45,30 @@
       "userSees": "npm run test:legacy completes with the same pass count as before the change, and no test sets LATTICE_SESSION_ID to establish a signing identity.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The migrated suite passes with the same pass count as before the change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Fixtures comparing hardcoded ids such as sess-critic resolve them through deriveAdapterOwnerSessionId, since the derived id depends on projectRoot",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No test is made to pass by deleting its identity assertion; a dropped pass count is treated as a defect rather than a successful migration",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
