@@ -258,4 +258,52 @@ async function observeOverlap(plan, jobs) {
   console.log(`VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
 }
 
+// ── 7. CHK-005: commands the audit could NOT prove isolated stay barriers ───
+//
+// CHK-005 read every undeclared command's source and declared the ones that
+// write only inside a per-process temp root (`mkdtempSync` / `$TMPDIR/<name>-<pid>`)
+// or are provably read-only against the repository. The commands below were
+// examined and REFUSED a declaration: each one writes a repository-shared path,
+// so declaring it would let it run beside another command that reads or writes
+// the same path. This is a SUBSET check, not an equality check — a new
+// undeclared command is already safe by the fail-closed default and must not
+// fail this test — but re-declaring one of these must fail here, because the
+// evidence that made it a barrier is recorded here and nowhere else.
+{
+  const PROVEN_UNSAFE_TO_SHARE = new Map([
+    ['npm --prefix packages/main run build',
+      'rewrites packages/main/dist, the artifact every other node command in this plan executes'],
+    ['node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js',
+      'runs the real dist/cli.js with cwd=repoRoot, so cli-engine writeLog appends to the repository .lattice/activity.jsonl'],
+    ['node packages/main/dist/tasks/command-catalog-smoke.js',
+      'runs the real dist/cli.js with --root <repoRoot>, so cli-engine writeLog appends to the repository .lattice/activity.jsonl'],
+    ['node packages/main/dist/tasks/quorum-submit-smoke.js',
+      'explicitly out of CHK-005 scope; splitting it is its own change'],
+    ['node packages/main/tests/red/red-b49d4-registration-derivation.mjs',
+      'sweepLegacyProbeDebris rmSync-es marker-gated paths under repoRoot and BLOCK D asserts whole-tree git status'],
+    ['node packages/main/tests/red/red-b49d4-chk002-receipt.mjs',
+      'plants probe files at join(repoRoot, RED_PROBE_REL) and join(repoRoot, DIST_PROBE_REL) inside the repository'],
+    ['node packages/main/tests/red/red-1734-lock-liveness.mjs',
+      'creates and removes the real repository build lock directory and build lock target'],
+    ['node packages/main/tests/red/red-1734-content-binding.mjs',
+      'writes/removes repository sources and rmSync-es join(repoRoot, BUILD_MANIFEST)'],
+    ['node packages/main/tests/red/red-1734-reader-race.mjs',
+      'renames the repository packages/main/dist to dist.staging/dist.trash-* and takes the real build lock'],
+    ['node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations',
+      'readOrCreatePrivateKey writes lattice-acceptance-rollout-verifier-v1.key into the git common dir with flag wx'],
+  ]);
+
+  const configured = configuredValidationCommands(repoRoot);
+  const argvOf = (command) => [command.command, ...(command.args ?? [])].join(' ');
+  const unknown = [...PROVEN_UNSAFE_TO_SHARE.keys()].filter((argv) => !configured.some((c) => argvOf(c) === argv));
+  ok(`every audited barrier is still a configured command (missing: ${unknown.join(', ') || 'none'})`, unknown.length === 0);
+
+  const regressed = configured
+    .filter((command) => PROVEN_UNSAFE_TO_SHARE.has(argvOf(command)) && Array.isArray(command.resources) && command.resources.length > 0)
+    .map((command) => `${argvOf(command)} — ${PROVEN_UNSAFE_TO_SHARE.get(argvOf(command))}`);
+  ok(`CHK-005 audited these as repo-shared writers; they must keep the fail-closed barrier: ${regressed.join(' | ') || 'none declared'}`,
+    regressed.length === 0);
+  console.log(`VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD ${PROVEN_UNSAFE_TO_SHARE.size} commands the audit proved write repo-shared paths remain undeclared`);
+}
+
 console.log(`validate-resource-claims: PASS (${assertions} assertions)`);
