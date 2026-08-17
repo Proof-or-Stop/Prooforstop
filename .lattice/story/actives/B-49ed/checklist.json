@@ -196,6 +196,19 @@
           "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22",
           "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
           "timestamp": "2026-08-17T16:53:39.021Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/adapter-session-env.ts",
+          "result": "pass",
+          "note": "Per-smoke before/after comparison substituted for a whole-suite count because the suite could not complete on this machine; no migrated smoke regressed and topology-signing-source-guard is net-new passing.",
+          "mechanical": false,
+          "nonMechanicalReason": "A whole-suite pass count could not be produced on this machine: two npm run test:legacy runs were attempted and neither completed. The first was invalid because packages/utils/dist was never built in this worktree, so every smoke that spawns the CLI wrapper failed for an environment reason (25 FAIL). The second, after building utils, hung at 0.0 percent CPU with no log write for over four minutes and had to be killed at 243 PASS / 72 FAIL, with the failures dominated by 60s TIMEOUTs caused by load rather than by defects. Instead the affected smokes were run individually before and after on an idle machine: proofstory-pre-review-check, story-owner-lease, review-pass-provenance, command-ownership-contract and review-incremental-context all exit 0 in both states, and proofstory-topology-critic exits 1 in both states from a pre-existing basis-discovery defect that reproduces with these changes stashed.",
+          "headHash": "de518f5fca90340a20e73c55367ec1bb25807f3e",
+          "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22",
+          "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
+          "timestamp": "2026-08-17T16:53:49.916Z"
         }
       ]
     },
