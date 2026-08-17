@@ -1480,7 +1480,7 @@
       "desc": "test",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T03:28:08.283Z",
@@ -1488,6 +1488,31 @@
       "reviewRunId": "B-cdf6:RR-099",
       "_hash": "bb1f3191952cb263b64d8c333f3bcda5c37cd28959b0ab9285f108b0eaf171d4",
       "signatureTag": "missing|unknown|test",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental probe finding created while diagnosing reviewRunId qualification format (needed B-cdf6:RR-099 prefix); superseded by the real concept-review finding recorded next.",
+      "dismissedAt": "2026-08-17T03:28:29.304Z",
+      "dismissReasonType": "false_positive"
+    },
+    {
+      "id": "B-cdf6:F-070",
+      "desc": "concept-cleanup: validate --concept symbol-residue heuristic produces overwhelming false positives, not a B-cdf6 defect. Verified all 14 flagged symbols by hand: (1) detectLatticeBrand/formatLatticeProductLine/formatLatticeVersionLine/isAnyLatticeStoryMetadataPath/isLatticeLifecycleArtifactPath/renderLatticeBootstrapScript/renderLatticeCodexAdapterManifest/renderLatticeCodexWrapperScript are correctly @deprecated pure re-export aliases (lattice-brand.ts, lifecycle-registry.ts, init-assets.ts), actively exercised by packages/main/src/tasks/lattice-only-absence-smoke.ts and scripts/verify-codex-assets.mjs -- zero real risk. (2) resolveLatticeCommandPath/runLatticeRaw/writeLatticeConfig show 0 residuals in the gate JSON itself -- fully clean renames, no alias needed. (3) runLattice/runLatticeExpectFail exact-name call sites were correctly renamed everywhere touched (verified with word-boundary grep); every remaining hit is either an untouched, out-of-scope scripts/*.mjs helper (verify-done-merge-preflight.mjs, verify-dev-memory.mjs, verify-worktree-baseline-risk.mjs -- git diff --stat shows 0 diff lines for these files) or a substring match on an unrelated, never-deleted function name (runLatticeFromCwd, runLatticeResidueGate, runLatticeAuthorityControlPlaneOnce). (4) main accounts for 15326/15435 (99.3%) of all residuals gate-wide; sampled entries are the literal word main matched inside .githooks/pre-push (git branch name / packages/main path / Chinese prose), not any deleted main() function. The one genuine main() deletion was in bin/lattice-codex.js, a script-local entrypoint whose body correctly moved to bin/proof-or-stop-codex.js with zero external importers. Recommendation (non-blocking): harden the gate extractor to require exact-identifier boundary matching (not substring) and to exclude generic/ubiquitous names like main, so future stories are not forced into large manual triage of this scale.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T03:28:43.958Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-099",
+      "_hash": "8b969748e2fbf2953cf9b2f2f84d779f47de6e11b66e36178003f530bd64e208",
+      "files": [
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/init-assets.ts",
+        "bin/lattice-codex.js",
+        "bin/proof-or-stop-codex.js"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-validate",
       "signatureTagSource": "auto"
     }
   ]
