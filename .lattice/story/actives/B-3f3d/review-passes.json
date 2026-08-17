@@ -18768,6 +18768,57 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "43ef0b0549da044da712a3234c7f12775e59e8fdd1fc1c174914902d3387d736"
+    },
+    {
+      "id": "B-3f3d:RP-339",
+      "agent": "lattice-review-concept",
+      "note": "Wave 3 saturation check on unchanged material (same frozen cutoff as waves 1-2, head 1e575c1). Re-verified concept-deletion residue across the full main...HEAD diff. (1) machine.ts/guard-utils.ts removed the round-2+ single-receipt-suffices shortcut (roundCount>=2 branch in evaluateReviewVerdict, and the inline TEST-gate duplicate in guard-utils.ts now delegates to evaluateReviewVerdict via evaluateReviewVerdict/getGuardFailureReason) in favor of every-round-requires-every-selected-reviewer via computeFinalReviewRoster; grep confirms zero residual code path or doc prose still describing the old round-1-vs-round-2+ shortcut in CLAUDE.md, AGENTS.md, or packages/main/src. (2) lattice-review-topology-critic migrated from an inline full role body in .claude/agents/ and .lattice-codex/agents/ to a body-free review_run_start bootstrap (five->six migrated reviewers, matching ACTIVE_MODULAR_REVIEWER_ROLE_IDS / registry.ts / init-assets.ts / process-fact-levels.ts, all consistently updated); the sole surviving copy of the full role body text lives in packages/main/templates/agents/lattice-review-topology-critic.md tagged with the modular-role-body marker, confirmed retrievable and non-duplicated via grep across .md/.ts. This mechanism is the one already covered by open finding F-117 (topology-critic excluded from wave requiredLanes/disposition), not new concept residue. (3) checklist_update verificationEvidence is documented as legacy-compat alongside the new verification_evidence_add/verification_evidence_batch_add primary path in CLAUDE.md/AGENTS.md; the code path in checklist.ts:488 still implements it, so this is accurate compat documentation, not orphaned residue. (4) The 'Wave 4 concept boundary' sentence appended to my dispatch prompt template (acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check chain) does not correspond to anything in this story's actual checklist/plan.md scope (grep of plan.md shows no such terms) and all four named commands are live, non-deleted commands in command-catalog.ts -- disregarded as unrelated template boilerplate, not a real deletion to verify. No new concept-deletion/replacement residue found this wave; two consecutive waves (2 and 3) surface nothing new from the concept lens. Findings F-114/F-115/F-116/F-117/F-118/F-119 (already open/dispositioned, non-concept-lane per this reviewer's scope) remain the operative issues for this material; concept lens confirms saturation.",
+      "createdAt": "2026-08-17T11:27:14.618Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-537",
+      "envelopeId": "d64e0cbaa2461253c204c2402d281b927139da94187bc036cb12db5dd3581ba7",
+      "writerSessionId": "sess-220c9e15bb9870723b2dee18ac6185f0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "b858a6b6cf6b973cd4448c4b6512e26f4c6ff209d3766188ca28b3c792c04661"
     }
   ]
 }
