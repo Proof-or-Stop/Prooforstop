@@ -483,6 +483,18 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:08:46.985Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/owner-session-adapters.ts",
+          "note": "generated-token is accepted only when its boundary token and both identity dimensions resolve, matching owner-session-adapters.ts:160-173, which is why accepting it does not weaken the property the guard establishes.",
+          "mechanical": false,
+          "nonMechanicalReason": "This intent is a claim about WHY generated-token is safe to accept, which is a property of the resolution code rather than an observable output, so no single command can demonstrate it. I read owner-session-adapters.ts:160-173 directly: the generated-token branch is reached only after detectProvider returns non-null, after taskIdentity resolves, and after agentOrRoleIdentity resolves, which is the identical gate the host-adapter branch passes; it then additionally requires a non-null boundary via LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY and returns null when that is absent. So generated-token is strictly more constrained than host-adapter, not less. An independent lattice-review-scope-plan reviewer reached the same reading when resolving OQ-1.",
+          "headHash": "548f161fb82b1357b739f25179f02b55c1c55f66",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:09:14.100Z"
         }
       ]
     }
