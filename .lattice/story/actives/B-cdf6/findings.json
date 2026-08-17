@@ -1287,6 +1287,24 @@
       ],
       "signatureTag": "missing|ts|functional-cosmetic-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-061",
+      "desc": "functional (not cosmetic): core/lattice-dispatch.ts:1685-1686 buildCanonicalHostRuntimeEnv checks allowedEnvNames.has(\\\"LATTICE_SESSION_ID\\\") / deniedEnvNames.has(\\\"LATTICE_SESSION_ID\\\") -- a literal string-membership test against the user-configurable dispatch_policy_create envAllowlist/envDenylist (command-catalog.ts:1751-1752, real CLI args). Verified empirically against packages/main/dist/core/lattice-dispatch.js buildCanonicalHostRuntimeEnv: policy {envAllowlist:[\\\"PROOF_OR_STOP_SESSION_ID\\\"]} with PROOF_OR_STOP_SESSION_ID set in process.env produces env.PROOF_OR_STOP_SESSION_ID=undefined and env.LATTICE_SESSION_ID=undefined (override silently does NOT apply -- setBrandEnv correctly dual-writes when reached, but the gating check itself never reaches the write branch), while the identical policy spelled envAllowlist:[\\\"LATTICE_SESSION_ID\\\"] correctly sets both. A caller who configures their dispatch policy using the canonical, documented env name gets their explicit session-ID override silently dropped with no error. Fix: use core/brand-env.ts isBrandEnvName/brandEnvNames to test membership against both spellings, not a literal LATTICE_SESSION_ID string.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T02:29:43.078Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-095",
+      "_hash": "0bfd6393912b260ffc30dfa75f41e427c270d3f4d97545cc6b7c22067e989418",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|functional-cosmetic-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
