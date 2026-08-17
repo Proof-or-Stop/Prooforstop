@@ -9,9 +9,9 @@
         "CLAUDE.md"
       ],
       "userSees": "docs/requirements/decisions/proof-or-stop-identity-migration.md exists and `grep -c \"storyFilesHash\"` prints a count >= 1, with a line reading \"PATHS ARE HASHED\" citing story-files-hash-material-drift.md:30-31",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-17T10:28:53.309Z",
-      "endTime": null,
+      "endTime": "2026-08-17T10:34:43.478Z",
       "files": {
         "modify": [],
         "create": [
@@ -68,7 +68,14 @@
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-17T10:33:57.542Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d3aa48fc5b17aa19727d2ecd0323b5597da6ff29c4b3c35eb13c00eb18175d62",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headHash": "2fb6b4272a291a32d0ebe653b30d7c47999704cc",
+        "attestedAt": "2026-08-17T10:34:43.721Z",
+        "materialHash": "659701c173f479a8eafebaf4441ae7bb8f730f74e48f34ff309daaed661d94c2"
+      }
     },
     {
       "id": "CHK-002",
