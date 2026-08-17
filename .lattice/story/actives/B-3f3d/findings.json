@@ -7552,7 +7552,7 @@
       "desc": "packages/main/src/handlers/review-inventory.ts:112 captureReviewInventoryScope does (validCandidate.candidates ?? []).map(...) which only guards null/undefined; verifyCandidateSpecSet (packages/main/src/core/candidate-spec-routing.ts:764-800) never validates artifact.candidates is an array (only candidateSpecSet, queryFiltering, queryTruncation, protectedRouting are checked), and store.ts:359-366 readCandidateSpecSet is a bare generic-cast readJson<CandidateSpecSetArtifact> with zero runtime shape validation. A malformed candidate-spec-set.json with a truthy non-array candidates field passes verifyCandidateSpecSet (the digest recompute over the same malformed value still matches) and validCandidate.candidates.map throws an uncaught TypeError. persistInvalidationIfDrifted (review-inventory.ts:132) has no try/catch across its call sites: assertReviewInventoryContextFreshLocked:188, refreshReviewInventoryContextLocked:196-198, assertOpenInventoryFresh:359, review_inventory_begin:384, review_inventory_status:438, review_inventory_critic_set:459, review_inventory_finalize:527, review_inventory_wave_advance:601 -- so the crash propagates uncaught through every OPEN-epoch review-inventory CLI command. Verified by direct code reading; not fixed in this story. Story owner states this is acknowledged and carried forward to story B-8af0 checklist item 2 rather than remediated here, which is an acceptable out-of-scope deferral for this story's CHK-001..006 scope but must remain tracked, not silently dropped.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T03:50:43.079Z",
@@ -7649,7 +7649,9 @@
       "readDiagnostics": [],
       "_hash": "1a03bb643cba8adba3a03b99bb0b4b9ea5fa2dd3aa2e8eee4c63b1e270b68f75",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed real and split out to story B-8af0 checklist item 2, deliberately NOT fixed in this story. The lane verified the whole chain by direct code reading rather than accepting my summary: handlers/review-inventory.ts:112 guards only null/undefined via (validCandidate.candidates ?? []).map(...); core/candidate-spec-routing.ts:764-800 verifyCandidateSpecSet validates candidateSpecSet, queryFiltering, queryTruncation and protectedRouting but never checks that artifact.candidates is an array; core/store.ts:359-366 readCandidateSpecSet is a bare generic cast with no runtime shape validation; and persistInvalidationIfDrifted has no try/catch across eight call sites (188, 196-198, 359, 384, 438, 459, 527, 601), so a malformed candidates field would crash uncaught through every OPEN-epoch review-inventory CLI command. It also corrected me on a factual point I had asserted: I believed this finding had already been registered by an earlier blocked run of this lane, and told the lane so. It checked and found no matching finding existed, then filed it. My belief was wrong, and had the lane trusted my framing instead of verifying, the gap would have been left with no durable record at all. Not fixed here because the fix belongs with the rest of the candidate-routing hardening in B-8af0, where the remaining freshness leak (BUG-F107-INCOMPLETE) and the end-to-end fixture also live; fixing it mid-epoch would also have invalidated this epoch for the sixth time. Also recording the lane operational note for future dispatches: under an OPEN epoch, finding_add and review_pass_set require readManifest AND mechanical readEvents/readLog, not readManifest alone (handlers/finding.ts:601-603), and both calls took roughly 210-220 seconds under genuine cross-lane lock contention that self-cleared on retry.",
+      "resolvedAt": "2026-08-17T03:56:50.084Z"
     }
   ]
 }
