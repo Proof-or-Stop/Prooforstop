@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-dc83",
+  "mode": "maintenance",
+  "allowed": [
+    "A detection mechanism that makes unwired scripts/verify-*.mjs visible, itself wired into a gate",
+    "scripts/verify-done-merge-preflight.mjs: per-assertion coverage comparison against the four modern done-merge smokes, then retire covered assertions or rewrite uncovered ones against current strings",
+    "scripts/verify-worktree-baseline-risk.mjs: rewrite the inline synthetic story background in English so the script reaches its baseline-risk assertions",
+    "Wiring changes needed to run the repaired/new checks (lattice.config.json validate.commands or package.json scripts)"
+  ],
+  "excluded": [
+    "Changing core/baseline-risk.ts, core/main-write-lock.ts or any production behaviour under test",
+    "Cleaning up the 8 untracked loose files in the repo root (unrelated pre-existing artifacts)",
+    "Detection coverage for packages/main/src/tasks/*-smoke.ts (user explicitly scoped this OUT, even though done-merge-scope-smoke.ts is itself unwired; different directory and naming convention)",
+    "Re-litigating the merge commit 1f1738da9a conflict resolutions",
+    "Retroactively fixing the pre-existing backlog of other unwired verify scripts (detection must fail on NEWLY-added unwired scripts, not the existing backlog)",
+    "Wiring all 60 scripts/verify-*.mjs into validate.commands (would slow the suite for little gain)"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User confirmed both boundary decisions via an explicit choice prompt on 2026-08-17: (1) CHK-003 detection scope covers ONLY scripts/verify-*.mjs, NOT packages/main/src/tasks/*-smoke.ts; (2) CHK-002 disposition is evidence-based retire-or-rewrite -- assertions provably covered by modern smokes may be retired, anything genuinely uncovered must be rewritten against real current strings.",
+  "createdAt": "2026-08-17T09:37:58.505Z",
+  "updatedAt": "2026-08-17T09:37:58.505Z",
+  "_hash": "00cdfe808248075803fba8986197a7f43684ca855f733522c3f6d3e791cf5893"
+}

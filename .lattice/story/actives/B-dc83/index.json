@@ -4,7 +4,7 @@
   "title": "Repair or retire the two rotted orphan verify scripts and stop unwired scripts from rotting silently",
   "description": "Two scripts under scripts/ fail when run and are referenced by no gate at all: verify-worktree-baseline-risk.mjs and verify-done-merge-preflight.mjs. They were found while resolving the merge of remote main into the B-cdf6 brand rename (merge commit 1f1738da9a). They are byte-identical on both merge parents, so the merge did not break them -- they were already red on both sides, and nothing detected it because neither script is listed in lattice.config.json validate.commands, package.json, or any preflight.\n\nThe two need DIFFERENT dispositions, established by investigation rather than assumed:\n\n(A) verify-worktree-baseline-risk.mjs tests a LIVE mechanism (core/baseline-risk.ts, wired into handlers/transition-orchestrator.ts via collectBaselineRisk/renderBaselineRiskLines). Only its inline synthetic story background is stale: it is authored with Chinese section headers, which the english_artifact_cjk_authoring gate in story_create now rejects, so the script aborts before exercising any baseline-risk assertion. This is a fixture repair.\n\n(B) verify-done-merge-preflight.mjs asserts on a RETIRED mechanism. Four of its eight assertions target .git/koala/done-auto-git.lock plus a Chinese parallel-DONE warning; done-auto-git and autoGitLock have zero references anywhere in packages/main/src. That lock was superseded by the main write lock at .lattice/locks/main-write.lock (core/main-write-lock.ts). Its other assertions expect the old over-broad DONE dirty-tree check, whose replacement scope-aware behaviour is already covered in-suite by packages/main/src/tasks/done-merge-scope-smoke.ts. So this script is a candidate for retirement rather than repair, and PLAN must decide on evidence whether any assertion it makes is NOT already covered by the four modern done-merge smokes.\n\nThe root cause is shared by both and is the real point of this story: 60 scripts/verify-*.mjs exist, only some are wired to a gate, and an unwired one can rot indefinitely without any signal. Repairing these two without addressing the wiring guarantees a recurrence.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "verify-scripts",
@@ -26,6 +26,20 @@
       "user": "Pan Qi",
       "sessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-17T09:38:36.712Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-dc83",
+    "branch": "story/B-dc83",
+    "createdAt": "2026-08-17T09:38:32.051Z"
+  }
 }
