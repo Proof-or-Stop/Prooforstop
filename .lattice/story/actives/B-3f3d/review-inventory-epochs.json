@@ -4392,9 +4392,9 @@
       "epochId": "B-3f3d:RI-046",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-17T03:21:35.102Z",
-      "updatedAt": "2026-08-17T03:21:35.102Z",
+      "updatedAt": "2026-08-17T03:21:57.999Z",
       "cutoff": {
         "headHash": "d44e2f4fca6b9b93cdf3b9aacee871664c1bdd69",
         "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1",
@@ -4414,7 +4414,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "0f5be1dad33454586f4ead9140fc364c6147a36734fc7310dc0bc8444264509d"
+      "cancelledAt": "2026-08-17T03:21:57.999Z",
+      "cancelReason": "RI-045 was invalidated by my own mid-epoch scope-contract correction; reopening with nothing pending to write",
+      "terminalRunSequenceBoundary": 445,
+      "_hash": "9b4e0e69ed2206ac78de0ed84987dd365a4dd947ac2c90d023ac12576fadd9e5"
     }
   ],
   "receipts": [
