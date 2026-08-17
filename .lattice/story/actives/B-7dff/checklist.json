@@ -390,9 +390,9 @@
         "CLAUDE.md#verification-intent-evidence"
       ],
       "userSees": "A smoke runs the plan both ways and prints \"serial=<N>s parallel=<N>s speedup=<N>x\" while asserting identical per-command outcomes; it fails if any command result differs.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T15:04:42.663Z",
       "verificationIntent": {
         "happy": [
           {
@@ -501,7 +501,14 @@
           "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
           "timestamp": "2026-08-17T15:04:38.007Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "279f27cd1db400b2b142930bda4691446200ddc564b54794e0346cef91953a1f",
+        "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
+        "headHash": "2ecab4bd64272da7235bff04ce2fa76ea7a02494",
+        "attestedAt": "2026-08-17T15:04:42.814Z",
+        "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411"
+      }
     },
     {
       "id": "CHK-005",
