@@ -18152,6 +18152,49 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "2eeaf4548bf3731e32102bb4f7c90c4f86d5d67da82a057c1e3d99f7e42ceb9c"
+    },
+    {
+      "id": "B-3f3d:RP-322",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent completeness-critic pass over RI-047's post-boundary raw finding set (F-111, F-112, RR sequence > 445). Verified F-111 by direct source read (no Array.isArray guard, 8 unguarded call sites) and confirmed it is genuinely unfixed and deliberately deferred to B-8af0 CHK-002, not hidden. Verified F-112 is a true duplicate of F-111 caused by epoch churn (RR started under superseded RI-045, completed after RI-047 already caught the same defect). No new raw findings from this critic pass; the pre-boundary chain (F-088..F-110) was independently spot-checked for honesty of resolution but is out of this wave's raw finding scope per initialRunSequenceBoundary=445.",
+      "createdAt": "2026-08-17T04:09:14.967Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-454",
+      "envelopeId": "d5d89b54a01ccc74de0d53eafee6b4474724c7e6288082ce87758ea0126fb2d4",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/bug.json",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7299c03180c40591c1a1018585a98f3c19de57cdaa1db70dc10d1532ae6eeaf7"
     }
   ]
 }
