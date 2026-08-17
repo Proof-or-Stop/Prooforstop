@@ -90,8 +90,12 @@ function caseRenameFollowThrough(): void {
     // Flip ONLY the canonical constant. The deprecated one stays `.lattice`, so
     // this scratch build represents the post-rename world: canonical moved,
     // deprecated still readable.
+    // B-cc10 CHK-006 fix: match WHATEVER the current canonical value is, rather than
+    // the literal '.lattice'. CHK-003 legitimately renamed the canonical constant to
+    // '.proof-or-stop', which made this guard fail closed on a correct change — the
+    // guard was pinned to one spelling, the same defect class it exists to catch.
     const flipped = original.replace(
-      /(PROOF_OR_STOP_STATE_DIR\s*=\s*)(['"])\.lattice\2/,
+      /(PROOF_OR_STOP_STATE_DIR\s*=\s*)(['"])[^'"]+\2/,
       `$1$2${SENTINEL_STATE_DIR}$2`,
     );
     assert.notEqual(
