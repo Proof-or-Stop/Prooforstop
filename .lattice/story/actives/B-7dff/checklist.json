@@ -409,7 +409,11 @@
           {
             "desc": "The regression fails when any command produces a different pass/fail outcome between the serial and parallel runs",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:validate-parallel-equivalence",
+              "selector": "B7DFF-CHK004-OUTCOME-DIFF-BITES"
+            }
           }
         ],
         "adversarial": [
@@ -452,6 +456,26 @@
           "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411",
           "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
           "timestamp": "2026-08-17T15:03:57.903Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "command": "npm run test:validate-parallel-equivalence",
+          "result": "pass",
+          "note": "The smoke compares the two runs per command on both verdict (code 0 and not timed out) and exit code, and throws when they differ; the fixture plan contains one deliberately failing probe, so the compared set is mixed and the equality cannot be a trivial pass-versus-pass. The pinned marker is the NEGATIVE CONTROL for that comparator: the same verdictDifferences function is re-run against a copy of the REAL parallel results with one command exit code flipped, and the smoke fails unless it reports exactly that command (declared A: pass (serial) vs fail (parallel)). A comparator that could no longer see a difference therefore fails here instead of passing vacuously.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "30a92e1b0c1e940ed3954b051b39ad8d067bf34649e2e26bec936ae2a27aa324",
+            "outputTail": "\n> lattice@0.3.261 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.74s parallel=2.38s speedup=1.99x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:04:20.383Z"
+          },
+          "headHash": "cdc85d0d9acca29e180a6dec6e25cc2555a62502",
+          "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411",
+          "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
+          "timestamp": "2026-08-17T15:04:20.501Z"
         }
       ]
     },
