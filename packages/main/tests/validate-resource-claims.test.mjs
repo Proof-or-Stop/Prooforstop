@@ -293,17 +293,35 @@ async function observeOverlap(plan, jobs) {
       'readOrCreatePrivateKey writes lattice-acceptance-rollout-verifier-v1.key into the git common dir with flag wx'],
   ]);
 
-  const configured = configuredValidationCommands(repoRoot);
   const argvOf = (command) => [command.command, ...(command.args ?? [])].join(' ');
+  /** Every audited repo-shared writer in `commands` that has been given a claim. */
+  const auditedBarrierRegressions = (commands) => commands
+    .filter((command) => PROVEN_UNSAFE_TO_SHARE.has(argvOf(command)) && Array.isArray(command.resources) && command.resources.length > 0)
+    .map((command) => `${argvOf(command)} — ${PROVEN_UNSAFE_TO_SHARE.get(argvOf(command))}`);
+
+  const configured = configuredValidationCommands(repoRoot);
   const unknown = [...PROVEN_UNSAFE_TO_SHARE.keys()].filter((argv) => !configured.some((c) => argvOf(c) === argv));
   ok(`every audited barrier is still a configured command (missing: ${unknown.join(', ') || 'none'})`, unknown.length === 0);
 
-  const regressed = configured
-    .filter((command) => PROVEN_UNSAFE_TO_SHARE.has(argvOf(command)) && Array.isArray(command.resources) && command.resources.length > 0)
-    .map((command) => `${argvOf(command)} — ${PROVEN_UNSAFE_TO_SHARE.get(argvOf(command))}`);
+  const regressed = auditedBarrierRegressions(configured);
   ok(`CHK-005 audited these as repo-shared writers; they must keep the fail-closed barrier: ${regressed.join(' | ') || 'none declared'}`,
     regressed.length === 0);
   console.log(`VI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD ${PROVEN_UNSAFE_TO_SHARE.size} commands the audit proved write repo-shared paths remain undeclared`);
+
+  // NEGATIVE CONTROL. The assertion above is only worth something if it would
+  // actually fire; a guard that cannot fail is decoration. Feed it a plan where
+  // one audited repo-shared writer HAS been given the shared claim and prove it
+  // is reported, with the reason the audit refused it. Synthetic input on
+  // purpose: mutating the real config to prove this would be the very repo-shared
+  // write the audit is about.
+  const injected = 'node packages/main/tests/red/red-1734-reader-race.mjs';
+  const forgedPlan = configured.map((command) => (argvOf(command) === injected ? { ...command, resources: [REPO_READ] } : command));
+  const caught = auditedBarrierRegressions(forgedPlan);
+  ok(`a declared audited barrier is CAUGHT, not silently accepted (caught: ${caught.join(' | ') || 'nothing'})`,
+    caught.length === 1 && caught[0].startsWith(injected));
+  ok('the probe reports WHY the audit refused it, so a later author cannot re-declare it by accident',
+    caught[0].includes(PROVEN_UNSAFE_TO_SHARE.get(injected)));
+  console.log('VI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted');
 }
 
 console.log(`validate-resource-claims: PASS (${assertions} assertions)`);
