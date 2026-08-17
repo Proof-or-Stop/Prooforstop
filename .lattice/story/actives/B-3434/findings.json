@@ -1198,7 +1198,7 @@
       "desc": "B-3434:F-043's own resolvedReason (this story's finding ledger, recorded when 17dc863c05 landed) states that core/done-prepare-generated-metadata.ts 'holds the 11 execFileSync sites'. Actual count by grep -n \"execFileSync(\" packages/main/src/core/done-prepare-generated-metadata.ts is 10 call sites (lines 370, 387, 444, 453, 591, 718, 738, 832, 846, 863). The figure 11 matches a naive grep -c execFileSync (no open-paren) over the whole file, which also counts the doc-comment at line 15 ('Node applies a 1,048,576-byte maxBuffer default to execFileSync') -- a mention, not a call. This is a miscount in the permanent audit record written specifically to close a finding about an inexact claim; it does not affect the shipped code comment (which cites no count) or the code itself.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T13:43:02.594Z",
@@ -1209,7 +1209,11 @@
         "packages/main/src/core/done-prepare-generated-metadata.ts"
       ],
       "signatureTag": "doc-code-drift|ts|3434-resolvedreason-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected here, since the erroneous text is in an append-only resolution record and cannot be edited in place. THE CORRECT NUMBER IS 10, NOT 11. My resolution text for B-3434:F-043 stated that done-prepare-generated-metadata.ts 'holds the 11 execFileSync sites'. The concept lane counted the actual call sites - lines 370, 387, 444, 453, 591, 718, 738, 832, 846 and 863, which is ten - and identified the eleventh grep hit as the doc comment at line 15 that mentions execFileSync in prose rather than calling it. So I took a grep hit count for a call-site count. Nothing else in that resolution changes: execFileSync still appears zero times in validation-executor.ts, METADATA_BLOB_READ_MAX_BUFFER_BYTES is still declared at done-prepare-generated-metadata.ts:34, and the ten call sites all pass it as maxBuffer, which is the story's actual deliverable. Worth stating plainly because of where it landed: this is an imprecise count inside the audit record of a finding that was itself about an imprecise claim, found by the lane that has now caught this class five times. It is also the reason F-047 was fixed by deleting an enumeration instead of correcting one.",
+      "resolvedAt": "2026-08-17T13:48:35.452Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
