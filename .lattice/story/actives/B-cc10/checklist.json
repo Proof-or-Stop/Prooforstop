@@ -50,10 +50,42 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "a repo with .lattice present still works end to end, and grep for bare '.lattice' literals in packages/*/src returns only the resolver definition",
+      "userSees": "`node bin/proof-or-stop.js session_brief` prints \"Checklist-derived ledger\" with .lattice still on disk, and `grep -rn \"'.lattice'\" packages/*/src` returns only the resolver file",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-paths.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node bin/proof-or-stop.js session_brief prints the story ledger while .lattice is still the on-disk name",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project with NEITHER state dir present fails with a clear message naming the canonical path, not a stack trace",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -rn \"'\\.lattice'\" packages/*/src --include=*.ts | grep -v dist returns ONLY the resolver definition line",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
