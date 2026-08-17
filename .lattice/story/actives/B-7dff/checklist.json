@@ -22,7 +22,30 @@
       "userSees": "A validate command with no declared resource claim is scheduled exclusively and reported as such in the validate output, instead of being run concurrently by default.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two validate commands with disjoint declared claims are admitted concurrently",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A validate command with no declared resource claim is scheduled exclusively and never overlaps any other command",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A claim naming an unrecognised resource class is refused at declaration time instead of being silently dropped into a shared key",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",

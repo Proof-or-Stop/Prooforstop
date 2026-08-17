@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7dff",
+  "state": "confirmed",
+  "ledgerHash": "sha256:caaed25d4ebf0af504256458d78bf8f467f43d30a431ec9a4a71dfeb8317fe21",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "One keyed scheduler exists in core and both callers use it.",
+      "doneMeans": "full-suite-runner imports the scheduler from core, npm test still passes all 47 members, and scheduler state is per-run rather than module-level.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Every configured validate command has a resource claim, and an undeclared command is scheduled exclusively.",
+      "doneMeans": "A command with no declared claim runs alone and is reported as exclusive; declared disjoint commands are allowed to overlap.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "executeValidationPlan schedules instead of looping, with unchanged evidence shape.",
+      "doneMeans": "commands[] keeps plan order and per-entry fields, details[] stays ordered, every command runs even when one fails, and identity/progress/deadline behaviour is unchanged.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "The speedup is measured rather than asserted.",
+      "doneMeans": "A regression runs the plan both ways in one run, asserts identical per-command outcomes, and prints serial, parallel and speedup numbers.",
+      "requiredEvidence": [
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-17T11:36:10.974Z",
+  "updatedAt": "2026-08-17T11:36:11.558Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260817113611",
+    "acceptedInterpretationHash": "sha256:515c6be0ba72f14ec7c2ef8d68f8242e4af30e0407a3bee4faebc43616621b62",
+    "acceptedAt": "2026-08-17T11:36:11.558Z"
+  }
+}
