@@ -233,6 +233,40 @@
         "scanEscalationReason": null
       },
       "_hash": "13c0c4c24c999aa72a53b2bb9151a3c3c8c071e0449d3466bc026b5de508d809"
+    },
+    {
+      "id": "B-7dff:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 test-coverage pass. (1) F-009 correction verified first-hand against current tree, not taken on trust: full-suite-runner-smoke.ts:37 is exactly const pass = (name) => ({name, status: PASS, durationMs: 1, output: }), and the schedulerIsolation block at 210-226 drives runScheduled purely with in-process async closures plus setTimeout(done,40) -- no spawn/execFileSync anywhere in that block. The CHK-001:edge:0 kind=logic_test correction is factually accurate. (2) Audited kind vs mechanics for all 15 verificationEvidence rows across CHK-001..CHK-005: CHK-002 and CHK-005 edge/adversarial rows (validate-resource-claims.test.mjs) are logic_test and the file greps clean for spawn/execFileSync/child_process -- no process ever spawned, label accurate. CHK-003:happy:0 and CHK-004:happy:0 are integration_test and both source files confirmed to dynamic-import the BUILT dist module (packages/main/dist/core/validation-executor.js) and spawn real node children via process.execPath -- label accurate, not overstated. CHK-003/CHK-004 edge+adversarial rows share the identical command/receipt with their happy sibling but are labeled logic_test -- a conservative, not an overstating, choice; no finding. No row overstates what its pinned command mechanically does. (3) Staleness: verification_evidence_refresh_stale --dryRun reports 13/15 mechanical rows headHash-stale against current HEAD, but targeted git diff from EACH row own pinned headHash (b149b2f4d2 for 11 rows, c6488fa3f5 for the F-009 correction) to current HEAD shows the ONLY file that changed in that window anywhere in the repo is packages/main/tests/validate-pollution-attribution.test.mjs (F-010, resolved 5b9431b04a) -- a file none of these 13 rows cite or depend on (their subjects are keyed-scheduler.ts, full-suite-runner.ts, full-suite-runner-smoke.ts, validation-executor.ts, validation-types.ts, lattice.config.json and their own dedicated test files, all untouched in that window). Drift is headHash/whole-tree only, not material to any of these 13 claims. (4) CHK-005:happy:0 waiver (F-008 correction, headHash b9322b15ec): diff from its pin to HEAD again shows only the unrelated validate-pollution-attribution.test.mjs changed, not lattice.config.json -- the 107 commands / 97 declared / 10 exclusive counts and the audited-barrier list it states remain exact. Reads honestly. (5) CHK-001:happy:0 deferred waiver (headHash 9cf3b5b213, the oldest live pin in the story, predating BOTH F-006 and F-010): diff to HEAD shows handlers/verifier.ts (F-006) and validate-pollution-attribution.test.mjs (F-010) both changed since this waiver was written, and it was excluded from F-007 mass refresh (refresh_stale --dryRun does not list either waiver row). test:closeout-trust, one of the 47 full-suite members, imports handlers/verifier.ts, so the 47/47 claim was not mechanically reconfirmed after a same-story change to code a member depends on. Read the actual F-006 diff: the fix is purely additive (spread base first, then apply the whitelisted externalResult on top -- every previously-whitelisted key computed identically, only a previously-dropped field now survives), and RP-008 (quality, round 4) independently reviewed the same hunk and found it additive-only with no new risk. Rather than rely on that inference, rebuilt clean (npm --prefix packages/main run build) and ran npm test twice on the current tree at HEAD: first attempt was interrupted by an unrelated TIMEOUT in test:review-incremental-context-smoke (confirmed via git diff main...HEAD that this story touches zero files under that name), cascading INTERRUPTED per cancel-on-first-failure; second attempt completed cleanly: full-suite: 47/47 passed in 357.5s; retries=0; jobs=4, exit 1 solely from the pre-existing 300000ms whole-suite performance budget (full-suite performance budget exceeded: 357519.9ms greater than or equal to 300000ms) -- exactly the same pre-existing, not-a-member-failure condition the waiver text already discloses, now directly reconfirmed on the current tree rather than left as an unverified two-hour-old claim. No blocker found; the deferred waiver still reads honestly and its substance now has a fresher, direct confirmation than the one it originally cited.",
+      "createdAt": "2026-08-17T21:59:12.897Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-017",
+      "envelopeId": "18f1097b6ddd0ccea3efd929ec65f399117d237c139393c31f5e64288ca325d3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          ".lattice/story/actives/B-7dff/review-passes.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/process-events.jsonl",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2bd7707f384914f2f041c4e02c7b645560e4415b4204e24dcfd6b35b4703618"
     }
   ]
 }
