@@ -61,15 +61,9 @@ packages/koala-observer-cli/
 **/breaker-state.json
 **/takeover-count.json
 **/gate-failure-counts.json
-.lattice/locks/
-# transient mkdir-lock directories (B-d877 R2: now carry a holder.json token, so
-# an accidental commit while one is briefly held would track/churn runtime state;
-# these <name>.lock/ dirs — checklist/finding/review-run/init-check — are managed
-# runtime locks, never story metadata).
-**/*.lock/
+.lattice/runtime/owner-session-tokens/
 .lattice/usage/
-.Lattice/authority.md
-.Lattice/artifacts/baseline/
+.lattice/learning/
 .lattice/artifacts/baseline/
 .lattice/benchmarks/memory-playbook/
 # /lattice runtime artifacts (managed)

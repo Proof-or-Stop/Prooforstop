@@ -112,7 +112,8 @@
     "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",
     "test:source-structure-convergence": "node dist/tasks/source-structure-convergence-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js",
-    "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js"
+    "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
+    "test:core-package-rename": "node scripts/verify-core-package-rename.mjs"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",
