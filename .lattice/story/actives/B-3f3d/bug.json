@@ -113,6 +113,13 @@
       "status": "open",
       "foundAt": "2026-08-17T09:20:02.224Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-CHECKLIST-DONE-IGNORES-USERSEES",
+      "title": "checklist_get reports 6/6 done for B-3f3d while findings F-118 and F-119 prove CHK-005 and CHK-004 never delivered their declared userSees output. CHK-005 promises five labeled literal lines but review-inventory-epoch-smoke.ts:782 prints JSON and throws an uncaught AssertionError instead of printing FAIL; CHK-004 promises literal strings including 'Remediation authorized once by epoch <id>' and 'This receipt does not authorize TEST' which have zero grep hits anywhere in packages/main/src. Marking an item done performs no mechanical check that its userSees contract is satisfied, so 'all items done' can coexist with unmet delivery promises and reads as completion evidence to an operator. This is the same class of misleading-green signal as BUG-VERIFIED-COUNT-MISREADS-AS-CLEAN and BUG-STATUS-STALE-LANE.",
+      "status": "open",
+      "foundAt": "2026-08-17T09:45:29.057Z",
+      "fixedAt": null
     }
   ]
 }
