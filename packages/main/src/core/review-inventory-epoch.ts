@@ -54,6 +54,13 @@ export function reviewInventoryAcceptanceSubjectDigest(
   proofStoryContract: Record<string, unknown> | null = null,
   scopeShrinkageDecision: Record<string, unknown> | null = null,
 ): string {
+  // One rule, three shapes: this helper, evidenceSemantics below, and the candidate
+  // projection in handlers/review-inventory.ts captureReviewInventoryScope all bind
+  // SEMANTIC CONTENT and drop BOOKKEEPING, so an idempotent retry or a pure re-pin
+  // cannot manufacture acceptance drift. They stay separate because the shapes differ
+  // (flat record / nested per-row array / a different artifact in another module);
+  // unifying them would need an over-general abstraction. Each was driven by its own
+  // independently-found defect: B-3f3d F-099, F-103/F-104, F-107.
   const withoutVolatileTimestamps = (value: Record<string, unknown> | null): Record<string, unknown> | null => {
     if (!value) return null;
     const { createdAt: _createdAt, updatedAt: _updatedAt, ...semantic } = value;

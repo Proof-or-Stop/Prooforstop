@@ -601,10 +601,30 @@
       "phase": "DEV",
       "headHash": "5e4c90933515cfe0862174c11b50e06d428c9a4b",
       "materialHash": "d9f40c894185e625ecb246ce0c672a44bb62cfe6c7a7c3f244319eca9e1ce907"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Reviewer-driven test additions that landed outside the declared allowedTest set. review-incremental-context-smoke.ts gained the F-090 assertions pinning that gate/policy, dependency/build and unsupported-rename impacts all force the full reviewer roster. review-assurance-floor-smoke.ts gained the F-096/F-097 forced-replay regression coverage including the String() coercion crash path. review-inventory-handler-smoke.ts is the home of the F-107/F-108 end-to-end routing-neutral fixture. Both the docs lane and the test-coverage lane independently assessed this as a real scope-contract gap rather than paperwork, since these files are the actual regression-test home for gate-consumed logic this story introduced or hardened. All three changes are test-only, add no production behaviour, and were each mutation-verified to fail when the corresponding production guard is reverted.",
+      "timestamp": "2026-08-17T02:49:37.727Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "REVIEW",
+      "headHash": "8426fc9ed3f16ab03b85d6d8262201e8b5408b3a",
+      "materialHash": "0cd36c04d1526f0a06ceb4d8d2f623671fb516a19565b5f84c3f7d282604289b"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-16T10:47:53.483Z",
+  "updatedAt": "2026-08-17T02:49:37.727Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -723,6 +743,7 @@
     "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
-    "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md"
+    "docs/requirements/decisions/test-runner-consolidation-plan.md": "docs/requirements/decisions/test-runner-consolidation-plan.md",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts"
   }
 }
