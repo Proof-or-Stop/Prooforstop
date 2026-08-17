@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-7dff",
   "state": "confirmed",
-  "ledgerHash": "sha256:caaed25d4ebf0af504256458d78bf8f467f43d30a431ec9a4a71dfeb8317fe21",
+  "ledgerHash": "sha256:db3f18dd4001ce62ce51a18355cf5f83f2e4df222ebe9e2d255e2c5b716697d1",
   "milestones": [
     {
       "id": "M1",
@@ -16,7 +16,11 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
       "status": "planned"
     },
     {
@@ -30,7 +34,11 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
       "status": "planned"
     },
     {
@@ -45,7 +53,11 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
       "status": "planned"
     },
     {
@@ -59,15 +71,19 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-08-17T11:36:10.974Z",
-  "updatedAt": "2026-08-17T11:36:11.558Z",
+  "updatedAt": "2026-08-17T11:38:29.233Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260817113611",
     "acceptedInterpretationHash": "sha256:515c6be0ba72f14ec7c2ef8d68f8242e4af30e0407a3bee4faebc43616621b62",
-    "acceptedAt": "2026-08-17T11:36:11.558Z"
+    "acceptedAt": "2026-08-17T11:38:29.233Z"
   }
 }
