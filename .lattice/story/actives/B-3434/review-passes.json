@@ -767,6 +767,36 @@
         "scanEscalationReason": null
       },
       "_hash": "7ca3726c2500343b4587f8e5410242cb48e209c36be291e196405a2445e6e676"
+    },
+    {
+      "id": "B-3434:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Audited merge commit 336dfdd978 (main +345 commits, hand-resolved union conflict in lattice.config.json and experience.jsonl). Both conflicts verified lossless by exact set-union comparison (python): validate.commands merged=104=union(ours 99, main 102, intersection 97), zero entries lost from either side, all five red-1734-*.mjs plus red-b3434-blob-buffer-ceiling.mjs present in stated order (indices 76-81); experience.jsonl merged=33=exact union(ours 29, main 27), zero lines lost, all 6 B-3434 sourceStoryId lessons retained, every line parses individually. Independently ran the registration guard (red-b49d4-harness-registration.mjs): OK, 50 entries, 40 registered + 10 excluded, matching the claimed numbers. Verified this story's shipped code is untouched by the merge: git diff 336dfdd978^1..336dfdd978 and 336dfdd978^1..HEAD are empty for done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, the decision doc, and the red harness; git diff main HEAD --stat shows only this story's own files; git rev-list --count HEAD..main = 0. Fully read (via Read tool, complete files) verifier.ts, validation-executor.ts, done-prepare-generated-metadata.ts, the decision doc, and lattice.config.json in their current state and confirmed by direct inspection: boundEvidence(hashes) computed once at line 973 after hashes are known with the B-3434:F-037 comment at line 972; all three write sites (742, 954, 976) gate identically on !withinBound || record===null with no cast; VALIDATION_EVIDENCE_SCALAR_CHAR_CAP defined once and used once at the safeScalarRead slice; METADATA_BLOB_READ_MAX_BUFFER_BYTES on exactly the ten maxBuffer sites (374,391,447,457,596,722,741,836,850,866). Investigated main's 345 commits for interaction with this story's territory: only 7 src files changed on main since the merge-base, none of them are this story's owned files (done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, store.ts, test-story.ts, test.ts all show zero diff). B-16df specifically: its only code change is packages/main/src/handlers/checklist.ts adding resolvePinnedCommandTimeoutMs, a downstream consumer that calls the pre-existing configuredValidationCommands (verifier.ts) and parseAllowlistedCommand/runSingleAllowlistedCommand's existing timeoutMs option (validation-executor.ts) without modifying either file - concerned with per-command wall-clock timeout, orthogonal to this story's evidence-size bounding. No second lock mechanism, no competing size measurement, and no new production writeTestEvidence call site were introduced anywhere in main's 345 commits (grepped all call sites; the only new ones are smoke-test fixtures, none in test-story.ts/test.ts/store.ts/verifier.ts, which are unchanged). Ran the four required commands with real output: npx tsc --noEmit -p packages/main exit 0 (no errors); node scripts/verify-process-fact-contract.mjs -> Process fact contract verified; node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS (all assertions green); node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (all 20 assertions green, CHK-004 outcome B disposition observed, rationale doc referenced at 18205 bytes matching the on-disk file). Maintenance verdict at this revision: the merge is a clean, lossless, order-preserving union on both conflicted files, this story's shipped code and rationale doc are byte-for-byte untouched by main's 345 commits, and B-16df's territory-adjacent change is a strictly additive downstream consumer with zero interaction. No blocking finding.",
+      "createdAt": "2026-08-17T08:51:48.898Z",
+      "reviewRound": "2026-08-17T08:44:55.845Z",
+      "reviewRunId": "B-3434:RR-061",
+      "envelopeId": "fdececd62cc8512a60c02fc07d62e0f3f3768a0e7ab5f400b1b9691bda3b540c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a0f698e833c75c67f1c1ed556ebaa1d136a7f870e9352a29d7aeac3655d43df"
     }
   ]
 }
