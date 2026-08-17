@@ -254,9 +254,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "canonical-only project loads silently; deprecated-only project prints \"lattice.config.json is deprecated; use proof-or-stop.config.json\" on STDERR while `validate --json` stdout stays single-payload parseable",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T15:03:39.041Z",
       "files": {
         "modify": [
           "packages/main/src/core/config.ts",
@@ -364,7 +364,14 @@
           "storyFilesHash": "869e737cbc842646eb79e33c513ab01ba9e9240a97f4b4177e5a260f7a433867",
           "timestamp": "2026-08-17T15:01:05.509Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "4b1b39c94c57cf6877dbbd77472c72ea77a60772a7243614e3e4d0c86f9fa9da",
+        "storyFilesHash": "f3474e89cbecb31ed6725dc6c8aaa6f049cf727d0ab977d107ff9f2e6b74c5a5",
+        "headHash": "446295cb2ac0e68ab71dc9a7215b7bf9c1b217b6",
+        "attestedAt": "2026-08-17T15:03:39.306Z",
+        "materialHash": "8dce86366e7dd3c838ba7a7c5ba3e395298d05e9b3c95cd5632afca6cf269e97"
+      }
     },
     {
       "id": "CHK-005",
