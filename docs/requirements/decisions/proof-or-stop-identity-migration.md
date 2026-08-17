@@ -105,3 +105,81 @@ Two superseded readings, kept for audit:
 All 344 archived story directories remain readable after migration and their historical signatures
 still verify. CHK-003 must demonstrate this on **two named archives from different eras** (one
 earliest-era, one immediately pre-migration), named in evidence — not one convenient recent story.
+
+## CHK-005 execution record: `@lattice/core` → `@proof-or-stop/core`
+
+### Decision: clean break, NO deprecated alias package
+
+**Chosen: clean break.** No `@lattice/core` alias package is published.
+
+Rationale, in the order the evidence actually forced it:
+
+1. **Nothing in-repo imports the package by name.** The rename was expected to touch "~19 source
+   import sites". It did not: a repo-wide sweep found **zero** real `import ... from
+   '@lattice/core'` statements in `packages/*/src`. `packages/utils` and `packages/lab` declare
+   core as a dependency but reach main through **relative paths into `packages/main/dist`**, not
+   through the package name. So no internal consumer needs the old name to resolve.
+2. **The only name-shaped "import" is a generated template**, `cli-init.ts` emitting a `debug.ts`
+   scaffold into *user* projects. That is a codegen output string, not a resolution edge — and it
+   is handled by keeping a read-both bootstrap candidate list (below), not by an alias package.
+3. **An alias package would have to be published to be useful.** This package publishes to a
+   GitHub registry (`publishConfig.registry`). Publishing a second package to redirect a name no
+   in-repo code resolves is registry-identity work with a maintenance tail, for zero measured
+   consumer. That is the same publish-level scope the OQ-2 exclusion deliberately defers.
+4. **Read-both fallbacks cover the real compatibility risk**, which is not name *resolution* but
+   an **already-installed global** `@lattice/core` on a developer's machine. Handled in code (below).
+
+Consequence accepted: an external project that hardcodes `@lattice/core` in its own
+`package.json` must update that reference. This is a **single-developer repo with no external
+dependents**, so the multi-developer "silent build break on merge" hazard that
+`brand-rename-mapping.md:73` warns about does not apply to a name nothing imports.
+
+### Read-both compatibility (what was added instead of an alias)
+
+Canonical is the only name **written**; the deprecated name is still **read**:
+
+- `core/runtime-environment-checks.ts` — `SELF_CORE_PACKAGE_NAMES` accepts either spelling for
+  self-project detection; `resolveCorePackageCandidate` probes canonical then deprecated.
+- `handlers/worktree.ts` — global relink probes both scope directories.
+- `core/codex-adapter-checks.ts` — global fallback heartbeat probes both.
+- `init-assets.ts` — the generated bootstrap keeps `node_modules/@lattice/core/...` as a
+  **fallback candidate after** the canonical path, so a project scaffolded before the rename
+  still boots. Pinned by `scripts/verify-entrypoints.mjs` on both candidates.
+
+### Exact-name consumers found by sweeping BEFORE renaming
+
+`brand-rename-mapping.md:130` justified the freeze solely via `.githooks/pre-push`. Pre-push was
+indeed already widened (`'@lattice/core'|'@proof-or-stop/core')`, but it was **not the only**
+exact-name consumer. Four more sat inside **comparisons/predicates** — the B-cdf6 regression class,
+where the canonical spelling silently fails while the old one works:
+
+| Site | Failure mode had it not been updated |
+|---|---|
+| `core/rollout-check.ts` `isSelfLayout` | **Silent disarm.** A miss makes `ok` short-circuit to `true`, so the version-sync/wrapper check passes vacuously. |
+| `handlers/test-auto.ts` self-test refusal | **Silent disarm of a self-protection guard.** A miss lets `test_auto` run the full suite against the framework itself. |
+| `core/runtime-environment-checks.ts` `detectSelfProject` | A miss flips `runtimeScope` self→external, downgrading drift checks to advisory. |
+| `core/codex-adapter-checks.ts` global candidates | A miss makes an installed global look absent, skipping the heartbeat. |
+
+Two guard scripts pinned the literal and **fail loudly** (not silently), so they were updated in
+the same commit: `scripts/verify-runtime-fact-contract.mjs` and
+`scripts/verify-global-lab-entrypoint.mjs`. `core/prompt-registry.ts`'s
+`PROMPT_REGISTRY_SOURCE` is package-name-derived and is compared by
+`scripts/verify-proof-or-stop-prompt-baseline.mjs`, so registry + baseline were updated together.
+
+### Out of scope, verified untouched
+
+- **ROOT `package.json` name stays `lattice`** (OQ-2). Mechanically pinned by
+  `scripts/verify-core-package-rename.mjs`, which exits non-zero if the root is ever renamed —
+  so a future "finish the rename" sweep breaks the build instead of quietly crossing the boundary.
+- **Sibling package names `@lattice/utils` / `@lattice/lab` are NOT renamed.** The operator
+  enumerated `@lattice/core` specifically. Only their *dependency reference* to core moved.
+- `CHANGELOG.md` untouched (FROZEN, historical release record).
+
+### Known residual drift for CHK-007 (reported, deliberately not fixed here)
+
+`scripts/verify-lattice-residue.mjs` holds a fixture asserting
+`"import { devHost } from '@lattice/core/dev-host';"` is **exempt**, commented
+"npm package name (FROZEN — pre-push hook gates on it)". That exemption rationale is now stale.
+Correspondingly `CLAUDE.md:192` still documents the old `@lattice/core/dev-host` import in its
+`debug.ts` example while `cli-init.ts` now emits the canonical spelling. Both belong to CHK-007,
+which owns flipping `@lattice/core` from exempt to **forbidden** in product runtime source.
