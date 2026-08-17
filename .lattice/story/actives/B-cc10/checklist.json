@@ -85,9 +85,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "`node bin/proof-or-stop.js session_brief` prints \"Checklist-derived ledger\" with .lattice still on disk, and `grep -rn \"'.lattice'\" packages/*/src` returns only the resolver file",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T11:21:12.532Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-paths.ts",
@@ -195,7 +195,14 @@
           "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
           "timestamp": "2026-08-17T11:15:28.489Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "a496bd33c7eb4856514588b765f56e88fa470a2005617369fda6300a116846ba",
+        "storyFilesHash": "cf129abb084ed4f582117ac8c881c5c4d74ce8e91c2fe9bbc70e42e231eae51b",
+        "headHash": "11ed38c76d554742fe30230dd342a58c49c93b37",
+        "attestedAt": "2026-08-17T11:21:12.770Z",
+        "materialHash": "50d4e91ab589246a10637503d7dcd758460a26c2f61c6cd570d5436f1e694c86"
+      }
     },
     {
       "id": "CHK-003",
