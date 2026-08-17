@@ -56,10 +56,26 @@
       "phase": "DEV",
       "headHash": "53274912d57431c5bd05714f5c8d9c4c04534521",
       "materialHash": "7a35206032a42744f2ff18f5410b79ee86b91eca15d2cec8aaf05b3feda2ab1a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "AMENDED DISCLOSURE, filed because reviewers found my first acknowledgement incomplete (B-3434:F-045, concept lane) - it named only the section-12 assertion removal while the commits also changed prose and later added assertions. This is the full inventory of everything done to this out-of-scope file, so the queryable audit record matches the diff rather than a subset of it. COMMIT efe682df11: removed B-16df's section-12 assertion that validation-executor.ts and verifier.ts are byte-for-byte identical to main, plus the execSync/try/catch that fed it and the then-unused execSync import; replaced with a comment recording what it checked, its B-16df F-004/H-003 provenance, and BUG-B16DF-BYTEPIN. Undisclosed in the first acknowledgement and disclosed here: two prose narrowings in the same commit - the file-header docblock no longer claims the file proves those two files are byte-identical to main, and the Hermetic paragraph no longer says section 12 reads git state, because it no longer does. Both were verified correct and minimal by the quality and concept lanes; leaving either would have left a registered suite file asserting more than its code does. COMMIT 17dc863c05: three reviewer-driven repairs. B-3434:F-044 (high, test-coverage lane, independently reproduced by the quality lane) falsified the claim that nothing was lost - VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST had zero test coverage anywhere in the repository, and the quality lane proved it by adding bash to the allowlist in an isolated copy and watching the smoke stay green at 44 of 44. New section 17 now pins that allowlist's exact membership and asserts parseAllowlistedCommand rejects a non-member leading token; both halves were shown to fail independently in disposable mirrors. B-3434:F-043 (high, concept lane) corrected a false parenthetical I had let stand, that the one-mebibyte execFileSync ceiling lives in those two files - it does not; execFileSync appears zero times in validation-executor.ts and the ceiling lives in done-prepare-generated-metadata.ts. B-3434:F-046 (low, behavior lane) fixed a third stale claim site, the REPO_ROOT docblock still describing a git diff that no longer runs. Assertion sites went 45 to 44 to 46 across the two commits, with positions 1 to 45 identical in order and the two new names appended. HONEST RESIDUAL, recorded rather than smoothed: the two new assertions replace only a slice of what the byte-pin incidentally covered. The byte-pin failed on any byte of either file differing from main, which touched every symbol in both including untested ones; section 17 covers one constant's membership and one rejection path. What it gains is discrimination and durability - it fires on a semantically meaningful widening, stays silent on a rename or comment fix, works on main as well as off it, and names the token that moved, none of which a byte comparison could do.",
+      "timestamp": "2026-08-17T13:33:24.157Z",
+      "paths": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "17dc863c0552c630699f40d9d1529a2cf112559d",
+      "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38"
     }
   ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-17T12:57:07.711Z",
+  "updatedAt": "2026-08-17T13:33:24.157Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
