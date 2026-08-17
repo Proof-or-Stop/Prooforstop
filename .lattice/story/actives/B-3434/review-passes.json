@@ -1004,6 +1004,30 @@
         "scanEscalationReason": null
       },
       "_hash": "1431ff3174b294fbf37c90cf7da1b6ba8dbeb159b86a586151ca2fba5690d817"
+    },
+    {
+      "id": "B-3434:RP-039",
+      "agent": "lattice-review-concept",
+      "note": "Both fixes verified true. F-047: grep for \"only imported by\" across packages/main/src returns nothing; commit 90bde4c74f deleted the enumeration clause rather than restating it. The surviving sentence in validate-command-timeout-smoke.ts:399 (\"validation-executor.ts contains no execFileSync call of its own\") checks out: grep execFileSync validation-executor.ts is empty; done-prepare-generated-metadata.ts is confirmed as the maxBuffer call-site file (grep shows 10 execFileSync( ... maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES sites). F-048: recount confirmed exact -- grep -n \"execFileSync(\" done-prepare-generated-metadata.ts yields exactly 10 hits at lines 370, 387, 444, 453, 591, 718, 738, 832, 846, 863, matching F-048s corrected resolvedReason verbatim; the stray 11th grep hit (no-open-paren count) is the line-15 doc-comment mention, confirmed by grep -c execFileSync=11 vs grep -c \"execFileSync(\"=10. F-048s own resolution states 10 and lists the same ten lines -- accurate. Commands: node packages/main/dist/tasks/validate-command-timeout-smoke.js -> \"46 assertions\" exit 0; npx tsc --noEmit -p packages/main -> exit 0. Diff scope re-confirmed: git diff 14ddb47477..HEAD -- packages/main/src shows exactly one file changed (validate-command-timeout-smoke.ts, 2 insertions/2 deletions, the single comment line), so my prior concept-lane passes (RR-063 through RR-071, most recently full re-derivation at RR-063 covering store.ts/validation-executor.ts/verifier.ts/done-prepare-generated-metadata.ts maxBuffer sites, symbol presence, deferred-table counts, and both red/smoke tests) still hold without re-derivation -- nothing in their basis moved. git status confirms only .lattice bookkeeping files dirty, no other src drift. Nothing blocks; no findings filed this round. On the disposition rule: I think it is correctly scoped and I am not overruling it, but note the reasoning that makes it acceptable rather than self-serving -- it does not touch the severity bar (anything with a behavioral/coverage/security/scope consequence is still filed at full severity, unchanged), it is disclosed to me in advance rather than applied silently, and it is scoped to this one capped round rather than standing policy. The recursion diagnosis is real: F-043 to F-047/F-048 is four rounds of prose fixing prose, each invalidating 4 lane passes for zero behavioral delta, and this rounds narrow scope (verify 2 fixes, no fresh scan) means the rule was never actually invoked -- I found no new low-severity comment issue to route either way. My reservation for the record: the line between low-severity-comment-only and has-a-scope-consequence has to stay reviewer-judged, not coordinator-framed, and this rule should not carry forward past this round as precedent without being re-disclosed and re-justified each time; a coordinator citing this story as license to suppress future review findings by relabeling would be the self-serving version this text warns against. This round it was not that.",
+      "createdAt": "2026-08-17T13:52:33.044Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-076",
+      "envelopeId": "52c9f80e6074a7569c3c6ad7c7a4e29df83eb95350179396d518414dfb915c72",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/findings.json",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3d1945c363ab8d755955af6b3b95d044a836a82b6d1b9336006956ae62ed798"
     }
   ]
 }
