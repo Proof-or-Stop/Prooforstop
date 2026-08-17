@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6ab9",
+  "allowedCommands": [
+    "git diff --check",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/thin-entrypoint-failure-exercises-smoke.js *",
+    "node packages/main/dist/tasks/thin-entrypoint-matrix-topology-smoke.js *",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm",
+    "proof-or-stop"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/core/thin-entrypoint-red-evidence.ts",
+    "packages/main/src/tasks/fixtures/thin-entrypoint-b3cec-authority-scan.tsv",
+    "packages/main/src/tasks/thin-entrypoint-failure-exercises-smoke.ts",
+    "packages/main/src/tasks/thin-entrypoint-matrix-topology-smoke.ts"
+  ],
+  "excludedCommands": [
+    "npm test",
+    "proof-or-stop done_required_validate",
+    "proof-or-stop validate"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Bound execution to focused build, Red/Green matrix proofs, lifecycle commands, and diff checks; full validation remains a later TEST/DONE gate.",
+  "createdAt": "2026-08-17T15:34:35.788Z",
+  "updatedAt": "2026-08-17T15:34:35.788Z",
+  "_hash": "5533cc2b803b7d23f48eb8b6f1547610fa639ed254571cfec352ce13a56f594e"
+}

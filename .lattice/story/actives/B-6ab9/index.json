@@ -1,0 +1,34 @@
+{
+  "storyId": "B-6ab9",
+  "name": "thin-entrypoint-matrix-evidence-topology-optimization",
+  "title": "Reduce thin-entrypoint matrix evidence time from the four-full-run baseline to one full run plus focused proofs",
+  "description": "Create a reusable matrix proof bundle that measures the existing four-full-matrix verification topology as Red and replaces it for future consumers with one complete 26-row execution plus focused scheduler, receipt-integrity, and wiring proofs. The Green target is five minutes or less without changing evidence timeouts, weakening fail-closed semantics, rewriting B-3cec history, or using cross-process cached receipts. Development depends on B-3cec reaching DONE.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-request-2026-08-17",
+  "depends": [
+    "B-3cec"
+  ],
+  "keywords": [
+    "thin-entrypoint",
+    "matrix-proof-bundle",
+    "evidence-topology",
+    "bounded-parallelism",
+    "red-green-performance"
+  ],
+  "createdAt": "2026-08-17T15:34:35.788Z",
+  "startedAt": "2026-08-17T15:34:35.788Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-17T15:34:36.499Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-db1d924c2960429ccc7cef0b54edcd24",
+      "agent": "main"
+    }
+  ]
+}
