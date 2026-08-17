@@ -46,7 +46,11 @@
           {
             "desc": "A reader cannot conclude a FROZEN row was silently ignored: both supersessions (@lattice/core, bin aliases) appear with citations",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-migration-contract.mjs",
+              "selector": "supersessionsDocumented=true"
+            }
           }
         ]
       },
@@ -92,6 +96,27 @@
           "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb",
           "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
           "timestamp": "2026-08-17T17:31:43.413Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-migration-contract.mjs",
+          "command": "node scripts/verify-migration-contract.mjs",
+          "result": "pass",
+          "note": "Both FROZEN supersessions are documented WITH citations (brand-rename-mapping.md:130 for @lattice/core, :72 for the bin aliases), so a reader cannot conclude a frozen row was silently ignored. Proven to fail closed: removing one citation made the witness exit non-zero.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f2073c36cb613695a51b3370106dabb029ffa6f2ca9e2461cf641855c30df6fd",
+            "outputTail": "storyFilesHashMentions=2\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=0\nok no tracked files remain under the deprecated state dir (move is complete)\nmoveIsPureRenameCommit=true\nok move commit ec7f315e is pure rename (0 insertions, 0 deletions) — one revert undoes it\nmigration contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:31:46.285Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ea62ec9d4a791369e115e1d99818935ab6c7b0aa",
+          "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb",
+          "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
+          "timestamp": "2026-08-17T17:31:46.642Z"
         }
       ],
       "userSeesSnapshot": {
