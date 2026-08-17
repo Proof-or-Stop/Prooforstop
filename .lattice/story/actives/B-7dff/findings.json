@@ -176,6 +176,21 @@
       ],
       "signatureTag": "missing|json|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-010",
+      "desc": "packages/main/tests/validate-pollution-attribution.test.mjs:455 (section 8, B7DFF-F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION) — this real-CLI-spawn regression is empirically flaky under host load: re-running the unmodified file back-to-back on this host produced 1 failure in 18 runs (assertion the plan-level record survives the handler wrap and reaches the caller returned false, i.e. dirty.handler.concurrentWorktreePollution came back undefined even though the fixture writes a real conflicting file through the handshake-synchronised probes). The additive-spread fix in handlers/verifier.ts itself is sound (verified base=executeValidationPlan return literally only ever carries the documented ValidationResult keys, so no field-precedence or leakage risk today; the wrapper explicit overrides are all value-consistent with base). But section 8 is registered as validate.commands[106] with a 180000ms timeout and is the ONLY mechanical proof that the F-006 regression stays fixed; an intermittent false negative on this gate can spuriously block REVIEW->TEST/DONE under load and, longer term, erodes trust in this specific receipt as reliable regression coverage. The handshake design explicitly claims the overlap is deterministic on any machine at any load (see the docstring above handshakeCommand), so this observed ~5% failure rate is a real gap between that claim and behavior, most likely because the git-status before/after window used by attributeWorktreePollution (validation-executor.ts readGitStatus/detectNewDirtyStatus) is not itself synchronised by the handshake — only the two child processes are.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T20:53:14.375Z",
+      "reviewRound": "2026-08-17T20:41:03.751Z",
+      "reviewRunId": "B-7dff:RR-013",
+      "_hash": "1c381ecaf781f8d7e36e169c76d75564bfa3267015abdfa19362c43555034172",
+      "signatureTag": "edge|unknown|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
