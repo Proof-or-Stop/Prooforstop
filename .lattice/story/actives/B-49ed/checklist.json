@@ -421,9 +421,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "userSees": "A critic signing from a generated-token session records a receipt successfully, while the same attempt from an explicit-env session fails with: must sign from a host-adapter session.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T17:09:25.918Z",
       "verificationIntent": {
         "happy": [
           {
@@ -510,7 +510,14 @@
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:09:14.100Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "8ec9712379b651f52e4c413b9a32a902fbbc7af0ec2f7108cd7ba8eecf6c378b",
+        "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+        "headHash": "871157e359245fa8d6dbc14881418eef6cb987c4",
+        "attestedAt": "2026-08-17T17:09:26.131Z",
+        "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396"
+      }
     }
   ],
   "auditLog": [
