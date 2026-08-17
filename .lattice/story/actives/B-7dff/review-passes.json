@@ -137,6 +137,30 @@
         "scanEscalationReason": null
       },
       "_hash": "44e58e4b0703ff54c957aaa0f5235e2397e2b98bdb863725a42c88981a26fe27"
+    },
+    {
+      "id": "B-7dff:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round 3, focused verification of F-006 fix (commit 0d4231e1d1) per operator directive, plus a scan for regressions elsewhere. (1) Additive-spread claim verified by reading verifier.ts:1343-1353: base (executeValidationPlan output, whose literal return only ever contains provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/concurrentWorktreePollution/focus) is spread first, externalResult(...) second; externalResult always recomputes provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/focus from explicit args, so those never depend on drop-by-omission, and any base field NOT in that fixed key list (in practice only concurrentWorktreePollution at this call site) survives unconditionally. Independently reproduced the commits stated verification: reverted the fix in the built dist artifact and reran packages/main/tests/validate-pollution-attribution.test.mjs -- sections 1-7 (59 assertions of F-003 attribution behavior) still passed, section 8 (HANDLER WIRING) failed exactly as claimed (plan-level record does not survive the handler wrap); rebuilt clean afterward and reran full green (59 assertions, 9 sections). (2) No deliberately-hidden field now leaks: audited all 9 externalResult() call sites in verifier.ts -- only this one call site wraps a pre-existing full ValidationResult (all others mint a result from scratch for reuse/no-validator/persistence-failure paths, so they carry no risk of this defect); the only field that newly reaches the external consumer is concurrentWorktreePollution (repo-relative paths + git status lines, same sensitivity class as the already-exposed per-command worktreePollution on commands[]), which is exactly the fields intended fix target, not an accidental privacy leak. Cross-checked verifier/serve.ts (the lattice serve dashboard path), which JSON.stringifies the executeValidationPlan result directly without going through externalResult at all, confirming the F-006 defect pattern was isolated to the one fixed call site. Checked evidence.output consumers (done-oracle.ts, validation-evidence-admissibility.ts) -- both only read parsed.allPass/allPassed and are unaffected by the additional key. (3) The three F-003 round-2 properties (never falsely attribute, never silently lose detection, exact attribution for solo-scheduled barriers) are untouched by this commit -- diff is limited to handlers/verifier.ts and the test file, validation-executor.ts attributeWorktreePollution logic unchanged -- and remain proven by passing sections 1/2/3/4/5/7. finding_list shows all 8 findings across rounds 1-3 resolved, none open. No new issues found.",
+      "createdAt": "2026-08-17T20:48:10.983Z",
+      "reviewRound": "2026-08-17T20:41:03.751Z",
+      "reviewRunId": "B-7dff:RR-011",
+      "envelopeId": "3e8ba1ccad40925d4bcce28cc3caa3181f03eb66f4b118b8011a4ea44c7fe183",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/verifier/serve.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e66118597170a738282a24bacb2b6de729ac66a76fad643ea04e3b10ac233c1"
     }
   ]
 }
