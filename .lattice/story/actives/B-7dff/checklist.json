@@ -80,7 +80,30 @@
       "userSees": "lattice validate --story=B-xxxx --json returns the same commands[] entries in the same order with the same code and durationMs fields as a serial run, and reports the worker count it used.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate --json returns commands[] in plan order with the same per-entry fields (label, command, args, code, durationMs, timeoutMs) as a serial run",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When one command fails, every remaining command still runs and commands[].length equals the plan length; the run is not cut short by scheduler cancellation",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An abortSignal or exceeded deadlineAt during concurrent execution still raises the deadline error and does not report a partial run as a pass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
