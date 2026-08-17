@@ -204,16 +204,24 @@ candidate reduced to its `path` and content hash, `queryFiltering`, and
 `artifactDigest` (which bakes in `headHash`/`materialHash` verbatim as the
 artifact's tamper-detection identity; `verifyCandidateSpecSet` still verifies that
 full identity digest, so genuine tampering with the candidate set is still caught)
-and deliberately NOT `storyInputDigest` or any candidate's `score`/`reasons`, both
-of which are seeded by the changed-file set from `git diff` and therefore leak
-freshness rather than routing-universe identity. So a `candidate_spec_route`
-re-run that reselects the same specs with the same content after HEAD or the
-changed-file set alone has moved no longer trips
-`OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`; a re-run that changes which
-specs are selected, any selected spec's content, `schemaVersion`, `mode`,
-`queryFiltering`, or `scanEscalationReason` still invalidates the epoch with that
-blocker code, and lanes from pre-reroute and post-reroute candidate sets can never
-form one wave.
+and deliberately NOT `queryFiltering`, `storyInputDigest`, or any candidate's
+`score`/`reasons`, all of which are seeded by the changed-file set from `git diff`
+and therefore leak freshness rather than routing-universe identity. A re-run that
+changes which specs are selected, any selected spec's content, `schemaVersion`,
+`mode`, or `scanEscalationReason` invalidates the epoch with
+`OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`, and lanes from pre-reroute and
+post-reroute candidate sets can never form one wave.
+
+**Known incomplete (B-3f3d BUG-F107-INCOMPLETE, carried to story B-8af0):** these
+successive narrowings have NOT yet fully closed the freshness channel. An
+end-to-end fixture shows that after one unrelated commit touching only a test
+file, a routing-neutral `candidate_spec_route` re-run still invalidates an OPEN
+epoch: `corpusDigest` stays byte-identical while `candidateSpecSetDigest` moves.
+The leak therefore remains inside the candidates projection itself — most likely
+because `changedPaths` seeds `buildKeywordSeeds` at weight 50 and so can change
+which specs are selected, or merely their order. Until B-8af0 closes this, do NOT
+read this section as a guarantee that a routing-neutral re-route is safe under an
+OPEN epoch; treat cancel-then-reopen as the reliable path.
 
 `candidate_spec_route` performs its durable replacement inside
 the inventory lock, so a supported REVIEW re-route is serialized against epoch
