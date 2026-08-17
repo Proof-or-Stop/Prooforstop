@@ -18,6 +18,23 @@
       ],
       "signatureTag": "missing|ts|correctly-single-sourced",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-002",
+      "desc": "thin-init-assets-smoke.ts:200 and :206 assert /lattice codex verify/ while the assertion MESSAGE and the actual template both say 'proof-or-stop codex verify'. The regex and the message disagree, so the test passes for the wrong reason or fails once the template is correct — the same message-vs-assertion mismatch class as B-cdf6:F-047, where a doesNotMatch message said 'must reference proof-or-stop' while the regex checked 'lattice'. Found by the CHK-004 implementer, which correctly did NOT widen scope: this is the bin-NAME token, and bin names are CHK-006's domain. Assigning to CHK-006, which already owns bin/lattice.js removal and must reconcile every bin-name assertion in the same commit.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-17T15:03:40.272Z",
+      "reviewRound": "",
+      "_hash": "35ed707530e060176e7cbd9f8a75ce7b8ee3598e4697776d9086b1e18143cfe7",
+      "files": [
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|thin-init-assets",
+      "signatureTagSource": "auto"
     }
   ]
 }
