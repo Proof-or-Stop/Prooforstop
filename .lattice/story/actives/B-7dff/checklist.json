@@ -306,23 +306,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/tests/validate-plan-scheduling.test.mjs",
           "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
           "result": "pass",
-          "note": "Two real full runs of node bin/lattice.js validate --json on the 104-command configured plan, one at the default jobs=4 and one at LATTICE_VALIDATE_JOBS=1, returned commands[] with byte-identical (label, command, args, timeoutMs, optional) per entry in the same plan order for all 104 entries; the only per-entry differences were the code of three commands whose inputs changed between the runs (73 red-b49d4-registration-derivation, dirty config at the time, and 102/103 the two newly registered probes). details[] listed the same 104 command lines in the same plan order and ended with the reported worker count line validate scheduler: jobs=4 commands=104 declared=36 exclusiveByDefault=68. The pinned command is the structural proof of the same property: marker B7DFF-CHK003-PLAN-ORDER asserts commands[] and details[] come out in plan order while completion order is the exact reverse.",
-          "headHash": "bb778adcd7ae8720729bc90fa644530e7d0ed310",
-          "materialHash": "c75e595a553beeff7cdfae7ee1aca15564c7d113100b2a7948a405c309abb0d4",
-          "storyFilesHash": "6d1336d942e652b5572c8127a9da269bf07fe4fdebb6ce0dafafd9386a6e597d",
+          "note": "integration_test (kind corrected from manual_transcript; pin, selector and assertions unchanged). The pinned command is an integration test, not a logic test: it imports the BUILT packages/main/dist/core/validation-executor.js and drives the real executeValidationPlan, which spawns real node child processes via process.execPath -- no function is exercised in isolation. Marker B7DFF-CHK003-PLAN-ORDER asserts commands[] and details[] are emitted in PLAN order on a plan whose probes are built so completion order is the exact reverse, and that each entry still carries its own label / args / code / optional / durationMs. The same run also carries B7DFF-CHK003-RUN-ALL-COMPLETE, B7DFF-CHK003-DEADLINE-THROWS, B7DFF-CHK003-ABORT-NOT-PASS, B7DFF-CHK003-JOBS-CONFIGURABLE and B7DFF-CHK003-WORKER-COUNT-REPORTED. Cross-checked on the REAL plan at the FINAL declaration coverage by npm run bench:validate-parallel (marker B7DFF-BENCH-REAL-PLAN-MEASURED, tree 3c4413ce0a): the same 107-command configured plan was executed twice through the same executeValidationPlan, once at jobs=1 and once at jobs=4, and both runs returned commands[] of length 107 with the SAME per-command pass/fail verdict for every command (the benchmark reports zero disagreement) and the same classification line validate scheduler: commands=107 declared=97 exclusiveByDefault=10 -- i.e. scheduling instead of looping did not change the evidence shape on the real plan. An earlier real-plan transcript (two node bin/lattice.js validate --json runs, jobs=4 vs LATTICE_VALIDATE_JOBS=1, byte-identical label/command/args/timeoutMs/optional per entry in plan order) supports the same property but was captured at an EARLIER declaration configuration (104 commands, declared=36), so it is cited as prior context rather than as the final-tree measurement.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
             "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T15:54:07.439Z"
+            "executedAt": "2026-08-17T18:30:51.652Z"
           },
-          "timestamp": "2026-08-17T15:54:48.548Z"
+          "headHash": "3c4413ce0af60dd35c4c314c4098682891fbd075",
+          "materialHash": "3359e07f024d3ebe649c47312bd669eb70aab97586d169692aecc86edb8acace",
+          "storyFilesHash": "9661b0cbc07140b190decf0537a417903187fedd84d277a50bd2504a8400aab4",
+          "timestamp": "2026-08-17T18:30:51.934Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
