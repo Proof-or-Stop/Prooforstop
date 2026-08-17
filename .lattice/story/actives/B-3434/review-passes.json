@@ -819,6 +819,34 @@
         "scanEscalationReason": null
       },
       "_hash": "e5439a793238c0e642593bcb33762bf4da72cf1bdccbb578c05df0deae57d87f"
+    },
+    {
+      "id": "B-3434:RP-032",
+      "agent": "lattice-review-behavior",
+      "note": "Behaviour preservation verified at 336dfdd978 (merge of main's 345 commits). (1) git diff 336dfdd978^1 336dfdd978 --name-only shows NONE of the four story-owned source files (done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, or their transitive deps: config.ts, store.ts, dirty-gate-policy.ts, validation-command-environment.ts, evidence-freshness.ts, dirty-worktree.ts, lifecycle-registry.ts, validation-execution-lock.ts, auto-commit-metadata.ts) were touched by main during the merge; only checklist.ts and transition-orchestrator.ts changed among handler/core .ts files, and neither calls into or is called by the four owned files in a way that changes their behaviour (checklist.ts's new resolvePinnedCommandTimeoutMs call targets parseAllowlistedCommand/runSingleAllowlistedCommand, which are pre-existing, unmodified-by-this-merge APIs from B-ec67). verifier.ts's locking prologue is unchanged this round. git rev-list --count HEAD..main = 0; git diff main HEAD --stat touches only this story's own files. (2) Wrote a throwaway script against the real compiled StoryStore (dist/core/store.js) and boundPersistedValidationEvidence (dist/core/validation-executor.js): unmodified/reduced/verdict_only all wrote bytes to test-evidence.json matching their reported fileBytes exactly (2520038/2520038, 1509/1509, 939/939). refused correctly writes nothing under the real call-site guard used at all three verifier.ts write sites (!withinBound || record===null) -- note the guard's load-bearing condition is withinBound, not record===null, since a refused non-object/array input can still carry a non-null record (verified: disposition=refused, record!==null, withinBound=false, guard still refuses, file absent). This independently reproduces the numbers already recorded in docs/requirements/decisions/validation-evidence-artifact-growth.md's 'Against the real writer' section from an earlier round. (3) Built a real git repo with an actual 5 MiB and 40 MiB tracked/committed blob and called treeBlobHash + isolatedBlobHash from the real compiled dist module: 5 MiB reads correctly (sha256 produced); 40 MiB fails as kind=unreadable with 'ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded' (no blob content leaked into the diagnostic); a missing path is kind=absent with a distinct git fatal message. All four combinations (tree-side/index-side x small/big) plus the missing-path case behaved correctly. (4) lattice.config.json: 104 entries, parses as valid JSON, all six harnesses present in the exact described order (5 red-1734-* then red-b3434-blob-buffer-ceiling.mjs) at lines 125-130. Full set-theoretic comparison of main's validate.commands (102) vs pre-merge HEAD^1's (99) vs merged (104) shows the merged set is the exact union with zero entries lost from either side -- this also surfaced that the story actually contributed TWO entries (red-b3434-blob-buffer-ceiling.mjs AND a non-conflicting validation-evidence-buffer-smoke.js --focus=fast entry elsewhere in the array), both intact. Independently re-ran main's own harness-registration guard (red-b49d4-harness-registration.mjs): still OK, 50 total entries, 40 registered + 10 excluded. (5) All five requested commands run fresh with real output, all pass: tsc --noEmit -p packages/main exit 0; red-b3434-blob-buffer-ceiling.mjs PASS; validation-evidence-buffer-smoke.js PASS; done-prepare-auto-closeout-smoke.js passed; validation-evidence-reuse-smoke.js PASS. Working tree clean. No findings -- no interaction between main's 345 commits and this story's code, no lost hunks in either hand-resolved union. Out-of-tree file read in full: /private/tmp/claude-501/-Users-jek-Documents-CDR3/0dd30929-2f69-48ed-a466-9512f56096aa/scratchpad/rebind3-context.md (dispatch instructions).",
+      "createdAt": "2026-08-17T08:56:38.788Z",
+      "reviewRound": "2026-08-17T08:44:55.845Z",
+      "reviewRunId": "B-3434:RR-060",
+      "envelopeId": "8902a2add5f0cd0d36a2b49a78cd2a73d2a074a9df7c01a4eb4a71caeb81c737",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "442c22c2284d8f102e8a44d3d2dfd6a9a6aa31f25501d8749adba6fb979f22e6"
     }
   ]
 }
