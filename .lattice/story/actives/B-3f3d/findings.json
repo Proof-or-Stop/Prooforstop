@@ -8100,6 +8100,41 @@
       ],
       "signatureTag": "missing|ts|wave-independent-reconfirmation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-118",
+      "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:782 CHK-005 userSees mismatch: userSees promises the replay report prints the literal labeled lines Baseline mutation-driven redispatches: >=5 / New mutation-driven redispatches: 0 / Accepted OPEN commits: 0 / Remediation DEV transitions: 1 / Clean final-review epochs: <=1, plus every quality-regression counter as 0, or prints FAIL otherwise. The actual code at line 782 only runs console.log(JSON.stringify({ result: PASS_STRING, replay: replayA }, null, 2)), emitting raw camelCase JSON keys such as baselineMutationDrivenRedispatches, proposedMutationDrivenRedispatches, acceptedOpenMaterialCommits, aggregatedRemediationTransitions, finalReviewEpochsWithoutRegression. None of the five literal userSees strings, nor the word FAIL, ever appear in this file (grep repo-wide: zero hits for those exact report labels). On failure this script throws an uncaught node assert.AssertionError with nonzero exit; it never prints FAIL. A reader following the userSees contract would search for output text this tool never produces. Fix: either change the smoke task to print the five literal labeled lines (and FAIL on failure) as promised, or correct CHK-005 userSees to describe the actual JSON field names.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T09:34:58.907Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-483",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e907f72c97756a15560b01e5c8292f3375c48d38a3741ca4e0aa813b96e4012",
+      "signatureTag": "happy|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
