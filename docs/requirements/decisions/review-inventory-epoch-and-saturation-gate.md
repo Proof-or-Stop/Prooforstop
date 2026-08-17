@@ -199,7 +199,7 @@ evidence, critic, wave, finalize, or consume boundary persists
 The same semantic-content-not-bookkeeping rule applies to the candidate set. The
 epoch signs `candidateSpecSetDigest` as a routing-universe projection of the
 current valid `CandidateSpecSetArtifact` — `schemaVersion`, `mode`, each selected
-candidate reduced to its `path` and content hash, `queryFiltering`, and
+candidate reduced to its `path` and content hash, and
 `scanEscalationReason` — and `corpusDigest`, deliberately NOT the artifact's own
 `artifactDigest` (which bakes in `headHash`/`materialHash` verbatim as the
 artifact's tamper-detection identity; `verifyCandidateSpecSet` still verifies that
