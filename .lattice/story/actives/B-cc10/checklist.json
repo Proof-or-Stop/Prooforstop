@@ -281,7 +281,11 @@
           {
             "desc": "A project with only lattice.config.json loads AND prints a one-line notice on STDERR naming both filenames",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/config-filename-migration-smoke.js",
+              "selector": "deprecated-only project loads with one STDERR notice naming both filenames"
+            }
           }
         ],
         "adversarial": [
@@ -313,6 +317,27 @@
           "materialHash": "5e2bdf15b2aa53da45638f636ad1a6d801f37ddcfcf762dfe94bf966566464a4",
           "storyFilesHash": "869e737cbc842646eb79e33c513ab01ba9e9240a97f4b4177e5a260f7a433867",
           "timestamp": "2026-08-17T15:00:41.231Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/config-filename-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/config-filename-migration-smoke.js",
+          "result": "pass",
+          "note": "Temp project containing ONLY lattice.config.json still exits 0 (read-both contract) and emits exactly ONE stderr line asserted to contain BOTH DEPRECATED_CONFIG_FILENAME and PROOF_OR_STOP_CONFIG_FILENAME, so the advisory is actionable without docs. Also asserts the notice is absent from stdout.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f68e8e32d2b97ea33777bf590df6a1f0d865b8880380cab787534300fb973d51",
+            "outputTail": "  [ok] canonical-only project loads with zero deprecation notices\n  [ok] deprecated-only project loads with one STDERR notice naming both filenames\n  [ok] validate --json stdout parses as exactly one JSON payload while notice fires on stderr\nconfig-filename-migration-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:00:51.981Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "5f70af789a8fb4c2202acfeaa468c440cc08e4c2",
+          "materialHash": "5e2bdf15b2aa53da45638f636ad1a6d801f37ddcfcf762dfe94bf966566464a4",
+          "storyFilesHash": "869e737cbc842646eb79e33c513ab01ba9e9240a97f4b4177e5a260f7a433867",
+          "timestamp": "2026-08-17T15:00:52.127Z"
         }
       ]
     },
