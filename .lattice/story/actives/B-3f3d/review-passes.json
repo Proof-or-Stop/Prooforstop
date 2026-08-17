@@ -18727,6 +18727,47 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "30b48d0a8b9b62bfd50bf8d56fd69865e36dac9bd01426111ac0487cf30a1507"
+    },
+    {
+      "id": "B-3f3d:RP-338",
+      "agent": "lattice-review-docs",
+      "note": "Wave 3 saturation check. review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none), freshnessClassification=CURRENT_MATERIAL vs prior verified pass RP-333 (headHash 05e565a9). No material change for docs lane since that pass. Spot-checked docs/CLI.md acceptance-basis section (closest doc to F-114/F-115, which concern .ts code-comment accuracy, not this doc): describes PLAN discovery profile used, not a phase restriction, no drift. git diff main...HEAD symbol extraction (822 symbols, same cumulative diff as prior waves) yields no new README/CLAUDE.md/docs inconsistency beyond already-dispositioned F-118/F-119 (wave 2, other lane). No blocker for lattice-review-docs this wave; saturation confirmed for this lens.",
+      "createdAt": "2026-08-17T11:03:15.951Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-540",
+      "envelopeId": "39506ee4fa08f9aa3c12cc775a6b85b1b036cdd127acb292c132406d093c2cd8",
+      "writerSessionId": "sess-b448c91ec55d4013b822707e78b22e27",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "43ef0b0549da044da712a3234c7f12775e59e8fdd1fc1c174914902d3387d736"
     }
   ]
 }
