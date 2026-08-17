@@ -117,7 +117,7 @@
       "desc": ".lattice/story/actives/B-7dff/checklist.json:62-620 (all mechanical verificationEvidence rows for CHK-001:edge/adversarial, CHK-002:*, CHK-003:*, CHK-004:*, CHK-005:edge/adversarial, bound to storyFilesHash c047502c...) are now STALE per lattice milestone_status --storyId=B-7dff --full: every row reports stale storyFilesHash c047502c43ae vs current 68dc0e71b49f, and M1-M4 all read Failed/Blocked (0 done / 1 in progress / 3 not started) with reason [stale-evidence]. Root cause: commit 1b8a32ecea (B-7dff: resize contention-at-risk full-suite member timeouts, 2026-08-17T19:26:18Z) modified packages/main/src/tasks/full-suite-runner.ts -- CHK-001s own scope file -- AFTER the mechanical evidence batch was captured (headHash 59a118d437, executedAt ~18:57-18:58Z) and AFTER round-1 F-001 was marked resolved (2026-08-17T18:58:57Z, resolvedReason claimed milestone_status reports 4 done/0 in progress, Risks: none). No refresh ran after 1b8a32ecea landed; only the two happy waivers (CHK-001:happy:0, CHK-005:happy:0) were re-pinned afterward (headHash 9cf3b5b213 / 1b8a32ecea respectively), leaving the other ~14 mechanical rows stale as of this review round. This directly contradicts F-001s resolution and must be re-run/re-bound before this round can close.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-17T20:12:44.947Z",
@@ -129,7 +129,11 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as correct: I refreshed evidence, marked F-001 resolved, and then landed two more commits, one of which (1b8a32ecea, the full-suite member timeout resize) touched packages/main/src/tasks/full-suite-runner.ts, CHK-001s own scope file. That re-staled every mechanical row and put all four milestones back to Failed/Blocked. Fixed by freezing all code first and refreshing last: after the F-006 fix (0d4231e1d1) landed and the F-008 waiver correction was written, a single refresh pass re-executed and re-bound 13/13 remaining stale rows at the current HEAD, and M1s integration_test coverage was restored with an accurate row on CHK-001:edge:0 (npm run test:full-suite-runner-smoke, receipt exit=0 selectorMatched=true). No further code or story-owned file will be touched before the reviewers rebind. The ordering rule this violated - the refresh must be the LAST action that touches a story-owned file, and a fix commit for a review finding is exactly such an action - is now recorded in durable session memory so it does not recur.",
+      "resolvedAt": "2026-08-17T20:40:38.247Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7dff:F-008",
