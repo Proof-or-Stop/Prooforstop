@@ -156,10 +156,40 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "a rehearsal transcript showing the state-dir move applied then reverted on a scratch clone, with story_get on an archived story succeeding both before and after the revert",
+      "userSees": "rehearsal transcript shows `story_get` printing an archived story phase both after the move and after `git revert`, plus the exact abort command",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-cc10/plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "On a scratch clone, story_get on an archived story succeeds BOTH after applying the move and after git revert",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A deliberately half-done move (one dir moved, one not) is detected by the documented half-done check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The move is a single commit: git revert <sha> alone restores the pre-move layout with no manual fixup",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
