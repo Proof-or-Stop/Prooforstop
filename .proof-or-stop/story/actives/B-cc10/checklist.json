@@ -755,7 +755,11 @@
           {
             "desc": "Reintroducing a bare .lattice literal into packages/main/src makes the gate FAIL, proving it is enforcing not merely reporting",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-residue-inject-repro.mjs",
+              "selector": "forbidden brand decision: tracked inject -> gate exited 1 (FAIL caught it)"
+            }
           }
         ],
         "adversarial": [
@@ -787,6 +791,27 @@
           "materialHash": "374099d662bf86d601c386404043d4ddb7b1ad72ef5ed668278d78e368571fb9",
           "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
           "timestamp": "2026-08-17T17:19:59.576Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-residue-inject-repro.mjs",
+          "command": "node scripts/verify-residue-inject-repro.mjs",
+          "result": "pass",
+          "note": "Proves CHECK 4 is enforcing, not reporting: the harness stages a real tracked inject (git ls-files scope, so an untracked write could not fool it), asserts the gate exits 1, reverts, and asserts it returns to exit 0. The inject is built from the gate own derived deprecated-token list so the repro cannot drift onto a spelling the gate no longer forbids.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "48bb516f17d210a738e1c4f98b33f45382a294da062e36d2189a15cfafe1f4ea",
+            "outputTail": "OK   koala token: tracked inject -> gate exited 1 (FAIL caught it)\nOK   koala token: after git revert -> gate exited 0 (PASS, tree restored clean)\nOK   forbidden brand decision: tracked inject -> gate exited 1 (FAIL caught it)\nOK   forbidden brand decision: after git revert -> gate exited 0 (PASS, tree restored clean)\n\nPASS inject-check: gate caught every tracked inject and the worktree was restored clean.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:21:51.698Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b99ac6891dc5462be1ec01842578f8add1da1029",
+          "materialHash": "374099d662bf86d601c386404043d4ddb7b1ad72ef5ed668278d78e368571fb9",
+          "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
+          "timestamp": "2026-08-17T17:21:51.992Z"
         }
       ]
     },
