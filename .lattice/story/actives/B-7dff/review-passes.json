@@ -35,6 +35,45 @@
         "scanEscalationReason": null
       },
       "_hash": "e0d897ff42701e04e00551d400ac5d679b40a54d8bd355d0c50627dab3d8e9d3"
+    },
+    {
+      "id": "B-7dff:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review of the delta since RR-001 (headHash ece42783->04a7ebd0): F-003 concurrency fix (attributeWorktreePollution + ConcurrentWorktreePollution/concurrentWorktreePollution + concurrentPollutionBlocking threaded through validation-executor.ts -> validation-evidence-reuse.ts -> verifier.ts), the new validate-pollution-attribution.test.mjs regression (registered in lattice.config.json, ran green: 46 assertions), the F-005 refactor collapsing the fail-closed default into resolveValidationCommandResourceClaims (old resolveValidationCommandResources kept as an intentional thin claims-only wrapper, still actively used/exported, not dead), the new on-demand validate-parallel-benchmark.ts + npm run bench:validate-parallel (deliberately NOT registered in validate.commands, consistent with its own docstring), and the per-command/per-member timeout raises in lattice.config.json/full-suite-runner.ts. No concept word or mechanism was deleted or replaced en masse this round: every changed symbol checked is either newly additive or an intentionally-kept back-compat wrapper with zero stale references. The F-004 fix removed the old byte-for-byte-unmodified claim from validate-command-timeout-smoke.ts docstring; only remaining repo-wide hits are historical B-3144/B-70a6/B-16df story artifact records, not live code. npm --prefix packages/main run build is clean. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-17T20:03:56.053Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-006",
+      "envelopeId": "3b5bcb25652ce567bd402b6c4cbadb59dbd61ef0985996106a826d5d785a2bf3",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1941f70116d5f592fd2b4525f987c36173fe7ae7c710ea3383699e3033dc492"
     }
   ]
 }
