@@ -207,6 +207,32 @@
         "scanEscalationReason": null
       },
       "_hash": "2799f56d147af013a3a3c2b6a482b3c8f491ef719eb6b535b64c7191384b7e53"
+    },
+    {
+      "id": "B-7dff:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 4, independent verification of F-010 fix (commit 5b9431b04a, test-file only: packages/main/tests/validate-pollution-attribution.test.mjs, +83/-19). Judged the four sampling boundaries (parent readGitStatus before/after around each handshake child) directly against core/validation-executor.ts: runValidationCommand (517-608) computes statusBefore=readGitStatus(...) BEFORE constructing the Promise whose executor calls spawn(...) at line 608, with no await between them and readGitStatus itself synchronous (execSync) -- so within one command that before-sample unconditionally precedes its own child even existing, and JS single-threadedness means no other command can interleave between them. Confirmed the implementer's claim that 3 of 4 boundaries were already structurally ordered: before_writer<write and before_bystander<write follow from that synchronicity plus the pre-existing peer-start handshake (writer will not write until it observes bystander.start, which only a spawned bystander child can publish); write<after_writer follows trivially because the writer script performs the write itself before its own process.exit(0). The one boundary that needed a real fix, write<after_bystander, previously depended on a proxy marker plus Date.now()-based 30s deadline (bystander could give up and exit before the write actually landed). The fix (lines 177-207) has the bystander stat the writer's REAL file via fs.existsSync in a loop before publishing a per-self .observed marker, and the writer now waits on that marker (awaitObservedBy) before its own exit -- so both after-samples are gated on one confirmed on-disk observation, not a wall clock. Budget is now hrtime.bigint()-based (monotonic, immune to NTP/clock-jump) and set to 90s, strictly above the 60s per-command framework ceiling, so an unschedulable host hits the framework's own SIGTERM/SIGKILL+timedOut:true first rather than the script's internal exit(3). Verified section 8's new preconditions (existsSync(bystander.observed) and both commands code===0 && !timedOut, asserted BEFORE the shape assertion at line 518) are fixture-side-only and structurally independent of the mechanism under test: they only depend on the two child scripts and validation-executor.ts's spawn/close plumbing, never on what handlers/verifier.ts does with the resulting ValidationResult, so a real regression in the F-006 field-carry fix cannot be masked by these preconditions -- confirmed by rebuilding clean (npm --prefix packages/main run build) and running the file: PASS, 61 assertions, matching the claimed count exactly, no assertion removed (grep for awaitWrite/'wrote' marker/waitFor across the file and repo: zero residue, consistent with RP-006's finding). Independently ran the unmodified test file 20 times back to back under artificial CPU load (8 concurrent `yes>/dev/null` processes pinning a 10-core host) plus 16 further times at idle after removing the load: 0 failures across all 36 runs, no sign of the ~5% failure rate the pre-fix version showed per F-010's original finding text. This corroborates, via an independent method, the same conclusion RP-007 (lattice-review-behavior) reached via a dist-patch negative control: the fix removes the timing dependency rather than merely narrowing it, and the new preconditions relabel fixture-side failures without weakening the substantive assertion. Also reviewed the verifier.ts hunk in my incremental scope (spread base before externalResult(...), the F-006 fix already resolved and independently verified by RP-005/RP-007): additive-only change, no new any-casts, no swallowed catch, no dead code. No quality findings.",
+      "createdAt": "2026-08-17T21:48:50.803Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-016",
+      "envelopeId": "86ce9fb3399a9584955966a761608fd053376ec6cad7293e11a55670c831e144",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "13c0c4c24c999aa72a53b2bb9151a3c3c8c071e0449d3466bc026b5de508d809"
     }
   ]
 }
