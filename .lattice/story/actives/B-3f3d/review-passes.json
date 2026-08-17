@@ -17923,6 +17923,36 @@
         "scanEscalationReason": null
       },
       "_hash": "9dff65a850f2e08e80b68f334e9d145b0e27c69b690bd6e9c578b93024c8feeb"
+    },
+    {
+      "id": "B-3f3d:RP-318",
+      "agent": "lattice-review-concept",
+      "note": "Re-binding of prior RP-315 conclusion (no material change; git diff/log confirm only lattice bookkeeping files changed since). Re-verified independently rather than trusting operator claim: (1) F-109 queryFiltering: grep across the tree shows exactly one doc mention (review-inventory-epoch-and-saturation-gate.md:207, correctly says NOT bound) and exactly one code mention (review-inventory.ts:116, comment F-107: queryFiltering is NOT bound); no stray residue. (2) Known-incomplete disclosure: bug.json BUG-F107-INCOMPLETE is status=open with matching framing; stash@{0} = WIP F-107/F-108 end-to-end fixture (assertion currently failing), matching the described repro; B-8af0 exists with CHK-003 = Add the end-to-end routing-neutral regression fixture referencing F-108, status=pending -- consistent framing across bug/doc/carried-story. (3) activeChildren: grep --include=*.ts across packages/main/src returns zero hits; only historical mentions remain inside findings.json audit text (expected, not code residue). (pid, birthIdentity) doc (test-runner-consolidation-plan.md:21) matches code (full-suite-runner.ts:417,426-428). reviewer-list.ts:173 filters persisted reviewer_forced events by non-empty trimmed reviewer name; confirmed review-run.ts:475 (ensureCurrentReviewRound writer) sets no reviewer field, so it is mechanically excluded from the forced-replay set -- matches the F-094 comment. NEW this round -- F-110 correction (scope-contract ack #27, CORRECTION text, ack count 26->27): verified accurate and complete. Committed review-inventory-handler-smoke.ts contains only the pre-existing F-039 candidateDrift test (assert.match .../INVALIDATED, opposite direction); the F-107/F-108 routing-neutral fixture (assert.doesNotMatch .../CANDIDATE_ROUTING_MUTATION) exists only in git stash@{0}, confirmed by inspecting the stash diff directly. Checked every other durable artifact for residual overclaim of this specific coverage: reviewed doc text (lines 215-224) says only that an end-to-end fixture SHOWS the leak, does not claim it is committed -- no correction needed there. bug.json BUG-F107-INCOMPLETE correctly says repro stashed at stash@{0}. findings.json F-108 resolvedReason and F-110 itself both correctly state carried-to-B-8af0/stash-only. B-8af0 checklist CHK-003 status=pending, consistent. No other durable artifact still asserts this coverage exists in-tree. The retraction is accurate and complete; the original false claim (commit c01daa57c4 ack) remains visible alongside it per the intentional non-rewrite-history choice. Only B-3f3d:F-089 remains open story-wide (confirmed via finding_list: exactly one open/unresolved record). No blocker.",
+      "createdAt": "2026-08-17T03:28:06.349Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-448",
+      "envelopeId": "9436f8ee91cbc85b41ad920b81dc6e47b640ac3ee5fd9c468c5b5cc6d183f6df",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/bug.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/scope-contract.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bad8933fc27653c15537bf01b8efd5f90961176ec5c75430f82d8d4e33728c7"
     }
   ]
 }
