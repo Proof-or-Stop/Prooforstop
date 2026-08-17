@@ -624,6 +624,25 @@
         "scripts/build-main-with-binding.mjs"
       ],
       "_hash": "8fd3e01282f083e638862325e765c5aaf0545964b6188e11c1da48c908c45f58"
+    },
+    {
+      "id": "B-META-framework-audit:F-034",
+      "desc": "Managed-asset ownership predicate for the shared .claude/hooks/*.cjs group is dead for one of its own members. managed-assets.ts:941 recognizes ownership via `actual.includes(\"lattice\") || actual.includes(\"LATTICE\")`, but .claude/hooks/log-tools.cjs contains zero occurrences of that token (grep -ic lattice returns 0), so the predicate never fires for that file. Consequence: `check --apply` cannot reliably auto-repair its own generated hook, misclassifying it as STALE_LOCAL_EDIT in cases the manifest-hash fallback does not cover. PRE-EXISTING, not caused by the B-cdf6 rename: verified the predicate is byte-identical on pristine main and that .claude/hooks/log-tools.cjs is unchanged by this story (git diff main...HEAD is empty for that path). Logged here rather than fixed in B-cdf6 because it belongs to the managed-assets subsystem, and because it is the same structural class as two rename-scoped findings this story DID fix (B-cdf6:F-066 in this same file, and B-cdf6:F-068): an ownership/recognition predicate that tests for a literal the generated artifact never actually contains, so the check silently never fires. Suggested remedy: derive each ownership predicate from the generator output (or the manifest digest) rather than hand-written substring guesses, and add a smoke asserting every managed asset predicate returns true for its own freshly-rendered content — that single assertion would have caught F-066, F-067 and any future sibling at once.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-17T02:57:37.218Z",
+      "reviewRound": "",
+      "gapFingerprint": "5395315635d500e5f427ce6f6ef98729c8d8bdee594a7e582734946af69568de",
+      "files": [
+        "packages/main/src/core/managed-assets.ts:941",
+        ".claude/hooks/log-tools.cjs",
+        "packages/main/src/core/managed-assets.ts:1080-1084",
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "_hash": "fd2b28bc1cc99eb70b808eb40d57e12ce1e9bf39bff0e6f5967d8415e952709d"
     }
   ]
 }
