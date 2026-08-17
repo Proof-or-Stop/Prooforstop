@@ -618,7 +618,11 @@
           {
             "desc": "node bin/proof-or-stop.js --version prints the version and proof-or-stop codex verify passes after the aliases are gone",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js --version",
+              "selector": "Proof-or-Stop 0.3.261"
+            }
           }
         ],
         "edge": [
@@ -635,7 +639,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Canonical bootstrap wrapper still prints the version after both deprecated bin aliases were deleted. Pinned command runs the surviving wrapper; selector is the exact version banner it prints.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7ab7060f4669fabe0d5f71b6c7732220534bfb6446fedde2f64a83fec6dff340",
+            "outputTail": "Proof-or-Stop 0.3.261\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:12:26.120Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a5a75f77688033010994c1cdf41ca8be7a551b84",
+          "materialHash": "2bed4623bfb79225a4a3e989a76dedf9cd35069bffdcbcbfa0f8570ac84b6b84",
+          "storyFilesHash": "b212cb4908704935090175323cdb33e098558d2d317695ffe8669154421c9039",
+          "timestamp": "2026-08-17T16:12:26.327Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
