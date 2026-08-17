@@ -92,6 +92,13 @@
       "status": "open",
       "foundAt": "2026-08-17T05:21:40.881Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-PREREVIEW-STALE-REPORTED-AS-TAMPERED",
+      "title": "pre-review-check.ts:406 raises PR_ARTIFACT_TAMPERED as a four-condition OR whose fourth branch is merely digest(artifact) !== digest(expected), i.e. staleness. A pre-review artifact with an intact signature, intact signer key and correct storyId that has simply gone stale (e.g. after a scope-contract change) is reported as TAMPERED, which reads as a security event and misdirects remediation. Verified on B-3f3d: signature present, signerPublicKey present, storyId correct, artifact untouched since Aug 16 while the scope contract moved Aug 17. Staleness needs a distinct code from tampering.",
+      "status": "open",
+      "foundAt": "2026-08-17T08:23:16.743Z",
+      "fixedAt": null
     }
   ]
 }

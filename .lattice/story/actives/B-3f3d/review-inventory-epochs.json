@@ -4521,6 +4521,35 @@
       "cancelReason": "Epoch cannot reach saturation certification: the topology critic receipt is hard-blocked by a stale acceptance basis (AT_TOPOLOGY_CRITIC_CONTEXT_INVALID / AT_SCOPE_BINDING_MISSING), which is only repairable in DEV via acceptance_basis_generate. Cancelling to release the epoch under the owner's bounded resume authorization; no transition authority is claimed and all five lane passes will be re-earned after the basis is regenerated.",
       "terminalRunSequenceBoundary": 463,
       "_hash": "b7b22d1d02ef0816cbcde6dbb0d1263dff36f2f8aaf2b401b34fd3c1503db915"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-3f3d:RI-048",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-17T08:23:30.332Z",
+      "updatedAt": "2026-08-17T08:23:30.332Z",
+      "cutoff": {
+        "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
+        "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
+        "storyFilesHash": "7e57d2d76a483ea71cb42654325626a9115efab13cd585b9bd9c764251258c6b"
+      },
+      "scopeDigest": "cea52baf8afa6b0049245be048ca7a5399ddf3b8bcac5d1dca4d9d2c2e5ca473",
+      "candidateSpecSetDigest": "3d51a2dc54fe1d242dd3626132d862543d5998feae41bcb34a085c0c77be2fbb",
+      "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-behavior",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 463,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "4649e7b6901bbd2af5d60491bca8aa5e5ce3393a5915da82342bf629638c5d32"
     }
   ],
   "receipts": [
