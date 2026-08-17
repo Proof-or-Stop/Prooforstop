@@ -63,46 +63,59 @@ export interface ReviewIncrementalContext {
   /** The reviewer role this context was computed for (echoed back). */
   role: string;
   /**
-   * Authoritative "no usable incremental baseline" signal. `isFirstPass=true`
-   * means there is NO resolvable prior-pass headHash to diff against, which
+   * Authoritative "no trusted prior verdict resolved" signal. `isFirstPass=true`
+   * means there is NO resolvable trusted prior-pass headHash at all, which
    * covers BOTH sub-cases:
-   *   (a) the reviewer has never passed/finding-ed on this story, AND
+   *   (a) the reviewer has never passed/finding-ed on this story, or its prior
+   *       evidence is not trusted, AND
    *   (b) a prior verdict EXISTS but the run it was bound to has a missing /
    *       unresolvable headHash (so we cannot compute an incremental base).
    * In both sub-cases `priorHeadHash` is null and `changedFiles` is the full
-   * `main...HEAD` material diff. Consumers MUST treat `isFirstPass` — NOT
-   * `priorVerdict` — as the authoritative "no incremental baseline" flag.
+   * story diff against `main`.
+   *
+   * `isFirstPass=false` says a trusted prior RESOLVED. It does not by itself say
+   * that incremental context is being served: when the diff from that prior does
+   * not fit the bounded path lists the review-basis contract accepts, the
+   * resolved prior is still reported (it is real audit-trail state) while
+   * `contextMode` stays 'full', `reviewBasis` stays null, and `changedFiles` is
+   * the full story diff against `main` — see the bounded-paths degradation in
+   * reviewIncrementalContext below.
+   *
+   * So: read `isFirstPass` for "did a trusted prior resolve", read `contextMode`
+   * / `reviewBasis` for "is an incremental baseline actually being served", and
+   * read `priorVerdict` for neither.
    */
   isFirstPass: boolean;
   /**
-   * The headHash the prior verdict was bound to, when resolvable. Always null
-   * whenever `isFirstPass=true` (including sub-case (b) above). Non-null only
-   * when `isFirstPass=false`, in which case it is the base of the incremental
-   * `changedFiles` diff.
+   * The headHash the trusted prior verdict was bound to, when resolvable. Always
+   * null whenever `isFirstPass=true` (including sub-case (b) above). Non-null
+   * only when `isFirstPass=false`, in which case it is the base of the
+   * incremental `changedFiles` diff EXCEPT under the bounded-paths degradation,
+   * where the prior is reported but the served `changedFiles` is the full story
+   * diff against `main`. `reviewBasis === null` marks that case.
    */
   priorHeadHash: string | null;
   /**
-   * Human summary of the most recent prior verdict (e.g. "PASS (RP-001)" or
-   * "finding F-002: high"), or null when the reviewer has no prior verdict.
-   * INFORMATIONAL ONLY. It MAY be non-null even when `isFirstPass=true`: in
-   * sub-case (b) a prior verdict exists but its bound headHash is unresolvable,
-   * so `priorVerdict` is non-null yet `priorHeadHash` is null and the full diff
-   * is returned. Never infer "has incremental baseline" from `priorVerdict`;
-   * use `isFirstPass` for that.
+   * Human summary of the most recent trusted prior verdict (e.g. "PASS
+   * (RP-001)"), or null when no trusted prior verdict resolved. INFORMATIONAL
+   * ONLY. Never infer "has incremental baseline" from `priorVerdict`; read
+   * `contextMode` / `reviewBasis` for that.
    */
   priorVerdict: string | null;
   /**
-   * Whether any MATERIAL file changed relative to the baseline. When
-   * `isFirstPass=false` this equals `changedFiles.length > 0`. When
-   * `isFirstPass=true` it is forced to true (a first pass conservatively
-   * "shows everything"), so it MAY be true even if `changedFiles` is empty —
-   * do not assume `scopeChanged === (changedFiles.length > 0)` in that branch.
+   * Whether any MATERIAL file changed relative to the baseline. It equals
+   * `changedFiles.length > 0` when an incremental baseline is served, and is
+   * forced to true whenever the full story diff is served instead (first pass
+   * or bounded-paths degradation), because that read conservatively "shows
+   * everything". So it MAY be true even if `changedFiles` is empty — do not
+   * assume `scopeChanged === (changedFiles.length > 0)` in those branches.
    */
   scopeChanged: boolean;
   /**
-   * Material files changed since the baseline. When `isFirstPass=true` this is
-   * the full `main...HEAD` material diff; otherwise the diff from
-   * `priorHeadHash` to HEAD (rename-aware, material-filtered).
+   * Material files changed since the baseline: the full story diff against
+   * `main` whenever the full story diff is served (first pass or bounded-paths
+   * degradation), otherwise the diff from `priorHeadHash` to HEAD (rename-aware,
+   * material-filtered).
    */
   changedFiles: string[];
   contextMode: 'full' | 'incremental';
@@ -314,12 +327,17 @@ export function fixtureCaseClosure(
 /**
  * Read-only incremental review context for a reviewer `role` on `storyId`.
  *
- * - A prior pass/finding with a bound, resolvable headHash → diff that headHash
- *   against HEAD (rename-aware, material-filtered); scopeChanged = changed > 0;
- *   isFirstPass = false.
- * - No prior verdict (or prior verdict has no resolvable bound headHash) →
+ * - A trusted prior pass with a bound, resolvable headHash whose diff fits the
+ *   bounded review-basis path lists → diff that headHash against HEAD
+ *   (rename-aware, material-filtered); scopeChanged = changed > 0;
+ *   isFirstPass = false; a review basis is emitted.
+ * - No trusted prior verdict (or its bound headHash is unresolvable) →
  *   isFirstPass = true, priorHeadHash = null, scopeChanged = true, and
- *   changedFiles = the full main...HEAD material diff.
+ *   changedFiles = the full story diff against main.
+ * - A trusted prior pass whose diff does NOT fit those bounded path lists →
+ *   the same full story diff against main, with the resolved prior reported for
+ *   audit (isFirstPass = false) but no review basis emitted; contextMode stays
+ *   'full' and scopeChanged stays true.
  */
 export function reviewIncrementalContext(
   store: StoryStore,
@@ -378,6 +396,15 @@ export function reviewIncrementalContext(
 
   const finalize = (args: {
     prior: TrustedPriorPass | null;
+    /**
+     * Set when a trusted prior resolved but `changedFiles` is NOT the diff from
+     * it — the full story diff is being served in its place. The prior is then
+     * reported for audit only: no incremental review basis is emitted from it
+     * (emitting one would bind a basis to a diff it was not computed from, and
+     * would re-enter the very bound the caller degraded away from), and
+     * `scopeChanged` stays forced-true exactly as on a first pass.
+     */
+    priorNotDiffed?: boolean;
     changedFiles: string[];
     freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
     reasonCodes: string[];
@@ -400,7 +427,7 @@ export function reviewIncrementalContext(
         (item.verificationIntent?.[lane] ?? []).map((intent, index) =>
           intent.id?.trim() || `${item.id}:${lane}:${index}`)));
     let reviewBasis: IncrementalReviewBasis | null = null;
-    if (args.prior) {
+    if (args.prior && !args.priorNotDiffed) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
       const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
       const basisFindings = findings.filter(finding => {
@@ -488,7 +515,7 @@ export function reviewIncrementalContext(
       isFirstPass: !args.prior,
       priorHeadHash: args.prior?.run.headHash ?? null,
       priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
-      scopeChanged: !args.prior || args.changedFiles.length > 0,
+      scopeChanged: !args.prior || args.priorNotDiffed === true || args.changedFiles.length > 0,
       changedFiles: args.changedFiles,
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -510,12 +537,24 @@ export function reviewIncrementalContext(
     };
   };
 
-  // The full story diff against main, reported as a first pass (prior: null, so
-  // no incremental basis is emitted). Every caller below reaches this the same
+  // The full story diff against main. Every caller below reaches this the same
   // way — via a reason code that starts with FULL_, which keeps contextMode at
   // 'full' — so the basis computation stays single-sourced rather than copied
-  // per fallback.
-  const fullStoryDiffContext = (reasonCodes: string[]): ReviewIncrementalContext => {
+  // per fallback. No incremental basis is ever emitted from here: callers that
+  // have no trusted prior pass null, and the caller that HAS one passes it for
+  // audit only (priorNotDiffed), because this diff is not taken from it.
+  //
+  // Diff basis ref: the literal `main` ref as it stands at computation time, not
+  // a hash pinned into the result. A concurrent story landing on the shared
+  // local `main` can therefore move this basis between the moment an envelope is
+  // assembled from this read and the moment verifyReviewRunPromptEnvelope
+  // recomputes it. The failure direction is CLOSED, not open: a moved ref that
+  // changes the material set changes changedFilesDigest and eligibilityDigest,
+  // and the mismatch REJECTS the run rather than silently accepting it.
+  const fullStoryDiffContext = (
+    reasonCodes: string[],
+    resolvedPriorForAudit: TrustedPriorPass | null = null,
+  ): ReviewIncrementalContext => {
     const fullDiff = materialOnly(changedFilesBetweenRenameAware(projectRoot, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
@@ -529,7 +568,8 @@ export function reviewIncrementalContext(
       changedFileStatus: changedFileStatusesBetweenRenameAware(projectRoot, 'main', 'HEAD'),
     });
     return finalize({
-      prior: null,
+      prior: resolvedPriorForAudit,
+      priorNotDiffed: resolvedPriorForAudit !== null,
       changedFiles: fullDiff,
       freshnessClassification: 'NOT_EVALUATED',
       reasonCodes,
@@ -555,15 +595,30 @@ export function reviewIncrementalContext(
   // contract accepts (typically because a large merge from main landed between
   // that verdict and HEAD, so the diff measures the merge rather than the
   // story). Degrade to the same full story diff the branch above uses instead
-  // of failing the read: the conservative direction is "show everything".
+  // of failing the read.
+  //
+  // What that degradation actually does, precisely: it replaces "no review
+  // context at all" — before this branch existed the oversized diff made
+  // validateIncrementalReviewBasis throw, so the read produced nothing usable —
+  // with the story's complete net diff against main. It does NOT enumerate
+  // main's own merged history. Compare the two sets rather than ranking them:
+  // the rejected set is every path that changed between the prior verdict and
+  // HEAD, which includes the already-reviewed main-side churn that pushed it
+  // over the bound; the served set is every material path in which this story
+  // differs from main, and it can be far smaller than the set it replaces. It
+  // is not "more context", and it is not "strictly more conservative".
   //
   // This does not relax the cap. FULL_TASK_CONTEXT_LIMITS stays the single
   // source for the limit, validateIncrementalReviewBasis keeps enforcing it,
   // and the degraded context emits no incremental basis at all — its FULL_
   // reason code holds contextMode at 'full', so a reviewer is never served
-  // incremental context off a prior it could not diff against.
+  // incremental context off a prior it could not diff against. The trusted
+  // prior is still reported (isFirstPass=false, priorPassRef / priorReviewRunId
+  // / priorHeadHash / priorVerdict) so the audit trail keeps naming the verdict
+  // this read actually resolved; that is informational only and moves no
+  // eligibility field.
   if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
-    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS']);
+    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS'], prior);
   }
 
   const statuses = changedFileStatusesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD');
