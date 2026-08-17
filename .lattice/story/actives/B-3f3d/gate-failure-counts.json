@@ -1,20 +1,14 @@
 {
-  "story_advance/64b3ac587d50": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter TEST: no valid current-round lattice-review-* finding or pass [review_evidence_missing]",
-    "lastAt": "2026-08-16T10:48:24.349Z"
-  },
-  "story_advance/b56ead94bc07": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter TEST: lattice validate execution error\nvalidate is blocked: validation execution for story B-3f3d is already running in /Users/qipan/work/repo/Prooforstop/.worktrees/B-3f3d by validate for B-3f3d (pid 35474 on qipandeMacBook-Pro.local), heartbeat 1s ago. Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.\n\n→ 修复 validate runner 后重跑 lattice validate --story=B-3f3d --json\n→ 然后重跑 lattice story_advance --phase=TEST",
-    "lastAt": "2026-08-16T10:58:55.716Z"
-  },
   "story_advance/561cb8ec5e50": {
-    "count": 2,
+    "count": 1,
     "command": "story_advance",
     "lastReason": "Cannot enter remediation DEV: missing valid unconsumed FINALIZED review inventory receipt. Next: lattice review_inventory_status --storyId=B-3f3d",
-    "lastAt": "2026-08-17T02:32:19.240Z"
+    "lastAt": "2026-08-17T05:52:41.504Z"
+  },
+  "story_advance/c00b893d61b9": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot transition from REVIEW to PLAN",
+    "lastAt": "2026-08-17T07:11:28.597Z"
   }
 }

@@ -85,6 +85,13 @@
       "status": "open",
       "foundAt": "2026-08-17T04:30:31.743Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-CRITIC-FINDINGS-INVISIBLE",
+      "title": "evaluateReviewInventoryWave (review-inventory-epoch.ts:361) aggregates rawFindings only over epoch.requiredLanes, which excludes lattice-review-topology-critic; the critic's own findings (e.g. F-113, high, open) are therefore invisible to New verified findings and unresolvedFindingIds, so a wave can report saturation while a high-severity critic finding is open. No separate gate requires a valid topology_critic_receipt before review_inventory_finalize either.",
+      "status": "open",
+      "foundAt": "2026-08-17T05:21:40.881Z",
+      "fixedAt": null
     }
   ]
 }

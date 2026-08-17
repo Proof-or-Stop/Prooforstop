@@ -4424,9 +4424,9 @@
       "epochId": "B-3f3d:RI-047",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-17T03:21:59.684Z",
-      "updatedAt": "2026-08-17T04:10:28.026Z",
+      "updatedAt": "2026-08-17T05:48:35.571Z",
       "cutoff": {
         "headHash": "70acae0bce247416ee072026512d47cf24bb8833",
         "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1",
@@ -4517,7 +4517,10 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "893372be356c86bbc0ca22f2b45d8c709009f3bdf324771e3381e11cb4286d86"
+      "cancelledAt": "2026-08-17T05:48:35.571Z",
+      "cancelReason": "Epoch cannot reach saturation certification: the topology critic receipt is hard-blocked by a stale acceptance basis (AT_TOPOLOGY_CRITIC_CONTEXT_INVALID / AT_SCOPE_BINDING_MISSING), which is only repairable in DEV via acceptance_basis_generate. Cancelling to release the epoch under the owner's bounded resume authorization; no transition authority is claimed and all five lane passes will be re-earned after the basis is regenerated.",
+      "terminalRunSequenceBoundary": 463,
+      "_hash": "b7b22d1d02ef0816cbcde6dbb0d1263dff36f2f8aaf2b401b34fd3c1503db915"
     }
   ],
   "receipts": [
