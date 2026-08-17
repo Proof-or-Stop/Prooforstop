@@ -1380,6 +1380,24 @@
       "resolvedAt": "2026-08-17T02:37:06.068Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-065",
+      "desc": "Fourth sibling of the F-061 comparison/parser class, SAME FILE, same function family, not yet fixed: core/lattice-dispatch.ts:1659 buildRequiredCommandEnv still has `if (!denied.has(\\\"LATTICE_SESSION_ID\\\")) { setBrandEnv(env, \\\"SESSION_ID\\\", getSessionId()); }` -- a literal-only denylist membership test, structurally identical to the buildCanonicalHostRuntimeEnv bug fixed in 9526d2125b at line ~1685 two lines below in the same file, except this one is UNFIXED. Verified by direct call-graph trace (not just static reading): buildRequiredCommandEnv is called from THREE sites -- (1) line 1682 inside buildCanonicalHostRuntimeEnv, where its output IS safe because buildCanonicalHostRuntimeEnv unconditionally overwrites SESSION_ID afterward via the now-fixed sessionIdEnvNames logic (lines 1696-1700), masking this bug for that one call site; (2) line 1735 runRequiredCommands default param (used by dispatch_auto policy execution), which does NOT go through that override and uses buildRequiredCommandEnv output directly; (3) line 2162 in the fake-dispatch-runtime preparation path, same direct-use pattern. For call sites (2) and (3), a dispatch_auto policy configured with envDenylist:[\\\"PROOF_OR_STOP_SESSION_ID\\\"] (the canonical, documented name -- envDenylist is a real user-facing CLI arg per command-catalog.ts:1752) fails to suppress SESSION_ID injection: denied.has(\\\"LATTICE_SESSION_ID\\\") is false, so the guard is true, and setBrandEnv dual-writes BOTH spellings into the required-command execution environment despite the explicit deny. Fix: reuse the same sessionIdEnvNames-style either-spelling check already added to buildCanonicalHostRuntimeEnv, inside buildRequiredCommandEnv itself so all three call sites get the fix, not just the one that happens to be masked downstream.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T02:42:16.494Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-096",
+      "_hash": "3aa464961a1d5b3d991c677ef8ab1ace04fd473a7a1f2571ef2ff910aafdac3d",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|fourth-sibling-comparison",
+      "signatureTagSource": "auto"
     }
   ]
 }
