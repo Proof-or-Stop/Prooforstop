@@ -1108,6 +1108,53 @@
         "scanEscalationReason": null
       },
       "_hash": "b5181ba3db0897d41bcea840f9f02dcc822bc5bcce0b472c004f34fb855f7d61"
+    },
+    {
+      "id": "B-cdf6:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review, sixth pass. Verified F-068 fix (inferCodexEntrypoint now recognizes both wrapper filenames; reproduced coordinators exact 4-path matrix against compiled dist and it matches) and F-067 disposition (independently confirmed pre-existing via git diff main...HEAD empty on log-tools.cjs and predicate byte-identical on main; correctly resolved superseded not fixed, escalated to B-META-framework-audit:F-034). Did one more exhaustive hunt per the standing instruction across: all brand-keyed env comparisons in lattice-dispatch.ts (SESSION_ID_ENV_NAMES consolidation confirmed complete, no other site left unrouted), all 22 managedDoc/wholeFile ownership and okWhen predicates in managed-assets.ts (each checked against its actual generator output via the compiled dist, not just read statically), the codex-entrypoint inference and hook-wiring checks, schema-version switch statements (command-spec v1/v2, dirtyCategoryLabel), and startsWith/endsWith prefix checks on lattice-review-*/.lattice/ paths. All remaining hits correctly reference FROZEN literals (signature salts, .lattice/ paths, lattice-review-* role-ID prefixes, lattice-scope-pretool.cjs frozen hook filename) or are symmetric internal enum comparisons where both writer and reader share the same TypeScript literal type. No new comparison/parser-class or dead-predicate-class defects found. tsc --noEmit clean, 0 open findings.",
+      "createdAt": "2026-08-17T03:14:28.956Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-098",
+      "envelopeId": "1afb596ed96e7b16e1176b87eb9ee368f1e0c8b4ebed729026c4e842973c697c",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/guard-session.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/hooks/log-tools.cjs",
+          ".claude/hooks/session-brief-reminder.cjs",
+          "docs/guide-hooks.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/hooks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9632a09418fe9f4da0148ba2f24e34ee3b63bd7dc964c80277567e4b1012d5d"
     }
   ]
 }
