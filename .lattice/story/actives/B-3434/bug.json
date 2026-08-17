@@ -1,0 +1,11 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-B16DF-BYTEPIN",
+      "title": "B-16df's registered validate-command-timeout-smoke section 12 asserts validation-executor.ts and verifier.ts are byte-for-byte identical to main, which deterministically fails validate for EVERY story that edits either file. Confirmed: node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 1 with FAIL: validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff). Registered at validate.commands[10]. The assertion reads as B-16df's own scope self-check (its fix was confined to checklist.ts), but as a standing gate it has no meaning on main (trivially true there) and forbids all future edits to two actively-developed core files. B-3434 changes both by 808 insertions as its entire purpose. First surfaced by the cross-vendor host-B reviewer at packages/main/src/tasks/validate-command-timeout-smoke.ts:383-394 and reproduced independently.",
+      "status": "open",
+      "foundAt": "2026-08-17T09:02:47.813Z",
+      "fixedAt": null
+    }
+  ]
+}
