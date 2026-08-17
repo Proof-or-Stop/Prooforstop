@@ -982,6 +982,28 @@
         "scanEscalationReason": null
       },
       "_hash": "992da6fe44bd81ec6b18bbb0d64db74f0dd65f6f1583d0186b1e776fd63de1ed"
+    },
+    {
+      "id": "B-3434:RP-038",
+      "agent": "lattice-review-behavior",
+      "note": "Re-bind after comment-only commit 90bde4c74f (F-047 fix). git show --stat confirms exactly one file (validate-command-timeout-smoke.ts, +2/-2), and every changed line is inside a // comment block (section-12 doc comment on METADATA_BLOB_READ_MAX_BUFFER_BYTES's import history) -- no statement, expression, or control-flow change. 'only imported by' clause is gone (grep confirms); surviving sentence checked true: validation-executor.ts has zero execFileSync occurrences (grep confirms). Compiled smoke still exits 0 at 46 assertions (node packages/main/dist/tasks/validate-command-timeout-smoke.js). npx tsc --noEmit -p packages/main exits 0. dist/tasks/validate-command-timeout-smoke.js's last commit is 90bde4c74f itself (git status clean on it) -- not stale. The two commits after 90bde4c74f (26d17ea540, 3206ba5f63) touch only .lattice/story bookkeeping (findings.json, process-metrics.json), no source. Behavior lane: no behavioral, coverage, or control-flow surface changed since RP-036 -- pass re-bound, not re-derived.",
+      "createdAt": "2026-08-17T13:52:22.699Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-073",
+      "envelopeId": "907f2ee77c9c678c2653aa2a907bc820e67f3625f6d660b10034d2da4c2a7990",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1431ff3174b294fbf37c90cf7da1b6ba8dbeb159b86a586151ca2fba5690d817"
     }
   ]
 }
