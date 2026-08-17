@@ -51,6 +51,21 @@
       "_hash": "9b59fa0dd8565b6e0aaf05c8201a900b68bbca799bad561baa931ff51284371e",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-004",
+      "desc": "doc-code-drift: packages/main/src/tasks/validate-command-timeout-smoke.ts:21 top-of-file docstring still claims check 12 verifies 'validation-executor.ts and verifier.ts remain byte-for-byte unmodified from main (git diff, soft-skip on environment failure)'. This story (B-7dff) intentionally rewrote check 12 itself (lines ~362-386) to a different, weaker invariant (no copy of resolvePinnedCommandTimeoutMs matching logic in either file) precisely because B-7dff must modify both validation-executor.ts and verifier.ts. The file's own summary docstring was not updated to match, so a future reader relying on the top-of-file summary would believe a stronger byte-identity guarantee still holds when it no longer does.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T15:19:37.558Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-002",
+      "_hash": "4d5df442d9dfe5788ddca788a0377163a1ddd15ebda78163076c6076610b02f2",
+      "signatureTag": "missing|unknown|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
