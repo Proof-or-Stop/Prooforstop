@@ -909,6 +909,35 @@
         "scanEscalationReason": null
       },
       "_hash": "67cea443019e88687d27e373e6159474c66ae64601937139e90c6502784de29e"
+    },
+    {
+      "id": "B-3434:RP-035",
+      "agent": "lattice-review-behavior",
+      "note": "Behaviour preservation, RR-064. (1) Smoke's own behaviour: static check( sites 45-1(def)=44, matches claimed 45->44; node dist/tasks/validate-command-timeout-smoke.js exits 0 reporting 44 assertions, so 44 static == 44 executed, nothing silently unreachable. Read full source: sections 13-16 run unconditionally after section 12's single existsSync check, no try/catch swallowing, no renumbering; section 13 still reads checklist.ts source text directly. dist matches src (only comment text touched, no execSync/diffOutput remains). tsc --noEmit -p packages/main clean. (2) Story's own behaviour at this revision: git show --stat efe682df11 touched only the smoke file, none of the four scope-contract allowedModify files. Independently re-verified beyond re-running the smoke: wrote a scratch script that drives the REAL compiled StoryStore.writeTestEvidence (dist/core/store.js) through unmodified/reduced/verdict_only/refused fixtures matching the smoke's own -- reported fileBytes matched actual on-disk bytes exactly for all three writing dispositions (1211215/75713/1075), and refused wrote nothing, mirroring verifier.ts persistStoryValidationEvidence's real write-site guard at lines 976-985 (read in full) which returns persistenceFailure before ever reaching writeTestEvidence. Also independently verified the 32 MiB ceiling (METADATA_BLOB_READ_MAX_BUFFER_BYTES=33554432) against real git blobs at the literal sizes named: 5 MiB reads correctly (sha256 matches), 40 MiB fails as kind=unreadable with ENOBUFS + ceiling + captured-byte-count (33562624) in a <500-char diagnostic, missing path classifies kind=absent, distinct from unreadable. (3) All 6 required commands run with real output: tsc clean; validate-command-timeout-smoke 44/0; red-b3434-blob-buffer-ceiling PASS (all sections incl. over-ceiling/absent/silent-hook/talking-hook); validation-evidence-buffer-smoke PASS (advisory/bound/tiers/CHK-004 outcome-B rationale check); done-prepare-auto-closeout-smoke PASS; validation-evidence-reuse-smoke PASS. Findings: B-3434:F-046 (low, doc-code-drift, verified) -- the removal correctly updated two of three stale-claim sites (file-header docblock, Hermetic: paragraph) but missed a third: the REPO_ROOT docblock (lines 60-66) still claims section 12 runs git diff, which it no longer does; comment-only, no functional effect, confirmed pre-existing wording via git show efe682df11~1. On the legitimacy question being adjudicated elsewhere: the one coverage fact worth not missing is that THIS story's own 808-insertion diff to validation-executor.ts/verifier.ts is independently and thoroughly covered by CHK-001-005's own standing-suite commands (re-verified above), so no coverage gap exists for the edit under review; the disclosed AGAINST argument's residual concern is specifically about future edits outside the behavioural surfaces sections 6-11/15/16 exercise, a real but already-disclosed tradeoff, not a hidden one.",
+      "createdAt": "2026-08-17T13:19:36.691Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-064",
+      "envelopeId": "c78b8108bd57ec0a550ff4797e4daa977f66e44425d358b73545993afd0b597f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/done-prepare-generated-metadata.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6eafbbdc03ba917f2503f3d4e0d91b72e23e266d34d7b9920671d51dddf10ddc"
     }
   ]
 }
