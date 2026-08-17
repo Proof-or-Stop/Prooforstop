@@ -9,6 +9,7 @@ import type {
   TopologyExclusionApprovalV1,
   TopologyImplementationProvenanceV1,
 } from './types.js';
+import type { SessionSource } from './owner-session.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical, verifyCanonical } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
 
@@ -136,17 +137,33 @@ export function deriveImplementationProvenance(gitCwd: string, events: readonly 
   };
 }
 
+/**
+ * Session sources a signing role may hold.
+ *
+ * `host-adapter` and `generated-token` both clear the same provider + task + agent gate in
+ * `resolveAdapterOwnerSession`, and both derive their id by hash rather than by assignment, so an
+ * implementer cannot pick the value a reviewer will sign under; `generated-token` additionally
+ * demands a boundary token. `explicit-env` is whatever the caller wrote into the session id env
+ * var, and `derived-ppid` is a hash of the process tree — both are mintable by the party under
+ * review, so neither can carry an independent signature.
+ */
+const SIGNABLE_SESSION_SOURCES: ReadonlySet<SessionSource> = new Set<SessionSource>(['host-adapter', 'generated-token']);
+
 export function deriveRoleProvenance(args: {
   gitCwd: string;
   events: readonly ProcessEvent[];
   expectedRole: typeof TOPOLOGY_CRITIC_ROLE | typeof TOPOLOGY_EXCLUSION_APPROVER_ROLE;
   actor: string | undefined;
   sessionId: string;
+  sessionSource: SessionSource;
   context: ReceiptContext;
   implementation: TopologyImplementationProvenanceV1;
 }): TopologyActorProvenanceV1 {
   if (args.actor !== args.expectedRole) throw new Error(`role eligibility failed: expected ${args.expectedRole}, received ${args.actor || '<missing>'}`);
   if (!args.sessionId.trim()) throw new Error('role eligibility failed: session identity is missing');
+  if (!SIGNABLE_SESSION_SOURCES.has(args.sessionSource)) {
+    throw new Error(`role eligibility failed: ${args.expectedRole} must sign from a host-adapter session, received "${args.sessionSource}"`);
+  }
   const event = [...args.events].reverse().find(candidate =>
     candidate.type === 'dispatch'
     && candidate.agentType === args.expectedRole
