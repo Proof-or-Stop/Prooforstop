@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Require sessionSource host-adapter in deriveRoleProvenance",
+      "context": "topology-critic-receipt.ts deriveRoleProvenance accepts sessionId but never checks its provenance. Add a sessionSource parameter and refuse anything other than host-adapter. explicit-env is whatever was put in LATTICE_SESSION_ID and derived-ppid is a process-tree hash; neither is evidence of an independent actor. Both production call sites are in proofstory.ts around lines 558 and 573, and both can read getSessionIdentity().sessionSource.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "topology_critic_receipt_set from a session whose id came from LATTICE_SESSION_ID fails with: role eligibility failed: lattice-review-topology-critic must sign from a host-adapter session, received \"explicit-env\".",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Migrate test session setup from LATTICE_SESSION_ID to adapter env",
+      "context": "208 references across 30 files under packages/main/src/tasks use LATTICE_SESSION_ID, which resolves to explicit-env and would be refused by CHK-001. Replace with LATTICE_OWNER_SESSION_ADAPTER_PROVIDER plus TASK plus AGENT so the adapter derives the session the way a real host does. The derived id depends on projectRoot, so fixtures that compare hardcoded ids such as sess-critic must resolve them through deriveAdapterOwnerSessionId rather than matching the literal.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "npm run test:legacy completes with the same pass count as before the change, and no test sets LATTICE_SESSION_ID to establish a signing identity.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove the guard bites under mutation",
+      "context": "Assert that explicit-env, derived-ppid and generated-token are each refused for a critic receipt, and that a genuine host-adapter session is still accepted. Without a mutation-style negative test this repeats finding B-3f3d F-115, where a security-relevant change shipped with no coverage at all.",
+      "relatedDocs": [
+        "CLAUDE.md#handler-编码约定"
+      ],
+      "userSees": "proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
