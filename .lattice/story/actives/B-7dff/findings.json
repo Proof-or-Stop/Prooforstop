@@ -89,6 +89,24 @@
       "signatureTag": "missing|unknown|maintainability-packages-main",
       "signatureTagSource": "auto",
       "resolvedBy": "B-7dff:F-005@613bea5"
+    },
+    {
+      "id": "B-7dff:F-006",
+      "desc": "packages/main/src/handlers/verifier.ts:977-1006,1318-1328,891-893 — F-003s own detection-not-lost promise is broken in the real persisted-evidence path. executeValidationPlan (validation-executor.ts) correctly sets result.concurrentWorktreePollution when pollution cannot be attributed to one command, and the plan-level status/allPass correctly fail. But the configured-commands story-evidence path wraps that plan result through externalResult() (verifier.ts:977, args type + return object list provider/status/allPass/summary/details/warnings/timestamp/headSha/commands/focus only — no concurrentWorktreePollution field), and the call site at verifier.ts:1318 that builds `result` from `base` (the executeValidationPlan output) does not forward base.concurrentWorktreePollution either. That wrapped `result` is what flows into decorateAndMaybePersistStoryValidation -> persistStoryValidationEvidence, whose evidence() closure at verifier.ts:891-893 checks `result?.concurrentWorktreePollution` to decide whether to pass concurrentPollutionBlocking:true into summarizeRoutineCommandExecution. Since the field never survives the wrap, concurrentPollutionBlocking is never true for the real lattice validate --story=B-xxx --json path, regardless of whether concurrent pollution was actually detected. Reproduced directly against the built dist (two-command concurrent-write fixture, jobs=2): executeValidationPlan returns status=fail with a populated concurrentWorktreePollution.blocking=true, but replaying verifier.ts externalResult()s exact field whitelist plus persistStoryValidationEvidences exact evidence() logic on that output produces a persisted test-evidence.json with result=FAIL (correct, since status/allPass do pass through) but commandExecution={status:PASS, requiredFailureCount:0, complete:true, optionalFailureCount:0} (wrong) -- exactly the shape isReusableCommandPass (validation-evidence-reuse.ts:242-259) checks, and commandExecution is documented at validation-types.ts/types.ts:1710 as project command truth, intentionally independent. Today this happens not to cause an observable reuse bypass only because evaluateRoutineValidationReuse (validation-evidence-reuse.ts:322) ALSO independently checks evidence.result !== PASS, a coincidental second gate, not a designed safety net for this field. This directly contradicts the F-003 commit messages own claim (613bea5432) that the set-attributed record is counted as a required failure by summarizeRoutineCommandExecution (the other gate that reads pollution) so it cannot go silently missing there -- that guarantee holds only when summarizeRoutineCommandExecution is called directly with a hand-supplied flag (as validate-pollution-attribution.test.mjs section 6 does), not when driven through the actual verifier.ts wiring. Fix: thread concurrentWorktreePollution through externalResult() (or pass it separately) at the verifier.ts:1318 call site so persistStoryValidationEvidence sees it, and add a regression that drives the SAME scenario through the real handler/persisted evidence path (not summarizeRoutineCommandExecution called directly) to prevent recurrence.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T20:11:31.602Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-008",
+      "_hash": "520e3d5e204091c7409e368550c15de543aa0ca1e9fb159ad42aba8932a2156f",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
