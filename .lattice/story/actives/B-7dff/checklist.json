@@ -262,8 +262,8 @@
         "CLAUDE.md#verification-intent-evidence"
       ],
       "userSees": "lattice validate --story=B-xxxx --json returns the same commands[] entries in the same order with the same code and durationMs fields as a serial run, and reports the worker count it used.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-17T13:38:11.656Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -344,6 +344,17 @@
           "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Classify the heavy validate commands so the fail-closed default stops dominating the makespan",
+      "context": "Measured after CHK-002: of the 79 configured commands with known durations, the 34 declared shared claims sum to 35s while the 45 that fell back to the exclusive barrier sum to 689s. Every heavy command is a barrier (quorum-submit-smoke 267s, review-pass-discard-smoke 84s, validate-progress-heartbeat-smoke 65s, proofstory-acceptance-basis-smoke 53s), so the predicted makespan is 708s against a 724s serial total: 1.02x, no speedup at all. The fail-closed default is correct and must not be weakened; the missing work is proving which heavy commands are genuinely temp-root isolated and declaring claims for those. Splitting quorum-submit-smoke itself stays out of scope, but it must still be measured as the floor rather than hidden inside an undifferentiated barrier set.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7dff/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
