@@ -185,6 +185,28 @@
         "scanEscalationReason": null
       },
       "_hash": "f92659bd025405acda611220a5e6e3bf3b4b71da55be63a05e02e77baf1367dd"
+    },
+    {
+      "id": "B-7dff:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 delta review: only packages/main/tests/validate-pollution-attribution.test.mjs changed (commit 5b9431b04a, F-010 fix), no production code touched. Verified the handshake rewrite (writes/observes/awaitObservedBy) sound: the write only fires after both processes announced start (so both readGitStatus before-samples in validation-executor.ts precede it by construction), and both after-samples are gated on the bystander actually stat-ing the writers real file plus publishing a receipt the writer waits on, so no timing/clock-jump path can shrink either window. Sections 1-7 (F-003 never-falsely-attribute / never-lose-detection / exact-solo-attribution / vacuity-guard) use probe(), not handshakeCommand(), and are byte-for-byte untouched by this commit -- confirmed via git show --stat (1 file, +83/-19) and full diff read. The two new section-8 fixture preconditions (bystander.observed exists; both commands exited 0 with no timeout) are plain assert.ok() calls executed BEFORE the substantive assertion, so a failing precondition still fails the run loudly with a distinguishing message -- they cannot swallow a genuine regression, they can only relabel a fixture-side failure so it is not confused with one. Empirically confirmed both directions on the live tree: (1) ran validate-pollution-attribution.test.mjs on HEAD -- PASS, 61 assertions, all VI-OK lines including F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION and F006-NO-PLAN-FIELD-DROPPED. (2) negative control -- hand-patched packages/main/dist/handlers/verifier.js to restore the pre-fix subtractive wrap (const result = { ...externalResult({...}) } instead of { ...base, ...externalResult({...}) }), reran the same test file: sections 1-7 still print VI-OK, the two new preconditions PASS (fixture overlap achieved correctly), and the run then fails with AssertionError exactly at the intended assertion (\"the plan-level record survives the handler wrap and reaches the caller\", line 518) -- i.e. the same assertion this regression has always failed at, not a new/different one and not swallowed. Rebuilt packages/main from the untouched source afterward and reran to confirm the tree is back to a clean PASS (61 assertions) with git status clean (dist/ is gitignored). review_incremental_context confirms the only changed/impacted file since my prior pass (RP-005) is this test file, matching the assigned scope. No behavioral regression found in this lane.",
+      "createdAt": "2026-08-17T21:40:27.221Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-015",
+      "envelopeId": "59945944d494397cb6284da684818d2ef52a2b3bf65275ee0e8c2620931154a5",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2799f56d147af013a3a3c2b6a482b3c8f491ef719eb6b535b64c7191384b7e53"
     }
   ]
 }
