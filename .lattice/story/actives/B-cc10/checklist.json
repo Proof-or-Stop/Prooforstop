@@ -381,9 +381,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "both builds exit 0 with dist present, `node scripts/verify-entrypoints.mjs` prints \"entrypoints verified\", and root package.json still shows \"name\": \"lattice\"",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T15:16:40.713Z",
       "files": {
         "modify": [
           "packages/main/package.json",
@@ -495,7 +495,14 @@
           "storyFilesHash": "f3474e89cbecb31ed6725dc6c8aaa6f049cf727d0ab977d107ff9f2e6b74c5a5",
           "timestamp": "2026-08-17T15:07:23.893Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f4ce5d289717f14f0254ad8d84233c38e2851d2b4b9cdb41c24ffd4a57059b48",
+        "storyFilesHash": "0e5bbcda2ca5ee12ff41779066d0b6b30fe5fad405adeaf94825a4cccd89a84d",
+        "headHash": "ad5dc152536c28e63a605b0fcaa4c19f204e9eea",
+        "attestedAt": "2026-08-17T15:16:40.929Z",
+        "materialHash": "0537755f7ab51ebe9cc784ca8caed0f3d9673f24f783a289f264f7bd3fb6b09f"
+      }
     },
     {
       "id": "CHK-006",
