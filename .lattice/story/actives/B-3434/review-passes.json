@@ -938,6 +938,28 @@
         "scanEscalationReason": null
       },
       "_hash": "6eafbbdc03ba917f2503f3d4e0d91b72e23e266d34d7b9920671d51dddf10ddc"
+    },
+    {
+      "id": "B-3434:RP-036",
+      "agent": "lattice-review-behavior",
+      "note": "F-046 confirmed fixed: REPO_ROOT docblock (line ~73) now reads 'Section 12 no longer runs git diff'; the only other git-diff mention (line ~383) is inside BUG-B16DF-BYTEPIN historical prose, past tense ('This section also used to assert... It ran'), not a live claim -- no fourth site carries the stale claim. Smoke exits 0 reporting 46 assertions, matching the static count of 46 check( call sites (47 grep hits minus 1 for the check() function definition); sections 13-16 confirmed present and reachable in the single linear try/catch IIFE (no early returns anywhere in the file). Section 17 (allowlist membership + rejection) has no writeFileSync/mkdtempSync and does not mutate VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST (only spreads+sorts into a new local array); the rejection call is wrapped in its own try/catch so parseAllowlistedCommand's synchronous throw is captured into nonMemberError, not left uncaught -- confirmed the message format matches (validation-executor.ts:1274) and the expected/actual allowlist arrays match verbatim. git status clean of code changes after running all four commands. Re-ran the load-bearing check: METADATA_BLOB_READ_MAX_BUFFER_BYTES = 32*1024*1024 still present at done-prepare-generated-metadata.ts:34 with maxBuffer wired at all its execFileSync call sites; commit 17dc863c05 confirmed via git show --stat to touch only validate-command-timeout-smoke.ts. All four required commands ran clean: tsc --noEmit silent, validate-command-timeout-smoke 46/46 exit 0, red-b3434-blob-buffer-ceiling PASS exit 0, validation-evidence-buffer-smoke PASS exit 0. No findings.",
+      "createdAt": "2026-08-17T13:38:31.866Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-068",
+      "envelopeId": "df7aa93b9426c206b4ba988f80ef2624883c34e71332a5ce2909cf19aa7871c5",
+      "writerSessionId": "sess-506efb3c29b8d24af74d5564d79ed07a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "910342e6df529c35dae187a6f9e25dbe44d93a5e158ce8ad7126d2e8d998c987"
     }
   ]
 }
