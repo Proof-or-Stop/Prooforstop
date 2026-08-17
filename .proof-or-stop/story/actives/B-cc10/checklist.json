@@ -212,9 +212,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "`story_get` prints a phase for two NAMED archived stories (one earliest-era, one pre-migration) against .proof-or-stop, and `git show --stat` shows renames only, zero content edits",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T15:29:00.444Z",
       "files": {
         "modify": [
           ".gitignore"
@@ -321,7 +321,14 @@
           "storyFilesHash": "d636308586160aceacc9c961cba3c37247be72ef77ea6b519dc6b65d32a51c44",
           "timestamp": "2026-08-17T15:28:44.651Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0790e2eb44c3dea8025d687c1076e32fa4442a39ed39d3da95846ca87fd64fc3",
+        "storyFilesHash": "542588ed33d6f11cecbe50765fef25fb23d14f469d289ad83affde74ff9e317c",
+        "headHash": "5f95d018e3c3a9b9dac5177f30328069e545abf4",
+        "attestedAt": "2026-08-17T15:29:00.658Z",
+        "materialHash": "4a885092840e95d8c66db2fb975b5df9e86d924331b5263c652c40ad441da862"
+      }
     },
     {
       "id": "CHK-004",
