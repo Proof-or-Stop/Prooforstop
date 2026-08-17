@@ -11,7 +11,17 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { validateResourceClaims, type ResourceClaim, type SchedulableEntry } from './keyed-scheduler.js';
+import {
+  canonicalizeEntries,
+  MAX_JOBS,
+  parsePositiveInteger,
+  runScheduled,
+  validateResourceClaims,
+  type ResourceClaim,
+  type SchedulableEntry,
+  type SchedulableResult,
+  type ScheduledStatus,
+} from './keyed-scheduler.js';
 import type {
   ValidationCommand,
   ValidationCommandResult,
@@ -61,6 +71,54 @@ export interface ExecuteValidationPlanOptions {
   abortSignal?: AbortSignal;
   deadlineAt?: number;
   deadlineError?: () => Error;
+  /** Scheduler worker count; overrides LATTICE_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
+  jobs?: number;
+}
+
+/**
+ * Worker count for the routine-validate plan scheduler.
+ *
+ * 4 is the same default the full test-suite runner (tasks/full-suite-runner.ts)
+ * has been running on since it moved onto this scheduler, so the two callers of
+ * `runScheduled` behave alike and one number is tuned instead of two. It is also
+ * the right order of magnitude here for reasons specific to this plan:
+ *
+ *  - Admission control, not this number, is what keeps the run correct: an
+ *    undeclared command holds the plan-wide barrier exclusively, so raising the
+ *    worker count can never make an unclassified command overlap anything.
+ *    Today most configured commands are undeclared, which caps the achievable
+ *    concurrency well below 4 for long stretches of the plan; workers past that
+ *    point sit idle rather than helping.
+ *  - Each validate command is itself a process tree (npm / tsc / node spawning
+ *    children), so the effective load is a multiple of the worker count. Four
+ *    concurrent trees is already a heavy machine on a typical 8-10 core host,
+ *    and oversubscribing inflates every command's wall time — which is the same
+ *    number the per-command `timeoutMs` ceilings are calibrated against.
+ */
+export const DEFAULT_VALIDATE_PLAN_JOBS = 4;
+
+/**
+ * Resolve the scheduler worker count: explicit `jobs` option, else the
+ * `LATTICE_VALIDATE_JOBS` env var, else {@link DEFAULT_VALIDATE_PLAN_JOBS}.
+ *
+ * A PRESENT but unparseable / out-of-range value is REFUSED rather than
+ * silently replaced by the default: an operator who sets this has a reason, and
+ * quietly ignoring the setting turns "why is validate still slow / still
+ * parallel" into an unanswerable question. Absent or empty is not a setting, so
+ * it takes the default. `jobs=1` is a legitimate setting — it degrades to
+ * strict plan-order sequential execution, which is exactly the pre-scheduler
+ * behaviour.
+ */
+export function resolveValidatePlanJobs(env: NodeJS.ProcessEnv = process.env, override?: number): number {
+  if (override !== undefined) {
+    if (!Number.isInteger(override) || override < 1 || override > MAX_JOBS) {
+      throw new Error(`validate plan jobs must be an integer between 1 and ${MAX_JOBS}`);
+    }
+    return override;
+  }
+  const raw = env.LATTICE_VALIDATE_JOBS?.trim();
+  if (!raw) return DEFAULT_VALIDATE_PLAN_JOBS;
+  return parsePositiveInteger(raw, 'LATTICE_VALIDATE_JOBS');
 }
 
 /**
@@ -198,9 +256,16 @@ export function formatValidationProgressEvent(event: ValidationProgressEvent): s
 // (or when no gitRoot resolves) it is the passed projectRoot verbatim. The `null`
 // fallback on any git failure is preserved (the side-effect guard is only
 // available inside git worktrees; outside one it degrades to null, never crash).
+// B-7dff CHK-003: `--no-optional-locks` because this probe now runs from several
+// concurrently scheduled commands. A plain `git status` opportunistically refreshes
+// (and therefore WRITES) the index, taking `.git/index.lock`; two probes racing for
+// that lock make one of them fail, and a failed probe returns null, which
+// detectNewDirtyStatus turns into "no pollution" — silently disabling the
+// side-effect guard for that command. The flag suppresses only that optional index
+// write; the porcelain output is unchanged.
 function readGitStatus(gitCwd: string): string[] | null {
   try {
-    const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
+    const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -691,6 +756,21 @@ export function resolveValidationPlanEntries(plan: ValidationPlan): ValidationSc
   });
 }
 
+/** One plan command's terminal record as the keyed scheduler sees it. */
+interface ValidationScheduleResult extends SchedulableResult {
+  name: string;
+  status: ScheduledStatus;
+  /** 1-based plan position, so the caller can restore plan order. */
+  commandIndex: number;
+}
+
+/** The scheduler's coarse verdict for one command. Reported, never acted on: the routine
+ * plan runs under `run-all`, so no status here can cancel another command. */
+function scheduledStatusForCommand(result: ValidationCommandResult): ScheduledStatus {
+  if (result.timedOut) return 'TIMEOUT';
+  return result.code === 0 ? 'PASS' : 'FAIL';
+}
+
 export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,
@@ -706,13 +786,35 @@ export async function executeValidationPlan(
     details.push(`FOCUSED VALIDATE MODE focus=${focus}: not final full validation and not DONE-required proof.`);
   }
 
-  for (let i = 0; i < plan.commands.length; i++) {
-    const command = plan.commands[i];
-    const result = await runValidationCommand(command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+  const totalCommands = plan.commands.length;
+  const jobs = resolveValidatePlanJobs(process.env, options.jobs);
+  // Canonicalization is what makes the claims comparable (and it REFUSES an
+  // undeclarable one), so it happens before anything is launched. Every entry
+  // keeps its plan position in `commandIndex`.
+  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot);
+  const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
+
+  // Completion order is not plan order, so results are parked by plan index and
+  // read back in plan order below. `details` is assembled there too: pushing it
+  // from inside a concurrent command would interleave one command's output into
+  // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
+  // lines to process-events.jsonl, which stays single-writer this way.
+  const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
+  // Latched by whichever command first observes the plan deadline blown. The
+  // sequential implementation threw at exactly that point and never started a
+  // later command; entries still pending here are skipped for the same reason
+  // (their timeout would already be clamped to ~0 by the passed deadline, so
+  // launching them only spawns processes whose results this function is about
+  // to discard by throwing).
+  let deadlineExceeded = false;
+
+  await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
+    if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
+    const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
-      commandIndex: i + 1,
-      totalCommands: plan.commands.length,
+      commandIndex: entry.commandIndex,
+      totalCommands,
       abortSignal: options.abortSignal,
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
@@ -722,7 +824,32 @@ export async function executeValidationPlan(
       && typeof options.deadlineAt === 'number'
       && Date.now() >= options.deadlineAt
     ) {
-      throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+      deadlineExceeded = true;
+    }
+    executed[entry.commandIndex - 1] = result;
+    return { name: entry.name, status: scheduledStatusForCommand(result), commandIndex: entry.commandIndex };
+  }, {
+    // run-all: a failing command must never cancel the others. Every gate and
+    // receipt downstream reads commands[] as a COMPLETE record of the plan
+    // (commandExecution.complete compares its length against the plan length),
+    // so a short array would read as an infrastructure failure, not as the one
+    // real command failure it is.
+    cancellation: 'run-all',
+  });
+
+  if (deadlineExceeded) {
+    throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
+  }
+
+  for (let i = 0; i < totalCommands; i++) {
+    const command = plan.commands[i];
+    const result = executed[i];
+    // Unreachable under run-all (every entry produces a terminal result and the
+    // deadline path threw above). Fail closed rather than emit a commands[]
+    // shorter than the plan, which downstream would read as a passing run of a
+    // smaller plan.
+    if (!result) {
+      throw new Error(`validation plan produced no result for command ${i + 1}/${totalCommands} (${command.label})`);
     }
     commands.push(result);
 
@@ -731,7 +858,7 @@ export async function executeValidationPlan(
     const suffix = result.timedOut ? ' (timed out)' : '';
     details.push(`${mark} ${result.label}: ${formatValidationCommand(command)}${suffix}`.trim());
     if (result.timedOut) {
-      details.push(...formatTimeoutDiagnostics(command, result, i + 1, plan.commands.length));
+      details.push(...formatTimeoutDiagnostics(command, result, i + 1, totalCommands));
     }
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
@@ -741,6 +868,12 @@ export async function executeValidationPlan(
       warnings.push(`optional validation failed: ${result.label}`);
     }
   }
+  // Appended, never prepended: details[0] is the first command line (or the
+  // focus banner) and callers read it as the headline.
+  details.push(
+    `validate scheduler: jobs=${jobs} commands=${totalCommands} `
+    + `declared=${totalCommands - exclusiveCount} exclusiveByDefault=${exclusiveCount}`,
+  );
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
