@@ -1269,6 +1269,24 @@
       "resolvedAt": "2026-08-15T07:27:56.341Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-060",
+      "desc": "functional (not cosmetic): core/done-required-timeout-budget.ts:178 recognizedLiveSmokeCommand hardcodes the regex /^(?:LATTICE_SESSION_ID=[A-Za-z0-9_.:-]+\\\\s+)?([^\\\\s]+)\\\\s+(done_required_validate|done_prepare)(?:\\\\s|$)/ -- the ONLY recognized inline env-assignment prefix is the literal deprecated LATTICE_SESSION_ID=. Verified empirically: re.exec(\"PROOF_OR_STOP_SESSION_ID=abc /usr/local/bin/proof-or-stop done_prepare\") returns null (no match at all), while the LATTICE_SESSION_ID= form matches. A caller using the canonical, currently-documented env name in a --capture string for live_smoke_transcript therefore silently falls back to the tighter fixed-arbitrary-command timeout ceiling instead of the wider done_required_validate/done_prepare budget, with no error -- this is a real behavior difference between the two spellings, not just help text. Fix: accept both PROOF_OR_STOP_SESSION_ID= and LATTICE_SESSION_ID= in the regex (e.g. via brand-env.ts brandEnvNames(\\\"SESSION_ID\\\") alternation), matching the read-both contract used elsewhere (e.g. validation-command-environment.ts).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-17T02:29:29.628Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-095",
+      "_hash": "bcc37fe8fd7239072f8ce54134551071198976807abd04604de70329be9d537c",
+      "files": [
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "signatureTag": "missing|ts|functional-cosmetic-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
