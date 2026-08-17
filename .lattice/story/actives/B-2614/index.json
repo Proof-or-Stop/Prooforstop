@@ -1,0 +1,30 @@
+{
+  "storyId": "B-2614",
+  "name": "host-robust-suite-time-gates",
+  "title": "Make the full-suite and pinned-command time gates honest on a variable-speed host",
+  "description": "Four absolute wall-clock thresholds in the validation stack are calibrated for a faster machine than the one the repository currently runs on, and three of them now produce false failures. Measured 2026-08-17/18 on one host in one session:\n\n1. Whole-suite budget. isUnderFullSuiteBudget (packages/main/src/tasks/full-suite-runner.ts, ~line 298) hardcodes 300000ms, and fullSuiteBudgetBreached sets process.exitCode = 1 whenever jobs > 1. The suite measures 333.7s / 334.5s / 335.4s / 336.2s / 357.5s across five complete runs with every member passing, so a fully green 47/47 run exits 1. A DONE-required receipt from 2026-08-17T00:46 recorded the same suite at 221s, so the host is materially slower now than that morning.\n2. Per-member default. DEFAULT_TIMEOUT_MS in the same file is 120000ms and test:flow-stability-smoke rides it while taking 150.0s standalone and 161.1s sharing four workers, so it cannot pass. Verified on a clean detached worktree of main at 860b7b45cf on the same host in the same session: TIMEOUT test:flow-stability-smoke 120.0s, full-suite: 48/49 passed in 296.8s, exit 1. npm test is therefore red on main independently of any story.\n3. Pinned-command receipt cap. resolvePinnedCommandTimeoutMs (packages/main/src/handlers/checklist.ts:46) matches only against configuredValidationCommands, so a command declared in doneRequiredCommands is invisible to it. npm test is declared there with timeoutMs 7200000 but falls back to the 270000ms default, and verification_evidence_add returns receipt_exit_nonzero exit 124 (timed out) for any intent pinned to it. The function own docstring says its purpose is to stop silently falling back to the hardcoded 270s default for commands with a deliberately higher configured budget, so this is a gap in that fix rather than new design.\n4. CLI max timeout. A full 107-command lattice validate hit the framework 900s CLI max-timeout at command 74/107 while the plan itself measured 1474.9s, so the default is now below the work it has to cover.\n\nConsequence: story B-7dff is complete, has all five checklist items done, ten review findings resolved and four reviewer passes on the final tree, yet cannot enter DONE. Its done_required_validate run reports status FAIL with reasons command-failed: FAIL root full test suite: npm test exitCode=1, while the same run logs full-suite: 47/47 passed in 335.4s and budget exceeded: 335410.6ms >= 300000ms. Every member passes; only the clock fails.\n\nExplicitly NOT wanted: raising 300000 to a larger constant. A number chosen to make today host pass stops working on tomorrow host, and the guard exists to catch a real regression. The runner already records cpuInventory.userSeconds and systemSeconds and a baselineComparison against historicalSerialMs 1688918, so a host-relative or CPU-time formulation is available without inventing new measurement.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "full-suite-runner",
+    "timeout-budget",
+    "done-required",
+    "flaky-gate",
+    "host-speed"
+  ],
+  "createdAt": "2026-08-17T23:06:16.580Z",
+  "startedAt": "2026-08-17T23:06:16.580Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-17T23:06:17.889Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-cdd1d3d4d77b1f9e5bb25398e6586975",
+      "agent": "main"
+    }
+  ]
+}
