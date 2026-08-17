@@ -178,10 +178,42 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "npm --prefix packages/main run build succeeds and proof-or-stop --version prints the expected version with zero @lattice/core references outside frozen archives",
+      "userSees": "both builds exit 0 with dist present, `node scripts/verify-entrypoints.mjs` prints \"entrypoints verified\", and root package.json still shows \"name\": \"lattice\"",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build exits 0 AND packages/main/dist/cli-engine.js exists",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "packages/utils builds too, proving the cross-package import of packages/main dist still resolves under the new name",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for @lattice/core outside node_modules, dist and the state dir returns nothing, and root package.json name is STILL lattice (OQ-2 exclusion intact)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
