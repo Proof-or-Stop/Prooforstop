@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "pre_review_check requires the verifier-owned PLAN acceptance basis",
     "lastAt": "2026-08-17T17:28:24.694Z"
+  },
+  "story_advance/52d2e028161f": {
+    "count": 2,
+    "command": "story_advance",
+    "lastReason": "Cannot enter REVIEW: 5 required verification intent(s) lack passing evidence or waiver:\n  - CHK-001:edge:0 [missing] The doc names an identity with NO verdict recorded and the CHK-001 self-check catches it before DEV proceeds\n  - CHK-001:adversarial:0 [missing] A reader cannot conclude a FROZEN row was silently ignored: both supersessions (@lattice/core, bin aliases) appear with citations\n  - CHK-008:happy:0 [non_mechanical] On a scratch clone, story_get on an archived story succeeds BOTH after ",
+    "lastAt": "2026-08-17T17:29:38.391Z"
   }
 }
