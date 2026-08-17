@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|json|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-002",
+      "desc": ".lattice/story/actives/B-7dff/checklist.json:387 CHK-004 title promises to Prove parallel equals serial on the real plan and record the measured makespan, and its context/DoneWhen say the makespan must surface so the 3.17x claim is checkable rather than asserted / no hardcoded 3.17x. The delivered, gate-enforced regression (packages/main/src/tasks/validate-parallel-equivalence-smoke.ts:30-35, npm run test:validate-parallel-equivalence) deliberately never runs the real ~104-command validate plan (comment: real plan takes 10-18 minutes per mode ... would make validate recursive); it only measures a synthetic 6-command fixture with 700ms probes, so the printed serial=/parallel=/speedup= line is disconnected from the workload the 3.17x claim describes (dominated by one ~267s command). No mechanical/repeatable command anywhere in this story ever measures jobs=1 vs jobs=4 wall time on the real, fully-declared plan: the only jobs=1 runs on the real plan (CHK-003:happy:0 evidence) checked commands[] order equivalence, not timing; every other real-plan timing pair cited in CHK-004:happy:0 and CHK-005:happy:0 evidence notes (781.3s/611.6s and 1006.4s/634.9s) is jobs=4 vs jobs=4 (declaration-coverage effect, not scheduler-vs-serial effect), captured as one-off manual validate --json runs rather than a reusable test. So the headline speedup claim that motivated this story is not covered by any evidence a future run can mechanically re-verify. Recommend either widening the smoke to at least assert a real-plan jobs=1-vs-jobs=4 timing check (even a coarse threshold), or explicitly re-scoping CHK-004s DoneWhen to state the real-plan number is manual/one-off and not gate-enforced.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T15:18:47.551Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-003",
+      "_hash": "cfabd11a881412251fa38de6a15995ea46121fd61e32900f3113867816159a46",
+      "files": [
+        "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+        ".lattice/story/actives/B-7dff/checklist.json"
+      ],
+      "signatureTag": "missing|ts|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
