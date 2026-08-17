@@ -8169,6 +8169,54 @@
       "_hash": "e61b0f874e21dbf0373fc5f7740096341c14d4a00fae3697a0fc563d0af0c3c6",
       "signatureTag": "happy|unknown|usersees-mismatch-code",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-120",
+      "desc": "CHK-003 userSees literal-string mismatch, distinct from already-filed F-118/F-119: userSees promises review_inventory_status prints the exact labeled line \"Wave: n/max\" and renders every lane as one of \"pending|complete|blocked\". Actual code (packages/main/src/handlers/review-inventory.ts:258) emits `Current wave: ${wave}/${epoch.maxWaves}` -- the literal substring \"Wave: n/max\" never appears (grep repo-wide for the bare phrase \"Wave: \" returns zero hits in this file; only \"Current wave: \" exists). Lane rows (line 205) emit `Lane ${lane}: ${terminal?.terminal ?? 'pending'}`, where terminal (packages/main/src/core/types.ts:1670) is typed as ReviewInventoryLaneTerminal[\"terminal\"] = 'pass' | 'finding', defaulted to 'pending' when absent -- so the only three values a lane row can ever render are pass, finding, pending. Neither \"complete\" nor \"blocked\" is ever emitted anywhere in review-inventory.ts or review-inventory-epoch.ts (grep for both terms as lane-status values returns zero hits). A user or tooling author following CHK-003 userSees verbatim would search for \"Wave: \" and a \"blocked\" lane state that this command never produces. Fix: either change renderReviewInventoryStatus to emit the exact promised labels (\"Wave: n/max\" and pending/complete/blocked lane states), or correct CHK-003 userSees to describe the actual observable output (\"Current wave: n/max\" and pass/finding/pending lane states).",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T11:27:33.012Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-541",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        }
+      ],
+      "_hash": "caba63c45380a65903f9f64f3d454c12c57df00aa5f1cbc3ff55f688ba736451",
+      "files": [
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "happy|ts|usersees-literal-string",
+      "signatureTagSource": "auto"
     }
   ]
 }
