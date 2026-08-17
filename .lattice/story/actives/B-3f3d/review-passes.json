@@ -18029,6 +18029,44 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "2d5873d12460a0cb65cb0656605186f00beeec5decd3289765dfc77d4f914269"
+    },
+    {
+      "id": "B-3f3d:RP-320",
+      "agent": "lattice-review-docs",
+      "note": "Verification-only pass re-confirming the F-110 fix and re-auditing prior conclusions; git diff main...HEAD is unchanged from the prior docs-lane pass so no new symbol extraction was needed. Verified: (1) F-110 CORRECTION ack (scope-contract.json ack index 26, count 26->27) is accurate: grep of committed review-inventory-handler-smoke.ts confirms zero F-107/F-108 routing-neutral fixture hits, only the pre-existing F-039 candidateDrift test asserting the opposite direction; git diff --stat confirms the file has exactly 885 insertions as claimed; git stash list confirms stash@{0} exists with the exact claimed message; the original false claim in commit c01daa57c4 is preserved unaltered (not rewritten) alongside its retraction in ack 26, so the audit trail is honest and sufficient -- ack 26 explicitly names itself a correction to c01daa57c4 and is discoverable. (2) No other durable artifact found asserting content the tree does not contain: bug_list shows only BUG-F107-INCOMPLETE open (correctly still open); F-089 is the sole open finding and belongs to the topology-critic lane, not docs, correctly out of scope here; ack 24 (test-runner-consolidation-plan.md correction citing RP-273/275/281) independently cross-checked against review-passes.json and found genuine, later re-confirmed by concept lane RP-284 -- not another instance of the F-110 pattern. (3) Known-incomplete callout at review-inventory-epoch-and-saturation-gate.md lines 215-224 remains prominent and explicit (names BUG-F107-INCOMPLETE, states do-not-read-as-guarantee, gives the cancel-then-reopen mitigation). (4) F-099 evidence-semantics passage (lines 180-197) verified against reviewInventoryAcceptanceSubjectDigest/evidenceSemantics in core/review-inventory-epoch.ts and matches exactly; does not contradict the corrected candidate-routing passage (lines 199-213), which is a separate digest mechanism verified against captureReviewInventoryScope in handlers/review-inventory.ts and also matches. (5) Grepped CLAUDE.md for review_inventory/candidateSpecSetDigest/routing-neutral/BUG-F107 references: none claim the routing-neutral leak is closed. (6) git status/git diff confirm only .lattice/story metadata bookkeeping is dirty; zero source/docs content changed since the prior docs-lane pass. No blocker.",
+      "createdAt": "2026-08-17T03:49:36.088Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-449",
+      "envelopeId": "0d3b473a97aabdd8c2cfa3dbe192f806d1725dbab78e6b5c73df3065ca519d76",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/scope-contract.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "5b3785489445fac1853e991dbdc4692b44cf9d44c223295129c0e272bd9bf7a7"
     }
   ]
 }
