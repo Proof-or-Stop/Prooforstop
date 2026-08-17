@@ -1251,6 +1251,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|tested-item-accounting",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-051",
+      "desc": "fullStoryDiffContext(reasonCodes) (review-incremental-context.ts:518-538) always calls finalize({ prior: null, ... }) regardless of caller. For the pre-existing FULL_MISSING_TRUSTED_PRIOR_PASS callers (line 545, and true first-pass), prior really is either absent or its own bound headHash unresolvable, so passing null loses nothing trustworthy. The NEW FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS caller (line 566) is different: it is reached only AFTER prior has already been confirmed non-null with a fully resolvable prior.run.headHash (the if (!prior || !prior.run.headHash) early return at line 544 has already passed). A real, verified, resolvable trusted prior pass exists -- yet fullStoryDiffContext discards it, so the returned context reports isFirstPass=true, priorHeadHash=null, priorVerdict=null and priorPassRef=null exactly as if the reviewer had never reviewed this story. Confirmed empirically on this story's own live dispatch: the trusted prior for lattice-review-quality is RP-040 (bound to RR-074, headHash 3206ba5f6360704929f0ce7751ed165aa0092415, created 2026-08-17T13:53:14.828Z) -- a resolvable, verified prior pass -- yet the envelope actually served for RR-078 (dce003ce9a7382f61ede4b5e61c1a58649ef177401724e2906ab4b50c09adb39) records priorPassRef=None. This is harmless for gating: priorVerdict/priorPassRef are documented at lines 84-93 as INFORMATIONAL ONLY, and the authoritative fields (isFirstPass, reviewBasis=null, contextMode=full) are correct in both cases. But it is a real loss of audit-trail fidelity -- an operator reading this context cannot distinguish genuinely-never-reviewed from reviewed-9-times-but-diff-too-large-after-a-merge -- and it breaks the type's own documented contract: ReviewIncrementalContext.isFirstPass's JSDoc (lines 66-76) states isFirstPass=true 'covers BOTH sub-cases', (a) never-reviewed and (b) unresolvable-headHash, explicitly enumerating only those two as exhaustive. This commit adds a third, materially different sub-case (resolvable trusted prior, diff too large) that collapses into the same isFirstPass=true bucket without the JSDoc being updated to mention it. fullStoryDiffContext could accept the real prior for the informational-only fields (continuing to force contextMode=full and reviewBasis=null via the reason code, which is what actually matters for safety) without this loss; instead it always synthesizes prior: null.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T15:58:22.536Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-078",
+      "_hash": "fe563036873c935b0d04857547bffb46c55b883fce2c3df7be9d153f2f6387ac",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|fullstorydiffcontext-reasoncodes-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
