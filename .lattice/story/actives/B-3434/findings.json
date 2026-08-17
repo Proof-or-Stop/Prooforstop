@@ -1188,6 +1188,24 @@
       ],
       "signatureTag": "doc-code-drift|ts|commit-17dc863c05-section",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-048",
+      "desc": "B-3434:F-043's own resolvedReason (this story's finding ledger, recorded when 17dc863c05 landed) states that core/done-prepare-generated-metadata.ts 'holds the 11 execFileSync sites'. Actual count by grep -n \"execFileSync(\" packages/main/src/core/done-prepare-generated-metadata.ts is 10 call sites (lines 370, 387, 444, 453, 591, 718, 738, 832, 846, 863). The figure 11 matches a naive grep -c execFileSync (no open-paren) over the whole file, which also counts the doc-comment at line 15 ('Node applies a 1,048,576-byte maxBuffer default to execFileSync') -- a mention, not a call. This is a miscount in the permanent audit record written specifically to close a finding about an inexact claim; it does not affect the shipped code comment (which cites no count) or the code itself.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T13:43:02.594Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-071",
+      "_hash": "b9a62b7a3396f97cbf331667cd339b0a73e29850256670ccb12de37ebf7a50a0",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|3434-resolvedreason-story",
+      "signatureTagSource": "auto"
     }
   ]
 }
