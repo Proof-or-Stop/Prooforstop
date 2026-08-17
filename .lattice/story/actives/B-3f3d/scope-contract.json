@@ -621,10 +621,26 @@
       "phase": "REVIEW",
       "headHash": "8426fc9ed3f16ab03b85d6d8262201e8b5408b3a",
       "materialHash": "0cd36c04d1526f0a06ceb4d8d2f623671fb516a19565b5f84c3f7d282604289b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CORRECTION to the reason recorded in commit c01daa57c4 for this path. That entry described this file as the home of the F-107/F-108 end-to-end routing-neutral fixture. That is NOT true of the committed file: grep confirms no such fixture is present, only the pre-existing F-039 candidateDrift test which asserts the OPPOSITE direction (a real candidate drift correctly invalidates the epoch). The routing-neutral disproof fixture, whose corpusDigest d49896cf to d49896cf and candidateSpecSetDigest a4cb4561 to 9dffdc85 result grounds the doc Known-incomplete callout, exists only in this worktree git stash at stash@{0} and is carried to story B-8af0 as checklist item 3. The ACCURATE reason this path belongs in scope is simply that this story materially modified it (885 insertions in git diff main...HEAD) as the handler-level smoke for the review-inventory epoch work, independent of the stashed fixture. Recording this correction rather than editing history so the inaccurate claim is visible alongside its retraction.",
+      "timestamp": "2026-08-17T03:19:42.491Z",
+      "paths": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "11b7d17222353540d9e333d72a40cd572f89efb9",
+      "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1"
     }
   ],
   "createdAt": "2026-08-14T14:01:52.360Z",
-  "updatedAt": "2026-08-17T02:49:37.727Z",
+  "updatedAt": "2026-08-17T03:19:42.491Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
