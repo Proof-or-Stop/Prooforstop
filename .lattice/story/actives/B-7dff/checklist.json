@@ -453,7 +453,11 @@
           {
             "desc": "After classification a real validate run prints a scheduler line whose declared count is materially higher than 36, and the measured wall time is below the 1006s recorded at 36 declarations on the same host",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/validate-resource-claims.test.mjs",
+              "selector": "configured plan: 104 commands, 94 declared, 10 exclusive by fail-closed default"
+            }
           }
         ],
         "edge": [
@@ -471,7 +475,29 @@
           }
         ]
       },
-      "userSees": "A real validate run prints \"validate scheduler: jobs=4 commands=104 declared=<N> exclusiveByDefault=<N>\" with declared materially above 36, and the run finishes in less wall time than the 1006s recorded at 36 declarations on the same host."
+      "userSees": "A real validate run prints \"validate scheduler: jobs=4 commands=104 declared=<N> exclusiveByDefault=<N>\" with declared materially above 36, and the run finishes in less wall time than the 1006s recorded at 36 declarations on the same host.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "node packages/main/tests/validate-resource-claims.test.mjs",
+          "result": "pass",
+          "note": "Declaration coverage went 36 -> 94 of 104 commands; the pinned marker reads the REAL lattice.config.json, so it cannot pass on a stale count. Measured on this host, both real node bin/lattice.js validate --json runs (durable rows in .lattice/activity.jsonl, tool=validate): baseline at 36 declarations 2026-08-17T12:58:50.459Z -> 13:15:36.813Z = 1006.4s; after this change at 94 declarations 2026-08-17T14:15:12.431Z -> 14:25:47.319Z = 634.9s status ok. That is 1.58x, 371s saved, and the after run printed validate scheduler: jobs=4 commands=104 declared=94 exclusiveByDefault=10.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1336c27dd4fcfc962c3c19b4ae19750d927e756609cb05399317b5680ee92f0c",
+            "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 104 commands, 94 declared, 10 exclusive by fail-closed default\nVI-OK B7DFF-CHK005-AUDITED-BARRIERS-HELD 10 commands the audit proved write repo-shared paths remain undeclared\nVI-OK B7DFF-CHK005-COLLISION-PROBE-BITES declaring an audited repo-shared writer is reported by the probe rather than silently accepted\nvalidate-resource-claims: PASS (34 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T14:27:59.804Z"
+          },
+          "headHash": "8fd2a3bb30a8c909070f372e198c0a44b7f14021",
+          "materialHash": "8ad892ec3de455d2a024b8b5ee297962ea4b39d4def1b6dc0d3c843388b6064f",
+          "storyFilesHash": "acd71c9266f6fb392b305c1c2788b7678a511be651e5158178952714d6dcc7d8",
+          "timestamp": "2026-08-17T14:27:59.965Z"
+        }
+      ]
     }
   ]
 }

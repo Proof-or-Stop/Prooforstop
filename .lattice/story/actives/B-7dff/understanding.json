@@ -8,7 +8,8 @@
     "quorum-submit-smoke.js measures 267-271s, 31% of the serial total, with exitCode 0 and timeoutMs 830548, so it is real work rather than a timeout.",
     "A Longest Processing Time list-scheduling simulation over those real durations predicts 271s at jobs>=4, i.e. 3.17x, with no further gain above 4 workers.",
     "npm test received this exact treatment on 2026-08-12 in commit c3b8da2c76 and fell from 1368-1533s to a stable 215-296s from 2026-08-13 onward.",
-    "78 of 99 commands finish under 5s and sum to only 105s, so the plan is a light tail plus a few heavy commands."
+    "78 of 99 commands finish under 5s and sum to only 105s, so the plan is a light tail plus a few heavy commands.",
+    "done-required-timeout-budget.ts was evaluated during DEV and needs no change: sequentialValidationBudget sums every command timeout, which remains a valid upper bound once the plan runs concurrently, so the done_prepare phase budget stays conservative rather than being tightened as a side effect."
   ],
   "constraints": [
     "runScheduled is fail-fast: the first FAIL or TIMEOUT sets terminalFailureName, kills every active child and marks the remainder INTERRUPTED. executeValidationPlan must instead run every command and report each result, because gates read the complete commands[] array.",
@@ -26,8 +27,7 @@
     "packages/main/src/tasks/full-suite-runner.ts",
     "packages/main/src/core/validation-executor.ts",
     "packages/main/src/core/validation-types.ts",
-    "lattice.config.json",
-    "packages/main/src/core/done-required-timeout-budget.ts"
+    "lattice.config.json"
   ],
-  "timestamp": "2026-08-17T11:36:09.657Z"
+  "timestamp": "2026-08-17T13:43:10.702Z"
 }
