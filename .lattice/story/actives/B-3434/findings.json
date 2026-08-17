@@ -1118,7 +1118,7 @@
       "desc": "Completeness gap in the permanent audit record for commit efe682df11. The scope_contract_show acknowledgement-2 reason (the queryable, permanent record for this out-of-allowedModify edit) states the change is 'confined to neutralising that one assertion with a comment ... plus the bug id; sections 13 and 14 and the rest of section 12 are untouched'. That sentence is accurate as far as it goes (verified: sections 13/14 are byte-identical before/after), but commit efe682df11 also edits the file-header docblock in two further places outside section 12 -- narrowing the F-004 bullet (removing the claim that validation-executor.ts/verifier.ts stay byte-for-byte unmodified) and narrowing the Hermetic paragraph (removing the claim that section 12 reads git state). Both edits are correct and necessary once the section-12 assertion is gone (verified true of the current code: grep of the whole file shows no remaining present-tense byte-identity claim, and section 12 now contains no execSync/git call), so this is not a scope or honesty problem with the code itself. The gap is narrower: neither bug.json's title nor scope-contract.json's acknowledgement-2 reason -- the two places a future auditor would look -- mentions the docblock edits at all; that disclosure exists only in an out-of-band handoff note outside the story's own artifacts, not in scope_contract_show or bug_list output. A reviewer or future story relying solely on the queryable Lattice record would not learn that the docblock was touched, only that section 12 was. Fix, if picked up: extend acknowledgement-2's reason (or file a follow-up note) to name the two docblock edits explicitly so the permanent record matches the full commit.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T13:16:52.828Z",
@@ -1129,7 +1129,11 @@
         "packages/main/src/tasks/validate-command-timeout-smoke.ts"
       ],
       "signatureTag": "doc-code-drift|ts|completeness-permanent-audit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by an amended acknowledgement, recorded as acknowledgement 3 on this story's scope contract. The concept lane found that my first scope_contract_acknowledge reason named only the section-12 assertion removal, while the commit also carried two prose narrowings - the file-header docblock and the Hermetic paragraph - so the queryable audit record was a subset of the actual diff. That is a real gap even though both prose edits were independently verified correct and minimal by the quality and concept lanes, because the acknowledgement is what a future reader queries to learn why an out-of-scope file was touched. The amended acknowledgement gives the full inventory across BOTH commits: the assertion removal and its execSync import in efe682df11 including the two prose narrowings, and the three reviewer-driven repairs in 17dc863c05 (F-044's new section 17, F-043's false parenthetical, F-046's stale REPO_ROOT docblock), with the assertion-count trail 45 -> 44 -> 46 and the honest residual that section 17 replaces only a slice of the byte-pin's incidental coverage. Filed against me rather than the implementer: I wrote the original reason.",
+      "resolvedAt": "2026-08-17T13:34:10.830Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-046",
