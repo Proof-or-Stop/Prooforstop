@@ -18819,6 +18819,30 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "b858a6b6cf6b973cd4448c4b6512e26f4c6ff209d3766188ca28b3c792c04661"
+    },
+    {
+      "id": "B-3f3d:RP-340",
+      "agent": "lattice-review-behavior",
+      "note": "Wave 3 (unchanged material, same frozen cutoff as waves 1-2). Re-verified all six checklist items userSees against current code with fresh literal-string comparison. Found one new gap: CHK-003 promises literal Wave: n/max and lane states pending|complete|blocked, but code emits Current wave: n/max and lane states pass|finding|pending -- filed as F-120 (medium/happy), distinct from already-open F-118 (CHK-005) and F-119 (CHK-004). CHK-001 (Review inventory epoch:/State: OPEN/Frozen cutoff:/Next: lattice review_inventory_status), CHK-002 (OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION/Epoch:/Changed lineage:/Recovery:/INVALIDATED), and CHK-006 (Final-review lanes:/Selection: dependency-closure|full-set) were re-confirmed byte-accurate at their exact source lines (review-inventory-epoch.ts:463-475, review-inventory.ts:253-360, reviewer-list.ts:230-237). No boundary-condition or spec-boundary gaps found beyond what waves 1-2 and other lanes already filed (F-113/F-114/F-115/F-116/F-117/F-118/F-119 remain open and are not restated here). This closes saturation for the behavior lane: no further new defects found this wave.",
+      "createdAt": "2026-08-17T11:27:54.958Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-541",
+      "envelopeId": "ccfd8e193d8150df7e92c5716a215f6d66f4450dbecdfd9ce4701ec8820cdfcc",
+      "writerSessionId": "sess-4c94a9746356db31e6794bcfba4f2385",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d7b6bd2f695e2d657b1fc9f6b8db33d5e591a5468cf1b957c3acb71ff34f078a"
     }
   ]
 }
