@@ -4527,9 +4527,9 @@
       "epochId": "B-3f3d:RI-048",
       "storyId": "B-3f3d",
       "reviewRound": "2026-08-16T10:48:07.896Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-17T08:23:30.332Z",
-      "updatedAt": "2026-08-17T10:33:57.001Z",
+      "updatedAt": "2026-08-17T14:41:23.788Z",
       "cutoff": {
         "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
         "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
@@ -4692,10 +4692,88 @@
           "criticDigest": "ab6bafac034c99f5c11d5838e1e355130aa734e38c771c8cec38e28f95fc168c",
           "saturated": false,
           "nextRunSequenceBoundary": 536
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-17T10:33:57.001Z",
+          "completedAt": "2026-08-17T14:41:10.228Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-537",
+              "terminal": "pass",
+              "hostIdentity": "11f99830158feaf7998ef42968a9c6ac7c73cf4ff409c731bf770541cce3e5c0",
+              "promptIdentity": "d64e0cbaa2461253c204c2402d281b927139da94187bc036cb12db5dd3581ba7",
+              "evidenceIds": [
+                "B-3f3d:RP-339"
+              ],
+              "coverageDigest": "c46af5f74d387987143d2945e45f2933f4b01764c5c06eaf7c2a2d9fb532fb24"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-538",
+              "terminal": "pass",
+              "hostIdentity": "11f99830158feaf7998ef42968a9c6ac7c73cf4ff409c731bf770541cce3e5c0",
+              "promptIdentity": "35529160200a31ac1123d614ce46a2e712b46d6ec729692f3c7d3e0a61a2a4cb",
+              "evidenceIds": [
+                "B-3f3d:RP-336"
+              ],
+              "coverageDigest": "3d9e6d04d53a75ebc3210f179352ff1848bb722d53dc2f7c34725f271a212a76"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-539",
+              "terminal": "pass",
+              "hostIdentity": "11f99830158feaf7998ef42968a9c6ac7c73cf4ff409c731bf770541cce3e5c0",
+              "promptIdentity": "c7220c986ee4bdc1728a43f9fd71e4e0a64862ab5c2d87a55e9be1acb6a9ac14",
+              "evidenceIds": [
+                "B-3f3d:RP-337"
+              ],
+              "coverageDigest": "a87d8476b09b932100565f19af79c6c0ae0f13871081ff3e83f00da179d4afa5"
+            },
+            {
+              "lane": "lattice-review-behavior",
+              "reviewRunId": "B-3f3d:RR-541",
+              "terminal": "finding",
+              "hostIdentity": "11f99830158feaf7998ef42968a9c6ac7c73cf4ff409c731bf770541cce3e5c0",
+              "promptIdentity": "ccfd8e193d8150df7e92c5716a215f6d66f4450dbecdfd9ce4701ec8820cdfcc",
+              "evidenceIds": [
+                "B-3f3d:F-120",
+                "B-3f3d:RP-340"
+              ],
+              "coverageDigest": "600b63f5740e9532dc9a42b3120294310a7197e0c0ae07e4bb6c41cf52012369"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-540",
+              "terminal": "pass",
+              "hostIdentity": "11f99830158feaf7998ef42968a9c6ac7c73cf4ff409c731bf770541cce3e5c0",
+              "promptIdentity": "39506ee4fa08f9aa3c12cc775a6b85b1b036cdd127acb292c132406d093c2cd8",
+              "evidenceIds": [
+                "B-3f3d:RP-338"
+              ],
+              "coverageDigest": "61e484490dd2405e7959952a0912474c5c8f812424472c33e8b789b89b8be270"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-review-widening-comment-overclaim",
+            "chk004-usersees-literal-strings-not-emitted",
+            "chk005-usersees-literal-strings-not-emitted",
+            "lifecycle-readiness-doc-drift-test-phase-row",
+            "userSees-literal-string-mismatch:CHK-003:review-inventory-status"
+          ],
+          "verifiedFindingSetDigest": "d80809005ad48ffc614edd2a4974ddc83c0a7a0d19f4106219b9833023473ddd",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "bbf557a47c3bba93b289a868b15ccad160d9fcdb63c58dd19813418fa0805242",
+          "saturated": false,
+          "nextRunSequenceBoundary": 543
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "2e9c234eb015e19fb6c581c62f82db64c49e0fbea0ff00f7f4f49246bf8e3198"
+      "cancelledAt": "2026-08-17T14:41:23.788Z",
+      "cancelReason": "RI-048 exhausted its 3-wave discovery budget without saturation: wave 1 found F-114/F-115/F-116, wave 2 found F-118/F-119, wave 3 found F-120. All were dispositioned verified_family (receipts CRIT-01/02/03) and none were dismissed. The framework itself directs cancel-and-replan at REVIEW_INVENTORY_BUDGET_EXHAUSTED rather than manufacturing a PASS. Root cause of the non-convergence is now identified and filed as BUG-USERSEES-NEVER-MECHANICALLY-CHECKED: nothing compares a checklist item declared userSees literal against emitted output, so F-118/F-119/F-120 were each found only by a reviewer hand-grepping one call site at a time, a search with no terminating condition. Independent topology-critic assessment concurred that wave-by-wave discovery was not converging and further identified a harder blocker: the topology-critic receipt path currently throws for BOTH verdicts (proofstory.ts basisVerification.ok) due to stale acceptance-basis binding, so no signed critic terminal state is reachable regardless of wave count. Cancelling to remediate root causes in DEV; no transition authority is claimed and the wave 1-3 signed disposition history is retained.",
+      "terminalRunSequenceBoundary": 543,
+      "_hash": "82da07a41375a15e9f9cda1fee880e939b073c952525a5c82dc5c50c5f2634b7"
     }
   ],
   "receipts": [
@@ -6916,6 +6994,37 @@
       ],
       "createdAt": "2026-08-17T10:30:21.437Z",
       "_hash": "9c3da4151f2c09c0e1a8dd033bfb7e845adf81c499d7cdf819abf178a2affebf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-048:CRIT-03",
+      "epochId": "B-3f3d:RI-048",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
+        "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
+        "storyFilesHash": "7e57d2d76a483ea71cb42654325626a9115efab13cd585b9bd9c764251258c6b"
+      },
+      "aggregateFindingSetDigest": "d80809005ad48ffc614edd2a4974ddc83c0a7a0d19f4106219b9833023473ddd",
+      "requiredLaneCoverageDigest": "a8dc6691427c7ea3bd2dc787b6d61b565c0a5d8ab8876819684d7b7d91b0aa56",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-543",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-342"
+      ],
+      "readEvidenceDigest": "07173fdb9774e2b7f98108acbb26587477e5e7b1d25dc05b9154ed5faa4afb2b",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-120",
+          "disposition": "verified_family",
+          "familyKey": "userSees-literal-string-mismatch:CHK-003:review-inventory-status",
+          "reason": "Independently re-derived by direct read of review-inventory.ts:258 (emits Current wave: not the promised literal Wave: n/max) and types.ts:1670 (ReviewInventoryLaneTerminal.terminal is pass|finding only, defaulted pending; complete/blocked never emitted). Distinct family from F-118 (CHK-005 smoke-task JSON-vs-labeled-lines mismatch) and F-119 (CHK-004 REVIEW->DEV rollback/final-review rejection text) because each names a different checklist item, different call site, and different promised literal text; merging would understate the number of independent code/userSees fixes required."
+        }
+      ],
+      "createdAt": "2026-08-17T14:38:28.794Z",
+      "_hash": "da16dbd18d4f63489ad6c544633490bc3ccf24dab1d8d8e1d35516d026a226a3"
     }
   ]
 }

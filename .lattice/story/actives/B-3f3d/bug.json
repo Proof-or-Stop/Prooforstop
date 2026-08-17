@@ -134,6 +134,13 @@
       "status": "open",
       "foundAt": "2026-08-17T11:28:24.422Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-TOPOLOGY-CRITIC-RECEIPT-UNREACHABLE",
+      "title": "currentTopologyReceiptStateForContext (proofstory.ts:309) verifies preReview?.preReviewBasisArtifact ?? planArtifact and throws at line 323 when basisVerification fails, BEFORE either verdict branch, so topology_critic_receipt_set is closed for BOTH pass and request_changes. Preferring the frozen pre-review snapshot is correct security design -- it is captured at pre-review time (pre-review-check.ts:366) so the story owner cannot regenerate their way past the critic. The defect is that once that snapshot goes stale (here: scope-contract changed Aug 17, snapshot dated Aug 16), the only writer that can refresh it is pre_review_check, which is allowedPhases ['DEV'], and DEV requires a finalized review-inventory receipt, which requires a critic terminal state, which is exactly what is blocked. Regenerating the plan basis does not help because line 309 ignores it whenever a pre-review artifact exists. Verified live: topology_critic_receipt_set with verdict=request_changes throws identically to verdict=pass; an independent topology-critic agent reproduced this on its own dispatch. A critic must be able to record request_changes even when the basis it is judging is stale -- refusing a NEGATIVE verdict on stale evidence is what makes the deadlock inescapable.",
+      "status": "open",
+      "foundAt": "2026-08-17T14:42:20.379Z",
+      "fixedAt": null
     }
   ]
 }
