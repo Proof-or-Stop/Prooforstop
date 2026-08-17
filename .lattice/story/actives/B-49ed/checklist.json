@@ -234,9 +234,9 @@
         "CLAUDE.md#handler-编码约定"
       ],
       "userSees": "proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T17:09:23.369Z",
       "verificationIntent": {
         "happy": [
           {
@@ -324,7 +324,14 @@
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:09:00.960Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "abb5b019150f78656b6b3aeae9101d98c961b7fe2af9bb9a12578235db53939e",
+        "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+        "headHash": "4e96e189885e4403654fbe523c0168e7fc094c63",
+        "attestedAt": "2026-08-17T17:09:23.574Z",
+        "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396"
+      }
     },
     {
       "id": "CHK-004",
