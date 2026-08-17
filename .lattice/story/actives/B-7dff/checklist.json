@@ -79,6 +79,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ]
       }
     },
     {
