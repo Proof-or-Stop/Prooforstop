@@ -1058,6 +1058,24 @@
       "resolvedAt": "2026-08-16T04:14:07.234Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-043",
+      "desc": "The BUG-B16DF-BYTEPIN replacement comment at packages/main/src/tasks/validate-command-timeout-smoke.ts:385 (section 12) is factually wrong on one clause, and it is the exact clause that makes the removal look most self-evidently necessary. It reads: 'It therefore deterministically failed for B-3434, whose entire purpose is to change both of those files (the one-mebibyte execFileSync ceiling lives in them) -- an unconditional red for that story...'. Verified against the actual diff: neither validation-executor.ts nor verifier.ts contains a one-mebibyte execFileSync ceiling, before or after this story. validation-executor.ts has zero execFileSync calls (grep confirms only execSync, at readGitStatus, pre-existing/untouched by this story). The one-mebibyte figure (1,048,576 bytes) that this story's own diff discusses is Node execFileSync's implicit maxBuffer DEFAULT, and it is discussed only as historical motivation in two places: done-prepare-generated-metadata.ts:15 (\"Node applies a 1,048,576-byte maxBuffer default to execFileSync, and a read above it throws\" -- describing the BUG this story fixes there, by raising it to 32 MiB via METADATA_BLOB_READ_MAX_BUFFER_BYTES, defined in that file, not in either pinned file) and validation-executor.ts:132 (narrating that the 1,369,692-byte artifact 'put it past the 1,048,576-byte read ceiling that then blocked every REVIEW to TEST transition' -- again describing done-prepare-generated-metadata.ts's read path, not anything implemented in validation-executor.ts itself). What validation-executor.ts and verifier.ts actually gained is a DIFFERENT, unrelated-in-kind mechanism: boundPersistedValidationEvidence (validation-executor.ts:739) and its VALIDATION_EVIDENCE_BOUND_BYTES/VALIDATION_EVIDENCE_READ_CEILING_BYTES constants, which bound OUTPUT size at write time and are fractions of the 32 MiB ceiling (8 MiB advisory), not a one-mebibyte figure. verifier.ts's own execFileSync calls (git status --porcelain at lines 696 and 931) are pre-existing, untouched by this story's diff, and still carry no maxBuffer of any kind -- so even the loose reading 'a one-mebibyte-default execFileSync call lives in verifier.ts' is true only of code this story left alone, not of 'the ceiling' the sentence claims motivates editing these files. This is the review's central concern realized: prose written to justify narrowing another story's guard contains a claim that makes the edit look more clearly load-bearing than it is. The surrounding argument (trivially-true-on-main, blanket-prohibition-off-main, deterministic B-3434 failure, 45->44 assertion count, name-by-name diff exactly one line) is independently verified true and does not depend on this clause, but the clause itself is false and belongs in a shared, permanently registered validate.commands source file. Fix: remove the parenthetical or replace it with an accurate one (e.g., pointing to boundPersistedValidationEvidence/METADATA_BLOB_READ_MAX_BUFFER_BYTES in done-prepare-generated-metadata.ts, and the correct 32 MiB figure, not one mebibyte).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T13:15:59.167Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-067",
+      "_hash": "488709c11fa6275384b59d2dbf4fcb83de83a1daee384bbe530b04d9600eec17",
+      "files": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|b16df-bytepin-replacement",
+      "signatureTagSource": "auto"
     }
   ]
 }
