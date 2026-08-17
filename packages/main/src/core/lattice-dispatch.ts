@@ -1642,6 +1642,18 @@ function isUnsafeCommandEnvName(name: string): boolean {
   return UNSAFE_COMMAND_ENV_PATTERN.test(name);
 }
 
+/**
+ * B-cdf6:F-061/F-065 — both spellings of the session-id env name, as a SHARED
+ * constant. Two separate allow/deny checks in this file each hardcoded the
+ * deprecated literal and each had to be found by a reviewer, the second one two
+ * lines from the first one's fix. Route every brand-keyed env comparison through
+ * this list so a future site cannot silently recognize only one spelling.
+ */
+const SESSION_ID_ENV_NAMES: readonly string[] = [
+  `${BRAND_ENV_PREFIX}SESSION_ID`,
+  'LATTICE_SESSION_ID',
+];
+
 function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Record<string, string | undefined> {
   if (!policy) return process.env;
 
@@ -1656,7 +1668,12 @@ function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Recor
 
   for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
   for (const name of policy.envAllowlist) copyIfAllowed(name);
-  if (!denied.has('LATTICE_SESSION_ID')) {
+  // B-cdf6:F-065 — same class as F-061, two lines away: this tested only the
+  // deprecated literal, so `envDenylist: ['PROOF_OR_STOP_SESSION_ID']` failed to
+  // suppress injection. Unlike buildCanonicalHostRuntimeEnv (which overwrites
+  // SESSION_ID downstream with the fixed logic), the dispatch_auto default-param
+  // path and the fake-dispatch-runtime path call this directly and are unprotected.
+  if (!SESSION_ID_ENV_NAMES.some(name => denied.has(name))) {
     setBrandEnv(env, 'SESSION_ID', getSessionId());
   }
   return env;
@@ -1687,9 +1704,8 @@ export function buildCanonicalHostRuntimeEnv(
   // the CANONICAL `PROOF_OR_STOP_SESSION_ID` had the override silently dropped: the
   // rename broke the new name while the old one kept working, which is backwards.
   // Denylist is checked across both names so denying either spelling still denies.
-  const sessionIdEnvNames = [`${BRAND_ENV_PREFIX}SESSION_ID`, 'LATTICE_SESSION_ID'] as const;
-  const sessionIdAllowed = sessionIdEnvNames.some(name => allowedEnvNames.has(name));
-  const sessionIdDenied = sessionIdEnvNames.some(name => deniedEnvNames.has(name));
+  const sessionIdAllowed = SESSION_ID_ENV_NAMES.some(name => allowedEnvNames.has(name));
+  const sessionIdDenied = SESSION_ID_ENV_NAMES.some(name => deniedEnvNames.has(name));
   const deliberateOverride = sessionIdAllowed && !sessionIdDenied
     ? readBrandEnv('SESSION_ID')?.trim()
     : undefined;

@@ -815,7 +815,12 @@ export function listManagedAssetDefinitions(
         'bin:proof-or-stop-codex.js',
         'bin/proof-or-stop-codex.js',
         renderProofOrStopCodexWrapperScript(),
-        actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
+        // B-cdf6:F-066 — this previously required the literal
+        // `LATTICE_ACTIVITY_SOURCE`, which the generator NEVER emits: it builds env
+        // names by concatenation (`'PROOF_OR_STOP_' + suffix`), so the full token
+        // does not appear in the rendered text and the predicate was dead for its
+        // stated purpose. Match the fragments the generator actually emits.
+        actual => actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'),
         true,
       ),
       // B-cdf6: same projectRoot-vs-root defect as the bin/lattice.js alias above.
@@ -826,7 +831,8 @@ export function listManagedAssetDefinitions(
             renderProofOrStopCodexWrapperScript(),
             // The retained alias may be a thin delegating shim rather than a copy of the
             // generated wrapper, so ownership is recognized by EITHER shape.
-            actual => (actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'))
+            // B-cdf6:F-066 — same dead-literal fix as the canonical wrapper above.
+            actual => (actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'))
               || actual.includes("import './proof-or-stop-codex.js'"),
             true,
             actual => actual.includes("import './proof-or-stop-codex.js'"),
