@@ -115,7 +115,30 @@
       "userSees": "A smoke runs the plan both ways and prints \"serial=<N>s parallel=<N>s speedup=<N>x\" while asserting identical per-command outcomes; it fails if any command result differs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A single regression run executes the same plan serially and in parallel and prints serial, parallel and speedup numbers measured on the same host",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The regression fails when any command produces a different pass/fail outcome between the serial and parallel runs",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The regression detects a resource collision (two conflicting commands overlapping) and fails rather than reporting a faster but unsafe run",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
