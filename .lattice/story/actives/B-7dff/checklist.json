@@ -262,9 +262,9 @@
         "CLAUDE.md#verification-intent-evidence"
       ],
       "userSees": "lattice validate --story=B-xxxx --json returns the same commands[] entries in the same order with the same code and durationMs fields as a serial run, and reports the worker count it used.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-17T13:38:11.656Z",
-      "endTime": null,
+      "endTime": "2026-08-17T13:38:48.828Z",
       "verificationIntent": {
         "happy": [
           {
@@ -370,7 +370,14 @@
           "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
           "timestamp": "2026-08-17T13:38:45.236Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6f840389e396819f6ed991594feae1a751b82db71956043e154431c8985e7a3e",
+        "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
+        "headHash": "825495c7eda3f5eb3c8bcdbeebb6540e39c26ec7",
+        "attestedAt": "2026-08-17T13:38:49.049Z",
+        "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5"
+      }
     },
     {
       "id": "CHK-004",
