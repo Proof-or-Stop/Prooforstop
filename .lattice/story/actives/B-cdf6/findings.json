@@ -1448,6 +1448,24 @@
       ],
       "signatureTag": "missing|ts|class-dead-predicate",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-068",
+      "desc": "Asymmetric comparison/parser site the rename introduced, in the exact requested class: cli/activity-policy.ts:136 inferCodexEntrypoint() falls back to `if (invoked.includes(\\\"lattice-codex\\\")) return \\\"local-wrapper\\\"` when checking process.argv[1]. The canonical wrapper filename is bin/proof-or-stop-codex.js (confirmed: \\\"bin/proof-or-stop-codex.js\\\".includes(\\\"lattice-codex\\\") is false, while \\\"bin/lattice-codex.js\\\".includes(\\\"lattice-codex\\\") is true) -- so this check only recognizes the deprecated wrapper filename shape, never the canonical one. Traced the actual masking: in the shipped flow this branch is currently DEAD for both wrappers, because renderCodexWrapperScript (used by both bin/proof-or-stop-codex.js and, via delegation, bin/lattice-codex.js which is now `import ./proof-or-stop-codex.js`) sets CODEX_ENTRYPOINT=local-wrapper via setEnv (dual-write) BEFORE cli-engine.ts calls inferCodexEntrypoint(), so the explicitEntrypoint short-circuit at line 133-134 always fires first for both generated wrappers today. This is the same shape as F-066 (a check that tests for a literal the generator does not consistently produce) but currently masked rather than actively wrong -- flagging because a future refactor that removes or reorders the explicit env-set (or any other invocation path that reaches inferCodexEntrypoint without CODEX_ENTRYPOINT pre-set) would silently misclassify a canonical-wrapper invocation as global-fallback instead of local-wrapper with no error, and there is no test asserting the fallback branch itself recognizes the canonical filename. Fix: add `|| invoked.includes(\\\"proof-or-stop-codex\\\")` (or reuse a shared helper) so the fallback is symmetric, matching the SESSION_ID_ENV_NAMES-style structural fix already applied for F-061/F-065.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T02:55:30.023Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-097",
+      "_hash": "24e36f0f81e0d500d44f970a5a60c79790679cb6104c6dd1dabef3cdcbb74b0b",
+      "files": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "signatureTag": "missing|ts|asymmetric-comparison-parser",
+      "signatureTagSource": "auto"
     }
   ]
 }
