@@ -126,6 +126,25 @@
       ],
       "signatureTag": "missing|json|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-008",
+      "desc": ".lattice/story/actives/B-7dff/checklist.json:561-572 CHK-005:happy:0 permanent waiver: the compound happy intent requires BOTH declared count materially above 36 AND measured wall time below the 1006s baseline recorded at 36 declarations. Only the first half is demonstrated (declared moved 36->97, VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED). The waivers own cited number for the second half is 1474.9s at jobs=4 on the final tree (npm run bench:validate-parallel, CHK-004:happy:0 evidence note) -- HIGHER than the 1006s baseline this items userSees explicitly promises to beat, not lower. The waiver text states Substance IS verified and attributes the miss to a mis-specified PLAN pin (absolute cross-session wall clock vs noisy host), citing only the same-session relative speedup (1.51x, CHK-004) as a substitute. That relative number does show parallel beats serial on the CURRENT plan, but it does not show that CHK-005s classification work (36->97 declared) actually reduced wall time below where it stood before this items own work started, which is the specific claim in userSees and the happy verificationIntent. No controlled before/after comparison at matched load exists anywhere in this stories evidence. Recommend either downgrading userSees/verificationIntent to the true measured claim (relative speedup only, not an absolute-baseline reduction) or providing a same-session/matched-load comparison showing declared=97 beats declared=36. As written, the item is marked done on a waiver whose central deliverable claim is contradicted by the stories own only real-plan measurement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T20:13:01.704Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-005",
+      "_hash": "152559362a1f3fd61dc1ce6ec9ff4ee2ec2e316719bca18791b59a524371b1f2",
+      "files": [
+        ".lattice/story/actives/B-7dff/checklist.json",
+        "packages/main/src/tasks/validate-parallel-benchmark.ts"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
