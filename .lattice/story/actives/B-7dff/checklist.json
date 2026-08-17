@@ -183,19 +183,19 @@
           "file": "packages/main/tests/validate-resource-claims.test.mjs",
           "command": "node packages/main/tests/validate-resource-claims.test.mjs",
           "result": "pass",
-          "note": "probe",
+          "note": "Two commands with disjoint declared claims go through the real runScheduled with jobs=2 and each records the other as a live co-runner, so admission control let them overlap.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d621e8e205f51d291a42e01be1b9b37b88603ecdaca9f473ea1693b0dc8c4dfd",
             "outputTail": "VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently\nVI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key\nVI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time\nVI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class\nVI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: 102 commands, 34 declared, 68 exclusive by fail-closed default\nvalidate-resource-claims: PASS (30 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T12:41:55.547Z"
+            "executedAt": "2026-08-17T12:42:04.240Z"
           },
-          "headHash": "3feb35c8ab4b5cba1d963814a4806844069f4824",
+          "headHash": "c1412224661a59a16693d78e0b73b3ee691a121f",
           "materialHash": "141d1fb6aaea127141d6f69d5ee1affe530222e46c4e23162bea995aa307b68e",
           "storyFilesHash": "d099707f7b6dfcb02c5b51abea0a17411a4024255f7e3a3cea5e4c364fc0b784",
-          "timestamp": "2026-08-17T12:41:55.657Z"
+          "timestamp": "2026-08-17T12:42:04.353Z"
         }
       ]
     },
