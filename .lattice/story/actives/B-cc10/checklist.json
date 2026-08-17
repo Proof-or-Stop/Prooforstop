@@ -412,7 +412,11 @@
           {
             "desc": "packages/utils builds too, proving the cross-package import of packages/main dist still resolves under the new name",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-core-package-rename.mjs",
+              "selector": "utilsDependsOn=@proof-or-stop/core"
+            }
           }
         ],
         "adversarial": [
@@ -444,6 +448,27 @@
           "materialHash": "8dce86366e7dd3c838ba7a7c5ba3e395298d05e9b3c95cd5632afca6cf269e97",
           "storyFilesHash": "f3474e89cbecb31ed6725dc6c8aaa6f049cf727d0ab977d107ff9f2e6b74c5a5",
           "timestamp": "2026-08-17T15:07:06.167Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/utils/package.json",
+          "command": "node scripts/verify-core-package-rename.mjs",
+          "result": "pass",
+          "note": "Sibling packages utils and lab resolve core under the new name. packages/utils builds against main dist output, so utilsDistExists=true proves cross-package resolution still works after the rename.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c255b2aa43435c94e4c0c8de35aff3e2911c046c9e87af9a6b09974f00c6790",
+            "outputTail": "corePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\n\ncore package rename verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:07:14.489Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a1a0a270c23320de0c944b9b4eb7258001bcdb27",
+          "materialHash": "8dce86366e7dd3c838ba7a7c5ba3e395298d05e9b3c95cd5632afca6cf269e97",
+          "storyFilesHash": "f3474e89cbecb31ed6725dc6c8aaa6f049cf727d0ab977d107ff9f2e6b74c5a5",
+          "timestamp": "2026-08-17T15:07:14.658Z"
         }
       ]
     },
