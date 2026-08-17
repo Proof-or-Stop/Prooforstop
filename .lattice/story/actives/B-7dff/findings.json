@@ -186,7 +186,7 @@
       "desc": "packages/main/tests/validate-pollution-attribution.test.mjs:455 (section 8, B7DFF-F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION) — this real-CLI-spawn regression is empirically flaky under host load: re-running the unmodified file back-to-back on this host produced 1 failure in 18 runs (assertion the plan-level record survives the handler wrap and reaches the caller returned false, i.e. dirty.handler.concurrentWorktreePollution came back undefined even though the fixture writes a real conflicting file through the handshake-synchronised probes). The additive-spread fix in handlers/verifier.ts itself is sound (verified base=executeValidationPlan return literally only ever carries the documented ValidationResult keys, so no field-precedence or leakage risk today; the wrapper explicit overrides are all value-consistent with base). But section 8 is registered as validate.commands[106] with a 180000ms timeout and is the ONLY mechanical proof that the F-006 regression stays fixed; an intermittent false negative on this gate can spuriously block REVIEW->TEST/DONE under load and, longer term, erodes trust in this specific receipt as reliable regression coverage. The handshake design explicitly claims the overlap is deterministic on any machine at any load (see the docstring above handshakeCommand), so this observed ~5% failure rate is a real gap between that claim and behavior, most likely because the git-status before/after window used by attributeWorktreePollution (validation-executor.ts readGitStatus/detectNewDirtyStatus) is not itself synchronised by the handshake — only the two child processes are.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T20:53:14.375Z",
@@ -194,7 +194,11 @@
       "reviewRunId": "B-7dff:RR-013",
       "_hash": "1c381ecaf781f8d7e36e169c76d75564bfa3267015abdfa19362c43555034172",
       "signatureTag": "edge|unknown|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5b9431b04a, test-file only. The implementer could not reproduce the flake in 552 attempts under load and measurement showed the reviewer diagnosis was only partly right: three of the four sampling boundaries were already transitively ordered, because runValidationCommand is synchronous through readGitStatus and then spawn, so each before-sample completes before that command child exists and the writer cannot write until the bystander child has announced itself. The one genuinely fragile boundary was the bystander after-sample, gated on a proxy marker plus a Date.now-based 30s budget: any early end of that wait (wall-clock jump, stall, early kill) silently converts the ambiguous shape into an exclusive one. Fault injection on the pre-change file reproduced the exact reported symptom at line 455 with the handler untouched. The fix has the bystander stat the writer real file in the directory git scans and publish an observed receipt that the writer waits on, so both parent after-samples are gated on one confirmed on-disk observation; the give-up budget is now monotonic via hrtime.bigint and raised above the per-command ceiling so a host that cannot schedule the pair produces a loud framework timeout instead of a quiet mis-shape. Section 8 now asserts the receipt and both exit codes before the attribution shape, so a fixture breakdown reports itself as a handshake failure rather than as an F-006 regression. 0 failures in 50 runs after, negative controls intact at 61 assertions with none weakened. Marked medium strength deliberately: no natural failure was ever observed, so what is closed is the class of early-ending-window mis-shape, not a specific proven event.",
+      "resolvedAt": "2026-08-17T21:33:07.991Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
