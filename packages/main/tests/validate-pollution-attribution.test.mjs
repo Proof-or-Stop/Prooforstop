@@ -38,10 +38,21 @@
  *      `summarizeRoutineCommandExecution`, the other gate that reads pollution.
  *   7. The pure attributor itself, including a control proving it does not
  *      report ambiguity when there is none.
+ *   8. HANDLER WIRING (B-7dff F-006) — the same scenario driven through the REAL
+ *      `lattice validate --story=... --json` CLI, asserted on the PERSISTED
+ *      test-evidence.json. Section 6 proves the summariser honours the flag when
+ *      it is handed one; it cannot prove anybody hands it one. It did not:
+ *      `externalResult()` in handlers/verifier.ts is a field whitelist and
+ *      dropped `concurrentWorktreePollution` on the way to the evidence writer,
+ *      so a detected-and-failed run persisted `commandExecution: {status: PASS,
+ *      requiredFailureCount: 0}` — the exact shape `isReusableCommandPass`
+ *      inspects. Section 8 fails if that whitelist ever drops the field again,
+ *      and its clean control proves the assertion is carried by the pollution
+ *      wiring rather than by a fixture that fails for any reason.
  */
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -50,7 +61,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..', '..');
 const distDir = resolve(repoRoot, 'packages/main/dist');
 
-for (const required of ['core/validation-executor.js', 'core/validation-evidence-reuse.js']) {
+for (const required of ['core/validation-executor.js', 'core/validation-evidence-reuse.js', 'core/store.js', 'cli.js']) {
   if (!existsSync(join(distDir, required))) {
     console.error(`validate-pollution-attribution: missing build artifact ${join(distDir, required)}; run npm --prefix packages/main run build first`);
     process.exit(1);
@@ -59,7 +70,9 @@ for (const required of ['core/validation-executor.js', 'core/validation-evidence
 
 const load = (rel) => import(pathToFileURL(join(distDir, rel)).href);
 const { attributeWorktreePollution, executeValidationPlan } = await load('core/validation-executor.js');
-const { summarizeRoutineCommandExecution } = await load('core/validation-evidence-reuse.js');
+const { isReusableCommandPass, summarizeRoutineCommandExecution } = await load('core/validation-evidence-reuse.js');
+const { StoryStore } = await load('core/store.js');
+const cliPath = join(distDir, 'cli.js');
 
 let assertions = 0;
 const ok = (message, condition = true) => {
@@ -108,6 +121,131 @@ function probe(label, { writes = null, writeAtMs = 250, exitAtMs = 250, declared
 
 const pollutionOf = (result, index) => result.commands[index].worktreePollution ?? null;
 const detailsOf = (result) => result.details.join('\n');
+
+/**
+ * A scratch directory for handshake markers, deliberately OUTSIDE any git
+ * fixture so the synchronisation never registers as pollution itself.
+ */
+function syncDir(name) {
+  const dir = mkdtempSync(join(tmpdir(), `b7dff-sync-${name}-`));
+  roots.push(dir);
+  return dir;
+}
+
+/**
+ * A command whose overlap with its peers is established by a HANDSHAKE, not by
+ * sleeping: it announces its start, waits for every peer to announce theirs,
+ * and only then writes (or, for a bystander, waits for the write to land before
+ * exiting). Both observation windows therefore provably contain the write on
+ * any machine at any load — a timing-based fixture would be the wrong thing to
+ * hang a gate regression on. A bounded deadline turns a scheduling failure into
+ * a loud non-zero exit instead of a hang.
+ */
+function handshakeCommand({ syncDir: dir, self, peers, writes = null, awaitWrite = false }) {
+  const script = [
+    "const fs=require('fs');const path=require('path');",
+    `const sync=${JSON.stringify(dir)};`,
+    'const idle=(ms)=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);',
+    `fs.writeFileSync(path.join(sync,${JSON.stringify(`${self}.start`)}),'1');`,
+    'const deadline=Date.now()+30000;',
+    'const waitFor=(name)=>{while(!fs.existsSync(path.join(sync,name))){if(Date.now()>deadline){console.error("handshake timeout waiting for "+name);process.exit(3);}idle(5);}};',
+    `for (const peer of ${JSON.stringify(peers)}) waitFor(peer + '.start');`,
+    writes ? `fs.writeFileSync(${JSON.stringify(writes)},'oops\\n');fs.writeFileSync(path.join(sync,'wrote'),'1');` : '',
+    awaitWrite ? "waitFor('wrote');" : '',
+    'process.exit(0);',
+  ].join('');
+  return {
+    label: self,
+    command: process.execPath,
+    args: ['-e', script],
+    timeoutMs: 60_000,
+    resources: [REPO_SHARED],
+  };
+}
+
+/**
+ * A complete Proofbound project fixture (git repo + config + REVIEW-phase story)
+ * whose configured `validate.commands` are the two handshake probes above, then
+ * ONE real `lattice validate --story=... --json` run against it. Returns the
+ * handler's own JSON result and the test-evidence.json the handler persisted.
+ */
+function runStoryValidateFixture(name, { dirty }) {
+  const root = gitFixture(name);
+  const sync = syncDir(name);
+  const storyId = 'B-f006';
+  const commands = [
+    handshakeCommand({
+      syncDir: sync,
+      self: 'writer',
+      peers: ['bystander'],
+      ...(dirty ? { writes: join(root, 'accidental.txt') } : {}),
+    }),
+    handshakeCommand({ syncDir: sync, self: 'bystander', peers: ['writer'], awaitWrite: dirty }),
+  ];
+  const git = (...args) => execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
+  writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n');
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: '.',
+    rootDir: '.',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    workflow: { profile: 'light' },
+    validate: { commands },
+  }, null, 2));
+  git('checkout', '-B', 'main');
+  git('add', '.');
+  git('commit', '-m', 'configure validate commands');
+  git('checkout', '-b', `story/${storyId}`);
+
+  const now = '2026-08-17T00:00:00.000Z';
+  const store = new StoryStore(root);
+  store.writeStory(storyId, {
+    storyId,
+    name: 'f006-handler-wiring',
+    title: 'concurrent pollution evidence wiring',
+    description: 'Proves the validate handler carries the plan-level dirty verdict into persisted evidence.',
+    type: 'bug',
+    phase: 'REVIEW',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    riskSignals: [],
+    currentReviewRound: now,
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+  });
+  store.writeChecklist(storyId, { items: [{
+    id: 'CHK-001',
+    title: 'handler wiring probe',
+    context: 'No required intents keeps current coverage complete.',
+    status: 'done',
+    startTime: now,
+    endTime: now,
+  }] });
+  git('add', '.lattice');
+  git('commit', '-m', 'seed story metadata');
+
+  const run = spawnSync(process.execPath, [cliPath, 'validate', `--story=${storyId}`, '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LATTICE_PROJECT_ROOT: root,
+      LATTICE_SESSION_ID: `b7dff-${name}`,
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_VALIDATE_JOBS: '2',
+    },
+  });
+  const transcript = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
+  const jsonLine = (run.stdout ?? '').split('\n').filter((line) => line.trimStart().startsWith('{')).at(-1);
+  assert.ok(jsonLine, `validate --json printed no JSON result:\n${transcript}`);
+  const handler = JSON.parse(jsonLine);
+  assert.notEqual(handler.provider, 'lattice-verifier-executed-persistence',
+    `evidence persistence failed, so this fixture proves nothing about the wrap:\n${transcript}`);
+  const evidencePath = join(root, `.lattice/story/actives/${storyId}/test-evidence.json`);
+  assert.ok(existsSync(evidencePath), `handler persisted no test-evidence.json:\n${transcript}`);
+  return { root, handler, evidence: JSON.parse(readFileSync(evidencePath, 'utf8')), transcript };
+}
 
 try {
   // ── 1. AMBIGUOUS: concurrent windows, no innocent command blamed ───────────
@@ -302,6 +440,75 @@ try {
       && disjoint.exclusive[0][0] === '?? x.txt'
       && disjoint.exclusive[1][0] === '?? y.txt');
     console.log('VI-OK B7DFF-F003-ATTRIBUTOR-PURE the attributor keeps single-observer rows exclusive, groups multi-observer rows in plan order, and reports ambiguity only when it exists');
+  }
+
+  // ── 8. B-7dff F-006: the REAL handler must carry the record into evidence ──
+  //
+  // Driven through `node dist/cli.js validate --story=... --json`, the actual
+  // configured-commands production path, and asserted on the file that path
+  // persists. Nothing here reimplements verifier.ts's wrapping or evidence
+  // logic: that is precisely the mistake section 6 could not catch.
+  {
+    const dirty = runStoryValidateFixture('f006-dirty', { dirty: true });
+    const evidence = dirty.evidence;
+
+    ok('the plan-level record survives the handler wrap and reaches the caller',
+      Boolean(dirty.handler?.concurrentWorktreePollution));
+    assert.deepEqual(dirty.handler.concurrentWorktreePollution.paths, ['accidental.txt']);
+    assert.equal(dirty.handler.concurrentWorktreePollution.blocking, true);
+    assert.equal(dirty.handler.status, 'fail');
+    assert.equal(dirty.handler.allPass, false);
+    assertions += 4;
+
+    assert.equal(evidence.result, 'FAIL');
+    assertions++;
+    ok('and the persisted command-execution receipt states FAIL, not a PASS on a failed run',
+      evidence.commandExecution.status === 'FAIL'
+      && evidence.commandExecution.requiredFailureCount === 1
+      && evidence.commandExecution.failureKind === 'validation_failure'
+      && evidence.commandExecution.commandCount === 2);
+    // The predicate the reuse gate itself calls, not a restatement of it.
+    ok('so the reuse gate cannot read that receipt as a reusable PASS',
+      isReusableCommandPass(evidence.commandExecution, 2) === false);
+    ok('and the persisted output blob still explains WHY the run failed',
+      Boolean(JSON.parse(evidence.output).concurrentWorktreePollution));
+
+    // NEGATIVE CONTROL. Same fixture, same two concurrent commands, nobody
+    // writes. If this also came back FAIL the assertions above would prove
+    // nothing about pollution wiring — only that this fixture always fails.
+    const clean = runStoryValidateFixture('f006-clean', { dirty: false });
+    ok('the identical clean plan reports no plan-level record',
+      clean.handler.concurrentWorktreePollution === undefined && clean.handler.status === 'pass');
+    ok('and persists a genuine PASS receipt the reuse gate accepts',
+      clean.evidence.result === 'PASS'
+      && clean.evidence.commandExecution.status === 'PASS'
+      && clean.evidence.commandExecution.requiredFailureCount === 0
+      && isReusableCommandPass(clean.evidence.commandExecution, 2) === true);
+    console.log('VI-OK B7DFF-F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION the real validate --story handler persists FAIL command-execution evidence for unattributable pollution, and a clean run still persists a reusable PASS');
+
+    // STRUCTURAL GUARD. `externalResult()` is an enumerating whitelist; the F-006
+    // defect was one unlisted field, and the next one would look identical. Run
+    // the executor directly on an equivalent plan and require the handler's own
+    // result to carry EVERY key the plan produced. This bites for any future
+    // ValidationResult field, not just `concurrentWorktreePollution`.
+    const probeRoot = gitFixture('f006-plan-keys');
+    const sync = syncDir('f006-plan-keys');
+    const planResult = await executeValidationPlan({
+      provider: 'b7dff-f006-plan-keys',
+      commands: [
+        handshakeCommand({ syncDir: sync, self: 'writer', peers: ['bystander'], writes: join(probeRoot, 'accidental.txt') }),
+        handshakeCommand({ syncDir: sync, self: 'bystander', peers: ['writer'], awaitWrite: true }),
+      ],
+      // A headSha is supplied so the OPTIONAL keys of ValidationResult are in the
+      // compared set too; a key the plan never emits cannot be proven carried.
+    }, probeRoot, execFileSync('git', ['rev-parse', 'HEAD'], { cwd: probeRoot, encoding: 'utf8' }).trim(), undefined, { jobs: 2 });
+    ok('the direct plan reproduces the same unattributable row, so the key set below is the interesting one',
+      Boolean(planResult.concurrentWorktreePollution));
+    const dropped = Object.keys(planResult).filter((key) => !(key in dirty.handler));
+    assert.deepEqual(dropped, [],
+      `handlers/verifier.ts dropped plan result field(s) [${dropped.join(', ')}] on the way to persisted evidence; wrap the executor result additively instead of enumerating keys`);
+    assertions++;
+    console.log('VI-OK B7DFF-F006-NO-PLAN-FIELD-DROPPED every field executeValidationPlan produces survives the validate handler wrap');
   }
 } finally {
   for (const root of roots) rmSync(root, { recursive: true, force: true });

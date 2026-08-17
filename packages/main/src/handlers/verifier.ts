@@ -974,6 +974,19 @@ function persistStoryValidationEvidence(
   return null;
 }
 
+/**
+ * Mint a verifier result from scratch.
+ *
+ * B-7dff F-006: this is an ENUMERATING whitelist — it returns exactly the keys
+ * listed below and nothing else. Callers that build a result from loose parts
+ * (no validator configured, persistence failure, reuse refusal) lose nothing.
+ * A caller holding an existing ValidationResult must NOT hand it to this
+ * function alone: everything it does not enumerate (today
+ * `concurrentWorktreePollution`; tomorrow whatever ValidationResult grows next)
+ * is dropped silently, and downstream gates read those fields. Spread the source
+ * result first — `{ ...base, ...externalResult({ ... }) }` — so the wrap is
+ * additive.
+ */
 function externalResult(args: {
   provider?: string;
   status: 'pass' | 'fail' | 'warn';
@@ -1315,7 +1328,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const details = usingConfigured
             ? base.details
             : [fallbackDiscoveryDetail, ...base.details];
-          const result = externalResult({
+          // B-7dff F-006: `externalResult` is an ENUMERATING whitelist. That is
+          // right for the call sites that mint a result from nothing, and wrong
+          // here, where `base` is a complete ValidationResult: every field the
+          // wrapper does not list is silently dropped. It dropped F-003's
+          // plan-level `concurrentWorktreePollution`, so the evidence writer at
+          // persistStoryValidationEvidence never saw it and stamped
+          // commandExecution=PASS onto a run the executor had already failed.
+          // Spreading `base` FIRST inverts the default: the wrap is additive, so
+          // a field of ValidationResult survives unless the wrapper explicitly
+          // overrides it, and a future plan-level field cannot be lost by
+          // forgetting to add it to the list below. Every whitelisted key is
+          // still computed exactly as before — the whitelist output wins.
+          const result = { ...base, ...externalResult({
             provider: base.provider,
             status: base.status,
             summary,
@@ -1325,7 +1350,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: base.commands,
             failureKind: base.failureKind,
             ...(base.focus ? { focus: base.focus } : {}),
-          });
+          }) };
           const decorated = decorateAndMaybePersistStoryValidation(
             ctx,
             args.story,
