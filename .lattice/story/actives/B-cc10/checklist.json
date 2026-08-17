@@ -94,10 +94,40 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "proof-or-stop session_brief and story_get both succeed against .proof-or-stop, and signature verification passes on at least TWO archived stories drawn from different eras of the 326-story corpus (one earliest-era, one immediately pre-migration), named explicitly in the evidence",
+      "userSees": "`story_get` prints a phase for two NAMED archived stories (one earliest-era, one pre-migration) against .proof-or-stop, and `git show --stat` shows renames only, zero content edits",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".gitignore"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node bin/proof-or-stop.js session_brief and story_get both succeed against .proof-or-stop after the move",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git log --follow on a moved archive file still shows its pre-move history",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Signature verification passes on TWO named archives from different eras; zero archive file CONTENT differs (git diff -M shows pure renames)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
