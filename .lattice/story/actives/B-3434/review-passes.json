@@ -960,6 +960,28 @@
         "scanEscalationReason": null
       },
       "_hash": "910342e6df529c35dae187a6f9e25dbe44d93a5e158ce8ad7126d2e8d998c987"
+    },
+    {
+      "id": "B-3434:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Confirmed section 17 is the recommended assertion (imports the real VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST/parseAllowlistedCommand, not a re-declared copy; the sorted actual membership is embedded in the assertion name so a failure names the moved token). Re-ran my own 'bash' experiment against 17dc863c05: built an isolated mirror (real dist + src + lattice.config.json, unmodified), confirmed baseline green at 46/46, then patched only the isolated copy's compiled validation-executor.js to add 'bash' to the allowlist (smoke test code untouched) -- it now FAILS: 'FAIL: VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST membership is exactly [bun, node, npm, npx, pnpm, tsx, yarn] (actual: [bash, bun, node, npm, npx, pnpm, tsx, yarn])', exit 1. Also independently verified 17b: reverted the Set, instead disabled parseAllowlistedCommand's enforcement branch (Set intact) -- fails on the distinct 17b message ('bash -c ... throws ... is not allowlisted'), exit 1. Both halves fail independently as documented. Maintenance judgement: EXPECTED_ALLOWLIST is a literal duplicate of the real constant, but it is not the two-copies-of-one-truth defect family the byte-pin was -- it is compared against the LIVE import every run, so any addition/removal to the real Set fails immediately and by name; it cannot silently drift the way the byte-pin's cross-branch git-diff comparison could. The only rot vector is social (a future editor updating both lines without genuine review), which is inherent to any pinned-value/golden test and is mitigated by the assertion message itself demanding a reviewed change. Grepped the repo: VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST is referenced only in validation-executor.ts (declaration) and this one smoke section -- no further duplication elsewhere. Verified: npx tsc --noEmit -p packages/main exit 0; validate-command-timeout-smoke.js 46 assertions exit 0; red-b3434-blob-buffer-ceiling.mjs PASS; validation-evidence-buffer-smoke.js PASS; verify-process-fact-contract.mjs verified exit 0. finding_list shows 46/46 findings resolved, 0 open. Commit 17dc863c05 confirmed as exactly the claimed one-file +62/-6 diff. Final maintenance verdict: durable, no blockers.",
+      "createdAt": "2026-08-17T13:43:09.784Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-069",
+      "envelopeId": "75faefe820618534a9b69a89b4eb8d69faadfc1cc11d4a06e15d36bb5988ea75",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "992da6fe44bd81ec6b18bbb0d64db74f0dd65f6f1583d0186b1e776fd63de1ed"
     }
   ]
 }
