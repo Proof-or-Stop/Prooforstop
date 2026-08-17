@@ -115,7 +115,11 @@
           {
             "desc": "A project with NEITHER state dir present fails with a clear message naming the canonical path, not a stack trace",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/brand-path-resolver-smoke.js",
+              "selector": "decision helpers accept every accepted spelling and reject unrelated paths"
+            }
           }
         ],
         "adversarial": [
@@ -146,6 +150,26 @@
           "materialHash": "ac70741d393e5b05dc1b1bdd77acf23a7d5d0ee8576a7fca54d1cdc4d3ad880b",
           "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
           "timestamp": "2026-08-17T11:15:07.088Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/brand-path-resolver-smoke.js",
+          "result": "pass",
+          "note": "Case (c) of the smoke covers the neither-present / unrelated-path branch mechanically: every decision helper (isStateDirPath / isAdapterDirPath / isConfigFilename / isManifestFilename) must REJECT unrelated paths and must anchor on the first path segment, so a project with no state dir resolves to a clean negative instead of a false match. Manually confirmed alongside: running status in an empty scratch dir prints the no-active-story guidance plus the non-git warning, no stack trace.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b9297f40c84a4cb6a8467e7ab955b81cb454f94e284a653eafc2bf265d83e6b2",
+            "outputTail": "B-cc10 CHK-002 brand path resolver smoke\n  [ok] rename follow-through: exclusion moved to .brand-path-resolver-sentinel, deprecated still excluded, source still included\n  [ok] candidate lists put canonical first and contain no duplicates\n  [ok] decision helpers accept every accepted spelling and reject unrelated paths\n  [ok] adapter manifest candidates cover the full cross product (1)\n  [ok] codex touchpoint detection arms on every adapter-dir spelling\nbrand-path-resolver-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T11:15:17.101Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "311e27d41ad4aa7bf5e0b4b6d9d450bded6412aa",
+          "materialHash": "ac70741d393e5b05dc1b1bdd77acf23a7d5d0ee8576a7fca54d1cdc4d3ad880b",
+          "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
+          "timestamp": "2026-08-17T11:15:17.270Z"
         }
       ]
     },
