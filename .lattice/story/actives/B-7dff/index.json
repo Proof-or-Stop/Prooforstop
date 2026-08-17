@@ -4,7 +4,7 @@
   "title": "Run the routine validate command plan through the keyed parallel scheduler",
   "description": "executeValidationPlan (packages/main/src/core/validation-executor.ts:623) runs every configured validate command in a plain sequential for-loop with no concurrency control, while the DONE-required full suite already runs through a keyed parallel scheduler (packages/main/src/tasks/full-suite-runner.ts:454 runScheduled) with declared resource classes and a default of 4 workers.\n\nMeasured consequence on this repo: two independent stories (B-3434 test-evidence 2026-08-16T22:58, B-d0b8 test-evidence 2026-08-17T00:09) each recorded a serial total of 858s across 99-102 commands, and routine validate now accounts for 84-89% of done_prepare wall time (B-3434 1959s total / 307s DONE-required; B-d0b8 2238s total / 247s DONE-required). Since the parallel suite landed (commit c3b8da2c76, 2026-08-12) npm test dropped to a stable 215-296s while routine validate stayed at 813-2563s, so routine validate is now the single dominant closeout cost.\n\nGoal: reuse the existing scheduler for the routine validate plan instead of writing a second one. Per-command durations are already persisted in test-evidence.json output.commands[].durationMs, so the makespan claim is measurable before and after.\n\nKnown ceiling (Amdahl): quorum-submit-smoke.js alone measures 267-271s, 31% of the serial total, and it does not time out (code=0, timeoutMs=830548). LPT simulation over the real durations gives 271s at jobs>=4, i.e. 3.17x and about 587s saved per run, with no further gain above 4 workers until that one command is split. Splitting quorum-submit-smoke is explicitly out of scope here and belongs in a follow-on story.\n\nSafety constraint: these commands are not known to be parallel-safe. They write under .lattice/, claim fixed ports, and share the git common dir. The full-suite RESOURCE_POLICY exists precisely because unkeyed parallelism corrupts shared state, so an undeclared command must fail closed to exclusive scheduling rather than run concurrently by default.",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "validate",
@@ -39,6 +39,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-08-17T11:35:01.694Z",
+      "branch": "story/B-7dff",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-17T11:45:39.806Z",
       "branch": "story/B-7dff",
       "user": "Harmonygo",
       "sessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
