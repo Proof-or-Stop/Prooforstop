@@ -17787,6 +17787,36 @@
         "scanEscalationReason": null
       },
       "_hash": "92727affaae3ef9729d3dff216f99414c6cc31da395fe4ed2c59a87bdb84effb"
+    },
+    {
+      "id": "B-3f3d:RP-315",
+      "agent": "lattice-review-concept",
+      "note": "Concept-lens verdict on committed state (HEAD 0b55718): (1) queryFiltering paragraph in review-inventory-epoch-and-saturation-gate.md:207 has exactly one mention (the deliberate-NOT one), verified against review-inventory.ts:109-124 reviewInventoryDigest which excludes queryFiltering/storyInputDigest and includes schemaVersion/mode/candidates(path+contentHash)/scanEscalationReason plus separate corpusDigest -- doc and code match, no contradiction. (2) Known incomplete callout (BUG-F107-INCOMPLETE) accurate not overclaiming: bug.json entry open, stash@{0} exists matching description, B-8af0 exists on main with matching corpusDigest-identical/candidateSpecSetDigest-moved framing -- real disclosed gap. (3) activeChildren: zero repo residue; git log -S confirms real write-only Set (F-081+quality dup) removed with verified fix evidence, consumers already on activeTerminators/birthIdentity before removal. (4) (pid, birthIdentity): test-runner-consolidation-plan.md matches full-suite-runner.ts (parseProcessRows/readProcessRows/birthIdentityMatches permanent-revocation applied uniformly to root+descendants) -- no doc/code drift. (5) reviewer-list.ts forced-replay: persistedForced filters only reviewer_forced events with non-empty reviewer (correctly excluding review-run.ts ensureCurrentReviewRound writer per F-094); unbounded cross-round persistence is the documented intentional guarantee at review-inventory-epoch-and-saturation-gate.md:260 (forced lanes remain selected), not an undisclosed defect. No new findings. F-089 (high, topology-critic, DEV-phase acceptance-basis/scope-contract staleness) remains sole open finding, outside concept-lens scope.",
+      "createdAt": "2026-08-17T03:13:09.664Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-440",
+      "envelopeId": "f2abdb07f2b48474561cddd68a8e6a96aaab97f79e8cb265f7359944106b9c87",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/bug.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/topology-critic-receipt.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "77641ee5262e15d079beb2ee38bac48a7fc4bafbb6590b9956eff065aa01bd30"
     }
   ]
 }
