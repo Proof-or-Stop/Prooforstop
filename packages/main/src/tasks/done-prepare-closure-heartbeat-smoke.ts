@@ -39,6 +39,7 @@ import type {
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { commandCliMaxBudget, donePreparePhaseBudget, doneRequiredDerivedBudget } from '../core/done-required-timeout-budget.js';
+import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -319,7 +320,14 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
 function runCli(root: string, args: string[], env: Record<string, string> = {}): CliResult {
   const result = spawnSync(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    env: { ...process.env, ...env },
+    // B-cdf6:F-071 — a PROOF_OR_STOP_* value exported by whoever runs this suite
+    // outranks the LATTICE_*-only pins the call sites below pass in, because
+    // readBrandEnv resolves the canonical name first. Neutralize the canonical
+    // twins of the knobs this smoke controls so its pins are authoritative.
+    env: stripCanonicalBrandEnvTwins(
+      { ...process.env, ...env },
+      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+    ),
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 10_000,

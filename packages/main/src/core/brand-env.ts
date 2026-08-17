@@ -144,3 +144,41 @@ export function applyBrandEnv<T extends NodeJS.ProcessEnv>(
   return env;
 }
 
+
+/**
+ * B-cdf6:F-071 — strip the CANONICAL twin of each named knob from a child-process
+ * env, so a deprecated-spelling pin in that env is authoritative again.
+ *
+ * Why this exists. Test harnesses spawn children with `{ ...process.env, ...pins }`
+ * and pin runtime knobs using the deprecated `LATTICE_*` spelling. Because
+ * `readBrandEnv` resolves the CANONICAL name first, a `PROOF_OR_STOP_*` value merely
+ * *exported by whoever ran the suite* silently outranks the pin, and the child runs
+ * on the caller's value instead of the test's. The failure is confusing rather than
+ * obvious: the child behaves correctly for its actual budget, and only a downstream
+ * assertion about the resulting transcript fails.
+ *
+ * This shape has now been found twice — validate-progress-heartbeat-smoke (fixed
+ * first, discovered when a raised outer timeout made a REVIEW->TEST gate fail) and
+ * done-prepare-closure-heartbeat-smoke (found by the reviewer sweeping for the
+ * generalized version). Hence a shared helper rather than a third hand-rolled copy.
+ *
+ * Deliberately narrow: it strips ONLY the suffixes you name, never the whole
+ * canonical namespace, so unrelated caller configuration still reaches the child.
+ *
+ * @param env    composed child env (mutated in place and returned)
+ * @param suffixes brand-env suffixes to neutralize, e.g. 'MAX_TIMEOUT_MS'
+ */
+export function stripCanonicalBrandEnvTwins<T extends NodeJS.ProcessEnv>(
+  env: T,
+  suffixes: readonly string[],
+): T {
+  for (const suffix of suffixes) {
+    const bare = suffix.startsWith(BRAND_ENV_PREFIX)
+      ? suffix.slice(BRAND_ENV_PREFIX.length)
+      : suffix.startsWith(DEPRECATED_BRAND_ENV_PREFIX)
+        ? suffix.slice(DEPRECATED_BRAND_ENV_PREFIX.length)
+        : suffix;
+    delete env[`${BRAND_ENV_PREFIX}${bare}`];
+  }
+  return env;
+}

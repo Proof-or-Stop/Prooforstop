@@ -643,6 +643,23 @@
         "packages/main/src/core/managed-assets.ts"
       ],
       "_hash": "fd2b28bc1cc99eb70b808eb40d57e12ce1e9bf39bff0e6f5967d8415e952709d"
+    },
+    {
+      "id": "B-META-framework-audit:F-035",
+      "desc": "validate --concept gate uses substring/generic-word matching for deleted symbols, producing overwhelming false-positive noise that can mask real dangling references. Measured in B-cdf6: the gate reported \"14 symbol(s) deleted, 15435 residual reference(s)\" and blocked REVIEW->TEST. A concept reviewer cross-checked every symbol and found ZERO genuine defects: the bare word \"main\" alone accounted for 15326 of 15435 residuals (99.3%), matching the git branch name, the packages/main directory path, and even Chinese prose inside .githooks/pre-push — not a deleted function. Of the other 13 symbols, 8 were correctly @deprecated re-export aliases (deliberate backward compatibility), 3 showed literally 0 residuals (cleanly renamed, no alias needed), and 2 had only substring collisions with distinct never-deleted helpers (runLatticeFromCwd, runLatticeResidueGate, runLatticeAuthorityControlPlaneOnce match a grep for runLattice). Impact: a gate whose signal is 99.3 percent noise trains operators to wave it through, which is exactly when it will miss a real dangling reference; it also forces an expensive LLM concept-review spawn on every rename-shaped story. Suggested remedy: match on exact identifier boundaries (and skip single generic words like \"main\" that collide with paths and branch names) rather than substring containment; optionally exclude symbols that resolve to a live export alias, since those are by definition not dangling.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-gap-log",
+      "createdAt": "2026-08-17T04:37:31.730Z",
+      "reviewRound": "",
+      "gapFingerprint": "38f91a226ede89109e770f9c80c0299f9750b4f10a464a3039c18caec3cfe1d1",
+      "files": [
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/handlers/validate.ts"
+      ],
+      "_hash": "0909836e7105d94bc51abc25007dd68f492ead0a2d6ac92697a42e1eace00156"
     }
   ]
 }

@@ -34,6 +34,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -220,19 +221,16 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
     // twin of the knobs this smoke controls, so the LATTICE_* pins (whether from the
     // defaults here or from a per-case `env` override) are authoritative again. Each
     // call site keeps its existing single-spelling shape and stays correct.
-    env: (() => {
-      const base: Record<string, string | undefined> = {
+    env: stripCanonicalBrandEnvTwins(
+      {
         ...process.env,
         LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
         LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
         LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
         ...env,
-      };
-      for (const suffix of ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS']) {
-        delete base[`PROOF_OR_STOP_${suffix}`];
-      }
-      return base as NodeJS.ProcessEnv;
-    })(),
+      },
+      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+    ),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
