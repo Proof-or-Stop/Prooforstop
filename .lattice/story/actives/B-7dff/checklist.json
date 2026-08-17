@@ -281,7 +281,11 @@
           {
             "desc": "When one command fails, every remaining command still runs and commands[].length equals the plan length; the run is not cut short by scheduler cancellation",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+              "selector": "B7DFF-CHK003-RUN-ALL-COMPLETE"
+            }
           }
         ],
         "adversarial": [
@@ -321,6 +325,26 @@
           "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5",
           "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
           "timestamp": "2026-08-17T13:38:24.371Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+          "result": "pass",
+          "note": "The plan is scheduled with cancellation run-all, so a failing command cancels nothing. Marker B7DFF-CHK003-RUN-ALL-COMPLETE runs a five-command plan whose second command exits 7 and whose fourth is an optional failure, then asserts commands.length equals the plan length, that the labels are still in plan order, and that every one of the five printed its own MARKER_<label> into its own output - i.e. the commands after the failure really executed rather than being reported as cancelled.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
+            "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T13:38:33.992Z"
+          },
+          "headHash": "91de2099104f84ba12bd55c8f9322a07d474990e",
+          "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5",
+          "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
+          "timestamp": "2026-08-17T13:38:34.192Z"
         }
       ]
     },
