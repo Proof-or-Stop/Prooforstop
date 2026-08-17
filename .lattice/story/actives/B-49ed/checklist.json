@@ -319,6 +319,18 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:07:45.762Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js review_run_start",
+          "result": "pass",
+          "note": "The host adapter did supply provider plus task plus agent, and the derived session resolved to host-adapter rather than falling back to derived-ppid, so the failure mode this intent guards against did not occur. review_run_start itself refused only because it is REVIEW-phase-only while the story is in DEV, which is a phase gate rather than an identity failure; the critic independently corroborated this by noting that lattice-review-topology-critic is not even an enumerated --lane value for that command.",
+          "mechanical": false,
+          "headHash": "510216305260ddc266d0229bfb28018193d1ed52",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:07:47.555Z"
         }
       ]
     },
