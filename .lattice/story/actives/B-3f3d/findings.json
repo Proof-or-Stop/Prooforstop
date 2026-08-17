@@ -7658,7 +7658,7 @@
       "desc": "Type-safety/crash-hardening gap, distinct from the already-resolved F-107/F-108 routing-semantics leak (do not conflate). review-inventory.ts:112 captureReviewInventoryScope does (validCandidate.candidates ?? []).map(row => ({path: row?.path, contentHash: row?.contentHash})); the ?? only guards null/undefined, so a truthy non-array candidates field (a corrupted or legacy candidate-spec-set.json on disk) throws an uncaught TypeError from .map. Reachable from persistInvalidationIfDrifted (review-inventory.ts:132-177), itself called from 8 sites across the epoch lifecycle (assertReviewInventoryContextFreshLocked:183, refreshReviewInventoryContextLocked:190, and inside createReviewInventoryHandlers at 355/376/430/452/519/593), none wrapped in try/catch (the file's only try/catch, line 75, is for the unrelated readDecision call). store.ts:359-366 readCandidateSpecSet is a bare readJson<CandidateSpecSetArtifact> generic-cast with zero runtime shape validation on read. candidate-spec-routing.ts:764-800 verifyCandidateSpecSet exhaustively validates queryFiltering/protectedRouting/queryTruncation/candidateSpecSet/escalationReasons/queryGroups but never calls Array.isArray(artifact.candidates) -- so a shape-corrupted candidates field still passes verifyCandidateSpecSet (its final digest check at line 800 only detects byte-level tampering of digest-covered fields, not structural/type defects) and then crashes deep inside gate-lifecycle plumbing (epoch begin/status/assert-fresh) instead of failing closed with an actionable blocker, unlike the rest of this file's fail-closed design. Verified by direct read of all three files: grep confirms no Array.isArray(candidates) check anywhere in verifyCandidateSpecSet, and no try/catch around any of the 8 call sites. Recommend: verifyCandidateSpecSet add an Array.isArray(artifact.candidates) check, and/or captureReviewInventoryScope treat a non-array candidates as equivalent to absent (fail closed via validCandidate = null) rather than crashing.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T03:56:57.464Z",
@@ -7701,7 +7701,9 @@
         "packages/main/src/core/store.ts"
       ],
       "signatureTag": "edge|ts|type-safety-crash",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-3f3d:F-111, same defect, same lane, filed independently from a superseded epoch. Both describe handlers/review-inventory.ts:112 captureReviewInventoryScope guarding only null/undefined via (validCandidate.candidates ?? []).map(...), so a truthy non-array candidates throws an uncaught TypeError; both note it is reachable from persistInvalidationIfDrifted across eight gate-lifecycle call sites with no try/catch, that store.ts readCandidateSpecSet is a bare cast, and that verifyCandidateSpecSet never checks Array.isArray. The duplication is an artifact of epoch churn rather than reviewer error: this run began under RI-045, which I invalidated by writing a scope-contract correction mid-epoch, and it completed long after RI-047 had already collected a fresh quality verdict that filed the same defect as F-111. Resolving as duplicate; the substantive item remains carried to story B-8af0 checklist item 2 and is NOT fixed in this story. Recording two things this run got right that are worth keeping: it independently verified before filing rather than trusting my dispatch framing, and it explicitly declined to file two OTHER duplicates it checked for, the F-107/F-108 routing-semantics variant and the scope-contract inaccuracy, having confirmed both were already resolved and self-corrected respectively. That restraint is the correct behaviour and is why only the genuinely distinct angle was filed.",
+      "resolvedAt": "2026-08-17T03:58:08.602Z"
     }
   ]
 }
