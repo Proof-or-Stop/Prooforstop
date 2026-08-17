@@ -420,7 +420,11 @@
           {
             "desc": "Accepting generated-token does not also admit explicit-env or derived-ppid; both remain refused from the same test",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+              "selector": "refused (forgeable): explicit-env, derived-ppid"
+            }
           }
         ]
       },
@@ -445,6 +449,27 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:08:45.554Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "result": "pass",
+          "note": "Accepting generated-token did not also admit explicit-env or derived-ppid; the same run that lists generated-token accepted lists both of those refused.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:08:46.836Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "92a4dffecf878ae5c6c6315f34f1d37791df25c1",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:08:46.985Z"
         }
       ]
     }
