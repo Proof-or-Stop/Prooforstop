@@ -744,7 +744,11 @@
           {
             "desc": "node scripts/verify-lattice-residue.mjs prints PASS for all checks after the migration",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-lattice-residue.mjs",
+              "selector": "PASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product runtime source"
+            }
           }
         ],
         "edge": [
@@ -761,7 +765,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-lattice-residue.mjs",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "CHECK 4 (the exempt->FORBIDDEN row flip) passes alongside the three pre-existing checks; forbidden tokens are derived by parsing core/brand-paths.ts so the gate cannot rot pinned to one spelling.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d07af55e2b029d70e6c2d7a4af43f0caed723748cd758382ee86037b05c49ade",
+            "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, proof-or-stop.config.json, lattice.config.json, CITATION.cff, packages/utils/src)\nPASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product runtime source (forbidden tokens derived from packages/main/src/core/brand-paths.ts: lattice.config.json, .lattice-codex, lattice.json, .lattice)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:19:59.264Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2a2ad3526871d27856f92fee414cda492f49f55e",
+          "materialHash": "374099d662bf86d601c386404043d4ddb7b1ad72ef5ed668278d78e368571fb9",
+          "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
+          "timestamp": "2026-08-17T17:19:59.576Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
