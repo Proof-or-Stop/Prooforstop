@@ -308,8 +308,11 @@
       "evidence": "brand-rename-mapping.md:131 'Root npm package name lattice | FROZEN | (dash) | Package identity / lockfile key; renaming is a publish-level change outside this story's additive-at-the-CLI-boundary scope. | No.' Story description item 6 says only '@lattice/core -> @proof-or-stop/core'; scope-boundary.json excluded[] does not list the root package name as an exclusion.",
       "sourcePointers": [
         "docs/requirements/decisions/brand-rename-mapping.md:131",
-        "docs/story/actives/B-cc10/scope-boundary.json"
-      ]
+        "package.json (name=lattice, no private:true)",
+        ".lattice/story/actives/B-cc10/scope-boundary.json"
+      ],
+      "resolution": "The root npm package name 'lattice' stays OUT of scope, and the reviewer is right that its absence was unrecorded rather than deliberate — that is now corrected. The operator's request enumerated exactly six identities and the root package name was not among them: the sixth item was specifically '@lattice/core' (the packages/main name), not the workspace root. brand-rename-mapping.md:131 independently freezes it as a 'publish-level change outside this story's additive-at-the-CLI-boundary scope', which matches. Verified in code: root package.json has name='lattice' and NO private:true field, so unlike a private workspace root this name is publishable and renaming it is a genuine registry-identity action with different risk from an internal path rename — reinforcing that it belongs to its own story rather than being folded in here. Action taken: adding it to scope-boundary excludedScope so it is an explicit, evidenced exclusion instead of a silent omission, and CHK-001's contract doc must list it among the identities deliberately left frozen. This is the correct disposition of a real bookkeeping gap, not a dismissal.",
+      "resolvedAt": "2026-08-17T10:13:01.811Z"
     }
   ]
 }
