@@ -69,7 +69,7 @@
  * constant moves the `storyFilesHash` metadata exclusion with the directory in
  * the same edit. Do not reintroduce the directory name anywhere else.
  */
-export const PROOF_OR_STOP_STATE_DIR = '.lattice';
+export const PROOF_OR_STOP_STATE_DIR = '.proof-or-stop';
 
 /**
  * Deprecated state-directory name, still READ so a pre-migration checkout keeps
@@ -82,7 +82,7 @@ export const DEPRECATED_STATE_DIR = '.lattice';
  * ------------------------------------------------------------------ */
 
 /** Canonical Codex adapter directory name. Everything written goes here. */
-export const PROOF_OR_STOP_ADAPTER_DIR = '.lattice-codex';
+export const PROOF_OR_STOP_ADAPTER_DIR = '.proof-or-stop-codex';
 
 /** Deprecated Codex adapter directory name, still READ. Never written. */
 export const DEPRECATED_ADAPTER_DIR = '.lattice-codex';
