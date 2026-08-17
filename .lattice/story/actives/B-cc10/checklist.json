@@ -24,7 +24,11 @@
           {
             "desc": "grep -c storyFilesHash on the new decision doc prints \"1\" or higher",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('docs/requirements/decisions/proof-or-stop-identity-migration.md','utf8');const n=(s.match(/storyFilesHash/g)||[]).length;console.log('CHK-001-CONTRACT-DOC storyFilesHash='+n);if(n<1)process.exit(1)\"",
+              "selector": "CHK-001-CONTRACT-DOC storyFilesHash="
+            }
           }
         ],
         "edge": [
@@ -41,7 +45,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "command": "node -e \"const s=require('fs').readFileSync('docs/requirements/decisions/proof-or-stop-identity-migration.md','utf8');const n=(s.match(/storyFilesHash/g)||[]).length;console.log('CHK-001-CONTRACT-DOC storyFilesHash='+n);if(n<1)process.exit(1)\"",
+          "result": "pass",
+          "note": "Contract doc created and pinned by an executable node check. Doc records per-identity verdicts for 6 migrated + 8 frozen identities, both FROZEN supersessions with citations, the empirically-resolved storyFilesHash hazard (reassigned to CHK-002), and the 344-archive acceptance criterion.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "354f99081c0a6349a723b34130932e768128ab28b0e957b719bf4a77136402b2",
+            "outputTail": "CHK-001-CONTRACT-DOC storyFilesHash=2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T10:33:57.379Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e4600a617fb604ecf1229a341dd7e80556a0b60c",
+          "materialHash": "659701c173f479a8eafebaf4441ae7bb8f730f74e48f34ff309daaed661d94c2",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-17T10:33:57.542Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

@@ -53,10 +53,27 @@ because it forbids the very literals the earlier items are still removing.
   and it is verifiably publishable (no `private: true`), so renaming it is a registry-identity
   action for its own story. `scope-boundary.json` was written in INIT and is correctly immutable
   in PLAN, so this exclusion is recorded here and in the OQ-2 resolution.
-- **Doc must cite `story-files-hash-material-drift.md:30-31` for the storyFilesHash answer**: it
-  hashes `path + blob-object-id` pairs sorted BY PATH, so PATHS ARE HASHED and the state-dir
-  rename genuinely shifts `storyFilesHash` for all 344 archives. Confirmed by the scope-plan
-  reviewer reading the doc directly. Record the chosen handling before CHK-003 runs.
+- **RESOLVED empirically (was the open question). The answer is a HAZARD, and it lands on CHK-002.**
+  Ran `isStoryMetadataPath` from the built `dist` against real paths:
+  ```
+  true    .lattice/story/actives/B-cdf6/index.json
+  false   .proof-or-stop/story/actives/B-cdf6/index.json
+  ```
+  Archive paths are EXCLUDED from `storyFilesHash` at step 4 today — but only because the prefix
+  list is derived from `PROOF_OR_STOP_STORY_DIR` = `${PROOF_OR_STOP_DIR}/story/actives`
+  (`core/lattice-paths.ts:13`), whose value is still `.lattice`. After the rename, archives flip
+  from excluded to INCLUDED unless that constant moves with them, and 344 archives would start
+  entering the digest. The failure mode is silent: nothing errors, hashes just change meaning.
+  **Consequence for the plan:** this is not a CHK-003 concern to handle after the move; it is a
+  CHK-002 correctness requirement. `PROOF_OR_STOP_DIR` must be the single source the resolver owns,
+  so `isStoryMetadataPath` follows the rename automatically. CHK-001 must record this finding, and
+  CHK-002's acceptance must include: after the rename, `isStoryMetadataPath('<newdir>/story/...')`
+  returns true. Also verify `.lattice-codex` — it returned false, so confirm whether adapter paths
+  are covered by `isMaterialExcludedRuntimeArtifactPath` instead.
+  (Superseded note, kept for audit: an earlier draft asserted the rename shifts the hash for all
+  344 archives, citing step 5 while skipping step 4's exclusion. That framing was wrong in its
+  reasoning and accidentally right about the risk — the risk is real, but it comes from a stale
+  hardcoded prefix, not from paths being hashed per se.)
 
 ## CHK-002: Add a read-both path resolver before moving any file
 
