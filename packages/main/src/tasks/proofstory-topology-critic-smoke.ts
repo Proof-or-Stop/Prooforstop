@@ -38,7 +38,7 @@ import {
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = resolve(packageRoot, '..');
 const repositoryRoot = resolve(sourceRoot, '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/lattice.js');
+const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 const smokeArgs = process.argv.slice(2);

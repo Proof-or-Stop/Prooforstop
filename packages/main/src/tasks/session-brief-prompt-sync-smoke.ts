@@ -78,9 +78,12 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
 }
 
 assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states lattice is the only active command');
-assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
-assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
-assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
+// B-cc10 CHK-006: these pinned `node bin/lattice.js`, the wrapper this story DELETED.
+// A doc assertion must not instruct a reader to run a file that no longer exists, so
+// they now pin the canonical `bin/proof-or-stop.js` invocations.
+assert.match(readme, /node bin\/proof-or-stop\.js tool_status/, 'README uses the canonical local wrapper for generic tool_status');
+assert.match(readme, /node bin\/proof-or-stop\.js verify_codex/, 'README uses the canonical local wrapper for generic verify_codex fallback');
+assert.match(readme, /node bin\/proof-or-stop\.js aux_doc_list/, 'README uses the canonical local wrapper for generic aux_doc_list');
 assert.match(guide, /`lattice` is the current command entry/i, 'guide states lattice as current command entry');
 assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states lattice as active product entry');
 assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');

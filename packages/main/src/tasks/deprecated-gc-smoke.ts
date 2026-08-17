@@ -15,6 +15,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolveAuditConfig } from '../core/audit-config.js';
 import { scanDeprecated } from '../core/audit-scan.js';
+// B-cc10 CHK-006 (B-cc10:F-001): this fixture hardcoded '.lattice' while
+// resolveAuditConfig reads PROOF_OR_STOP_DIR. Once CHK-003 moved the state dir the
+// fixture wrote one directory and production read another, so the override silently
+// never applied and the test failed with the DEFAULT threshold (10 !== 5). Importing
+// the same constant production uses is what keeps the two ends bound.
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 
 // ---------------------------------------------------------------------------
 // Test 1: default deprecatedGcThreshold = 10 for 'balanced' profile
@@ -36,8 +42,8 @@ function test1DefaultThreshold(): void {
 function test2ConfigOverride(): void {
   const tmp = mkdtempSync(join(tmpdir(), 'deprecated-gc-smoke-'));
   try {
-    mkdirSync(join(tmp, '.lattice'), { recursive: true });
-    writeFileSync(join(tmp, '.lattice', 'audit-config.json'), JSON.stringify({ deprecatedGcThreshold: 5 }), 'utf-8');
+    mkdirSync(join(tmp, PROOF_OR_STOP_DIR), { recursive: true });
+    writeFileSync(join(tmp, PROOF_OR_STOP_DIR, 'audit-config.json'), JSON.stringify({ deprecatedGcThreshold: 5 }), 'utf-8');
     const cfg = resolveAuditConfig('balanced', tmp);
     assert.equal(cfg.deprecatedGcThreshold, 5, 'config override should return deprecatedGcThreshold === 5');
     console.log('  test2 ok: config file override deprecatedGcThreshold === 5');

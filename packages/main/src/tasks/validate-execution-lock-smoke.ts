@@ -86,7 +86,7 @@ function repoRoot(): string {
 }
 
 function cliPath(): string {
-  return join(repoRoot(), 'bin/lattice.js');
+  return join(repoRoot(), 'bin/proof-or-stop.js');
 }
 
 function write(root: string, path: string, content: string): void {

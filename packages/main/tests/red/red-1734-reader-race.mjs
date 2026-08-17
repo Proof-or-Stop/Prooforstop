@@ -3,9 +3,9 @@
  * RED (live-reproduced) for B-1734 F-003 — a concurrent rebuild must NOT expose an absent/partial
  * dist to the ~90 non-lock-holding readers of packages/main/dist.
  *
- * bin/bootstrap-runner.js is imported by EVERY bin/lattice.js call, yet it does NOT hold the build
+ * bin/bootstrap-runner.js is imported by EVERY bin/proof-or-stop.js call, yet it does NOT hold the build
  * lock (only build-TAKERS do). The pre-fix build did `rmSync(dist)` then a seconds-long in-place tsc,
- * so for that whole window a concurrent `bin/lattice.js` reader saw dist absent/partial and died with
+ * so for that whole window a concurrent `bin/proof-or-stop.js` reader saw dist absent/partial and died with
  * MODULE_NOT_FOUND / "bootstrap is not ready", violating BOTH userSees claims ("never
  * MODULE_NOT_FOUND"). The fix builds into a SIBLING staging dir and promotes it by an atomic rename
  * (so a reader always sees the old-complete or new-complete dist), and makes the universal entry point
@@ -15,7 +15,7 @@
  *   1. Force a genuine rebuild by removing the main build manifest (a gitignored dist artifact — no
  *      tracked source change), so build-main-with-binding.mjs takes the slow rm/tsc path (~seconds).
  *   2. Spawn `node scripts/build-main-with-binding.mjs` (the real build) AND, in overlapping waves for
- *      the whole build window, dozens of `node bin/lattice.js --help` children (the real universal
+ *      the whole build window, dozens of `node bin/proof-or-stop.js --help` children (the real universal
  *      reader, through bin/bootstrap-runner.js).
  *   3. Assert ZERO readers failed with MODULE_NOT_FOUND / ERR_MODULE_NOT_FOUND / bootstrap-not-ready
  *      (and none exited non-zero). Only THEN print `VI-OK CHK-001:readerrace:0`.
@@ -86,9 +86,9 @@ function sweepSwapSiblings() {
 
 async function main() {
   sweepSwapSiblings();
-  // Precondition: both dists are present and verifying, and bin/lattice.js reads cleanly at rest.
-  const warm = await spawnCapture(['bin/lattice.js', '--help']);
-  assert.equal(warm.code, 0, `precondition: bin/lattice.js --help must succeed at rest, got code ${warm.code}\n${warm.out.slice(0, 400)}`);
+  // Precondition: both dists are present and verifying, and bin/proof-or-stop.js reads cleanly at rest.
+  const warm = await spawnCapture(['bin/proof-or-stop.js', '--help']);
+  assert.equal(warm.code, 0, `precondition: bin/proof-or-stop.js --help must succeed at rest, got code ${warm.code}\n${warm.out.slice(0, 400)}`);
   assert.doesNotThrow(() => verifyBuildBinding(repoRoot), 'precondition: main build binding must verify before the race');
   assert.doesNotThrow(() => verifyUtilsBuildBinding(repoRoot), 'precondition: utils build binding must verify before the race');
 
@@ -109,7 +109,7 @@ async function main() {
   const inFlight = new Set();
   const want = () => !buildDone || readerResults.length + inFlight.size < MIN_READERS;
   const launch = () => {
-    const p = spawnCapture(['bin/lattice.js', '--help']).then(r => { readerResults.push(r); inFlight.delete(p); });
+    const p = spawnCapture(['bin/proof-or-stop.js', '--help']).then(r => { readerResults.push(r); inFlight.delete(p); });
     inFlight.add(p);
   };
   while (want()) {
@@ -126,7 +126,7 @@ async function main() {
   assert.equal(
     failures.length,
     0,
-    `${failures.length}/${readerResults.length} concurrent bin/lattice.js readers saw an absent/partial dist during the rebuild ` +
+    `${failures.length}/${readerResults.length} concurrent bin/proof-or-stop.js readers saw an absent/partial dist during the rebuild ` +
       `(F-003: readers must NEVER see MODULE_NOT_FOUND). Sample: ` +
       failures.slice(0, 3).map(f => `[code=${f.code}] ${f.out.replace(/\s+/g, ' ').slice(0, 200)}`).join(' || '),
   );
@@ -141,7 +141,7 @@ async function main() {
   // ── readerrace:1 — an ORPHANED (stale) build lock must NOT brick readers ─────────────────────────
   // A build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release, leaving `<target>.lock`
   // orphaned. The atomic swap already left dist complete, so it is importable — buildInProgress() must
-  // gate on lock FRESHNESS (proper-lockfile staleness), not mere existence, or every bin/lattice.js
+  // gate on lock FRESHNESS (proper-lockfile staleness), not mere existence, or every bin/proof-or-stop.js
   // call would wait 60s then fail until the next build reclaims the stale lock. Two proofs: a fast unit
   // check that buildInProgress() distinguishes fresh vs stale, and a LIVE check that a real reader with
   // a stale orphaned lock imports quickly (no 60s hang, no "bootstrap is not ready"). Non-vacuous: with
@@ -157,9 +157,9 @@ async function main() {
       const staleSec = (Date.now() - BUILD_LOCK_OPTIONS.stale - 5000) / 1000; // older than stale
       utimesSync(lockDir, staleSec, staleSec);
       assert.equal(buildInProgress(), false, 'a STALE orphaned lock (mtime older than stale) must NOT be treated as an active build');
-      // Live: a real bin/lattice.js reader with the stale orphaned lock still present must import FAST.
+      // Live: a real bin/proof-or-stop.js reader with the stale orphaned lock still present must import FAST.
       const t0 = Date.now();
-      const reader = await spawnCapture(['bin/lattice.js', '--help']);
+      const reader = await spawnCapture(['bin/proof-or-stop.js', '--help']);
       const elapsed = Date.now() - t0;
       assert.equal(reader.code, 0, `a reader must succeed despite a stale orphaned lock, got code ${reader.code}\n${reader.out.slice(0, 400)}`);
       assert.ok(!READER_FAIL_RE.test(reader.out), `a reader must not report bootstrap-not-ready with a stale orphaned lock:\n${reader.out.slice(0, 400)}`);
@@ -261,7 +261,7 @@ async function main() {
     console.log('VI-OK CHK-001:readerrace:4');
   }
 
-  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/lattice.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure (in-process); utils has no pre-lock fast-path`);
+  console.log(`PASS red-1734-reader-race: ${readerResults.length} concurrent bin/proof-or-stop.js readers raced a real rebuild with ZERO MODULE_NOT_FOUND; a stale orphaned lock does not brick readers; the reader waits a live build past 60s; promotion restores dist on failure (in-process); utils has no pre-lock fast-path`);
 }
 
 main().catch(err => {

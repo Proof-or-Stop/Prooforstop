@@ -504,7 +504,7 @@ async function main(): Promise<void> {
     writeFileSync(join(hungBin, 'git'), '#!/bin/sh\nsleep 30\n'); chmodSync(join(hungBin, 'git'), 0o755);
     const authorityInput = {
       command: 'agent_prompt', commandArgs: ['--role=implementation-reviewer'], projectRoot: process.cwd(),
-      invokedEntrypoint: join(process.cwd(), 'bin/lattice.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
+      invokedEntrypoint: join(process.cwd(), 'bin/proof-or-stop.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
     };
     const slowDecision = classifyRuntimeEntrypointAuthority({ ...authorityInput, env: { ...process.env, PATH: `${slowBin}:${process.env.PATH ?? ''}` } });
     assert(slowDecision.status === 'pass', 'authoritative git identity probes retry a transient two-second timeout');

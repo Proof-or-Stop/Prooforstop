@@ -536,6 +536,11 @@ export function detectManagedAssetProfile(root: string): InitProfile {
     (agents && hasManagedMarkers(agents))
       || adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
       || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
+      // B-cc10 CHK-006: this probed ONLY the deprecated `bin/lattice-codex.js`. Now that
+      // the alias is deleted, a canonical-only project (this repository included) has no
+      // codex wrapper this check can see, so profile detection could silently fall back to
+      // 'core' and stop managing adapter assets. Read BOTH names, canonical first.
+      || existsSync(join(root, 'bin', 'proof-or-stop-codex.js'))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
@@ -570,7 +575,12 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   ) {
     return 'full';
   }
-  if (existsSync(join(root, 'bin', 'lattice.js'))) {
+  // B-cc10 CHK-006: read-both, canonical first. Probing only the deleted alias meant a
+  // canonical-only local-bootstrap project was not classified as 'full'.
+  if (
+    existsSync(join(root, 'bin', 'proof-or-stop.js'))
+    || existsSync(join(root, 'bin', 'lattice.js'))
+  ) {
     return 'full';
   }
   // Full-mode: LATTICE.md presence (any casing) implies non-global-thin project
@@ -808,6 +818,11 @@ export function listManagedAssetDefinitions(
     // demanding it unconditionally would report a spurious MISSING on every freshly
     // initialized project. Present-and-drifted is still worth reporting, so when the file
     // IS there it gets the same drift checking as the canonical one.
+    //
+    // B-cc10 CHK-006: this repository's own alias was deleted, so this branch is now
+    // inert HERE (the presence probe simply fails) while still drift-checking a
+    // downstream project that legitimately still carries the old wrapper. The
+    // conditional shape is exactly why removing our own file needed no change here.
     // B-cdf6: the presence probe must run against projectRoot, NOT root. `root`
     // defaults to packageRoot() — where the CLI package is installed — so probing it
     // asks "does the PACKAGE ship bin/lattice.js", which is never true. The alias

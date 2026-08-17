@@ -7,7 +7,7 @@ import { join } from 'path';
 
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
-const cli = join(root, 'bin', 'lattice.js');
+const cli = join(root, 'bin', 'proof-or-stop.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
 

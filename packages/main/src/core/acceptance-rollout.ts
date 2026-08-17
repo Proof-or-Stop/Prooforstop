@@ -237,7 +237,8 @@ function replayProductionGateState(args: {
   });
   const run = (command: 'acceptance_topology_check' | 'pre_review_check_read'): Record<string, unknown> => {
     const output = execFileSync(process.execPath, [
-      join(args.cliRoot, 'bin/lattice.js'),
+      // B-cc10 CHK-006: was `bin/lattice.js`, deleted with the deprecated aliases.
+      join(args.cliRoot, 'bin/proof-or-stop.js'),
       '--root',
       args.evidenceGitCwd,
       command,

@@ -380,7 +380,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Use lattice host probe --host=codex to inspect optional browser, evidence-submit, and receipt-bundle degradations.',
         'Keep assurance local: use proof admissibility, signed/offline receipt bundles, and local review quorum before integration.',
       ],
-      commands: ['npm --prefix packages/main run build', 'node bin/lattice.js host_probe --host=codex --format=json'],
+      commands: ['npm --prefix packages/main run build', 'node bin/proof-or-stop.js host_probe --host=codex --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -392,7 +392,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Use lattice host probe --host=claude-code to inspect visible capability degradations.',
         'Use handoff_create / handoff_accept / handoff_resume for cross-host recovery without changing authority.',
       ],
-      commands: ['node bin/lattice.js host_probe --host=claude-code --format=json'],
+      commands: ['node bin/proof-or-stop.js host_probe --host=claude-code --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -405,8 +405,8 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Use proof-or-stop host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
       ],
       commands: [
-        'node bin/lattice.js host_probe --host=antigravity --format=json',
-        'node bin/lattice.js host_runtime_probe --host=antigravity --json',
+        'node bin/proof-or-stop.js host_probe --host=antigravity --format=json',
+        'node bin/proof-or-stop.js host_runtime_probe --host=antigravity --json',
       ],
       warnings: commonWarnings,
     };
@@ -431,7 +431,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Pair browser evidence with an editing or runner host for shell/test execution.',
         'Keep screenshots as local evidence refs for manual review and lifecycle evidence recording.',
       ],
-      commands: ['node bin/lattice.js host_probe --host=browser --format=json'],
+      commands: ['node bin/proof-or-stop.js host_probe --host=browser --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -443,7 +443,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Treat old server-backed authority materials as legacy reference only.',
         'Do not treat server reachability or transport acceptance as local proof admissibility.',
       ],
-      commands: ['node bin/lattice.js conduit_status --format=json'],
+      commands: ['node bin/proof-or-stop.js conduit_status --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -455,7 +455,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
         'Keep any Mac App usage as an optional dashboard or archived surface.',
         'Do not route release readiness claims through the Mac App.',
       ],
-      commands: ['node bin/lattice.js lattice_config_doctor --format=json'],
+      commands: ['node bin/proof-or-stop.js lattice_config_doctor --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -466,7 +466,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       'Run host_probe with the requested host to inspect fallback degradations.',
       'Delegate edits, tests, local evidence recording, and receipt-bundle checks to known capable hosts.',
     ],
-    commands: ['node bin/lattice.js host_list --format=json'],
+    commands: ['node bin/proof-or-stop.js host_list --format=json'],
     warnings: commonWarnings,
   };
 }

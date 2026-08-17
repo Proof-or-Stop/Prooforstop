@@ -60,21 +60,20 @@ export interface CodexAdapterMaterialSnapshot {
 }
 
 /**
- * Local wrapper basenames, canonical first (B-cdf6).
+ * Local wrapper basenames (B-cdf6 rename; B-cc10 CHK-006 alias removal).
  *
- * The rename is additive: `bin/proof-or-stop-codex.js` / `bin/proof-or-stop.js` are
- * canonical, but the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases are
- * retained and must keep satisfying this gate. A checkout generated before the rename
- * (or a teammate branch that has only the old wrappers) therefore still passes: every
- * consumer below picks the first entry that exists on disk rather than asserting one name.
+ * B-cdf6 kept the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases as
+ * additional accepted entries. B-cc10 CHK-006 REMOVED both aliases from the repository,
+ * so they are removed from these lists too: a name that can no longer exist would only
+ * widen the accepted set without ever matching, and would keep teaching the dead name to
+ * the next maintainer. Consumers still resolve by first-existing rather than asserting a
+ * single name, so this stays a list rather than a scalar.
  */
 export const LOCAL_CODEX_WRAPPERS: readonly string[] = [
   'bin/proof-or-stop-codex.js',
-  'bin/lattice-codex.js',
 ];
 export const LOCAL_BOOTSTRAP_WRAPPERS: readonly string[] = [
   'bin/proof-or-stop.js',
-  'bin/lattice.js',
 ];
 
 /** First existing candidate, or the canonical name when none is present. */
@@ -193,13 +192,13 @@ export function resolveGlobalFallbackHeartbeatTimeoutMs(
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
   if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
-  // Canonical codex wrapper, then canonical bootstrap, then the deprecated aliases:
-  // whichever this checkout actually has is what the operator is told to run.
+  // Canonical codex wrapper, then canonical bootstrap: whichever this checkout
+  // actually has is what the operator is told to run. B-cc10 CHK-006 dropped the
+  // deprecated-alias rows — telling an operator to run a deleted file would hand
+  // them a command that cannot work.
   const candidates: Array<[string, string]> = [
     ['bin/proof-or-stop-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
     ['bin/proof-or-stop.js',       LOCAL_MAIN_VERIFY_COMMAND],
-    ['bin/lattice-codex.js',       'node bin/lattice-codex.js verify_codex'],
-    ['bin/lattice.js',             'node bin/lattice.js verify_codex'],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -230,13 +229,12 @@ const CODEX_MATERIAL_PATHS = [
   '.claude/agents',
   'AGENTS.md',
   'README.md',
-  // Both the canonical wrappers and the retained deprecated aliases are adapter
-  // material: editing either changes what a Codex session actually executes, so a
-  // stale verification must not survive a change to any of the four.
+  // The canonical wrappers are adapter material: editing either changes what a Codex
+  // session actually executes, so a stale verification must not survive a change to
+  // them. B-cc10 CHK-006 removed the two deprecated alias entries along with the files
+  // themselves — a path that cannot exist contributes nothing to staleness detection.
   'bin/proof-or-stop-codex.js',
   'bin/proof-or-stop.js',
-  'bin/lattice-codex.js',
-  'bin/lattice.js',
   'bin/bootstrap-runner.js',
   'packages/main/templates/agents',
   'packages/main/src/init-assets.ts',
@@ -829,10 +827,12 @@ function resolveGlobalCliCommandPath(root: string): string | null {
 /**
  * Read a wrapper's text, concatenating any sibling wrapper it re-exports.
  *
- * B-cdf6: `bin/lattice-codex.js` is a retained deprecated alias whose whole body is
- * `import './proof-or-stop-codex.js'`, so the env contract lives one hop away. Only
- * relative sibling imports inside `bin/` are followed, and only one hop, so this
- * cannot be used to satisfy the check from an arbitrary file.
+ * A wrapper may hold no behaviour of its own and simply `import` a canonical sibling,
+ * in which case the env contract lives one hop away. (B-cdf6's `bin/lattice-codex.js`
+ * alias was exactly that shape; B-cc10 CHK-006 removed it, but the delegation-following
+ * remains correct for any future thin wrapper.) Only relative sibling imports inside
+ * `bin/` are followed, and only one hop, so this cannot be used to satisfy the check
+ * from an arbitrary file.
  */
 function readWrapperTextFollowingDelegation(root: string, wrapperRelPath: string): string {
   const wrapperAbs = join(root, wrapperRelPath);
@@ -861,9 +861,9 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor');
     return;
   }
-  // Accept whichever wrapper name this checkout has, canonical preferred. A pre-rename
-  // checkout with only `bin/lattice-codex.js` still passes (additive compat), and a
-  // post-rename one is verified against the canonical file it actually executes.
+  // Resolve whichever wrapper name this checkout has, canonical preferred, and verify
+  // against the file it actually executes. B-cc10 CHK-006 removed the deprecated alias,
+  // so the canonical name is now the only accepted one.
   const wrapperRelPath = resolveWrapperRelPath(root, LOCAL_CODEX_WRAPPERS);
   const bootstrapRelPath = resolveWrapperRelPath(root, LOCAL_BOOTSTRAP_WRAPPERS);
   const wrapper = join(root, wrapperRelPath);

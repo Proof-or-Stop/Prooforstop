@@ -33,7 +33,7 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const latticeBin = join(repositoryRoot, 'bin/lattice.js');
+const latticeBin = join(repositoryRoot, 'bin/proof-or-stop.js');
 const cohortCaseMode = process.argv.includes('--rollout-cohort-case');
 const cohortArm = process.env.LATTICE_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
 const cohortScenario = process.env.LATTICE_ROLLOUT_COHORT_SCENARIO ?? 'control';

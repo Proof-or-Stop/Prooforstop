@@ -59,7 +59,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'runtimeEntrypointAuthority',
     rationale: 'A self-host story worktree must execute the runtime that belongs to that worktree, not a stale global launcher linked to the main checkout.',
     driftMessage: 'The active CLI runtime is not authoritative for the current self-host worktree.',
-    repairHint: 'From the story worktree, retry the same command with `node bin/lattice.js`.',
+    repairHint: 'From the story worktree, retry the same command with `node bin/proof-or-stop.js`.',
   },
   {
     id: 'cli-entrypoint',

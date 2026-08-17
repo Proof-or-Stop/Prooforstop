@@ -636,6 +636,14 @@ if (withStarter) {
 // `bin/lattice-codex.js` names are still ACCEPTED (a project that already has them is
 // left alone rather than gaining a duplicate), but they are never newly generated —
 // otherwise fresh projects would keep inheriting the retired brand.
+//
+// B-cc10 CHK-006 SCOPE NOTE: that story deleted the two deprecated aliases from THIS
+// repository's own `bin/`. It deliberately did NOT remove the tolerance below, because
+// this code path generates into and cleans up DOWNSTREAM user projects: a project that
+// was initialized before the rename still has the old wrapper on disk, and silently
+// ceasing to recognize it would either strand a managed file or hand that project a
+// duplicate wrapper. Recognizing an old name in someone else's checkout costs nothing;
+// shipping the dead name from our own bin/ was the actual break, and that is gone.
 const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';
 const CANONICAL_CODEX_WRAPPER_REL = 'bin/proof-or-stop-codex.js';
 const DEPRECATED_BOOTSTRAP_REL = 'bin/lattice.js';

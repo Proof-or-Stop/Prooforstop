@@ -443,7 +443,9 @@ export function renderLocalEntrypointRecoveryCommand(
   args: readonly string[],
 ): string {
   const tokens = [command, ...args].map(shellQuote);
-  return `cd -- ${shellQuote(worktreeRoot)} && node bin/lattice.js ${tokens.join(' ')}`;
+  // B-cc10 CHK-006: was `bin/lattice.js`. A recovery command must name a wrapper that
+  // still exists, or the operator's retry fails for a second, unrelated reason.
+  return `cd -- ${shellQuote(worktreeRoot)} && node bin/proof-or-stop.js ${tokens.join(' ')}`;
 }
 
 function shellQuote(value: string): string {
@@ -1017,15 +1019,25 @@ function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string
 function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
+  // B-cc10 CHK-006: this recognized ONLY the deprecated spellings, so the CANONICAL
+  // wrapper/bin was not identified as a Lattice entrypoint at all. With the aliases
+  // deleted that gap became load-bearing: a legitimate `bin/proof-or-stop.js` invocation
+  // would not be recognized here. Both spellings are accepted, canonical first; the
+  // deprecated names stay so a pre-rename launcher on PATH still classifies.
   if (
-    name === 'lattice'
+    name === 'proof-or-stop'
+    || name === 'proof-or-stop.cmd'
+    || name === 'proof-or-stop.js'
+    || name === 'proof-or-stop-codex.js'
+    || name === 'lattice'
     || name === 'lattice.cmd'
     || name === 'lattice.js'
     || name === 'lattice-codex.js'
   ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'lattice.js'))) return true;
-  if (samePath(real, join(projectRoot, 'bin', 'lattice-codex.js'))) return true;
+  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js', 'lattice.js', 'lattice-codex.js']) {
+    if (samePath(real, join(projectRoot, 'bin', rel))) return true;
+  }
   return false;
 }
 
@@ -1184,6 +1196,11 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
+// B-cc10 CHK-006: the deprecated basenames below are INTENTIONAL and stay. This predicate
+// asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
+// whole point — adding the canonical spellings would make every ordinary canonical
+// invocation look like a compatibility launcher and invert the classification at line 626.
+// The `lattice` npm bin is still retained, so this signal remains reachable.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;

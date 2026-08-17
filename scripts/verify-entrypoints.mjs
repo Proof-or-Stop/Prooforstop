@@ -223,11 +223,8 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
 }
 
 function readActivityRecord(session, tool) {
-  const activityPath = [
-    join(repoRoot, '.lattice', 'activity.jsonl'),
-    join(repoRoot, '.koala', 'activity.jsonl'),
-  ].find(existsSync);
-  if (!activityPath) return null;
+  const activityPath = stateDirPath('activity.jsonl');
+  if (!existsSync(activityPath)) return null;
   const text = readFileSync(activityPath, 'utf8').trim();
   if (!text) return null;
   const entries = text
@@ -237,12 +234,22 @@ function readActivityRecord(session, tool) {
   return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
 }
 
+// B-cc10 CHK-006: single read-both state-dir resolver for this verifier. CHK-003 moved the
+// runtime's state dir to `.proof-or-stop/`, so readers pinned to `.lattice/` silently saw
+// no data and reported "the wrapper never ran". Canonical first, deprecated retained so a
+// pre-migration checkout still verifies. One helper, so a future move updates one place.
+const STATE_DIR_CANDIDATES = ['.proof-or-stop', '.lattice', '.koala'];
+
+function stateDirPath(...parts) {
+  const found = STATE_DIR_CANDIDATES
+    .map(dir => join(repoRoot, dir, ...parts))
+    .find(existsSync);
+  return found ?? join(repoRoot, STATE_DIR_CANDIDATES[0], ...parts);
+}
+
 function readLatestActivityRecord(tool, entrypoint = 'local-wrapper') {
-  const activityPath = [
-    join(repoRoot, '.lattice', 'activity.jsonl'),
-    join(repoRoot, '.koala', 'activity.jsonl'),
-  ].find(existsSync);
-  if (!activityPath) return null;
+  const activityPath = stateDirPath('activity.jsonl');
+  if (!existsSync(activityPath)) return null;
   const text = readFileSync(activityPath, 'utf8').trim();
   if (!text) return null;
   return text
@@ -263,11 +270,8 @@ function currentStoryId() {
 function readProcessEvent(session, command) {
   const storyId = currentStoryId();
   if (!storyId) return null;
-  const storyDir = [
-    join(repoRoot, '.lattice', 'story', 'actives', storyId),
-    join(repoRoot, '.koala', 'story', 'actives', storyId),
-  ].find(existsSync);
-  if (!storyDir) return null;
+  const storyDir = stateDirPath('story', 'actives', storyId);
+  if (!existsSync(storyDir)) return null;
   const eventPath = join(storyDir, 'process-events.jsonl');
   if (!existsSync(eventPath)) return null;
   const entries = readFileSync(eventPath, 'utf8')
@@ -290,24 +294,24 @@ function assertCodexWrapperSessionFrom(envName) {
     TERM_SESSION_ID: '',
     [envName]: marker,
   };
-  const out = run('node', ['bin/lattice-codex.js', 'session_brief'], { env });
+  const out = run('node', ['bin/proof-or-stop-codex.js', 'session_brief'], { env });
   assert(
     /# proof-or-stop session brief/.test(out),
-    `bin/lattice-codex.js ${envName} session_brief missing session_brief heading`,
+    `bin/proof-or-stop-codex.js ${envName} session_brief missing session_brief heading`,
   );
-  assertNotIncludes(out, marker, `bin/lattice-codex.js ${envName} stdout`);
+  assertNotIncludes(out, marker, `bin/proof-or-stop-codex.js ${envName} stdout`);
 
   const record = readLatestActivityRecord('session_brief');
-  assert(record, `bin/lattice-codex.js should derive an opaque session from ${envName}`);
-  assert(/^sess-[a-f0-9]+$/.test(record.session), 'bin/lattice-codex.js should persist an opaque canonical session id');
-  assert(record.session !== marker, `bin/lattice-codex.js must not persist raw ${envName}`);
-  assert(record.source === 'codex', 'bin/lattice-codex.js should force activity source=codex');
-  assert(record.entrypoint === 'local-wrapper', 'bin/lattice-codex.js should mark entrypoint=local-wrapper');
-  const activityText = readFileSync(join(repoRoot, '.lattice', 'activity.jsonl'), 'utf8');
+  assert(record, `bin/proof-or-stop-codex.js should derive an opaque session from ${envName}`);
+  assert(/^sess-[a-f0-9]+$/.test(record.session), 'bin/proof-or-stop-codex.js should persist an opaque canonical session id');
+  assert(record.session !== marker, `bin/proof-or-stop-codex.js must not persist raw ${envName}`);
+  assert(record.source === 'codex', 'bin/proof-or-stop-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/proof-or-stop-codex.js should mark entrypoint=local-wrapper');
+  const activityText = readFileSync(stateDirPath('activity.jsonl'), 'utf8');
   assertNotIncludes(activityText, marker, `activity log raw ${envName}`);
   const storyId = currentStoryId();
   if (storyId) {
-    const processEventPath = join(repoRoot, '.lattice', 'story', 'actives', storyId, 'process-events.jsonl');
+    const processEventPath = stateDirPath('story', 'actives', storyId, 'process-events.jsonl');
     if (existsSync(processEventPath)) {
       assertNotIncludes(readFileSync(processEventPath, 'utf8'), marker, `story process events raw ${envName}`);
     }
@@ -357,8 +361,8 @@ export function createActor(_machine, options = {}) {
 const checks = [];
 
 checks.push(() => {
-  const out = run('node', ['bin/lattice.js', 'aux_doc_list', '--format=json']);
-  assertIncludes(out, '"docs"', 'bin/lattice.js aux_doc_list');
+  const out = run('node', ['bin/proof-or-stop.js', 'aux_doc_list', '--format=json']);
+  assertIncludes(out, '"docs"', 'bin/proof-or-stop.js aux_doc_list');
   assertPathMissing(repoRoot, 'bin/koala.js', 'legacy local koala wrapper');
   assertPathMissing(repoRoot, 'bin/koala-codex.js', 'legacy local koala Codex wrapper');
   assertPathMissing(repoRoot, '.lattice-codex/koala.json', 'legacy Codex manifest');
@@ -368,8 +372,8 @@ checks.push(() => {
   const coreHelp = run('node', [CORE_ENTRYPOINT, 'init', '--help']);
   assertInitHelpDocumentsStarterAsOptional(coreHelp, 'repo-local core CLI init --help');
 
-  const localWrapperHelp = run('node', ['bin/lattice.js', 'init', '--help']);
-  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/lattice.js init --help');
+  const localWrapperHelp = run('node', ['bin/proof-or-stop.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/proof-or-stop.js init --help');
 });
 
 checks.push(() => {
@@ -406,7 +410,7 @@ checks.push(() => {
   assert(record.source === 'codex', 'global Codex fallback should write source=codex');
   assert(record.entrypoint === 'global-fallback', 'global Codex fallback should mark entrypoint=global-fallback');
   assertNotIncludes(
-    readFileSync(join(repoRoot, '.lattice', 'activity.jsonl'), 'utf8'),
+    readFileSync(stateDirPath('activity.jsonl'), 'utf8'),
     marker,
     'global fallback activity log raw session',
   );
@@ -450,7 +454,7 @@ checks.push(() => {
 
     const codexReadme = readFileSync(join(tempDir, '.lattice-codex', 'README.md'), 'utf8');
     // B-cdf6: fresh init must teach the CANONICAL wrapper name, not the retained
-    // deprecated bin/lattice-codex.js alias.
+    // deprecated bin/proof-or-stop-codex.js alias.
     assertIncludes(codexReadme, 'node bin/proof-or-stop-codex.js session_brief', '.lattice-codex/README.md');
     assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.lattice-codex/README.md');
     assertIncludes(codexReadme, '不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据', '.lattice-codex/README.md');
@@ -702,10 +706,17 @@ checks.push(() => {
 });
 
 checks.push(() => {
+  // B-cc10 CHK-006: this asserted `bin/lattice.js` was a registered managed asset. That
+  // file is now DELETED, and its registration in managed-assets.ts is conditional on the
+  // file existing — so the lookup returned undefined and the check failed on `item?.status`.
+  // The canonical wrapper is registered unconditionally, which is the invariant that
+  // actually matters: the self-repo local wrapper must be recognized as Lattice-owned.
   const result = runManagedAssetCheck(repoRoot, { profile: 'all', assetMode: 'full' });
-  const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
-  assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Lattice-owned compatibility asset');
-  assert(item.reason.includes('recognized Proof-or-Stop compatibility contract'), 'self-repo local wrapper should explain the canonical Proof-or-Stop compatibility contract');
+  const item = result.items.find(asset => asset.relPath === 'bin/proof-or-stop.js');
+  assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Lattice-owned asset');
+  // The deprecated alias must NOT be registered any more, since the file is gone.
+  const deprecated = result.items.find(asset => asset.relPath === 'bin/lattice.js');
+  assert(deprecated === undefined, 'removed bin/lattice.js must no longer register as a managed asset');
 });
 
 checks.push(() => {
