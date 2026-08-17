@@ -1498,7 +1498,7 @@
       "desc": "concept-cleanup: validate --concept symbol-residue heuristic produces overwhelming false positives, not a B-cdf6 defect. Verified all 14 flagged symbols by hand: (1) detectLatticeBrand/formatLatticeProductLine/formatLatticeVersionLine/isAnyLatticeStoryMetadataPath/isLatticeLifecycleArtifactPath/renderLatticeBootstrapScript/renderLatticeCodexAdapterManifest/renderLatticeCodexWrapperScript are correctly @deprecated pure re-export aliases (lattice-brand.ts, lifecycle-registry.ts, init-assets.ts), actively exercised by packages/main/src/tasks/lattice-only-absence-smoke.ts and scripts/verify-codex-assets.mjs -- zero real risk. (2) resolveLatticeCommandPath/runLatticeRaw/writeLatticeConfig show 0 residuals in the gate JSON itself -- fully clean renames, no alias needed. (3) runLattice/runLatticeExpectFail exact-name call sites were correctly renamed everywhere touched (verified with word-boundary grep); every remaining hit is either an untouched, out-of-scope scripts/*.mjs helper (verify-done-merge-preflight.mjs, verify-dev-memory.mjs, verify-worktree-baseline-risk.mjs -- git diff --stat shows 0 diff lines for these files) or a substring match on an unrelated, never-deleted function name (runLatticeFromCwd, runLatticeResidueGate, runLatticeAuthorityControlPlaneOnce). (4) main accounts for 15326/15435 (99.3%) of all residuals gate-wide; sampled entries are the literal word main matched inside .githooks/pre-push (git branch name / packages/main path / Chinese prose), not any deleted main() function. The one genuine main() deletion was in bin/lattice-codex.js, a script-local entrypoint whose body correctly moved to bin/proof-or-stop-codex.js with zero external importers. Recommendation (non-blocking): harden the gate extractor to require exact-identifier boundary matching (not substring) and to exclude generic/ubiquitous names like main, so future stories are not forced into large manual triage of this scale.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T03:28:43.958Z",
@@ -1513,7 +1513,11 @@
         "bin/proof-or-stop-codex.js"
       ],
       "signatureTag": "missing|ts|concept-cleanup-validate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Out of scope for this story; escalated to B-META-framework-audit:F-035 rather than fixed here. The finding is valid and verified — the concept reviewer measured that the bare word 'main' alone produced 15326 of 15435 residuals (99.3%) by matching the git branch name, the packages/main path, and prose in .githooks/pre-push, and that zero of the 14 flagged symbols were genuine dangling references. But it is a defect in the validate --concept gate's matching semantics, not in the rename: changing that gate's behaviour mid-rename would alter the very gate currently judging this story, which is the wrong time to touch it. Resolved as superseded rather than fixed so the audit trail does not claim a fix that did not happen.",
+      "resolvedAt": "2026-08-17T04:37:45.414Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
