@@ -1307,6 +1307,35 @@
       ],
       "signatureTag": "missing|ts|review-incremental-context",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-054",
+      "desc": "review-incremental-context.ts:518-538,565-567 (161506c59c): the new FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS branch calls the shared fullStoryDiffContext(reasonCodes) closure, which hardcodes finalize({ prior: null, ... }) unconditionally. That is correct for the two PRE-EXISTING callers of this closure (no trusted prior exists at all, or its bound headHash is unresolvable — prior:null is an accurate statement there). But the NEW caller at line 565-567 reaches this closure only when a trusted prior WAS resolved by latestTrustedPriorPass() (changedFiles is computed FROM prior.run.headHash at line 549, so prior is genuinely non-null there) — the closure then silently discards it. Verified by execution with a fixture that runs the real CLI (dispatch -> review_run_start -> review_pass_set) to create a genuinely signed, verified prior pass bound to baseSha, then commits 513 files (one past FULL_TASK_CONTEXT_LIMITS.pathsPerList=512) and calls review_run_start again: the resulting envelope correctly sets contextMode='full' and reReviewReasonCodes includes FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS (the cap logic itself is correct — 511 files does not trigger it, 513/625 do), but envelope.priorPassRef is undefined even though the real, verified prior pass (id B-fallback:RP-001) exists and resolves. reviewIncrementalContext(...).isFirstPass is also forced to true and .priorVerdict to null for the same reason. Consequences verified to be non-gating (verifyReviewRunPromptEnvelope still returns {ok:true}; contextMode stays full so no review CONTENT is hidden; canPassReviewGuard does not read these fields), but two real observability paths consume them and would misreport: handlers/transition-effects.ts:326-330 prints \"no prior pass — full diff\" for a genuinely returning reviewer in the round>=2 advisory, and handlers/reviewer-batch.ts:239/330 would report priorVerdict:(none) for a reviewer who has, in fact, already passed this story. This also means the persisted, signed Prompt Envelope permanently records isFirstPass/priorPassRef=false-first-pass-shaped for a story whose reviewer genuinely had reviewed it before — an audit-trail fidelity loss, not a gate-safety one. Not disclosed among the three items the implementer registered in basis-context (authoritativeReferences union bound, two-dot main diff, deterministic-precheck-over-catch) — this is a fourth, distinct side effect of reusing the same closure for a structurally different caller. Fix shape: thread prior?.pass.id / prior?.run.reviewRunId through into finalize() for this one new branch (isFirstPass should stay false, priorVerdict/priorPassRef should stay populated) while keeping reviewBasis null and contextMode pinned to full via the FULL_ reason code, exactly as it does today.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T16:03:53.384Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-077",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "45082702ccb7c9956abf31ac32fea70cd822792e5831dfce5b553418da1d39d4",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "missing|ts|review-incremental-context",
+      "signatureTagSource": "auto"
     }
   ]
 }
