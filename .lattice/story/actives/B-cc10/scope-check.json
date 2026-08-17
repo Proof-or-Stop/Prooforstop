@@ -1,6 +1,6 @@
 {
   "storyId": "B-cc10",
-  "checkedAt": "2026-08-17T10:11:37.841Z",
+  "checkedAt": "2026-08-17T10:18:43.854Z",
   "features": [
     {
       "feature": "Remove bin/lattice.js and bin/lattice-codex.js deprecated aliases",
@@ -89,8 +89,8 @@
     {
       "feature": "Root npm package name literal string lattice is FROZEN per brand-rename-mapping.md line 131 (publish-level change outside additive-at-CLI-boundary scope)",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "Confirmed OQ-2 resolution + understanding.json constraints: root package.json name='lattice', private!=true (independently verified), FROZEN per brand-rename-mapping.md:131 (publish-level change outside additive-at-CLI-boundary scope), not among the operator's six enumerated identities.",
       "source": "decisions:brand-rename-mapping.md"
     },
     {
@@ -103,8 +103,8 @@
     {
       "feature": "Managed-block markers <!-- lattice:start --> / <!-- lattice:end --> stay frozen",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "FROZEN per brand-rename-mapping.md:134: '<!-- lattice:start --> / <!-- lattice:end --> managed-block markers ... Changing the marker orphans every existing managed block.' Now recorded in understanding.json constraints. Not among the operator's six enumerated identities.",
       "source": "decisions:brand-rename-mapping.md"
     },
     {
@@ -117,8 +117,8 @@
     {
       "feature": "lattice.remote-push-approval.v1 schema literal stays frozen",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "FROZEN per brand-rename-mapping.md:135: exact-match schema string compared in core/release-push-approval.ts and .githooks/pre-push:78; 'a one-sided rename breaks release approval.' Now recorded in understanding.json constraints. Not among the operator's six enumerated identities.",
       "source": "decisions:brand-rename-mapping.md"
     },
     {
@@ -277,42 +277,17 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": "Global identity rename (six lattice->proof-or-stop identities including state dir and npm package) plus candidate ambiguity: an initial broad keyword grep for .lattice/lattice.json/@lattice/core style tokens matched 70+ decisions/ files because those substrings appear inside unrelated frozen role-ID and salt literals (e.g. lattice-review-*, lattice-*-integrity-v1) across the corpus. Narrowed to exact-identity-token grep plus targeted reads of the two files the operator named plus lifecycle-artifact-scope.md (directly enumerates .lattice/lattice.json/bin/lattice.js/.lattice-codex/lattice.json as project-local required assets) and story-files-hash-material-drift.md (resolves the CHK-001 storyFilesHash unknown: confirms it hashes path+blob-id pairs, i.e. PATHS ARE HASHED, so the state-dir rename does shift storyFilesHash for all archives)."
+    "scanEscalationReason": "Global identity rename (six lattice->proof-or-stop identities including state dir and npm package) plus candidate ambiguity: an initial broad keyword grep for .lattice/lattice.json/@lattice/core style tokens matched 70+ decisions/ files because those substrings appear inside unrelated frozen role-ID and salt literals (e.g. lattice-review-*, lattice-*-integrity-v1) across the corpus. Narrowed to exact-identity-token grep plus targeted reads of the two files the operator named plus lifecycle-artifact-scope.md (directly enumerates .lattice/lattice.json/bin/lattice.js/.lattice-codex/lattice.json as project-local required assets) and story-files-hash-material-drift.md (resolves the CHK-001 storyFilesHash unknown: confirms it hashes path+blob-id pairs, i.e. PATHS ARE HASHED, so the state-dir rename does shift storyFilesHash for all archives). Re-run after coordinator resolved OQ-1/OQ-2 via scope_question_resolve and updated understanding.json; independently re-verified .githooks/pre-push:156 case statement now accepts both '@lattice/core' and '@proof-or-stop/core', and root package.json has name=lattice with no private:true, confirming both resolutions before reclassifying the three excluded features."
   },
   "summary": {
     "total": 19,
     "covered": 9,
-    "excluded": 6,
-    "gaps": 1,
-    "orphanSuspect": 2,
+    "excluded": 9,
+    "gaps": 0,
+    "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "a136aa66569262dbf2572731292613db2abcf93fbc9e1623d0fc3946e8e87440",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "brand-rename-mapping.md explicitly rules the npm package name @lattice/core as FROZEN (not renamed), with the stated reason that .githooks/pre-push:148 arms on the exact string and silently self-disarms on mismatch — yet B-cc10's CHK-005 explicitly renames the package to @proof-or-stop/core and plan.md's CHK-006 Files list includes modifying .githooks/pre-push in the same story. Which verdict governs: is @lattice/core actually in scope for this story (superseding brand-rename-mapping.md's FROZEN row), or does the freeze still hold and CHK-005 is out of scope?",
-      "evidence": "brand-rename-mapping.md:130 'packages/main npm package name @lattice/core | FROZEN | (dash) | .githooks/pre-push:148 gates the entire recursive-tsc pre-push defence on PKG_NAME = @lattice/core and exit 0s on mismatch (verified). Renaming the package therefore silently self-disarms the hook rather than failing loudly the worst possible failure mode.' vs checklist.json CHK-005 title 'Rename the npm package to @proof-or-stop/core' and plan.md CHK-005 Files listing packages/main/package.json etc, plus CHK-006 Files listing .githooks/pre-push as a file to modify in the same story.",
-      "sourcePointers": [
-        "docs/requirements/decisions/brand-rename-mapping.md:130",
-        ".githooks/pre-push:148-161 (case \"$PKG_NAME\" in @lattice/core|@proof-or-stop/core)",
-        "docs/requirements/decisions/brand-rename-mapping.md:124"
-      ],
-      "resolution": "The FROZEN verdict is deliberately superseded, and the specific hazard it cited no longer exists — verified in code, not assumed. brand-rename-mapping.md:130 froze @lattice/core because '.githooks/pre-push:148 gates the entire recursive-tsc pre-push defence on PKG_NAME = \"@lattice/core\" and exit 0s on mismatch', i.e. renaming would SILENTLY self-disarm the hook. I read the current hook: the case statement is now `'@lattice/core'|'@proof-or-stop/core')`, and the comment above it records that B-cdf6 pre-widened the detection precisely so a later rename could not disarm it. So the freeze's premise is stale relative to the code it describes; the doc was not updated when the hook was widened. The rename is therefore safe with respect to the stated hazard. Two obligations follow and are now recorded in the plan: (1) CHK-005 must grep for OTHER exact-name consumers before renaming rather than assuming pre-push was the only one, and must re-run verify-entrypoints afterward; (2) CHK-001's contract doc must record this supersession explicitly, citing brand-rename-mapping.md:130 and the widened hook, so the next reader sees the freeze was overridden on evidence rather than ignored. Also noting per the reviewer that this story overrides a FROZEN verdict TWICE — @lattice/core here and the bin aliases in CHK-006 — and CHK-001 must cite both in one place.",
-      "resolvedAt": "2026-08-17T10:12:38.922Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "brand-rename-mapping.md:131 rules the root npm package name literal string lattice as FROZEN (a publish-level change outside additive-at-CLI-boundary scope), separate from @lattice/core. Neither the checklist nor plan.md mentions the root package.json name field. Is the root package name in scope, or is it correctly excluded and simply missing from scope-boundary.json excluded list?",
-      "evidence": "brand-rename-mapping.md:131 'Root npm package name lattice | FROZEN | (dash) | Package identity / lockfile key; renaming is a publish-level change outside this story's additive-at-the-CLI-boundary scope. | No.' Story description item 6 says only '@lattice/core -> @proof-or-stop/core'; scope-boundary.json excluded[] does not list the root package name as an exclusion.",
-      "sourcePointers": [
-        "docs/requirements/decisions/brand-rename-mapping.md:131",
-        "package.json (name=lattice, no private:true)",
-        ".lattice/story/actives/B-cc10/scope-boundary.json"
-      ],
-      "resolution": "The root npm package name 'lattice' stays OUT of scope, and the reviewer is right that its absence was unrecorded rather than deliberate — that is now corrected. The operator's request enumerated exactly six identities and the root package name was not among them: the sixth item was specifically '@lattice/core' (the packages/main name), not the workspace root. brand-rename-mapping.md:131 independently freezes it as a 'publish-level change outside this story's additive-at-the-CLI-boundary scope', which matches. Verified in code: root package.json has name='lattice' and NO private:true field, so unlike a private workspace root this name is publishable and renaming it is a genuine registry-identity action with different risk from an internal path rename — reinforcing that it belongs to its own story rather than being folded in here. Action taken: adding it to scope-boundary excludedScope so it is an explicit, evidenced exclusion instead of a silent omission, and CHK-001's contract doc must list it among the identities deliberately left frozen. This is the correct disposition of a real bookkeeping gap, not a dismissal.",
-      "resolvedAt": "2026-08-17T10:13:01.811Z"
-    }
-  ]
+  "_hash": "39dc748d306bd9744f8fe481f6ecb039d69324dd0ba515cea00f93cd29dd1d4d",
+  "openQuestions": []
 }
