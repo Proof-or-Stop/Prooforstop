@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-7dff:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No wholesale concept deletion/rename beyond an internal extraction: full-suite-runner.ts globals (activeChildren/interruptSignal/interruptError/schedulerCancellationReason, RESOURCE_CLASSES, MAX_JOBS, RunScheduledOptions, canonicalFilesystemPath/pathIsContained/canonicalizeEntries/validateResourceClaims/claimsConflict/parsePositiveInteger/runScheduled) moved into new core/keyed-scheduler.ts and re-exported for compatibility. Repo-wide grep for RunScheduledOptions/schedulerCancellationReason/activeChildren/interruptSignal/interruptError/RESOURCE_CLASSES/MAX_JOBS found zero stale references. All runScheduled(...) call sites now pass the required options/cancellation-policy arg. The B-16df byte-for-byte diff-vs-main pin in validate-command-timeout-smoke.ts was rewritten (not left stale) to assert the real invariant now that this story legitimately edits validation-executor.ts/verifier.ts. Built and ran validate-resource-claims.test.mjs (34/34), validate-plan-scheduling.test.mjs (43/43), full-suite-runner-smoke.js (148/148), red-B-7dff-sequential-validate-plan.mjs (3/3), validate-parallel-equivalence-smoke.js (18/18) directly; all pass with no broken imports/dangling symbols. Promised CLI output lines (serial=/parallel=/speedup=, validate scheduler: jobs=N commands=N declared=N exclusiveByDefault=N) verified byte-matching against actual smoke output and recorded verificationEvidence. No blocker.",
+      "createdAt": "2026-08-17T15:17:34.617Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-001",
+      "envelopeId": "0cd2af479409186d176b593122ace43af7f3a718165c6b1576e5d05271a07db8",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e0d897ff42701e04e00551d400ac5d679b40a54d8bd355d0c50627dab3d8e9d3"
+    }
+  ]
+}
