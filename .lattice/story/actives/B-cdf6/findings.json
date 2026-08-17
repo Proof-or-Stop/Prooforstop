@@ -1524,7 +1524,7 @@
       "desc": "Generalized version of the 6fbb55a03b bug (question 2 from the coordinator), CONFIRMED LIVE by direct reproduction, not just pattern-matching: packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts:319-333 runCli() does `env: { ...process.env, ...env }` where the per-case env overrides at lines 498-502/519-522/535-539/763 pin LATTICE_IDLE_TIMEOUT_MS/LATTICE_MAX_TIMEOUT_MS only, never the canonical PROOF_OR_STOP_ twin. Since brand-env resolves canonical first, a caller-exported PROOF_OR_STOP_MAX_TIMEOUT_MS silently outranks these pins exactly as it did in the just-fixed validate-progress-heartbeat-smoke.ts. Reproduced empirically against the compiled dist (not rebuilt): `PROOF_OR_STOP_MAX_TIMEOUT_MS=5400000 node packages/main/dist/tasks/done-prepare-closure-heartbeat-smoke.js` FAILS with `AssertionError: later closeout timeout must preserve the observed validate=false disposition -- actual disposition executed, expected skipped_explicitly`, while a clean env passes cleanly (`done-prepare-closure-heartbeat smoke passed`). This is the exact same operational trigger the coordinator hit (exporting PROOF_OR_STOP_MAX_TIMEOUT_MS to clear the outer watchdog), reproduced in a DIFFERENT smoke file, confirming this is a class, not a one-off. Suggested fix: apply the same choke-point pattern (strip the canonical twins of IDLE_TIMEOUT_MS/MAX_TIMEOUT_MS/the DONE_PREPARE_*_TIMEOUT_MS knobs after composing env in this files own runCli, or better, extract a small shared helper the two files can both call since the shape is now proven to recur) rather than re-deriving the choke point per file. NOTE: also checked packages/main/src/tasks/validate-execution-lock-smoke.ts:161-171 (same LATTICE_IDLE_TIMEOUT_MS-only pin shape) and packages/main/src/tasks/live-smoke-transcript-smoke.ts:105/348 (same LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS-only pin shape, confirmed the underlying knob is dual-spelling-resolved via readBrandEnv in done-required-timeout-budget.ts:241) -- validate-execution-lock-smoke.ts passed both clean and with PROOF_OR_STOP_IDLE_TIMEOUT_MS exported (its 300000ms idle pin is a permissive ceiling the tests assertions are not sensitive to, so no live defect proven there); live-smoke-transcript-smoke.ts could not be verified standalone (fails identically with or without the override due to an unrelated pre-existing assertion failure when run outside the validate harness), so that one is flagged as a structurally-identical but UNCONFIRMED candidate for the same sweep, not a proven defect.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T04:51:38.169Z",
@@ -1537,7 +1537,11 @@
         "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
       ],
       "signatureTag": "missing|ts|generalized-version-6fbb55a03b",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 558d1092ba. Reproduced before fixing rather than taken on trust: done-prepare-closure-heartbeat-smoke passed clean but FAILED with PROOF_OR_STOP_MAX_TIMEOUT_MS exported ('later closeout timeout must preserve the observed validate=false disposition -- actual executed, expected skipped_explicitly'). Fixed structurally since the shape had now appeared twice: extracted stripCanonicalBrandEnvTwins(env, suffixes) into core/brand-env.ts where the precedence rule lives, and routed BOTH smokes through it, replacing the inline loop from 6fbb55a03b. Kept narrow — strips only named suffixes, never the whole canonical namespace. Verified all four combinations: validate-progress-heartbeat clean/override both pass; done-prepare-closure-heartbeat clean/override both pass (override was FAIL). Reviewer triage carried into the commit message: validate-execution-lock-smoke checked and CLEARED (permissive ceiling the assertions are insensitive to); live-smoke-transcript-smoke remains an UNCONFIRMED candidate, failing identically with and without the override due to an unrelated pre-existing assertion, so neither proven nor cleared.",
+      "resolvedAt": "2026-08-17T05:02:06.792Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
