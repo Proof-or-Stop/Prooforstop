@@ -494,7 +494,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
-      // Record caller identity (env var LATTICE_AGENT is set by subagent)
+      // Record caller identity (env var PROOF_OR_STOP_AGENT, or the deprecated
+      // LATTICE_AGENT, is set by the subagent; brand-env reads both)
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;

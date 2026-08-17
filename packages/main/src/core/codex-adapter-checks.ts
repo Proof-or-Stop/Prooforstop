@@ -666,7 +666,7 @@ function runHeartbeat(
         LATTICE_ACTIVITY_RECORD_READONLY: '1',
         LATTICE_ACTIVITY_SESSION: session,
         CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
-        LATTICE_AGENT: 'main',
+        PROOF_OR_STOP_AGENT: 'main',
         LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });

@@ -1358,7 +1358,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       // USER is retained below for human audit attribution, but it is not a
       // dispatched-agent identity. Only an explicit actor/agent or
-      // LATTICE_AGENT participates in registry authorization.
+      // PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) participates in registry authorization.
       const authority = resolveAgentMutationAuthority({
         command: 'checklist_update',
         payloadActors: [args.agent, args.actor],

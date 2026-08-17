@@ -105,7 +105,7 @@ function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): Acceptanc
   const output = execFileSync(process.execPath, [runner], {
     cwd: workspaceRoot,
     encoding: 'utf8',
-    env: { ...process.env, LATTICE_AGENT: 'acceptance-rollout-verifier' },
+    env: { ...process.env, PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier' },
     maxBuffer: 16 * 1024 * 1024,
   });
   const parsed = JSON.parse(output) as AcceptanceRolloutCohortInputV1;
