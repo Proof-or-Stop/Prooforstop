@@ -38,7 +38,11 @@
           {
             "desc": "An explicit-env session supplied via LATTICE_SESSION_ID is refused before any verdict branch runs, so neither pass nor request_changes can be signed under a session the implementer chose",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+              "selector": "refused (forgeable): explicit-env, derived-ppid"
+            }
           }
         ]
       },
@@ -84,6 +88,27 @@
           "materialHash": "064268f7aab7760527c5e281126f9a209c07e3350efacaece81b7e6fdad4ad78",
           "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
           "timestamp": "2026-08-17T16:38:50.885Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "result": "pass",
+          "note": "Assertion 1 requires both signing roles to refuse explicit-env and derived-ppid, and asserts the refusal does NOT reach the dispatch lookup, proving it happens before any verdict branch. Mutation-proven: deleting the guard makes this smoke fail with lattice-review-topology-critic must refuse explicit-env.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:38:58.329Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e38da523d71b62abd1986a23f1b9c889044d307f",
+          "materialHash": "064268f7aab7760527c5e281126f9a209c07e3350efacaece81b7e6fdad4ad78",
+          "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
+          "timestamp": "2026-08-17T16:38:58.467Z"
         }
       ]
     },
