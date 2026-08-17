@@ -78,6 +78,13 @@
       "status": "open",
       "foundAt": "2026-08-16T23:35:21.430Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-STATUS-STALE-LANE",
+      "title": "renderReviewInventoryStatus:204 backfills a missing current-wave lane with the PREVIOUS wave's terminal, so an unsaturated wave displays five 'pass' rows alongside a LANES_INCOMPLETE blocker; this misled the story owner into reporting saturation reached (topology critic F-113)",
+      "status": "open",
+      "foundAt": "2026-08-17T04:30:31.743Z",
+      "fixedAt": null
     }
   ]
 }
