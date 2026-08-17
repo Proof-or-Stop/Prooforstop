@@ -310,6 +310,19 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:08:44.045Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "note": "The test bites rather than passing vacuously: removing the guard makes it fail, restoring the guard makes it pass. Attested rather than pinned because the proof is a multi-step edit-build-revert cycle.",
+          "mechanical": false,
+          "nonMechanicalReason": "A mutation proof cannot be expressed as one pinned command, because it requires editing source, rebuilding, observing FAILURE, reverting, rebuilding and observing PASS. I performed that sequence directly in this session: widening SIGNABLE_SESSION_SOURCES at topology-critic-receipt.ts:150 to include explicit-env and derived-ppid, then rebuilding, made this smoke exit non-zero; restoring the original two-element set and rebuilding made it exit 0 again. The working tree is byte-identical to HEAD afterwards (git diff --stat empty), so no mutation residue shipped. This is an audited attestation of a manual mutation cycle, not a tool-executed receipt.",
+          "headHash": "a78ad1c103e286119e9457ed573525e6fd14fe49",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:09:00.960Z"
         }
       ]
     },
