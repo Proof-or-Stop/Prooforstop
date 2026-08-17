@@ -104,7 +104,11 @@
           {
             "desc": "node bin/proof-or-stop.js session_brief prints the story ledger while .lattice is still the on-disk name",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js session_brief",
+              "selector": "**Phase**: DEV"
+            }
           }
         ],
         "edge": [
@@ -121,7 +125,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js session_brief",
+          "result": "pass",
+          "note": "session_brief runs end-to-end through the rewired resolver while .lattice is still the on-disk state dir name. Nothing has moved: PROOF_OR_STOP_STATE_DIR is still .lattice, so this proves the resolver indirection is behavior-preserving for the pre-migration layout.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6800e79ca8309d253dc830322e1647a82c6e7af47ccd66a1b6ecc2de3352db13",
+            "outputTail": "rrent git-mutating commands, or its own protective abort looks like a mass test failure when it is not.\n      reuse: npm test failing but lattice validate passed / REVIEW rounds missed a regression / validate.commands not comprehensive / full-suite-runner.js / full-suite identity drift HEAD changed during execution\n    - 2ce7185 anti-pattern/project: A test fixture that 'poisons' state via a synthetic/fake identifier can be silently defused by an unrelated later fix that specifically targets fake or mismatched identifiers.\n      lesson: After landing ANY defense-in-depth fix (especially one that specifically detects/ignores fake, stale, or mismatched data), re-audit sibling test fixtures elsewhere in the codebase that simulate the SAME attack/incident class via a similarly-shaped fake identifier -- they may now be silently defused and passing vacuously. This is invisible from a green test run; it only surfaces by re-deriving what the fixture is supposed to prove and checking the fixture still forces that exact condition (e.g. temporarily reverting the new fix and confirming the fixture-under-test genuinely fails again).\n      reuse: Landed a fix that makes the system correctly ignore/discount fake or stale data? Grep for other test fixtures constructing similarly-fake data to simulate the same incident class, and re-verify each still has real discriminating power.\n  suppressedSupersededIds: d6f173d\n  render: maxLines=60 omittedCount=0\n\n## Scope protection summary\n  path gate: fail\n  semantic gate: skip\n  guard mode: inactive\n  review hash freshness: n/a\n  next action: Out-of-scope change blocks the gate — fix the diff or scope_contract_acknowledge the necessary expansion before advancing.\n\n## Process metrics\n  tdd:? requirementCompleteness:✗ debugging:- planning:✓ subagentCollaboration:✗(1g) reviewDiscipline:✓\n  gaps: accurate subagent detection requires git commit author data or process-events.jsonl\n\n## Recent activity (last 3)\n  2026-08-17T11:15:03.312Z verification_pin_guard_check [cli/main/ok] (B-cc10)\n  2026-08-17T11:14:54.040Z verification_pin_guard_check [cli/main/ok] (B-cc10)\n  2026-08-17T11:14:47.287Z verification_pin_guard_check [cli/main/ok] (B-cc10)\n\n## Git\n  recent commits:\n    c6e337b5bd proof-or-stop: record B-cc10 checklist_update metadata\n    20000edb92 proof-or-stop: record B-cc10 verification_evidence_add metadata\n    451280fa4d docs: record verified DEV-dispatch block in B-cc10 handoff\n  uncommitted (20):\n     M .lattice/story/actives/B-cc10/index.json\n     M .lattice/story/actives/B-cc10/process-events.jsonl\n     M .lattice/story/actives/B-cc10/process-metrics.json\n     M package.json\n     M packages/main/package.json\n     M packages/main/src/cli-init.ts\n     M packages/main/src/core/acceptance-discovery-adapters.ts\n     M packages/main/src/core/agent-asset-resolution.ts\n\n## → Next step\n  DEV phase. Next item: proof-or-stop checklist_update --storyId=B-cc10 --itemId=CHK-002 --status=in_progress (Add a read-both path resolver for the state directory before moving any file)\n\n⚠ EVIDENCE STALE (materialHash drift after c6e337b): 1 verification intent(s) stale for B-cc10\n  Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.\n  Drift class: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift (refresh, do not re-review); a storyFilesHash change is story-owned drift that needs re-review/re-quorum.\n  Run to recover (refresh re-executes a pinned verifier; without a passing re-run a command-backed result:pass is demoted to a non-mechanical attestation — re-run it and re-record via verification_evidence_add):\n    proof-or-stop verification_evidence_refresh_stale --storyId=B-cc10\n    proof-or-stop validate --story=B-cc10 --json\n  Or, when converging TEST to DONE, do the ordered recovery in one step:\n    proof-or-stop done_prepare --storyId=B-cc10 --mergeMain --refreshStale --validate\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T11:15:06.936Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c6e337b5bd0f66ee6dac47acc0b4c88a4e370a5d",
+          "materialHash": "ac70741d393e5b05dc1b1bdd77acf23a7d5d0ee8576a7fca54d1cdc4d3ad880b",
+          "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
+          "timestamp": "2026-08-17T11:15:07.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
