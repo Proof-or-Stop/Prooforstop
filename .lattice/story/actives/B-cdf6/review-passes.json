@@ -1200,6 +1200,31 @@
         "scanEscalationReason": null
       },
       "_hash": "cd329943c6b0ead9a1bef2c7a8de1a1b21656e2757cc125fc97f162dbc06e1a5"
+    },
+    {
+      "id": "B-cdf6:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review, seventh pass, judging 558d1092ba (F-071 fix). Q1 (is stripCanonicalBrandEnvTwins the right abstraction/location): verified core/brand-env.ts already hosts the read-both precedence contract (setBrandEnv/applyBrandEnv/readBrandEnv) with the same production-code-consumed-by-tests pattern; no shared test-utils module exists in this codebase (smokes already import core/*.ts directly per existing convention), and the helper is not re-exported through cli-engine.ts public surface -- location is consistent with precedent, not a new violation. Q2 (does routing validate-progress-heartbeat-smoke through the shared helper preserve the original inline-loop behavior exactly): wrote a standalone comparison harness reimplementing the ORIGINAL 6fbb55a03b inline loop byte-for-byte and diffed its output against stripCanonicalBrandEnvTwins across 3 scenarios (populated canonical+deprecated+unrelated keys, all-canonical keys, no brand keys) -- JSON-identical in all three, including confirming unrelated caller config (UNRELATED_VAR, PROOF_OR_STOP_AGENT) survives untouched in both. Also independently reproduced all four claimed pass/fail combinations against the compiled dist (not rebuilt): validate-progress-heartbeat-smoke clean/canonical-override both pass; done-prepare-closure-heartbeat-smoke clean passes AND canonical-override now passes (previously failed with the exact AssertionError text quoted in the commit -- reproduced that failure myself in the prior round before this fix landed). Q3 (anything else in 558d1092ba): reviewed all 5 changed files -- core/brand-env.ts (the helper), the two smoke files (routed through it), and two B-META-framework-audit metadata files; the findings.json diff is B-META-framework-audit:F-035 (the concept-gate substring-matching finding from the colleague concept reviewer, correctly escalated rather than fixed inline, unrelated to this quality-lane review). tsc --noEmit clean, verify-lattice-residue 3/3 pass, retired-authority-vocabulary-guard-smoke pass, 0 open findings.",
+      "createdAt": "2026-08-17T05:11:11.242Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-101",
+      "envelopeId": "e65564f176c4895d4481b68b2cd98083ac0e96b31be12d8d1a5165e31f108bef",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6030d528a09e5e246d5ea8bfc361a2423e05a106abd48d36ff2018f3e983bfb5"
     }
   ]
 }
