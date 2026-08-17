@@ -136,10 +136,40 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "a project containing only proof-or-stop.config.json loads correctly with no notice; a project containing only lattice.config.json still loads AND emits a single-line deprecation notice on STDERR naming both the deprecated filename and its canonical replacement (stderr so it never contaminates --json stdout, which B-cdf6 established as a hard constraint for piped consumers)",
+      "userSees": "canonical-only project loads silently; deprecated-only project prints \"lattice.config.json is deprecated; use proof-or-stop.config.json\" on STDERR while `validate --json` stdout stays single-payload parseable",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A project with only proof-or-stop.config.json loads and prints NO deprecation notice",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A project with only lattice.config.json loads AND prints a one-line notice on STDERR naming both filenames",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "validate --json stdout still parses as exactly one JSON payload with the deprecated filename present (notice must not leak to stdout)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
