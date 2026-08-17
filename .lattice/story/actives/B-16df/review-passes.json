@@ -566,6 +566,33 @@
         "scanEscalationReason": null
       },
       "_hash": "b98605d5064d8a8180257ba9cc60ce45a5d70fd3629888ba510520eb8b7fdec5"
+    },
+    {
+      "id": "B-16df:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Fresh REVIEW round at HEAD de78ef6 (main-drift restart; no code change since prior clean passes). Concept-deletion-completeness audit: diff main...HEAD is purely additive across the 2 touched src files, no identifier/symbol/enum/config-key/doc concept deleted or renamed, so no residue-grep target exists. Verified git diff main...HEAD -- validation-executor.ts verifier.ts is empty (0 lines), and grep -rn runSingleAllowlistedCommand( repo-wide shows all 4 real call sites in checklist.ts now route through the new resolvePinnedCommandTimeoutMs helper. No blocker.",
+      "createdAt": "2026-08-17T00:50:35.064Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-026",
+      "envelopeId": "baaf406484b30de8ccb5cc623f1646cedcd44998da3eedec919efaf853906a72",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01cc565d982312359753cbc7b69551d63ee98b582700119e5c2b30db5fd79460"
     }
   ]
 }
