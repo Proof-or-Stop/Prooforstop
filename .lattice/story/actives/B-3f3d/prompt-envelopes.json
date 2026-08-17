@@ -234512,6 +234512,944 @@
       "incrementalContextBytes": 40112,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-quality",
+      "storyId": "B-3f3d",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-3f3d:RR-444",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "lane": "lattice-review-quality",
+      "dispatchPromptDigest": "1e6a6760441f6aed3ed2a2c43d5e4e52f87d9a8d7694c90537110adf1fb50c96",
+      "hostRenderIdentityDigest": "f2ffc00dfc540a92c987c23bac24c87b4cfcaf350304b0c22126e93eea04176a",
+      "createdAt": "2026-08-17T03:15:17.662Z",
+      "headHash": "4290a0fc38adbe6bcc8344e6723bb74cd32c14a3",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+      "roleRenderDigest": "10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b",
+      "contextMode": "full",
+      "contextDigest": "4d1cc154c6afd80b56db118ba67a04af00ccbe61131cabd143bd91f29a4d2687",
+      "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1",
+      "storyFilesHash": "fcc9e5de430d40a8bd7a751c2c39b99c2f41d01002064b5cf358aacae0f28c36",
+      "policyHash": "dfea38e3a0057ffd7eea2e29cd1a0a4630c00babb72ac846a6157aabc6e274ac",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "97ea4360e2beeb03574981d9a704b1212873a2887214e16a1d448bdb874bcacc",
+      "knownExecutionEnvironmentDigest": "67fa10664ddd6ad9a95068380ffd9362870d09f8c1fa516591d2dab1bc0d67f5",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "5e9a2c150200b86b1b2e404e34e689089e0e85ed830b85b4a0335f67660335c2",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "7fa7f915d60e794c4e2a795f8843c049e71accf0d5aef4917f4cba1e00b9a692",
+      "bytes": 45720,
+      "lines": 140,
+      "estimatedTokens": 11430,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "fe6dc6d2876b2edc0bce1952ec50e8d758b6abefffc642ad3962661309d3a32d",
+      "priorPassRef": "B-3f3d:RP-310",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_DOCS_V1",
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "71afdfd5b500fbd74a87e502b7c69a220309f04488f5e249e2686779c5f0d4b7",
+      "impactedFilesDigest": "a3ed4c4a92de6a2ea1c9ec1c58ce7af72d9c6e5203a4fa977ade54ac233385f5",
+      "taskSemanticDigest": "55081d3bd276725bec1017d6ef8175e3410f216d4f620bb2c50cd68c43f9dfda",
+      "findingProjection": [
+        {
+          "id": "B-3f3d:F-001",
+          "createdAt": "2026-08-14T15:03:56.567Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: round-2+ single-receipt shortcut deletion is incomplete. packages/main/src/core/lifecycle-readiness.ts:428-525 still requires all active lanes/quorum only when roundCount <= 1 and reports round 2+ PASS from any one receipt; packages/main/src/handlers/transition-effects.ts:292-338 still tells operators they may rerun only scope-changed reviewers because one receipt suffices; CLAUDE.md:841-852 documents the obsolete contract. This contradicts CHK-004 and the new machine.ts all-round gate, so lifecycle diagnostics and operator guidance can claim sufficient final review under a condition the authoritative transition now rejects. Remove the old branch/advisory and synchronize the contract everywhere."
+        },
+        {
+          "id": "B-3f3d:F-002",
+          "createdAt": "2026-08-14T15:04:16.435Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:32 and :150-418 — HIGH: all 45 must verificationIntent entries are claimed by this single smoke, but it imports only pure epoch helpers plus renderReviewInventoryBegin/renderReviewInventoryStatus and manually constructs signed epochs, critic receipts, final receipts and phase transitions. No test invokes createReviewInventoryHandlers or the real review_inventory_begin/status/critic_set/finalize/cancel command paths, so handler admission, persistence/reload/idempotency, atomic invalidation/TOCTOU, unsupported-host/cancelled-run handling, exact CLI recovery output, and finalize/consume integration required by B3F3D-001-H1/E1/E2/E3, B3F3D-002-H1/E2/E3/A1/A2, B3F3D-003-E1/E2/A2, and B3F3D-004-H1/E2/E3 are not executable evidence. The PASS selector therefore overclaims must coverage; add handler/CLI-level negative tests (including persisted reload and cutoff drift races) and bind each affected intent only to the command that exercises it."
+        },
+        {
+          "id": "B-3f3d:F-003",
+          "createdAt": "2026-08-14T15:05:30.925Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:149 quality-boundary: evidenceForRun accepts any signature-valid finding as a terminal lane without requiring readManifest/readLog, and its coverageDigest only folds manifests/readLogs from passes (lines 154-163). A reviewer can therefore submit a finding with no bounded read evidence, satisfy required-lane completion, and let the critic/finalizer mint a saturation receipt although CHK-003 requires complete mechanical coverage or bounded read evidence for every lane. Require and authenticate read evidence for finding terminals, include it in coverageDigest, and reject lanes lacking it."
+        },
+        {
+          "id": "B-3f3d:F-004",
+          "createdAt": "2026-08-14T15:05:44.505Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:138 quality-boundary: findingFamily declares a verified family solely by hashing normalized desc plus severity, while evaluateReviewInventoryWave immediately treats those hashes as verified/new families (lines 207-223). There is no signed independent duplicate/finding-family disposition contract: identical text is silently deduplicated without independent verification, semantically identical findings with different wording are counted as new, and suspected/disproven findings are also labeled verified. This does not deliver CHK-003 E2/A2 or the document promise that raw findings and duplicate claims are independently verified. Add a canonical signed family/disposition artifact consumed by evaluation/finalization; unresolved raw/duplicate claims must remain blockers rather than alter verified-family counts."
+        },
+        {
+          "id": "B-3f3d:F-005",
+          "createdAt": "2026-08-14T15:05:58.655Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/handlers/review-inventory.ts:227 lifecycle-integrity: review_inventory_begin only checks for an OPEN epoch, so it permits a new OPEN epoch while the previous FINALIZED receipt is still unconsumed. packages/main/src/core/review-inventory-epoch.ts:284 then independently selects the older FINALIZED/unconsumed pair and authorizes REVIEW->DEV even though the newer OPEN barrier exists. The transition can therefore consume the old receipt, enter DEV, and leave an OPEN epoch that blocks every remediation material write. Reject begin while an unconsumed FINALIZED receipt exists (or make the remediation gate require the authoritative latest epoch and no OPEN epoch), and cover this sequence with an integration test."
+        },
+        {
+          "id": "B-3f3d:F-006",
+          "createdAt": "2026-08-14T15:08:27.238Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:85-98 promises every wave folds complete coverage/read evidence into the lane digest before saturation, but packages/main/src/core/review-inventory-epoch.ts:149-180 accepts a finding-only lane as terminal even when the finding has no readManifest/readLog and computes coverageDigest from ReviewPass evidence only. packages/main/src/handlers/finding.ts:537-542 explicitly permits reviewer findings without read evidence. Therefore an unread/prose finding can satisfy lane coverage and contribute to a finalized inventory, contradicting the documented assurance boundary; require signed read/coverage evidence for every terminal lane and include finding manifests/logs in the digest."
+        },
+        {
+          "id": "B-3f3d:F-007",
+          "createdAt": "2026-08-14T15:08:53.844Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:150-156 declares unchanged required-lane count a non-negotiable, mechanically demonstrated quality invariant, but packages/main/src/tasks/review-inventory-epoch-smoke.ts:393-416 only derives/asserts before/after host counts. It returns no baseline/proposed lane-count counters and performs no equality assertion, so the replay can PASS after lane reduction while the documented quality guarantee is unproven; derive and assert requiredLaneCountBefore/After from replay events or canonical active-lane inputs."
+        },
+        {
+          "id": "B-3f3d:F-008",
+          "createdAt": "2026-08-14T15:13:55.175Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-registry.ts:24 critical-deadlock: topology critic reproduction on fresh RR-006 showed that lattice-review-topology-critic was registered as an active role/dispatch lane (prompt-role-contract-registry.ts:293) but is absent from both MODULAR_REVIEWER_ROLE_IDS and MODULAR_COMPLEX_ROLE_IDS (prompt-registry.ts:24-39), and the project PromptEnvelope config type/rollout allowlist also omits it (config.ts:151-165; prompt-role-contract-registry.ts:556-557). Consequently its terminal finding/pass cannot survive the Prompt Envelope policy validation consumed by review evidence (review-run.ts:683-693 and 1341-1375), so review_inventory_critic_set can never obtain valid mandatory critic terminal evidence. With an OPEN inventory this blocks finalization and the required receipt, while REVIEW->DEV is itself receipt-gated: a deterministic remediation deadlock. Add topology critic to the canonical modular role and config rollout allowlists, select one consistent envelope mode, and add an end-to-end test that dispatches the critic, starts a fresh run, persists terminal evidence, signs critic receipt, and finalizes the epoch."
+        },
+        {
+          "id": "B-3f3d:F-009",
+          "createdAt": "2026-08-14T16:48:58.759Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: retired round-number-driven review semantics deletion is incomplete. packages/main/src/core/guard-utils.ts:203-230 still exports a TEST gate mirror that requires all opt-in lanes only for round 1 and accepts any reviewer finding in later rounds; packages/main/src/tasks/flow-stability-smoke.ts:2136-2145 explicitly preserves that mirror. packages/main/src/core/review-incremental-context.ts:10-14 and packages/main/src/tasks/review-incremental-context-smoke.ts:10-38 still say the helper is only operator guidance, the framework skips nobody, and only Round 1 requires all lanes. These executable, test, and comment residues contradict the new current-material selected-lane gate and can reintroduce the retired shortcut if the exported mirror is rewired."
+        },
+        {
+          "id": "B-3f3d:F-010",
+          "createdAt": "2026-08-14T16:49:18.446Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:126-146 and packages/main/src/tasks/review-inventory-epoch-smoke.ts:451-563 — HIGH verification-coverage gap: 45 must-intent evidence rows for CHK-001..CHK-005 are bound to obsolete storyFilesHash 122782eb… while the current story-owned hash is 85c33bf8…, and the replacement real-handler smoke directly injects signed ReviewRun/ReviewPass rows with StoryStore before finalize/consume. It therefore bypasses review_run_start, finding_add, review_pass_set, and the actual story_advance transition it is supposed to prove. Concrete uncovered claims include B3F3D-002-E3/A2 concurrent or TOCTOU mutation-vs-receipt admission, B3F3D-004-H1/A1/A2 real REVIEW→DEV/TEST transition behavior and rejection of the historical round-2 any-one shortcut, and B3F3D-005-E3/A2 fail-closed behavior for missing or ambiguous baseline attribution and mutated reports. Current compiled focused smokes pass, but they do not make these stale/bypassed evidence rows valid. Add current-material tests through the real handler/gate/CLI paths (including negative controls), then re-record the affected verificationEvidence."
+        },
+        {
+          "id": "B-3f3d:F-011",
+          "createdAt": "2026-08-14T16:49:32.013Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:257-264 states that after remediation final REVIEW again requires every current active lane. The implemented and accepted contract instead selects exactly impacted active lanes for a proven canonical dependency closure and falls back to the full set only when impact is unknown (packages/main/src/core/review-incremental-context.ts:275-294,297-429; packages/main/src/handlers/reviewer-list.ts:183-221). This lifecycle truth source therefore gives operators and future maintainers the wrong final-review requirement."
+        },
+        {
+          "id": "B-3f3d:F-012",
+          "createdAt": "2026-08-14T16:49:46.062Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: packages/main/src/handlers/review-inventory.ts:110 renders review_inventory_critic_set as the unique Next command without findingDispositions, and packages/main/src/handlers/story-dispatch.ts:527 repeats the same incomplete command. packages/main/src/cli/command-catalog.ts:647 makes findingDispositions mandatory; the printed command deterministically fails with `findingDispositions: Invalid input: expected array, received undefined`. Therefore the central completeness critic cannot follow the advertised executable path or finalize the epoch without undocumented manual schema repair."
+        },
+        {
+          "id": "B-3f3d:F-013",
+          "createdAt": "2026-08-14T16:50:44.010Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "acceptance-rollout-proof-missing: the mandatory verifier-owned Wave-4 chain is not current for this candidate. acceptance_topology_check reports only diagnostic structural pass; pre_review_check_read reports status=inconclusive with PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE and PR_CUTOFF_UNBOUND and is bound to old HEAD 1797673c1d rather than current 0c9d7419df; acceptance_rollout_report_read and acceptance_rollout_check both report AR_REPORT_MISSING, receipt=missing and quorum=degraded-or-missing. There is therefore no current signed PASS receipt or genuine 3 rounds x 2 hosts evidence, and prompt prose cannot substitute."
+        },
+        {
+          "id": "B-3f3d:F-014",
+          "createdAt": "2026-08-14T16:51:01.651Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:248-258 treats every disposition value other than verified_family or duplicate as valid whenever familyKey/canonicalFindingId are absent. The runtime therefore accepts an unknown value such as `garbage`, clears unresolvedFindingIds, produces zero families, and the same evaluator is reused by critic receipt validation. Repro against dist returned {unresolved:[],invalid:[],families:[],newFamilies:[]} for a signed verified finding plus disposition=garbage. The CLI Zod enum does not satisfy the required handler/runtime fail-closed boundary, so an in-process/alternate handler call can suppress a verified family and manufacture a clean wave."
+        },
+        {
+          "id": "B-3f3d:F-015",
+          "createdAt": "2026-08-14T16:55:23.340Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: AGENTS.md:87, CLAUDE.md:776, docs/requirements/decisions/story-lifecycle.md:90, and docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:287/295/407/503 still instruct an operator to return directly from REVIEW to DEV after a finding. The current mandatory gate in packages/main/src/core/machine.ts:720-747 and receipt consumption in packages/main/src/handlers/transition-orchestrator.ts:1304-1318/1439-1443 reject every REVIEW-to-DEV transition without a fresh FINALIZED single-use ReviewInventoryReceipt. The actual session_brief for this round likewise printed the impossible direct rollback as its retry/fix guidance. Following the repository host instructions therefore deterministically adds a failed lifecycle attempt and bypasses the documented frozen-inventory workflow; update all canonical operator guides/readiness output to require begin, complete required lanes, topology critic with dispositions, finalize, then story_advance DEV."
+        },
+        {
+          "id": "B-3f3d:F-016",
+          "createdAt": "2026-08-14T17:01:17.528Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-run.ts:541-547 only admits a current dispatch event whose targetKind is exactly `story-review`, but packages/main/src/handlers/story-dispatch.ts:964-975 records the mandatory lattice-review-topology-critic dispatch as targetKind=`topology-critic-review`. Because topology critic is now full-envelope, review_run_start always calls verifyCurrentReviewerDispatchBinding and therefore rejects the only canonical critic dispatch before a signed critic ReviewRun can be created. This is distinct from resolved F-008: the role is now allowlisted and dispatches, but its emitted binding kind is unconsumable, so no mandatory critic receipt or inventory finalization is reachable."
+        },
+        {
+          "id": "B-3f3d:F-017",
+          "createdAt": "2026-08-14T17:56:51.200Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "acceptance-rollout-proof-still-inconclusive: current cutoff does not close F-013. On HEAD 7d4b3a183f, acceptance_rollout_report_read and acceptance_rollout_check report status=pass with quorum=full-3x2, but the mandatory pre_review_check_read component reports status=inconclusive and ok=false with PR_ARTIFACT_TAMPERED, PR_AUTHORITY_INADMISSIBLE, PR_CUTOFF_UNBOUND, missing mutation/transcript proof, and multiple coverage/path failures. Its stored artifact is itself status=inconclusive and has no headHash/materialHash binding. Therefore the Wave-4 chain is not a current signed PASS chain despite the rollout report; resolving F-013 at 3323785 and later metadata-binding commits did not establish the required pre-review authority."
+        },
+        {
+          "id": "B-3f3d:F-018",
+          "createdAt": "2026-08-14T18:01:54.193Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".lattice/story/actives/B-3f3d/checklist.json B3F3D-006-H3: required must coverage is not mechanically current. Its sole docs_check row is persisted with mechanical=false and nonMechanicalReason stating verification_evidence_refresh_stale invalidated the receipt after material changed and the pinned command was not rerun. Therefore only 53/54 must intents have valid current mechanical receipts; a live reviewer rerun of review-inventory-handler-smoke passes, but that does not repair the gate-consumed checklist evidence row. Re-run the pinned verification through verification_evidence_add/verification_run and persist a fresh selector-matched receipt before claiming 54/54."
+        },
+        {
+          "id": "B-3f3d:F-019",
+          "createdAt": "2026-08-14T18:01:55.698Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:41-47 still publishes review_inventory_critic_set without the mandatory findingDispositions argument. packages/main/src/cli/command-catalog.ts:642-653 requires that array, while packages/main/src/handlers/review-inventory.ts:109-118 now correctly renders the unique executable Next command with a complete conservative disposition for every raw finding. Copying the canonical Operator workflow therefore fails before critic authority can be persisted; update the example to include agent plus a complete findingDispositions payload, with [] only for an empty aggregate."
+        },
+        {
+          "id": "B-3f3d:F-020",
+          "createdAt": "2026-08-14T18:03:19.510Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:516-520 still requires the open-verified-finding smoke to print a REVIEW/TEST-to-DEV rollback command. The same document at :507 and packages/main/src/core/lifecycle-readiness.ts:123-131 now correctly require REVIEW to print review_inventory_begin/status until a finalized receipt exists, while only TEST may return directly. The stale matrix can make a future smoke preserve the retired direct REVIEW rollback; split the expected results by phase."
+        },
+        {
+          "id": "B-3f3d:F-021",
+          "createdAt": "2026-08-14T18:09:05.032Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "zero-new-saturation-status-bypass: on the RI-003 frozen cutoff, the signed critic receipt leaves the live projection at New verified findings: 4 while renderReviewInventoryStatus reports Blockers: none and Next: lattice review_inventory_finalize. evaluateReviewInventoryWave correctly exposes live.newFamilies, and buildWave would mark this wave saturated=false, but handlers/review-inventory.ts never adds a blocker for live.newFamilies.length > 0 and its critic-complete branch unconditionally selects finalize. The finalize handler is then overloaded to accept the non-saturated wave, persist it, and only afterward reveal the next unchanged-material wave. This contradicts CHK-003 B3F3D-003-H2, which requires finalization to remain blocked and status itself to provide the exact next-wave dispatch command when any new verified family is added. The smoke tests codify the defect by expecting finalize after a discovery-wave critic and using review_inventory_finalize as the wave checkpoint. A distinct wave-close/checkpoint transition, or equivalent persistence before status projection, is required so review_inventory_finalize rejects nonzero newFamilies and cannot be presented as eligible before zero-new saturation."
+        },
+        {
+          "id": "B-3f3d:F-022",
+          "createdAt": "2026-08-14T18:35:14.167Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "mandatory-rollout-authority-not-enforced: the new Wave 4 authority section says the current signed acceptance-rollout-report.json is mandatory acceptance authority for B-3f3d while observe-mode pre-review remains diagnostic. The runtime does not implement that boundary. lattice.config.json does not set proofStory.acceptanceRolloutGateMode, so resolveAcceptanceRolloutGateMode defaults to observe; evaluateAcceptanceRollout returns blocking=false for a missing report and for every failed or tampered report unless mode is enforce, and runAcceptanceRolloutGate only rejects when blocking is true. Current acceptance_rollout_check confirms mode=observe. Thus DEV-to-REVIEW can proceed with AR_REPORT_MISSING, stale/tampered evidence, or degraded quorum even though the decision document calls the rollout report mandatory. This resolves F-017 only in prose and violates the two-layer process-fact contract: either configure/enforce rollout authority for this repository or describe it truthfully as diagnostic/reviewer-required evidence rather than gate authority."
+        },
+        {
+          "id": "B-3f3d:F-023",
+          "createdAt": "2026-08-14T18:35:35.975Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md still instructs operators to call review_inventory_finalize repeatedly until a wave adds zero new verified findings. Commit 3404a42 introduced the opposite executable contract: nonzero-new waves must use review_inventory_wave_advance, while review_inventory_finalize rejects with REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE and is exclusively the zero-new receipt writer. AGENTS.md, CLAUDE.md, the dedicated inventory decision, command catalog, handlers, and smoke tests use wave_advance, but this canonical lifecycle truth source retains the retired F-021 sequence. Following it adds deterministic failed finalize attempts and obscures the distinct wave checkpoint authority."
+        },
+        {
+          "id": "B-3f3d:F-024",
+          "createdAt": "2026-08-14T18:38:29.674Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-code-drift: the Wave 4 authority section in review-inventory-epoch-and-saturation-gate.md calls acceptance-rollout-report.json mandatory acceptance authority for B-3f3d, but the documented and executable rollout policy says only enforce blocks and lattice.config.json leaves acceptanceRolloutGateMode unset, which resolves to observe. Under the actual consumer, missing, stale, tampered, or degraded rollout evidence is diagnostic with blocking=false. The prose therefore attributes lifecycle authority that the configured gate does not possess, contradicting the same document process-fact rule that prompt/prose cannot grant authority. Configure the repository to enforce this fact or relabel the report as mandatory review evidence without lifecycle gate authority."
+        },
+        {
+          "id": "B-3f3d:F-025",
+          "createdAt": "2026-08-14T18:38:37.449Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".lattice/story/actives/B-3f3d/checklist.json B3F3D-006-H3 remains a must-coverage gap: the intent now has pinned selector `review inventory real handler smoke: PASS`, and a live run emitted both `B3F3D-006-H3 docs/provenance: PASS` and the selector, but the sole gate-consumed evidence row is still persisted as mechanical=false with no receipt/result/selectorMatched fields. Thus the Story has 53/54 valid mechanical receipts, not 54/54. Re-run H3 through verification_run (or equivalent pinned verifier execution) and persist its fresh selector-matched receipt."
+        },
+        {
+          "id": "B-3f3d:F-026",
+          "createdAt": "2026-08-14T18:38:44.472Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/review-inventory.ts:415-452 and packages/main/src/handlers/finding.ts:479-658 — critical concurrency/replay: review_inventory_finalize snapshots the current lane terminals/finding families and writes a FINALIZED receipt, but reviewer finding_add/review_pass_set remain writable while the Story is still REVIEW after finalization. Those evidence writers use separate findings/pass locks, and currentOpenReviewInventory is null once FINALIZED, so a verified finding can be appended immediately after finalization (or race immediately after the inventory lock releases). packages/main/src/core/review-inventory-epoch.ts:330-399 then validates/consumes only the frozen epoch+receipt bindings and current material cutoff; it never recomputes the live terminal/finding-set digest. The still-valid old receipt can therefore authorize REVIEW-to-DEV while its immutable aggregate omits the late verified finding, violating inventory completeness and terminal replay safety. Seal terminal evidence at FINALIZED under a shared lock, or make every evidence writer reject/invalidate a pending FINALIZED receipt and revalidate the live aggregate at consumption."
+        },
+        {
+          "id": "B-3f3d:F-027",
+          "createdAt": "2026-08-14T18:38:51.190Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-inventory-handler-smoke.ts:162-174 covers `review_inventory_wave_advance` only through one successful real CLI call. The negative test immediately before it exercises `review_inventory_finalize`, not wave_advance; the remaining wave_advance admission branches in packages/main/src/handlers/review-inventory.ts:457-489 (no OPEN epoch, drift invalidation, budget exhausted, lanes incomplete, duplicate identity, critic incomplete, and zero-new-ready-to-finalize) have no real handler/CLI negative coverage. Pure epoch/status tests do not prove these handler branches reject without persistence. Add side-effect-free real CLI negative cases at least for incomplete/critic-incomplete, zero-new, budget exhaustion, and drift, while retaining the positive wave transition."
+        },
+        {
+          "id": "B-3f3d:F-028",
+          "createdAt": "2026-08-14T18:39:01.576Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:257-260 still tells operators to call review_inventory_finalize until a wave adds zero findings. The copyable workflow introduced by 3404a42 requires review_inventory_wave_advance for every critic-certified nonzero-new wave; finalize now rejects that state and only mints the zero-new receipt. AGENTS.md, CLAUDE.md, lifecycle-readiness, the inventory decision, command catalog, and handler agree on wave_advance, leaving story-lifecycle as the sole canonical stale instruction. Replace the finalize loop with status-driven critic dispositions, wave_advance for nonzero-new waves, and finalize only for zero-new."
+        },
+        {
+          "id": "B-3f3d:F-029",
+          "createdAt": "2026-08-14T19:15:20.383Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:356-362, packages/main/src/handlers/review-inventory.ts:251-255 and 493-496 — FINALIZED receipt recovery is a dead end. The shared writer guard correctly rejects late finding/pass while a finalized receipt is pending and tells the operator to consume or cancel, but review_inventory_cancel only accepts an OPEN epoch and review_inventory_begin rejects the unconsumed FINALIZED receipt. Therefore a legitimately discovered late verified finding cannot be recorded through the supported writer and cannot invalidate or abandon the known-incomplete receipt; the only normal next action is to consume it into DEV. The live aggregate replay cannot detect evidence that the supported writer was forbidden to persist. Add a signed invalidate/cancel/reopen path for an unconsumed FINALIZED receipt (or atomically invalidate and open a fresh epoch when late evidence is attempted), and cover that recovery in the handler smoke test."
+        },
+        {
+          "id": "B-3f3d:F-030",
+          "createdAt": "2026-08-14T19:17:11.281Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "F-026 remediation remains bypassable after receipt consumption: assertReviewInventoryEvidenceWritable seals only FINALIZED epochs with !consumedAt (review-inventory-epoch.ts:355-364). consumeReviewInventoryReceipt holds the shared lock only through setting consumedAt and returns (458-492), while REVIEW->DEV publishes story.phase afterward (transition-orchestrator.ts:1443-1448) and does not clear currentReviewRound (the round changes only on entry to REVIEW at 1246-1249). A waiting reviewer finding_add therefore acquires the lock after consumption, passes the now-unsealed predicate, and can append a signed verified finding bound to the still-current old ReviewRun; even after phase publication, finding_add is explicitly allowed in DEV (command-policy.ts:397). That finding is absent from the already-consumed immutable aggregate, and the live aggregate verifier cannot run again because receipt replay is rejected. Existing smoke covers pre-consumption sealing and live tamper before consumption, but not the consume-to-phase-write race or post-consumption reviewer finding. Keep the finalized epoch sealed for its reviewRound after consumption (while allowing a genuinely new reviewRound), or publish the phase/round boundary inside the same serialization fence; add real negative coverage for concurrent/post-consumption finding_add."
+        },
+        {
+          "id": "B-3f3d:F-031",
+          "createdAt": "2026-08-14T19:22:49.594Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:232-247 and packages/main/src/handlers/review-inventory.ts:455-489 — critical wave-boundary evidence loss distinct from F-029/F-030. review_inventory_wave_advance serializes and persists a completed wave, but the OPEN epoch remains writable afterward. assertCurrentReviewRunForEvidence deliberately accepts a non-latest current-round fresh ReviewRun (review-run.ts:1215-1222), so a run started before the checkpoint may submit a verified finding after wave_advance releases the lock. The next evaluation sets waveStart to the prior completedAt and filters candidates by run.startedAt >= waveStart; that old run and its late finding are therefore excluded from the new wave, while the already persisted prior wave cannot be amended. A later zero-new wave can finalize and consume a receipt whose immutable family set omits this signed verified finding. The normal REVIEW gate may still surface an open critical finding, but REVIEW-to-remediation-DEV consumes only reviewInventoryRemediationGate and can proceed with the incomplete aggregate (machine.ts:732-750). Seal completed-wave run IDs, classify evidence by evidence.createdAt with explicit cutoff semantics, or reject terminals for runs started before the current wave; add a real wave_advance-then-old-run-finding negative smoke."
+        },
+        {
+          "id": "B-3f3d:F-032",
+          "createdAt": "2026-08-14T19:23:18.215Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:232-247 and 420-452 — the first wave excludes every current-round finding whose ReviewRun started before epoch.begunAt, while the remediation gate validates only the newly finalized receipt and never reconciles it with the Story existing open verified findings. This is occurring on RI-005 now: F-029 (19:15:20Z) and F-030 (19:17:11Z) predate RI-005 begunAt (19:19:45Z). If fresh lanes correctly avoid duplicating those canonical findings and report no distinct new family, the critic sees rawFindingIds=[], finalization can mint an empty findingSetDigest, and REVIEW->DEV can consume it despite both critical findings remaining open. Cancellation/rebegin has the same loss mode. Seed each epoch with all signature-valid current-round/current-cutoff verified findings (including pre-begin evidence), or add a signed carry-forward/disposition contract and make finalize/consume fail closed unless every open verified finding is represented in the aggregate; add a handler test for finding-before-begin and cancel/rebegin without duplicate re-registration."
+        },
+        {
+          "id": "B-3f3d:F-033",
+          "createdAt": "2026-08-14T19:52:33.291Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "Temporal boundaries are not total-ordered, so F031/F032 can still be bypassed within one millisecond. review inventory classifies a run as current-wave when run.startedAt >= wave.completedAt/begunAt and seals it only when run.startedAt < boundary; cancel/invalidate uses the same strict-less-than test. Because all timestamps are millisecond ISO strings, a ReviewRun that actually started before wave_advance/cancel/begin but shares the exact timestamp is accepted as fresh evidence for the next wave. The handler smoke acknowledges this gap by busy-waiting until Date.now() is strictly greater than completedAt/updatedAt/finding.createdAt before exercising wave 2 and rebegin. Thus real execution has no mechanical happens-before identity: an old terminal can satisfy a supposedly independent zero-new wave, and a pre-begin finding whose ReviewRun shares begunAt can be omitted from baselineFindingIds. Replace timestamp-only admission with a signed monotonic boundary (sequence/event identity) or otherwise make equality conservatively old, while preserving an unambiguous way for genuinely post-boundary runs to prove freshness; add deterministic equal-timestamp tests without busy-waits."
+        },
+        {
+          "id": "B-3f3d:F-034",
+          "createdAt": "2026-08-14T19:52:35.676Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:267-274 — critical same-wave multi-run omission remains after F029-F032 remediation. For each required lane, evaluateReviewInventoryWave sorts current-wave runs newest-first and selects only the first run with any terminal; rawFindings receives findings only from that one selected run. Yet assertCurrentReviewRunForEvidence explicitly permits a material-fresh non-latest run to write finding/pass evidence (review-run.ts:1215-1222). Therefore two concurrent same-lane runs can order as: older run records a verified finding, newer run records a pass; evaluation selects the newer pass and silently omits the older signed open finding from critic dispositions and the receipt. This is distinct from F031 because both runs start after the same wave boundary. The ordinary REVIEW verdict treats the older open finding as stale-run evidence rather than erased, but REVIEW-to-remediation-DEV consumes the inventory receipt without evaluateReviewVerdict (machine.ts:732-750), so an incomplete aggregate can authorize DEV. Aggregate verified findings from every eligible current-wave run while selecting one terminal only for lane coverage, or reject/supersede terminal writes with an explicit safe rule; add a real two-runs-one-lane finding-then-pass negative smoke."
+        },
+        {
+          "id": "B-3f3d:F-035",
+          "createdAt": "2026-08-14T19:59:05.430Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/review-inventory.ts:53-80,266-303 and packages/main/src/core/command-policy.ts:417 — critical frozen-scope bypass distinct from F033/F034. review_inventory_begin signs scopeDigest from the current scope contract and checklist and freezes requiredLanes, but every later freshness consumer (status, critic_set, wave_advance, finalize, and receipt consumption through the cutoff helper) recomputes only materialHash/storyFilesHash; none recomputes scopeDigest or active required lanes. Meanwhile scope_contract_acknowledge is explicitly allowed in REVIEW and appends an acknowledged-expansion to scope-contract.json without changing the frozen material cutoff. Therefore an owner can expand/acknowledge scope after RI-006 begins, retain all old lane/critic evidence, and finalize/consume a receipt bound to the obsolete pre-expansion scope and lane selection. This violates the signed epoch promise that scope and required lanes are frozen and that scope expansion invalidates stale review. Recompute the canonical scope digest and active lanes under the inventory lock at every evidence/finalize/consume boundary, fail closed to INVALIDATED or cancel/rebegin on mismatch, and add a real begin -> scope_contract_acknowledge -> status/finalize rejection smoke."
+        },
+        {
+          "id": "B-3f3d:F-036",
+          "createdAt": "2026-08-14T20:15:34.775Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding.ts:87-92,359-453 and packages/main/src/core/mkdir-lock.ts:206-217 — critical cross-process review-pass lost-update family. withReviewPassLock and the outer review-inventory mutation lock use withMkdirLock defaults whose live holder is reclaimed solely after DEFAULT_STALE_MS=10000, but recordReviewPass performs expensive snapshot, candidate/read-diagnostic, provenance, persistence verification, process-event, and auto-commit work; real concurrent RI-006 commands exceeded 10s. In this run quality review_pass_set returned `Review pass B-3f3d:RP-020 recorded`, yet the later authoritative store contained RP-020/RP-021 for concept RR-044 and no pass for quality RR-045; review_inventory_critic_set then failed `REVIEW_INVENTORY_LANES_INCOMPLETE: lattice-review-quality`. A waiter can therefore reclaim a still-live lock, read an overlapping snapshot, reuse IDs, overwrite review-passes.json, and make a command report durable success that is subsequently erased. This is distinct from F033-F035: it is lock liveness/lost-update, not inventory timestamp, run selection, or scope drift. Use ownership-token plus live-PID/heartbeat classification or a non-timeout reclaim contract for reviewer metadata locks, keep the full RMW and final durability check under the non-reclaimable critical section, and add a real two-process >10s review_pass_set stress proving unique IDs and both signed passes survive."
+        },
+        {
+          "id": "B-3f3d:F-037",
+          "createdAt": "2026-08-14T21:15:37.999Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/review-inventory.ts:54-80, packages/main/src/handlers/checklist.ts:1898-1937, and packages/main/src/core/command-policy.ts:178 — HIGH, distinct checklist-semantic drift left by the F035 remediation. captureReviewInventoryScope signs only scopeContract plus checklist item id/title/files. The supported verification_intent_repair command remains writable in REVIEW and persists reconstructed verificationIntent rows, but it neither takes the review-inventory mutation lock nor changes any field included in scopeDigest. Therefore after review_inventory_begin an operator can run verification_intent_repair, changing the acceptance/review subject seen by the test-coverage lane, while status/critic/wave/finalize recomputation sees identical material, storyFilesHash, scopeDigest, and requiredLanes and can consume pre-repair lane evidence. The decision contract says supported or direct scope drift must invalidate at the next authoritative consumer. Include the complete checklist review-subject projection, at minimum verificationIntent and related requirement-routing fields, in the signed/recomputed scope digest or serialize and explicitly invalidate every REVIEW-phase checklist semantic writer; add begin -> verification_intent_repair -> status/finalize rejection coverage. Existing focused smokes pass but only exercise scope_contract_acknowledge and do not cover this path."
+        },
+        {
+          "id": "B-3f3d:F-038",
+          "createdAt": "2026-08-14T21:16:57.604Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/review-run.ts:145-183,311-313; packages/main/src/handlers/review-inventory.ts:505-541; packages/main/src/core/review-inventory-epoch.ts:271-281 — critical ReviewRun/boundary linearization TOCTOU, distinct from F033. review_run_start acquires the shared inventory lock only for context/cutoff validation, releases it at line 148, then does scope/prompt work and allocates/persists the RR under a different review-metadata lock. Concurrent wave_advance/cancel/begin can acquire the inventory lock in that gap and sign maxReviewRunSequence before the in-flight run is published. The in-flight command then allocates a numerically greater RR and persists it after the boundary, so evaluateReviewInventoryWave and assertReviewInventoryEvidenceWritable classify it as post-boundary even though its startedAt/snapshot/context were captured before the boundary. This violates the decision document claim of a linearized durable identity and can let pre-wave review context satisfy a later wave or escape a terminal boundary. The real >10s two-process review-pass stress passes, so F036 lock-reclaim/ID-loss is fixed; this is a separate cross-lock ordering family. Hold the shared inventory mutation lock across ReviewRun ID allocation and durable run publication with a consistent lock order against the review-metadata transaction, or allocate the monotonic sequence from an inventory-locked counter at publication and bind the run to the exact epoch/wave generation; add a deterministic barrier test interleaving precheck -> wave_advance/cancel -> run persist and require the run to remain sealed/old."
+        },
+        {
+          "id": "B-3f3d:F-039",
+          "createdAt": "2026-08-14T21:19:57.224Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/candidate-spec-routing.ts:302-365, packages/main/src/core/command-policy.ts:498, packages/main/src/handlers/finding.ts:291-307, and packages/main/src/core/review-inventory-epoch.ts:190-225 — HIGH candidate-routing authority TOCTOU, distinct from F037 checklist-semantic drift and F038 ReviewRun publication ordering. candidate_spec_route is a supported mutating command in REVIEW and replaces candidate-spec-set.json without the review-inventory mutation lock. Reviewer evidence validates its readManifest against the candidate artifact only when finding_add/review_pass_set is written, while evidenceForRun and inventory critic/finalize later verify only ReviewRun/pass/finding signatures, cutoff hashes, and embedded manifests; the epoch does not bind or recompute candidateSpecSetDigest/corpusDigest. Therefore after one required lane terminates, the owner can reroute candidates on the unchanged frozen material through a different accepted host proposal or full-scan decision, let later lanes review the new set, and finalize one wave containing terminal evidence from incompatible old/new candidate universes. Existing old lane evidence is never invalidated even though candidate routing is an L4 REVIEW evidence contract. Bind the epoch and every wave to the current signed candidate artifact digest/corpus digest and invalidate or seal on routing change, or serialize candidate_spec_route under the inventory lock and explicitly require a fresh epoch; add a lane-pass -> reroute -> status/finalize rejection smoke."
+        },
+        {
+          "id": "B-3f3d:F-040",
+          "createdAt": "2026-08-14T21:27:18.142Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/review-run.ts:725-764 and packages/main/src/core/review-incremental-context.ts:701-718,780-830 — HIGH Prompt Envelope temporal-instability family, distinct from F037 acceptance semantics, F038 ReviewRun/boundary publication, and F039 candidate routing. verifyReviewRunPromptEnvelope claims to recompute eligibility as of run.startedAt, but reviewIncrementalContext only filters findings by createdAt <= cutoff and then folds each selected finding live mutable status/severity/category/desc into reviewBasis and its digest. Later finding_resolve/finding_dismiss/cluster-sync metadata changes to any pre-cutoff finding therefore rewrite the authoritative recomputation without changing HEAD, materialHash, storyFilesHash, scope, candidate routing, or the signed run. The gate then rejects the formerly valid run/pass with `Prompt Envelope incremental eligibility fields do not match authoritative recomputation: eligibilityDigest, reviewBasisDigest`. This occurred mechanically in the current round: RR-057 could not submit its finding after concurrent metadata activity, and session_brief now reports RP-030/RP-031 invalid for the same mismatch on unchanged material. A frozen wave can consequently lose terminal lanes solely from post-start finding disposition, forcing fresh runs and defeating bounded convergence. Persist an immutable as-of-run finding snapshot/digest in the envelope or replay status transitions by event time rather than reading current mutable rows; add a run -> pre-cutoff finding disposition mutation -> evidence/gate revalidation test proving the original envelope remains valid."
+        },
+        {
+          "id": "B-3f3d:F-041",
+          "createdAt": "2026-08-14T21:27:30.741Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/candidate-spec-routing-smoke.ts:186-216 — HIGH distinct test-authority regression adjacent to F039. Running `node packages/main/dist/tasks/candidate-spec-routing-smoke.js` twice on current HEAD deterministically fails at `handler consumes current collector-valid filesReadFully`. The fixture hand-constructs RR-001/pass RP-001 without the current Prompt Envelope/workspace binding and without mechanical readLog, then calls currentStoryRoutingInput and asserts that the pass is collector-valid. Production currentStoryRoutingInput delegates to collectReviewerEvidenceState and intentionally catches/rejects stale or unbound evidence, so protectedSources correctly lacks reviewer-full.ts and the smoke aborts before exercising the later candidate-routing assertions. This is not F039 candidate artifact hot-swap: F039 is a runtime epoch-binding escape, while this family is a stale test fixture that makes the candidate routing smoke red and removes executable assurance for that subsystem. Construct the fixture through current dispatch/review_run_start/review_pass_set semantics or fully sign the current workspace/envelope/readLog contract, retain a negative unbound-evidence case separately, and require the complete smoke to pass."
+        },
+        {
+          "id": "B-3f3d:F-042",
+          "createdAt": "2026-08-14T22:24:33.015Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/proofstory.ts:1091-1220, packages/main/src/core/command-policy.ts:445, packages/main/src/handlers/review-inventory.ts:128-139,468-530, and packages/main/src/core/review-inventory-epoch.ts:572-590 — CRITICAL distinct acceptance-subject writer/finalized-receipt TOCTOU family, not F037 verification_intent_repair. scope_shrinkage_decision_set is deliberately allowed in REVIEW and TEST and is the sole writer that can withdraw checklist items and ProofStory acceptance bindings, but it takes only the checklist lock, not withReviewInventoryMutationLock. The frozen acceptance digest also omits the ProofStory contract/binding dispositions. Therefore it can race review_inventory_finalize after the final scope check, or run after FINALIZED, and change the reviewed acceptance subject while leaving the signed receipt usable. Receipt consumption calls assertReviewInventoryContextFreshLocked, which returns immediately when there is no OPEN epoch, then checks only material/storyFiles and live reviewer aggregate; it never recomputes the FINALIZED scope/acceptance subject. An old saturated receipt can consequently authorize remediation DEV after a human-confirmed scope withdrawal that no lane reviewed. Put every acceptance-semantic writer, including scope_shrinkage_decision_set and ProofStory binding dispositions, under the shared inventory lock; bind the complete acceptance contract into the epoch digest; and revalidate that digest at FINALIZED consumption. Add deterministic finalize-vs-shrink and FINALIZED-then-shrink-then-consume rejection smokes."
+        },
+        {
+          "id": "B-3f3d:F-043",
+          "createdAt": "2026-08-14T22:24:39.286Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, and packages/main/src/core/review-run.ts:1413-1428 define and implement the kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. This contradictory operator guidance can cause unnecessary fresh review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion if this workflow fact remains duplicated."
+        },
+        {
+          "id": "B-3f3d:F-044",
+          "createdAt": "2026-08-14T22:25:38.753Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/proofstory.ts:1091-1203, packages/main/src/core/command-policy.ts:445, packages/main/src/core/review-inventory-epoch.ts:50-67, and packages/main/src/handlers/review-inventory.ts:56-90 — HIGH frozen-acceptance subject bypass left after F037 remediation, distinct from the repaired checklist writer path. scope_shrinkage_decision_set is intentionally allowed in REVIEW and is the sole writer for both checklist withdrawals and ProofStory acceptance-binding dispositions, but it takes only the checklist mkdir lock and writes scope-shrinkage-decision.json / proofstory.json directly. The new reviewInventoryAcceptanceSubjectDigest signs only scopeContract plus checklist fields; it does not include the ProofStory contract, bindingDispositions, or scope-shrinkage decision. Therefore an OPEN epoch can receive a confirmed user-approved withdrawnAcceptanceBindingRefs mutation with no withdrawnChecklistItemRefs: material/storyFiles hashes, checklist scopeDigest, required lanes, and candidate digests all remain unchanged, so status/evidence/critic/wave/finalize continue accepting pre-withdrawal lane evidence on a changed acceptance contract. This contradicts the documented complete acceptance subject and frozen-scope invariant. Put scope_shrinkage_decision_set under the inventory-first lock order and bind the effective ProofStory acceptance contract/shrinkage disposition into the recomputed subject digest (or immediately invalidate on any REVIEW mutation); add begin -> acceptance-binding-only withdrawal -> status/finalize rejection coverage."
+        },
+        {
+          "id": "B-3f3d:F-045",
+          "createdAt": "2026-08-14T22:39:02.245Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: evidence-complete recovery of the F043 kind-aware latest-run documentation family. docs/requirements/decisions/story-lifecycle.md:323 and AGENTS.md:63 incorrectly state that only the latest ReviewRun is current for submitting finding/pass, while story-lifecycle.md:204, docs/requirements/decisions/review-run-binding-race.md:7, CLAUDE.md:843, and packages/main/src/core/review-run.ts:1413-1428 define and implement the actual kind-aware contract: any current-round material/scope-fresh non-latest PASS remains valid, but an open FINDING still requires the latest run. The contradictory operator guidance can manufacture unnecessary review_run_start calls and review churn. Rewrite the generic latest-run prose to preserve the PASS/FINDING distinction and add a doc-contract assertion for these duplicated workflow facts."
+        },
+        {
+          "id": "B-3f3d:F-046",
+          "createdAt": "2026-08-14T22:54:08.693Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding.ts:371-489 — verified critical terminal-command idempotency failure, distinct from F036 lock-reclaim/lost-update. In unchanged RI-008 wave 2, the first review_pass_set for coverage B-3f3d:RR-089 emitted only the running line to its client but asynchronously persisted RP-052; an operationally safe retry with the exact same reviewRunId/evidence then persisted a second signed pass RP-054. recordReviewPass serializes the RMW and allocates a fresh RP id on every call, but never checks for an already valid pass keyed by the terminal identity (storyId, reviewRound, lane, reviewRunId and canonical evidence), so ambiguous client completion is not safely replayable. This can duplicate signed gate evidence and process events, distort completion/re-attestation telemetry and require operators to choose between risking duplicate mutation or abandoning a terminal lane after a lost response. F036 covered a live lock being stale-reclaimed so one successful writer was erased; here both writes survive after the F036 lock fix, proving a different replay/idempotency boundary. Make review_pass_set idempotent under the existing lock by returning the existing byte/semantic-equivalent pass for the same run terminal identity (and fail closed on conflicting evidence), and add a real command test where response completion is ambiguous then the exact call is retried, asserting one pass/event and a stable id."
+        },
+        {
+          "id": "B-3f3d:F-047",
+          "createdAt": "2026-08-15T00:09:09.701Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-run.ts:823-826,1421-1428 and scripts/verify-process-fact-contract.mjs:4316-4322 — MEDIUM incomplete F045 remediation, same kind-aware latest-run guidance family. AGENTS.md, story-lifecycle.md and testing-infra.md now correctly say that a current-round material/scope-fresh non-latest PASS remains admissible and only an open FINDING must use the latest lane run. However the runtime latestRunHint still tells an operator with a non-latest finding to `use the latest reviewRunId to resubmit finding_add/review_pass_set; do not reuse the old reviewRunId`. The call site is explicitly restricted to evidence.kind !== pass, so naming review_pass_set is false guidance and can recreate unnecessary run/pass churn even though the gate accepts the old fresh pass. This exact stale text was emitted by session_brief in RI-008. The new contract assertion checks only the three prose documents and cannot detect the runtime hint regression. Make the hint kind-specific (this path should instruct only finding_add/latest FINDING recovery), and extend the process-fact assertion or focused test to reject generic latest-run wording that includes review_pass_set. F042/F044 acceptance locking/FINALIZED recomputation and F046 exact-pass retry/conflict behavior otherwise pass their real handler smokes on a73142f."
+        },
+        {
+          "id": "B-3f3d:F-048",
+          "createdAt": "2026-08-15T01:01:27.539Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/english-artifact-gate.ts:27-38,180-222, packages/main/src/handlers/story-create.ts:343-377, packages/main/src/handlers/checklist.ts:1190-1351, and packages/main/src/tasks/english-only-guards-smoke.ts:150-247 — MEDIUM distinct english-artifacts checklist-anchor recovery coverage gap. The REVIEW-to-TEST gate intentionally scans the complete checklist.json, and this Story proves that a CJK relatedDocs anchor such as AGENTS.md#流程事实双层契约 is a blocking artifact line. But storyCreateAuthoringFields scans checklist title/context/userSees only, so relatedDocs can enter without shift-left refusal; checklist_update permits relatedDocs replacement in DEV, providing the supported non-scope recovery path. Existing English smokes cover generic plan.md metadata, title/context authoring refusal, hook warnings and English punctuation, but never the real sequence: checklist relatedDocs anchor triggers english-artifacts failure, DEV checklist_update replaces only that anchor, rerun passes while frozen title/context and 54 verification intents/evidence remain unchanged. Add a real handler/preflight regression for that fail-to-supported-recovery-to-pass sequence and document the exact recovery command; do not force INIT reopen for a mutable relatedDocs anchor."
+        },
+        {
+          "id": "B-3f3d:F-049",
+          "createdAt": "2026-08-15T01:01:41.026Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/english-artifact-gate.ts:29-38,202-215; packages/main/src/handlers/story-create.ts:340-374; packages/main/src/handlers/checklist.ts:1189-1207,1348-1354; packages/main/src/core/command-policy.ts:171-173; packages/main/src/tasks/english-early-check-smoke.ts:162-198 — HIGH distinct framework admission/gate mismatch that forces late lifecycle recovery. REVIEW→TEST scans the entire checklist.json and currently reports checklist.json:328 (`AGENTS.md#流程事实双层契约`), but storyCreateAuthoringFields checks only checklist title/context/userSees and omits relatedDocs, while checklist_add/update have no assertEnglishAuthoringText admission at all. The existing early smoke passes because it covers only title/context and never relatedDocs or later checklist writers. Therefore CJK metadata can be accepted and frozen through PLAN/DEV, survive all four REVIEW lanes and quorum, and fail only at REVIEW→TEST. checklist_update is command-policy restricted to INIT/PLAN/DEV, so REVIEW cannot repair the rejected metadata in place and must complete a new finding inventory and remediation DEV cycle. This is not an unrecoverable permanent deadlock because the inventory receipt can authorize DEV, but it is a distinct fail-late framework correctness/efficiency defect. Apply the same canonical English-authoring predicate to every author-controlled checklist field the final gate scans (including relatedDocs, excludes and nested authored prose as policy intends) at story_create/checklist_add/checklist_update before persistence; add real CLI smoke cases proving CJK relatedDocs is rejected side-effect-free at create and update, and English replacement succeeds without weakening the final fail-closed scan."
+        },
+        {
+          "id": "B-3f3d:F-050",
+          "createdAt": "2026-08-15T01:03:02.852Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/story-create.ts:340-374, packages/main/src/handlers/checklist.ts:1012-1048,1189-1207, packages/main/src/handlers/english-artifact-gate.ts:29-38, and packages/main/src/core/command-policy.ts:171-173 — HIGH distinct late English-artifact/recovery trap. A mechanical runEnglishArtifactGate on the unchanged current cutoff returns ok=false solely for checklist.json:328 (`AGENTS.md#流程事实双层契约`), while `git log main..HEAD` contains no CJK. The shift-left storyCreateAuthoringFields contract checks title/description/background/checklist title/context/userSees but omits relatedDocs, and checklist_add/checklist_update accept relatedDocs without the shared English authoring predicate. The CLI can therefore persist an author-controlled value that the later REVIEW→TEST english-artifacts gate rejects. Once in REVIEW, checklist_update is phase-blocked, so the supported repair requires recording a blocking finding, completing/finalizing the inventory, consuming REVIEW→DEV remediation authority, and only then updating relatedDocs in DEV; recover_evidence cannot repair author prose. Add same-predicate author-time validation for every author-controlled field scanned later (at minimum relatedDocs on story_create/checklist_add/checklist_update), add a round-trip smoke proving accepted author input cannot fail the later gate, and expose/document an exact supported recovery for already-persisted stories without direct metadata edits."
+        },
+        {
+          "id": "B-3f3d:F-051",
+          "createdAt": "2026-08-15T01:46:10.372Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".lattice/story/actives/B-3f3d/checklist.json (B3F3D-006-H3) — HIGH post-F049 mechanical coverage regression distinct from the English-admission family. Current evidence is 54/54 result=pass but only 53/54 mechanical: H3 is mechanical=false with nonMechanicalReason saying verification_evidence_refresh_stale invalidated its receipt after material changed and the pinned command was not rerun. A live `node packages/main/dist/tasks/review-inventory-handler-smoke.js` run exits 0 and emits both `B3F3D-006-H3 docs/provenance: PASS` and `review inventory real handler smoke: PASS`, proving the implementation is currently green but the gate-consumed checklist row still lacks the fresh selector-matched receipt. Re-run H3 through verification_evidence_add/verification_run and persist its current mechanical receipt before claiming 54/54."
+        },
+        {
+          "id": "B-3f3d:F-052",
+          "createdAt": "2026-08-15T01:47:27.758Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: AGENTS.md:299-310 and CLAUDE.md:424-438,817-819,834 remain inconsistent with the post-F049 runtime. The authoritative checklist examples use CJK title/context/userSees/verificationIntent/note values, while checklistEnglishAuthoringFields plus story_create/checklist_add/checklist_update now reject every such nested authored string before persistence with [english_artifact_cjk_authoring]; the focused CLI smoke confirms this refusal. CLAUDE.md still describes English enforcement only as a REVIEW→TEST preflight and neither guide documents the new author-time writer gate or the supported recovery for an already-persisted CJK relatedDocs value (inventory-authorized REVIEW→DEV, then English-only checklist_update). Replace copyable examples with English metadata and document author-time refusal plus the exact supported recovery; otherwise operators following the authoritative guide receive unexpected command failure or repeat the late recovery loop."
+        },
+        {
+          "id": "B-3f3d:F-053",
+          "createdAt": "2026-08-15T01:50:22.170Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/pre-review-check.ts:387-424 and .lattice/story/actives/B-3f3d/pre-review-check.json — HIGH distinct verifier-owned pre-review authority gap beyond baseline F051/F052. On the unchanged RI-011 cutoff, two independent `pre_review_check_read` calls deterministically return `PR_ARTIFACT_TAMPERED`; the stored signed artifact is itself status=inconclusive with zero executable command digests/binding proofs and codes for missing production, mutation, transcript, and authority evidence. This is separate from H3 checklist receipt freshness: acceptance_rollout_report_read is current full-3x2, but the required pre_review_check_read surface cannot authenticate its own stored artifact or demonstrate executable proof. Reissue pre_review_check from current authoritative basis with real positive/mutation/control/transcript proof, then require a read-only PASS without PR_ARTIFACT_TAMPERED before treating pre-review coverage as current."
+        },
+        {
+          "id": "B-3f3d:F-054",
+          "createdAt": "2026-08-15T02:40:09.332Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: AGENTS.md:314 and CLAUDE.md:444 still describe the English authoring refusal as the smaller enumerated set title/context/userSees/relatedDocs/verificationIntent.desc/evidence note, while packages/main/src/handlers/english-artifact-gate.ts:123-150 recursively rejects every string leaf under excludes, files, verificationEvidence, and reason as well. A copyable checklist_update payload can therefore be rejected for fields the agent truth docs imply are outside the contract. MEDIUM: F052 agent-doc truth is only partially remediated; document the complete recursive authored-field boundary (or explicitly label the list non-exhaustive) so operator guidance matches writer admission."
+        },
+        {
+          "id": "B-3f3d:F-055",
+          "createdAt": "2026-08-15T04:07:46.413Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "large-generated-metadata-blob-hash-buffer-limit: packages/main/src/core/done-prepare-generated-metadata.ts:565-592 hashes isolated-index/tree blobs with execFileSync('git show') using Node's default ~1 MiB maxBuffer and catches every failure as null. The current committed .lattice/story/actives/B-3f3d/process-events.jsonl is 1,394,935 bytes; an exact read-only reproduction of the same execFileSync call fails ENOBUFS/SIGTERM after 1,064,960 stdout bytes while streaming git show succeeds and the worktree blob is stable. Lines 717-743 then misclassify null as a digest mismatch, so quorum_submit immutable-metadata closeout fails solely because legitimate append-only metadata crossed the hidden buffer ceiling. packages/main/src/tasks/quorum-submit-smoke.ts:1304-1344 validates atomic clean closeout only with a small fixture and has no >1 MiB blob regression. Use bounded large-blob hashing (streaming or an explicitly justified upper bound) for both isolatedBlobHash and treeBlobHash, preserve atomic commit fail-closed behavior, and add a >1 MiB process-events regression proving exact hash/commit success plus true mutation mismatch rejection."
+        },
+        {
+          "id": "B-3f3d:F-056",
+          "createdAt": "2026-08-15T04:10:51.694Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "immutable-metadata-index-rollback-head-divergence: packages/main/src/core/done-prepare-generated-metadata.ts:774-796 advances HEAD by CAS before refreshing the real index, but its refresh-failure handler restores index entries before attempting the HEAD rollback. If the same persistent index failure also makes restoreIndexEntries throw, control escapes to the outer catch and lines 781-787 never run, so the API returns ok:false while the metadata commit remains installed and the real index/worktree diverge. A hermetic temp-repo reproduction using the production dist primitive and the existing beforeCasUpdate seam created a persistent .git/index.lock: result was ok:false, reason 'isolated metadata commit failed', before HEAD 96e5eff..., after HEAD 95cf1da..., headAdvanced=true, and status 'MM meta.txt'. This is distinct from F-055's large-blob hash ceiling: even with small blobs, a failed closeout can mutate HEAD despite reporting rollback/failure. packages/main/src/tasks/quorum-submit-smoke.ts:1540-1811 covers several rollback races but has no real-index-refresh plus restore failure case. Make rollback failure ordering exception-safe so HEAD rollback is always attempted after CAS, explicitly surface any independent index-restore and ref-rollback failures, and add a regression asserting a failed closeout never silently leaves its commit installed (or reports a precise unrecovered critical state if concurrent ref movement makes rollback impossible)."
+        },
+        {
+          "id": "B-3f3d:F-057",
+          "createdAt": "2026-08-15T04:56:23.761Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "large-history-committed-verdict-reader-buffer-fail-open: packages/main/src/handlers/quorum-submit.ts:273-290 still reads HEAD process-events.jsonl through execFileSync('git show') with Node's default ~1 MiB maxBuffer and converts every error to [], while lines 474-489 rely on that array as the authoritative same-material duplicate guard. The current committed B-3f3d process-events blob is 1,394,935 bytes and the exact default-buffer call fails ENOBUFS after 1,064,960 bytes, proving the guard sees no committed host verdicts once history crosses the ceiling. After adb7f17's new >1 MiB positive quorum succeeds, an immediate same-material resubmit can therefore bypass the guard and append duplicate quorum evidence. The new test at packages/main/src/tasks/quorum-submit-smoke.ts:1777-1814 proves one large commit and one mutation rejection but never retries the successful large commit to verify idempotency. Independently, packages/main/src/core/acceptance-rollout.ts:361-365 uses the same unbounded-default git-show read for the immutable quorum commit and will throw on a >1 MiB quorum artifact, so the large-history closeout cannot reliably flow into rollout authority. This is distinct from F-055's isolated/tree hash false-mismatch: those helpers are fixed and their >1 MiB positive/negative tests pass, but downstream gate consumers remain fail-open/fail-stop. Introduce one shared bounded committed-blob reader (or streaming parser) for every gate-consumed process-events read; add a >1 MiB successful-quorum immediate same-material retry test that must refuse without writing, plus a >1 MiB acceptance-rollout observation test that must verify the immutable six rows."
+        },
+        {
+          "id": "B-3f3d:F-058",
+          "createdAt": "2026-08-15T05:08:25.190Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "large-fixture-committed-snapshot-read-fail-open: packages/main/src/core/review-incremental-context.ts:594-602 converts every git show failure to null, while fixtureCases at 605-608 converts null to an empty fixture and fixtureCaseClosure at 657-681 therefore treats two unreadable snapshots as equal empty case sets. Lines 947-960 consume true closure to classify related fixture drift as ELIGIBLE_PURE_STORY_FIXTURE. Verified in a temporary Git repo: a 1,400,000-byte fixture case changed between HEAD~1 and HEAD without any intentRef; the exact default-buffer git show failed ENOBUFS, yet fixtureCaseClosure(root, HEAD~1, B-test, tests/fixtures/large.json, emptySet) returned true. This can authorize incremental review while a changed large fixture has no Story-scoped case intent. This is distinct from F057 because it corrupts review impact and eligibility classification rather than committed quorum duplicate or acceptance-rollout verdict consumption. Preserve absence separately from read failure, fail closed on overflow or parse failure, use a size-safe committed blob reader, and add a >1 MiB changed-fixture regression that must return false without a current intentRef."
+        },
+        {
+          "id": "B-3f3d:F-059",
+          "createdAt": "2026-08-15T05:17:32.120Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "large-extensionless-script-material-classification-fail-open: packages/main/src/core/material-code-policy.ts:989-1010 and 1020-1034 read an entire extensionless git blob with an explicit 1 MiB maxBuffer and convert overflow/read failure to false; lines 1213-1217 feed that false into classifyMaterialCodePath, whose lines 664-671 label the file `extensionless non-script under path prefix` and exclude it from the material classification snapshot. Verified in a temporary Git repo with a non-executable `bin/deploy` beginning `#!/bin/sh` and sized 1,400,011 bytes on both main and HEAD: the exact git-show call failed ENOBUFS after 1,081,344 stdout bytes, while buildMaterialClassificationSnapshot returned `{path:\"bin/deploy\",materialCode:false,reason:\"extensionless non-script under path prefix\"}`. A changed large executable script can therefore disappear from materialHash/story impact and freshness gates solely because it crosses the buffer ceiling. This is distinct from F-057 (committed quorum/rollout verdict consumption) and F-058 (fixture case closure): it corrupts the repository-wide material-code classifier. Read only the first two blob bytes or use a size-safe reader, preserve read-error vs negative-signal semantics, and add current/deleted >1 MiB non-mode-executable shebang regressions that must remain material."
+        },
+        {
+          "id": "B-3f3d:F-060",
+          "createdAt": "2026-08-15T05:31:27.720Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "large-gap-log-genesis-history-reset-fail-open: packages/main/src/core/audit-meta-store.ts:322-331 converts every HEAD B-META findings git-show failure to null, and assertGapLogHistoryExtendable at 335-365 treats null plus a canonical-empty live file as legitimate no-artifact genesis. The gap_log handler does not separately prove whether the committed artifact exists before appendGapFinding creates the first provenance receipt. Verified in a temporary main repository: commit a 1,400,000-byte B-META findings history, observe the exact git show fail ENOBUFS, remove the live findings file, then call appendGapFinding with projectRoot. It succeeded, left liveFindingCount=1 instead of preserving the committed finding, and wrote officialReceiptCount=1. A large committed audit history can therefore be replaced by a fresh officially signed provenance chain when the worktree copy is missing. This is distinct from F057 verdict-ledger duplicate or rollout consumption, F058 fixture review eligibility, and F059 material-code classification. Use a size-safe committed artifact reader, distinguish missing path from read failure, require an explicit cat-file existence proof, and add a >1 MiB nonempty HEAD plus missing-worktree regression that must refuse without writing a receipt."
+        },
+        {
+          "id": "B-3f3d:F-061",
+          "createdAt": "2026-08-15T08:37:24.951Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "large-gap-log-first-receipt-verifier-self-invalidates: post-56a467a packages/main/src/core/finding-verify.ts:189-199 still reads the first receipt parentHead B-META artifact through default-buffer execFileSync git show and collapses every error to null, while verifyGapLogArtifactBinding at 245-252 interprets null as a missing committed artifact whose preArtifactDigest must equal canonical empty. The writer was migrated to readGitBlobAt, so a valid >1 MiB legacy B-META history now extends successfully and emits an official first receipt whose preArtifactDigest correctly binds the nonempty history, but the unchanged verifier overflows and immediately rejects that same receipt as invalid_binding_shape. Verified end to end in a temporary main repo: commit a 1,400,000-byte legacy findings artifact, appendGapFinding with projectRoot succeeds, receiptCount=1, then verifyGapLogArtifactBinding returns trusted=false, reason=invalid_binding_shape, findingId=B-META-framework-audit:F-002. Existing gap-log regression only asserts the large extension command succeeds and does not verify the resulting receipt. This is distinct from F060 genesis history-reset fail-open: the live history is present and preserved, but the canonical provenance consumer makes valid newly generated evidence unusable. Migrate committedArtifactDigest to the shared tri-state reader, fail closed only on true error, and extend the >1 MiB valid-extension regression to assert the official receipt verifies trusted."
+        },
+        {
+          "id": "B-3f3d:F-062",
+          "createdAt": "2026-08-15T08:44:43.651Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "large-gap-log-provenance-verifier-default-buffer: 56a467a introduces the shared 16 MiB tri-state readGitBlobAt reader and uses it in audit-meta-store before extending B-META history, but packages/main/src/core/finding-verify.ts:188-198 still reads the same committed GAP_LOG_ARTIFACT_PATH with execFileSync git show and no maxBuffer, catches every overflow as null, then lines 248-254 interpret null as committed absence. After a valid >1 MiB legacy history is extended, the first official provenance receipt has a nonempty preArtifactDigest; verifyGapLogArtifactBinding therefore rejects that newly written official chain as invalid_binding_shape. Existing gap-log large-history smoke only asserts extension and missing-worktree refusal and never calls the provenance verifier after the large extension. Route this final committed-artifact consumer through readGitBlobAt with explicit missing/error semantics and add a >1 MiB extend-then-verify trusted regression. This is a distinct consumer/test topology gap beyond the fixed genesis-reset write path in F060."
+        },
+        {
+          "id": "B-3f3d:F-063",
+          "createdAt": "2026-08-15T10:36:38.517Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/flow-stability-smoke.ts:101-140,2190-2233 [HIGH] validation-fixture-drift: the story-advance echo fixture supplies only existing commandRefs and leaves the current planned-path/coverage discovery subject incomplete, but line 2233 still asserts `Acceptance coverage basis: complete`. The canonical verifier correctly returns `partial`, so agent-liveness-suite -> review-pass-discard-smoke -> flow-stability produces the stable canonical validate result 92 PASS / 1 FAIL and blocks REVIEW to TEST. Update this fixture and assertion to match current acceptance-basis semantics, and retain a separate genuinely complete control proving `complete`; do not weaken the verifier. material-hash-large-tree passes standalone and in canonical rerun, so this is a distinct stale-fixture family rather than the F061/F062 committed-blob reader family."
+        },
+        {
+          "id": "B-3f3d:F-064",
+          "createdAt": "2026-08-15T10:40:16.934Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:101-158,210-226 [HIGH] acceptance-complete-control-closure-drift: the dedicated true-complete acceptance-basis control no longer materializes every source file now reachable from the canonical process-fact registry. Running `node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js` fails at line 218 with actual `partial` and snapshot_missing for packages/main/src/core/acceptance-rollout.ts, packages/main/src/core/machine.ts, packages/main/src/core/review-inventory-epoch.ts, packages/main/src/handlers/review-inventory.ts, and scripts/run-proofstory-acceptance-rollout-cohort.mjs. This is distinct from F063: F063 is flow-stability’s incomplete existing-commandRefs fixture with a stale output assertion, whereas this is the specialized complete control’s canonical closure inventory failing to track newly registered producer/consumer sources. Extend writeCanonicalAcceptanceRegistration with minimal representative files for the complete control and retain its expected complete status; keep the existing partial mutation controls and do not weaken snapshot sealing or registry closure."
+        },
+        {
+          "id": "B-3f3d:F-065",
+          "createdAt": "2026-08-15T10:54:54.664Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/checklist.ts:434-459 and packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:382-410 [HIGH] Non-mechanical verification-evidence provenance is carried forward by intentRef without semantic equality checks. After verification_evidence_add records a CLI intent as mechanical:false with an audited nonMechanicalReason, checklist_update can replace that row with a different kind/command/result/note while inheriting the stale reason; the writer succeeds where the focused topology negative control requires checklist_update_executable_evidence_unenforced. This is distinct from F063 partial-basis fixture drift and F064 complete-control registry-closure drift: it is a writer/provenance mutation family. It does not directly satisfy executable coverage as mechanical evidence, but it breaks provenance binding and the canonical acceptance topology contract. Remediation: carry nonMechanicalReason only for an exact semantic re-persist (at minimum same intentRef, kind, command, and result), otherwise drop inherited provenance and rerun admission; add a changed-command/result negative regression while retaining the same-evidence metadata-only re-persist control. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js; observed assertion at line 410 expects rejection but receives Checklist CHK-001: verificationEvidence updated (1). Controls: proofstory-pre-review-check-smoke PASS and agent-dispatch-registry-smoke PASS."
+        },
+        {
+          "id": "B-3f3d:F-066",
+          "createdAt": "2026-08-15T11:14:29.197Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: AGENTS.md:258-263,86 and packages/main/src/handlers/checklist.ts:462-492,1398-1410 [MEDIUM] The authoritative agent guide still tells implementers to record a fresh command-backed logic_test through checklist_update and provides a copyable payload with no existing receipt or audited nonMechanicalReason. The current executable-evidence admission contract rejects that fresh bulk-writer path with checklist_update_executable_evidence_unenforced and directs callers to verification_evidence_add or verification_evidence_batch_add; proofstory-acceptance-topology-smoke exercises this rejection before reaching the separate F065 carry-forward mutation. This is not repaired by the F065 semantic-equality fix: F065 governs whether already persisted non-mechanical provenance may survive a re-persist, while this documentation promises a fresh executable-evidence writer route that is intentionally unavailable. Replace the example and DEV guidance with verification_evidence_add for executable evidence, while reserving checklist_update evidence re-persist for valid on-disk provenance or non-executable/manual rows."
+        },
+        {
+          "id": "B-3f3d:F-067",
+          "createdAt": "2026-08-15T11:45:19.826Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/checklist.ts:323-352,434-450,1391-1410 and packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:510-540 [HIGH] Stale mechanical receipt is rebound to current evidence hashes by checklist_update without re-execution. carryForwardOnDiskProvenance preserves a prior mechanical:true receipt when command/result match, but does not require the prior evidence headHash/materialHash/storyFilesHash to remain fresh. normalizeEvidence then stamps the re-persisted row with current hashes while retaining the old receipt. Isolated real-handler repro: earn receipt at commit A, commit a source material change B, then checklist_update the same command/result with only a note edit; beforeHead and afterHead differ, receipt executedAt/outputDigest remain identical, after.mechanical=true, buildVerificationCoverage reports covered and missingRequired=0. This makes a pre-change execution appear current and can satisfy verification coverage after material drift. Distinct from F065: F065 carries stale nonMechanicalReason across changed evidence semantics but remains non-covering; this family preserves gate-covering mechanical authority across changed material. Fix: carry a mechanical receipt only if canonical freshness verifies the prior evidence against current HEAD/material/storyFiles lineage, otherwise reject/demote and require verification_evidence_add/_batch_add or verification_run to re-execute. Add a negative regression that commits story-owned material between receipt creation and checklist_update re-persist, plus the existing same-material metadata-only positive control."
+        },
+        {
+          "id": "B-3f3d:F-068",
+          "createdAt": "2026-08-15T13:12:15.999Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:833-838 [HIGH] Post-remediation focused-suite checkout-coupling regression distinct from F063-F067. The smoke now passes the earlier F065 provenance negatives but fails at its final assertion because it concatenates `git diff --name-only main...HEAD` with the dirty diff and globally asserts that `packages/main/src/core/machine.ts` is absent. B-3f3d intentionally and in-scope modifies machine.ts for CHK-004 lifecycle gating, so the reusable acceptance-topology smoke deterministically fails on the current clean story candidate even though the topology behavior under test has passed. Repro: `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` exits 1 with `Wave 1 and its fixes do not modify lifecycle machine or phase gates`; flow-stability, proofstory-acceptance-basis, and tool-executed-evidence-receipt smokes all exit 0, isolating this stale repository-diff assertion. Remove checkout-wide main...HEAD coupling from the focused task or replace it with an isolated fixture/behavior assertion that expresses the actual topology boundary without rejecting unrelated or explicitly planned lifecycle changes; retain the earlier F065/F067 regression controls."
+        },
+        {
+          "id": "B-3f3d:F-069",
+          "createdAt": "2026-08-15T13:12:47.083Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:838 retains the obsolete assertion that Wave 1 and its fixes must not modify packages/main/src/core/machine.ts. The current B-3f3d implementation legitimately changes machine.ts for the signed inventory remediation gate, so `node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js` deterministically fails at dist line 740 before completing the focused topology controls. This is distinct from F-063 partial-vs-complete acceptance-basis expectation: here the fixture changed-file boundary is stale. Replace the historical whole-story diff assertion with a fixture-local invariant that still bites unauthorized lifecycle/gate edits without rejecting this story intended machine change."
+        },
+        {
+          "id": "B-3f3d:F-070",
+          "createdAt": "2026-08-15T13:32:03.993Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:151-181 and the real gate path [HIGH] acceptance-completeness fixture closure drift remains after F064 was resolved. This is distinct from current F068/F069 checkout-diff coupling, while matching the historical F064 family at a second fixture. writeDiscoveryRegistration still seeds only the older topology source set, so acceptance_basis_generate reports partial with snapshot_missing for acceptance-rollout.ts, machine.ts, pre-review-live-proof.ts, review-inventory-epoch.ts, review-inventory.ts, and both rollout/live-proof scripts. Repro: node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js exits 1 at dist line 344 because false !== true after AT_COVERAGE_BASIS_PARTIAL. Update this dedicated gate fixture to seed the complete canonical closure and retain a true complete control; then rerun the focused smoke."
+        },
+        {
+          "id": "B-3f3d:F-071",
+          "createdAt": "2026-08-15T14:51:42.143Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:267-270 [HIGH] topology-critic-smoke-thin-bootstrap-mirror-expectation-drift. The focused smoke still requires both .claude and .lattice-codex reviewer assets to be byte-equal to the full canonical template. The authoritative current contract intentionally uses role-specific body-free bootstrap mirrors that call review_run_start and consume its selected role body, while packages/main/templates/agents/lattice-review-topology-critic.md remains the full canonical body. Repro: node packages/main/dist/tasks/proofstory-topology-critic-smoke.js exits 1 at dist line 249 with Claude prompt mirror is exact; actual is the thin bootstrap and expected is the full modular role body. node scripts/verify-process-fact-contract.mjs passes and reports Prompt drift scan: 35 reviewer prompt files checked, proving the runtime-selected prompt contract is coherent. Replace byte-equality assertions with contract-aware checks: validate bootstrap frontmatter and body-free review_run_start delegation for host assets, validate the canonical template body independently, and retain the process-fact drift scan."
+        },
+        {
+          "id": "B-3f3d:F-072",
+          "createdAt": "2026-08-15T18:40:27.813Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "full-suite-timeout-descendant-leak: packages/main/src/tasks/full-suite-runner.ts:407-409 records TIMEOUT immediately after killProcessTree(child.pid), but the actual root npm test exited 3/47 while PID 13327 (`node packages/main/dist/tasks/review-incremental-context-smoke.js`) remained alive, reparented to the Codex app-server with its own PGID, for more than two minutes before natural exit; child zombies and an active review-run shell were still observable. Therefore a terminal fail-closed suite result does not prove descendant termination and can release scheduler capacity/cleanup while a timed-out test continues executing. This is independent of the jobs=5 timeout cause (external reviewer contention was present): the defect is missing post-kill descendant/process-group reconciliation for the real /usr/bin/time -> npm -> node chain. Require a bounded verified no-descendant condition before terminal completion plus an isolated regression where a member descendant establishes a separate process group."
+        },
+        {
+          "id": "B-3f3d:F-073",
+          "createdAt": "2026-08-15T18:45:56.075Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/lifecycle-artifact-scope.md:278 still promises a body-free review_run_start bootstrap for five migrated reviewers, while the same policy at lines 248-249 now states six and the active registry/baseline includes lattice-review-topology-critic as the sixth migrated reviewer (packages/main/src/core/prompt-role-contract-registry.ts:293-299; scripts/verify-proof-or-stop-prompt-baseline.mjs:98-99). The remediation updated only the earlier count, leaving one contradictory operator contract in the same authoritative section. Change five to six and add a baseline/doc assertion covering both occurrences so the count cannot drift partially again."
+        },
+        {
+          "id": "B-3f3d:F-074",
+          "createdAt": "2026-08-15T19:47:36.119Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "post-F072 process-inspection-failure terminal leak: packages/main/src/tasks/full-suite-runner.ts:402-429 and :510-512 still permit a terminal FAIL and scheduler release without verified descendant absence. If readProcessRows fails, terminateProcessTreeAndVerify performs only best-effort killProcessTree or captured PID/group kills, throws immediately, and the timeout catch calls done(FAIL). A focused isolated reproduction set PATH=/nonexistent so ps failed while a child had created a detached process group; terminateProcessTreeAndVerify threw unable to inspect process tree, yet the detached PID remained alive after the verifier returned (inspectionFailed=true, detachedAliveAfterVerifierFailure=true). The test explicitly killed the scoped PID afterward. This is distinct from F072 successful-inspection separate-PGID reconciliation: the new verifier error-collapse path violates its terminal-result barrier whenever process inspection is unavailable or times out. Keep the member nonterminal or retain an owned quarantine barrier until descendant absence is verified, and add biting initial and second inspection-failure regressions."
+        },
+        {
+          "id": "B-3f3d:F-075",
+          "createdAt": "2026-08-15T19:47:44.110Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "process-tree-verifier-negative-coverage: packages/main/src/tasks/full-suite-runner.ts:408-455 adds fail-closed branches for initial ps inspection failure, post-freeze re-inspection failure, accumulated signal errors, and captured PID or PGID survivors after the 2-second boundary, but packages/main/src/tasks/full-suite-runner-smoke.ts:349-380 only proves successful detached-PG timeout/interrupt cleanup and scheduler reuse. A repository-wide search finds the inspection/survivor error contracts only in the implementation, so those safety-critical failure paths can regress to TIMEOUT/INTERRUPTED success without a deterministic test bite. Add injectable process inspection/time dependencies and negative tests proving inspection failure and persistent survivors yield FAIL, never release a successful terminal, and still perform best-effort cleanup."
+        },
+        {
+          "id": "B-3f3d:F-076",
+          "createdAt": "2026-08-15T19:49:46.579Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "interrupt-registration-race: packages/main/src/tasks/full-suite-runner.ts:480-492 invokes onSpawn immediately after spawn but registers ensureTerminated in activeTerminators only afterward; requestInterrupt at lines 458-460 can therefore observe an empty map while the child is already live. A deterministic host harness passed onSpawn=()=>interruptForTest(\"SIGTERM\") to runEntry with a 600ms member timeout and produced {status:TIMEOUT, reason:exceeded 600ms, durationMs:752}, proving SIGTERM neither terminates the just-spawned child immediately nor preserves INTERRUPTED semantics. Existing coverage at packages/main/src/tasks/full-suite-runner-smoke.ts:369-380 waits 100ms, so it cannot bite this admission window. This is distinct from F072 descendant reconciliation after termination starts: it is the pre-registration interrupt linearization family. Register the terminator before any callback/signal-visible boundary and, if interruptSignal is already set, start termination immediately; add a deterministic interrupt-during-spawn regression asserting prompt INTERRUPTED terminal and no live child/descendant."
+        },
+        {
+          "id": "B-3f3d:F-077",
+          "createdAt": "2026-08-15T19:53:40.482Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "normal-completion-detached-descendant-pass-leak: packages/main/src/tasks/full-suite-runner.ts:515-531 routes a normally exiting member with no terminationPromise through legacy killProcessTree(child.pid), not terminateProcessTreeAndVerify. That group-only cleanup cannot discover a descendant that created a separate process group before its parent exited, yet code===0 still publishes PASS. An isolated host repro spawned one detached Node descendant, waited for its PID file, then exited 0: runEntry returned {status:PASS,reason:null} while detachedAliveAfterTerminal=true for the scoped PID; the harness immediately SIGKILLed that exact process. Existing coverage at packages/main/src/tasks/full-suite-runner-smoke.ts:328-337 exercises only an un-detached same-group grandchild, while detached groups are tested only for TIMEOUT/INTERRUPTED. This is distinct from F074 inspection-error terminal release, F075 negative coverage projection, and F076 pre-registration interrupt race: the success terminal path never invokes the verifier at all. Snapshot live descendants before normal parent exit becomes untraceable, reconcile separate PGIDs before PASS, and add a normal-exit detached-descendant bite asserting no live PID at terminal."
+        },
+        {
+          "id": "B-3f3d:F-078",
+          "createdAt": "2026-08-15T21:09:03.797Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/full-suite-runner.ts:395,413-429,481-520 — HIGH adversarial: captured process ownership is keyed only by numeric PID plus historical PGID, with no birth identity such as start time. If a captured member exits and its PID is reused before terminal reconciliation, liveTargetIds probes the reused PID as alive and terminateAndVerify sends SIGKILL directly to that unrelated process. The root path is worse because capture unconditionally replaces the stored root row for the reused numeric root PID. packages/main/src/tasks/full-suite-runner-smoke.ts:369-392 does not reproduce this case: it allocates a different foreignPid whose PPID equals the vanished PID, so it tests stale ancestry only, not reuse of an already captured PID. This leaves the promised PID-reuse safeguard incomplete while inspection/error barriers, normal completion, synchronous and preset interrupt registration, and own-PGID avoidance are otherwise structurally present. Focused source/diff review only; root final-HEAD and formal TEST remain unverified."
+        },
+        {
+          "id": "B-3f3d:F-079",
+          "createdAt": "2026-08-16T08:01:26.785Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/full-suite-runner.ts:77,671,680 - module-scope activeChildren Set is write-only dead state left over from the pre-refactor design: it is still populated (add at 671) and cleaned up (delete at 680) on every runEntry call, but nothing in the file (or elsewhere in the repo) ever reads/iterates it anymore. requestInterrupt (line 631) and the scheduler cancellation path (line 786) both now iterate activeTerminators instead, following the migration to (pid, birthIdentity) ownership. A future reader will reasonably assume activeChildren still gates cleanup/interrupt behavior when it does nothing."
+        },
+        {
+          "id": "B-3f3d:F-080",
+          "createdAt": "2026-08-16T08:01:37.520Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/test-runner-consolidation-plan.md:10 says only \"Timeouts kill the member process group\"; full-suite-runner.ts now implements a materially stronger guarantee (birth-identity-keyed ownership via ProcessTreeLifecycle/parseProcessRows/terminateProcessTreeAndVerify, freeze-then-verify-then-SIGKILL with PID-reuse revocation) that the doc does not mention. Not a false claim (the summary is still technically true) and not a broken external promise, so low severity; but the doc is the only place readers would look for runner cleanup semantics and it undersells the new PID-reuse-safety contract added by this story (see resolved finding F-078)."
+        },
+        {
+          "id": "B-3f3d:F-081",
+          "createdAt": "2026-08-16T08:02:04.373Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/tasks/full-suite-runner.ts:77,671,680 activeChildren is a write-only Set (added in runEntry at line 671, deleted at line 680) with zero read consumers anywhere in the file; requestInterrupt (line 631) and the terminal-failure cancellation loop in runScheduled (line 786) were both switched to iterate activeTerminators instead, leaving activeChildren as dead state that should be removed."
+        },
+        {
+          "id": "B-3f3d:F-082",
+          "createdAt": "2026-08-16T08:02:11.023Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/full-suite-runner.ts:381-396 (parseProcessRows) has zero direct unit test coverage anywhere in the repo. All birth-identity tests in full-suite-runner-smoke.ts synthesize ProcessRow objects directly (e.g. line 413: rows.map(row => ({...row, birthIdentity: `native:${row.pid}`}))) and never feed real 'ps -axo pid=,ppid=,pgid=,lstart=' formatted text through the regex. The function docstring itself calls out a subtle invariant -- lstart is requested last because its value contains internal whitespace and everything after the third numeric column is folded into birthIdentity via whitespace-collapse -- but no fixture string exercises that whitespace-collapsing/positional-split behavior, the malformed-line-skip branch, or the non-integer pid/ppid/pgid rejection branch. This is the one new piece of string-parsing logic underpinning the whole (pid, birthIdentity) ownership model and is currently only exercised indirectly through whatever the live ps binary happens to emit during CI."
+        },
+        {
+          "id": "B-3f3d:F-083",
+          "createdAt": "2026-08-16T08:07:55.925Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "All 54 verificationEvidence records (9 must-priority intents x 6 checklist items CHK-001..CHK-006, each intentRef individually cited with a concrete integration_test/logic_test/docs_check and result=pass -- the coverage MAPPING itself is sound) are bound to one stale snapshot headHash=6a5da86/materialHash=5b37c55/storyFilesHash=6b03f2e. Current HEAD has advanced far past that (checked twice during this review as concurrent lanes committed: 8d2a2a2 then b93ff86); checkEvidenceFreshnessForGit + classifyEvidenceFreshness classify this as RELATED_STORY_MATERIAL_DRIFT (evidence storyFilesHash does not match current story-owned file state, materialFiles=[<story-files-changed>]) at every recheck, NOT the KNOWN_UNRELATED_MATERIAL_DRIFT whole-tree-only case. Corroborated by frozen_claim_drift_check --json, which independently reports driftKind=material with a changed storyFilesHash for all 6 items. Concretely, review-incremental-context.ts (in this storys own allowedModify scope, referenced by CHK-004) diffed 34 insertions/30 deletions since the evidence snapshot, across 30+ in-branch commits including internal DEV remediation cycles (RI-020/RI-021/RI-023, F-078, F073). Per the storyFilesHash-drift rule this is story-owned drift requiring genuine re-verification (re-run the pinned verifiers via verification_evidence_refresh_stale, then re-record via verification_evidence_add), not a downgrade-to-attestation-advisory case, and must not be self-classified as pass from raw hashes."
+        },
+        {
+          "id": "B-3f3d:F-084",
+          "createdAt": "2026-08-16T08:09:36.155Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/full-suite-runner.ts:581-589 ProcessTreeLifecycle.terminateAndVerify: the post-SIGKILL while(true) polling loop only breaks on `!live.length` (line 583). `exceededBudget` is set at line 587 once `performance.now() >= deadline`, but that flag is never checked to exit the loop -- it is only read afterward at line 591, which is unreachable while the loop keeps spinning. A genuinely unkillable process (e.g. Linux D-state / uninterruptible I/O, which SIGKILL cannot terminate) makes `liveTargetIds()` return non-empty forever, so the loop retries every retryIntervalMs (20ms default) indefinitely and terminateAndVerify() never resolves or rejects -- the documented bounded cleanup budget (test-runner-consolidation-plan.md: process tree termination verified before publishing a terminal result) is not actually enforced for this case; the whole runner (and callers like npm test) hangs instead of fail-closing with the AggregateError budget message. No fixture in full-suite-runner-smoke.ts exercises this true-infinite/never-dies case (grep for exceededBudget/deadline/while(true)/unkillable/infinite in the smoke file returns nothing); only PID-reuse and detached-descendant-cleanup scenarios are covered."
+        },
+        {
+          "id": "B-3f3d:F-085",
+          "createdAt": "2026-08-16T08:28:24.465Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "docs/requirements/decisions/test-runner-consolidation-plan.md at committed HEAD (d8e6d1f) still reads: SIGKILLs and polls until no captured PID remains -- with no mention of any bound. But commit 4dbe425 (already merged at HEAD) changed the post-SIGKILL retry loop in packages/main/src/tasks/full-suite-runner.ts to be BOUNDED: on cleanup-budget expiry it records a lifecycle error naming the surviving PIDs and breaks (terminateAndVerify, lines ~593-596), rather than polling forever. The committed doc prose therefore overstates the guarantee (implies unconditional polling to a clean tree) and omits the bounded/fail-closed exit path entirely. A corrected paragraph describing the bound (re-polls...bounded by the cleanup budget...records the surviving PIDs as a lifecycle error and stops retrying...still fail-closed) exists ONLY as an uncommitted working-tree edit (git diff HEAD -- docs/requirements/decisions/test-runner-consolidation-plan.md shows it uncommitted); it was never committed to the story branch. Fix: commit the corrected paragraph so the reviewable HEAD state matches the code."
+        },
+        {
+          "id": "B-3f3d:F-086",
+          "createdAt": "2026-08-16T08:36:53.781Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "F-083 REAFFIRMED at this epochs frozen cutoff, still open, NOT resolved by the earlier verification_evidence_refresh_stale run. Re-checked using canonical (non-self-judged) freshness mechanisms only: (1) frozen_claim_drift_check --storyId=B-3f3d --json reports drifted=6/6, driftKind=material, actionRequired=re_attestation for CHK-001..CHK-006, previousStoryFilesHash != currentStoryFilesHash for every item (claim content/previousDigest==currentDigest unchanged, but the story-owned material lineage moved again after the earlier refresh); (2) verification_evidence_refresh_stale --storyId=B-3f3d --dryRun independently reports 54/54 verificationEvidence records STALE right now, each needing re-execution of review-inventory-epoch-smoke.js / review-inventory-handler-smoke.js; (3) lattice validate --story=B-3f3d --json independently refused routine reuse with refusalReasons material-hash-changed-or-missing, story-files-hash-changed-or-missing, current-verification-coverage-incomplete, and named untrusted-lineage-path entries for exactly the files touched by the post-refresh commits: docs/requirements/decisions/test-runner-consolidation-plan.md, packages/main/src/tasks/full-suite-runner-smoke.ts, packages/main/src/tasks/full-suite-runner.ts (the F-084 bounded-loop fix + fixture, and the F-085 doc fix). Root cause: the prior Refreshed 54/54 run was real but bound to a cutoff BEFORE F-084/F-085 landed; those commits moved storyFilesHash again, which per the storyFilesHash-drift rule requires genuine re-verification, not attestation-advisory downgrade. What must be re-run: verification_evidence_refresh_stale --storyId=B-3f3d (real run) to re-execute the pinned verifiers against CURRENT head/material/storyFilesHash, then re-record fresh mechanical receipts for all 54 must-priority intentRefs across CHK-001..CHK-006. Re-check with the same canonical freshness path afterward to confirm CURRENT_MATERIAL before closing this finding."
+        },
+        {
+          "id": "B-3f3d:F-087",
+          "createdAt": "2026-08-16T09:31:57.865Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Wave-4 acceptance gate chain (acceptance_basis / acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check) is stale relative to the current frozen review-inventory cutoff (materialHash d9f40c89..., headHash b11df1b3...). acceptance_basis.receiptVerification reports ok=false code=AT_SCOPE_BINDING_MISSING with 5 mismatches (basis semantic discovery digest, scope-contract digest, closure files hash, snapshot seal digest, freshness). acceptance_topology_check reports status=fail structuralPass=false with AT_CLOSURE_FILES_STALE + AT_SCOPE_BINDING_MISSING. pre_review_check_read reports status=inconclusive ok=false with 14 codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND, PR_COVERAGE_BASIS_CHANGED. acceptance_rollout_check/acceptance_rollout_report_read report status=fail ok=false mode=enforce blocking=true with AR_REPORT_STALE (receipt=stale) even though quorum classification is genuine full-3x2, not degraded. Root cause: the last acceptance-basis/rollout refresh landed at commit 6a5da86b / 6fcc110fd9, but 45 further commits since 6fcc110fd9 include substantive remediation to the actual reviewed material (full-suite-runner.ts +100 lines, full-suite-runner-smoke.ts +132 lines, test-runner-consolidation-plan.md +17 lines, plus an epoch reset RI-027->RI-028 and full finding-resolution/verification-evidence-refresh cycle) that was never propagated into a fresh acceptance_basis_generate / pre_review_check / acceptance_rollout_report run. This is a genuine discovery-lens gap: none of the four required review-inventory lanes (concept, quality, test-coverage, docs) evaluate these Wave-4 gate artifacts, so nobody caught that they no longer bind to the current material even though all four lanes themselves show clean passes on the correct cutoff. In enforce mode, acceptance_rollout_check blocking=true means this is a live, mechanically-blocking gate failure, not an advisory diagnostic."
+        },
+        {
+          "id": "B-3f3d:F-088",
+          "createdAt": "2026-08-16T11:00:15.844Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Reviewer opt-in routing mounted no lattice-review-behavior lane on this story despite its substance being centrally a state machine / guard / gate: CHK-001 encodes a signed epoch state (frozen review-inventory epoch, states OPEN/FINALIZED/INVALIDATED/CANCELLED), CHK-002 is explicitly an OPEN-epoch material mutation barrier (a guard) enforced at every authoritative write boundary, CHK-003/CHK-004 are gate-consumed process facts and gate wiring for the remediation-DEV and final-review transitions, and CHK-006 is a post-remediation impact closure state machine. The mounting rule in packages/main/src/handlers/reviewer-list.ts (BEHAVIOR_TRIGGERS = ['state machine','guard','gate']) matches only against story.riskSignals[].category, a coarse auto-detected label; this story's only recorded riskSignal category is 'Validation Framework' (matched keyword 'verifier'), even though the checklist context text itself literally contains the word 'gate' in CHK-001, CHK-004, and CHK-005 (verified by direct grep of checklist_get output). No dismissal record exists for a gate/guard/state-machine riskSignal category (index.json riskSignals array has exactly one entry, 'Validation Framework'/'verifier'; no story_review_dismiss event). The four active lanes (concept, quality, test-coverage, docs) never independently exercised state-transition adversarial scenarios (e.g. concurrent OPEN-epoch mutation attempts across two writers, wave-advance racing epoch finalize, invalidate-after-finalize ordering) as their primary lens; their opt-in conditions are baseline/touchpoint-driven, not state-machine-adversarial. This is a genuine discovery-lens completeness hole, not a routing-rule satisfaction: the routing mechanism keys off an auto-detected keyword category rather than the actual checklist/description content, so a story whose entire subject matter is a guard+gate+state-machine can silently route around the one lane built to adversarially probe exactly that."
+        },
+        {
+          "id": "B-3f3d:F-089",
+          "createdAt": "2026-08-16T11:03:10.950Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Correction/escalation to F-087's resolution: the topology-critic receipt path is not merely diagnostic drift, it is mechanically blocked right now. Both topology_critic_receipt_set (verdict=pass AND verdict=request_changes, tried directly with LATTICE_AGENT=lattice-review-topology-critic) and the read-only topology_critic_receipt_check unconditionally fail before reaching either verdict branch: currentTopologyReceiptStateForContext in packages/main/src/handlers/proofstory.ts:302-323 calls verifyAcceptanceBasisReceipt unconditionally at line 311-322 and throws at line 323 whenever basisVerification.ok is false, for BOTH verdicts (the pass-vs-partial-basis-only check in topology-critic-receipt.ts:407 is never reached because the earlier throw fires first). Live reproduction this round: lattice topology_critic_receipt_set with verdict=request_changes -> 'topology critic basis verification failed: AT_SCOPE_BINDING_MISSING: PR_PLANNED_PATH_UNRESOLVED: planned path is unresolved: planned:B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT; scope-contract digest mismatch'. lattice topology_critic_receipt_check (read-only canonical verification surface) independently confirms: 'Topology critic receipt: REJECTED, Code: AT_TOPOLOGY_CRITIC_CONTEXT_INVALID' with the identical diagnostic. This means the required WAVE-4-role output (a signed topology_critic receipt, pass or request_changes) cannot be produced at all while the acceptance-basis scopeContractDigest binding remains stale relative to current scope-contract.json (root cause: acceptance_basis_generate at commit 2c89711477 pinned the digest before the scope-contract acknowledgement commit 0a26d3d8c2 changed scope-contract.json one commit later -- confirmed by direct git log/diff inspection). F-087's resolution correctly identified the topology_check/pre_review_check FAIL states as real and unrepaired but characterized them as 'not currently gate-blocking for the remaining transitions of this specific story instance' -- that characterization was too narrow: it is true for story_advance phase transitions (which never consult these evaluators past DEV->REVIEW) but false for the topology-critic role itself, whose canonical receipt-issuance path is unconditionally blocked by the same stale binding. The newly surfaced PR_PLANNED_PATH_UNRESOLVED code for planned:B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT is additional evidence the acceptance-basis needs regeneration, not just the scope-contract digest: even a fresh acceptance_basis_generate run must resolve this planned-path binding before a topology-critic receipt becomes issuable. Remediation: re-run lattice acceptance_basis_generate AFTER any scope_contract_acknowledge/acceptance touching commit (not before), so the basis binding is generated last in the DEV-round sequence and pins a scopeContractDigest that matches the final scope-contract.json state; then re-run acceptance_topology_check and pre_review_check to confirm they clear before closing this out."
+        },
+        {
+          "id": "B-3f3d:F-090",
+          "createdAt": "2026-08-16T11:13:12.895Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-incremental-context.ts:402-410 postRemediationReviewSelection consumes classifyImpact categories (command-or-gate-policy, authority-or-permission, public-contract, dependency-or-build, unknown) to force full-set review after remediation, but command-or-gate-policy is otherwise UNUSED anywhere in the repo (grep confirms only review-incremental-context.ts and impact-classification-policy.ts reference it) and packages/main/src/tasks/review-inventory-handler-smoke.ts has zero test exercising POLICY_IMPACT_REQUIRES_FULL_SET, EMPTY_IMPACT_SELECTION, CHANGED_FILE_OUTSIDE_FROZEN_SCOPE, or SOURCE_CUTOFF_NOT_ANCESTOR fallback reasons (only DIRTY_MATERIAL, UNTRACKED_OR_IGNORED_MATERIAL, UNSUPPORTED_RENAME_OR_DELETE, DEPENDENCY_CLOSURE_INCOMPLETE, and the happy-path PROVEN_CANONICAL_DEPENDENCY_CLOSURE are covered). This is the exact mechanism meant to prevent narrowing the round-2+ reviewer roster after a remediation touches gate/policy source itself, and it is unverified by any test in this story or elsewhere: a regression in classifyImpact categorization for gate/policy files, or a bug in the .some() filter at line 403, would silently under-select reviewers with no test to catch it."
+        },
+        {
+          "id": "B-3f3d:F-091",
+          "createdAt": "2026-08-16T11:51:01.486Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/reviewer-list.ts:225-260 reviewer_list is the ONLY call site (of 10 total call sites of computeActiveReviewers) that ever passes the fifth forced argument (parseForceReviewers(args.forceReviewer)); it writes a durable reviewer_forced audit event to story.events (reviewer-list.ts:264-280) but every gate/epoch consumer calls computeActiveReviewers with only 4 args, omitting forced: packages/main/src/core/machine.ts:829 (canPassReviewGuard, the REVIEW-to-TEST gate), packages/main/src/handlers/review-inventory.ts:81 (captureReviewInventoryScope, which freezes epoch requiredLanes consumed by review_inventory_begin/finalize), packages/main/src/handlers/transition-effects.ts:265 (story_advance REVIEW next-step echo), reviewer-batch.ts:303, quorum-submit.ts:134, core/reviewer-status.ts:106, core/lifecycle-readiness.ts:214. The reviewer_forced events are never read back anywhere (grep confirms reviewer_forced appears only as a write, in reviewer-list.ts:272 and unrelated review-run.ts:475, never as a read/filter target). packages/main/src/core/review-incremental-context.ts:283 impactedLanes() already special-cases (if reviewer.forced) return true to preserve forced lanes through post-remediation narrowing, but this branch is dead in practice because the ActiveReviewer[] every gate/epoch consumer builds always has forced=false/undefined. This directly contradicts the explicit design promise in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md line 225: A proven narrow repair requires exactly its impacted active lanes; forced lanes remain selected. Empirically reproduced on this exact story: .lattice/story/actives/B-3f3d/index.json contains two reviewer_forced events for reviewer=behavior at 2026-08-16T11:04:23.121Z and 2026-08-16T11:43:08.915Z; yet .lattice/story/actives/B-3f3d/review-inventory-epochs.json shows requiredLanes=[lattice-review-concept,lattice-review-quality,lattice-review-test-coverage,lattice-review-docs] (no behavior) for every epoch including RI-030 (current OPEN epoch, created after both force events). Practical consequence demonstrated by this very story: F-088 established behavior was a genuine uncovered discovery lens the auto-router missed; an operator force-mounted it via --forceReviewer twice and it immediately found F-090, a real bug all 4 auto-routed lanes missed -- yet neither review_inventory_begin/status, canPassReviewGuard, nor the REVIEW next-step echo ever required or reflected that force-mount. A DEV round-trip or fresh epoch silently discards the operators explicit lane decision with no warning, no blocker, no visible drift. Fix: thread forced through every gate/epoch-facing call site (at minimum machine.ts:829, review-inventory.ts:81, transition-effects.ts:265), persisting the forced set read back from story.events reviewer_forced rather than accepting it only as an ephemeral CLI arg to reviewer_list."
+        },
+        {
+          "id": "B-3f3d:F-092",
+          "createdAt": "2026-08-16T13:14:45.368Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/reviewer-list.ts:168-176 (F-091 fix): computeActiveReviewers now replays every historical reviewer_forced event from story.events, correctly making a --forceReviewer mount durable across DEV round-trips and fresh review-inventory epochs (verified: RI-029/RI-030 froze requiredLanes without behavior, RI-031+ include it; mutation-check style byte-diff not needed since this is a design-gap finding, not a correctness bug). However this same fix removes the ONLY escape hatch that previously existed by accident: because forced was ephemeral before this fix (only reviewer-list.ts:254 threaded it), a mistaken or stale force silently expired on the next reviewer_list-independent call. Now that the force is durably read back from story.events with no expiry, no round/phase scoping, and no filtering by relevance, there is no unforceReviewer/remove-force command anywhere in the codebase (grep across packages/main/src and packages/main/src/cli/command-catalog.ts for unforce/remove.*[Rr]eviewer/reviewer_unforced returns zero hits) and no documented way to reverse an operator mistake. CLAUDE.md CLAUDE.md:882 (\"Reviewer opt-in 路由\") documents only the add path (`reviewer_list --forceReviewer=docs,behavior` writes story.events) and never mentions removal. Concretely: every future REVIEW round for this story now permanently requires a fresh current-round verdict from any lane ever force-mounted (canPassReviewGuard core/machine.ts:829 via computeFinalReviewRoster requiredReviewers), and every fresh review-inventory epoch permanently freezes it into requiredLanes (review-inventory.ts:81 captureReviewInventoryScope) -- with no code path to undo it short of manually hand-editing story.events (which is exactly the kind of unaudited bypass the signed-artifact architecture elsewhere in this story is designed to prevent). This is not a gate-bypass or unsatisfiable-gate risk (a force can only ever target a name already validated by normalizeForceReviewerName as a real review_run_start lane, so the gate remains satisfiable by dispatching that reviewer every round) -- it is a missing reversibility/lifecycle-completeness gap that the fix newly makes load-bearing. Suggest: add an explicit reviewer_unforce (or forceReviewer removal syntax, e.g. --forceReviewer=-behavior) that writes an auditable reviewer_unforced/reviewer_force_removed story event, and have the persistedForced replay in reviewer-list.ts:168-176 net the two event streams (last-write-wins per reviewer name) instead of only ever accumulating additions."
+        },
+        {
+          "id": "B-3f3d:F-093",
+          "createdAt": "2026-08-16T13:17:59.704Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/reviewer-list.ts:83,168-171 -- quality: computeActiveReviewers narrows story to Pick<StoryInfo,riskSignals> & Partial<Pick<...,riskSignalsDismissed>>, which omits events, so the F-091 persistedForced replay is forced to cast (story as Partial<Pick<StoryInfo,events>>).events and then double-cast each array element via (event as {action?:string}) / (event as {reviewer?:string}) to read fields that are already fully typed on StoryEvent (action is already the literal union including 'reviewer_forced'; reviewer is already string|undefined). This is a self-inflicted typing gap from an overly narrow parameter Pick, not genuinely unknown-shaped data. Fix: widen the parameter type to Pick<StoryInfo,'riskSignals'|'events'> (events stays optional, so all 11 existing call sites -- several of which pass bare object literals like {riskSignals:[]} with no events field -- remain compatible) and use a real type predicate '(e: StoryEvent): e is StoryEvent & {action:'reviewer_forced'}' over the now well-typed array. Verified this compiles with zero casts via tsc --noEmit -p packages/main. Reproduced the author's claimed tsc rejection: the real error is TS2339 'Property events does not exist on type ...Pick<StoryInfo,riskSignalsDismissed>...' (because events is missing from the Pick), not a predicate-assignability failure against StoryEvent as the author described; the predicate itself compiles fine once events is in scope on the parameter type."
+        },
+        {
+          "id": "B-3f3d:F-094",
+          "createdAt": "2026-08-16T13:19:22.113Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/handlers/reviewer-list.ts:168-171 and packages/main/src/core/review-run.ts:459-489 -- quality: two independent writers append StoryEvent.action==reviewer_forced for semantically unrelated reasons. review-run.ts ensureCurrentReviewRound() writes a reviewer_forced event purely to audit auto-initializing a missing currentReviewRound for a legacy direct-REVIEW story (reason field literally says auto-initialized missing currentReviewRound, no reviewer field set); reviewer-list.ts writes reviewer_forced for an actual operator forceReviewer decision (reviewer field set to the forced lane name). The new F-091 replay in computeActiveReviewers filters on action===reviewer_forced then reads .reviewer, so it currently coexists safely with ensureCurrentReviewRound only because that other writer happens to never set .reviewer (falls through String(undefined).trim() being empty and gets filtered by length>0). This is accidental disambiguation, not a designed contract -- nothing stops a future edit to ensureCurrentReviewRound (or any other future writer reusing the same action string for a different purpose) from adding a reviewer field or otherwise breaking the empty-string coincidence, silently forcing an unintended reviewer lane onto every future REVIEW round for that story. Separately: there is no un-force / revoke CLI path (grepped for reviewer_unforce and revoke, none exists), so once forced (even from an operator typo or exploratory forceReviewer call) a lane is now durably and permanently required for the rest of the story lifetime per this diff's own design comment, with no supported way to remove it short of directly editing story files which CLAUDE.md forbids. Recommend: (1) give ensureCurrentReviewRound its own distinct StoryEvent.action value instead of reusing reviewer_forced for an unrelated audit purpose, and (2) add a documented un-force path or explicitly document the permanence as intentional with an escape hatch before this becomes an operational trap."
+        },
+        {
+          "id": "B-3f3d:F-095",
+          "createdAt": "2026-08-16T13:24:41.019Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "All 54 must-priority verificationEvidence records (across CHK-001..CHK-006) are bound to a stale headHash. verification_evidence_refresh_stale --dryRun at the current cutoff reports all 54 as stale, confirming real source commits landed since the last refresh (8bfa02e85b F-090 fix to packages/main/src/tasks/review-incremental-context-smoke.ts, 38dcbf5847 F-091 fix to packages/main/src/handlers/reviewer-list.ts, plus c6e5758e7a landing during this very review round) re-staled the pinned evidence exactly as the prior-round pattern predicted. Structurally the coverage shape is otherwise intact: all 6 checklist items still have 9/9 must-priority intents (54 total), each with exactly one mechanical evidence record (46 integration_test + 7 logic_test + 1 docs_check), result=pass, zero nonMechanicalReason markers, zero waiver/manual_transcript demotions. Separately: the new F-090 regression test (assertions added to packages/main/src/tasks/review-incremental-context-smoke.ts, verified non-tautological -- it calls the real production classifyImpact() from core/impact-classification-policy.ts and checks command-policy.ts/package.json/rename classify into categories matching the literal FULL_SET_CATEGORIES list consumed by the postRemediationReviewSelection gate at core/review-incremental-context.ts:403) is not reflected in any of the 54 pinned verificationEvidence file/command fields for this story -- none references review-incremental-context-smoke.ts or its compiled task, even though CHK-003/CHK-004/CHK-006 own the exact source files (review-incremental-context.ts, reviewer-list.ts) this regression test protects. That test file is also outside this story scope contract allowedTest/allowedModify (only review-inventory-epoch-smoke.ts, prewrite-guard-smoke.ts, review-inventory-handler-smoke.ts, parallel-decomposition-gate-integration-smoke.ts are declared); it runs only transitively via full-suite-runner.ts:109 test:review-incremental-context-smoke, not as a pinned per-intent artifact. Required remediation: (1) main agent should run verification_evidence_refresh_stale WITHOUT dryRun to re-pin all 54 records at the current cutoff, and (2) the F-090 regression assertions should be pinned as verificationEvidence on the relevant CHK item (most likely CHK-004 or CHK-006) or the story scope/plan should be updated to declare review-incremental-context-smoke.ts as an owned test file, so the coverage this story actually relies on is auditable rather than only incidentally exercised by the unrelated full-suite runner."
+        },
+        {
+          "id": "B-3f3d:F-096",
+          "createdAt": "2026-08-16T13:27:15.620Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "computeActiveReviewers (packages/main/src/handlers/reviewer-list.ts) now disambiguates its own force-mount reviewer_forced events from review-run.ts ensureCurrentReviewRound auto-init reviewer_forced events purely via non-empty StoryEvent.reviewer (documented in an F-094 code comment). This is correct today (verified: ensureCurrentReviewRound never sets reviewer; reviewer-list.ts always sets a non-empty reviewer via parseForceReviewers/normalizeForceReviewerName before writing), but the invariant is enforced only by convention/comment, not by a regression test. No dedicated test exercises the two-writer disambiguation (e.g. call ensureCurrentReviewRound then computeActiveReviewers and assert the auto-init event contributes nothing to persistedForced). A future refactor of ensureCurrentReviewRound that incidentally sets a non-empty reviewer field would silently start being treated as an operator force-mount decision with no test failure. Not a concept collision requiring a rename (the shared action string with field-based disambiguation is a reasonable, low-risk design); recommend adding a small regression test to lock in the invariant. Non-blocking."
+        },
+        {
+          "id": "B-3f3d:F-097",
+          "createdAt": "2026-08-16T13:27:36.531Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "edge",
+          "desc": "packages/main/src/handlers/reviewer-list.ts:174 computeActiveReviewers persistedForced map: the F-093/F-094 zero-cast rewrite dropped the old String(...) wrapper around event.reviewer -- now .map(event => (event.reviewer ?? \"\").trim()). Nullish coalescing does not substitute a defined-but-non-string value, so if story.events ever holds a reviewer_forced entry whose reviewer is e.g. a number, .trim() throws TypeError and crashes every consumer of computeActiveReviewers (canPassReviewGuard, review-inventory requiredLanes capture, quorum-submit, transition-effects, reviewer-status, lifecycle-readiness) instead of the old versions benign String(x).trim() coercion. Not reachable via any current writer: both real writers are TS-typed literals producing only string|undefined (reviewer-list.ts:290 reviewer:name string; review-run.ts:473 omits the key). Requires out-of-band index.json tampering or a future third writer bug; store.ts readStory performs no runtime schema validation on events (readJson is an unchecked cast), so such tampering would reach this code unfiltered. Low severity: fails loud with a clear TypeError rather than silently misbehaving, and is currently unreachable through the API surface."
+        },
+        {
+          "id": "B-3f3d:F-098",
+          "createdAt": "2026-08-16T14:01:19.314Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "doc-code-drift: verification_evidence_refresh_stale (packages/main/src/core/command-policy.ts:176, allowedPhases:'all') has an undocumented operator-facing gotcha: being allowed in every lifecycle phase does NOT mean it is unconstrained while a review-inventory epoch is OPEN -- invoking it mutates verification-evidence scope and immediately invalidates the OPEN epoch. docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:183-187 names verification-evidence writers generically as subject to this invalidation, but no doc states the specific actionable sequence (cancel-or-let-invalidate -> refresh -> reopen epoch, with no DEV round-trip required). This session's own transcript shows the operator mis-remembered allowedPhases:'all' as a phase restriction requiring a DEV round-trip, costing an unneeded planned round-trip, until checking command-policy.ts directly. Suggest a short operator note in CLAUDE.md's review-inventory section (or a comment beside allowedPhases in command-policy.ts) stating this specific interaction so the next operator does not rediscover it by trial."
+        },
+        {
+          "id": "B-3f3d:F-099",
+          "createdAt": "2026-08-16T14:06:29.223Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/review-inventory-epoch.ts:50-84 reviewInventoryAcceptanceSubjectDigest hashes checklist.items[].verificationEvidence RAW (including headHash/materialHash/storyFilesHash/executedAt/timestamp), while the same function already strips volatile createdAt/updatedAt from proofStoryContract and scopeShrinkageDecision (lines 57-61, 78-82) before hashing -- an explicit precedent in this file for distinguishing semantic content from bookkeeping timestamps that is not applied to verificationEvidence. Consequence, empirically reproduced this round: a metadata-only verification_evidence_refresh_stale re-pin (identical result/command/note/outputDigest/outputTail; only headHash/materialHash/storyFilesHash/executedAt/timestamp rotated) changes reviewInventoryAcceptanceSubjectDigest even though currentMaterialHash (evidence-freshness.ts:489-512) already excludes the entire .lattice/story/ tree via isMaterialExcludedPath -- so the same refresh event that correctly leaves materialHash untouched still flips scopeDigest and would trip OPEN_REVIEW_INVENTORY_SCOPE_MUTATION (review-inventory.ts:94-116) on an OPEN epoch, exactly the class of invalidation this story worked around by manually cancelling RI-037 BEFORE running the non-dryRun refresh (review-inventory-epochs.json RI-037 cancelReason: cancelling to run the non-dryRun evidence refresh ... resolving F-095 evidence staleness BEFORE reopening). Live isolated repro this round (node against dist/core/review-inventory-epoch.js): reviewInventoryAcceptanceSubjectDigest({}, {items:[before]}) versus {items:[after]}) differ (7d9327ec... vs dd3c19aa...) when ONLY headHash/materialHash/executedAt/timestamp differ between before/after verificationEvidence records, all other fields byte-identical. Cross-checked all 6 real invalidations this story instance recorded: RI-025/033/034/035/036 blockerCode=OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION with genuinely differing oldMaterialHash!=currentMaterialHash (real source commits landed -- correct, NOT over-broad). RI-026 blockerCode=OPEN_REVIEW_INVENTORY_SCOPE_MUTATION with oldMaterialHash===currentMaterialHash (identical) but oldScopeDigest!=currentScopeDigest -- the one historical scope-only invalidation in this story is already in the over-broad reachable class, though its exact driver (pure evidence re-pin vs genuine checklist content edit) was not separately isolated. Recommendation: apply the same withoutVolatileTimestamps-style stripping already used for proofStoryContract/scopeShrinkageDecision to each verificationEvidence entry before it enters reviewInventoryAcceptanceSubjectDigest -- strip headHash/materialHash/storyFilesHash/executedAt/timestamp, retain result/command/note/file/kind/intentRef/outputDigest/selectorMatched (hash observable verifier behavior, not freshness pins). This does not weaken the barrier for anything that should invalidate (source commits still change materialHash; genuine evidence/content changes -- new result, new command, new note -- still change the retained fields); it only removes false-positive invalidation from freshness-pin bookkeeping fields, which is exactly the operational cost this story repeatedly incurred (7 invalidations total this session) and had to route around manually via cancel-then-refresh-then-reopen (RI-037)."
+        },
+        {
+          "id": "B-3f3d:F-100",
+          "createdAt": "2026-08-16T14:13:59.735Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "review-inventory-epoch.ts:412-447 assertReviewInventoryCutoff judged NOT over-broad for the material-mutation dimension the story asked about, based on empirical invalidation history plus a live 9th invalidation observed during this very review pass. All 8 prior invalidations in .lattice/story/actives/B-3f3d/review-inventory-epochs.json trace to real causes (RI-025 real materialHash change, RI-026 scope mutation, RI-033/034/035 genuine source commits during the F-091 fix iteration, RI-036 the final real source fix at commit 942327fb36 touching packages/main/src/handlers/reviewer-list.ts). The metadata-only evidence refresh that ran AFTER 942327fb36 did NOT trigger any automatic invalidation on materialHash/storyFilesHash grounds: git diff 942327fb36..HEAD -- . :!.lattice is empty, and all 11 changed files sit under .lattice/story/actives/B-3f3d/, which currentStoryFilesHash and currentMaterialHash both exclude via isStoryMetadataPath (evidence-freshness.ts:143-165). So on the material/story-files axis the barrier is verified correct-by-design: zero false positives in 8 real invalidations plus one refresh that legitimately passed through untouched. HOWEVER a 9th invalidation fired live during this review pass on RI-038 (blockerCode OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, lineage materialHash UNCHANGED both sides: d7e18083...->d7e18083... identical, only the scope-contract digest moved 9762be5e...->465b69a4...), discarding concept/docs/test-coverage's completed passes for the third time this epoch's lifetime and forcing this reviewer to review_inventory_begin a fresh RI-039 mid-verdict. This is a DIFFERENT barrier (scope-mutation, not material-mutation) but produces the identical operational cost the story is asking about: every lane's completed work discarded for a change that did not touch story-owned source. Recommend: (1) keep assertReviewInventoryCutoff (materialHash/storyFilesHash) unchanged, it is proven correct-by-design; (2) treat the scope-mutation invalidation path as a SEPARATE open question requiring the same rigor -- does OPEN_REVIEW_INVENTORY_SCOPE_MUTATION distinguish real scope-contract changes from scope-contract re-attestation/re-signing the way the material barrier already distinguishes story-owned source from metadata refresh, or is it comparatively over-broad; (3) close F-098 by documenting that a metadata-only verification_evidence_refresh_stale run does not require cancel+reopen against an OPEN epoch on material grounds, while noting the scope-mutation path evidently still can churn the epoch and deserves its own targeted investigation before the story finalizes."
+        },
+        {
+          "id": "B-3f3d:F-101",
+          "createdAt": "2026-08-16T14:22:22.493Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:180-183 states the frozen acceptance-subject scope digest \"includes checklist context, status, related docs, user-visible claims, exclusions, file routing, verification intents/evidence, and the frozen claim snapshot\" -- listing verification evidence as flatly bound alongside literal fields. After f8e5a077f3 (F-099 fix), reviewInventoryAcceptanceSubjectDigest binds verificationEvidence only through the new evidenceSemantics projection, which deliberately excludes headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt (a pure evidence re-pin no longer changes the digest). The doc sentence is now inaccurate/overclaiming: it does not distinguish semantic evidence content (bound) from freshness pins (excluded), unlike the doc's own more precise phrasing elsewhere (line 278 \"semantic ProofStory contract\"). Line 182 should be updated to say verification intents/evidence semantics (excluding freshness pins/timestamps), mirroring the ProofStory wording, so the doc does not contradict shipped behavior."
+        },
+        {
+          "id": "B-3f3d:F-102",
+          "createdAt": "2026-08-16T14:30:55.938Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:679-689 F-099 regression assertions for reviewInventoryAcceptanceSubjectDigest only pin 4 of the many semantically-significant VerificationEvidence fields (result/command/receipt.outputDigest/receipt.selectorMatched). Empirically verified against compiled dist/core/review-inventory-epoch.js that intentRef, kind, file, note, mechanical, nonMechanicalReason, receipt.exitCode, receipt.outputTail, verdict, waiverType, attestation, actorTrust, and factProvenance all correctly still change the digest today (evidenceSemantics only strips headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt via a destructure+spread, so no live production gap exists). But the shipped smoke test would not catch a future regression that widens the strip-list to include any of these untested fields (e.g. folding intentRef or mechanical into the volatile set). Recommend adding negative-case assertions for at least intentRef, kind, and mechanical/nonMechanicalReason-flip alongside the existing 4, to close the test-coverage gap without changing current (correct) production behavior."
+        },
+        {
+          "id": "B-3f3d:F-103",
+          "createdAt": "2026-08-16T14:32:01.430Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/review-inventory.ts:98-99 persistInvalidationIfDrifted candidateChanged compares epoch.candidateSpecSetDigest against currentScope.candidateSpecSetDigest, which is CandidateSpecSetArtifact.artifactDigest (candidate-spec-routing.ts:761). That artifactDigest is signed over a base object that includes headHash/materialHash VERBATIM (candidate-spec-routing.ts:757-758, spread via ...snapshot at handlers/candidate-spec-routing.ts:358 from raw git HEAD via captureReviewRunSnapshot), unlike reviewInventoryAcceptanceSubjectDigest which F-099 fixed to strip freshness pins from verificationEvidence via evidenceSemantics. candidate_spec_route allowedPhases includes REVIEW and is NOT blocked by the OPEN-epoch material-mutation barrier (command-policy.ts:498), so an operator can legitimately re-run it while an epoch is OPEN. If that rerun produces byte-identical candidates/corpus/scores/routing decision but HEAD has ticked forward from any unrelated commit since the epoch opened, artifactDigest still changes purely from the raw headHash/materialHash fields, flipping candidateSpecSetDigest and tripping candidateChanged -> INVALIDATED with blockerCode OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION, discarding all completed lane verdicts for a non-acceptance-relevant reason. Verified empirically via node -e against packages/main/dist/core/candidate-spec-routing.js digestCandidateRoutingValue: two objects identical in candidateSpecSet/schemaVersion/storyId but differing only in headHash produce different digests. corpusDigest (buildCorpusIndex, content-hash based over decisions/ entries) is correctly scoped and NOT the vector; artifactDigest specifically is. This is the same class of over-broad freshness-pin coupling that F-099 fixed for verificationEvidence, but on the third (candidateChanged) invalidation dimension rather than the scopeChanged dimension F-099 addressed; F-099/F-100/F-101 did not touch this path. Fix: derive candidateSpecSetDigest (or the epoch-compared value) from a headHash/materialHash-stripped projection of the candidate artifact base (analogous to evidenceSemantics), or compare candidateSpecSet/candidateBasis/corpusDigest content directly instead of the raw artifactDigest."
+        },
+        {
+          "id": "B-3f3d:F-104",
+          "createdAt": "2026-08-16T15:31:57.092Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "F-103 fix is incomplete: packages/main/src/handlers/review-inventory.ts:94-101 correctly drops artifactDigest (which embeds headHash/materialHash verbatim), but the replacement digest still folds in validCandidate.storyInputDigest, and storyInputDigest is NOT freshness-free. packages/main/src/handlers/candidate-spec-routing.ts:360 computes storyInputDigest as digestCandidateRoutingValue(input) where input = currentStoryRoutingInput(...) includes changedPaths: materialChangedPaths (line 294), which is git diff --name-only main...HEAD (candidate-spec-routing.ts:141-157, changedPaths()). Any commit that changes the file list on the branch -- including one that touches zero files in the candidate corpus -- changes storyInputDigest, which changes the new barrier digest, which still fires OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. This is the exact failure mode F-103 claims to fix, just relocated one field over. Compounding this: changedPaths also seeds buildKeywordSeeds at weight 50 as source=changedPath (candidate-spec-routing.ts:334), which can add/change candidates[].reasons and candidates[].score entries for otherwise-unchanged candidates -- and candidates is also included verbatim in the new barrier digest (review-inventory.ts:97), so the leak is present via two independent paths into the same narrowed digest. Fix is not narrow enough in the storyInputDigest/changedPaths dimension; a byte-identical candidate rerun after an unrelated whole-tree commit can still flip the barrier."
+        },
+        {
+          "id": "B-3f3d:F-105",
+          "createdAt": "2026-08-16T15:32:17.412Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "F-103 commit fabca1ecc4 (git show --stat) touches only packages/main/src/handlers/review-inventory.ts plus two JSON metadata files -- no test file was added or modified. packages/main/src/tasks/review-inventory-handler-smoke.ts:778-788 (the candidateDrift/F-039 fixture) is the only test exercising OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION, and it calls candidate_spec_route immediately after review_inventory_begin with no intervening commit, so it passes identically whether or not the F-103 narrowing landed -- it does not distinguish old vs new barrier behavior. There is no test proving the claimed positive case (a byte-identical candidate_spec_route rerun after an unrelated commit no longer trips the barrier) nor the required negative control (a real candidates/mode/queryFiltering/scanEscalationReason/storyInputDigest change still trips it). Per CLAUDE.md handler-coding-convention self-check and the checklist verificationIntent B3F3D-002-E1 (non-material metadata-only update must not spuriously invalidate; story-owned material change must), this specific narrowing fix ships with zero regression coverage."
+        },
+        {
+          "id": "B-3f3d:F-106",
+          "createdAt": "2026-08-16T15:41:16.378Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md lines 199-203 describe the epoch signing candidateSpecSetDigest/corpusDigest and candidate_spec_route invalidating an OPEN epoch on routing-universe change, but never names blocker code OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION (types.ts:1722; review-inventory.ts:129/242) and, after fabca1ecc4 (F-103) then 4f19f74f27 (F-104/F-105), no longer states what candidateSpecSetDigest actually binds. Current final state at review-inventory.ts:85-118 (captureReviewInventoryScope): candidateSpecSetDigest = reviewInventoryDigest({schemaVersion, mode, candidates: candidates.map(row=>({path,contentHash})), queryFiltering, scanEscalationReason}) -- deliberately dropping validCandidate.artifactDigest (which bakes in headHash/materialHash verbatim, per candidate-spec-routing.ts:757-761/764-800) AND dropping storyInputDigest entirely. The commit message (git show 4f19f74f27) documents why storyInputDigest was also removed after the F-103 fix, not just narrowed: storyInputDigest is digestCandidateRoutingValue(input) over a routing input that includes changedPaths (git diff --name-only main...HEAD), and changedPaths also seeds keyword weights that flow into candidates[].score/.reasons -- two independent freshness-leak channels, not one. So the barrier now binds WHICH specs were selected and WHAT they contain (path+contentHash per candidate) plus the routing policy knobs (schemaVersion/mode/queryFiltering/scanEscalationReason), never storyInputDigest and never score/reasons. artifactDigest itself is unchanged and verifyCandidateSpecSet (candidate-spec-routing.ts:764-800) still verifies the full identity digest including headHash/materialHash, so real tampering with the candidate set is still caught; only what the OPEN-epoch barrier (persistInvalidationIfDrifted candidateChanged) compares was narrowed. This mirrors the same semantic-content-not-bookkeeping rule already documented for verificationEvidence at lines 183-191 (bound by what a verifier OBSERVED, deliberately not by freshness pins headHash/materialHash/storyFilesHash/timestamp/receipt.executedAt), but the candidate-routing paragraph was never updated to state the analogous rule for the candidate set, so a reader of lines 199-203 today would reasonably expect ANY candidate_spec_route re-run to invalidate the epoch whenever HEAD or the changed-file set moves, which is no longer true. Recommended replacement text, to insert immediately after the existing sentence ending '...ProofStory contract below.' and before the current 'The epoch also signs...' sentence (lines 192-199): 'The same semantic-content-not-bookkeeping rule applies to the candidate set. The epoch signs candidateSpecSetDigest as a routing-universe projection of the current valid CandidateSpecSetArtifact -- schemaVersion, mode, each selected candidate reduced to its path and content hash, queryFiltering, and scanEscalationReason -- and corpusDigest, deliberately NOT the artifact's own artifactDigest (which bakes in headHash/materialHash verbatim as the artifact's tamper-detection identity; verifyCandidateSpecSet still verifies that full identity digest, so genuine tampering with the candidate set is still caught) and deliberately NOT storyInputDigest or any candidate's score/reasons, both of which are seeded by the changed-file set from git diff and therefore leak freshness rather than routing-universe identity. So a candidate_spec_route re-run that reselects the same specs with the same content after HEAD or the changed-file set alone has moved no longer trips OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION; a re-run that changes which specs are selected, any selected spec's content, schemaVersion, mode, queryFiltering, or scanEscalationReason still invalidates the epoch with that blocker code, and lanes from pre-reroute and post-reroute candidate sets can never form one wave.' This keeps the existing next sentence (candidate_spec_route performs its durable replacement inside the inventory lock...) intact as-is; that sentence describes locking/serialization behavior unaffected by F-103/F-104."
+        },
+        {
+          "id": "B-3f3d:F-107",
+          "createdAt": "2026-08-16T16:00:22.785Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "review-inventory.ts:109-118 captureReviewInventoryScope binds candidateSpecSetDigest to the candidate artifact's queryFiltering field verbatim (schemaVersion,mode,candidates-projected,queryFiltering,scanEscalationReason). This is a fifth, still-open freshness leak of the F-099/F-103/F-104 defect class: queryFiltering.filteredTerms is NOT a corpus-only invariant. candidate-spec-routing.ts:528 unfilteredQueryTerms = orderedQueryTerms(args.seeds.seeds, proposals); args.seeds.seeds is buildKeywordSeeds output, which at candidate-spec-routing.ts:334 seeds a term for every entry in input.changedPaths (weight 50); changedPaths is git diff --name-only main...HEAD (handlers/candidate-spec-routing.ts:141,252,294, live in production). filteredTerms (candidate-spec-routing.ts:546-553) is queryTerms.filter(overbroad-or-zero-hits) computed from documentCounts keyed by these same query terms. Concretely: an unrelated commit during the OPEN epoch that changes the diff file set (touches e.g. scripts/some-unrelated-script.mjs) shifts changedPaths, adds/removes a changedPath-derived term from seeds.seeds, and can add/remove an entry in filteredTerms (or change its documentCount/documentFrequencyRatio) EVEN WHEN the selected candidates[].{path,contentHash} set is byte-identical (same specs, same content, no genuine corpus/selection change). Because candidateSpecSetDigest hashes queryFiltering verbatim, this flips candidateChanged=true in persistInvalidationIfDrifted (review-inventory.ts:131-132), invalidating the OPEN epoch on a commit unrelated to the routing universe -- the same OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION false-positive class F-104 was filed to close, now recurring through the one field the fix left bound verbatim. The F-105 coverage in review-inventory-epoch-smoke.ts:735 only asserts a hand-constructed queryFiltering override moves reviewInventoryDigest (a digest-sensitivity self-check on the hash function itself, tautological w.r.t. hashing) -- it never calls buildKeywordSeeds/routeCandidateSpecs end-to-end to prove queryFiltering stays stable when candidates[].{path,contentHash} is unchanged but changedPaths churns, so this leak has zero regression coverage. Fix: (a) exclude queryFiltering (and any other seeds/changedPaths-derived diagnostic field) from candidateSpecSetDigest entirely -- it is diagnostic metadata about HOW candidates were selected, not WHAT was selected; keep only schemaVersion/mode/candidates-projected/scanEscalationReason, or (b) if queryFiltering must stay bound, strip changedPath-sourced seeds from the term set used to compute filteredTerms so it reflects only story-stable seed sources. Add an end-to-end regression test that holds candidates+corpus fixed, varies only changedPaths across two routeCandidateSpecs calls, and asserts candidateSpecSetDigest is unchanged."
+        },
+        {
+          "id": "B-3f3d:F-108",
+          "createdAt": "2026-08-16T16:00:55.018Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "F-105 unit coverage in review-inventory-epoch-smoke.ts:706-741 is real and mutation-verified -- it correctly falsifies (revert to raw candidates binding -> exit 1) and directly pins the exact captureReviewInventoryScope digest shape, so it is NOT the same shortfall as the original F-102 (which found a fixture that could not distinguish pre-fix from post-fix behavior at all). However, a narrower, still-live gap remains at the INTEGRATION level rather than the unit-semantics level. captureReviewInventoryScope has exactly two production call sites (review-inventory.ts:126 persistInvalidationIfDrifted, and :378 epoch begin); the only existing exerciser of the drift-detection call site (F-039 candidateDrift in review-inventory-handler-smoke.ts:778-788) calls candidate_spec_route immediately after review_inventory_begin with zero intervening commit, so it only proves the barrier fires on SOME difference, never that it now correctly IGNORES a real git-diff-driven changedPaths/score/reasons churn end-to-end while an OPEN epoch is live, nor that it still trips on a real routing-universe change under the same live conditions. All 9 new assertions construct candidateBarrierDigest(...) calls directly with hand-built candidate rows and static overrides -- none of them commit a file, run candidate_spec_route as a live subprocess against a real OPEN epoch, or read git diff --name-only main...HEAD to derive storyInputDigest/score/reasons the way production actually does. Recommend filing this as its own lightweight regression target: extend review-inventory-handler-smoke.ts (which already has git-backed fixture setup() plus real subprocess cli() calls) with one case that opens an epoch, makes one unrelated commit that changes only the changed-file set (no candidate content change), re-runs candidate_spec_route, and asserts State stays OPEN (not INVALIDATED); this closes the loop the F-105 author explicitly flagged as accepted-but-out-of-scope rather than leaving it as an indefinite known gap."
+        },
+        {
+          "id": "B-3f3d:F-109",
+          "createdAt": "2026-08-17T02:47:29.469Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md lines 199-213 self-contradicts on whether queryFiltering is bound into candidateSpecSetDigest. Line 202 lists the bound-field set as \"schemaVersion, mode, each selected candidate reduced to its path and content hash, queryFiltering, and scanEscalationReason\" (claims queryFiltering IS bound), while line 207 in the same paragraph says \"deliberately NOT queryFiltering, storyInputDigest, or any candidates score/reasons\" (claims queryFiltering is NOT bound). Verified against packages/main/src/handlers/review-inventory.ts:108-121 captureReviewInventoryScope: the actual reviewInventoryDigest call only includes schemaVersion, mode, candidates[].{path,contentHash}, and scanEscalationReason -- queryFiltering is genuinely excluded, matching the F-107 fix and the code comment at line 116 (F-107: queryFiltering is NOT bound). So line 207 (and the Known-incomplete callout below it) is correct; line 202 is stale leftover from the pre-F-107 wording (commit 2b71831058, written while queryFiltering was still bound per F-104 state) that commit a9a59eb674 fixed in the second sentence but missed updating in the first sentence of the same paragraph. This is a factual inconsistency in an active, gate-referenced decision doc: line 202 makes a stronger, over-cautious claim (queryFiltering still invalidates) rather than reviving the weaker false-safety overclaim BUG-F107-INCOMPLETE tracks, but the paragraph should read as one coherent, code-accurate statement."
+        },
+        {
+          "id": "B-3f3d:F-110",
+          "createdAt": "2026-08-17T03:15:16.613Z",
+          "status": "open",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Low-severity scope-contract accuracy note (not the reviewed doc itself): commit c01daa57c4 acknowledged packages/main/src/tasks/review-inventory-handler-smoke.ts in scope-contract.json as \"the home of the F-107/F-108 end-to-end routing-neutral fixture\", but grep of the committed file shows no such fixture -- only the pre-existing F-039 candidateDrift test, which asserts the OPPOSITE direction (a real candidate drift correctly invalidates the epoch). The actual F-107/F-108 routing-neutral disproof fixture (the one whose corpusDigest d49896cf->d49896cf / candidateSpecSetDigest a4cb4561->9dffdc85 result grounds the doc's new Known-incomplete callout) exists only in this worktree's git stash@{0} (WIP F-107/F-108 end-to-end fixture, assertion currently failing), per BUG-F107-INCOMPLETE's own evidence field in bug.json and F-108's resolvedReason in findings.json. The reviewed doc text itself (review-inventory-epoch-and-saturation-gate.md lines 215-224) does not overclaim -- it correctly says only that an end-to-end fixture SHOWS the leak, without claiming that fixture is committed/passing in this tree. But the scope-contract entry is a durable process artifact that now asserts test coverage exists in a file where it does not; a future reader trusting scope-contract.json (rather than grep) would believe review-inventory-handler-smoke.ts already carries this regression coverage. Recommend either popping stash@{0} into review-inventory-handler-smoke.ts before DONE, or correcting the scope-contract acknowledgment text to say the fixture is carried to B-8af0 (consistent with BUG-F107-INCOMPLETE and the doc's own carried-to-B-8af0 language) rather than already landed in this file."
+        }
+      ],
+      "findingProjectionDigest": "173c3e8e69b39c1170fecc7093bb111f44258cb5595d31b5556eebff830a3b9e",
+      "reviewBasisDigest": "565e259f1c2f8e11102812901dddb17a484f2b760915062a309f74ab070b25bc",
+      "incrementalContextDigest": "0e259d9ecf4b7019eb232712591f04cba7ffeef2263dae9707380dab0f4af53d",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 45720,
+      "incrementalContextBytes": 38015,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
