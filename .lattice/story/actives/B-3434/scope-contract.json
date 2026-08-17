@@ -104,10 +104,26 @@
       "phase": "REVIEW",
       "headHash": "50804e323aeb500a1554415d19fcd41c3ab255ce",
       "materialHash": "11b340da8025970e08d9cf5cc278c8ca420fe7e14aefce186623f673b2e22eca"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CORRECTION of acknowledgement 5, recorded because the test-coverage lane caught it as B-3434:F-056 (high). Acknowledgement 5 said 'The change here is confined to adding a case that drives the new predicate' - present tense, describing work that had NOT been done. I wrote it as a pre-declaration of intent while the implementer was still running, but the wording reads as a description of a completed change. The lane verified the discrepancy properly rather than assuming a race: it checked three times over five minutes across a moving HEAD, confirmed no B-3434 commit had ever touched review-incremental-context-smoke.ts, confirmed the bound headHash 50804e323a was itself a metadata-only commit with zero source diff, confirmed the grep for FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS was still empty, and confirmed F-049 and F-053 were still status open. It was right on every point, and its warning is the important part: nobody closing this story should treat F-049, F-051, F-053 or F-054 as addressed by acknowledgement 5. THE ACCURATE STATEMENT, in the tense it should have had: this acknowledgement DECLARES an intended scope expansion. The intended change is to add a test case to packages/main/src/tasks/review-incremental-context-smoke.ts that drives the new over-bounded-basis predicate and asserts the resulting reason code, contextMode and null basis, without modifying or removing any existing case. Whether that change has landed is a question about commits, not about this record, and must be answered by reading the diff. THE UNDERLYING DEFECT IS THE ONE THIS STORY HAS SPENT SEVENTEEN ROUNDS ON: a claim written in a tense stronger than the evidence supports. It appeared here in the artifact whose entire purpose is to tell a future auditor what was done to a file outside this story's scope, which is the worst place for it. Recorded as a correction rather than by editing the earlier text, because acknowledgements are append-only and a correction that erases its own subject is not a correction.",
+      "timestamp": "2026-08-17T16:17:35.926Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "de48c641440dfd835000f298ee271598ac80e5d3",
+      "materialHash": "11b340da8025970e08d9cf5cc278c8ca420fe7e14aefce186623f673b2e22eca"
     }
   ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-17T16:00:08.799Z",
+  "updatedAt": "2026-08-17T16:17:35.926Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
