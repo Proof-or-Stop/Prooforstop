@@ -1298,7 +1298,7 @@
       "desc": "review-incremental-context-smoke.ts has a dedicated assertion for every OTHER FULL_ reason code this file emits - FULL_MISSING_TRUSTED_PRIOR_PASS at line 767, FULL_FIXTURE_BINDING_INCOMPLETE, FULL_UNSUPPORTED_RENAME, FULL_DYNAMIC_OR_PARSE_FAILURE, FULL_MISSING_PRIOR_ENVELOPE, FULL_RUNTIME_CONTRACT_CHANGED, and the rest of the eligibility-reason table around lines 940-1008 - but has zero coverage of the new FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS branch this commit (161506c59c) adds at review-incremental-context.ts:566. Confirmed by running the built smoke (node packages/main/dist/tasks/review-incremental-context-smoke.js, real output: PASS, 25 assertions logged, none naming this reason code) and by grepping the whole repository outside dist for the literal string FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS: the only two occurrences are the src and compiled-dist definitions themselves. I independently verified this branch's soundness by direct construction (git-diff-semantics argument plus live measurement, filed as this round's other findings) rather than by any automated regression test, so nothing in the standing suite would catch a future change that, for example, flipped the comparison operator, mis-imported a different limits constant, or let this branch leak an incremental basis object. This is exactly the residual the fix's own comment block does not state: it asserts the cap stays enforced and no incremental basis is emitted, both true by inspection, but does not disclose that the new branch's trigger condition itself is unverified by any test in a file the fix's own commit message and this story's scope acknowledgement both describe as read by every future story.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T15:58:56.597Z",
@@ -1310,7 +1310,11 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "missing|ts|review-incremental-context",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 23f9dbf195 by the same change as B-3434:F-049 - the concept and quality lanes filed this independently, which is itself worth recording: two lanes, different routes, same conclusion that a branch added to the machinery computing every story's review had no test. See F-049's resolution for the case construction, the boundary pinning to FULL_TASK_CONTEXT_LIMITS.pathsPerList rather than to a literal, and the three-mutant bite transcript. All eight findings from this round are fixed in the single commit 23f9dbf195 (4 files, 337 insertions, 41 deletions) rather than one commit each, because every commit invalidates all four hash-bound lane passes and eight separate fixes would have cost eight review cycles. Verified after the change: build ok, npx tsc --noEmit exit 0, review-incremental-context-smoke exit 0 across its full case list, prompt-full-context-envelope-smoke exit 0, validation-evidence-reuse-smoke exit 0.",
+      "resolvedAt": "2026-08-17T16:41:26.430Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3434:F-054",
