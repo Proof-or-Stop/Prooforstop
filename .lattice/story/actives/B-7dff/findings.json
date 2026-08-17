@@ -42,7 +42,7 @@
       "desc": "packages/main/src/core/validation-executor.ts:266-298,398-447 (readGitStatus/detectNewDirtyStatus inside runValidationCommand): the worktree-pollution side-effect probe takes a REPO-WIDE git-status snapshot before/after each command, and CHK-003 moved execution onto the concurrent scheduler (jobs=4 default) without scoping this probe per-command. When two commands run concurrently and one of them dirties the tree, any OTHER concurrently-running command whose before/after window straddles that write gets falsely blamed too, because detectNewDirtyStatus only compares against its OWN before-snapshot, which is repo-wide, not scoped to files that command touched. Reproduced directly against the built dist: a plan with dirtying-A (writes accidental-a.txt after 300ms) and clean-B (pure sleep, no writes) both declaring the same shared git-common-dir claim, run at jobs=2, reports worktreePollution on BOTH commands (clean-B: paths=[\\\"accidental-a.txt\\\"], blocking=true) even though clean-B never touched the filesystem. The identical plan at jobs=1 (serial, pre-B-7dff behaviour) correctly attributes the pollution to dirtying-A only and reports null pollution for clean-B. This corrupts gate-consumed per-command evidence (result.commands[i].worktreePollution, which formatWorktreePollutionDetails/evaluateDirtyGate feed into allPass and into process-events.jsonl audit lines) by falsely failing/blaming innocent commands whenever ANY concurrently-scheduled command dirties the tree — misleading root-cause diagnosis and potentially failing commands that did nothing wrong. Since lattice.config.json now declares git-common-dir:shared on ~90 of 104 commands (CHK-005), this is a realistic, not theoretical, concurrency window. No test in validate-plan-scheduling.test.mjs or validate-resource-claims.test.mjs exercises pollution attribution under concurrency.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-17T15:18:54.305Z",
@@ -50,14 +50,15 @@
       "reviewRunId": "B-7dff:RR-004",
       "_hash": "9b59fa0dd8565b6e0aaf05c8201a900b68bbca799bad561baa931ff51284371e",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-7dff:F-003@613bea5"
     },
     {
       "id": "B-7dff:F-004",
       "desc": "doc-code-drift: packages/main/src/tasks/validate-command-timeout-smoke.ts:21 top-of-file docstring still claims check 12 verifies 'validation-executor.ts and verifier.ts remain byte-for-byte unmodified from main (git diff, soft-skip on environment failure)'. This story (B-7dff) intentionally rewrote check 12 itself (lines ~362-386) to a different, weaker invariant (no copy of resolvePinnedCommandTimeoutMs matching logic in either file) precisely because B-7dff must modify both validation-executor.ts and verifier.ts. The file's own summary docstring was not updated to match, so a future reader relying on the top-of-file summary would believe a stronger byte-identity guarantee still holds when it no longer does.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T15:19:37.558Z",
@@ -65,14 +66,15 @@
       "reviewRunId": "B-7dff:RR-002",
       "_hash": "4d5df442d9dfe5788ddca788a0377163a1ddd15ebda78163076c6076610b02f2",
       "signatureTag": "missing|unknown|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-7dff:F-004@613bea5"
     },
     {
       "id": "B-7dff:F-005",
       "desc": "maintainability: packages/main/src/core/validation-executor.ts:733 (inside resolveValidationCommandResources) and :754 (inside resolveValidationPlanEntries) independently re-derive the same 'this command declared nothing so it gets the fail-closed exclusive default' condition (claims.length === 0 after mapping vs. !(Array.isArray(command.resources) && command.resources.length > 0)). The two expressions are equivalent today only by inspection; resolveValidationCommandResources never returns whether it applied the default, so resolveValidationPlanEntries has to recompute the same rule from the raw field. If the declaredness rule ever changes (e.g. to also treat an all-invalid-but-nonempty resources array as undeclared), the two call sites can silently diverge and exclusiveByDefault/the printed declared= count would stop matching what the scheduler actually enforced.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T15:19:45.370Z",
@@ -80,7 +82,8 @@
       "reviewRunId": "B-7dff:RR-002",
       "_hash": "cbcdd4c9487e5f60b67a451e0c03f490cae2dc4abb00c609349eb5417ff02e9c",
       "signatureTag": "missing|unknown|maintainability-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-7dff:F-005@613bea5"
     }
   ]
 }
