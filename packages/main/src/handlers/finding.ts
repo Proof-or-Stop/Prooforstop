@@ -631,7 +631,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           ...(readEvidence?.readLog ? { readLog: readEvidence.readLog } : {}),
           ...(readEvidence?.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
           hardWarning: missingAttribution
-            ? 'finding_add called without agent/LATTICE_AGENT; recorded as main and REVIEW/TEST gates may reject it'
+            ? `finding_add called without agent/${BRAND_ENV_PREFIX}AGENT; recorded as main and REVIEW/TEST gates may reject it`
             : undefined,
         });
       } catch (e) {

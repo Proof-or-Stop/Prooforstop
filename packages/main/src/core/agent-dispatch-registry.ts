@@ -496,10 +496,10 @@ function sameAgentAuthority(left: string, right: string): boolean {
  * Resolve mutation authority without allowing audit payload fields to override
  * the identity assigned to a dispatched process.
  *
- * A nonblank LATTICE_AGENT is authoritative for actor classification. A
+ * A nonblank PROOF_OR_STOP_AGENT is authoritative for actor classification. A
  * registered role follows registry authority, an explicit trusted-host actor
  * retains host compatibility, and every other env actor fails closed before a
- * payload identity can replace it. When LATTICE_AGENT is blank or omitted, the
+ * payload identity can replace it. When PROOF_OR_STOP_AGENT is blank or omitted, the
  * legacy host/payload compatibility path remains available.
  */
 export function resolveAgentMutationAuthority(args: {
@@ -525,7 +525,7 @@ export function resolveAgentMutationAuthority(args: {
   if (envEntry) {
     if (payloadActor && !sameAgentAuthority(envActor!, payloadActor)) {
       throw new Error(
-        `${args.command} refused: payload identity "${payloadActor}" cannot override dispatched LATTICE_AGENT "${envActor}". [agent_dispatch_identity_conflict]`,
+        `${args.command} refused: payload identity "${payloadActor}" cannot override dispatched PROOF_OR_STOP_AGENT "${envActor}". [agent_dispatch_identity_conflict]`,
       );
     }
     const entry = assertRegisteredAgentMutationAllowed(envActor, args.command);

@@ -593,7 +593,7 @@ Behavior:
     excludedScope: z.array(z.string().min(1)).optional().describe('Scope entries the user confirmed as excluded or not to be done.'),
     userConfirmed: z.boolean().describe('Must be true: confirms this is the user-confirmed INIT scope boundary.'),
     confirmation: z.string().optional().describe('Confirmation note or source excerpt.'),
-    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
   }},
   { name: 'execution_boundary_set', description: 'Save INIT execution boundaries (command/tool/path allow/block) for the gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
@@ -606,20 +606,20 @@ Behavior:
     blockedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths; rejects absolute paths and .. traversal.'),
     excludedPaths: z.array(z.string().min(1)).optional().describe('Explicitly blocked relative paths.'),
     notes: z.string().optional().describe('Additional execution-boundary notes.'),
-    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_freeze_check', description: 'Write the INIT scope freeze check result (accepted extensions stale old freeze)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     status: z.enum(['PASS', 'FAIL', 'pass', 'fail']).optional().describe('Optional assertion; cannot override the core evaluateScopeFreeze result.'),
     note: z.string().optional().describe('Freeze-check note; can also serve as repeated-discard mitigation text.'),
     repeatDiscardMitigation: z.string().optional().describe('Mitigation note for repeated discarded direction.'),
-    actor: z.string().optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main-agent.'),
+    actor: z.string().optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
   }},
   { name: 'scope_extension_proposal', description: 'Propose a scope extension as the INIT reviewer (proposal only)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     proposal: z.string().min(10).describe('Extension proposal narrative; cannot take effect as accepted scope.'),
     reason: z.string().optional().describe('Why the reviewer thinks an extension is needed.'),
-    reviewer: z.string().optional().describe('Proposer; defaults to LATTICE_AGENT/USER/main-agent.'),
+    reviewer: z.string().optional().describe('Proposer; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
     findingId: z.string().optional().describe('Optional related finding or issue ID.'),
     evidenceRefs: z.array(z.string().min(1)).optional().describe('Optional evidence references.'),
   }},
@@ -628,7 +628,7 @@ Behavior:
     proposalId: z.string().min(1).describe('Proposal ID returned by scope_extension_proposal.'),
     decision: z.enum(['accepted', 'rejected']).describe('Explicit decision.'),
     reason: z.string().min(10, 'reason ≥ 10 characters').describe('Decision reason.'),
-    decider: z.string().optional().describe('Decider; defaults to LATTICE_AGENT/USER/main-agent.'),
+    decider: z.string().optional().describe('Decider; defaults to PROOF_OR_STOP_AGENT/USER/main-agent.'),
   }},
   { name: 'light_review', description: 'Record one lightweight review (called after each batch of DEV items completes)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -637,7 +637,7 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     lane: z.enum([
       'lattice-review-concept',
       'lattice-review-quality',
@@ -651,7 +651,7 @@ Behavior:
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
     readManifest: reviewerReadManifestSchema.describe('Required signed reviewer read coverage for this pass.'),
@@ -664,7 +664,7 @@ Behavior:
     reviewRound: z.string().min(1).optional().describe('Optional REVIEW round; defaults to story.currentReviewRound.'),
     trigger: reviewLoopTriggerSchema.describe('Structured source that triggered the loop.'),
     rollbackRef: reviewLoopRollbackRefSchema.describe('References required for manual rollback; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -680,7 +680,7 @@ Behavior:
     decision: reviewLoopDecisionSchema.describe('Final decision for this iteration.'),
     decisionReason: z.string().min(1).describe('Final decision reason.'),
     nextAction: reviewLoopNextActionSchema.optional().describe('Suggested next action; recorded only, not executed.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -700,7 +700,7 @@ Behavior:
     resolvedEvidenceRefs: z.array(z.string().min(1)).optional().describe('Resolved evidence references.'),
     supersedingEvidenceRefs: z.array(z.string().min(1)).optional().describe('Superseding evidence references.'),
     closeReason: z.string().min(1).describe('Close reason.'),
-    actor: z.string().min(1).optional().describe('Recorded by; defaults to LATTICE_AGENT/USER/main.'),
+    actor: z.string().min(1).optional().describe('Recorded by; defaults to PROOF_OR_STOP_AGENT/USER/main.'),
     json: z.boolean().optional().describe('Emit JSON.'),
     format: z.enum(['text', 'json']).optional().describe('Output format.'),
   }},
@@ -2017,7 +2017,7 @@ Behavior:
       .describe('Evidence state: default suspected; verified is allowed only when structured evidence is provided, otherwise it is forced back to suspected.'),
     uncertaintyReason: z.string().optional().describe('Suspicion reason for suspected state (optional; automatic fallback if omitted).'),
     files: z.array(z.string()).optional().describe('Related file paths.'),
-    agent: z.string().optional().describe('Caller identity (audit field, defaults from LATTICE_AGENT).'),
+    agent: z.string().optional().describe('Caller identity (audit field, defaults from PROOF_OR_STOP_AGENT).'),
   }},
 
   // Verifier (Proof-or-Stop built-in code verification).
@@ -2068,7 +2068,7 @@ Behavior:
       'doc-code-drift',
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
-    agent: z.string().optional().describe('Caller identity (optional, defaults from LATTICE_AGENT environment variable).'),
+    agent: z.string().optional().describe('Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).'),
     reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
@@ -2126,7 +2126,7 @@ Behavior:
     action: z.enum(['propose', 'approve', 'alias', 'deprecate']).describe('propose -> proposed; approve -> active (active requires explicit approve); alias adds a synonym; deprecate (optionally mergedInto).'),
     alias: z.string().optional().describe('Required when action=alias: the synonym to fold into the canonical tag.'),
     mergedInto: z.string().optional().describe('Optional when action=deprecate: canonical tag this deprecated tag folds into.'),
-    by: z.string().optional().describe('Caller identity (audit trace; defaults from LATTICE_AGENT).'),
+    by: z.string().optional().describe('Caller identity (audit trace; defaults from PROOF_OR_STOP_AGENT).'),
     storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
   }},
 
