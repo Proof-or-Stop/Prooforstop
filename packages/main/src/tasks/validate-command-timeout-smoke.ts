@@ -396,8 +396,8 @@ void (async () => {
     //     and calls it from verifier.ts's evidence write path. (The read ceiling those thresholds
     //     are fractions of, METADATA_BLOB_READ_MAX_BUFFER_BYTES, is declared in
     //     core/done-prepare-generated-metadata.ts -- which is where the execFileSync maxBuffer
-    //     calls are -- and only imported by validation-executor.ts, which contains no
-    //     execFileSync call of its own.) So the byte-pin was an unconditional red for that story
+    //     calls are. validation-executor.ts contains no execFileSync call of its own.) So the
+    //     byte-pin was an unconditional red for that story
     //     regardless of its correctness, and the same for every future story that touches
     //     either file.
     //
