@@ -110,6 +110,33 @@
         "scanEscalationReason": null
       },
       "_hash": "9172546417f71fb28c6133c47d4f6f953c79db03a61cf42153d50977b872dd1b"
+    },
+    {
+      "id": "B-7dff:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 (final): re-reviewed the delta since RP-002 (confirmed by review_incremental_context: changedFiles = packages/main/src/handlers/verifier.ts, packages/main/tests/validate-pollution-attribution.test.mjs; F-006/F-007/F-008 all resolved). No concept deletion/rename in this delta: externalResult() itself is untouched and keeps its enumerating-whitelist contract for the other 8 call sites (verified by grep of every externalResult( call site in verifier.ts: lines 678/708/736/775/860/1234/1262/1460 all mint fresh from loose parts, none wrap a pre-existing ValidationResult). Only the configured-commands runPlanAndPersist path changed from `externalResult({...})` (subtractive) to `{ ...base, ...externalResult({...}) }` (additive), fixing the F-006 defect where concurrentWorktreePollution (added by F-003, a ValidationResult field per validation-types.ts) was silently dropped on the way to persistStoryValidationEvidence, which reads it at verifier.ts:891 to set concurrentPollutionBlocking. Traced ValidationResult shape from executeValidationPlan (validation-executor.ts:1129-1141): it emits only provider/status/allPass/failureKind/summary/details/warnings/timestamp/headSha/commands/concurrentWorktreePollution/focus, none of which collide with disposition/commandExecutions/reuse (those are added later by decorate/reuse code, never present on base), so the additive spread cannot leak an unwanted field. Ran packages/main/tests/validate-pollution-attribution.test.mjs directly: 59/59 assertions pass including the two new section-8 checks (F006-EVIDENCE-CARRIES-CONCURRENT-POLLUTION, F006-NO-PLAN-FIELD-DROPPED) plus its clean-run negative control. Independently confirmed the regression is load-bearing by hand-patching the built dist/handlers/verifier.js back to the pre-fix subtractive wrap and re-running: sections 1-7 still passed, section 8 failed immediately on the first assertion (plan-level record survives the handler wrap) with the exact AssertionError the commit message predicts; restored the dist artifact from backup afterward and confirmed git status shows no source drift (dist/ is gitignored). Also ran npx tsc --noEmit -p packages/main/tsconfig.json: exit 0. No blocker.",
+      "createdAt": "2026-08-17T20:45:44.566Z",
+      "reviewRound": "2026-08-17T20:41:03.751Z",
+      "reviewRunId": "B-7dff:RR-010",
+      "envelopeId": "d2ab07b5c962caaff74f909b8251a25e81796f203d60978b346bc03899788b06",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44e58e4b0703ff54c957aaa0f5235e2397e2b98bdb863725a42c88981a26fe27"
     }
   ]
 }
