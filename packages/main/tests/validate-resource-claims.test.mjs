@@ -103,7 +103,7 @@ async function observeOverlap(plan, jobs) {
   ok('both declared probes ran', results.length === 2 && results.every((r) => r.status === 'PASS'));
   ok(`declared A and declared B overlapped (A saw ${[...coRunners.get(a.name)].join(',') || 'nobody'})`,
     coRunners.get(a.name).has(b.name) && coRunners.get(b.name).has(a.name));
-  console.log('VI-OK 1/6 two commands with disjoint declared claims are admitted concurrently');
+  console.log('VI-OK B7DFF-CHK002-DISJOINT-DECLARED-CONCURRENT two commands with disjoint declared claims are admitted concurrently');
 }
 
 // ── 2. EDGE: the fail-closed default is a single exclusive barrier claim ────
@@ -114,7 +114,7 @@ async function observeOverlap(plan, jobs) {
   const emptyArray = resolveValidationCommandResources({ ...command('empty declaration'), resources: [] }, 'probe');
   ok('an EMPTY resources array is treated as undeclared, not as "touches nothing"',
     emptyArray.length === 1 && isBarrier(emptyArray[0], 'exclusive'));
-  console.log('VI-OK 2/6 an undeclared command resolves to a single exclusive claim on a synthetic key');
+  console.log('VI-OK B7DFF-CHK002-UNDECLARED-SINGLE-EXCLUSIVE-CLAIM an undeclared command resolves to a single exclusive claim on a synthetic key');
 }
 
 // ── 3. EDGE: an undeclared command never overlaps ANY other command ─────────
@@ -147,7 +147,7 @@ async function observeOverlap(plan, jobs) {
   // simply ran everything one at a time.
   ok('the declared commands in the SAME plan did overlap, so >1 worker really was available',
     coRunners.get(canonical[0].name).size > 0);
-  console.log('VI-OK 3/6 an undeclared command never overlaps any other command while declared ones do');
+  console.log('VI-OK B7DFF-CHK002-UNDECLARED-NEVER-OVERLAPS an undeclared command never overlaps any other command while declared ones do');
 }
 
 // ── 4. ADVERSARIAL: an unrecognised class is refused at declaration time ────
@@ -188,7 +188,7 @@ async function observeOverlap(plan, jobs) {
   );
   ok('a canonicalKey supplied by the caller/config is discarded, so the scheduler must canonicalize',
     forged.every((claim) => claim.canonicalKey === undefined));
-  console.log('VI-OK 4/6 an unrecognised resource class is rejected at declaration time');
+  console.log('VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED an unrecognised resource class is rejected at declaration time');
 }
 
 // ── 5. ADVERSARIAL: the config parser refuses it too ────────────────────────
@@ -229,7 +229,7 @@ async function observeOverlap(plan, jobs) {
   } finally {
     for (const root of roots) rmSync(root, { recursive: true, force: true });
   }
-  console.log('VI-OK 5/6 lattice.config.json cannot register an unrecognised resource class');
+  console.log('VI-OK B7DFF-CHK002-UNKNOWN-CLASS-REFUSED-IN-CONFIG lattice.config.json cannot register an unrecognised resource class');
 }
 
 // ── 6. The real configured plan: every entry is classified ─────────────────
@@ -255,7 +255,7 @@ async function observeOverlap(plan, jobs) {
     barriers.every((barrier) => canonical.every((other) => other.name === barrier.name || claimsConflict(barrier, other))));
   ok('the declared configured commands are mutually compatible',
     overlappable.every((entry, i) => overlappable.slice(i + 1).every((other) => !claimsConflict(entry, other))));
-  console.log(`VI-OK 6/6 configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
+  console.log(`VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED configured plan: ${commands.length} commands, ${declared.length} declared, ${byDefault.length} exclusive by fail-closed default`);
 }
 
 console.log(`validate-resource-claims: PASS (${assertions} assertions)`);
