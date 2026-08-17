@@ -107,6 +107,25 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-007",
+      "desc": ".lattice/story/actives/B-7dff/checklist.json:62-620 (all mechanical verificationEvidence rows for CHK-001:edge/adversarial, CHK-002:*, CHK-003:*, CHK-004:*, CHK-005:edge/adversarial, bound to storyFilesHash c047502c...) are now STALE per lattice milestone_status --storyId=B-7dff --full: every row reports stale storyFilesHash c047502c43ae vs current 68dc0e71b49f, and M1-M4 all read Failed/Blocked (0 done / 1 in progress / 3 not started) with reason [stale-evidence]. Root cause: commit 1b8a32ecea (B-7dff: resize contention-at-risk full-suite member timeouts, 2026-08-17T19:26:18Z) modified packages/main/src/tasks/full-suite-runner.ts -- CHK-001s own scope file -- AFTER the mechanical evidence batch was captured (headHash 59a118d437, executedAt ~18:57-18:58Z) and AFTER round-1 F-001 was marked resolved (2026-08-17T18:58:57Z, resolvedReason claimed milestone_status reports 4 done/0 in progress, Risks: none). No refresh ran after 1b8a32ecea landed; only the two happy waivers (CHK-001:happy:0, CHK-005:happy:0) were re-pinned afterward (headHash 9cf3b5b213 / 1b8a32ecea respectively), leaving the other ~14 mechanical rows stale as of this review round. This directly contradicts F-001s resolution and must be re-run/re-bound before this round can close.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T20:12:44.947Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-005",
+      "_hash": "5a88ecce408351aad3d7b06cf46113283197eec09af7e0e4e8da1c371ace1ae3",
+      "files": [
+        ".lattice/story/actives/B-7dff/checklist.json",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
