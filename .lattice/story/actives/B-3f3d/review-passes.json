@@ -18312,6 +18312,48 @@
         "scanEscalationReason": null
       },
       "_hash": "6d23b8c6ced3b2fd5591defe664a498524c20bf8ab2ac5a395530bc61e20a575"
+    },
+    {
+      "id": "B-3f3d:RP-326",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave-2 genuine re-verification (RR-459). Incremental basis: isFirstPass=false, scopeChanged=false, changedFiles=none vs prior pass RP-319/RR-450 -- confirmed via review_incremental_context. All 6 checklist items re-verified at 9/9 must-priority verificationIntent, unchanged. All 54 verificationEvidence records mechanically re-checked: mechanical=true, result=pass, zero nonMechanicalReason, zero waiver/manual_transcript demotions. Specialty phantom-coverage sweep: F-107 resolvedReason explicitly states SUPERSEDED/DO NOT READ AS FIXED, correctly cites git stash@{0} (verified present, uncommitted, explicitly failing) and BUG-F107-INCOMPLETE (verified open) and B-8af0 CHK-001 (verified matching context) as the carrying artifacts, asserts no false coverage. F-111/F-112 both explicitly state NOT fixed in this story, carried to B-8af0 CHK-002 (verified matching context), F-112 correctly self-identifies as duplicate. Cross-checked review-runs.json sequence numbers directly rather than trusting review_inventory_status stale lane rows (BUG-STATUS-STALE-LANE). No new finding filed for this lane this wave.",
+      "createdAt": "2026-08-17T05:02:55.564Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-459",
+      "envelopeId": "aec1d8cba026708bce0c2eee83f6424870686b7a0fb846ecb879b4b1c0601a10",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/bug.json",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/review-runs.json",
+          ".lattice/story/actives/B-8af0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "4ebd3512586e6a95abfbf23a206748e9b85b1fa5a53bcf3d7ef0323ef40da5cc"
+      },
+      "readDiagnostics": [],
+      "_hash": "0788be62fc4742f04a24ab8a6aa3c6d32831c3dbc65122d85232ef29ee93ac62"
     }
   ]
 }
