@@ -99,6 +99,20 @@
       "status": "open",
       "foundAt": "2026-08-17T08:23:16.743Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-VERIFIED-COUNT-MISREADS-AS-CLEAN",
+      "title": "review_inventory_status renders 'Verified findings: 0' / 'New verified findings: 0' whenever no critic disposition exists yet, because the count at review-inventory-epoch.ts:410 only includes findings the critic already dispositioned as verified_family. On epoch RI-048 this printed zeros while three lanes simultaneously showed status 'finding' (F-114 high, F-115 high, F-116 medium) and zero waves were recorded. The output is technically correct but reads as 'no findings', and this session's owner did misread it as saturation progress. Status should distinguish 'no findings exist' from 'findings exist but are not yet dispositioned'.",
+      "status": "open",
+      "foundAt": "2026-08-17T09:18:56.325Z",
+      "fixedAt": null
+    },
+    {
+      "id": "BUG-REPLAY-ACCEPTANCE-SYMBOL-MISSING",
+      "title": "CHK-005 declares acceptance path B3F3D-005-H1:VPP-B3F3D-REPLAY-REPORT with producer/consumer endpoints EP-B3F3D-REPLAY-PRODUCER and EP-B3F3D-REPLAY-CONSUMER, but no symbol named runReplayAcceptance exists in packages/main/src (zero grep hits), so acceptance_topology_check reports PR_PLANNED_PATH_UNRESOLVED. The underlying behaviour IS implemented: review-inventory-epoch-smoke.ts:497 defines replay(), invoked twice at lines 639-640 for determinism, covering churn-reduction replay, OPEN-epoch mutation barrier, saturation waves and receipt consumption/replay rejection. The gap is that replay() is a module-local function rather than an exported named acceptance producer matching the declared path. Fix is to export it under the declared name or amend the declaration to the real symbol -- not to write new behaviour.",
+      "status": "open",
+      "foundAt": "2026-08-17T09:20:02.224Z",
+      "fixedAt": null
     }
   ]
 }
