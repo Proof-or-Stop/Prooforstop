@@ -1356,6 +1356,26 @@
       ],
       "signatureTag": "missing|ts|counterfactual-reproduced-dispatch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-056",
+      "desc": "scope-contract.json 5th acknowledgement (timestamp 2026-08-17T16:00:08.799Z, bound headHash 50804e323aeb500a1554415d19fcd41c3ab255ce, path packages/main/src/tasks/review-incremental-context-smoke.ts) states: Extension of acknowledgement 4, to close B-3434:F-049 which the quality lane filed. The change here is confined to adding a case that drives the new predicate and asserts the resulting reason code, contextMode and basis; no existing case is modified or removed. Verified against the actual repository at three separate checkpoints roughly five minutes apart, across HEAD moving through a2c07f5821, a47fe4fbe4 and finally 49ebf6793 (this findings own commit), to rule out mistaking a live race for a permanent gap: git log --oneline -- packages/main/src/tasks/review-incremental-context-smoke.ts shows no B-3434 commit touching this file since the 445-commit main merge (0c146bf7f5); the most recent touch is mains own pre-merge commit 1630add800. git show --stat on the acknowledgements own bound headHash 50804e323a touches only findings.json, process-events.jsonl and process-metrics.json, zero source diff (it is in fact the metadata commit recording finding B-3434:F-053, not a code change). grep -rn FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS packages/main/src/tasks/review-incremental-context-smoke.ts returns nothing at every checkpoint. B-3434:F-049 and its near-duplicate F-053 remain status=open in findings.json throughout, and were never marked resolved. Two further open findings on the same commit, F-051 and especially F-054 (behavior lane, independently reproducing the same 511/513 boundary this reviewer also reproduced), describe a related but distinct defect, that fullStoryDiffContext discards a real resolved prior pass audit trail, which the claimed test case would not have closed even if it existed, since F-049/F-053 are narrowly about the branch having zero test exercise at all. This acknowledgement is currently a false record in the storys own audit trail: it names a specific file, describes the specific content of a code change, and binds a headHash to it, but the tree contains no such change at that headHash or since, and the finding it claims to close is still open. This matters beyond bookkeeping because a concept-lane review_pass_set (RP-042, reviewRunId B-3434:RR-080) was recorded after this acknowledgement, in the same shared worktree, while F-049/F-053 remain open; whether that pass relied on the acknowledgements claim is not something this finding can determine, but the acknowledgement as written is available to be relied on incorrectly by any lane or by the closer. Recommend: do not treat F-049, F-053, F-051 or F-054 as addressed by this acknowledgement; either land the described test case for real and re-bind the acknowledgement to a headHash that actually contains it, or correct/withdraw the acknowledgement text so the audit trail matches the code.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T16:07:25.381Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-079",
+      "_hash": "5acbb60f3c04b0425ad74a8e44bf857d3f5bb6b6436c1b56fdad40fb5b499c40",
+      "files": [
+        ".lattice/story/actives/B-3434/scope-contract.json",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        ".lattice/story/actives/B-3434/findings.json"
+      ],
+      "signatureTag": "adversarial|json|scope-contract-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
