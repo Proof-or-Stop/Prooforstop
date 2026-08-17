@@ -1,0 +1,32 @@
+{
+  "storyId": "B-49ed",
+  "checkedAt": "2026-08-17T15:37:34.661Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json priority=\"high\" still has zero riskSignals keyword or equivalent localized risk-wording hits in title (\"Require a host-adapter session to sign a topology-critic receipt\") or description, independently re-verified programmatically against the full keyword list (auth/password/token/migration/destructive/state machine/guard/gate/reset/production/incident/hotfix/PII/GDPR/breaking change): zero hits. I am demoting this from high (rounds 2-3) to medium after ruling on the merits per the main agent explicit request, not to unblock the story. Reasoning: (1) the underlying priority=high substance is independently verified correct -- this story governs who may sign a critic receipt, a genuine security/integrity boundary, and the Security/Credentials riskSignal (token) remains active and undismissed in the same index.json file; (2) a downstream reader loses only a title/description shortcut, not access to the risk -- background.md Key Insights explains the exact property being protected, and the riskSignals array in the same file already carries the substantive signal machine-readably; (3) no CLI path exists to amend title/description post-creation and CLAUDE.md rule 8 forbids direct metadata edits, so treating this as a hard blocker forces discard-and-recreate of a story that already carries 3 rounds of substantive, independently-verified review history (a wrong reference count and a standalone-readability gap, both now fixed and reverified by me), for a wording-only gap with no corresponding loss of risk-visibility; (4) CLAUDE.md B-30b2 already establishes this specific keyword mechanism as a heuristic proxy subject to documented reviewer override (there for the inverse direction, false-positive elevation, but establishing the same principle). This is recorded as an accepted, documented limitation carried by the story, not silently dropped."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-17T15:35:31.941Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-17T15:37:34.661Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json priority=\"high\" still has zero riskSignals keyword or equivalent localized risk-wording hits in title (\"Require a host-adapter session to sign a topology-critic receipt\") or description, independently re-verified programmatically against the full keyword list (auth/password/token/migration/destructive/state machine/guard/gate/reset/production/incident/hotfix/PII/GDPR/breaking change): zero hits. I am demoting this from high (rounds 2-3) to medium after ruling on the merits per the main agent explicit request, not to unblock the story. Reasoning: (1) the underlying priority=high substance is independently verified correct -- this story governs who may sign a critic receipt, a genuine security/integrity boundary, and the Security/Credentials riskSignal (token) remains active and undismissed in the same index.json file; (2) a downstream reader loses only a title/description shortcut, not access to the risk -- background.md Key Insights explains the exact property being protected, and the riskSignals array in the same file already carries the substantive signal machine-readably; (3) no CLI path exists to amend title/description post-creation and CLAUDE.md rule 8 forbids direct metadata edits, so treating this as a hard blocker forces discard-and-recreate of a story that already carries 3 rounds of substantive, independently-verified review history (a wrong reference count and a standalone-readability gap, both now fixed and reverified by me), for a wording-only gap with no corresponding loss of risk-visibility; (4) CLAUDE.md B-30b2 already establishes this specific keyword mechanism as a heuristic proxy subject to documented reviewer override (there for the inverse direction, false-positive elevation, but establishing the same principle). This is recorded as an accepted, documented limitation carried by the story, not silently dropped."
+        }
+      ]
+    }
+  ],
+  "_hash": "2d49de89ba2eff443b2c482030bb1afcba53028a45799578b363763f4c07de85"
+}
