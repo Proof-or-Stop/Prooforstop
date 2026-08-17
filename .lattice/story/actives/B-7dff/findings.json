@@ -136,7 +136,7 @@
       "desc": ".lattice/story/actives/B-7dff/checklist.json:561-572 CHK-005:happy:0 permanent waiver: the compound happy intent requires BOTH declared count materially above 36 AND measured wall time below the 1006s baseline recorded at 36 declarations. Only the first half is demonstrated (declared moved 36->97, VI-OK B7DFF-CHK002-CONFIGURED-PLAN-CLASSIFIED). The waivers own cited number for the second half is 1474.9s at jobs=4 on the final tree (npm run bench:validate-parallel, CHK-004:happy:0 evidence note) -- HIGHER than the 1006s baseline this items userSees explicitly promises to beat, not lower. The waiver text states Substance IS verified and attributes the miss to a mis-specified PLAN pin (absolute cross-session wall clock vs noisy host), citing only the same-session relative speedup (1.51x, CHK-004) as a substitute. That relative number does show parallel beats serial on the CURRENT plan, but it does not show that CHK-005s classification work (36->97 declared) actually reduced wall time below where it stood before this items own work started, which is the specific claim in userSees and the happy verificationIntent. No controlled before/after comparison at matched load exists anywhere in this stories evidence. Recommend either downgrading userSees/verificationIntent to the true measured claim (relative speedup only, not an absolute-baseline reduction) or providing a same-session/matched-load comparison showing declared=97 beats declared=36. As written, the item is marked done on a waiver whose central deliverable claim is contradicted by the stories own only real-plan measurement.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-17T20:13:01.704Z",
@@ -148,7 +148,11 @@
         "packages/main/src/tasks/validate-parallel-benchmark.ts"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The finding is accepted as correct and the waiver was rewritten rather than defended. The original note asserted Substance IS verified for the whole compound intent while the intent wall-time clause is contradicted by the story own only real-plan measurement (1474.9s at declared=97 against the 1006s the clause names). The superseding waiver now claims only the declared-count half (36 to 97, proven by the pinned command at HEAD) and states explicitly that the classification effect on wall time is NOT proven: the 1.51x pair is jobs=1 versus jobs=4 both at declared=97, so it demonstrates parallel beats serial and says nothing about 36-declared versus 97-declared. It also records that the missing matched-load comparison was possible (two back-to-back jobs=4 runs in one session) and simply was not run, rather than dressing the omission up as a methodological limit. Marked partially_mitigated, not fixed: the measurement gap the reviewer identified is real and remains open; only the false claim about it has been removed.",
+      "resolvedAt": "2026-08-17T20:36:31.252Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
