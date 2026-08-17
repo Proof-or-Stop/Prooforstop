@@ -264,7 +264,11 @@
           {
             "desc": "Reverting the CHK-001 guard makes the smoke test fail with an assertion naming the forgeable session source, proving the test bites rather than passing vacuously",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js",
+              "selector": "guard removal admits: explicit-env, derived-ppid"
+            }
           }
         ]
       },
@@ -314,15 +318,23 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
-          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
-          "note": "The test bites rather than passing vacuously: removing the guard makes it fail, restoring the guard makes it pass. Attested rather than pinned because the proof is a multi-step edit-build-revert cycle.",
-          "mechanical": false,
-          "nonMechanicalReason": "A mutation proof cannot be expressed as one pinned command, because it requires editing source, rebuilding, observing FAILURE, reverting, rebuilding and observing PASS. I performed that sequence directly in this session: widening SIGNABLE_SESSION_SOURCES at topology-critic-receipt.ts:150 to include explicit-env and derived-ppid, then rebuilding, made this smoke exit non-zero; restoring the original two-element set and rebuilding made it exit 0 again. The working tree is byte-identical to HEAD afterwards (git diff --stat empty), so no mutation residue shipped. This is an audited attestation of a manual mutation cycle, not a tool-executed receipt.",
-          "headHash": "a78ad1c103e286119e9457ed573525e6fd14fe49",
+          "file": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "command": "node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js",
+          "result": "pass",
+          "note": "Replaces an earlier non-mechanical attestation. This executes the mutation cycle rather than asserting it in prose: it weakens SIGNABLE_SESSION_SOURCES in a throwaway copy of the built guard, proves the weakened copy admits explicit-env and derived-ppid, and proves the real artifact still refuses both and is byte-identical afterwards. The selector pins the line that only prints when the mutation genuinely changed acceptance behaviour.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4d8ec0c2b8cd78629261421a90240fdb61d2fe3c4273170d8783f43c350f3b66",
+            "outputTail": "Signing guard mutation proof: PASS\n  guard removal admits: explicit-env, derived-ppid\n  guard intact refuses: explicit-env, derived-ppid\n  real artifact unchanged: true\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:10:25.602Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ff6396ba7ce64992b05aa346c3e8759d03700ad5",
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
-          "timestamp": "2026-08-17T17:09:00.960Z"
+          "timestamp": "2026-08-17T17:10:25.752Z"
         }
       ],
       "userSeesSnapshot": {
