@@ -52,7 +52,14 @@ import {
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
-import { PROOF_OR_STOP_STORY_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+// B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
+// read-both contract resolves deprecated spellings for reads but never writes
+// them, otherwise two on-disk copies of the same state would diverge.
+import {
+  PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+} from './core/brand-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -539,11 +546,11 @@ const dirs = [
   'docs/requirements/decisions',
   'docs/requirements/extracted',
 ];
-if (isGlobalThin) dirs.push('.lattice');
+if (isGlobalThin) dirs.push(PROOF_OR_STOP_DIR);
 // B-097f: do NOT create project .claude/agents — agent prompts resolve from the
 // user-global ~/.claude/agents single source. `.claude` (for hooks/settings) is
 // created on demand by the [5/5] block when wantsClaude.
-if (wantsCodex && selectedAssetMode === 'full') dirs.push('.lattice-codex/agents');
+if (wantsCodex && selectedAssetMode === 'full') dirs.push(`${PROOF_OR_STOP_ADAPTER_DIR}/agents`);
 for (const d of dirs) {
   const full = join(targetDir, d);
   if (!existsSync(full)) {
@@ -860,7 +867,7 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
-  const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
+  const latticeConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   if (!existsSync(latticeConfigPath)) {
     writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
     console.log('  ✓ .lattice/lattice.json');

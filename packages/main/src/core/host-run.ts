@@ -80,6 +80,7 @@ import {
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
 import { readBrandEnv } from './brand-env.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
@@ -312,7 +313,7 @@ export interface HostRunResult {
 /** Nonzero process-exit sentinel for a fail-closed cap refusal. */
 export const HOST_RUN_REFUSAL_EXIT_CODE = 3;
 
-const HOST_RUN_SLOTS_RELATIVE = join('.lattice', 'usage', 'host-run-slots');
+const HOST_RUN_SLOTS_RELATIVE = join(PROOF_OR_STOP_DIR, 'usage', 'host-run-slots');
 
 export const HOST_RUN_MAX_CONCURRENT_DEFAULT = 4;
 /**

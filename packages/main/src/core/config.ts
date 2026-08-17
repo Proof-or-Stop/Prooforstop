@@ -6,6 +6,12 @@ import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './a
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
 import { readBrandEnv } from './brand-env.js';
+import {
+  PROOF_OR_STOP_CONFIG_FILENAME as CANONICAL_CONFIG_FILENAME,
+  CONFIG_FILENAMES,
+  MANIFEST_FILENAMES,
+  stateDirCandidates,
+} from './brand-paths.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -612,31 +618,43 @@ const DEFAULT_CONFIG: ProofOrStopConfig = {
 const _cache = new Map<string, ProofOrStopConfig>();
 
 /**
- * Canonical project config filename.
- *
- * The VALUE `lattice.config.json` is deliberately unchanged by the B-cdf6 brand
- * rename: it is a live on-disk path that every already-initialized project
- * resolves by exact name, so renaming it would orphan those configs. Only the
- * identifier is brand-forward. See the FROZEN row for `lattice.config.json` in
- * `docs/requirements/decisions/brand-rename-mapping.md`.
+ * Canonical project config filename — sourced from the read-both resolver
+ * (B-cc10 CHK-002). Only this name is ever WRITTEN.
  */
-export const PROOF_OR_STOP_CONFIG_FILENAME = 'lattice.config.json';
+export const PROOF_OR_STOP_CONFIG_FILENAME = CANONICAL_CONFIG_FILENAME;
 /** @deprecated Use `PROOF_OR_STOP_CONFIG_FILENAME`. */
 export const LATTICE_CONFIG_FILENAME = PROOF_OR_STOP_CONFIG_FILENAME;
-/** Project config filenames that define an active Proof-or-Stop project root. */
-export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
-  PROOF_OR_STOP_CONFIG_FILENAME,
-];
+/**
+ * Project config filenames that define an active Proof-or-Stop project root,
+ * canonical FIRST so canonical-wins falls out of iteration order.
+ *
+ * B-cc10 CHK-002: this is a read-both list rather than a single name, so a
+ * project that still has only the deprecated filename keeps resolving. The list
+ * comes from `core/brand-paths.ts` rather than being spelled here, so no call
+ * site can end up recognizing only one of the two spellings — that is exactly
+ * the B-cdf6 F-065/F-061 shape (a deprecated literal inside a membership test,
+ * which made the CANONICAL name silently fail).
+ */
+export const PROJECT_CONFIG_FILENAMES: readonly string[] = CONFIG_FILENAMES;
 
 /** True if the canonical Proof-or-Stop project config file exists in dir. */
 export function hasProjectConfigFile(dir: string): boolean {
   return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
 }
 
-const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS = [
-  join(PROOF_OR_STOP_DIR, 'lattice.json'),
+/**
+ * Global-thin manifest probe locations, canonical first.
+ *
+ * B-cc10 CHK-002: the state-dir spelling and the manifest filename both come
+ * from the read-both resolver, so this probe follows the rename automatically
+ * and accepts a deprecated-spelled manifest during migration. `.Lattice` stays
+ * an explicit extra entry: it is a case variant kept for case-sensitive
+ * filesystems, not a brand identity the resolver owns.
+ */
+const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS: readonly string[] = [
+  ...MANIFEST_FILENAMES.flatMap((file) => stateDirCandidates(file)),
   join('.Lattice', 'lattice.json'),
-] as const;
+].filter((value, index, all) => all.indexOf(value) === index);
 
 function isJsonRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -671,7 +689,14 @@ export function pickProjectConfigPath(dir: string): { path: string; filename: st
   for (const name of PROJECT_CONFIG_FILENAMES) {
     const candidate = join(dir, name);
     if (existsSync(candidate)) {
-      return { path: candidate, filename: name, legacy: false };
+      // B-cc10 CHK-002: report WHICH spelling resolved. Iteration order makes
+      // the canonical name win when both exist; `legacy` is true only when the
+      // deprecated filename is what actually satisfied the lookup, which is the
+      // signal CHK-004's one-line stderr notice consumes. Deriving it by
+      // comparing against the canonical constant (rather than hardcoding the old
+      // filename in a comparison) is deliberate — a deprecated literal inside a
+      // comparison is the exact B-cdf6 F-065/F-061/F-068 regression shape.
+      return { path: candidate, filename: name, legacy: name !== PROOF_OR_STOP_CONFIG_FILENAME };
     }
   }
   return null;
@@ -797,8 +822,13 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
 
-  const latticePath = join(root, LATTICE_CONFIG_FILENAME);
-  const latticeExists = existsSync(latticePath);
+  // B-cc10 CHK-002: resolve the config through the read-both picker instead of
+  // probing only the canonical filename. Probing one name directly is what would
+  // make a deprecated-spelled config silently invisible after the rename (the
+  // project would load defaults instead of erroring — a silent behaviour change).
+  const picked = pickProjectConfigPath(root);
+  const latticePath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
+  const latticeExists = picked !== null;
 
   let userConfig: Partial<ProofOrStopConfig> = {};
   let chosenPath: string | null = null;

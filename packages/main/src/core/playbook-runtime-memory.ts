@@ -32,6 +32,7 @@ import {
   type RuntimeMemoryIndexCandidates,
   type RuntimeMemoryIndexSourceDigests,
 } from './playbook-runtime-memory-index.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import {
   buildRuntimeMemoryPackCacheContext,
   computeMemoryPackDigest,
@@ -910,7 +911,7 @@ export interface FinishDecisionRecord {
  * implementation, only relocated + exported.
  */
 export function finishDecisionPath(root: string, pathSegment: string): string {
-  return join(root, '.lattice', 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
+  return join(root, PROOF_OR_STOP_DIR, 'dev-memory', 'finish-decisions', `${pathSegment}.json`);
 }
 
 const FINISH_DECISION_VALUES: readonly FinishDecision[] = ['captured', 'no-reusable-lesson', 'defer-with-reason'];

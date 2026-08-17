@@ -26,6 +26,13 @@ import {
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 import { readBrandEnv } from './brand-env.js';
+import {
+  ADAPTER_DIR_NAMES,
+  PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
+  adapterDirCandidates,
+  adapterManifestCandidates,
+} from './brand-paths.js';
 
 export type CodexAdapterCheckStatus = 'pass' | 'warn' | 'fail';
 
@@ -210,9 +217,14 @@ export function resolveCodexSessionBriefCommand(root: string): string {
 }
 
 const CODEX_MATERIAL_PATHS = [
-  '.lattice-codex/README.md',
-  '.lattice-codex/lattice.json',
-  '.lattice-codex/agents',
+  // B-cc10 CHK-002: adapter material under BOTH dir spellings and BOTH manifest
+  // filenames. This is a staleness-detection set, so a one-sided list would let
+  // an edit to a deprecated-spelled adapter asset leave a stale verification
+  // standing — the failure would be silent, which is why it is derived rather
+  // than typed out.
+  ...adapterDirCandidates('README.md'),
+  ...adapterManifestCandidates(),
+  ...adapterDirCandidates('agents'),
   '.codex/hooks.json',
   '.codex/hooks',
   '.claude/agents',
@@ -351,15 +363,30 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 interface CodexManifestSelection {
-  relPath: '.lattice-codex/lattice.json';
-  brand: 'lattice';
+  relPath: string;
+  brand: 'proof-or-stop' | 'lattice';
+  /** True when a DEPRECATED spelling of dir or filename is what resolved. */
+  legacy: boolean;
 }
 
 const isGlobalThinProject = isManagedGlobalThinRoot;
 
+/** Canonical adapter manifest relative path — the only one ever WRITTEN. */
+const CANONICAL_CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+
+/**
+ * Resolve the Codex adapter manifest read-both (B-cc10 CHK-002).
+ *
+ * Probes every accepted dir x filename spelling, canonical FIRST, so a
+ * partially-migrated checkout still verifies while a fully migrated one prefers
+ * the canonical pair. The candidate list comes from `core/brand-paths.ts`, so
+ * this decision function cannot recognize only one spelling.
+ */
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
-  if (existsSync(join(root, '.lattice-codex', 'lattice.json'))) {
-    return { relPath: '.lattice-codex/lattice.json', brand: 'lattice' };
+  for (const relPath of adapterManifestCandidates()) {
+    if (!existsSync(join(root, relPath))) continue;
+    const legacy = relPath !== CANONICAL_CODEX_MANIFEST_REL;
+    return { relPath, brand: legacy ? 'lattice' : 'proof-or-stop', legacy };
   }
   return null;
 }
@@ -529,9 +556,13 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
   const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
-  const upperHooks = join(root, '.lattice-codex', 'hooks');
   const lowerHooks = join(root, '.codex', 'hooks');
-  if (existsSync(upperHooks)) {
+  // B-cc10 CHK-002: check the hooks-alias exclusion under EVERY accepted adapter
+  // dir spelling. Checking one spelling would let the offending directory hide
+  // under the other name and report a false 'pass'.
+  for (const hooksRel of adapterDirCandidates('hooks')) {
+    const upperHooks = join(root, hooksRel);
+    if (!existsSync(upperHooks)) continue;
     let isLowercaseAlias = false;
     try {
       if (existsSync(lowerHooks)) {
@@ -542,13 +573,13 @@ function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
     } catch {
       isLowercaseAlias = false;
     }
-    if (!isLowercaseAlias) offenders.push('.lattice-codex/hooks');
+    if (!isLowercaseAlias) offenders.push(hooksRel);
   }
   if (offenders.length > 0) {
     push(checks, 'excluded-assets', 'Codex runtime exclusions', 'fail', true, `unexpected asset(s): ${offenders.join(', ')}`, `rm -rf ${offenders.join(' ')}`);
     return;
   }
-  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .lattice-codex/hooks or .lattice-codex/settings.json');
+  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, `no uppercase-only ${PROOF_OR_STOP_ADAPTER_DIR}/hooks or ${PROOF_OR_STOP_ADAPTER_DIR}/settings.json`);
 }
 
 function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boolean {
@@ -1051,6 +1082,42 @@ export function renderCodexAdapterChecks(result: CodexAdapterCheckResult): strin
   return lines.join('\n');
 }
 
+/** Escape a literal for safe interpolation into a RegExp source. */
+function escapeRegExp(literal: string): string {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Which story text counts as "touches the Codex adapter", and therefore requires
+ * Codex adapter evidence at the REVIEW->TEST gate.
+ *
+ * B-cc10 CHK-002: built from {@link ADAPTER_DIR_NAMES} rather than hardcoding the
+ * adapter directory spelling. This is a GATE-ARMING decision, and a brand literal
+ * inside a regex is the exact B-cdf6 F-062 regression shape: with the old spelling
+ * hardcoded, a story naming the CANONICAL directory would silently fail to match,
+ * so the codex-adapter gate would quietly stop arming for precisely the stories
+ * that migrate the adapter. Failing that way is invisible — the gate reports
+ * nothing rather than reporting a miss.
+ */
+function codexTouchpointPattern(): RegExp {
+  const dirAlternatives = ADAPTER_DIR_NAMES.flatMap((dir) => {
+    const bare = dir.replace(/^\./, '');
+    return [escapeRegExp(dir), escapeRegExp(bare)];
+  });
+  const binAlternatives = ADAPTER_DIR_NAMES.map((dir) =>
+    escapeRegExp(`bin/${dir.replace(/^\./, '')}.js`),
+  );
+  const alternatives = [
+    ...dirAlternatives,
+    ...binAlternatives,
+    'codex adapter',
+    'verify_codex',
+    '\\.codex\\/hooks(?:\\.json)?',
+    'proof-or-stop codex (?:verify|doctor)',
+  ];
+  return new RegExp(`(?:${alternatives.join('|')})`, 'i');
+}
+
 export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): boolean {
   try {
     const story = store.readStory(storyId);
@@ -1061,7 +1128,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|proof-or-stop codex (?:verify|doctor))/i.test(haystack);
+    return codexTouchpointPattern().test(haystack);
   } catch {
     return false;
   }

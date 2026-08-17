@@ -17,6 +17,13 @@ import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROOF_OR_STOP_BIN_NAMES } from './lattice-brand.js';
 import {
+  ADAPTER_DIR_NAMES,
+  MANIFEST_FILENAMES,
+  adapterDirCandidates,
+  adapterManifestCandidates,
+  stateDirCandidates,
+} from './brand-paths.js';
+import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
@@ -263,10 +270,15 @@ function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKi
 }
 
 function isCodexCaseInsensitiveAlias(root: string, relPath: string, actualRelPath?: string): boolean {
-  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.lattice-codex/')) return false;
+  // B-cc10 CHK-002: accept EITHER adapter-dir spelling as the alias target.
+  // Hardcoding one spelling here would make the alias go unrecognized under the
+  // other name, and the caller would then read the wrong file (or none).
+  if (!relPath.startsWith('.codex/') || actualRelPath === undefined) return false;
+  const aliasTarget = actualRelPath;
+  if (!ADAPTER_DIR_NAMES.some((dir) => aliasTarget.startsWith(`${dir}/`))) return false;
   try {
     const lower = statSync(join(root, relPath));
-    const upper = statSync(join(root, actualRelPath));
+    const upper = statSync(join(root, aliasTarget));
     return lower.dev === upper.dev && lower.ino === upper.ino;
   } catch {
     return false;
@@ -515,10 +527,14 @@ export { runtimeIgnoreMissing };
 export function detectManagedAssetProfile(root: string): InitProfile {
   const agents = readText(root, 'AGENTS.md');
   const claude = readText(root, 'CLAUDE.md');
+  // B-cc10 CHK-002: probe every accepted adapter-dir / manifest spelling, so a
+  // project that has not been migrated is still detected as a Codex project.
+  // Detecting 'core' instead of 'codex' here would silently stop managing the
+  // adapter assets rather than reporting an error.
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
-      || existsSync(join(root, '.lattice-codex', 'lattice.json'))
-      || existsSync(join(root, '.lattice-codex', 'agents'))
+      || adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
+      || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
       || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
@@ -533,13 +549,21 @@ export function detectManagedAssetProfile(root: string): InitProfile {
 }
 
 export function detectManagedAssetMode(root: string): InitAssetMode {
-  const globalThinConfig = ['.lattice/lattice.json', '.Lattice/lattice.json']
-    .find(relPath => existsSync(join(root, relPath)));
+  // B-cc10 CHK-002: read-both state-dir + manifest spellings, canonical first.
+  // `.Lattice` stays an explicit extra entry — it is a case variant, not a brand
+  // identity the resolver owns.
+  const globalThinConfig = [
+    ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
+    '.Lattice/lattice.json',
+  ].find(relPath => existsSync(join(root, relPath)));
   if (globalThinConfig) {
     const text = readText(root, globalThinConfig);
     if (text?.includes('global-thin')) return 'global-thin';
   }
-  if (existsSync(join(root, '.lattice-codex', 'lattice.json')) || existsSync(join(root, '.lattice-codex', 'agents'))) {
+  if (
+    adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
+    || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
+  ) {
     return 'full';
   }
   if (existsSync(join(root, 'bin', 'lattice.js'))) {

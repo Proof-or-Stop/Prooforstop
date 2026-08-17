@@ -6,6 +6,10 @@
  * Writes no state; pure read-only analysis.
  */
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
+// B-cc10 CHK-002: the state-dir name comes from the single read-both resolver, so
+// this reader follows the rename instead of silently reading a path that no longer
+// exists (which would look like "no activity recorded" rather than an error).
+import { PROOF_OR_STOP_DIR } from '../../../main/dist/core/lattice-paths.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -50,7 +54,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const format = args?.format ?? 'text';
 
       // Dual-source: runtime path (.lattice/activity.jsonl) + legacy path (docs/story/activity.jsonl)
-      const runtimeLogPath = join(root, '.lattice', 'activity.jsonl');
+      const runtimeLogPath = join(root, PROOF_OR_STOP_DIR, 'activity.jsonl');
       const legacyLogPath = join(root, 'docs', 'story', 'activity.jsonl');
       const logPaths = [runtimeLogPath, legacyLogPath].filter(p => existsSync(p));
 

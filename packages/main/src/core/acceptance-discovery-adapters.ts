@@ -13,6 +13,7 @@ import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
 import { PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -147,7 +148,11 @@ interface BindingAnalysisContext {
 }
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
-const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
+// B-cc10 CHK-002: state-dir spellings from the resolver, so the source inventory
+// keeps excluding the state directory across the rename.
+const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set([
+  '.git', ...STATE_DIR_NAMES, '.worktrees', 'dist', 'node_modules',
+]);
 const GENERATED_PROOF_ARTIFACT_BASENAMES = new Set([
   'acceptance-basis.json',
   'pre-review-check.json',

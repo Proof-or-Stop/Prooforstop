@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, s
 import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import type {
   FindingSignalsCache,
   NonDeducibleOverrideEvent,
@@ -40,7 +41,7 @@ import type {
 } from './experience-layer-types.js';
 
 /** Relative learning directory from the project root. */
-export const LEARNING_DIR = join('.lattice', 'learning');
+export const LEARNING_DIR = join(PROOF_OR_STOP_DIR, 'learning');
 /** Derived finding-signals cache filename. */
 export const FINDING_SIGNALS_FILENAME = 'finding-signals.json';
 /** Append-only learning log filename (reserved; written by future phases). */

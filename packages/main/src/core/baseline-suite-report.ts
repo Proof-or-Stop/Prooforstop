@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export type BaselineExpectedOutcome = 'PASS' | 'EXPECTED_BLOCK';
 export type BaselineOutcome = BaselineExpectedOutcome | 'FAIL' | 'INVALID';
@@ -168,7 +169,7 @@ export interface BaselineSuiteReport {
 }
 
 const DEFAULT_SUITE_ID = 'minimum-baseline-suite';
-const DEFAULT_REPORT_ROOT = join('.lattice', 'artifacts', 'baseline');
+const DEFAULT_REPORT_ROOT = join(PROOF_OR_STOP_DIR, 'artifacts', 'baseline');
 const REQUIRED_MINIMUM_BASELINE_IDS = [
   'NL-CLI-1',
   'NL-API-1',

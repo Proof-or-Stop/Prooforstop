@@ -32,6 +32,7 @@ export type {
   QueueGovernanceRow,
 } from '../control-status.js';
 import { readBrandEnv } from '../../brand-env.js';
+import { PROOF_OR_STOP_DIR } from '../../lattice-paths.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
 const MIGRATION_TITLE_RUN_PATTERN = /^Tier-C provider-execution receipt verification(?: \([^)]+\))? run\b/;
@@ -61,11 +62,11 @@ export interface QueueExceptionSetInput {
 }
 
 function registryPath(root: string): string {
-  return join(root, '.lattice', 'lifecycle-control', 'queue-exceptions.json');
+  return join(root, PROOF_OR_STOP_DIR, 'lifecycle-control', 'queue-exceptions.json');
 }
 
 function auditPath(root: string): string {
-  return join(root, '.lattice', 'lifecycle-control', 'queue-exceptions.audit.jsonl');
+  return join(root, PROOF_OR_STOP_DIR, 'lifecycle-control', 'queue-exceptions.audit.jsonl');
 }
 
 function emptyRegistry(): QueueExceptionRegistry {
