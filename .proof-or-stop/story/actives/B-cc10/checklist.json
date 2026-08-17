@@ -927,7 +927,11 @@
           {
             "desc": "A deliberately half-done move (one dir moved, one not) is detected by the documented half-done check",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-migration-contract.mjs",
+              "selector": "deprecatedDirTrackedFiles=0"
+            }
           }
         ],
         "adversarial": [
@@ -951,6 +955,27 @@
           "materialHash": "ac70741d393e5b05dc1b1bdd77acf23a7d5d0ee8576a7fca54d1cdc4d3ad880b",
           "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
           "timestamp": "2026-08-17T10:37:34.041Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-migration-contract.mjs",
+          "command": "node scripts/verify-migration-contract.mjs",
+          "result": "pass",
+          "note": "Half-done detector, refined during this verification. Keys on TRACKED files under the deprecated dir, NOT directory existence: the CLI recreates gitignored activity.jsonl on any invocation, and conflating that with a half-done move is exactly what cost CHK-003 a full abort.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f2073c36cb613695a51b3370106dabb029ffa6f2ca9e2461cf641855c30df6fd",
+            "outputTail": "storyFilesHashMentions=2\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=0\nok no tracked files remain under the deprecated state dir (move is complete)\nmoveIsPureRenameCommit=true\nok move commit ec7f315e is pure rename (0 insertions, 0 deletions) — one revert undoes it\nmigration contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:31:50.142Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "eb22d9d1549ebf002a04f7cc30dc0bfa385e0a63",
+          "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb",
+          "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
+          "timestamp": "2026-08-17T17:31:50.444Z"
         }
       ],
       "userSeesSnapshot": {
