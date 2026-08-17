@@ -435,7 +435,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After classification a real validate run prints a scheduler line whose declared count is materially higher than 36, and the measured wall time is below the 1006s recorded at 36 declarations on the same host",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A heavy command that cannot be proven temp-root isolated stays a barrier and is named in the report as still-unclassified, rather than being declared to make the number look better",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Declaring a claim for a command that actually writes a repo-shared path is caught by a collision probe that fails, instead of the run merely appearing faster",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
