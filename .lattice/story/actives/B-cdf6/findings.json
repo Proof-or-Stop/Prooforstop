@@ -1408,7 +1408,7 @@
       "desc": "A different comparison/parser sibling class discovered via the requested exhaustive hunt (comparisons keyed on a brand string that broke the NEW name): core/managed-assets.ts:818 and :829 define ownership-recognition predicates for the generated bin/proof-or-stop-codex.js wrapper (and the retained bin/lattice-codex.js alias) as `actual.includes(\\\"LATTICE_ACTIVITY_SOURCE\\\") && actual.includes(\\\"local-wrapper\\\")`. Verified empirically against the actual generator (init-assets.ts renderCodexWrapperScript, executed via the built dist/init-assets.js, not rebuilt): the generated wrapper text contains the literal substring \\\"local-wrapper\\\" but NEVER contains the literal concatenated substring \\\"LATTICE_ACTIVITY_SOURCE\\\" -- the wrapper builds env names at runtime via string concatenation (`process.env[\\\"LATTICE_\\\" + suffix] = value` with suffix=\\\"ACTIVITY_SOURCE\\\" called separately), so the two half-strings never appear concatenated as one token in the source text that this predicate string-matches against. Consequence traced through managed-assets.ts:1080-1084 (the general whole-file diagnose branch): ownedWhen always returns false for this asset, so the ONLY thing that can classify a content-mismatched copy as STALE_SAFE (auto-fixable by check --apply) is unchangedSinceManifest (prior manifest hash match); when that also fails (fresh project, deleted/reset manifest, or any other reason the recorded hash does not match), the file is misclassified STALE_LOCAL_EDIT (\\\"a human hand-edited this\\\") and check --apply REFUSES to auto-repair a file Proof-or-Stop generated itself. This is defense-in-depth breakage, not a total outage (the manifest-hash fallback covers the common case), but it means the recognizer this comment block relies on is dead code for its stated purpose. Fix: update the ownedWhen predicate to match what the generator actually emits today (e.g. check for the setEnv(...) helper pattern or the literal \\\"local-wrapper\\\" plus \\\"ACTIVITY_SOURCE\\\" as separate substrings) instead of a concatenated literal that is never produced.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T02:42:36.748Z",
@@ -1420,7 +1420,11 @@
         "packages/main/src/init-assets.ts"
       ],
       "signatureTag": "missing|ts|different-comparison-parser",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a0116f75f3. F-065 fixed structurally rather than locally: added shared SESSION_ID_ENV_NAMES and routed both this site and the F-061 site through it, because two independent hardcoded comparisons in one file (the second two lines from the first's fix) means a third would otherwise follow; verified deny-canonical and deny-deprecated both DENIED. F-066 predicate required a literal the generator never emits (env names are built by concatenation); verified against the real generator that the old predicate is false, the new one true, and it does not over-match unrelated text.",
+      "resolvedAt": "2026-08-17T02:48:38.753Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
