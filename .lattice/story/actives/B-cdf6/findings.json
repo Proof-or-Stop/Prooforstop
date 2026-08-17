@@ -1293,7 +1293,7 @@
       "desc": "functional (not cosmetic): core/lattice-dispatch.ts:1685-1686 buildCanonicalHostRuntimeEnv checks allowedEnvNames.has(\\\"LATTICE_SESSION_ID\\\") / deniedEnvNames.has(\\\"LATTICE_SESSION_ID\\\") -- a literal string-membership test against the user-configurable dispatch_policy_create envAllowlist/envDenylist (command-catalog.ts:1751-1752, real CLI args). Verified empirically against packages/main/dist/core/lattice-dispatch.js buildCanonicalHostRuntimeEnv: policy {envAllowlist:[\\\"PROOF_OR_STOP_SESSION_ID\\\"]} with PROOF_OR_STOP_SESSION_ID set in process.env produces env.PROOF_OR_STOP_SESSION_ID=undefined and env.LATTICE_SESSION_ID=undefined (override silently does NOT apply -- setBrandEnv correctly dual-writes when reached, but the gating check itself never reaches the write branch), while the identical policy spelled envAllowlist:[\\\"LATTICE_SESSION_ID\\\"] correctly sets both. A caller who configures their dispatch policy using the canonical, documented env name gets their explicit session-ID override silently dropped with no error. Fix: use core/brand-env.ts isBrandEnvName/brandEnvNames to test membership against both spellings, not a literal LATTICE_SESSION_ID string.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T02:29:43.078Z",
@@ -1304,7 +1304,11 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "missing|ts|functional-cosmetic-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 9526d2125b. F-061/F-062 were functional, not cosmetic: both compared against a literal deprecated env name, so the CANONICAL spelling silently failed while the deprecated one kept working. Fixes WIDEN recognition to accept either name; read-both preserved. Verified empirically against compiled dist (F-061: canonical allowlist now yields the override where it was previously DROPPED; denying either spelling still denies) and by direct regex execution (F-062: canonical, deprecated, and no-prefix all match). F-063 help strings verified live via story_list --help and usage_sweep --help now printing PROOF_OR_STOP_*.",
+      "resolvedAt": "2026-08-17T02:35:09.625Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-062",
