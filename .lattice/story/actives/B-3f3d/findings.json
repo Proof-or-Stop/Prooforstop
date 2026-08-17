@@ -7955,6 +7955,110 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-116",
+      "desc": "doc-code-drift: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:521 (smoke matrix row 'open verified finding while phase is TEST | blocked row plus direct TEST-to-DEV rollback command') is a follow-on regression from the F-020 fix. F-020's resolution (commit 3404a42, cluster CL-013) correctly split the smoke matrix by phase, but the TEST-phase row it introduced makes an unimplemented claim: packages/main/src/core/lifecycle-readiness.ts has no branch keyed on target=='TEST' or story.phase=='TEST' that emits a bare story_advance DEV command for a blocking review finding. buildStoryReadinessReport calls buildReviewTargetRows/buildReviewGateRows for target in {REVIEW,TEST,DONE} alike (lines 849-853), and every finding/quorum/loop row inside those (review.findings:526, review.quorum:483, review.loops:379) unconditionally uses reviewRemediationCommand (line 123-131), which always returns review_inventory_status/review_inventory_begin/story_advance-DEV-only-after-FINALIZED-receipt -- never a bare direct-rollback command gated on TEST phase specifically. Separately, this row may also describe an unreachable state: canPassReviewGuard (core/machine.ts:891) gates REVIEW->TEST on no open blocking finding, so a story with a genuinely open verified blocking finding cannot mechanically reach TEST phase in the first place, making the smoke scenario itself untestable as literally specified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-17T09:03:57.818Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-475",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "03c6b1ecbc4178c663e1be6b20d0de30ce373c2be7f41187a31f366b81d917e7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/testing-completeness.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/testing-completeness.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        }
+      ],
+      "_hash": "3488e126f19ffefb45e7b081e81fe7b43cb14da069dc6614d895748b2a568532",
+      "files": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "packages/main/src/core/lifecycle-readiness.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
