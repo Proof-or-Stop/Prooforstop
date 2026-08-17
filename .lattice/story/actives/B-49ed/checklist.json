@@ -127,7 +127,30 @@
       "userSees": "A critic signing from a generated-token session records a receipt successfully, while the same attempt from an explicit-env session fails with: must sign from a host-adapter session.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A generated-token session signs a critic receipt successfully",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "generated-token is accepted only when its boundary token and both identity dimensions resolve, matching owner-session-adapters.ts:160-173",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Accepting generated-token does not also admit explicit-env or derived-ppid; both remain refused from the same test",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
