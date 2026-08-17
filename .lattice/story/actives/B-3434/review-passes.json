@@ -1100,6 +1100,39 @@
         "scanEscalationReason": null
       },
       "_hash": "c6d8b66ea1e7a7aa96a301341162c1f29bedba88677c27e5ced600273cd13e76"
+    },
+    {
+      "id": "B-3434:RP-043",
+      "agent": "lattice-review-behavior",
+      "note": "Behaviour lane, merged tree at 161506c59c. (1) Brand-string trap: grepped every 'validate --story=' site in src; the two production evidence WRITERS (verifier.ts:729 reuse path, verifier.ts:1097/846 fresh-execute path via persistStoryValidationEvidence) both emit the literal template proof-or-stop validate --story=${storyId} --json, byte-identical to phase-gates.ts:691 expectedCommand and validation-evidence-admissibility.ts:80's exact-equality check. Because the smoke only asserts disposition==='reused' (implementer-verified counterfactual), I built my own check that calls the REAL assessStoredValidationPassAdmissibility against a store-proxied synthetic record: the writer's exact string produces zero command_mismatch, the pre-merge lattice validate string and an unrelated string both correctly produce command_mismatch, and flipping only the command field changes no other reasonCode — proving the comparator genuinely discriminates rather than passing vacuously. (2) Four dispositions + 32MiB ceiling: re-ran through the REAL StoryStore.writeTestEvidence (not the smoke's duplicated in-memory formula) — unmodified/reduced/verdict_only each write on-disk bytes exactly equal to bound.fileBytes; refused (oversized non-object result) writes nothing, verified against the literal guard verifier.ts uses (!withinBound || record===null). red-b3434-blob-buffer-ceiling.mjs (already run) covers 5xx-KB/1.4MB successful reads, the 32MiB/34.5MB unreadable-with-captured-size case, and absent-vs-unreadable distinctness. (3) Fallback: review-incremental-context-smoke passes whole, including first-timer/unresolvable-headHash/rename and the PRODUCTION VERIFIER CUTOFF case (contextMode stays incremental for a real envelope). That smoke has zero coverage of the new >512 branch itself (only file changed by 161506c59c is review-incremental-context.ts, no test delta), so I built a CLI-driven fixture (dispatch->review_run_start->review_pass_set->real signed prior pass->N-file commit->review_run_start) confirming the cap boundary is exact (511 files: no FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS; 513/625: yes) and contextMode is correctly pinned to full. This surfaced one real, non-blocking defect, filed as B-3434:F-054 (medium/missing/verified): the new branch reuses fullStoryDiffContext's hardcoded prior:null even when latestTrustedPriorPass DID resolve a genuine, verified prior — envelope.priorPassRef/isFirstPass/priorVerdict come out first-pass-shaped for a genuinely returning reviewer. Confirmed non-gating: verifyReviewRunPromptEnvelope still ok:true (the recomputation is self-consistently wrong, not caught), canPassReviewGuard never reads these fields, and review-run.ts:795-798 confirmed by reading — the FULL_ prefix is used only to REJECT an incremental envelope, never to authorize one, so this cannot turn a failing review into a passing one. Impact is confined to two advisory/audit-trail surfaces (transition-effects.ts round-2+ hint text, reviewer-batch.ts priorVerdict summary) mislabeling a returning reviewer as first-time. Ran: npx tsc --noEmit -p packages/main (clean), review-incremental-context-smoke.js (PASS), red-b3434-blob-buffer-ceiling.mjs (PASS), validation-evidence-buffer-smoke.js (PASS), validation-evidence-reuse-smoke.js (PASS, disposition=reused), done-prepare-auto-closeout-smoke.js (PASS). Legitimacy-of-editing-review-machinery question left to concept/quality lanes per dispatch; found no behavioral consequence beyond F-054 that would change that verdict.",
+      "createdAt": "2026-08-17T16:05:03.596Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-077",
+      "envelopeId": "ce0c568746f6418f869ac6a5c815f3d7b769b2b03885e8bb501edd4d53eccbc3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/test-story.ts",
+          "packages/main/src/handlers/test.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "59f00a01b1613ae14c89a45d760b9dd5b413f1075b5e49da3285fbb060ac127e"
     }
   ]
 }
