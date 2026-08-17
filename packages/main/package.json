@@ -114,7 +114,9 @@
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js",
     "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
     "test:core-package-rename": "node scripts/verify-core-package-rename.mjs",
-    "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs"
+    "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs",
+    "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
+    "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",

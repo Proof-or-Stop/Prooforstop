@@ -47,17 +47,30 @@ import {
 // appear. Both halves now come from the resolver, so a future dir rename cannot
 // desynchronize the fixture from the writer again.
 const LATTICE_MANIFEST_REL = `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
-// B-cc10 CHK-006: NOT derived from PROOF_OR_STOP_STATE_DIR on purpose. cli-init.ts:894
-// still writes this doc to a hardcoded `.lattice/Lattice.md` while the MANIFEST already
-// moved to the resolver dir, so init currently straddles both spellings. Deriving this
-// path would assert a file init does not write. The writer split is a CHK-003/CHK-004
-// concern (same class as F-001, but on the WRITE side); this fixture pins observed
-// behaviour and must be re-derived once the writer is unified.
-const LATTICE_MD_REL = '.lattice/Lattice.md';
+// B-cc10 CHK-007 (B-cc10:F-004): NOW DERIVED. CHK-006 deliberately pinned this to the
+// literal `.lattice/Lattice.md` because cli-init.ts wrote the guide to a hardcoded
+// deprecated directory while the MANIFEST already used the resolver — init straddled two
+// state dirs and created a stray legacy directory on every fresh init. CHK-007 unified the
+// writer (cli-init.ts + core/managed-assets.ts + the generated guide templates all derive
+// the state dir now), so the condition that comment said to wait for is satisfied and this
+// fixture tracks the writer again.
+const LATTICE_MD_REL = `${PROOF_OR_STOP_STATE_DIR}/Lattice.md`;
 const CODEX_MANIFEST_REL = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
+
+/**
+ * Escape a derived path for literal use inside a RegExp.
+ *
+ * B-cc10 CHK-007: the previous inline `LATTICE_MD_REL.replace('.', '\\.')` escaped
+ * only the FIRST dot (String.replace with a string pattern is not global), so the
+ * `.md` dot stayed a wildcard. Harmless for this fixture but a latent
+ * false-positive; escaping properly keeps the assertion exact.
+ */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 function makeRoot(name: string): string {
   return mkdtempSync(join(tmpdir(), `lattice-${name}-`));
@@ -195,13 +208,21 @@ try {
 }
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
-// No --profile or --asset-mode flags: should produce .lattice/ dir with minimal assets.
-// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .lattice-codex/README.md, .lattice-codex/lattice.json, LATTICE.md.
+// No --profile or --asset-mode flags: should produce the state dir with minimal assets.
+// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, adapter-dir README/manifest, LATTICE.md.
 const globalThinRoot = makeRoot('global-thin-default');
 try {
   const output = runInit(globalThinRoot, []);
   assert.match(output, /global-thin/i, 'init output should mention global-thin mode');
-  assert.match(output, /\.lattice\/Lattice\.md/i, 'init output should mention .lattice/Lattice.md');
+  // B-cc10 CHK-007: derived from LATTICE_MD_REL rather than a hardcoded `.lattice/`
+  // regex. A literal here would fail closed against the CANONICAL spelling the
+  // writer now emits — the same one-spelling-pinned-guard defect this story exists
+  // to remove (it is what broke brand-path-resolver-smoke on CHK-003's rename).
+  assert.match(
+    output,
+    new RegExp(escapeRegExp(LATTICE_MD_REL), 'i'),
+    `init output should mention ${LATTICE_MD_REL}`,
+  );
 
   // Required canonical assets
   assertExists(globalThinRoot, LATTICE_MD_REL);
@@ -218,7 +239,7 @@ try {
   // so these lines could only ever have passed for the wrong reason. Same class as
   // B-cdf6:F-047. They now pin the canonical command the template actually writes.
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
-  assert.match(agentsMd, new RegExp(LATTICE_MD_REL.replace('.', '\\.')), `AGENTS.md should reference ${LATTICE_MD_REL}`);
+  assert.match(agentsMd, new RegExp(escapeRegExp(LATTICE_MD_REL)), `AGENTS.md should reference ${LATTICE_MD_REL}`);
   assert.match(agentsMd, /proof-or-stop codex verify/, 'AGENTS.md should reference proof-or-stop codex verify');
   assert.doesNotMatch(agentsMd, /node bin\/lattice\.js/, 'AGENTS.md must not reference node bin/lattice.js in global-thin mode');
 

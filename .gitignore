@@ -100,3 +100,21 @@ output/
 experiments/recovery-runner/powered/
 experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl
 experiments/recovery-runner/analysis-out.*
+
+# lattice runtime artifacts (managed)
+.proof-or-stop/*
+!.proof-or-stop/story/
+.proof-or-stop/story/*
+!.proof-or-stop/story/actives/
+!.proof-or-stop/story/actives/**
+.proof-or-stop/story/actives/**/activity.jsonl
+.proof-or-stop/runtime/owner-session-tokens/
+.proof-or-stop/runtime/
+.proof-or-stop/traces/
+.proof-or-stop/locks/
+.proof-or-stop/usage/
+.proof-or-stop/learning/
+.proof-or-stop/authority.md
+.proof-or-stop/artifacts/baseline/
+.proof-or-stop/benchmarks/memory-playbook/
+# /lattice runtime artifacts (managed)

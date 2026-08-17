@@ -10,6 +10,7 @@ import { buildDoneClosureRunbook, type DoneClosureRunbook } from './done-closure
 import { createDoneRequiredValidationHandlers } from './done-required-validation.js';
 import { createVerifierHandlers } from './verifier.js';
 import { loadConfig } from '../core/config.js';
+import { isStateDirPath } from '../core/brand-paths.js';
 import { resolveDoneRequiredPolicy } from '../core/done-required-validation.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
 import { closeoutArtifactPolicyFor, readCloseoutWriteReceipts } from '../core/closeout-trust.js';
@@ -1349,7 +1350,12 @@ function isRuntimePath(path: string): boolean {
 function isDocumentationOrMetadataPath(path: string): boolean {
   const lower = path.replace(/\\/g, '/').toLowerCase();
   return lower.startsWith('docs/')
-    || lower.startsWith('.lattice/')
+    // B-cc10 CHK-007: read-both state-dir recognition. The previous
+    // `lower.startsWith('.lattice/')` matched only the deprecated spelling, so
+    // canonical state-dir paths stopped classifying as metadata after the rename.
+    // Both accepted spellings are already lowercase, so testing the lowercased
+    // path against the resolver is exact.
+    || isStateDirPath(lower)
     || lower.endsWith('.md')
     || lower.endsWith('.mdx');
 }

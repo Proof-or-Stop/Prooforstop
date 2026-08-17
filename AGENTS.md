@@ -1,7 +1,7 @@
 <!-- lattice:start -->
 ## Proof-or-Stop
 
-- `.lattice/Lattice.md` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
+- `.proof-or-stop/Lattice.md` is the host-neutral Proof-or-Stop guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run `proof-or-stop session_brief`.
 - Before acting, run `proof-or-stop aux_doc_list` to inspect relevant docs.
 - Use the global `proof-or-stop` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.

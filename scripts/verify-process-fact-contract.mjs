@@ -1931,7 +1931,12 @@ function assertCloseoutTrustBoundary() {
     'SHIPPED_PACKAGE_MANIFESTS',
     'deriveShippedPackageEntrypoints',
     'every package bin/exports target must derive to an explicitly pinned scanned source entrypoint',
-    "'bin/lattice.js'",
+    // B-cc10 CHK-007: was "'bin/lattice.js'". CHK-006 DELETED that deprecated bin
+    // alias, so requiring the guard to still name it forced the guard to pin a
+    // non-existent entrypoint (it failed with "pinned shipped executable entrypoint
+    // must exist: bin/lattice.js"). The contract now requires the canonical wrapper,
+    // keeping the narrow-compatibility-usage requirement intact against a real file.
+    "'bin/proof-or-stop.js'",
     "'bin/bootstrap-runner.js'",
     "'packages/lab/src'",
     "'packages/utils/src'",
@@ -1998,12 +2003,12 @@ function assertCloseoutTrustBoundary() {
     'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
-    'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec',
+    'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    'b188998274384ced74b3854db09d331d6040ee8cc2c7897d0f966860f7a3eae4',
+    'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',

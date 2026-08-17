@@ -51,10 +51,63 @@
  *   entry carries a reason and is asserted to still exist and still contain a hit, so
  *   a stale exemption cannot silently widen the gate.
  *
+ * ---------------------------------------------------------------------------
+ * CHECK 4 — FORBIDDEN brand-path DECISION SITES in product runtime source (B-cc10
+ * CHK-007). This is the row-flip from "exempt" to "forbidden".
+ * ---------------------------------------------------------------------------
+ *   B-cc10 unfroze four structural identities (state dir, adapter dir, project
+ *   config filename, adapter manifest filename) and routed them through the single
+ *   read-both resolver `packages/main/src/core/brand-paths.ts`. This check makes
+ *   that migration non-regressable.
+ *
+ *   WHY THIS IS NOT A BARE `.lattice` SWEEP, WITH MEASURED NUMBERS
+ *   -------------------------------------------------------------
+ *   A blanket "any `.lattice` literal in packages/*\/src is forbidden" row was the
+ *   obvious reading of the task, and it is wrong — it would fail closed on CORRECT
+ *   code. Measured on this tree at implementation time: 1283 `.lattice` hits across
+ *   272 files, 541 `lattice.config.json`, 90 `.lattice-codex`, 43 `@lattice/`.
+ *   Sampling those shows they are overwhelmingly legitimate and MUST survive:
+ *
+ *     - the read-both constants themselves (`DEPRECATED_STATE_DIR = '.lattice'`,
+ *       `DEPRECATED_CONFIG_FILENAME`, `DEPRECATED_ADAPTER_DIR`) — deleting these
+ *       breaks reads on every unmigrated checkout, which is the whole contract;
+ *     - user-facing DEPRECATION NOTICES that must name the old spelling to be
+ *       actionable ("lattice.config.json is deprecated; rename it to ...");
+ *     - read-both candidate LISTS that deliberately contain both spellings;
+ *     - ~1062 hits inside `packages/main/src/tasks/**` fixtures, where the old
+ *       spelling is frequently the SPECIMEN UNDER TEST (a migration fixture must be
+ *       able to construct a legacy tree, or it cannot prove the migration works).
+ *
+ *   So the forbidden thing is not the literal's PRESENCE, it is the literal's USE
+ *   AS A DECISION. That is the actual defect class B-cdf6 shipped four times
+ *   (F-065/F-061/F-062/F-068, all documented at the top of `core/brand-paths.ts`):
+ *   a DEPRECATED literal sitting inside a comparison / prefix test / membership
+ *   check, so the CANONICAL spelling silently fails while the old one keeps
+ *   working — backwards from the intent, and silent because nothing throws.
+ *
+ *   B-cc10 CHK-007 found three live instances of exactly that shape and fixed them
+ *   by routing each through `isStateDirPath` (read-both by construction):
+ *     - core/artifact-release.ts:68        `path.startsWith('.lattice/')`
+ *     - core/semantic-scope-gate.ts:170    `hunk.path.startsWith('.lattice/')`
+ *     - handlers/done-prepare.ts:1352      `lower.startsWith('.lattice/')`
+ *   Each had stopped firing for canonical paths: the first could admit state-dir
+ *   lifecycle metadata into an artifact release, the other two silently dropped a
+ *   metadata/exemption classification.
+ *
+ *   HOW THIS CHECK AVOIDS ROTTING THE WAY THE THING IT GUARDS ROTTED
+ *   ---------------------------------------------------------------
+ *   The token list is DERIVED from `core/brand-paths.ts` by parsing the constants
+ *   out of that file, not hardcoded here. A gate pinned to one spelling is the very
+ *   defect these gates catch — it is what broke `brand-path-resolver-smoke`, whose
+ *   flip regex hardcoded `.lattice` and failed closed on CHK-003's correct rename.
+ *   Deriving means flipping a constant in the resolver moves this check with it.
+ *   The resolver file is parsed rather than imported so this verifier keeps running
+ *   standalone with no built `dist` (same constraint as EXECUTABLE_SCAN_ROOTS).
+ *
  * Scope note:
- *   Neither check scans `.lattice/story/**` or `CHANGELOG.md` — both are FROZEN
- *   historical records per the mapping table. Check 1 stays confined to product
- *   runtime source; check 2 to active-doc prose.
+ *   No check scans `.lattice/story/**` or `CHANGELOG.md` — both are FROZEN
+ *   historical records per the mapping table. Checks 1 and 4 stay confined to
+ *   product runtime source; check 2 to active-doc prose.
  *
  * Usage:
  *   node scripts/verify-lattice-residue.mjs            run both checks; exit 0 PASS / 1 with hit list
@@ -110,6 +163,95 @@ export function isResidue(line) {
 export function isBrandProseResidue(line) {
   return /(?<![A-Za-z0-9_./@-])[Ll]attice[ \t]+(?![A-Z])[a-z][a-z0-9_]*/.test(line);
 }
+
+// ---------------------------------------------------------------------------
+// CHECK 4 detector: a DEPRECATED brand literal used as a DECISION (B-cc10 CHK-007).
+// ---------------------------------------------------------------------------
+
+/** The resolver that owns every brand-path identity. Parsed, not imported (no dist). */
+const BRAND_PATHS_REL = 'packages/main/src/core/brand-paths.ts';
+
+/**
+ * Read the DEPRECATED_* string literals out of `core/brand-paths.ts`.
+ *
+ * Derived rather than hardcoded so this gate cannot pin itself to one spelling —
+ * see the CHECK 4 header. Fails LOUDLY (throws) rather than returning an empty set,
+ * because an empty token list would make the check silently vacuous, which is the
+ * "gate went quietly blind" regression shape B-cdf6 is full of.
+ *
+ * @returns {string[]} deprecated brand literals, longest first
+ */
+export function readDeprecatedBrandTokens() {
+  const source = readTracked(BRAND_PATHS_REL);
+  if (source === null) {
+    throw new Error(
+      `verify-lattice-residue: cannot read ${BRAND_PATHS_REL}; check 4 derives its token list from ` +
+        'that resolver and refuses to run vacuously.',
+    );
+  }
+  const tokens = [];
+  for (const m of source.matchAll(/export const (DEPRECATED_[A-Z_]+)\s*=\s*'([^']+)'/g)) {
+    tokens.push(m[2]);
+  }
+  if (tokens.length === 0) {
+    throw new Error(
+      `verify-lattice-residue: found no DEPRECATED_* constants in ${BRAND_PATHS_REL}; refusing to ` +
+        'run check 4 with an empty token list (it would pass vacuously).',
+    );
+  }
+  // Longest first so `.lattice-codex` is tried before `.lattice`.
+  return tokens.sort((a, b) => b.length - a.length);
+}
+
+/**
+ * Build the check-4 detector for a given token set.
+ *
+ * A DECISION SITE is a deprecated literal that appears as the argument of a path
+ * comparison, or on either side of `===` / `!==`:
+ *
+ *     path.startsWith('.lattice/')        <- forbidden
+ *     name === 'lattice.config.json'      <- forbidden
+ *     const DEPRECATED_STATE_DIR = '.lattice'   <- ALLOWED (a declaration)
+ *     'lattice.config.json is deprecated'       <- ALLOWED (a notice)
+ *
+ * Only the comparison shape is reported, because that is the shape that silently
+ * inverts behaviour. Presence alone is legitimate (see the CHECK 4 header).
+ *
+ * @param {string[]} tokens deprecated brand literals
+ * @returns {(line: string) => boolean}
+ */
+export function makeBrandDecisionDetector(tokens) {
+  const alt = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  // A quoted literal that STARTS with a deprecated token (optionally continuing
+  // into a longer path), used as a comparison argument or an (in)equality operand.
+  const quoted = `['"\`](?:${alt})(?:/[^'"\`]*)?['"\`]`;
+  const patterns = [
+    // .startsWith('.lattice/') / .includes(...) / .endsWith(...) / .indexOf(...)
+    new RegExp(`\\.(?:startsWith|endsWith|includes|indexOf)\\s*\\(\\s*${quoted}`),
+    // x === '.lattice' / x !== 'lattice.config.json'
+    new RegExp(`(?:===|!==)\\s*${quoted}`),
+    // '.lattice' === x
+    new RegExp(`${quoted}\\s*(?:===|!==)`),
+  ];
+  return (line) => {
+    // A COMMENT is not a decision. This is load-bearing, not a convenience: the
+    // correct fix for a forbidden decision site is to route it through the resolver
+    // AND record what the old code was, so the comment necessarily quotes the very
+    // shape being forbidden. Without this the gate would flag its own remediation
+    // and make the documented fix impossible — first observed on CHK-007's own fix
+    // to artifact-release.ts / done-prepare.ts. Only leading-comment lines are
+    // skipped, so a trailing `// ...` cannot be used to hide real code.
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
+      return false;
+    }
+    return patterns.some((re) => re.test(line));
+  };
+}
+
+/** Live detector, bound to the tokens the resolver currently declares. */
+const DEPRECATED_BRAND_TOKENS = readDeprecatedBrandTokens();
+export const isBrandDecisionResidue = makeBrandDecisionDetector(DEPRECATED_BRAND_TOKENS);
 
 // ---------------------------------------------------------------------------
 // Active scope definitions.
@@ -410,6 +552,40 @@ function runScan() {
     );
   }
 
+  // --- CHECK 4: FORBIDDEN deprecated-brand DECISION SITES in runtime source ---
+  // The B-cc10 CHK-007 row flip. Scans the same product runtime source as check 1,
+  // but SKIPS `**/tasks/**`: those are migration fixtures whose whole job can be to
+  // construct a legacy tree, so a deprecated literal there is the specimen under
+  // test, not a decision the product makes. Skipping the resolver itself would be
+  // wrong (it must be gated like anything else) and is unnecessary — its constants
+  // are declarations, which the detector already does not flag.
+  const decisionHits = scanRoots(
+    SRC_SCAN_ROOTS,
+    isBrandDecisionResidue,
+    (rel) => rel.includes('/tasks/'),
+  );
+  if (decisionHits.length === 0) {
+    console.log(
+      'PASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product ' +
+        `runtime source (forbidden tokens derived from ${BRAND_PATHS_REL}: ${DEPRECATED_BRAND_TOKENS.join(', ')})`,
+    );
+  } else {
+    failed = true;
+    console.error(
+      'FAIL lattice-residue [brand-decision]: a DEPRECATED brand literal is used as a path DECISION',
+    );
+    for (const h of decisionHits) console.error(`  ${h}`);
+    console.error(
+      `\n${decisionHits.length} forbidden decision site(s). A deprecated literal inside a ` +
+        'comparison recognizes ONLY the old spelling, so the CANONICAL name silently fails while ' +
+        'the old one keeps working (B-cdf6 F-065/F-061/F-062/F-068). Route the test through the ' +
+        `read-both helpers in ${BRAND_PATHS_REL} — isStateDirPath / isAdapterDirPath / ` +
+        'isConfigFilename / isManifestFilename — which accept both spellings by construction. ' +
+        'Declaring the literal (a DEPRECATED_* constant) or naming it in a deprecation notice is ' +
+        'still allowed; only using it as a decision is forbidden.',
+    );
+  }
+
   return failed ? 1 : 0;
 }
 
@@ -478,9 +654,20 @@ const BRAND_PROSE_CASES = [
   ['| `lattice-review-scope-plan` | PLAN |', false],
   // signature salts (FROZEN)
   ['salt = `lattice-delivery-check-integrity-v1`', false],
-  // npm package name (FROZEN — pre-push hook gates on it)
+  // Deprecated-but-still-READ npm package name.
+  //
+  // B-cc10 CHK-007 reconciles a STALE rationale here: this case used to be justified
+  // as "npm package name (FROZEN — pre-push hook gates on it)". That is no longer
+  // true. CHK-005 renamed the package (`packages/main/package.json` now declares
+  // `@proof-or-stop/core`) and the pre-push hook accepts BOTH spellings, so the
+  // token is deprecated-but-read, not frozen. The EXPECTATION is unchanged (`false`)
+  // and for an unchanged structural reason: `@lattice/core` carries `@` and `/`, and
+  // the brand-prose detector's fences reject both, so it can never match an
+  // INVOCATION. It is check 4, not check 2, that governs whether a deprecated
+  // spelling may be used as a decision.
   ["import { devHost } from '@lattice/core/dev-host';", false],
-  // config filename (FROZEN)
+  // Deprecated-but-still-READ config filename (B-cc10 CHK-004 flipped canonical to
+  // `proof-or-stop.config.json`; this spelling still resolves for reads).
   ['edit `lattice.config.json` directly', false],
   // bin wrapper paths (deprecated alias retained)
   ['node bin/lattice.js verify_codex', false],
@@ -520,6 +707,56 @@ const BRAND_PROSE_CASES = [
 ];
 
 /**
+ * Cases for isBrandDecisionResidue() — the B-cc10 CHK-007 forbidden-decision detector.
+ *
+ * The `true` block pins the three shapes CHK-007 actually found and fixed in the
+ * product runtime. The `false` block is what keeps the flip from failing closed on
+ * legitimate code: declarations, deprecation notices, read-both candidate lists and
+ * resolver-routed tests must all stay clean, or the row could not be flipped at all.
+ *
+ * @type {Array<[string, boolean]>}
+ */
+const BRAND_DECISION_CASES = [
+  // --- MUST FLAG: a deprecated literal used AS A DECISION (forbidden) ---
+  // The three real sites CHK-007 fixed.
+  ["  if (path.startsWith('.lattice/')) return false;", true],
+  ["    if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;", true],
+  ["    || lower.startsWith('.lattice/')", true],
+  // Other decision shapes on the same tokens.
+  ["if (name === 'lattice.config.json') return true;", true],
+  ["return relPath.includes('.lattice-codex/agents');", true],
+  ["if ('.lattice' === firstSegment(path)) return true;", true],
+  ["if (file.endsWith('lattice.json')) return true;", true],
+
+  // --- MUST NOT FLAG: legitimate uses of the same literals (allowed) ---
+  // The read-both constants themselves. Flagging these would forbid the contract.
+  ["export const DEPRECATED_STATE_DIR = '.lattice';", false],
+  ["export const DEPRECATED_CONFIG_FILENAME = 'lattice.config.json';", false],
+  ["export const DEPRECATED_ADAPTER_DIR = '.lattice-codex';", false],
+  // Read-both candidate lists: both spellings on purpose, canonical first.
+  ["const CONFIG_FILENAMES = ['proof-or-stop.config.json', 'lattice.config.json'];", false],
+  // User-facing deprecation notices must be able to NAME the old spelling.
+  ["console.warn('lattice.config.json is deprecated; rename it to proof-or-stop.config.json');", false],
+  // Tests routed through the resolver — the correct fix shape.
+  ['  if (isStateDirPath(path)) return false;', false],
+  ['  if (isConfigFilename(name)) return true;', false],
+  // A path JOIN is a construction, not a decision; check 4 deliberately ignores it
+  // (whether a writer should use the canonical dir is not a comparison bug).
+  ["const dir = join(root, '.lattice-codex', 'agents');", false],
+  // The canonical spellings must never self-trigger.
+  ["if (path.startsWith('.proof-or-stop/')) return false;", false],
+  ["if (name === 'proof-or-stop.config.json') return true;", false],
+  ['a clean line with no brand token at all', false],
+  // A COMMENT quoting the forbidden shape is allowed — the documented fix for a real
+  // decision site records the old code, so flagging comments would forbid the remedy.
+  ["  // B-cc10 CHK-007: was `path.startsWith('.lattice/')`, now resolver-routed.", false],
+  ["   * `lower.startsWith('.lattice/')` matched only the deprecated spelling.", false],
+  ["  /* legacy: name === 'lattice.config.json' */", false],
+  // ...but a trailing comment must NOT launder real code on the same line.
+  ["if (path.startsWith('.lattice/')) return false; // legacy", true],
+];
+
+/**
  * Run the inline detector unit tests. Throws on the first failure.
  * @returns {number} count of assertions run
  */
@@ -529,6 +766,7 @@ export function runSelfTest() {
   const suites = [
     ['isResidue', RESIDUE_CASES, isResidue],
     ['isBrandProseResidue', BRAND_PROSE_CASES, isBrandProseResidue],
+    ['isBrandDecisionResidue', BRAND_DECISION_CASES, isBrandDecisionResidue],
   ];
   for (const [name, cases, detect] of suites) {
     for (const [line, expected] of cases) {

@@ -3,7 +3,7 @@
 <!-- lattice:start -->
 ## Proof-or-Stop
 
-`.lattice/Lattice.md` is the canonical, host-neutral Proof-or-Stop project guide. This directory holds project-local Proof-or-Stop context and configuration.
+`.proof-or-stop/Lattice.md` is the canonical, host-neutral Proof-or-Stop project guide. This directory holds project-local Proof-or-Stop context and configuration.
 
 - At the start of a new session, or when resuming interrupted work, run `proof-or-stop session_brief`.
 - Before acting, run `proof-or-stop aux_doc_list` to inspect relevant docs.

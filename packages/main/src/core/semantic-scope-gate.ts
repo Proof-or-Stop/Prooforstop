@@ -36,6 +36,7 @@ import type {
   SemanticScopeGateResult,
 } from './types.js';
 import { pathMatchesScopePattern } from './scope-path-classifier.js';
+import { isStateDirPath } from './brand-paths.js';
 import {
   SCOPE_ANCHOR_ARTIFACT_VERSION,
   SCOPE_ANCHOR_PARSER_VERSION,
@@ -167,7 +168,10 @@ export function checkSemanticScope(
     // Story metadata / Proof-or-Stop internal files are never semantically gated.
     // Only docs/story/ and .lattice/ are exempt; any other runtime path is
     // intentionally not exempt and should surface as a path/scope violation.
-    if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;
+    // B-cc10 CHK-007: the state-dir test goes through `isStateDirPath` (read-both)
+    // instead of a `.lattice/` literal, which recognized only the deprecated
+    // spelling and so stopped exempting state-dir paths after the rename.
+    if (hunk.path.startsWith('docs/story/') || isStateDirPath(hunk.path)) continue;
 
     const anchor = hunkAnchor(hunk);
     const anchors = hunkAnchors(hunk);

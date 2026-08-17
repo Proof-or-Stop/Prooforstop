@@ -486,9 +486,18 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
-  const codexDir = join(root, '.lattice-codex', 'agents');
+  // B-cc10 CHK-007: this READ was pinned to the deprecated adapter directory, so once
+  // `init` was unified onto the canonical one this check reported "missing
+  // .claude/agents or .lattice-codex/agents" on a freshly-inited project — a
+  // fresh init failing its own verify_codex. Read-both: canonical first, deprecated
+  // as the fallback, so an unmigrated project still verifies.
+  const agentsRelDir = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
+  const codexDir = ADAPTER_DIR_NAMES
+    .map((dir) => join(root, dir, 'agents'))
+    .find((candidate) => existsSync(candidate))
+    ?? join(root, PROOF_OR_STOP_ADAPTER_DIR, 'agents');
   if (!existsSync(claudeDir) || !existsSync(codexDir)) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .lattice-codex/agents', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, `missing .claude/agents or ${agentsRelDir}`, LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const sourceFiles = listAgentPromptFiles(claudeDir);
@@ -512,18 +521,18 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
     }
     const targetPath = join(codexDir, file);
     if (!targetSet.has(file)) {
-      issues.push(`missing .lattice-codex/agents/${file}`);
+      issues.push(`missing ${agentsRelDir}/${file}`);
       continue;
     }
     const expected = renderPromptEntryForHost(registryEntry, 'codex');
     const actual = readText(targetPath);
-    if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
+    if (expected !== actual) issues.push(`drift ${agentsRelDir}/${file}`);
   }
   for (const file of registryByFile.keys()) {
     if (!sourceSet.has(file)) issues.push(`missing .claude/agents/${file}`);
   }
   for (const file of targetFiles) {
-    if (!sourceSet.has(file)) issues.push(`stale .lattice-codex/agents/${file}`);
+    if (!sourceSet.has(file)) issues.push(`stale ${agentsRelDir}/${file}`);
   }
   if (issues.length > 0) {
     push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), LOCAL_INIT_VERIFY_COMMAND);

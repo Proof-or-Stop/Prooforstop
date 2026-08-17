@@ -263,18 +263,18 @@ proof-or-stop init — 初始化 Proof-or-Stop 开发框架
   proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  .lattice/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
-  .lattice/${PROOF_OR_STOP_MANIFEST_FILENAME}   项目 Proof-or-Stop 配置（global-thin）
-  AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
+  ${PROOF_OR_STOP_DIR}/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
+  ${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   项目 Proof-or-Stop 配置（global-thin）
+  AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 Proof-or-Stop CLI）
   ${PROOF_OR_STOP_CONFIG_FILENAME}      项目配置（canonical）
-  .lattice/story/actives/       Story 数据目录
+  ${PROOF_OR_STOP_STORY_DIR}/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
   bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
-  .lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}   Codex adapter manifest（仅 full/thin + codex profile）
-  .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
+  ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   Codex adapter manifest（仅 full/thin + codex profile）
+  ${PROOF_OR_STOP_ADAPTER_DIR}/agents                 agent prompt copies（仅 full mode + codex profile）
 
 可选 starter 内容（仅 --starter / --with-template）:
   src/core/app.ts               应用组装（平台无关）
@@ -285,8 +285,8 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   tests/                        测试目录
 
 初始化后（global-thin）:
-  1. 阅读 .lattice/Lattice.md
-  2. 使用全局 lattice CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
+  1. 阅读 ${PROOF_OR_STOP_DIR}/Lattice.md
+  2. 使用全局 Proof-or-Stop CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
   3. 可选: 编辑 ${PROOF_OR_STOP_CONFIG_FILENAME} 调整 scanRoot 等路径
   4. 可选: proof-or-stop validate 跑项目验证
 `);
@@ -891,7 +891,12 @@ if (existingConfigFilename) {
 // 3. 文档入口
 console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
-  writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
+  // B-cc10 CHK-007 (F-004): this was a hardcoded `.lattice/Lattice.md` while the
+  // manifest three lines below already went to PROOF_OR_STOP_DIR, so a single
+  // `init` STRADDLED two state directories and created a stray legacy directory
+  // on every fresh init. Derived now, so the guide lands beside the manifest.
+  const dotDirGuidePath = `${PROOF_OR_STOP_DIR}/Lattice.md`;
+  writeManagedMarkdown(dotDirGuidePath, LATTICE_DOT_DIR_MD_TEMPLATE, dotDirGuidePath);
   const latticeConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   // B-cc10 CHK-004: report the path actually written rather than a hardcoded
   // spelling, so the console never claims a filename that is not on disk.
@@ -902,7 +907,7 @@ if (isGlobalThin) {
   } else {
     console.log(`  - ${latticeConfigLabel} (exists, skip)`);
   }
-  console.log('  - LATTICE.md (global-thin mode; canonical guide is .lattice/Lattice.md)');
+  console.log(`  - LATTICE.md (global-thin mode; canonical guide is ${dotDirGuidePath})`);
 } else {
   writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
 }
@@ -968,38 +973,45 @@ if (wantsClaude && agentTemplateDir) {
   console.log('  - .claude/agents (profile skip)');
 }
 
+// B-cc10 CHK-007: the adapter-dir README/agents writers below were hardcoded to the
+// DEPRECATED adapter directory while the MANIFEST already used the resolver, so
+// full-mode `init` created BOTH directories — measured on a fresh init:
+// `.lattice-codex/{README.md,agents}` plus `.proof-or-stop-codex/proof-or-stop.json`.
+// Same straddle class as the state-dir F-004 defect, on the adapter identity.
+const codexReadmeRel = `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`;
+const codexAgentsRel = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
+
 if (!isGlobalThin && wantsCodex) {
-  const codexReadmePath = join(targetDir, '.lattice-codex', 'README.md');
+  const codexReadmePath = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
-  console.log('  ✓ .lattice-codex/README.md');
+  console.log(`  ✓ ${codexReadmeRel}`);
 
   // B-cc10 CHK-004: the manifest FILENAME comes from the resolver (canonical
-  // only — `init` is a writer). The adapter DIRECTORY is a separate identity
-  // owned by CHK-003; it already flows from PROOF_OR_STOP_ADAPTER_DIR.
+  // only — `init` is a writer). Both halves are resolver-derived now.
   const codexManifestLabel = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
   const codexManifestPath = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   writeFileSync(codexManifestPath, renderProofOrStopCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log(`  ✓ ${codexManifestLabel}`);
 } else if (isGlobalThin) {
-  console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
+  console.log(`  - ${codexReadmeRel} (global-thin mode; Codex adapter runs from global Proof-or-Stop CLI)`);
   console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (global-thin mode; use proof-or-stop codex verify)`);
 } else {
-  console.log('  - .lattice-codex/README.md (profile skip)');
+  console.log(`  - ${codexReadmeRel} (profile skip)`);
   console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (profile skip)`);
 }
 
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
-  console.log('  - .lattice-codex/agents (thin asset mode; prompts resolve from registry)');
+  console.log(`  - ${codexAgentsRel} (thin asset mode; prompts resolve from registry)`);
 } else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
-  const codexAgentDir = join(targetDir, '.lattice-codex', 'agents');
+  const codexAgentDir = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
   const agentPromptFileSet = new Set(agentPromptFiles);
   for (const file of listAgentPromptFiles(codexAgentDir)) {
     if (agentPromptFileSet.has(file)) continue;
     unlinkSync(join(codexAgentDir, file));
-    console.log(`  - .lattice-codex/agents/${file} (removed stale prompt)`);
+    console.log(`  - ${codexAgentsRel}/${file} (removed stale prompt)`);
   }
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
@@ -1037,12 +1049,12 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
       }
     }
     writeFileSync(dst, content);
-    console.log(`  ✓ .lattice-codex/agents/${file}`);
+    console.log(`  ✓ ${codexAgentsRel}/${file}`);
   }
 } else if (!isGlobalThin && wantsCodex) {
-  console.log('  - .lattice-codex/agents template source missing, skip');
+  console.log(`  - ${codexAgentsRel} template source missing, skip`);
 } else if (isGlobalThin) {
-  console.log('  - .lattice-codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)');
+  console.log(`  - ${codexAgentsRel} (global-thin mode; Codex prompts resolve from global Proof-or-Stop registry)`);
 }
 
 // 6. hooks + settings.json
@@ -1175,7 +1187,7 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-${isGlobalThin ? `  1. Read .lattice/Lattice.md
+${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
   2. Use the global lattice CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
