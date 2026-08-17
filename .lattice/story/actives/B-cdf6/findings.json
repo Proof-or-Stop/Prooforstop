@@ -1337,7 +1337,7 @@
       "desc": "Cosmetic sweep incomplete a THIRD time: 40d71871ed claimed the command-catalog.ts LATTICE_AGENT class was fully swept (13/13), but 4 more LATTICE_*-only occurrences remain in the SAME file, live in --help right now: (1) command-catalog.ts:88,92 BRIEF_OUTPUT_FLAGS.brief .describe(...LATTICE_BRIEF_OUTPUT=0...) -- reused by ~6 commands (story_list, session_brief, etc); verified live: `proof-or-stop story_list --help` prints \\\"Force the brief output even when LATTICE_BRIEF_OUTPUT=0 is set.\\\" (2) command-catalog.ts:1162 live_smoke_transcript --capture .describe(...LATTICE_SESSION_ID...). (3) command-catalog.ts:1961 doctor description teaches LATTICE_BURN_ALERT_RECENT_HOURS; verified live: `proof-or-stop doctor --help` prints it. (4) command-catalog.ts:3137 usage_sweep --alert .describe(...LATTICE_BURN_ALERT_FILE_MB/INPUT_TOKENS/AGE_DAYS...); verified live: `proof-or-stop usage_sweep --help` prints it. All four env vars already have canonical spellings that are correctly dual-read (BRIEF_OUTPUT_ENV_VAR=PROOF_OR_STOP_BRIEF_OUTPUT via readBrandEnv in cli/output-verbosity.ts; BURN_ALERT_ENV.* = PROOF_OR_STOP_BURN_ALERT_* via readBrandEnv in core/usage-burn-alert.ts) -- this is purely help-text lag, not a functional break, but it is the exact class the previous two sweeps (b868de7e10, 40d71871ed) were supposed to close and did not. Fix: derive these four .describe()/description strings from BRIEF_OUTPUT_ENV_VAR / BURN_ALERT_ENV.* constants instead of literal LATTICE_* strings, same pattern as the finding.ts:652 fix.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T02:30:11.553Z",
@@ -1348,7 +1348,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "missing|ts|cosmetic-sweep-incomplete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 9526d2125b. F-061/F-062 were functional, not cosmetic: both compared against a literal deprecated env name, so the CANONICAL spelling silently failed while the deprecated one kept working. Fixes WIDEN recognition to accept either name; read-both preserved. Verified empirically against compiled dist (F-061: canonical allowlist now yields the override where it was previously DROPPED; denying either spelling still denies) and by direct regex execution (F-062: canonical, deprecated, and no-prefix all match). F-063 help strings verified live via story_list --help and usage_sweep --help now printing PROOF_OR_STOP_*.",
+      "resolvedAt": "2026-08-17T02:35:11.574Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-064",
