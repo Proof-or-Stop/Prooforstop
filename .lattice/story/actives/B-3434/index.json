@@ -4,7 +4,7 @@
   "title": "Remove the one-mebibyte execFileSync limit that makes validation evidence unpersistable",
   "description": "isolatedBlobHash and its sibling blob and tree readers in core/done-prepare-generated-metadata.ts call execFileSync with no maxBuffer, so Node's 1 MiB default applies and a larger staged blob throws ENOBUFS; a bare catch returns null and the caller reports it as verified metadata changed after manifest verification. Once test-evidence.json crosses that ceiling no story in the repository can persist validation evidence, so none can pass the REVIEW to TEST gate. Gives every such read an explicit ceiling, makes an unreadable blob report its real error instead of presenting as a digest difference, adds a regression staging a blob above the boundary, requires a BINDING disposition for aggregate artifact growth - shipped bounding, or a committed rationale naming the successor change - and emits a visible advisory as the serialised artifact nears the ceiling so the cliff is marked rather than merely moved.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "validation-evidence",
@@ -161,6 +161,24 @@
       "user": "Harmonygo",
       "sessionId": "main-agent-s2s1-stable-f93ff408f3",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-17T08:44:50.370Z",
+      "branch": "story/B-3434",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-17T08:44:55.845Z",
+      "branch": "story/B-3434",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -168,5 +186,5 @@
     "branch": "story/B-3434",
     "createdAt": "2026-08-15T10:24:37.020Z"
   },
-  "currentReviewRound": "2026-08-16T21:44:16.358Z"
+  "currentReviewRound": "2026-08-17T08:44:55.845Z"
 }
