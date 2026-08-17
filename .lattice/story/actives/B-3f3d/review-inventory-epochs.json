@@ -4426,7 +4426,7 @@
       "reviewRound": "2026-08-16T10:48:07.896Z",
       "state": "OPEN",
       "begunAt": "2026-08-17T03:21:59.684Z",
-      "updatedAt": "2026-08-17T03:21:59.684Z",
+      "updatedAt": "2026-08-17T04:10:28.026Z",
       "cutoff": {
         "headHash": "70acae0bce247416ee072026512d47cf24bb8833",
         "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1",
@@ -4444,9 +4444,80 @@
       ],
       "initialRunSequenceBoundary": 445,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-17T03:21:59.684Z",
+          "completedAt": "2026-08-17T04:10:28.026Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-448",
+              "terminal": "pass",
+              "hostIdentity": "c0e32287bdfd478a7841390ec7158776790170834e2eac1b61e3145306131662",
+              "promptIdentity": "9436f8ee91cbc85b41ad920b81dc6e47b640ac3ee5fd9c468c5b5cc6d183f6df",
+              "evidenceIds": [
+                "B-3f3d:RP-318"
+              ],
+              "coverageDigest": "6efc6dbdf877f56f557faa6d8e8118a8ff482fbef17067d78b11ae106d389af7"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-452",
+              "terminal": "finding",
+              "hostIdentity": "869aeed57f91fda1010e37d3de555a7aa5f02a8f8c3caf9474a4c93288e0df7c",
+              "promptIdentity": "c2fc125c6952978f806082e622705ec2d47f64be39b2ba134344c7a9ec167fa6",
+              "evidenceIds": [
+                "B-3f3d:F-112"
+              ],
+              "coverageDigest": "665b746d7a8e84fcb404fe018809f0335d351dd53d593f7a896ed3ed856e80fb"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-450",
+              "terminal": "pass",
+              "hostIdentity": "1fbb6570349078b000297133b4c8601744b5799a0e30f041e5e6f05d7ff3f602",
+              "promptIdentity": "5267a326e2ca81ab606699c2ba32a75c6e5cba4f92bf5eabed4ff87f69c74374",
+              "evidenceIds": [
+                "B-3f3d:RP-319"
+              ],
+              "coverageDigest": "013d7e88724e3afdae87ea54240d6770d06704a455a3f38be5bce4801849fe83"
+            },
+            {
+              "lane": "lattice-review-behavior",
+              "reviewRunId": "B-3f3d:RR-446",
+              "terminal": "pass",
+              "hostIdentity": "51d346d8477f1663f1d2c70a911b2f2ee30fd41248fbea0807f87af2fab2cede",
+              "promptIdentity": "1ecc7119d78e5a0b0a71d2b1cc9d955b323d2f9e232978fd5b73e60d3fe67a74",
+              "evidenceIds": [
+                "B-3f3d:RP-317"
+              ],
+              "coverageDigest": "85cf59a815c715ccd780ce2c83c241bb4bc164af98a8f6ebaaac776e44a14bb0"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-449",
+              "terminal": "pass",
+              "hostIdentity": "c0e32287bdfd478a7841390ec7158776790170834e2eac1b61e3145306131662",
+              "promptIdentity": "0d3b473a97aabdd8c2cfa3dbe192f806d1725dbab78e6b5c73df3065ca519d76",
+              "evidenceIds": [
+                "B-3f3d:RP-320"
+              ],
+              "coverageDigest": "4b4314ef3ebb2ea1aa25b5113760e33d53649ed3c09efa1778e7ee2e670c9022"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "candidate-routing-malformed-input-crash"
+          ],
+          "verifiedFindingSetDigest": "e2899e4c4a1fbeb29fe0e64b7b52fbd1e36f258ed20e6780b13b5e6ddb2c50dc",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "0f7e00485362c85b192222c39680e0ab058501b0382e2c3d2e8b0464b41d26c2",
+          "saturated": false,
+          "nextRunSequenceBoundary": 454
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "e0d37b81ac1c56518d82c032837cd5e891136aefa69c0085d1c2ca141f0d3d10"
+      "_hash": "893372be356c86bbc0ca22f2b45d8c709009f3bdf324771e3381e11cb4286d86"
     }
   ],
   "receipts": [
@@ -6549,6 +6620,44 @@
       "findingDispositions": [],
       "createdAt": "2026-08-16T09:32:40.346Z",
       "_hash": "acebdf27bcf4b2f5067409432cebd6cc11a2f683fcc8668e1e229adc064c8bc1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-047:CRIT-01",
+      "epochId": "B-3f3d:RI-047",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "70acae0bce247416ee072026512d47cf24bb8833",
+        "materialHash": "772be7bd58475aa69b031b912dfe6e35d4a456989d97c9d5cead556d9ed9dfe1",
+        "storyFilesHash": "fcc9e5de430d40a8bd7a751c2c39b99c2f41d01002064b5cf358aacae0f28c36"
+      },
+      "aggregateFindingSetDigest": "e2899e4c4a1fbeb29fe0e64b7b52fbd1e36f258ed20e6780b13b5e6ddb2c50dc",
+      "requiredLaneCoverageDigest": "f9c8f49e2da2d0d1ee83d1ae1582547a5307f07435189bea43a98dab405ce2f5",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-454",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-322"
+      ],
+      "readEvidenceDigest": "c6e0dad927e2ae03586f00c9cc9f92975faf7ddb73bfd23398bf28477125820e",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-111",
+          "disposition": "verified_family",
+          "familyKey": "candidate-routing-malformed-input-crash",
+          "reason": "Independently verified by direct code read: verifyCandidateSpecSet (candidate-spec-routing.ts) never checks Array.isArray(artifact.candidates), and captureReviewInventoryScope's (candidates ?? []).map only guards null/undefined, so a truthy non-array candidates value crashes uncaught through 8 unguarded call sites. Confirmed genuinely unfixed and deliberately deferred to B-8af0 CHK-002, not silently dropped; resolvedReason explicitly states this and is not gate-consumed as a completion claim."
+        },
+        {
+          "findingId": "B-3f3d:F-112",
+          "disposition": "duplicate",
+          "familyKey": "candidate-routing-malformed-input-crash",
+          "canonicalFindingId": "B-3f3d:F-111",
+          "reason": "Verified genuine duplicate of F-111 (identical call sites, identical root cause), explained as an artifact of a ReviewRun that began under superseded epoch RI-045 and completed after RI-047 had already caught the same defect via F-111; correctly not double-counted as a new family."
+        }
+      ],
+      "createdAt": "2026-08-17T04:09:31.235Z",
+      "_hash": "e2d9f5d1c1f07a1fc9e5ae9fb44b18cc8765bc185522891cf8f08805e13973c7"
     }
   ]
 }
