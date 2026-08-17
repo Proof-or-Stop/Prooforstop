@@ -33,6 +33,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "create": [
+          "packages/main/src/core/keyed-scheduler.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
       }
     },
     {
