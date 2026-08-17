@@ -146,7 +146,11 @@
           {
             "desc": "No test is made to pass by deleting its identity assertion; a dropped pass count is treated as a defect rather than a successful migration",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+              "selector": "Topology signing source guard: PASS"
+            }
           }
         ]
       },
@@ -171,6 +175,27 @@
           "materialHash": "064268f7aab7760527c5e281126f9a209c07e3350efacaece81b7e6fdad4ad78",
           "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
           "timestamp": "2026-08-17T16:39:06.966Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "result": "pass",
+          "note": "No identity assertion was deleted to make a test pass. The migrated fixtures still assert on session ids; they resolve them via adapterSessionId instead of hardcoded literals. story-owner-lease-smoke keeps all 74 LATTICE_SESSION_ID uses because it tests explicit-env lease semantics, and it still passes. Per-smoke before/after on an idle machine shows no regression.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:53:38.885Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0977d27484364db293264394075cd47fe48dd374",
+          "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22",
+          "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
+          "timestamp": "2026-08-17T16:53:39.021Z"
         }
       ]
     },
