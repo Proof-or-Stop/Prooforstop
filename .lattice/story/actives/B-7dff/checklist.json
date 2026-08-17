@@ -270,7 +270,11 @@
           {
             "desc": "lattice validate --json returns commands[] in plan order with the same per-entry fields (label, command, args, code, durationMs, timeoutMs) as a serial run",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+              "selector": "B7DFF-CHK003-PLAN-ORDER"
+            }
           }
         ],
         "edge": [
@@ -296,7 +300,29 @@
         "test": [
           "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+          "result": "pass",
+          "note": "Two real full runs of node bin/lattice.js validate --json on the 104-command configured plan, one at the default jobs=4 and one at LATTICE_VALIDATE_JOBS=1, returned commands[] with byte-identical (label, command, args, timeoutMs, optional) per entry in the same plan order for all 104 entries; the only per-entry differences were the code of three commands whose inputs changed between the runs (73 red-b49d4-registration-derivation, dirty config at the time, and 102/103 the two newly registered probes). details[] listed the same 104 command lines in the same plan order and ended with the reported worker count line validate scheduler: jobs=4 commands=104 declared=36 exclusiveByDefault=68. The pinned command is the structural proof of the same property: marker B7DFF-CHK003-PLAN-ORDER asserts commands[] and details[] come out in plan order while completion order is the exact reverse.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
+            "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T13:38:24.240Z"
+          },
+          "headHash": "45a1e72f0e8ea9989ba3b47cdfc62b02fbf9b034",
+          "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5",
+          "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
+          "timestamp": "2026-08-17T13:38:24.371Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
