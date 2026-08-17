@@ -36,6 +36,21 @@
       ],
       "signatureTag": "missing|ts|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-003",
+      "desc": "packages/main/src/core/validation-executor.ts:266-298,398-447 (readGitStatus/detectNewDirtyStatus inside runValidationCommand): the worktree-pollution side-effect probe takes a REPO-WIDE git-status snapshot before/after each command, and CHK-003 moved execution onto the concurrent scheduler (jobs=4 default) without scoping this probe per-command. When two commands run concurrently and one of them dirties the tree, any OTHER concurrently-running command whose before/after window straddles that write gets falsely blamed too, because detectNewDirtyStatus only compares against its OWN before-snapshot, which is repo-wide, not scoped to files that command touched. Reproduced directly against the built dist: a plan with dirtying-A (writes accidental-a.txt after 300ms) and clean-B (pure sleep, no writes) both declaring the same shared git-common-dir claim, run at jobs=2, reports worktreePollution on BOTH commands (clean-B: paths=[\\\"accidental-a.txt\\\"], blocking=true) even though clean-B never touched the filesystem. The identical plan at jobs=1 (serial, pre-B-7dff behaviour) correctly attributes the pollution to dirtying-A only and reports null pollution for clean-B. This corrupts gate-consumed per-command evidence (result.commands[i].worktreePollution, which formatWorktreePollutionDetails/evaluateDirtyGate feed into allPass and into process-events.jsonl audit lines) by falsely failing/blaming innocent commands whenever ANY concurrently-scheduled command dirties the tree — misleading root-cause diagnosis and potentially failing commands that did nothing wrong. Since lattice.config.json now declares git-common-dir:shared on ~90 of 104 commands (CHK-005), this is a realistic, not theoretical, concurrency window. No test in validate-plan-scheduling.test.mjs or validate-resource-claims.test.mjs exercises pollution attribution under concurrency.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-17T15:18:54.305Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-004",
+      "_hash": "9b59fa0dd8565b6e0aaf05c8201a900b68bbca799bad561baa931ff51284371e",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
