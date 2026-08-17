@@ -10,7 +10,30 @@
       "userSees": "topology_critic_receipt_set from a session whose id came from LATTICE_SESSION_ID fails with: role eligibility failed: lattice-review-topology-critic must sign from a host-adapter session, received \"explicit-env\".",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A host-adapter session reaches deriveRoleProvenance and signing proceeds to the verdict branch",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Both call sites are bound, not just the critic: the scope-plan exclusion approver at proofstory.ts:550 is refused for a forgeable session too",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An explicit-env session supplied via LATTICE_SESSION_ID is refused before any verdict branch runs, so neither pass nor request_changes can be signed under a session the implementer chose",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
