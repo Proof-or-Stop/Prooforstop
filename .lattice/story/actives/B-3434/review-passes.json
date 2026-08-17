@@ -1163,6 +1163,40 @@
         "scanEscalationReason": null
       },
       "_hash": "47338bfcf6bfc76f1fdfed28a2d37d39bcd60db0385d30d1a054f28c82e81ab8"
+    },
+    {
+      "id": "B-3434:RP-045",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-049/F-053 new bounded-paths case: independently confirmed with live mutation counterfactuals in a scratch dist copy. Guard deleted reproduces the exact pre-fix crash (uncaught PromptContractValidationError: IncrementalReviewBasis.changedFiles exceeds 512 entries, exit 1). \">\"-to-\"<\" is caught twice: at cap+1 inside the new case itself (same throw), and independently by the pre-existing runProductionVerifierTemporalCutoffRegression production-envelope assertion via a real CLI dispatch/review_run_start pass on an ordinary one-file diff (envelopeB.contextMode flips incremental to full — exactly the silently-degrades-every-review failure mode the finding describes). Confirmed the 512 boundary is FULL_TASK_CONTEXT_LIMITS.pathsPerList via prompt-contracts.ts requireBoundedStringArray, not a restated literal; grepped the test file and the only \"512\" occurrence is inside an explanatory comment, never in assertion code. This case genuinely covers the branch.\n\nF-055 (mine): confirmed by static reading, not a completed live reproduction — the stall hit mid-verification. The writer (handlers/verifier.ts decorateAndMaybePersistStoryValidation) and the gate (handlers/phase-gates.ts assessStoredValidationPassAdmissibility) each independently type the literal \"proof-or-stop validate --story=<id> --json\"; no shared export exists (confirmed at least 8 production sites retype it: evidence-stale-hint.ts, lifecycle-readiness.ts, review-assurance-floor.ts, verifier.ts, done-prepare.ts, done-closure.ts, phase-gates.ts, checklist.ts). evaluateValidationEvidenceAdmissibility does a real strict evidence.command !== expectedCommand check, not a vacuous one. I patched the writer literal in a scratch dist copy (renamed to \"validate-renamed\") and reran validation-evidence-reuse-smoke.js twice; both attempts were inconclusive by the time of the stall — the first could not observe the spawned child process stderr because spawnSync only surfaces captured output on assertion failure, and the corrected second attempt (printing the parent process own read of reusedEvidence.command unconditionally) was mid-run in the background when the interruption hit; its result never landed. So task 1 own live-failure reproduction is not closed out by me. Judgement rests on the static evidence above: this is a genuine narrowing, not a full closure. It closes the realistic failure mode this story has actually been burned by — asymmetric drift, where one of the two copies is edited and the other is not — because the test now compares a real persisted value from a real CLI run against the gate real, current computation. It does not and cannot catch a synchronized rename of both copies to the same new value in one sweep; that residual is exactly what the finding discloses, not an undisclosed gap. I judge the disclosed limitation acceptable: the full fix is a shared exported literal touching at least 8 call sites, a legitimately separate, larger-scope follow-up, not something this coverage fix owed us.\n\nTask 2 (assertDerivedVerdictCannotBypassCapacity): confirmed by diff and static reading, not by a clean live rerun. git show confirms the seeded command literal was itself changed in this commit from the wrong \"lattice validate --story=...\" to the correct \"proof-or-stop validate --story=...\". Since evaluateValidationEvidenceAdmissibility compares evidence.command against the gate expectedCommand, this literal-only diff independently confirms the implementer report: adding the new admissibility assertion without the literal fix would have failed — the negative the function proves is only meaningful because the seeded fixture is now provably not stale. A live isolated rerun in a scratch copy hit an unrelated environment-timing flake several assertions earlier in the same file sequential IIFE (\"official validate must hold capacity\" at a 4000ms wait), unrelated to the code under review; no new harness was built to work around it once the wrap-up direction arrived.\n\nTask 4 (24 pinned selectors / verification_evidence_refresh_stale): deferred entirely per the coordinator explicit instruction; not run by me.\n\nTask 5 (validate.commands / red-b49d4-* guards): partially observed before the stall. lattice.config.json validate.commands has 105 entries. Found THREE red-b49d4-* guards registered, not two: red-b49d4-harness-registration.mjs, red-b49d4-registration-derivation.mjs, red-b49d4-chk002-receipt.mjs. Started the first two directly; harness-registration had not finished within 120s and was moved to background when the interruption arrived — no pass/fail result for any of the three. Open item for the closing chain, not a finding (no evidence either way).\n\nTask 6: only validation-evidence-reuse-smoke.js completed cleanly against the real unmutated worktree dist before the interruption (PASS: canonical 3-file isolated transaction, index/worktree rollback, receipt+hook failure fail-closed, coverage-only recovery, 3 sources, B-19ca 45-command reuse). review-incremental-context-smoke.js was exercised only via its --bounded-paths-only isolated flag against the real unmutated dist (PASS, matches the case description). tsc --noEmit -p packages/main, red-b3434-blob-buffer-ceiling.mjs, and validation-evidence-buffer-smoke.js were not run before the stall.\n\nNo genuine correctness, security, or data-integrity blocker was found in the reviewed diff. F-051/F-054 (priorNotDiffed threading), F-052 (comment wording), and F-050 (disclosed main-ref race, fails closed) all read as sound on inspection. Passing on that basis, with the incomplete strands above named rather than silently dropped.",
+      "createdAt": "2026-08-17T17:34:31.640Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-089",
+      "envelopeId": "2f13c03da6ad4e1cbf847f83134cdc6ad2800462858b40052f16a403daef77ed",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fcbf6118856d66a0e030b940f9ee10f071bfc70263cbf0708dddf4b2d5103760"
     }
   ]
 }
