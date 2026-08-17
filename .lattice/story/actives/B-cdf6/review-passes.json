@@ -1247,6 +1247,35 @@
         "scanEscalationReason": null
       },
       "_hash": "1fa1f10a8b0c06a14783bc0e596f379d691db9f63d4918fc655899c957dd7ef2"
+    },
+    {
+      "id": "B-cdf6:RP-041",
+      "agent": "lattice-review-concept",
+      "note": "Rebind of RP-038 after material drift (invalid Prompt Envelope bind). Independently verified via review_incremental_context that exactly 3 files changed since my prior pass: packages/main/src/core/brand-env.ts, packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts, packages/main/src/tasks/validate-progress-heartbeat-smoke.ts (commits 6fbb55a03b, 558d1092ba, fix(F-071) test-harness canonical-env-twin stripping). Confirmed by full diff inspection: purely additive -- new exported helper stripCanonicalBrandEnvTwins plus two call-site wire-ups, zero function/export deletions or renames in this range (grep for deleted function/export lines returns empty). None of the 3 changed files intersects the 14 symbols or their host files (lattice-brand.ts, lifecycle-registry.ts, init-assets.ts, bin/lattice-codex.js, bin/proof-or-stop-codex.js) from my original review. Re-ran validate --concept --json at the new head: identical deletedSymbols list and identical per-symbol residual counts (main=15326, runLattice=88, runLatticeExpectFail=3, others 1-7, total=15435) as my original RP-038 analysis -- confirming zero symbol-level change. Original verdict stands: no genuine concept-cleanup defect; the 14 flagged symbols are either correctly @deprecated live aliases, fully-clean renames with 0 residuals, or gate false positives (substring matching on unrelated helper names / the bare word main matching git branch name and packages/main path, 99.3% of all residuals). Also reviewed the F-070 disposition (resolutionType=superseded, escalated to B-META-framework-audit:F-035): agree with this call -- the finding is about the validate --concept gate matching heuristic itself, not a defect introduced by this story, and patching that gate mid-review would alter the instrument judging this very story; escalating to a separate framework story rather than inline-patching is correct and the resolution is honest about not claiming a fix that did not happen.",
+      "createdAt": "2026-08-17T06:01:37.284Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-103",
+      "envelopeId": "c8f5e91067f4d0296ba786c6550be1d0d7b33560a31977fafdfbac6c740086b3",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b717abd2ce2bf88eb8aed9e6e222358bbbfeb0a9a70ec3f553ff4ae6ef0c6477"
     }
   ]
 }
