@@ -80,7 +80,30 @@
       "userSees": "proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke test passes with the guard in place",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Each refused source is asserted individually rather than as one combined case, so a partial regression cannot hide",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reverting the CHK-001 guard makes the smoke test fail with an assertion naming the forgeable session source, proving the test bites rather than passing vacuously",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
