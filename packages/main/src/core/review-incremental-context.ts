@@ -42,6 +42,7 @@ import {
   type ImpactClassification,
 } from './impact-classification-policy.js';
 import {
+  FULL_TASK_CONTEXT_LIMITS,
   domainSeparatedDigest,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
@@ -509,11 +510,12 @@ export function reviewIncrementalContext(
     };
   };
 
-  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
-  // fall back to the full story diff against main. We treat a missing bound
-  // headHash as a first pass so we never compute an incremental diff from an
-  // unknown base — the conservative direction is "show everything".
-  if (!prior || !prior.run.headHash) {
+  // The full story diff against main, reported as a first pass (prior: null, so
+  // no incremental basis is emitted). Every caller below reaches this the same
+  // way — via a reason code that starts with FULL_, which keeps contextMode at
+  // 'full' — so the basis computation stays single-sourced rather than copied
+  // per fallback.
+  const fullStoryDiffContext = (reasonCodes: string[]): ReviewIncrementalContext => {
     const fullDiff = materialOnly(changedFilesBetweenRenameAware(projectRoot, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
@@ -530,15 +532,40 @@ export function reviewIncrementalContext(
       prior: null,
       changedFiles: fullDiff,
       freshnessClassification: 'NOT_EVALUATED',
-      reasonCodes: ['FULL_MISSING_TRUSTED_PRIOR_PASS'],
+      reasonCodes,
       impact,
     });
+  };
+
+  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
+  // fall back to the full story diff against main. We treat a missing bound
+  // headHash as a first pass so we never compute an incremental diff from an
+  // unknown base — the conservative direction is "show everything".
+  if (!prior || !prior.run.headHash) {
+    return fullStoryDiffContext(['FULL_MISSING_TRUSTED_PRIOR_PASS']);
   }
 
   const changedFiles = materialOnly(
     changedFilesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
+
+  // The prior verdict resolves, but it sits far enough behind HEAD that the
+  // incremental diff no longer fits the bounded path lists the review-basis
+  // contract accepts (typically because a large merge from main landed between
+  // that verdict and HEAD, so the diff measures the merge rather than the
+  // story). Degrade to the same full story diff the branch above uses instead
+  // of failing the read: the conservative direction is "show everything".
+  //
+  // This does not relax the cap. FULL_TASK_CONTEXT_LIMITS stays the single
+  // source for the limit, validateIncrementalReviewBasis keeps enforcing it,
+  // and the degraded context emits no incremental basis at all — its FULL_
+  // reason code holds contextMode at 'full', so a reviewer is never served
+  // incremental context off a prior it could not diff against.
+  if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
+    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS']);
+  }
+
   const statuses = changedFileStatusesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(
     projectRoot,
