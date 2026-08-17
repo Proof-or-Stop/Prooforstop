@@ -1104,6 +1104,24 @@
       ],
       "signatureTag": "missing|ts|commit-efe682df11-removed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-045",
+      "desc": "Completeness gap in the permanent audit record for commit efe682df11. The scope_contract_show acknowledgement-2 reason (the queryable, permanent record for this out-of-allowedModify edit) states the change is 'confined to neutralising that one assertion with a comment ... plus the bug id; sections 13 and 14 and the rest of section 12 are untouched'. That sentence is accurate as far as it goes (verified: sections 13/14 are byte-identical before/after), but commit efe682df11 also edits the file-header docblock in two further places outside section 12 -- narrowing the F-004 bullet (removing the claim that validation-executor.ts/verifier.ts stay byte-for-byte unmodified) and narrowing the Hermetic paragraph (removing the claim that section 12 reads git state). Both edits are correct and necessary once the section-12 assertion is gone (verified true of the current code: grep of the whole file shows no remaining present-tense byte-identity claim, and section 12 now contains no execSync/git call), so this is not a scope or honesty problem with the code itself. The gap is narrower: neither bug.json's title nor scope-contract.json's acknowledgement-2 reason -- the two places a future auditor would look -- mentions the docblock edits at all; that disclosure exists only in an out-of-band handoff note outside the story's own artifacts, not in scope_contract_show or bug_list output. A reviewer or future story relying solely on the queryable Lattice record would not learn that the docblock was touched, only that section 12 was. Fix, if picked up: extend acknowledgement-2's reason (or file a follow-up note) to name the two docblock edits explicitly so the permanent record matches the full commit.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T13:16:52.828Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-067",
+      "_hash": "41fb8fca8791024a69b1b59fd307ec492c3c9341eb06f0e41574162aee5d6953",
+      "files": [
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|completeness-permanent-audit",
+      "signatureTagSource": "auto"
     }
   ]
 }
