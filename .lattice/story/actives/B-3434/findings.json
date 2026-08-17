@@ -1136,7 +1136,7 @@
       "desc": "Commit efe682df11 (BUG-B16DF-BYTEPIN) correctly updated two of the three stale-claim sites when it removed section 12's git-diff assertion (the top file-header docblock at lines 14-28, and the Hermetic: paragraph at lines 35-38, which now correctly says 'source state' / mentions only H-002). It missed a third: the REPO_ROOT docblock at lines 60-66 still reads 'Sections 12-13 below use this ... to run `git diff` and read checklist.ts own source text.' Section 12 no longer runs git diff (confirmed by reading the current file: it is now a single existsSync check plus the removal rationale comment) -- only section 13 reads source text now. Verified this predates nothing new: git show efe682df11~1 shows the identical wording existed pre-edit, when it was accurate (section 12 did run git diff then). Post-edit it is a residual false claim about current behavior. Comment-only, no functional effect: tsc --noEmit -p packages/main is clean, and node packages/main/dist/tasks/validate-command-timeout-smoke.js still reports 44 assertions / exit 0. Fix is a one-line comment edit (drop \"and to run `git diff`\" / narrow to section 13 reading source text only).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-17T13:17:44.016Z",
@@ -1161,7 +1161,11 @@
         "packages/main/src/tasks/validate-command-timeout-smoke.ts"
       ],
       "signatureTag": "doc-code-drift|ts|commit-efe682df11-b16df",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 17dc863c05. The behavior lane found a third stale-claim site that the previous commit missed: the REPO_ROOT docblock still described sections 12-13 as using it 'to run git diff and read checklist.ts's own source text', while section 12 no longer runs git diff at all. It now names the only two remaining reads - existsSync on lattice.config.json for section 12 and readFileSync on handlers/checklist.ts for section 13 - and points at BUG-B16DF-BYTEPIN for why the git diff is gone. The implementer also added one header-docblock bullet for the new section 17 stating its scope limit explicitly, so the header describes what the file now proves rather than what it used to. Comment-only, no functional effect, but it is the third site in this one file and the pattern - update two of three claim sites and miss the third - is exactly what a per-file residual scan exists to catch.",
+      "resolvedAt": "2026-08-17T13:34:09.583Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
