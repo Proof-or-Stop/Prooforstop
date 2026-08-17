@@ -885,6 +885,12 @@ function persistStoryValidationEvidence(
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
+      // B-7dff F-003: a dirty tree no single command can be blamed for is still
+      // a required failure here, or this receipt would read PASS on a run the
+      // executor already failed.
+      ...(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false
+        ? { concurrentPollutionBlocking: true }
+        : {}),
     }),
     disposition: 'executed',
     ...(identity ? { routineValidationIdentity: identity } : {}),

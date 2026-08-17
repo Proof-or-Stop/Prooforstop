@@ -19,6 +19,7 @@
     "test:full-suite-runner-smoke": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
     "test:validate-parallel-equivalence": "node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js",
     "test:validate-resource-claims": "node packages/main/tests/validate-resource-claims.test.mjs",
+    "test:validate-pollution-attribution": "node packages/main/tests/validate-pollution-attribution.test.mjs",
     "test:full-suite-resource-sentinel": "node packages/main/dist/tasks/full-suite-resource-sentinel.js",
     "test:all": "node packages/main/dist/tasks/run-all-smokes.js",
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",

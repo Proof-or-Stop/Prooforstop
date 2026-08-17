@@ -18,12 +18,19 @@
  *     a shell-style config entry against a plain allowlisted pinned command, and returns a
  *     configured 0/negative timeoutMs verbatim (relying on the separate resolveCommandTimeoutMs
  *     safety net downstream, not on resolvePinnedCommandTimeoutMs itself, to sanitize it);
- *   - B-16df F-004: validation-executor.ts and verifier.ts remain byte-for-byte unmodified
- *     from main (git diff, soft-skip on environment failure); checklist.ts's own source
- *     text invokes the shared resolvePinnedCommandTimeoutMs(root, command) helper at
- *     exactly 4 call sites (declared exactly once — no duplicated matching logic outside
- *     it); and a very large configured timeoutMs is clamped end-to-end via
- *     resolveCommandTimeoutMs to MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector);
+ *   - B-16df F-004, as rewritten by B-7dff: neither shared primitive (validation-executor.ts,
+ *     verifier.ts) carries ANY copy of the pinned-timeout matching logic — asserted as their
+ *     source text not containing `resolvePinnedCommandTimeoutMs` at all. This is deliberately
+ *     WEAKER than the original check, which asserted `git diff main` on those two files was
+ *     EMPTY: that pin read as "these two shared primitives may never change again" and B-7dff
+ *     must modify both of them (it declares resource claims for the routine validate plan and
+ *     re-attributes the concurrent side-effect probe there). The surviving invariant is the one
+ *     the byte-identity pin was actually defending, and it holds under later unrelated edits;
+ *     checks 13-14 complete it from the other side — checklist.ts's own source text invokes the
+ *     shared resolvePinnedCommandTimeoutMs(root, command) helper at exactly 4 call sites and
+ *     declares it exactly once, so the logic is not duplicated anywhere. Also: a very large
+ *     configured timeoutMs is clamped end-to-end via resolveCommandTimeoutMs to
+ *     MAX_NODE_TIMER_DELAY_MS (not an unbounded-timeout vector);
  *   - B-16df F-008: tokenizeCommandString (validation-executor.ts) and splitShellWords
  *     (verifier.ts) normalize equivalently for allowlist-legal, whitespace/quoting-varied
  *     input on BOTH the config side and the pinned-command side (parsing parity + evasion
@@ -31,10 +38,10 @@
  *     args array never partial-matches (returns undefined, CHK-003:edge:1).
  *
  * Hermetic: all sub-plans run with projectRoot = os.tmpdir() so no real config/git-status
- * side effects leak in. Sections 12-13 are the sole exception: they read this repo's own
- * source/git state (REPO_ROOT, resolved from this file's own compiled location) rather than
- * a temp dir, since H-003/H-002 are claims ABOUT this repo's actual source, not synthesized
- * fixtures. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
+ * side effects leak in. Sections 12-13 are the sole exception: they READ (never write, and
+ * since B-7dff never shell out to git either) this repo's own source files under REPO_ROOT,
+ * resolved from this file's own compiled location, rather than a temp dir — since H-003/H-002
+ * are claims ABOUT this repo's actual source, not synthesized fixtures. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
  * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
  * Registered in lattice.config.json validate.commands for ongoing regression protection.
  *

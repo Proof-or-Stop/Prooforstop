@@ -52,7 +52,55 @@ export interface ValidationCommandResult {
      * `executeValidationPlan` (back-compat).
      */
     blocking?: boolean;
+    /**
+     * B-7dff F-003: `'exclusive'` — NO other command in the plan could have
+     * caused these rows, because no other command's before/after observation
+     * window contained their appearance. It is the only value this field ever
+     * takes: pollution that more than one concurrently scheduled command could
+     * have caused is never recorded here, it moves to
+     * {@link ValidationResult.concurrentWorktreePollution}. So a per-command
+     * record is always a sound accusation, both with the field (a plan run) and
+     * without it (a single-command caller, where the command ran alone by
+     * construction).
+     */
+    attribution?: 'exclusive';
   };
+}
+
+/**
+ * B-7dff F-003: worktree pollution the plan DETECTED but could not attribute to
+ * one command.
+ *
+ * The side-effect probe is a repo-wide `git status` snapshot taken before and
+ * after each command, so once commands run concurrently one command's write
+ * lands inside every concurrently running command's window and each of them
+ * observes it. Rather than pick one of those windows (which blames innocent
+ * commands — the B-7dff F-003 defect) or drop the row (which loses the
+ * detection), the row is reported here against the SET of commands that could
+ * have caused it.
+ *
+ * This is gate-consumed exactly like a per-command record: `blocking !== false`
+ * flips `allPass` and is counted as a required failure by
+ * `summarizeRoutineCommandExecution`.
+ */
+export interface ConcurrentWorktreePollutionAttribution {
+  /** The polluted path. */
+  path: string;
+  /** The first porcelain row observed for it. */
+  statusLine: string;
+  /** Every command whose observation window contained this path's appearance, in plan order. */
+  candidates: string[];
+}
+
+export interface ConcurrentWorktreePollution {
+  statusLines: string[];
+  paths: string[];
+  /** Union of every {@link ConcurrentWorktreePollutionAttribution.candidates}, in plan order. */
+  candidates: string[];
+  /** Per-path candidate sets, so no single command is ever implied to be the cause. */
+  attributions: ConcurrentWorktreePollutionAttribution[];
+  /** Same semantics as the per-command flag: false = dirty-gate-policy passed every path. */
+  blocking?: boolean;
 }
 
 export type ValidationProgressEventType =
@@ -97,6 +145,12 @@ export interface ValidationResult {
   timestamp: string;
   headSha?: string;
   commands: ValidationCommandResult[];
+  /**
+   * B-7dff F-003: pollution detected during the plan that no single command's
+   * observation window owns. Absent when every detected row was exclusively
+   * attributable (which is every row of a jobs=1 / single-command run).
+   */
+  concurrentWorktreePollution?: ConcurrentWorktreePollution;
   focus?: {
     name: string;
     mode: 'focused';

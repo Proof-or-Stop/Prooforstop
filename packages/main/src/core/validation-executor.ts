@@ -23,6 +23,8 @@ import {
   type ScheduledStatus,
 } from './keyed-scheduler.js';
 import type {
+  ConcurrentWorktreePollution,
+  ConcurrentWorktreePollutionAttribution,
   ValidationCommand,
   ValidationCommandResult,
   ValidationFailureKind,
@@ -263,6 +265,13 @@ export function formatValidationProgressEvent(event: ValidationProgressEvent): s
 // detectNewDirtyStatus turns into "no pollution" — silently disabling the
 // side-effect guard for that command. The flag suppresses only that optional index
 // write; the porcelain output is unchanged.
+//
+// B-7dff F-003: this snapshot pair is REPO-WIDE, so what a command observes is
+// "what appeared during my window", NOT "what I wrote". Under the concurrent
+// scheduler those differ. The raw observation is therefore no longer an
+// accusation on its own: executeValidationPlan cross-checks every command's
+// observation against every other's (attributeWorktreePollution) before any of
+// it is reported or gate-consumed.
 function readGitStatus(gitCwd: string): string[] | null {
   try {
     const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {
@@ -287,15 +296,15 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
   return after.filter(line => !beforePaths.has(statusPath(line)));
 }
 
-// Task B-6326 + B-4b22: validation side-effect details share DONE gate
-// dirty ownership vocabulary AND route through dirty-gate-policy. When every
-// polluted path classifies as a passing category (lattice_metadata /
-// runtime_artifact / declared_artifact), the call:
-//   1. flips `result.worktreePollution.blocking` to false (executeValidationPlan
-//      then reads this to keep allPass = true),
-//   2. swaps the leading "✗ validation command dirtied worktree" line for a
-//      "✓ … (passed by dirty-gate-policy)" wording so downstream readers see
-//      that the loosening was intentional,
+// Task B-6326 + B-4b22: validation side-effect details share DONE gate dirty
+// ownership vocabulary AND route through dirty-gate-policy. When every polluted
+// path classifies as a passing category (lattice_metadata / runtime_artifact /
+// declared_artifact), this:
+//   1. reports blocking=false (the caller writes it onto the pollution record,
+//      and executeValidationPlan reads that to keep allPass = true),
+//   2. swaps the leading "✗ … dirtied worktree" line for a "✓ … (passed by
+//      dirty-gate-policy)" wording so downstream readers see that the loosening
+//      was intentional,
 //   3. emits audit lines into <projectRoot>/<storyDir>/<storyId>/process-events.jsonl
 //      when a storyId is supplied. Storyless callers pass null writer (no
 //      audit; gate degrades to blocking on failure path).
@@ -303,13 +312,17 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
 // Anti-divergence (preMortem #3): both core/done-oracle.ts (the DONE gate
 // checklist) and this function import evaluateDirtyGate from the same module.
 // No inline category check.
-export function formatWorktreePollutionDetails(
-  result: ValidationCommandResult,
+//
+// B-7dff F-003: shared by BOTH pollution reports — the per-command one and the
+// set-attributed one — so an unattributable dirty tree is classified, audited
+// and gated by exactly the same policy as an attributable one. Only the header
+// wording differs, which is why it is the caller's to supply.
+function evaluateWorktreePollution(
+  statusLines: string[],
+  headers: { blocked: string; allowed: string },
   projectRoot?: string,
   storyId?: string,
-): string[] {
-  const pollution = result.worktreePollution;
-  if (!pollution || pollution.statusLines.length === 0) return [];
+): { lines: string[]; blocking: boolean } {
   const config = projectRoot ? loadConfig(projectRoot) : undefined;
   let classifierOptions = config ? dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot) : {};
   if (config && projectRoot && storyId) {
@@ -321,7 +334,7 @@ export function formatWorktreePollutionDetails(
     }
   }
   const classification = classifyGitStatusRows(
-    pollution.statusLines,
+    statusLines,
     classifierOptions,
   );
   const writer = projectRoot && storyId && config
@@ -332,15 +345,8 @@ export function formatWorktreePollutionDetails(
     gate: 'validate-side-effect',
     writer,
   });
-  // Propagate blocking decision back to executeValidationPlan via a typed flag.
-  pollution.blocking = !evaluation.allPass;
-
-  const mark = evaluation.allPass ? '✓' : '✗';
-  const header = evaluation.allPass
-    ? `${mark} validation command produced policy-allowed dirty paths: ${result.label}: ${formatValidationCommand(result)}`
-    : `${mark} validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`;
   const lines = [
-    header,
+    evaluation.allPass ? headers.allowed : headers.blocked,
     `  ${evaluation.allPass ? 'pass' : 'fail'}: ${evaluation.summary}`,
     ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
   ];
@@ -352,7 +358,149 @@ export function formatWorktreePollutionDetails(
   } else {
     lines.push('  audit lines appended to process-events.jsonl by dirty-gate-policy (B-4b22)');
   }
+  return { lines, blocking: !evaluation.allPass };
+}
+
+/**
+ * Render (and gate) ONE command's pollution record.
+ *
+ * B-7dff F-003: by the time a plan run reaches here, the record has already
+ * been narrowed to rows no other command could have caused, so the
+ * "<label> dirtied worktree" wording below is always a sound accusation.
+ * Single-command callers (verifier's validate-file path,
+ * runSingleAllowlistedCommand) are sound for the same reason from the other
+ * direction: nothing ran beside them.
+ */
+export function formatWorktreePollutionDetails(
+  result: ValidationCommandResult,
+  projectRoot?: string,
+  storyId?: string,
+): string[] {
+  const pollution = result.worktreePollution;
+  if (!pollution || pollution.statusLines.length === 0) return [];
+  const { lines, blocking } = evaluateWorktreePollution(pollution.statusLines, {
+    allowed: `✓ validation command produced policy-allowed dirty paths: ${result.label}: ${formatValidationCommand(result)}`,
+    blocked: `✗ validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`,
+  }, projectRoot, storyId);
+  // Propagate blocking decision back to executeValidationPlan via a typed flag.
+  pollution.blocking = blocking;
   return lines;
+}
+
+/**
+ * B-7dff F-003: render the SET-attributed pollution record, and set its
+ * `blocking` flag from the same dirty-gate-policy evaluation a per-command
+ * record goes through.
+ *
+ * The header deliberately says "validation commands" (plural) and names every
+ * candidate instead of one label: the plan genuinely cannot tell which of the
+ * concurrently running commands wrote the path, and printing one of them would
+ * be the false accusation this whole path exists to avoid. The blocking
+ * decision is NOT weakened to compensate — an unattributable dirty tree fails
+ * exactly as an attributable one does.
+ */
+export function formatConcurrentWorktreePollutionDetails(
+  pollution: ConcurrentWorktreePollution,
+  projectRoot?: string,
+  storyId?: string,
+): string[] {
+  if (pollution.statusLines.length === 0) return [];
+  const candidates = pollution.candidates.join(', ');
+  const { lines, blocking } = evaluateWorktreePollution(pollution.statusLines, {
+    allowed: `✓ validation commands produced policy-allowed dirty paths during overlapping windows (not attributable to one command): ${candidates}`,
+    blocked: `✗ validation commands dirtied worktree during overlapping windows (not attributable to one command): ${candidates}`,
+  }, projectRoot, storyId);
+  pollution.blocking = blocking;
+  return [
+    ...lines,
+    ...pollution.attributions.map(
+      (attribution) => `  ${attribution.path}: appeared during the windows of ${attribution.candidates.join(', ')}`,
+    ),
+    '  attribution is the SET above, not any one of them: these commands ran concurrently, so the repo-wide before/after status probe cannot tell which one wrote the path. Re-run with LATTICE_VALIDATE_JOBS=1 to attribute it exactly.',
+  ];
+}
+
+/** One command's raw before/after observation, as `executeValidationPlan` collected it. */
+export interface WorktreePollutionObservation {
+  /** Stable command identity used in reports: `<1-based plan index>:<label>`. */
+  candidate: string;
+  /** The rows this command's OWN before/after snapshot pair saw appear. */
+  statusLines: readonly string[];
+}
+
+export interface WorktreePollutionAttributionResult {
+  /** Per observation (same index and order as the input): rows ONLY that observation saw. */
+  exclusive: string[][];
+  /** Rows more than one observation saw, or null when every row was exclusive. */
+  concurrent: ConcurrentWorktreePollution | null;
+}
+
+/**
+ * B-7dff F-003: split raw per-command pollution observations into the part that
+ * is soundly attributable and the part that is not.
+ *
+ * A path's appearance is inside a command's observation window iff that command
+ * saw it as NEW (present in its after-snapshot, absent from its before-snapshot).
+ * So:
+ *
+ *  - Exactly ONE window contains it → only that command can have written it
+ *    (any other command either finished before it appeared, or started after
+ *    and therefore already had it in its own before-snapshot). Exact
+ *    attribution, which is what every solo-scheduled command still gets — and
+ *    every fail-closed barrier is solo-scheduled by construction.
+ *  - SEVERAL windows contain it → any of them could have written it and the
+ *    repo-wide probe carries no evidence choosing between them. Reported
+ *    against the whole set; never pinned on one member, never dropped.
+ *
+ * Pure and order-deterministic (candidates come out in plan order), so the
+ * scheduler's nondeterministic completion order cannot change the report.
+ */
+export function attributeWorktreePollution(
+  observations: readonly WorktreePollutionObservation[],
+): WorktreePollutionAttributionResult {
+  const observed = new Map<string, { statusLine: string; observers: number[] }>();
+  observations.forEach((observation, index) => {
+    for (const statusLine of observation.statusLines) {
+      const path = statusPath(statusLine);
+      const entry = observed.get(path);
+      if (!entry) {
+        observed.set(path, { statusLine, observers: [index] });
+      } else if (!entry.observers.includes(index)) {
+        entry.observers.push(index);
+      }
+    }
+  });
+
+  const exclusive: string[][] = observations.map(() => []);
+  const attributions: ConcurrentWorktreePollutionAttribution[] = [];
+  for (const [path, entry] of observed) {
+    if (entry.observers.length === 1) {
+      exclusive[entry.observers[0]!]!.push(entry.statusLine);
+      continue;
+    }
+    attributions.push({
+      path,
+      statusLine: entry.statusLine,
+      candidates: entry.observers.map((observer) => observations[observer]!.candidate),
+    });
+  }
+  if (attributions.length === 0) return { exclusive, concurrent: null };
+
+  const candidates: string[] = [];
+  for (const attribution of attributions) {
+    for (const candidate of attribution.candidates) {
+      if (!candidates.includes(candidate)) candidates.push(candidate);
+    }
+  }
+  return {
+    exclusive,
+    concurrent: {
+      statusLines: attributions.map((attribution) => attribution.statusLine),
+      paths: attributions.map((attribution) => attribution.path),
+      candidates,
+      attributions,
+    },
+  };
 }
 
 /**
@@ -701,12 +849,29 @@ export interface ValidationScheduleEntry extends SchedulableEntry {
   exclusiveByDefault: boolean;
 }
 
+/** One command's resolved claims plus whether the fail-closed default produced them. */
+export interface ResolvedValidationCommandResources {
+  claims: ResourceClaim[];
+  /**
+   * True when the command declared nothing and therefore holds the barrier
+   * EXCLUSIVELY. This is the resolver's own verdict, returned rather than left
+   * to be re-derived from the raw `resources` field: B-7dff F-005 — the rule is
+   * this story's load-bearing safety invariant, and two independent copies of
+   * it (`exclusiveByDefault` said one thing, the scheduler enforced another)
+   * would diverge silently the first time the rule changes.
+   */
+  exclusiveByDefault: boolean;
+}
+
 /**
- * Resolve one command's effective claims.
+ * Resolve one command's effective claims, and report whether the fail-closed
+ * default was applied. THE one place that decides "this command declared
+ * nothing" — every other reader takes the answer from here.
  *
- * - Declared: `[barrier(shared), ...declared]`.
- * - Undeclared or empty: `[barrier(exclusive)]` — a single exclusive claim on
- *   the synthetic key, which is what makes an unclassified command run alone.
+ * - Declared: `[barrier(shared), ...declared]`, `exclusiveByDefault: false`.
+ * - Undeclared or empty: `[barrier(exclusive)]`, `exclusiveByDefault: true` — a
+ *   single exclusive claim on the synthetic key, which is what makes an
+ *   unclassified command run alone.
  *
  * An unrecognised class / access / ownership is REFUSED here, at declaration
  * time, rather than being dropped (which would silently leave the command in
@@ -715,7 +880,10 @@ export interface ValidationScheduleEntry extends SchedulableEntry {
  * (`canonicalizeEntries`), and accepting a pre-set one would let untrusted
  * input choose which entries it conflicts with.
  */
-export function resolveValidationCommandResources(command: ValidationCommand, owner: string): ResourceClaim[] {
+export function resolveValidationCommandResourceClaims(
+  command: ValidationCommand,
+  owner: string,
+): ResolvedValidationCommandResources {
   const declared = command.resources;
   if (declared !== undefined && !Array.isArray(declared)) {
     throw new Error(`validate command ${owner} declared a non-array resources field`);
@@ -731,9 +899,23 @@ export function resolveValidationCommandResources(command: ValidationCommand, ow
   });
   validateResourceClaims(claims, owner);
   if (claims.length === 0) {
-    return [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' }];
+    return {
+      claims: [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' }],
+      exclusiveByDefault: true,
+    };
   }
-  return [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'shared' }, ...claims];
+  return {
+    claims: [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'shared' }, ...claims],
+    exclusiveByDefault: false,
+  };
+}
+
+/**
+ * The claims alone, for callers that only need the admission set.
+ * {@link resolveValidationCommandResourceClaims} stays the single decision point.
+ */
+export function resolveValidationCommandResources(command: ValidationCommand, owner: string): ResourceClaim[] {
+  return resolveValidationCommandResourceClaims(command, owner).claims;
 }
 
 /**
@@ -746,12 +928,15 @@ export function resolveValidationPlanEntries(plan: ValidationPlan): ValidationSc
   return plan.commands.map((command, index) => {
     // The index keeps names unique: two plan commands may share a label.
     const name = `${index}:${command.label}`;
+    // B-7dff F-005: exclusiveByDefault comes from the resolver that actually
+    // applied the default, never re-derived from command.resources here.
+    const { claims, exclusiveByDefault } = resolveValidationCommandResourceClaims(command, name);
     return {
       name,
-      resources: resolveValidationCommandResources(command, name),
+      resources: claims,
       command,
       commandIndex: index + 1,
-      exclusiveByDefault: !(Array.isArray(command.resources) && command.resources.length > 0),
+      exclusiveByDefault,
     };
   });
 }
@@ -841,6 +1026,35 @@ export async function executeValidationPlan(
     throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
   }
 
+  // B-7dff F-003: each command's dirty-status observation is repo-wide, so
+  // under concurrency it reports "what appeared during my window", not "what I
+  // wrote". Cross-check the whole set of observations BEFORE any of it is
+  // reported or gate-consumed: a row only one window saw stays that command's
+  // (exact attribution — which every solo-scheduled command, including every
+  // fail-closed barrier, still gets), and a row several windows saw is moved to
+  // a set-attributed plan-level record instead of being pinned on whichever
+  // innocent command happened to straddle the write. Nothing is discarded: the
+  // set-level record goes through the same dirty-gate-policy evaluation and
+  // blocks exactly as a per-command one would.
+  const attribution = attributeWorktreePollution(plan.commands.map((command, index) => ({
+    candidate: `${index + 1}:${command.label}`,
+    statusLines: executed[index]?.worktreePollution?.statusLines ?? [],
+  })));
+  executed.forEach((result, index) => {
+    if (!result) return;
+    const exclusiveLines = attribution.exclusive[index] ?? [];
+    if (exclusiveLines.length === 0) {
+      delete result.worktreePollution;
+      return;
+    }
+    result.worktreePollution = {
+      statusLines: exclusiveLines,
+      paths: exclusiveLines.map(statusPath),
+      attribution: 'exclusive',
+    };
+  });
+  const concurrentPollution = attribution.concurrent;
+
   for (let i = 0; i < totalCommands; i++) {
     const command = plan.commands[i];
     const result = executed[i];
@@ -868,6 +1082,10 @@ export async function executeValidationPlan(
       warnings.push(`optional validation failed: ${result.label}`);
     }
   }
+  // Before the scheduler line, which callers read as the last line of details.
+  if (concurrentPollution) {
+    details.push(...formatConcurrentWorktreePollutionDetails(concurrentPollution, projectRoot, storyId));
+  }
   // Appended, never prepended: details[0] is the first command line (or the
   // focus banner) and callers read it as the headline.
   details.push(
@@ -886,7 +1104,14 @@ export async function executeValidationPlan(
     // blocking undefined → legacy back-compat: treat as blocking.
     return r.worktreePollution.blocking !== false;
   });
-  const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
+  // B-7dff F-003: pollution nobody can be blamed for individually still blocks.
+  // Losing the detection would be a strictly worse bug than mis-attributing it,
+  // so the ambiguity is reported honestly and gated identically.
+  const concurrentPollutionBlocking = Boolean(concurrentPollution)
+    && concurrentPollution!.statusLines.length > 0
+    && concurrentPollution!.blocking !== false;
+  const anyPollutionFailure = pollutionFailures.length > 0 || concurrentPollutionBlocking;
+  const allPass = requiredFailures.length === 0 && !anyPollutionFailure;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
   const failureKind: ValidationFailureKind | undefined = allPass
     ? undefined
@@ -897,7 +1122,7 @@ export async function executeValidationPlan(
     ? optionalFailures.length > 0
       ? 'Required validation commands passed with optional failures'
       : 'Project validation commands passed'
-    : pollutionFailures.length > 0 && requiredFailures.length === 0
+    : anyPollutionFailure && requiredFailures.length === 0
       ? 'Project validation commands dirtied the worktree'
     : 'Project validation commands failed';
 
@@ -914,6 +1139,7 @@ export async function executeValidationPlan(
     timestamp: new Date().toISOString(),
     ...(headSha ? { headSha } : {}),
     commands,
+    ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
     ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
 }
