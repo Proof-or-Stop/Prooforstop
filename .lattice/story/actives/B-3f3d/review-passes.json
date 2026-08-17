@@ -18843,6 +18843,29 @@
         "scanEscalationReason": null
       },
       "_hash": "d7b6bd2f695e2d657b1fc9f6b8db33d5e591a5468cf1b957c3acb71ff34f078a"
+    },
+    {
+      "id": "B-3f3d:RP-341",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independently reproduced F-089/F-113/F-117 receipt-path failure and RI-048 requiredLanes exclusion live; independently verified F-120 literal-string mismatch by direct code read; ran acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check live, confirmed stale/inconclusive/enforce-fail. No topology-critic pass issuable this wave; see finding.",
+      "createdAt": "2026-08-17T14:36:54.960Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-542",
+      "envelopeId": "b40828a4d5059520087b60efbbac7646195c910be6b139e4dad893085dae0f2c",
+      "writerSessionId": "sess-710f39e27d7dd62bbdfd2c4c5b404ede",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe694b4475ad4c7f505026cd43a82d2381667187d67546fd1a948a98f2f8f2f7"
     }
   ]
 }

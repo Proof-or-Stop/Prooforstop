@@ -127,6 +127,13 @@
       "status": "open",
       "foundAt": "2026-08-17T10:49:11.636Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-USERSEES-NEVER-MECHANICALLY-CHECKED",
+      "title": "Three separate checklist items on this story declared userSees output that no code path produces: CHK-003 (F-120: promises 'Wave: n/max' and lane states pending|complete|blocked, but review-inventory.ts:258 emits 'Current wave: n/max' and the ReviewInventoryLaneTerminal type at types.ts:1670 is only 'pass'|'finding'), CHK-004 (F-119) and CHK-005 (F-118). All three were marked done and all three passed DEV-to-REVIEW. Each was caught only by a human-style reviewer grepping for the promised literals, and only across three separate waves -- wave 1 caught none, wave 2 caught two, wave 3 caught the third. Nothing in the pipeline compares a userSees string against emitted output, so the field carries the weight of a delivery contract while receiving none of the enforcement. Either mechanically check declared literals against code, or stop presenting userSees as a contract.",
+      "status": "open",
+      "foundAt": "2026-08-17T11:28:24.422Z",
+      "fixedAt": null
     }
   ]
 }
