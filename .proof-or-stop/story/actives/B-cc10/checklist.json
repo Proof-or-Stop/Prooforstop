@@ -766,7 +766,11 @@
           {
             "desc": "The two coupled AST fingerprint copies stay in sync: both retired-authority-vocabulary-guard-smoke and verify-process-fact-contract exit 0",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+              "selector": "retired authority vocabulary guard PASS"
+            }
           }
         ]
       },
@@ -812,6 +816,27 @@
           "materialHash": "374099d662bf86d601c386404043d4ddb7b1ad72ef5ed668278d78e368571fb9",
           "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
           "timestamp": "2026-08-17T17:21:51.992Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "The guard RECOMPUTES both re-pinned digests (package alias-edge inventory + the proof-or-stop-codex.js benign-loader whole-source fingerprint) and exits 0, so the pins bind the real current inputs. Both digests are pinned in TWO coupled copies (this guard and scripts/verify-process-fact-contract.mjs); I grepped each OLD digest repo-wide before editing and updated both together, so the old digests now have 0 occurrences and all 16 coupled digests match across the two files. NOTE the intent also expected verify-process-fact-contract to exit 0: it exits 1, but with 515 findings byte-identical to the pre-existing HEAD baseline (CLAUDE.md doc-drift unrelated to CHK-007). Its one CHK-007-caused finding (retired vocabulary guard must enforce narrow compatibility usage: bin/lattice.js, stale after CHK-006 deleted that alias) is fixed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4530c52707cf394872167d6b67d3ec159dfe4ac40dcde1177b502018451d9b8e",
+            "outputTail": "retired authority vocabulary guard PASS builds=794 cacheHits=2 fullAnalysis=1264 astCandidates=494 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:23:25.868Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a2b48c5448130547426805396a988fdf9e8cc357",
+          "materialHash": "374099d662bf86d601c386404043d4ddb7b1ad72ef5ed668278d78e368571fb9",
+          "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
+          "timestamp": "2026-08-17T17:23:26.145Z"
         }
       ]
     },
