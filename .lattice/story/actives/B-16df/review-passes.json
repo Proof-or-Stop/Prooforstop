@@ -593,6 +593,33 @@
         "scanEscalationReason": null
       },
       "_hash": "01cc565d982312359753cbc7b69551d63ee98b582700119e5c2b30db5fd79460"
+    },
+    {
+      "id": "B-16df:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Fresh REVIEW round after main-drift staleness; re-audited current HEAD. resolvePinnedCommandTimeoutMs helper (checklist.ts) + 4 runSingleAllowlistedCommand call sites (lines 1576/1667/1798/1877) unchanged in substance from prior clean passes: exact {command,args} match against configuredValidationCommands, falls back to undefined preserving 270s default, no as-any in production code, validation-executor.ts/verifier.ts byte-for-byte unmodified from main (empty diff), no circular import (checklist.ts one-way imports verifier.ts). npm --prefix packages/main run build clean; node packages/main/dist/tasks/validate-command-timeout-smoke.js passed 45 assertions. No dead code, no unused imports, no empty catch. No blocker.",
+      "createdAt": "2026-08-17T00:52:05.916Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-028",
+      "envelopeId": "aaa4e8d05b6af211eb5ccfb662b0df0f65f35103d9980f3d6fa4097fbda94a21",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e91919ea0933ace02989ab4baba3e7de068e837a51c0520b307a1ba4c99f1a2"
     }
   ]
 }
