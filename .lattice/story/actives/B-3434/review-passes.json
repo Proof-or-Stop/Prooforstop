@@ -1052,6 +1052,24 @@
         "scanEscalationReason": null
       },
       "_hash": "39c3f6e058fdcccf9a837f14587e2a6da9a372dad4d9407e39f99d8f33f6301a"
+    },
+    {
+      "id": "B-3434:RP-041",
+      "agent": "lattice-review-test-coverage",
+      "note": "RR-075 re-confirmation (test-coverage lane), bound at c0d703df. (1) Section 17 (F-044) still stands and bites: two check() calls at validate-command-timeout-smoke.ts:598-602 (17a, allowlist-membership pin) and :611-615 (17b, rejection behavior) both reference VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST and parseAllowlistedCommand, imported live at lines 62-63 from ../core/validation-executor.js (not restated/copied). node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0 at 46 assertions. (2) git show --stat 90bde4c74f = one file (validate-command-timeout-smoke.ts), 2 insertions/2 deletions, both inside the // comment block at lines 396-399. Diffed the full check(...) call-site list before vs after the commit: identical set of 46, byte-for-byte -- no assertion added, removed, or altered. The deleted clause (only imported by validation-executor.ts) is gone (grep returns nothing) and the surviving claim (validation-executor.ts contains no execFileSync call of its own) is still true -- 0 hits in that file; grep on done-prepare-generated-metadata.ts also confirms exactly 10 real execFileSync call sites (370,387,444,453,591,718,738,832,846,863) plus the doc-comment mention at line 15, matching F-048s corrected count. (3) Ran verification_evidence_refresh_stale: refreshed 23/23 stale items (all of CHK-001..CHK-004, and CHK-005 except the waiver). CHK-005:edge:0 is still the sole permanent waiver in checklist.json -- 23 refreshed + 1 waived = the 24 pinned selectors. (4) npx tsc --noEmit -p packages/main exits 0. node packages/main/dist/tasks/validate-command-timeout-smoke.js exits 0, 46 assertions, re-run at the final commit. (5) Judgment on the residual: the SCOPE note at lines 592-595 (pins ONE constant and ONE rejection path, does not restore the byte-pins incidental whole-file coverage) is sized correctly -- not overclaimed, not underclaimed. I would NOT open a dedicated follow-up story for it: the retired byte-pin was a permanently-red tripwire on any diff to two actively-developed files, not a correctness check, and validation-executor.ts/verifier.ts already carry real behavioral coverage independent of section 17 across at least 9 other smoke suites (done-required-validation-smoke, flow-stability-smoke, quorum-submit-smoke, validation-protocol-smoke, validate-execution-lock-smoke, validate-focused-full-layering-smoke, cluster-sync-entrypoints-smoke, closeout-trust-smoke, plus this storys own validation-evidence-buffer-smoke/CHK-001..005). Untested symbols added later wont fail section 17 is true but is the normal cost of a targeted test replacing a blunt change-detector, not a hole specific to this fix; a concrete future gap belongs as an addition to whichever smoke file already exercises that code path. Observation, not a finding: after refresh_stales own metadata commit (c0d703d) session_brief reports 1 stale intent again (evidence bound to headHash 3206ba5f, HEAD now c0d703d) -- this is the refresh commands own auto-commit lagging its own evidence by one commit, expected tool mechanics, not a code or coverage regression; left alone per the no fresh scan instruction. Disposition rule: no low-severity prose-only issues surfaced in this lanes scoped checks this round. No blocking findings.",
+      "createdAt": "2026-08-17T13:59:48.097Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-075",
+      "envelopeId": "d17ece51923efb0b363119d329d4283a7b2447c0a5ba79891660abf28274dc3f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5486c5ce5c81f092c92e8891a7c68a4c6b39e68183526653dc2c3cf94a6d02f5"
     }
   ]
 }
