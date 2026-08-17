@@ -11,10 +11,11 @@
  * quorum-submit-smoke.js (267-271s) is genuinely long.
  *
  * This red proves the defect behaviourally rather than structurally: two commands that
- * declare no conflicting resource and each sleep SLEEP_MS must finish in roughly
- * SLEEP_MS wall, not 2 x SLEEP_MS. Pre-fix the observed wall time is the sum, so the
- * assertion fails. Post-fix (the plan runs through the shared keyed scheduler with at
- * least 2 workers) the same assertion passes with no change to this file.
+ * declare disjoint exclusive resource claims and each sleep SLEEP_MS must finish in
+ * roughly SLEEP_MS wall, not 2 x SLEEP_MS. Pre-fix the observed wall time is the sum,
+ * because the sequential loop never consults a claim at all. Post-fix (the plan runs
+ * through the shared keyed scheduler with at least 2 workers) the same assertion passes
+ * with no further change to this file.
  *
  * The threshold is deliberately loose (< 80% of the summed command time). It is not a
  * benchmark: it only has to separate "ran one after the other" from "ran together", and
@@ -42,16 +43,22 @@ if (!existsSync(executorPath)) {
 const { executeValidationPlan } = await import(pathToFileURL(executorPath).href);
 
 const SLEEP_MS = 1200;
-const sleeper = (label) => ({
+// Each probe declares an EXCLUSIVE claim on its own distinct key, so the two are
+// resource-disjoint and nothing may serialize them. Leaving them undeclared would be
+// wrong: an undeclared command fails closed to a plan-wide barrier by design, so two
+// undeclared commands must never overlap and this probe would be asserting against the
+// safety default rather than against the sequential loop.
+const sleeper = (label, key) => ({
   label,
   command: process.execPath,
   args: ['-e', `setTimeout(() => process.exit(0), ${SLEEP_MS})`],
   timeoutMs: 60_000,
+  resources: [{ class: 'fixed-path', key: `.lattice/runtime/red-b7dff-probe-${key}`, access: 'exclusive' }],
 });
 
 const plan = {
   provider: 'red-B-7dff-concurrency-probe',
-  commands: [sleeper('red-B-7dff sleeper A'), sleeper('red-B-7dff sleeper B')],
+  commands: [sleeper('red-B-7dff sleeper A', 'a'), sleeper('red-B-7dff sleeper B', 'b')],
 };
 
 const startedAt = Date.now();
