@@ -1,6 +1,6 @@
-# Proofbound Authority Remote Evidence Bundle
+# Proof-or-Stop Authority Remote Evidence Bundle
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 Date: 2026-06-09
 
@@ -23,7 +23,7 @@ run that proves:
 
 | Claim | Result | Evidence anchor |
 | --- | --- | --- |
-| Proofbound non-authority CLI | PASS | Local certification smoke proves zero Authority contact and no false Authority DONE flags. |
+| Proof-or-Stop non-authority CLI | PASS | Local certification smoke proves zero Authority contact and no false Authority DONE flags. |
 | Remote `authorityDone` | PASS | Remote queued job was created, claimed, executed, uploaded evidence, and verified a native server receipt. |
 | Remote `fullAuthorityDone` | PASS | Remote queued job passed three server-backed multi-host final review waves. |
 
@@ -271,9 +271,9 @@ Primary files touched by this validation effort:
 The evidence in this bundle is enough to claim:
 
 ```text
-Proofbound CLI non-authority PASS
-Proofbound CLI + remote Proofbound Authority authorityDone PASS
-Proofbound CLI + remote Proofbound Authority fullAuthorityDone PASS
+Proof-or-Stop CLI non-authority PASS
+Proof-or-Stop CLI + remote Proof-or-Stop Authority authorityDone PASS
+Proof-or-Stop CLI + remote Proof-or-Stop Authority fullAuthorityDone PASS
 ```
 
 It does not claim that every future arbitrary project or every cross-language

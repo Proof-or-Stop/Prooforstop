@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Docs must never instruct a command that does not resolve: the bin must exist before any doc claims it, so CHK-002 lands before CHK-003.",
+    "Past records are immutable: anything that describes what already happened (story archives, CHANGELOG, git history) is frozen, per the user's governing decision.",
+    "Never trade a loud failure for a silent pass: any gate touched by this rename must still fail on a real defect rather than degrade into a vacuous pass.",
+    "Additive over destructive at boundaries: keep the lattice alias working so in-flight stories and hooks do not break mid-flight.",
+    "Prefer the change with fewer couplings when both reach the same user-visible outcome."
+  ],
+  "drivers": [
+    "The user asked for a rename of the command tool and of lattice wording in the docs.",
+    "README.md:96 already promises this rename in progress, so the repo is currently self-contradictory and the story closes that gap.",
+    "13 signature salts are hashed into _hash fields on live artifacts, so renaming them invalidates every stored signature and gate-blocks all active stories.",
+    "Three brand-pinned test surfaces feed root npm test (required by lattice.config.json for DONE), so the story cannot land without reconciling them.",
+    "Two gates degrade silently rather than loudly under a naive rename: audit-scan.ts:100 goes vacuously blind, and 605 in-scope files make an allowlist-free brand gate impossible."
+  ],
+  "options": [
+    {
+      "name": "A: bin+docs rename, identifiers frozen",
+      "pros": [
+        "Delivers a genuinely renamed user-facing tool: proof-or-stop is a real bin, help text and session-brief header say the new name.",
+        "Keeps every stored _hash valid, so none of the active stories are disturbed.",
+        "Additive at the CLI boundary: lattice keeps working, so hooks, in-flight stories and muscle memory survive.",
+        "Reconciles the brand-pinned gates and fixes the audit-scan blindness, so the story can actually reach DONE and leaves the drift detector stronger than before.",
+        "Matches the user's past-vs-future rule exactly and finishes the rename README.md already promised."
+      ],
+      "cons": [
+        "Internal identifiers still read lattice (salts, .lattice/ state dir, role IDs, package names), so the codebase remains visibly mixed to a developer.",
+        "Requires a follow-up story if full brand purity is ever wanted.",
+        "The mapping table must carry a runtime-visible column so the frozen tokens a user still sees read as intentional rather than overlooked."
+      ]
+    },
+    {
+      "name": "B: docs prose only, bin unchanged",
+      "pros": [
+        "Zero runtime risk and no signature invalidation whatsoever.",
+        "Smallest possible diff, fastest to land."
+      ],
+      "cons": [
+        "Does not rename the command tool, which is the explicit ask; the shipped bin would still be only lattice.",
+        "Docs would have to keep showing lattice commands to stay truthful, so the rebrand is cosmetic prose only.",
+        "Leaves README.md:96's rename-in-progress disclaimer permanently accurate, entrenching the contradiction."
+      ]
+    },
+    {
+      "name": "C: full rename incl. identifiers",
+      "pros": [
+        "Total brand purity: no lattice token anywhere, including salts, state dir, role IDs and package names."
+      ],
+      "cons": [
+        "Invalidates every persisted _hash, so all active stories immediately read as tampered and gate-block.",
+        "Orphans the live .lattice/ state directory (locks, activity, learning, evidence, dev-memory).",
+        "Silently self-disarms the pre-push recursive-tsc defense, because .githooks/pre-push:148 gates on PKG_NAME equal to @lattice/core and exits 0 on mismatch.",
+        "Breaks subagent_type resolution for the 13 lattice-prefixed role IDs unless docs, shims and registry move atomically.",
+        "Requires a dedicated signature-migration and state-migration design plus a flag day; far beyond what the user asked for."
+      ]
+    }
+  ],
+  "chosen": "A: bin+docs rename, identifiers frozen",
+  "rationale": "Option A (bin+docs rename, identifiers frozen) is the only choice that both delivers what the user actually asked for and can mechanically land. Option B (docs prose only) fails the ask outright: the user said rename the command tool, and B leaves the shipped bin named lattice, forcing docs to keep teaching the old name to stay honest. Option C (full rename) delivers brand purity at the cost of invalidating every stored signature, orphaning live state and silently self-disarming the pre-push gate, which is a data-migration project masquerading as a rename. Option A takes the user's own past-vs-future rule as the dividing line: forward-looking surfaces (bin name, active docs, help text, session-brief header) get renamed, while surfaces that record history or carry stored signatures stay frozen. Two decisions inside option A were settled by evidence during PLAN rather than left to taste. First, keep the filename verify-lattice-residue.mjs and change only its detector, because the filename has at least 6 live couplings (package.json:19, review-preflight.ts:91 which fails closed, CLAUDE.md:835, verify-residue-inject-repro.mjs:31, plus experiment fixtures) and renaming it buys zero user-visible benefit. Second, flip LATTICE_PRIMARY_BIN and also consume the already-computed invokedAs for usage lines, since only one test (rollout-check-smoke.ts:70) asserts the old value, so the change is cheap and makes help text mirror however the user actually invoked the CLI. The residue gate measurement (605 files in scope contain the token) also settles that the new brand gate must be prose-scoped or exemption-based rather than allowlist-free.",
+  "preMortem": [
+    {
+      "scenario": "The docs are rewritten to proof-or-stop and docs-drift silently stops detecting anything, so a doc referencing a nonexistent command ships undetected months later.",
+      "trigger": "CHK-003 lands the prose rename but CHK-005's audit-scan.ts:100 extractor fix is skipped, deferred, or written to match only the new token while some docs still use the old one.",
+      "consequence": "scanCommandDrift's regex matches nothing, the loop body never executes, zero drifts are returned and the gate reports a vacuous PASS. The exact drift class the gate exists to catch becomes permanently invisible, and the failure is silent so nobody notices.",
+      "mitigation": "Treat the extractor fix as blocking, not optional: CHK-005's userSees requires a NEGATIVE regression test proving a bogus 'proof-or-stop no_such_command' reference still reports drift. Teach the extractor BOTH tokens so mixed-token docs stay covered during the transition, and assert a non-empty extracted set so an empty scan can never be mistaken for a clean one."
+    },
+    {
+      "scenario": "The story reaches TEST, then hard-fails root npm test and cannot advance to DONE, burning a full REVIEW round to discover something PLAN already knew.",
+      "trigger": "CHK-003 rewrites the agent prompt templates and shims, invalidating the per-role templateHash manifest in verify-proof-or-stop-prompt-baseline.mjs and the literal command strings asserted by verify-process-fact-contract.mjs, while CHK-005 is scheduled after or in parallel rather than as the closing gate.",
+      "consequence": "npm test fails on at least two independent scripts. Because lattice.config.json doneRequiredCommands consumes the root suite, DONE is blocked and the story round-trips TEST to DEV to REVIEW, costing a full re-review of every reviewer lane.",
+      "mitigation": "Sequence CHK-005 as the final item with an explicit DependsOn covering CHK-002, CHK-003 and CHK-004, so template edits and hash re-approval land in the same story. Run the three pinned scripts locally before advancing to REVIEW rather than discovering the failure at the DONE gate."
+    },
+    {
+      "scenario": "A well-meaning bulk find-and-replace catches a signature salt or the npm package name, and the damage is not noticed until every active story reads as tampered.",
+      "trigger": "CHK-003 is executed with a broad sed or regex replace across the repo instead of the surface list, or an implementer treats the 605 in-scope source hits as residue to clean up.",
+      "consequence": "Renaming any of the 13 salts invalidates every persisted _hash, so all active stories gate-block on tampered artifacts. Renaming @lattice/core additionally makes .githooks/pre-push:148 exit 0, silently disarming the recursive-tsc defense so the loss of protection is invisible.",
+      "mitigation": "The execution boundary already blocks .lattice/story/ and CHANGELOG.md at the path level. CHK-001's mapping table must be produced and approved BEFORE any replacement, enumerating every frozen row with its reason. Replacements are scoped to the enumerated active-doc surface, never a repo-wide sweep, and the salts stay verbatim by construction."
+    },
+    {
+      "scenario": "The rename ships and a user runs proof-or-stop, but the tool's own output still says lattice, so the user concludes the rename did not actually happen.",
+      "trigger": "CHK-002 adds the bin but leaves LATTICE_PRIMARY_BIN unflipped and the session-brief header untouched, because the entrypoints test pins the old header string and flipping it looks like a test failure to avoid.",
+      "consequence": "proof-or-stop help prints 'Usage: lattice <command>' and proof-or-stop session_brief prints '# lattice session brief'. Since CLAUDE.md rule 0 makes session_brief the first command of every session, this is the most-seen string in the product, and the rebrand reads as broken or half-done.",
+      "mitigation": "CHK-002 explicitly covers the forward-looking output strings, and the pinned assertions in verify-entrypoints.mjs:277 and :515 are updated in the same item rather than treated as blockers. CHK-001's mapping table carries a runtime-visible column so the tokens that legitimately remain (role IDs, .lattice/ paths) are documented as intentional."
+    }
+  ],
+  "timestamp": "2026-08-11T03:27:07.864Z"
+}

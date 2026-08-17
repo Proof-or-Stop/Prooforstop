@@ -8,7 +8,7 @@ Created: 2026-07-21
 
 在保持 Story 6 已交付的 modular Prompt Envelope、audit-only dispatch、预算观测和可验证 receipt 链路不变的前提下，启动一个独立的质量恢复序列：先冻结失败归因和新的盲测协议，再采用 conditional modularization 修复复杂角色的召回与误报，最后通过真实双 host 预注册 A/B 决定是否获得后续 rollout eligibility。
 
-本方案明确分离两类结论：工程门禁回答“这个冻结 candidate 是否满足 Proofbound 的安全准入规则”，统计推断回答“现有独立任务样本是否支持 modular 对 legacy 的总体非劣效主张”。receipt 数量证明执行和审计覆盖，不能自动充当独立统计样本量；工程门禁 PASS 也不能自动包装成论文中的总体非劣效结论。
+本方案明确分离两类结论：工程门禁回答“这个冻结 candidate 是否满足 Proof-or-Stop 的安全准入规则”，统计推断回答“现有独立任务样本是否支持 modular 对 legacy 的总体非劣效主张”。receipt 数量证明执行和审计覆盖，不能自动充当独立统计样本量；工程门禁 PASS 也不能自动包装成论文中的总体非劣效结论。
 
 本方案不重新打开或否定 B-407c 的 DONE。B-407c 的正确结论是“评估机制已完成，但 modular baseline 因质量回退未被接受”。本方案也不自动授权 Story 7、预算 enforce 或 production default 切换。
 
@@ -121,7 +121,7 @@ extension selection、Task Context、role binding、host binding、campaign bind
 本方案要求分别保存并报告三类证据，不能相互替代：
 
 1. **执行完整性证据**：真实 provider receipt、producer/host/arm/campaign binding、content digest、receipt set/Merkle root、缺失和篡改拒绝。它证明实验按冻结协议执行。
-2. **工程质量证据**：预注册 oracle、开发回归、blind holdout 的逐任务/逐 finding 结果、双 host 安全门槛和绝对错误上限。它决定 Proofbound 是否允许生成 rollout eligibility。
+2. **工程质量证据**：预注册 oracle、开发回归、blind holdout 的逐任务/逐 finding 结果、双 host 安全门槛和绝对错误上限。它决定 Proof-or-Stop 是否允许生成 rollout eligibility。
 3. **统计推断证据**：独立任务数、预注册 estimand、非劣效 margin、功效、paired effect、置信区间和多重性策略。它决定论文是否可以作总体非劣效主张。
 
 若只有第一类证据，可以主张“实验可审计且 fail closed”；若前两类通过，可以主张“冻结 candidate 通过预注册工程门禁”；只有第三类也通过，才可以主张“在预注册总体和 margin 下获得统计非劣效证据”。
@@ -443,7 +443,7 @@ node bin/lattice.js verify_codex
 
 推荐论文主张：
 
-> Proofbound 使用内容寻址、生产入口绑定和 fail-closed 的跨模型 Prompt A/B 方法检测到 modularization 的真实质量回退；后续通过预注册、盲测和 conditional context recovery 评估能否恢复质量，而不是在失败后直接启用 rollout。
+> Proof-or-Stop 使用内容寻址、生产入口绑定和 fail-closed 的跨模型 Prompt A/B 方法检测到 modularization 的真实质量回退；后续通过预注册、盲测和 conditional context recovery 评估能否恢复质量，而不是在失败后直接启用 rollout。
 
 ## Risks and Mitigations
 

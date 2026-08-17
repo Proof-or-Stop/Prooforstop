@@ -62,6 +62,7 @@
       { "command": "node", "args": ["packages/main/dist/tasks/main-sync-readiness-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"], "focus": ["fast"] },
+      { "command": "node", "args": ["packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/delivery-check-freshness-smoke.js"], "focus": ["fast"] },
       "node packages/main/dist/tasks/done-required-validation-smoke.js",
       "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",

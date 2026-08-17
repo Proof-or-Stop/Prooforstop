@@ -40,7 +40,7 @@ function git(cwd: string, args: string[]): string {
 
 function commit(cwd: string, message: string): string {
   git(cwd, ['add', '.']);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
@@ -551,13 +551,13 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
 assertChecklistUpdateEvidenceGetsMaterialHash();
 
 // ── B-a2f1 CHK-001/002: stale-evidence UX must surface byte-identical recovery
-// block across session_brief / story_advance pre-check / lattice validate hint. ──
+// block across session_brief / story_advance pre-check / proof-or-stop validate hint. ──
 function assertStaleEvidenceHintCrossSurface(): void {
   const root = mkdtempRoot();
   try {
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -630,9 +630,9 @@ function assertStaleEvidenceHintCrossSurface(): void {
       'rendered block must explain stale means evidence binding drift, not necessarily verification logic failure');
     assert.ok(renderedBlock.includes('does not necessarily mean the verification logic failed'),
       'rendered block must explicitly clarify stale evidence does not necessarily mean verification logic failed');
-    assert.ok(renderedBlock.includes(`lattice verification_evidence_refresh_stale --storyId=${storyId}`),
+    assert.ok(renderedBlock.includes(`proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`),
       'rendered block must include refresh_stale command with literal storyId');
-    assert.ok(renderedBlock.includes(`lattice validate --story=${storyId} --json`),
+    assert.ok(renderedBlock.includes(`proof-or-stop validate --story=${storyId} --json`),
       'rendered block must include validate command with literal storyId');
     assert.ok(renderedBlock.includes(storyId), 'rendered block must include literal storyId');
     // preMortem #3 anti-placeholder anchors:
@@ -641,7 +641,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     // B-bdce GAP1/GAP2 regression (red/spike): the hint must guide the Host to the
     // done_prepare one-step recovery AND classify the drift, so a future edit that
     // drops either line FAILs here (the red test, formalized).
-    assert.ok(renderedBlock.includes(`lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`),
+    assert.ok(renderedBlock.includes(`proof-or-stop done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`),
       'GAP1: rendered block must offer the done_prepare one-step ordered recovery with literal storyId');
     assert.ok(/storyFilesHash|story-owned|whole-tree|unrelated/.test(renderedBlock),
       'GAP2: rendered block must classify the drift (whole-tree materialHash vs story-owned storyFilesHash)');
@@ -666,7 +666,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     assert.ok(!briefOutput.includes('<storyId>'), 'session_brief must not contain <storyId> placeholder');
 
     // (4) validate-hint surface: feed synthetic validate JSON through decorateResult.
-    //     Use a fake result that mimics `lattice validate --story=B-a2f1 --json` returning
+    //     Use a fake result that mimics `proof-or-stop validate --story=B-a2f1 --json` returning
     //     allPass=false + verificationCoverage with stale entries.
     const fakeValidateJson = JSON.stringify({
       provider: 'lattice-verifier',
@@ -772,7 +772,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     try {
       git(root, ['init']);
       git(root, ['config', 'user.email', 'smoke@example.test']);
-      git(root, ['config', 'user.name', 'Proofbound Smoke']);
+      git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
       write(root, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
@@ -942,7 +942,7 @@ await assertRecoverEvidenceCommand();
 // ── B-a2f1 CHK-004: end-to-end main-merge regression ──
 // Simulate the real B-c9f5 failure: a user finishes DEV with evidence pinned
 // at baseSha/baseMaterialHash, then merges main (which drifts materialHash),
-// then runs session_brief / story_advance --phase=REVIEW / lattice validate.
+// then runs session_brief / story_advance --phase=REVIEW / proof-or-stop validate.
 // All three surfaces must surface the EVIDENCE STALE marker with a
 // byte-identical recovery block that uses the real storyId (no placeholders),
 // and the recover_evidence single-shot must (a) succeed when only stale
@@ -960,7 +960,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     // ── 1. Build temp git fixture with a baseline materialHash ─────────────
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -1144,7 +1144,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     updatedStory.phase = 'DEV';
     store.writeStory(storyId, updatedStory);
 
-    // ── 6. Surface #3: lattice validate (via decorateResult hint) ──────────
+    // ── 6. Surface #3: proof-or-stop validate (via decorateResult hint) ──────────
     const fakeValidateJson = JSON.stringify({
       provider: 'lattice-verifier',
       allPass: false,
@@ -1238,7 +1238,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
   try {
     git(root2, ['init']);
     git(root2, ['config', 'user.email', 'smoke@example.test']);
-    git(root2, ['config', 'user.name', 'Proofbound Smoke']);
+    git(root2, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     write(root2, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',

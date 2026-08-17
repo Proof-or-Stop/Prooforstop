@@ -118,7 +118,7 @@ export function cleanStrayWorktreeFiles(
       `  Option A (archive, recommended):\n${stashLines}\n` +
       `  Option B (confirm safe to delete):\n` +
       offenders.map(rel => `  rm "${rel}"`).join('\n') +
-      `\n\nThen rerun lattice story_advance --phase=DONE.\n` +
+      `\n\nThen rerun proof-or-stop story_advance --phase=DONE.\n` +
       `\nIf story.phase has been unexpectedly persisted as DONE and needs manual unsticking, run in the main repo cwd:\n` +
       `  git worktree remove --force "${wtDisplay}"\n` +
       `  git branch -d story/${storyId}\n` +

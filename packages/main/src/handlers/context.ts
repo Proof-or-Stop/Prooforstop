@@ -22,6 +22,7 @@ import { gitProbe } from '../core/git-probe.js';
 import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifecycle-registry.js';
 import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/owner-session.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -52,7 +53,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   const user = gitProbe('git config user.name');
   if (user.ok) event.user = user.output;
   event.sessionId = getSessionId();
-  event.agent = process.env.LATTICE_AGENT || 'main';
+  event.agent = readBrandEnv('AGENT') || 'main';
   return event;
 }
 
@@ -143,7 +144,7 @@ function formatUnresolvedSignedWorkspace(storyId: string, metadataRoot: string, 
     'signedWorkspaceRoot: unresolved',
     `Reason [${unresolvedReason || 'requires_git_signed_workspace_but_no_binding'}]: no explicit git-backed story worktree or configured gitRoot could be verified.`,
     'No reviewer run was created.',
-    'Next action: configure gitRoot, attach the story to a git worktree, or recreate/advance the story through a git-backed Proofbound worktree flow.',
+    'Next action: configure gitRoot, attach the story to a git worktree, or recreate/advance the story through a git-backed Proof-or-Stop worktree flow.',
   ].join('\n');
 }
 

@@ -28,13 +28,13 @@ import {
   type CapabilityProbe,
   type HostProfile,
 } from './capabilities.js';
-import { LATTICE_CLI_VERSION, LATTICE_PRODUCT_NAME } from './lattice-brand.js';
+import { LATTICE_CLI_VERSION, PROOF_OR_STOP_PRODUCT_NAME } from './lattice-brand.js';
 
 export type LatticeFormat = 'text' | 'json';
 
 export interface LatticeHostList {
   schemaVersion: 'lattice.host_list.v1';
-  product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
+  product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
   migration: {
     cliFirst: true;
     macAppRequired: false;
@@ -49,7 +49,7 @@ export interface LatticeHostList {
 
 export interface LatticeHostProbe {
   schemaVersion: 'lattice.host_probe.v1';
-  product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
+  product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
   productionDone: false;
   receiptVerified: false;
   probe: CapabilityProbe;
@@ -57,7 +57,7 @@ export interface LatticeHostProbe {
 
 export interface LatticeHostStatus {
   schemaVersion: 'lattice.host_status.v1';
-  product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
+  product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
   host: string;
   requestedHost: string;
   matchedFallback: boolean;
@@ -81,7 +81,7 @@ export interface LatticeHostStatus {
 
 export interface LatticeHostInstallGuidance {
   schemaVersion: 'lattice.host_install.v1';
-  product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
+  product: { name: typeof PROOF_OR_STOP_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
   host: string;
   dryRun: true;
   executed: false;
@@ -94,10 +94,10 @@ export interface LatticeHostInstallGuidance {
   warnings: string[];
 }
 
-const PRODUCT = { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION } as const;
+const PRODUCT = { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION } as const;
 
 const LATTICE_DESKTOP_APP_SUMMARY =
-  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Proofbound CLI commands remain the editing, test, local-assurance, and receipt-bundle surfaces.';
+  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Proof-or-Stop commands remain the editing, test, local-assurance, and receipt-bundle surfaces.';
 
 type LatticeDesktopCapabilityDemotion = {
   status: Exclude<CapabilityStatus, 'available'>;
@@ -111,56 +111,56 @@ type LatticeDesktopCapabilityDemotion = {
 const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeDesktopCapabilityDemotion>> = {
   'file-edit': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is optional dashboard/archive only.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; the desktop app is optional dashboard/archive only.',
     authorityImpact: 'none',
-    reason: 'Proofbound CLI 0.3.8 does not treat the desktop app as a repository editing host.',
+    reason: 'Proof-or-Stop 0.3.8 does not treat the desktop app as a repository editing host.',
     fallback: 'Delegate file edits to Codex, Claude Code, Antigravity, or another explicit editing host.',
   },
   'patch-apply': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; patches must be applied by a CLI/editor host.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; patches must be applied by a CLI/editor host.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is dashboard/archive only and cannot apply patches.',
     fallback: 'Use a patch-capable CLI/editor host.',
   },
   'shell/pty': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; shell access stays with CLI/editor/runner hosts.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; shell access stays with CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a local command or PTY surface.',
     fallback: 'Run commands through Codex, Claude Code, Antigravity, or local-runner.',
   },
   'test-execution': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; tests must run through CLI/editor/runner hosts.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; tests must run through CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a test execution surface.',
     fallback: 'Delegate build and test commands to local-runner or an editing host with shell access.',
   },
   'browser-automation': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; browser checks require a browser-capable host.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; browser checks require a browser-capable host.',
     authorityImpact: 'verification-evidence-limited',
-    reason: 'The desktop app projection does not expose browser automation as a Proofbound host capability.',
+    reason: 'The desktop app projection does not expose browser automation as a Proof-or-Stop host capability.',
     fallback: 'Use a browser host or record that browser automation is unavailable.',
   },
   'evidence-submit': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is not a lifecycle evidence recording surface.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; the desktop app is not a lifecycle evidence recording surface.',
     authorityImpact: 'evidence-local-only',
     reason: 'The desktop app projection cannot record local lifecycle evidence.',
-    fallback: 'Keep evidence local until a Proofbound lifecycle command records it.',
+    fallback: 'Keep evidence local until a Proof-or-Stop lifecycle command records it.',
   },
   'receipt-verify': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app cannot verify local receipt bundles.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; the desktop app cannot verify local receipt bundles.',
     authorityImpact: 'local-assurance-required',
     reason: 'The desktop app projection cannot verify signed/offline receipt bundles.',
     fallback: 'Use local verifier tooling plus review quorum before integration.',
   },
   'multimodal-research': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; research and verification are delegated to explicit capable hosts.',
+    note: 'Unavailable in Proof-or-Stop 0.3.8; research and verification are delegated to explicit capable hosts.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is limited to dashboard/archive display rather than research execution.',
     fallback: 'Delegate research to a multimodal-capable host.',
@@ -300,7 +300,7 @@ function nextActionForStatus(
     return 'Run lattice host list --format=json, then choose a host whose profile exposes file-edit, shell/pty, test-execution, and approval support.';
   }
   if (status === 'degraded') {
-    return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Proofbound.';
+    return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Proof-or-Stop.';
   }
   return 'Manual-first overflow is ready: create a handoff pack, project an isolated overflow worktree, then review any receipt locally before merging.';
 }
@@ -374,9 +374,9 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   ];
   if (normalized === 'codex') {
     return {
-      summary: 'Codex is an editing host. Use the Proofbound CLI inside the existing Codex workspace session.',
+      summary: 'Codex is an editing host. Use the Proof-or-Stop inside the existing Codex workspace session.',
       steps: [
-        'Build the repo-local Proofbound CLI before using worktree-local status or gate commands.',
+        'Build the repo-local Proof-or-Stop before using worktree-local status or gate commands.',
         'Use lattice host probe --host=codex to inspect optional browser, evidence-submit, and receipt-bundle degradations.',
         'Keep assurance local: use proof admissibility, signed/offline receipt bundles, and local review quorum before integration.',
       ],
@@ -386,7 +386,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'claude-code') {
     return {
-      summary: 'Claude Code is an editing host. Install and authenticate it through its own vendor flow, then use Proofbound handoff surfaces.',
+      summary: 'Claude Code is an editing host. Install and authenticate it through its own vendor flow, then use Proof-or-Stop handoff surfaces.',
       steps: [
         'Confirm Claude Code is available in the user environment through its vendor documentation.',
         'Use lattice host probe --host=claude-code to inspect visible capability degradations.',
@@ -398,11 +398,11 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'antigravity' || normalized === 'agy') {
     return {
-      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Proofbound handoff/runtime surfaces.',
+      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Proof-or-Stop handoff/runtime surfaces.',
       steps: [
         'Confirm agy is available in the user environment through its vendor documentation.',
         'Use lattice host probe --host=antigravity to inspect visible capability degradations.',
-        'Use lattice host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
+        'Use proof-or-stop host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
       ],
       commands: [
         'node bin/lattice.js host_probe --host=antigravity --format=json',
@@ -417,7 +417,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       steps: [
         'Ensure Node.js and project-native test dependencies are installed by the operator.',
         'Run project build and smoke commands from the local runner when the editing host delegates verification.',
-        'Run local receipt-bundle verification only through Proofbound local verifier tooling; do not submit Authority receipts.',
+        'Run local receipt-bundle verification only through Proof-or-Stop local verifier tooling; do not submit Authority receipts.',
       ],
       commands: ['npm --prefix packages/main run build', 'npm run test:legacy -- lattice-cli-migration'],
       warnings: commonWarnings,
@@ -437,7 +437,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'server') {
     return {
-      summary: 'Server Authority is retired/out-of-core for the active Proofbound CLI. It is not a workspace editing host.',
+      summary: 'Server Authority is retired/out-of-core for the active Proof-or-Stop. It is not a workspace editing host.',
       steps: [
         'Use local proof admissibility, signed/offline receipt bundles, and local review quorum for active CLI assurance.',
         'Treat old server-backed authority materials as legacy reference only.',
@@ -451,7 +451,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
     return {
       summary: 'The Mac App is optional dashboard/archive surface only for this migration.',
       steps: [
-        'Use Proofbound CLI commands for host/config/local-assurance/conduit diagnostics.',
+        'Use Proof-or-Stop commands for host/config/local-assurance/conduit diagnostics.',
         'Keep any Mac App usage as an optional dashboard or archived surface.',
         'Do not route release readiness claims through the Mac App.',
       ],
@@ -491,7 +491,7 @@ export function buildLatticeHostInstallGuidance(host: string): LatticeHostInstal
 
 export function renderLatticeHostListText(list: LatticeHostList): string {
   return [
-    `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host list (${list.schemaVersion})`,
+    `${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host list (${list.schemaVersion})`,
     `migration: cliFirst=${list.migration.cliFirst}; macAppRequired=${list.migration.macAppRequired}; macAppRole=${list.migration.macAppRole}`,
     `localAssurance: admissibilityStatus=local-only; receiptBundleVerified=${list.authority.receiptVerified}; proofAdmissibility=${list.authority.proofAdmissibility}; receiptBundleVerification=${list.authority.receiptBundleVerification}; reviewQuorum=${list.authority.reviewQuorum}`,
     '',
@@ -501,7 +501,7 @@ export function renderLatticeHostListText(list: LatticeHostList): string {
 
 export function renderLatticeHostProbeText(probe: LatticeHostProbe): string {
   return [
-    `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host probe (${probe.schemaVersion})`,
+    `${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host probe (${probe.schemaVersion})`,
     `admissibilityStatus=local-only; receiptBundleVerified=${probe.receiptVerified}`,
     '',
     renderCapabilityProbeText(probe.probe),
@@ -510,7 +510,7 @@ export function renderLatticeHostProbeText(probe: LatticeHostProbe): string {
 
 export function renderLatticeHostStatusText(status: LatticeHostStatus): string {
   const lines = [
-    `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host status (${status.schemaVersion})`,
+    `${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host status (${status.schemaVersion})`,
     `host: ${status.host}`,
     `requestedHost: ${status.requestedHost}`,
     `status: ${status.status}`,
@@ -541,7 +541,7 @@ export function renderLatticeHostStatusText(status: LatticeHostStatus): string {
 
 export function renderLatticeHostInstallText(guidance: LatticeHostInstallGuidance): string {
   const lines = [
-    `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host install guidance (${guidance.schemaVersion})`,
+    `${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host install guidance (${guidance.schemaVersion})`,
     `host: ${guidance.host}`,
     `dryRun: ${guidance.dryRun}`,
     `executed: ${guidance.executed}`,

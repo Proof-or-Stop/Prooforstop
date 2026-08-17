@@ -23,7 +23,7 @@ import {
   verifyCloseoutWriteReceipt,
 } from '../core/closeout-trust.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
-import { isLatticeLifecycleArtifactPath } from '../core/lifecycle-registry.js';
+import { isProofOrStopLifecycleArtifactPath } from '../core/lifecycle-registry.js';
 import {
   buildMilestoneLedger,
   buildParentLedgerRollup,
@@ -127,7 +127,7 @@ assert.deepEqual(
 );
 assert(!(CLOSEOUT_ARTIFACT_POLICIES as readonly { path: string }[]).some((policy) => policy.path === 'milestone-closeout.json'));
 for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
-  assert(isLatticeLifecycleArtifactPath(`.lattice/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
+  assert(isProofOrStopLifecycleArtifactPath(`.lattice/story/actives/${storyId}/${policy.path}`), `${policy.path} must be in the closed lifecycle classifier`);
   for (const writer of policy.canonicalWriters) assert(writer in COMMAND_POLICIES, `${policy.path} writer ${writer} must be a registered CLI command`);
 }
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');

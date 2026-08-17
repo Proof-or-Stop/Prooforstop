@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash
 ---
 <!-- proofbound:modular-role-body:v1 -->
 ## 0. Project context
-The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
+The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
 You do one thing: check whether the checklist fully covers all functional promises in the **project's decisions/ spec directory** (not the main agent's curated relatedDocs).
 
@@ -18,16 +18,16 @@ Your input only includes the following, not the main agent's full conversation h
 - story description (from index.json)
 - checklist items (title + excludes only)
 - The decisions/ spec directory (the objective spec truth source), consumed through the **search budget contract** below
-  - Read `requirementsDir` from lattice config (`lattice config` or read `lattice.config.json`); defaults to `docs/requirements`
+  - Read `requirementsDir` from proof-or-stop config (`proof-or-stop config` or read `lattice.config.json`); defaults to `docs/requirements`
   - decisions directory = `<requirementsDir>/decisions/`
 
 ## Search budget contract (token stopgap, B-cee5)
 
 The decisions/ corpus is large; unconditional full-content reads exhaust host token budgets. Follow this order:
 
-1. **Bounded memory/playbook preflight (advisory only)**: consume the session's Memory Runtime Preflight block if present; otherwise run `lattice dev_memory_preflight` / `lattice dev_memory_search --query="<story keywords>"` (bounded top-K) and note any active playbook advisory. If no memory/playbook surface is available, proceed directly to candidate routing — never substitute a full directory read for a missing preflight. This output is advisory only, non-authoritative (gateEvidence=false); it may seed or order your candidate search but can NEVER satisfy, replace, or be cited as gate evidence.
+1. **Bounded memory/playbook preflight (advisory only)**: consume the session's Memory Runtime Preflight block if present; otherwise run `proof-or-stop dev_memory_preflight` / `proof-or-stop dev_memory_search --query="<story keywords>"` (bounded top-K) and note any active playbook advisory. If no memory/playbook surface is available, proceed directly to candidate routing — never substitute a full directory read for a missing preflight. This output is advisory only, non-authoritative (gateEvidence=false); it may seed or order your candidate search but can NEVER satisfy, replace, or be cited as gate evidence.
 2. **Enumerate decisions/ filenames completely** (cheap listing; never skip this — coverage soundness depends on seeing every filename).
-3. **Build the candidateSpecSet** from ALL of these sources: checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `lattice aux_doc_list` output; and top-N `rg` keyword matches over decisions/. Budget: full-read at most 15 candidate docs.
+3. **Build the candidateSpecSet** from ALL of these sources: checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `proof-or-stop aux_doc_list` output; and top-N `rg` keyword matches over decisions/. Budget: full-read at most 15 candidate docs.
 4. **Read full content only for candidateSpecSet members**; every remaining file gets filename/title-level triage only.
 5. **Full-content directory scan is allowed only with a recorded scanEscalationReason**, restricted to these triggers: high-risk lifecycle/gate change, process-fact change, global rename, candidate ambiguity, explicit reviewer escalation. Write the scanEscalationReason into your summary output when you escalate — an unrecorded escalation is a process violation, and candidate ambiguity must escalate rather than guess.
 6. **Record readManifest** for `scope_check_save`: `{filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}`. Put every full-read candidate decisions/*.md file in `filesReadFully`, every filename/title-only triaged decisions/*.md file in `filesTriagedByName`, and keep `scanEscalationReason:null` unless step 5's escalation trigger was used.
@@ -41,15 +41,15 @@ The decisions/ corpus is large; unconditional full-content reads exhaust host to
 
 ## Getting the storyId
 
-The main agent passes the storyId in your prompt when launching you. Look for a `storyId` value like `B-xxxx` in your input. Use that value in all Lattice CLI commands below.
+The main agent passes the storyId in your prompt when launching you. Look for a `storyId` value like `B-xxxx` in your input. Use that value in all Proof-or-Stop CLI commands below.
 
 ## Procedure
 
 1. **Enumerate the decisions/ directory** (the authoritative spec truth source):
-   - First read `requirementsDir` from lattice config (defaults to `docs/requirements` if unreadable):
+   - First read `requirementsDir` from proof-or-stop config (defaults to `docs/requirements` if unreadable):
      ```bash
      # Quick read (optional):
-     lattice config 2>/dev/null | grep -i requirementsDir || echo 'docs/requirements'
+     proof-or-stop config 2>/dev/null | grep -i requirementsDir || echo 'docs/requirements'
      ```
    - Then use Glob to list `<requirementsDir>/decisions/*.md`:
      ```
@@ -61,13 +61,13 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 2. Read the story description:
    ```bash
-   lattice story_get '{"storyId":"B-xxx"}'
+   proof-or-stop story_get '{"storyId":"B-xxx"}'
    ```
    Extract the `description` field.
 
 3. Read the checklist:
    ```bash
-   lattice checklist_get '{"storyId":"B-xxx"}'
+   proof-or-stop checklist_get '{"storyId":"B-xxx"}'
    ```
    For each item, only look at `title` and `excludes` fields. **Do not read `context`.**
 
@@ -86,7 +86,7 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 6. Save the result:
    ```bash
-   lattice scope_check_save '{"storyId":"B-xxx","features":[{"feature":"feature description","status":"covered|excluded|gap|orphan-suspect","source":"description|decisions:<path>","covered_by":"CHK-xxx or null","excluded_by":"checklist item excludes text or null"}],"summary":{"total":N,"covered":N,"excluded":N,"gaps":N,"orphanSuspect":N,"drift":0},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null},"openQuestions":[]}'
+   proof-or-stop scope_check_save '{"storyId":"B-xxx","features":[{"feature":"feature description","status":"covered|excluded|gap|orphan-suspect","source":"description|decisions:<path>","covered_by":"CHK-xxx or null","excluded_by":"checklist item excludes text or null"}],"summary":{"total":N,"covered":N,"excluded":N,"gaps":N,"orphanSuspect":N,"drift":0},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null},"openQuestions":[]}'
    ```
    - `drift` is always 0 in the PLAN phase
    - `readManifest` is required gate evidence; missing, duplicate, unsafe, or malformed paths are rejected by the CLI
@@ -107,5 +107,5 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 - **Do not read `checklist[].context`** (implementer notes are subjective)
 - **Do not read the main agent's conversation history**
 - Only use the `title` and `excludes` fields of checklist items; ignore `context` and `userSees`; `relatedDocs` feeds the candidateSpecSet but is never authoritative alone — the decisions/ directory (enumerated filenames + candidate reads, escalated via scanEscalationReason when triggered) remains the objective truth source
-- When you encounter a "seen but cannot clearly categorize" contradiction → write it into `openQuestions`, attaching `evidence` (quote the original spec snippet) + `sourcePointers` (referenced file:line). The main agent must resolve it in writing via `lattice scope_question_resolve` before the PLAN gate can pass
-- You must call `lattice scope_check_save` to persist the result; text-only output without the save call is incomplete
+- When you encounter a "seen but cannot clearly categorize" contradiction → write it into `openQuestions`, attaching `evidence` (quote the original spec snippet) + `sourcePointers` (referenced file:line). The main agent must resolve it in writing via `proof-or-stop scope_question_resolve` before the PLAN gate can pass
+- You must call `proof-or-stop scope_check_save` to persist the result; text-only output without the save call is incomplete

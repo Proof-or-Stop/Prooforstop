@@ -131,6 +131,6 @@ State these in code comments and the story so no false "idempotent" claim is mad
 
 ## 7. Implementation path
 
-Lands through a Lattice story (audit trail), not a direct commit to `main`. It
+Lands through a Proof-or-Stop story (audit trail), not a direct commit to `main`. It
 touches the `quorum_submit` guard, so it is a high-assurance change and should go
 through full cross-host quorum review itself — dogfooding the very command it fixes.

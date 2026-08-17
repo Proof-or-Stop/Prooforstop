@@ -4,7 +4,7 @@ Date: 2026-06-12
 
 ## Purpose
 
-This document defines an executable plan for a future Proofbound CLI improvement:
+This document defines an executable plan for a future Proof-or-Stop CLI improvement:
 make `missing_scope_check` failures more actionable when `story_review` blocks
 PLAN progress because the story is missing PLAN scope evidence.
 
@@ -29,7 +29,7 @@ The real observed problem is guidance/actionability:
 - The missing artifact is `scope-check.json`, the PLAN gate evidence produced by
   a scope reviewer through `scope_check_save`.
 - Operators can misread the blocker as a content problem in the planned
-  document or as a missing Proofbound feature.
+  document or as a missing Proof-or-Stop feature.
 - The next action is not obvious enough: run a scope-plan review, then persist
   the reviewer result with `scope_check_save`.
 
@@ -75,7 +75,7 @@ The future implementation must not:
 
 ## Host-Neutral Boundary
 
-This improvement is a Proofbound CLI Non-authority ergonomics improvement.
+This improvement is a Proof-or-Stop CLI Non-authority ergonomics improvement.
 
 The local CLI may provide:
 
@@ -144,7 +144,7 @@ If the CLI prints a command example, it should be a shape example, not a fake
 passing review:
 
 ```bash
-lattice scope_check_save \
+proof-or-stop scope_check_save \
   --storyId=B-xxxx \
   --features='[
     {
@@ -236,11 +236,11 @@ Reviewers must check:
 
 ### Phase 6. TEST And DONE
 
-Goal: complete the future implementation through normal Proofbound lifecycle.
+Goal: complete the future implementation through normal Proof-or-Stop lifecycle.
 
 The future implementation story must:
 
-- run `lattice validate`;
+- run `proof-or-stop validate`;
 - refresh stale verification evidence if needed;
 - complete REVIEW with reviewer-run evidence;
 - complete delivery check;
@@ -307,7 +307,7 @@ Return:
 ```text
 You are the Codex-style host reviewer for the same artifact/diff.
 
-Audit the mechanical Proofbound CLI correctness of the missing_scope_check
+Audit the mechanical Proof-or-Stop CLI correctness of the missing_scope_check
 guidance plan or implementation. Do not optimize for optimization and do not
 optimize arbitrarily. Only report real correctness issues. Follow consistency
 of logic.
@@ -342,7 +342,7 @@ After the two-host audit:
 - rerun the relevant verification command after every accepted change.
 
 For this documentation story, accepted findings should be incorporated into this
-document before it is handed to the Proofbound execution flow.
+document before it is handed to the Proof-or-Stop execution flow.
 
 ### Accepted Audit Finding
 
@@ -370,14 +370,14 @@ Checklist evidence should confirm:
 - it identifies `scope-check.json` as the missing artifact;
 - it excludes auto-generation and main-agent self-signing;
 - it preserves the Non-authority / Authority Server boundary;
-- it includes follow-up Proofbound execution commands.
+- it includes follow-up Proof-or-Stop execution commands.
 
 For the future implementation story:
 
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/main test -- --runInBand
-lattice validate --story=B-xxxx --json
+proof-or-stop validate --story=B-xxxx --json
 ```
 
 Add or replace targeted smoke commands after Phase 1 inspection identifies the
@@ -401,7 +401,7 @@ For the future implementation story:
 - do not remove `scope_check_save`;
 - do not relax `story_review` blockers.
 
-## Final Proofbound Execution Handoff
+## Final Proof-or-Stop Execution Handoff
 
 This document does not implement the missing guidance improvement. It hands the
 work to a future implementation story.
@@ -418,7 +418,7 @@ review result without weakening gates or claiming Authority completion.
 Example creation command:
 
 ```bash
-lattice story_create '{
+proof-or-stop story_create '{
   "name":"scope-check-missing-guidance",
   "title":"Improve missing_scope_check guidance ergonomics",
   "description":"Make missing_scope_check PLAN blockers actionable by explaining that scope_check_save exists, scope-check.json is the missing PLAN evidence artifact, and the next action is reviewer-written scope_check_save evidence. Do not weaken PLAN gates, auto-generate evidence, or claim Authority Server completion.",
@@ -442,26 +442,26 @@ lattice story_create '{
     },
     {
       "title":"Run review, validation, delivery, summary, and DONE closure",
-      "context":"Complete the implementation through normal Proofbound lifecycle and do not claim implementation completion before DONE.",
+      "context":"Complete the implementation through normal Proof-or-Stop lifecycle and do not claim implementation completion before DONE.",
       "relatedDocs":["docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"]
     }
   ],
-  "background":"## Trigger Event\nA PLAN review blocker reported missing_scope_check. The command scope_check_save already exists; the missing artifact is scope-check.json. The user confusion is guidance/actionability, not missing CLI capability.\n\n## Key Insights\nPLAN scope evidence must remain reviewer-written and gate-consumed. Local CLI guidance is Non-authority and must not be described as receipt-backed Authority Server proof.\n\n## Solution Tradeoffs\nPrefer narrow wording and help updates over a new lifecycle assistant. Do not weaken gates or auto-generate evidence.\n\n## Conversational Texture\nThe user wants Proofbound to execute this plan later, but this document itself is not the implementation."
+  "background":"## Trigger Event\nA PLAN review blocker reported missing_scope_check. The command scope_check_save already exists; the missing artifact is scope-check.json. The user confusion is guidance/actionability, not missing CLI capability.\n\n## Key Insights\nPLAN scope evidence must remain reviewer-written and gate-consumed. Local CLI guidance is Non-authority and must not be described as receipt-backed Authority Server proof.\n\n## Solution Tradeoffs\nPrefer narrow wording and help updates over a new lifecycle assistant. Do not weaken gates or auto-generate evidence.\n\n## Conversational Texture\nThe user wants Proof-or-Stop to execute this plan later, but this document itself is not the implementation."
 }'
 ```
 
 Then execute through the normal lifecycle:
 
 ```bash
-lattice story_advance --storyId=B-xxxx --phase=INIT_CHECK
+proof-or-stop story_advance --storyId=B-xxxx --phase=INIT_CHECK
 cd /Users/jek/Documents/Work/Orchestrate/.worktrees/B-xxxx
-lattice story_advance --storyId=B-xxxx --phase=PLAN
-lattice understanding_set '{...}'
-lattice decision_set '{...}'
-lattice scope_check_save '{... reviewer-written scope plan result ...}'
-lattice story_review --storyId=B-xxxx
-lattice story_advance --storyId=B-xxxx --phase=DEV
+proof-or-stop story_advance --storyId=B-xxxx --phase=PLAN
+proof-or-stop understanding_set '{...}'
+proof-or-stop decision_set '{...}'
+proof-or-stop scope_check_save '{... reviewer-written scope plan result ...}'
+proof-or-stop story_review --storyId=B-xxxx
+proof-or-stop story_advance --storyId=B-xxxx --phase=DEV
 ```
 
 Implementation is not complete until the follow-up story reaches DONE through
-Proofbound REVIEW, TEST, delivery, summary, and final DONE gates.
+Proof-or-Stop REVIEW, TEST, delivery, summary, and final DONE gates.

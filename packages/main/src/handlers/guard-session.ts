@@ -1,5 +1,5 @@
 /**
- * Guard Session handlers — Proofbound guard_session_start / status / check
+ * Guard Session handlers — Proof-or-Stop guard_session_start / status / check
  *
  * guard_session_start    — start (or restart) a story-scoped scope-guard session
  *                          projection bound to the current scope contract.
@@ -57,7 +57,7 @@ function assertNativeHookVerified(root: string, provider: string): void {
   const isCodex = normalized === 'codex' || normalized === 'openai-codex' || normalized === 'openai_codex';
   if (!isCodex) return;
   if (codexNativeHookInstalled(root)) return;
-  throw new Error('nativeHookVerified=true for provider=codex requires .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs wired to prewrite_guard_check. Run lattice init --profile=codex or lattice check --apply, then trust hooks with /hooks.');
+  throw new Error('nativeHookVerified=true for provider=codex requires .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs wired to prewrite_guard_check. Run proof-or-stop init --profile=codex or proof-or-stop check --apply, then trust hooks with /hooks.');
 }
 
 export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {

@@ -6,7 +6,7 @@
  * @priority high
  * @description
  *   Machine-visible mapping for the old done-closure authorityImpact
- *   requirement. Current Proofbound implementation maps that intent to local
+ *   requirement. Current Proof-or-Stop implementation maps that intent to local
  *   assurance and visible degradation semantics: none, evidence-local-only,
  *   verification-evidence-limited, local-assurance-required, and the blocking
  *   local-completion degradation used by canonical export. This does not
@@ -150,7 +150,7 @@ const CATEGORY_DESCRIPTIONS: Record<CapabilityCategory, CapabilityDescription> =
     id: 'evidence-submit',
     label: 'Evidence submit',
     optional: true,
-    description: 'Record or package local evidence for Proofbound lifecycle review; no external authority service is implied.',
+    description: 'Record or package local evidence for Proof-or-Stop lifecycle review; no external authority service is implied.',
   },
   'receipt-verify': {
     id: 'receipt-verify',
@@ -235,16 +235,16 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('browser-automation', 'conditional', 'Available when a Browser connector or equivalent automation host is installed.'),
       capability('approval', 'available', 'Can represent approval policy and ask for user input when the host allows it.'),
       capability('artifact-display', 'available', 'Can display links and local visual artifacts in capable desktop contexts.'),
-      capability('evidence-submit', 'conditional', 'Requires story-scoped Proofbound evidence write access.'),
+      capability('evidence-submit', 'conditional', 'Requires story-scoped Proof-or-Stop evidence write access.'),
       capability('receipt-verify', 'conditional', 'Requires local signed/offline receipt-bundle inputs and verifier tooling.'),
       capability('multimodal-research', 'available', 'Can combine local files, web research, and visual inputs when tools are present.'),
-      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified Codex PreToolUse hook is installed; wrapped-preapply when invoked via Proofbound dispatch/pre-apply flow; otherwise watcher-fallback.'),
+      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified Codex PreToolUse hook is installed; wrapped-preapply when invoked via Proof-or-Stop dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation may be absent from a Codex session.', 'Mark browser verification unavailable or delegate to a browser-capable host.'),
-      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Evidence remains local until a Proofbound lifecycle command records it.', 'Keep evidence local and do not claim release readiness.'),
+      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Evidence remains local until a Proof-or-Stop lifecycle command records it.', 'Keep evidence local and do not claim release readiness.'),
       degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification depends on signed/offline bundle inputs.', 'Record local proof-admissibility, receipt-bundle verification, and review quorum evidence before integration.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Proofbound dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Proofbound dispatch to enable a pre-write guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Proof-or-Stop dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Proof-or-Stop dispatch to enable a pre-write guard mode.'),
     ],
   },
   {
@@ -259,7 +259,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('browser-automation', 'conditional', 'Requires browser tooling configured for the host.'),
       capability('approval', 'available', 'Can operate under explicit approval policy.'),
       capability('artifact-display', 'conditional', 'Artifact display depends on the surrounding UI.'),
-      capability('evidence-submit', 'conditional', 'Requires story-scoped Proofbound evidence write access.'),
+      capability('evidence-submit', 'conditional', 'Requires story-scoped Proof-or-Stop evidence write access.'),
       capability('receipt-verify', 'conditional', 'Requires local signed/offline receipt-bundle verifier support.'),
       capability('multimodal-research', 'conditional', 'Depends on enabled tools and model inputs.'),
       capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified PreToolUse hook is installed; otherwise watcher-fallback.'),
@@ -268,8 +268,8 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('patch-apply', 'conditional', 'none', 'Patch-specific tooling may not be exposed directly.', 'Use normal file-edit operations with clear diffs.'),
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser tooling may be absent.', 'Delegate browser checks or record a visible browser-test limitation.'),
       degradation('artifact-display', 'conditional', 'none', 'Artifact display depends on the client surface.', 'Return artifact paths or URLs.'),
-      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording is not intrinsic to the host.', 'Keep local evidence until a Proofbound lifecycle command records it.'),
-      degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification is not intrinsic to the host.', 'Use Proofbound local verifier tooling and review quorum before integration.'),
+      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording is not intrinsic to the host.', 'Keep local evidence until a Proof-or-Stop lifecycle command records it.'),
+      degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification is not intrinsic to the host.', 'Use Proof-or-Stop local verifier tooling and review quorum before integration.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
       degradation('prewrite-guard', 'conditional', 'none', 'native-pretool guard requires a verified PreToolUse hook installed in .claude/settings.json; without it the session falls back to watcher-fallback.', 'Install the prewrite_guard_check hook via guard_session_start or verify hook presence before claiming active guard mode.'),
     ],
@@ -286,19 +286,19 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('browser-automation', 'conditional', 'Requires browser tooling configured for the host.'),
       capability('approval', 'available', 'Can operate under explicit approval policy.'),
       capability('artifact-display', 'conditional', 'Artifact display depends on the surrounding UI.'),
-      capability('evidence-submit', 'conditional', 'Requires story-scoped Proofbound evidence write access.'),
+      capability('evidence-submit', 'conditional', 'Requires story-scoped Proof-or-Stop evidence write access.'),
       capability('receipt-verify', 'conditional', 'Requires local signed/offline receipt-bundle verifier support.'),
       capability('multimodal-research', 'conditional', 'Depends on enabled tools and model inputs.'),
-      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Proofbound dispatch/pre-apply flow; otherwise watcher-fallback.'),
+      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Proof-or-Stop dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('patch-apply', 'conditional', 'none', 'Patch-specific tooling may not be exposed directly.', 'Use normal file-edit operations with clear diffs.'),
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser tooling may be absent.', 'Delegate browser checks or record a visible browser-test limitation.'),
       degradation('artifact-display', 'conditional', 'none', 'Artifact display depends on the client surface.', 'Return artifact paths or URLs.'),
-      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording is not intrinsic to the host.', 'Keep local evidence until a Proofbound lifecycle command records it.'),
-      degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification is not intrinsic to the host.', 'Use Proofbound local verifier tooling and review quorum before integration.'),
+      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording is not intrinsic to the host.', 'Keep local evidence until a Proof-or-Stop lifecycle command records it.'),
+      degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification is not intrinsic to the host.', 'Use Proof-or-Stop local verifier tooling and review quorum before integration.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Antigravity has no registered native PreToolUse hook; prewrite guard is wrapped-preapply when via Proofbound dispatch, watcher-fallback otherwise.', 'Route through Proofbound dispatch to enable wrapped-preapply guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Antigravity has no registered native PreToolUse hook; prewrite guard is wrapped-preapply when via Proof-or-Stop dispatch, watcher-fallback otherwise.', 'Route through Proof-or-Stop dispatch to enable wrapped-preapply guard mode.'),
     ],
   },
   {
@@ -313,7 +313,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('browser-automation', 'conditional', 'Available only when browser executor dependencies are configured.'),
       capability('approval', 'unavailable', 'Runner cannot ask for human approval by itself.'),
       capability('artifact-display', 'unavailable', 'Runner can write artifacts but cannot display them.'),
-      capability('evidence-submit', 'conditional', 'Can record evidence only through configured Proofbound lifecycle commands.'),
+      capability('evidence-submit', 'conditional', 'Can record evidence only through configured Proof-or-Stop lifecycle commands.'),
       capability('receipt-verify', 'conditional', 'Can verify only when configured with local signed/offline receipt-bundle support.'),
       capability('multimodal-research', 'unavailable', 'Runner has no research model or browsing intelligence.'),
       capability('prewrite-guard', 'unavailable', 'Local runner is execution-only; it has no agent write interception.'),
@@ -324,7 +324,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser dependencies may be missing.', 'Run non-browser tests or delegate browser checks.'),
       degradation('approval', 'unavailable', 'none', 'A local runner cannot prompt humans.', 'Have the orchestrating host collect approval before invoking it.'),
       degradation('artifact-display', 'unavailable', 'none', 'A local runner has no display surface.', 'Persist artifact paths for a display-capable host.'),
-      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Evidence recording requires Proofbound lifecycle command access.', 'Record local evidence through the story lifecycle.'),
+      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Evidence recording requires Proof-or-Stop lifecycle command access.', 'Record local evidence through the story lifecycle.'),
       degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification requires verifier configuration.', 'Run local receipt-bundle verification and record review quorum evidence before integration.'),
       degradation('multimodal-research', 'unavailable', 'none', 'A local runner cannot conduct multimodal research.', 'Delegate research to a host with browser or multimodal inputs.'),
       degradation('prewrite-guard', 'unavailable', 'none', 'Local runner has no agent-level write interception.', 'Use an editing host with native-pretool or wrapped-preapply guard support.'),
@@ -353,7 +353,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('shell/pty', 'unavailable', 'verification-evidence-limited', 'Browser cannot run local commands.', 'Pair with a shell-capable host for tests.'),
       degradation('test-execution', 'conditional', 'verification-evidence-limited', 'Browser checks are not full project test execution.', 'Record browser evidence and run project tests elsewhere.'),
       degradation('approval', 'unavailable', 'none', 'Browser cannot collect orchestration approval.', 'Collect approval in the orchestrating host.'),
-      degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Browser evidence is local until recorded by a Proofbound lifecycle command.', 'Export screenshot or trace evidence for local review.'),
+      degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Browser evidence is local until recorded by a Proof-or-Stop lifecycle command.', 'Export screenshot or trace evidence for local review.'),
       degradation('receipt-verify', 'unavailable', 'local-assurance-required', 'Browser cannot verify signed/offline receipt bundles.', 'Pair browser evidence with local receipt-bundle verification and review quorum evidence.'),
       degradation('prewrite-guard', 'unavailable', 'none', 'Browser is not a repository editing host.', 'Use an editing host with prewrite-guard support.'),
     ],
@@ -361,7 +361,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
   {
     id: 'server',
     label: 'Server (retired/out-of-core)',
-    summary: 'Retired compatibility profile for historical server/orchestration materials; it is not an active Proofbound CLI completion host.',
+    summary: 'Retired compatibility profile for historical server/orchestration materials; it is not an active Proof-or-Stop completion host.',
     capabilities: [
       capability('file-edit', 'unavailable', 'Server should not directly edit client workspaces.'),
       capability('patch-apply', 'unavailable', 'Server should not apply workspace patches.'),
@@ -401,7 +401,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('browser-automation', 'conditional', 'Requires an embedded or connected browser automation engine.'),
       capability('approval', 'available', 'Can collect visible user approval.'),
       capability('artifact-display', 'available', 'Primary surface for displaying generated artifacts.'),
-      capability('evidence-submit', 'conditional', 'Requires a connected Proofbound lifecycle command engine.'),
+      capability('evidence-submit', 'conditional', 'Requires a connected Proof-or-Stop lifecycle command engine.'),
       capability('receipt-verify', 'conditional', 'Requires connected local receipt-bundle verifier integration.'),
       capability('multimodal-research', 'available', 'Can coordinate visual and document-oriented user workflows.'),
       capability('prewrite-guard', 'unavailable', 'Desktop app is a display/approval surface; pre-write guard is handled by the connected coding engine.'),
@@ -412,7 +412,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('shell/pty', 'conditional', 'verification-evidence-limited', 'Desktop shell support depends on connected engines.', 'Use a local runner or terminal host.'),
       degradation('test-execution', 'conditional', 'verification-evidence-limited', 'Desktop test execution depends on connected engines.', 'Delegate tests to local-runner.'),
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation depends on connected browser support.', 'Use a browser host or mark browser verification unavailable.'),
-      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording depends on configured integration.', 'Keep local evidence until a Proofbound lifecycle command records it.'),
+      degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Lifecycle evidence recording depends on configured integration.', 'Keep local evidence until a Proof-or-Stop lifecycle command records it.'),
       degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification depends on configured integration.', 'Use local verifier tooling and review quorum before integration.'),
       degradation('prewrite-guard', 'unavailable', 'none', 'Desktop app does not author writes directly; pre-write guard applies to the connected coding engine.', 'Enable prewrite guard in the connected coding host.'),
     ],
@@ -442,7 +442,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('browser-automation', 'unavailable', 'verification-evidence-limited', 'Host is unknown.', 'Require an explicit browser-capable host.'),
       degradation('approval', 'unavailable', 'none', 'Host is unknown.', 'Collect approval through a known approval-capable host.'),
       degradation('artifact-display', 'unavailable', 'none', 'Host is unknown.', 'Use a known display-capable host for artifacts.'),
-      degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Host is unknown.', 'Use a known Proofbound host to record local evidence.'),
+      degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Host is unknown.', 'Use a known Proof-or-Stop host to record local evidence.'),
       degradation('receipt-verify', 'unavailable', 'local-assurance-required', 'Host is unknown.', 'Use a known local verifier for signed/offline receipt bundles and local review quorum.'),
       degradation('multimodal-research', 'unavailable', 'none', 'Host is unknown.', 'Delegate research to a known multimodal host.'),
       degradation('prewrite-guard', 'unavailable', 'none', 'Host is unknown; defaults to watcher-fallback guard mode.', 'Identify the host and use a known guard-capable profile.'),
@@ -543,7 +543,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
 
 export function renderCapabilityListText(list: CapabilityList = buildCapabilityList()): string {
   const lines: string[] = [
-    `Proofbound capability profiles (${list.schemaVersion})`,
+    `Proof-or-Stop capability profiles (${list.schemaVersion})`,
     '',
     `Local assurance: proofAdmissibility=${list.authorityRules.proofAdmissibility}; receiptBundleVerification=${list.authorityRules.receiptBundleVerification}; reviewQuorum=${list.authorityRules.reviewQuorum}; handoffCanManufactureProductionDone=${list.authorityRules.handoffCanManufactureProductionDone}`,
     `Categories: ${list.categories.map(c => c.id).join(', ')}`,
@@ -583,7 +583,7 @@ export function renderCapabilityProbeText(probe: CapabilityProbe): string {
     .map(c => `${c.category}=${c.status}`);
 
   const lines: string[] = [
-    `Proofbound capability probe (${probe.schemaVersion})`,
+    `Proof-or-Stop capability probe (${probe.schemaVersion})`,
     `host: ${probe.host}`,
     `requestedHost: ${probe.requestedHost}`,
     `matchedFallback: ${probe.matchedFallback}`,

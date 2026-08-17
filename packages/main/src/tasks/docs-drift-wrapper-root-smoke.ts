@@ -80,7 +80,7 @@ const WRAPPER_CLAUDE_MD = [
   'See `dev-notes/wrapper-doc.md` for the wrapper notes.',
   '',
   '```bash',
-  'lattice validate',
+  'proof-or-stop validate',
   '```',
   '',
 ].join('\n');

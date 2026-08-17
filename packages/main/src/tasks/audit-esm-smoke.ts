@@ -12,7 +12,7 @@ try {
     '# Test CLAUDE',
     '',
     '```bash',
-    'lattice validate --json',
+    'proof-or-stop validate --json',
     'lattice missing_cmd',
     '```',
     '',

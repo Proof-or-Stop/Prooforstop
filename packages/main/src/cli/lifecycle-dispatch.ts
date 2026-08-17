@@ -24,16 +24,16 @@ export async function runStoryCreateLifecycleDispatch(args: {
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
       if (!args.gitReady) {
-        return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+        return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the from-draft worktree cannot be created automatically.\nNext: Run git init and make the first commit, then retry proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
       try {
         const wtResult = args.handlers.dev_start({ storyId });
         const syncResult = args.commitFromDraftMetadataAndMergeMain(args.root, args.store, storyId, fromDraftName);
-        return `${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
+        return `${result}\n\n${wtResult}\n\n${syncResult}\n\nNext: Change to the worktree directory above, then run proof-or-stop story_advance phase=PLAN to enter PLAN`;
       } catch (e: any) {
         throw new Error(
           `from-draft worktree bootstrap failed for ${storyId}: ${e.message}\n` +
-          `Next: After diagnosing, run lattice story_advance --phase=INIT_CHECK again to retry automatically, or manually run lattice dev_start '{"storyId":"${storyId}"}'`,
+          `Next: After diagnosing, run proof-or-stop story_advance --phase=INIT_CHECK again to retry automatically, or manually run proof-or-stop dev_start '{"storyId":"${storyId}"}'`,
         );
       }
     }
@@ -46,10 +46,10 @@ export async function runStoryCreateLifecycleDispatch(args: {
       fromDraftMetadataSegment = args.commitFromDraftMetadataOnMain(args.root, args.store, storyId, fromDraftName);
     }
     if (!args.gitReady) {
-      return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+      return `${result}\n⚠ Current directory is not a Git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\nNext: First run git init && git add . && git commit -m "init" at the project root, then run proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
     }
     const metadataLine = fromDraftMetadataSegment ? `\n${fromDraftMetadataSegment}` : '';
-    return `${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)`;
+    return `${result}${metadataLine}\nStory is currently in INIT.\nNext steps:\n  1. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' create worktree\n  2. cd to the prompted worktree path\n  3. proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}' enter PLAN (cwd must be the worktree)`;
   });
 }
 
@@ -144,8 +144,8 @@ export async function runStoryAdvanceInitCheckLifecycleDispatch(args: {
       throw new Error(
         `INIT_CHECK aborted: ${e.message}\n` +
         `Story ${storyId} stays at ${alreadyInitCheck ? 'INIT_CHECK' : 'INIT'} (phase not advanced; no worktree created).\n` +
-        `Next: fix the cause, then re-run lattice story_advance --phase=INIT_CHECK, ` +
-        `or run lattice dev_start '{"storyId":"${storyId}"}' to bootstrap directly.`,
+        `Next: fix the cause, then re-run proof-or-stop story_advance --phase=INIT_CHECK, ` +
+        `or run proof-or-stop dev_start '{"storyId":"${storyId}"}' to bootstrap directly.`,
       );
     }
 
@@ -173,6 +173,6 @@ export async function runStoryAdvanceInitCheckLifecycleDispatch(args: {
       syncResult = args.commitInitCheckMetadataAndMergeMain(args.root, args.store, String(storyId));
     }
     const syncSegment = syncResult ? `\n\n${syncResult}` : '';
-    return `${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run lattice story_advance phase=PLAN to enter PLAN`;
+    return `${advanceResult}\n\n${wtResult}${syncSegment}\n\nNext: Change to the worktree directory above, then run proof-or-stop story_advance phase=PLAN to enter PLAN`;
   });
 }

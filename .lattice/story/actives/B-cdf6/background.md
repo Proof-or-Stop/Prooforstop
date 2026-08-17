@@ -15,6 +15,43 @@ Third, 13 `lattice-`prefixed agent role IDs (out of 17 total registry role templ
 Fourth, 391 of the roughly 574 affected markdown files live under `.lattice/story/` and are frozen historical records that CLAUDE.md rule 8 forbids touching directly; rewriting them would falsify the audit trail. That leaves roughly 183 active docs as the real work surface. The total drifts upward as this story's own artifacts are written, so 391 frozen is the stable figure and the active count is approximate by nature.
 
 A further complication: the brand state is already mixed rather than clean. Proofbound appears 1,177 times, proof-or-stop 439, ProofStory 267, plus stray one-off spellings (Prooforstop, proof-stop, Proof-Or-Stop, proofstop, PROOFBOUND). ProofStory appears to be a distinct domain concept rather than a brand variant and must be preserved. A naive replace would deepen this inconsistency instead of resolving it. Finally, `scripts/verify-lattice-residue.mjs` is an existing zero-tolerance REVIEW-to-TEST gate that enforces the PREVIOUS koala-to-lattice rebrand and whose self-test explicitly asserts that `lattice-review-integrity-v1` is clean, which now directly contradicts the new brand direction.
+## Corrected freeze criterion + multi-developer merge constraint (2026-08-11, mid-DEV)
+
+Two user corrections arrived after CHK-001..CHK-005 were marked done. Both change the design, and the second one changes it more than the first.
+
+### Correction 1: the freeze test was too permissive
+
+Verbatim (translated): "Any lattice that has NO effect on the past evidence chain must be refactored, including filenames, documentation, and code; any lattice that DOES affect the past evidence chain gets compatibility handling - do not change or affect the past, but do not let it affect the future either. After the story completes, lattice is frozen into the past; current state and future are proof-or-stop."
+
+The CHK-001 mapping table conflated COUPLING with EVIDENCE. It froze env-var names, bin filenames, npm package names, the state directory and code identifiers on the grounds that renaming them requires coordinated edits. Under the corrected test that reasoning is invalid: coordinated edits are work, not evidence. Audited, the ONLY true past-evidence dependency is the 13 salt string literals, which are hashed into _hash fields on already-persisted artifacts (12 such files exist under .lattice/story/actives/B-cdf6/ alone).
+
+Consequence: my CHK-003 adversarial:2 evidence note asserted that every surviving lattice token in the active-doc surface traces to a FROZEN row in the mapping table. That was FALSE at the time I recorded it - bin/lattice.js was not in the table at all, and .codex/ plus packages/main/src prose were outside every gate scan root, so the gate passing gave false confidence. The user found this by inspection, which is exactly the failure the gate was supposed to prevent.
+
+### Correction 2: the repository is multi-developer
+
+Verbatim (translated): "this repository is developed by multiple people; you need to guarantee that other people's code still works normally after it is merged in."
+
+Verified empirically rather than assumed: git log shows two distinct authors over the last 60 commits (Harmonygo 58, Pan Qi 2), and local main is 2 commits ahead of origin/main. So teammate branches authored against the lattice-era names WILL merge into this rename.
+
+This is a stronger requirement than migration compatibility. Compatibility shims cannot be a temporary convenience for old on-disk STATE that a later story removes; they must be a durable bilingual contract for old CODE that does not exist in this repo yet. A teammate branch may:
+  - import { runLattice, LatticeConfig, ... } from '@lattice/core'
+  - export LATTICE_* env vars in scripts and CI
+  - read or write .lattice/ paths and lattice.config.json
+  - invoke node bin/lattice.js
+  - reference @lattice/core as a package dependency (14 files import it today)
+
+Design consequences:
+1. Renames must be ADDITIVE at every boundary another developer's code can touch. Old name keeps resolving; new name becomes canonical for docs and new writes.
+2. Package name and bin entries: keep lattice as an alias, add proof-or-stop. Never remove.
+3. Exported code identifiers: if renamed, re-export the old symbol name as a deprecated alias so a teammate's import does not fail to resolve at build time. A silent build break on merge is the worst outcome, because it surfaces as the teammate's problem in their branch.
+4. Env vars: read BOTH names, preferring the new one; never require the new one.
+5. .githooks/pre-push:148 arms on the exact string @lattice/core and exits 0 on mismatch. If the package is renamed without updating this line in the same commit, the recursive-tsc defense SILENTLY SELF-DISARMS - the dangerous failure mode is that it looks fine.
+6. Deleting bin/lattice.js is explicitly out of scope: 32 in-flight stories and this worktree's own guard path invoke it.
+
+### Gate scan roots must widen
+
+The previous gate passed while init-assets.ts (31 stale invocations, and it is what init writes into NEW user projects), .codex/ (17 tokens) and the bin filenames were all unscanned. Extend DOC_SCAN_ROOTS to cover packages/*/src prose, scripts/, bin/, .codex/ and the repo-root files, so this miss class is caught mechanically rather than by user inspection.
+
 ## Adversarial Review Corrections (2026-08-11, pre-PLAN)
 
 Four reviewers ran on the INIT snapshot: lattice-review-story-init and product-reviewer (both required, both PASS, no blockers), plus two extra adversarial lanes requested by the user — Fable-high and Codex gpt-5.6-sol-xhigh. The Codex lane exhausted its turn budget twice before emitting a report; its exploration trace independently converged on the same surfaces (docs-drift extractor, pre-push package gate, prompt-baseline hashes, brand constants) but produced no citable findings, so the findings below are attributed to Fable-high and were then INDEPENDENTLY VERIFIED by the main agent against the real files. Two reviewer claims were corrected in that verification and are recorded here in corrected form.

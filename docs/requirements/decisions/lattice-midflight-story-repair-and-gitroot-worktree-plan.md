@@ -1,18 +1,18 @@
-# Proofbound Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan
+# Proof-or-Stop Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan
 
 Date: 2026-06-13
 
 ## Purpose
 
-This document defines the execution plan for fixing the Proofbound CLI gaps exposed
+This document defines the execution plan for fixing the Proof-or-Stop CLI gaps exposed
 by the ClawCreek PR-A story recovery case.
 
-The goal is to let Proofbound support a story that was created before the current
+The goal is to let Proof-or-Stop support a story that was created before the current
 PLAN discipline was fully applied, without weakening the second-generation
 flow. A completed implementation with recorded evidence should have a
 mechanical, auditable repair path when the checklist schema is missing
 `verificationIntent`. At the same time, automatic worktree bootstrap must honor
-`gitRoot` when Proofbound metadata lives in a wrapper directory that is not itself
+`gitRoot` when Proof-or-Stop metadata lives in a wrapper directory that is not itself
 a git repository.
 
 Problem 3 from the incident, the `checklist_update --help` import error for
@@ -47,18 +47,18 @@ Relevant config:
 ```
 
 The affected story, `B-5a12`, did not start cleanly from the current standard
-Proofbound PLAN flow. Checklist items existed before `verificationIntent` was
+Proof-or-Stop PLAN flow. Checklist items existed before `verificationIntent` was
 filled. Later work added understanding, decision, plan, scope check, checklist
 done state, and 21 verification evidence records. `story_review` still blocked
 because each checklist item lacked `verificationIntent.happy`,
 `verificationIntent.edge`, and `verificationIntent.adversarial`.
 
 The blocking review result is directionally correct: evidence proves behavior,
-but intent is the acceptance contract. The defect is that Proofbound gives no
+but intent is the acceptance contract. The defect is that Proof-or-Stop gives no
 first-class way to repair or migrate a mid-flight story whose evidence already
 exists.
 
-There was also a bootstrap failure path: Proofbound correctly resolved the signed
+There was also a bootstrap failure path: Proof-or-Stop correctly resolved the signed
 workspace root to the configured `gitRoot`, but automatic worktree creation
 still assumed the current metadata root was the git root in at least part of the
 bootstrap path.
@@ -79,7 +79,7 @@ Current behavior:
 Why this is a product defect:
 
 - The user sees that the code and verification evidence are complete, but
-  Proofbound cannot close the workflow.
+  Proof-or-Stop cannot close the workflow.
 - The only manual workaround is to reconstruct intent one item at a time through
   generic checklist updates, without a repair-specific audit trail.
 - A reviewer cannot distinguish "no acceptance contract exists and no evidence
@@ -97,12 +97,12 @@ Current behavior:
 
 Why this is a product defect:
 
-- The user has a valid Proofbound setup: metadata at wrapper root, code repository
+- The user has a valid Proof-or-Stop setup: metadata at wrapper root, code repository
   under configured `gitRoot`.
 - INIT_CHECK should be able to create `story/B-*` worktrees for that code repo
   without requiring manual intervention.
 - If bootstrap fails, the workflow loses the token-saving preflight value that
-  Proofbound is supposed to provide.
+  Proof-or-Stop is supposed to provide.
 
 ### P3. sourceManifestDigest Help Import Error
 
@@ -116,7 +116,7 @@ Decision:
 
 - Do not fix P3 in this story.
 - Do not touch source manifest digest implementation as part of this plan.
-- A read-only regression smoke that checks `lattice checklist_update --help`
+- A read-only regression smoke that checks `proof-or-stop checklist_update --help`
   still exits zero is acceptable, but it is not the primary fix.
 
 ## Design Principles
@@ -149,7 +149,7 @@ Decision:
 Add one explicit command:
 
 ```bash
-lattice verification_intent_repair '{"storyId":"B-5a12","mode":"fromEvidence","legacyRepair":true,"reason":"Story was adopted after implementation; evidence exists but checklist items predate verificationIntent schema."}'
+proof-or-stop verification_intent_repair '{"storyId":"B-5a12","mode":"fromEvidence","legacyRepair":true,"reason":"Story was adopted after implementation; evidence exists but checklist items predate verificationIntent schema."}'
 ```
 
 Suggested aliases are optional, but the canonical command should be
@@ -258,7 +258,7 @@ evidence exists for the missing lane:
 
 ```text
 CHK-001 missing verificationIntent.happy, but evidence exists for CHK-001:happy:0.
-Run lattice verification_intent_repair ... to reconstruct audited legacy intent,
+Run proof-or-stop verification_intent_repair ... to reconstruct audited legacy intent,
 or add explicit verificationIntent in PLAN.
 ```
 
@@ -273,7 +273,7 @@ Structured issue fields should include:
 | `evidenceAware` | `true` |
 | `evidenceRefs` | `["CHK-001:happy:0"]` |
 | `repairHint` | `legacy_evidence_present` |
-| `suggestedCommand` | `lattice verification_intent_repair ...` |
+| `suggestedCommand` | `proof-or-stop verification_intent_repair ...` |
 
 Preserve `type: "missing_verification_intent"` for compatibility. The
 evidence-aware case is distinguished by `evidenceAware: true`,
@@ -282,7 +282,7 @@ callers to handle a second blocker type for the same missing-intent condition.
 
 ### validate Diagnostic Upgrade
 
-`lattice validate` should continue to evaluate coverage from
+`proof-or-stop validate` should continue to evaluate coverage from
 `verificationIntent` to `verificationEvidence`. If a story has evidence refs but
 no stored intent, validation should print the same repair hint instead of only
 reporting missing coverage.
@@ -295,7 +295,7 @@ Worktree creation should resolve two roots:
 
 | Root | Meaning |
 | --- | --- |
-| metadata root | Where Proofbound config and story metadata live. |
+| metadata root | Where Proof-or-Stop config and story metadata live. |
 | git material root | The actual git repo, usually `metadataRoot/gitRoot` when configured. |
 
 The bootstrap path must:
@@ -462,12 +462,12 @@ Add or extend smoke coverage for these scenarios:
    - Error vocabulary aligns with signed workspace resolution.
 
 7. P3 regression sanity.
-   - `lattice checklist_update --help` exits zero.
+   - `proof-or-stop checklist_update --help` exits zero.
    - No implementation change to `sourceManifestDigest` is part of the story.
 
 ### Decision Document 3-Round / 2-Host Verification
 
-Because this story changes Proofbound core workflow behavior, the decision document
+Because this story changes Proof-or-Stop core workflow behavior, the decision document
 itself must pass a bounded multi-host verification before the implementation can
 be considered ready for DONE.
 
@@ -496,7 +496,7 @@ The three rounds should be used for different pressure:
 3. Round 3 checks final closure: whether validation evidence, review findings,
    build output, and rollout notes still match the final material state.
 
-This audit is a requirement for Proofbound core decision documents. It does not by
+This audit is a requirement for Proof-or-Stop core decision documents. It does not by
 itself create `fullAuthorityDone`, does not convert host verdicts into Authority
 receipts, and does not relax any lifecycle gate.
 
@@ -508,11 +508,11 @@ the real `B-5a12` story unless the user explicitly approves.
 Replay steps:
 
 ```bash
-lattice session_brief
-lattice story_get '{"storyId":"B-5a12","detail":true}'
-lattice verification_intent_repair '{"storyId":"B-5a12","mode":"fromEvidence","legacyRepair":true,"reason":"Story was adopted mid-flight after implementation; existing evidence refs should be used to reconstruct missing verification intent."}'
-lattice story_review '{"storyId":"B-5a12"}'
-lattice validate --story=B-5a12
+proof-or-stop session_brief
+proof-or-stop story_get '{"storyId":"B-5a12","detail":true}'
+proof-or-stop verification_intent_repair '{"storyId":"B-5a12","mode":"fromEvidence","legacyRepair":true,"reason":"Story was adopted mid-flight after implementation; existing evidence refs should be used to reconstruct missing verification intent."}'
+proof-or-stop story_review '{"storyId":"B-5a12"}'
+proof-or-stop validate --story=B-5a12
 ```
 
 Expected result:
@@ -531,7 +531,7 @@ npm --prefix packages/main run build
 node scripts/verify-process-fact-contract.mjs
 node scripts/verify-story-review-structured-output.mjs
 node scripts/verify-init-check-bootstrap.mjs
-lattice checklist_update --help
+proof-or-stop checklist_update --help
 ```
 
 Also run the new or extended smoke tasks added by the implementation story.
@@ -547,7 +547,7 @@ runtime contains the new command before testing globally.
 The fix is complete when:
 
 1. A mid-flight story with passing evidence but missing `verificationIntent` can
-   be repaired through one explicit Proofbound command.
+   be repaired through one explicit Proof-or-Stop command.
 2. The repair is auditable and does not pretend the intent was authored before
    implementation.
 3. `story_review` gives a specific repair hint instead of a generic blocker
@@ -565,12 +565,12 @@ The fix is complete when:
 ## Rollout Notes
 
 After implementation lands on main and the main package is built, global CLI
-users should get the new repair command through the normal global Proofbound path.
+users should get the new repair command through the normal global Proof-or-Stop path.
 For affected projects, the recommended operator sequence is:
 
 1. Update to the fixed main/global CLI.
-2. Run `lattice check` to confirm managed assets are current.
-3. Run `lattice session_brief`.
+2. Run `proof-or-stop check` to confirm managed assets are current.
+3. Run `proof-or-stop session_brief`.
 4. Run `verification_intent_repair` only for stories that have legacy evidence
    but missing intent.
 5. Re-run `story_review` and `validate`.

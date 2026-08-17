@@ -39,7 +39,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'runtime-activity-log',
-    description: 'Primary Proofbound runtime activity log.',
+    description: 'Primary Proof-or-Stop runtime activity log.',
     matchers: [
       { kind: 'exact', value: '.lattice/activity.jsonl' },
     ],
@@ -221,7 +221,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'lattice-authority-key-file',
-    description: 'Internal Proofbound Authority key-management file; may contain local private key material.',
+    description: 'Internal Proof-or-Stop Authority key-management file; may contain local private key material.',
     matchers: [
       { kind: 'exact', value: '.lattice/authority.md' },
       { kind: 'exact', value: '.Lattice/authority.md' },
@@ -233,7 +233,7 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'lattice-baseline-artifacts',
-    description: 'Proofbound baseline proof artifacts kept outside the material tree.',
+    description: 'Proof-or-Stop baseline proof artifacts kept outside the material tree.',
     matchers: [
       { kind: 'prefix', value: '.lattice/artifacts/baseline/' },
       { kind: 'prefix', value: '.Lattice/artifacts/baseline/' },

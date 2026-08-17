@@ -116,17 +116,17 @@ export function renderCandidateSpecRouteText(
   ];
   if (modeMismatch && effectiveMode === 'warn') {
     lines.push(`status=WARNING_MODE_MISMATCH artifact=${artifact.mode} configured=${effectiveMode}`);
-    lines.push(`nextAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}"}'`);
+    lines.push(`nextAction=proof-or-stop candidate_spec_route '{"storyId":"${artifact.storyId}"}'`);
   } else if (modeMismatch) {
     lines.push(`status=SHADOW_MODE_MISMATCH_RECORDED artifact=${artifact.mode} configured=${effectiveMode}`);
   }
   if (artifact.requiresEscalation && !artifact.fullScan && effectiveMode === 'enforce') {
     lines.push('status=BLOCKED_PENDING_ESCALATION');
-    lines.push(`resolutionAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+    lines.push(`resolutionAction=proof-or-stop candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
     lines.push('Do not submit scope_check_save, review_pass_set, or finding evidence with this unresolved candidate artifact.');
   } else if (artifact.requiresEscalation && !artifact.fullScan && effectiveMode === 'warn') {
     lines.push('status=WARNING_PENDING_ESCALATION');
-    lines.push(`nextAction=lattice candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
+    lines.push(`nextAction=proof-or-stop candidate_spec_route '{"storyId":"${artifact.storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`);
   } else if (artifact.requiresEscalation && !artifact.fullScan) {
     lines.push('status=SHADOW_RECORDED');
   }

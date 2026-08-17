@@ -7,7 +7,7 @@ Created: 2026-06-19
 
 ## Decision
 
-Proofbound should add a mandatory review assurance floor for code-changing stories: ordinary code diffs require at least one review round before DONE, failure or bug signals escalate to three local single-host rounds, and high-risk lifecycle/gate/Authority/process-fact work keeps the stronger three-round two-host or explicit degraded-single-host path.
+Proof-or-Stop should add a mandatory review assurance floor for code-changing stories: ordinary code diffs require at least one review round before DONE, failure or bug signals escalate to three local single-host rounds, and high-risk lifecycle/gate/Authority/process-fact work keeps the stronger three-round two-host or explicit degraded-single-host path.
 
 ## Context
 
@@ -15,7 +15,7 @@ A small development task can look low risk during PLAN but still ship a bug when
 
 ## Scope
 
-Applies to future Proofbound CLI lifecycle policy and DONE closure design for code-changing stories. This document is a planning and policy artifact only; runtime DONE oracle implementation, storage fields, and exact row ids are future work.
+Applies to future Proof-or-Stop CLI lifecycle policy and DONE closure design for code-changing stories. This document is a planning and policy artifact only; runtime DONE oracle implementation, storage fields, and exact row ids are future work.
 
 ## Non-Goals
 
@@ -84,14 +84,14 @@ capability.
   `voluntaryLocalRounds` even when escalation is not required. That visibility
   must not change `required`, `ok`, or `assuranceLevel`.
 - A review-assurance DONE block should render `Stale material recovery` with:
-  `lattice validate --story=<storyId> --json`,
-  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
+  `proof-or-stop validate --story=<storyId> --json`,
+  `proof-or-stop verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
   followed by the same command without `--dryRun` after rerunning listed
   evidence commands, and `node bin/lattice.js autopilot_review_submit ... --materialDigest=<current-materialHash>`
   for fresh local host verdicts.
 - The degraded-single-host writer guidance emits one executable worktree-local
   `node bin/lattice.js autopilot_review_submit` command per required round; it
-  does not rely on a global `lattice` runtime that may resolve an older main
+  does not rely on a global `proof-or-stop` runtime that may resolve an older main
   build. Each command uses explicit `--deriveBindings`, a real local
   hostname/session identity, and the current material/story-files hashes. The
   handler holds the story validation-execution lock keyed by the same canonical
@@ -152,7 +152,7 @@ foreign binary suffix bytes exactly.
 
 ## Supersession
 
-If this decision changes, update this file through a Proofbound story. Because
+If this decision changes, update this file through a Proof-or-Stop story. Because
 this file is under `docs/requirements/decisions/*.md`, future edits should use
 the current story-lifecycle review escalation policy: direct decision-doc edits
 are diagnostic/classification inputs, and DONE requires 3x2 only when the

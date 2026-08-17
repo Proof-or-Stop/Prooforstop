@@ -134,7 +134,7 @@ function setupFixture(): string {
     staleThresholds: {
       phaseStale: 10_000_000,
       itemStale: 10_000_000,
-      idleLattice: 10_000_000,
+      idleProofOrStop: 10_000_000,
       bugStale: 10_000_000,
     },
   }, null, 2) + '\n');
@@ -348,7 +348,7 @@ async function main(): Promise<void> {
     const readiness = buildStoryReadinessReport({ storyId: STORY_ID, target: 'DONE', store: ctx.store, root, gitCwd: root });
     const readinessRow = readiness.readiness.find((row) => row.id === 'done.review-assurance-floor');
     assert.equal(readinessRow?.blocking, true);
-    assert.equal(readinessRow?.nextCommand, `lattice review_escalation_status '{"storyId":"${STORY_ID}"}'`);
+    assert.equal(readinessRow?.nextCommand, `proof-or-stop review_escalation_status '{"storyId":"${STORY_ID}"}'`);
     assert.match(readinessRow?.reason ?? '', /reasonCode=review_assurance_floor_high_risk_3x2_or_fallback_missing/);
 
     const reviewText = createReviewEscalationHandlers(ctx).review_escalation_status({ storyId: STORY_ID }) as string;
@@ -395,7 +395,7 @@ async function main(): Promise<void> {
     assert.match(prepare, /owner-runnable commands:/);
     assert.match(prepare, /reviewer\/host writer paths \(do not run from owner\/main session\):/);
     assert.match(prepare, /human-approved fallback writer paths \(only when eligible\):/);
-    assert.match(prepare, /commands:\n  - lattice review_escalation_status/);
+    assert.match(prepare, /commands:\n  - proof-or-stop review_escalation_status/);
     const machineCommandBlock = prepare.match(/\ncommands:\n([\s\S]*?)\n\n/)?.[1] ?? '';
     assert.doesNotMatch(machineCommandBlock, /quorum_submit/);
     assert.doesNotMatch(machineCommandBlock, /autopilot_review_submit/);

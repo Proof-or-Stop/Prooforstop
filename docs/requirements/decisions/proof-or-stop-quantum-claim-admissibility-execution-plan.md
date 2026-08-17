@@ -331,7 +331,7 @@ lab results, physical systems, or solver improvements.
 The read-only CLI surface is:
 
 ```bash
-lattice quantum_claim_check --case=complete --json
+proof-or-stop quantum_claim_check --case=complete --json
 ```
 
 The `complete` case advances only the local Q5 claim-admissibility projection
@@ -361,7 +361,7 @@ Metrics include `unsupportedAdvanceRate`, `staleAcceptanceRate`,
 and `mutatesLifecycle=false`.
 
 ```bash
-lattice quantum_claim_benchmark --json
+proof-or-stop quantum_claim_benchmark --json
 ```
 
 ### Milestone 5 - Reporting and governance integration
@@ -373,7 +373,7 @@ limitations, and keeps `productionClaim=false`, `authorityClaim=false`,
 `solverImprovementClaim=false`.
 
 ```bash
-lattice quantum_claim_report
+proof-or-stop quantum_claim_report
 ```
 
 Generic framework gate-adapter/plugin completion, lifecycle mutation,

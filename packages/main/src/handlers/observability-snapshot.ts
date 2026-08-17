@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   `observability_snapshot` CLI surface for the host-neutral Proofbound
+ *   `observability_snapshot` CLI surface for the host-neutral Proof-or-Stop
  *   observability console. Read-only L0 adapter dry-run that consumes the
  *   local assurance story projection, opens a fresh `StoryStore` rooted at each
  *   row's active cwd, and emits a JSON snapshot for downstream UI / dashboard
@@ -23,7 +23,7 @@ import { dirname, resolve } from 'node:path';
 import {
   buildObservabilitySnapshot,
   OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
-  type LatticeObservabilitySnapshot,
+  type ProofOrStopObservabilitySnapshot,
 } from '../core/observability-snapshot.js';
 import { resolveLearningDir } from '../core/learning-store.js';
 import type { HandlerContext } from './context.js';
@@ -35,7 +35,7 @@ import type { HandlerContext } from './context.js';
  * main-repo `.lattice/learning`. Resolution itself is untouched — the value
  * is computed by the existing `resolveLearningDir` leaf.
  */
-type LatticeObservabilitySnapshotWithLearningRoot = LatticeObservabilitySnapshot & {
+type LatticeObservabilitySnapshotWithLearningRoot = ProofOrStopObservabilitySnapshot & {
   readonly resolvedLearningRoot: string;
 };
 
@@ -48,7 +48,7 @@ function writeJsonNoOverwrite(file: string, value: unknown): void {
 function renderText(snapshot: LatticeObservabilitySnapshotWithLearningRoot): string {
   const ladder = snapshot.sections.authorityLadder;
   return [
-    `Proofbound observability snapshot (${snapshot.schemaVersion})`,
+    `Proof-or-Stop observability snapshot (${snapshot.schemaVersion})`,
     `projectionSchemaVersion: ${snapshot.projectionSchemaVersion}`,
     `generatedAt: ${snapshot.generatedAt}`,
     `readOnly: ${snapshot.readOnly}`,

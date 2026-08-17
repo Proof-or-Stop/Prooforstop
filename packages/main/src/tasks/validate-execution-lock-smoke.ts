@@ -213,7 +213,7 @@ async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildRe
   return Promise.race([proc.done, timeout]);
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   const proc = spawnCommand(root, [command, JSON.stringify(args)], command);
   const result = await waitChild(proc, 10000);
   if (result.code !== 0) {
@@ -467,12 +467,12 @@ async function assertReviewerWritesAreNotBlocked(): Promise<void> {
     const validate = spawnValidate(root, storyId, 'review-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
 
-    const reviewRunOutput = await runLattice(root, 'review_run_start', {
+    const reviewRunOutput = await runProofOrStop(root, 'review_run_start', {
       storyId,
       agent: 'lattice-review-quality',
     });
     const reviewRunId = extractReviewRunId(reviewRunOutput);
-    await runLattice(root, 'review_pass_set', {
+    await runProofOrStop(root, 'review_pass_set', {
       storyId,
       agent: 'lattice-review-quality',
       reviewRunId,
@@ -496,7 +496,7 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
     const validate = spawnValidate(root, storyId, 'delivery-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'validate must hold the execution lock');
 
-    await runLattice(root, 'delivery_check_set', {
+    await runProofOrStop(root, 'delivery_check_set', {
       storyId,
       agentId: 'lattice-review-delivery',
       docsPromises: [{
@@ -1244,7 +1244,7 @@ async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
       ['story_get', { storyId, slim: true }],
       ['checklist_get', { storyId, slim: true }],
     ] as const) {
-      const output = await runLattice(root, command, args);
+      const output = await runProofOrStop(root, command, args);
       assert.ok(output.trim(), `${command} must complete while validation capacity is held`);
     }
     assert.deepEqual(capacityTicketPaths(root), ticketBefore,

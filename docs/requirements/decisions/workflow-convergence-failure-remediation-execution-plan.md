@@ -87,7 +87,7 @@ This plan is subordinate to the current canonical contracts:
 - [Owner Session Contract Execution Plan](./owner-session-contract-execution-plan.md)
 - [Session Ownership and Write Leases](./session-ownership-and-write-leases.md)
 - [Prewrite Scope Guard Guide](../../guide-scope-guard.md)
-- [Proofbound Multi-Role Separation Refactor Plan](./role-separation.md)
+- [Proof-or-Stop Multi-Role Separation Refactor Plan](./role-separation.md)
 
 If this plan and a canonical subsystem document disagree, the subsystem document
 wins. The implementation story must update that owner document or record a new
@@ -269,7 +269,7 @@ and gate:
 - A no-output child terminates at the startup watchdog; a productive long-running
   child is governed by the total timeout, not the startup timeout.
 - Child cleanup and capacity release are verified for timeout and abort paths.
-- Generic `lattice`, `proofbound`, `core`, and `handlers` terms no longer cause a
+- Generic `proof-or-stop`, `proof-or-stop`, `core`, and `handlers` terms no longer cause a
   full-corpus scan by themselves.
 - Exact paths and all configured `relatedDocs` remain candidates even if their
   tokens are common.

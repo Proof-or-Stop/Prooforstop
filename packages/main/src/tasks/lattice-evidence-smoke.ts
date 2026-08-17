@@ -30,7 +30,7 @@ function git(cwd: string, args: string[]): string {
 
 function commitPaths(cwd: string, message: string, paths: string[]): string {
   git(cwd, ['add', ...paths]);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
@@ -75,7 +75,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
   const failedProofEvidence: VerificationEvidence = {
     intentRef: 'CHK-006:local-admissibility-fail:custom',
     kind: 'manual_transcript',
-    command: 'lattice conduit_status --json --storyId=B-12f3',
+    command: 'proof-or-stop conduit_status --json --storyId=B-12f3',
     result: 'fail',
     verdict: 'blocked_classified',
     note: 'Local admissibility proof remains blocked until gate evidence is fresh and scoped.',

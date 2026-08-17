@@ -114,7 +114,7 @@ done_required_validate
 
 | Initial hypothesis | Focused evidence | Verdict |
 |---|---|---|
-| “Routine `lattice validate` must build utils” | Its command paths do not consume utils or `bin/lattice.js` | Refuted; changing validate would repair the wrong owner |
+| “Routine `proof-or-stop validate` must build utils” | Its command paths do not consume utils or `bin/lattice.js` | Refuted; changing validate would repair the wrong owner |
 | “The worktree handler should auto-build dist” | The failing delivery path is root `npm test`; changing worktree creation broadens a sensitive lifecycle component | Refuted as the minimum repair point |
 | “Bootstrap should always auto-build missing artifacts” | Bootstrap is shared by interactive and test entrypoints; implicit builds add side effects, latency, and recursion risk | Broader alternative, not the minimum defect repair |
 | “The full-suite child tests should each remember to build utils” | This duplicates a shared prerequisite across consumers | Refuted by ownership and duplication |
@@ -1123,7 +1123,7 @@ Final audited status: **no unresolved BLOCKER or HIGH architecture finding**.
 ### 21.5 Canonical `host_run` provenance
 
 The prose above records the architecture findings and their dispositions. The
-following canonical Lattice usage-ledger rows are the authoritative local
+following canonical Proof-or-Stop usage-ledger rows are the authoritative local
 evidence that the two external audit hosts were actually invoked for this
 Story. These rows are diagnostic execution provenance (`gateEvidence=false`),
 not verified external authority or production-release proof.

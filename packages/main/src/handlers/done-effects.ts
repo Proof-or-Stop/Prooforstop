@@ -257,13 +257,13 @@ export function commitArtifactReleaseLedgerIfNeeded(
       throw new Error(`${ARTIFACT_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
     }
     runGit(
-      ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: record artifact release for ${storyId}`],
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `proof-or-stop: record artifact release for ${storyId}`],
       mainMergeRoot,
     );
   } catch (e: any) {
     throw new Error(
       `DONE post-merge artifact release ledger commit failed: ${e?.message ?? e}\n` +
-      `Recovery: git add ${ARTIFACT_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: record artifact release for ${storyId}"`,
+      `Recovery: git add ${ARTIFACT_RELEASE_LEDGER_REL_PATH} && git commit -m "proof-or-stop: record artifact release for ${storyId}"`,
     );
   }
 }
@@ -325,13 +325,13 @@ export function commitCapabilityReleaseLedgerIfNeeded(
       throw new Error(`${CAPABILITY_RELEASE_LEDGER_REL_PATH} was not staged; check .gitignore and repository state`);
     }
     runGit(
-      ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: record product capability release for ${storyId}`],
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `proof-or-stop: record product capability release for ${storyId}`],
       mainMergeRoot,
     );
   } catch (e: any) {
     throw new Error(
       `DONE post-merge capability release ledger commit failed: ${e?.message ?? e}\n` +
-      `Recovery: git add ${CAPABILITY_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: record product capability release for ${storyId}"`,
+      `Recovery: git add ${CAPABILITY_RELEASE_LEDGER_REL_PATH} && git commit -m "proof-or-stop: record product capability release for ${storyId}"`,
     );
   }
 }
@@ -613,7 +613,7 @@ export function acquireDoneMainMergeLock(
   return acquireMainWriteLockRegistered(mainRepoRoot, {
     label: 'DONE main merge',
     heldMessage:
-      `DONE main merge lock is held by another Proofbound operation; story ${storyId} phase was not changed. ` +
+      `DONE main merge lock is held by another Proof-or-Stop operation; story ${storyId} phase was not changed. ` +
       `Retry after the active DONE merge finishes.`,
   });
 }
@@ -1072,7 +1072,7 @@ export async function applyDoneMergeEffects(
         const staged = runGitArgs(['diff', '--cached', '--name-only'], wtPathAbs);
         if (staged) {
           runGitArgs(
-            ['-c', 'commit.gpgsign=false', 'commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`],
+            ['-c', 'commit.gpgsign=false', 'commit', '-m', `proof-or-stop: mark ${storyId} DONE + clear worktree`],
             wtPathAbs,
           );
         }
@@ -1210,7 +1210,7 @@ export async function applyDoneMergeEffects(
         });
         throw new Error(
           `Story ${storyId} 已合并，但 worktree 清理未完成: ${cleanupFailure}\n` +
-          `→ 请运行 lattice doctor 查看，或执行 lattice doctor --repair 清理终态 worktree 残留。`,
+          `→ 请运行 proof-or-stop doctor 查看，或执行 proof-or-stop doctor --repair 清理终态 worktree 残留。`,
         );
       }
 

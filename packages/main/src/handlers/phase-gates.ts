@@ -10,7 +10,7 @@
  *   - runReviewToTestPreflightGate  — REVIEW→TEST CLI preflight orchestration
  *                                     (logging / fail-closed catch / error
  *                                     shaping around handlers/review-preflight)
- *   - runValidateGate               — the lattice validate --json gate
+ *   - runValidateGate               — the proof-or-stop validate --json gate
  *                                     (consumes verifier-owned evidence)
  *   - runDoneOracleGate             — the TEST→DONE done-oracle gate adapter
  *                                     (consumes core/done-oracle.ts)
@@ -418,8 +418,8 @@ export async function runReviewToTestPreflightGate(
       throw new Error(
         `Cannot enter TEST: CLI gate preflight did not pass (${failedGates})\n\n` +
         rendered +
-        `\n\n→ 修复上述 gate 后重跑 lattice story_advance --phase=TEST\n` +
-        `→ 单独复跑: lattice validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+        `\n\n→ 修复上述 gate 后重跑 proof-or-stop story_advance --phase=TEST\n` +
+        `→ 单独复跑: proof-or-stop validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
       );
     }
     if (preflight.gates.some(g => g.status === 'warn')) {
@@ -435,8 +435,8 @@ export async function runReviewToTestPreflightGate(
     throw new Error(
       `Cannot enter TEST: CLI gate preflight execution error\n` +
       `${message}\n\n` +
-      `→ 修复 review-preflight gate 后重跑 lattice story_advance --phase=TEST\n` +
-      `→ 单独复跑: lattice validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+      `→ 修复 review-preflight gate 后重跑 proof-or-stop story_advance --phase=TEST\n` +
+      `→ 单独复跑: proof-or-stop validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
     );
   }
 }
@@ -501,7 +501,7 @@ export function runScopeTransitionGate(
       throw new Error(
         `Cannot enter ${phase}: scope-contract.json missing for a new-scope story [missing_scope_contract]\n\n` +
         `Story ${storyId} declares file scopes in its checklist but has no scope contract.\n` +
-        `→ Run: lattice scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+        `→ Run: proof-or-stop scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
         `   Then rerun story_advance --phase=${phase}`,
       );
     }
@@ -556,7 +556,7 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
 
   return (
     `\n\n⚠ Scope contract: not initialized — this story declares file scopes in its checklist.\n` +
-    `   Run before REVIEW: lattice scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+    `   Run before REVIEW: proof-or-stop scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
     `   Advancing to REVIEW without a scope contract will BLOCK for this new-scope story.`
   );
 }
@@ -688,7 +688,7 @@ export function assessStoredValidationPassAdmissibility(ctx: HandlerContext, sto
   const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
   return evaluateValidationEvidenceAdmissibility({
     evidence,
-    expectedCommand: `lattice validate --story=${storyId} --json`,
+    expectedCommand: `proof-or-stop validate --story=${storyId} --json`,
     currentCoverageSnapshot: currentChecklistCoverageSnapshot(ctx, storyId),
     recordedCoverageSnapshot: canonicalCoverageSnapshotFromReport(evidence?.verificationCoverage),
     blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
@@ -706,7 +706,7 @@ function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibi
       case 'command_mismatch': return `existing validation PASS command is not ${validateCommand}`;
       case 'output_invalid_json': return 'existing validation PASS output is not valid JSON';
       case 'output_not_all_pass': return 'existing validation PASS output is not allPass/allPassed=true';
-      case 'coverage_missing': return 'existing validation PASS is missing verificationCoverage from lattice validate';
+      case 'coverage_missing': return 'existing validation PASS is missing verificationCoverage from proof-or-stop validate';
       case 'coverage_missing_required': return 'existing validation PASS verificationCoverage is missing missingRequired';
       case 'coverage_gap': return `existing validation PASS has ${result.evidence?.verificationCoverage?.missingRequired ?? '?'} required verification coverage gap(s)`;
       case 'coverage_entries_missing': return 'existing validation PASS verificationCoverage has no entries snapshot';
@@ -720,9 +720,9 @@ function renderPhaseGateAdmissibilityReasons(result: ValidationEvidenceAdmissibi
 }
 
 /**
- * DEV→TEST lattice validate gate.
+ * DEV→TEST proof-or-stop validate gate.
  *
- * 自动调 lattice validate，消费 verifier 返回的 JSON 结果。
+ * 自动调 proof-or-stop validate，消费 verifier 返回的 JSON 结果。
  *
  * verifier owns test-evidence.json persistence and canonical metadata commit.
  * This gate must not write the artifact again: a second write would discard
@@ -746,17 +746,17 @@ export async function runValidateGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
-  const validateCommand = `lattice validate --story=${storyId} --json`;
+  const validateCommand = `proof-or-stop validate --story=${storyId} --json`;
   const admissibility = assessStoredValidationPassAdmissibility(ctx, storyId);
   if (admissibility.ok) {
-    ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping lattice validate rerun (admissible lineage=${admissibility.lineage}).`);
+    ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh; skipping proof-or-stop validate rerun (admissible lineage=${admissibility.lineage}).`);
     return;
   }
   const rerunReason = renderPhaseGateAdmissibilityReasons(admissibility, validateCommand);
 
   ctx.log?.(rerunReason
-    ? `DEV→TEST gate: ${rerunReason}; running lattice validate --json...`
-    : 'DEV→TEST gate: running lattice validate --json...');
+    ? `DEV→TEST gate: ${rerunReason}; running proof-or-stop validate --json...`
+    : 'DEV→TEST gate: running proof-or-stop validate --json...');
   try {
     const { createVerifierHandlers } = await import('./verifier.js');
     const verifierHandlers = createVerifierHandlers(ctx);
@@ -780,12 +780,12 @@ export async function runValidateGate(
         parsed.summary ? `Summary: ${parsed.summary}` : '',
       ].filter(Boolean);
       throw new Error(
-        `Cannot enter TEST: lattice validate did not pass` +
+        `Cannot enter TEST: proof-or-stop validate did not pass` +
         (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
         (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
         '\n' +
         sections.join('\n') +
-        '\n\n→ 修复后重跑 lattice validate，再 story_advance --phase=TEST'
+        '\n\n→ 修复后重跑 proof-or-stop validate，再 story_advance --phase=TEST'
       );
     }
     ctx.log?.('validate PASS; canonical test-evidence.json persisted by verifier');
@@ -793,10 +793,10 @@ export async function runValidateGate(
     if (e.message?.includes('Cannot enter TEST')) throw e;
     const message = e instanceof Error ? e.message : String(e);
     throw new Error(
-      `Cannot enter TEST: lattice validate execution error\n` +
+      `Cannot enter TEST: proof-or-stop validate execution error\n` +
       `${message}\n\n` +
-      `→ 修复 validate runner 后重跑 lattice validate --story=${storyId} --json\n` +
-      `→ 然后重跑 lattice story_advance --phase=TEST`,
+      `→ 修复 validate runner 后重跑 proof-or-stop validate --story=${storyId} --json\n` +
+      `→ 然后重跑 proof-or-stop story_advance --phase=TEST`,
     );
   }
 }

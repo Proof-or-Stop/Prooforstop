@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { LATTICE_CONFIG_FILENAME } from './config.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
 import {
   readGlobalMemoryEntries,
   readProjectMemoryEntries,
@@ -134,7 +134,7 @@ function normalizeOptionalText(value: string | undefined): string | undefined {
 }
 
 function runtimeConfigDigest(projectRoot: string): string | null {
-  const path = join(projectRoot, LATTICE_CONFIG_FILENAME);
+  const path = join(projectRoot, PROOF_OR_STOP_CONFIG_FILENAME);
   if (!existsSync(path)) return null;
   try {
     return digestText(readFileSync(path, 'utf-8'));

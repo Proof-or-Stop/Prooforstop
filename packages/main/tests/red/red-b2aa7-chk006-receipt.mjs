@@ -99,7 +99,17 @@ const { loadConfig } = await import(`${DIST}/core/config.js`);
 
 // The shared corruption vocabulary, imported from PRODUCTION rather than copied,
 // so this receipt cannot drift from the phrase the consumers actually emit.
-const { RED_EVIDENCE_CORRUPT_MARKER } = await import(`${DIST}/core/red-evidence-artifact-validation.js`);
+// `redEvidenceRepairGuidance` is imported for the same reason: the repair command
+// it renders names the CLI bin, which is brand-dependent (B-cdf6 renamed it to
+// `proof-or-stop` per docs/requirements/decisions/brand-rename-mapping.md:121,
+// "Hardcoded `lattice <cmd>` hints and error strings ... RENAMED"). Hardcoding the
+// bin name here made this receipt fail on a pure rename while every behaviour it
+// guards still held. Deriving it pins what production ACTUALLY emits — strictly
+// stronger, because a dropped or reworded guidance line still fails the check.
+const {
+  RED_EVIDENCE_CORRUPT_MARKER,
+  redEvidenceRepairGuidance,
+} = await import(`${DIST}/core/red-evidence-artifact-validation.js`);
 
 const NOW = '2026-07-25T00:00:00.000Z';
 const storyId = 'B-2aa7-chk006';
@@ -332,11 +342,25 @@ const roundTripPreservesOriginals =
 const refuse = driveOnce(setRejected, () => proofstory.red_evidence_create(appendArgs));
 const artifactAfterRefusal = readFileSync(ARTIFACT_PATH, 'utf8');
 setRejected();
+
+// Derived from production (see the import note above) so a brand rename cannot
+// break this receipt, while a DROPPED guidance line still does. Asserted to be
+// non-vacuous and to still name the diagnostic command + this story's id, so the
+// derivation cannot degrade into comparing production against itself.
+const repairCommand = redEvidenceRepairGuidance(storyId);
+if (!repairCommand.includes('red_evidence_get') || !repairCommand.includes(`--storyId=${storyId}`)) {
+  console.error(
+    'red-b2aa7-chk006-receipt: redEvidenceRepairGuidance no longer renders a `red_evidence_get --storyId=<id>` '
+    + 'invocation, so the repair command this receipt pins is not actionable for an operator.',
+  );
+  process.exitCode = 1;
+}
+
 const refusesActionably =
   refuse.threw
   && hasMarker(refuse)
   && refuse.text.includes('Nothing written')
-  && refuse.text.includes('lattice red_evidence_get')
+  && refuse.text.includes(repairCommand)
   && artifactAfterRefusal === readFileSync(ARTIFACT_PATH, 'utf8');
 
 // CONTROL: on a CLEAN artifact the write path is exactly what it was — no

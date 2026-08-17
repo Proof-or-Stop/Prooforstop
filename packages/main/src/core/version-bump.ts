@@ -382,7 +382,7 @@ export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
   try {
     opts.runGit(['add', ...bump.files], opts.mainMergeRoot);
     opts.runGit(
-      ['-c', 'commit.gpgsign=false', 'commit', '-m', `chore: bump lattice cli to ${bump.to}`],
+      ['-c', 'commit.gpgsign=false', 'commit', '-m', `chore: bump proof-or-stop cli to ${bump.to}`],
       opts.mainMergeRoot,
     );
   } catch (e: any) {
@@ -391,7 +391,7 @@ export function bumpVersionOnDoneMerge(opts: BumpOnDoneMergeOptions): string {
       `The version files are modified on main and NOT committed. Recovery:\n` +
       `  cd "${opts.mainMergeRoot}"\n` +
       `  git add ${bump.files.join(' ')}\n` +
-      `  git commit -m "chore: bump lattice cli to ${bump.to}"`,
+      `  git commit -m "chore: bump proof-or-stop cli to ${bump.to}"`,
     );
   }
 

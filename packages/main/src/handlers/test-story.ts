@@ -49,14 +49,14 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
     /**
      * @task B-1dc6
      * @checklist CHK-001
-     * @title story-level test evidence and bug linkage are persisted by Proofbound
+     * @title story-level test evidence and bug linkage are persisted by Proof-or-Stop
      * @type feature
      * @priority high
      * @description
-     *   stack-layering explicitly requires bug/evidence persistence protocol to be defined by Proofbound itself.
+     *   stack-layering explicitly requires bug/evidence persistence protocol to be defined by Proof-or-Stop itself.
      *   After running story-level regression, test_story is responsible for writing test-evidence.json back to the story,
      *   and linking with automatic bug.json creation / fixed updates, keeping workflow triggers and project state
-     *   persistence boundary inside Proofbound.
+     *   persistence boundary inside Proof-or-Stop.
      * @changes
      *   - [CHK-001] Link bug/evidence persistence protocol back to test_story
      * @test high-gap-annotation-backfill
@@ -231,7 +231,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       let testEvidenceWritten = false;
       try {
         ctx.store.writeTestEvidence(storyId, {
-          command: `lattice test_story '{"storyId":"${storyId}"}'`,
+          command: `proof-or-stop test_story '{"storyId":"${storyId}"}'`,
           output: JSON.stringify({ totalCases: totalCasesS, passedCases: passedCasesS, failedCases: totalCasesS - passedCasesS, allPassed: allPassedS }),
           result: allPassedS ? 'PASS' : 'FAIL',
           timestamp: __runEndIso,
@@ -251,7 +251,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       try {
         ctx.store.appendTestRun(storyId, {
           timestamp: __runEndIso,
-          command: `lattice test_story '{"storyId":"${storyId}"}'`,
+          command: `proof-or-stop test_story '{"storyId":"${storyId}"}'`,
           totalCases: totalCasesS,
           passedCases: passedCasesS,
           failedCases: totalCasesS - passedCasesS,

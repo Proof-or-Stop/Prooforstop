@@ -344,7 +344,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, preSealBlindSpots),
     generatedBy: {
       verifier: 'acceptance-coverage-basis-verifier',
-      command: phaseBasis === 'pre_review' ? 'lattice pre_review_check' : 'lattice acceptance_basis_generate',
+      command: phaseBasis === 'pre_review' ? 'proof-or-stop pre_review_check' : 'proof-or-stop acceptance_basis_generate',
       algorithmVersion: 'v1',
     },
     discoveryProfileRef: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.ref,
@@ -395,10 +395,25 @@ export function verifyAcceptanceCoverageBasis(
   basis: AcceptanceCoverageBasisV1,
 ): { ok: boolean; diagnostics: AcceptanceBasisDiagnostic[] } {
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
+  // B-cdf6: the `generatedBy.command` comparisons below are DELIBERATELY exact-match on
+  // the canonical bin name, and are the one place in the rename where read-both is the
+  // WRONG answer. Do not add a `|| === 'lattice ...'` shim here.
+  //
+  // Why: this string is an input to `basisDigest`. Accepting both spellings would mean
+  // accepting two different digests for what claims to be the same basis, which defeats
+  // the point of digesting the issuer at all.
+  //
+  // Migration consequence, stated so it is not rediscovered as a bug: a basis artifact
+  // generated on pre-rename main records `lattice acceptance_basis_generate` and will
+  // fail here with AT_ADAPTER_RESULT_INVALID after that branch merges. That is expected —
+  // the basis is a per-story, per-phase artifact that its handler regenerates, so the fix
+  // is to re-run `proof-or-stop acceptance_basis_generate` (or `pre_review_check`), not to
+  // widen this check. The failure is explicit rather than silent, which is the intended
+  // behaviour.
   if (basis.schemaVersion !== 'proofstory.acceptance_coverage_basis.v1'
     || basis.generatedBy.verifier !== 'acceptance-coverage-basis-verifier'
-    || (basis.phaseBasis === 'plan' && basis.generatedBy.command !== 'lattice acceptance_basis_generate')
-    || (basis.phaseBasis === 'pre_review' && basis.generatedBy.command !== 'lattice pre_review_check')
+    || (basis.phaseBasis === 'plan' && basis.generatedBy.command !== 'proof-or-stop acceptance_basis_generate')
+    || (basis.phaseBasis === 'pre_review' && basis.generatedBy.command !== 'proof-or-stop pre_review_check')
     || (basis.phaseBasis === 'pre_review' && !basis.priorPlanBasisDigest)) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_INVALID', message: 'basis issuer, schema, command, or phase is invalid' });
   }

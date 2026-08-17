@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'lattice.autopilot_policy.v1' as const;
 export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'lattice.autopilot_policy_check.v1' as const;
@@ -230,7 +230,7 @@ export function isValidAutopilotPolicyName(name: string): boolean {
 }
 
 function autopilotPoliciesDir(root: string): string {
-  return join(root, LATTICE_DIR, 'autopilot-policies');
+  return join(root, PROOF_OR_STOP_DIR, 'autopilot-policies');
 }
 
 export function autopilotPolicyPath(root: string, policy: string): string {

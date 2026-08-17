@@ -147,7 +147,7 @@ Controlled tasks additionally include clean tasks:
 
 ### 5.2 Live Shadow Tasks
 
-Real Proofbound stories observed under the EXISTING production per-story
+Real Proof-or-Stop stories observed under the EXISTING production per-story
 ON/OFF assignment (`resolveHintMode`) and its read-only observational readout
 (`learning_effectiveness`), extended — not duplicated — by this study. No
 second live assignment system is built; the live phase reuses the production
@@ -192,7 +192,7 @@ secondary/exploratory signal for the live phase only.
 | Rework loops | Number of DEV-REVIEW or TEST-DEV returns (live phase). |
 | Verified reviewer finding count | Live phase only; non-deterministic; exploratory. |
 | Time-to-DONE | Wall-clock duration from task intake to DONE or terminal stop. |
-| Command count | Number of `lattice` CLI commands and verification commands. |
+| Command count | Number of `proof-or-stop` CLI commands and verification commands. |
 | Cost | Host token/cost estimate when available. |
 | Memory-consumption fidelity | Whether the expected memory/playbook appeared in the runtime pack (from the control/treatment pack logs). |
 | Overhead on clean tasks | Delta in time/cost/commands when no trap is present (equivalence-style reporting, not superiority). |
@@ -520,7 +520,7 @@ Allowed after M8 only as exploratory unless powered:
 
 Disallowed:
 
-> Proofbound agents became smarter.
+> Proof-or-Stop agents became smarter.
 
 Disallowed:
 
@@ -548,7 +548,7 @@ Suggested table columns:
 
 Suggested core sentences:
 
-> Memory existing is not enough; Proofbound tests whether automatically
+> Memory existing is not enough; Proof-or-Stop tests whether automatically
 > consuming relevant lessons at lifecycle entrypoints causally reduces
 > recurrence of known failure modes. Because the seeded traps are authored
 > from the same lesson store the treatment surfaces, the study reports an

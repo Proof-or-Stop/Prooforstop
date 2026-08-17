@@ -12,7 +12,7 @@
 - It is scanned and extracted from the .md files in real time on every pass, with no intermediate cache
 - Automatically created Stories are not included in the truth, to avoid circular dependencies
 - When a Story is created, the discussion's key points are automatically captured into `docs/requirements/decisions/B-xxx.md`
-- `grill.json` is a story-local planning artifact, not a source of truth. Grill clarifies intent; evidence proves behavior. A grill record can flag questions not yet digested, but cannot replace the decisions documents, `verificationEvidence`, or the validation evidence from `lattice validate`.
+- `grill.json` is a story-local planning artifact, not a source of truth. Grill clarifies intent; evidence proves behavior. A grill record can flag questions not yet digested, but cannot replace the decisions documents, `verificationEvidence`, or the validation evidence from `proof-or-stop validate`.
 
 ## Closed-loop Flow
 

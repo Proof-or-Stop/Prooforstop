@@ -22,6 +22,7 @@ import {
 } from '../core/review-loop.js';
 import { ensureCurrentReviewRound } from '../core/review-run.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -72,7 +73,7 @@ function wantsJson(args: FormatArgs | undefined): boolean {
 }
 
 function actor(argsActor?: string): string {
-  return argsActor?.trim() || process.env.LATTICE_AGENT || process.env.USER || 'main';
+  return argsActor?.trim() || readBrandEnv('AGENT') || process.env.USER || 'main';
 }
 
 function requireReviewLoopStore(store: unknown): Required<ReviewLoopStore> {
