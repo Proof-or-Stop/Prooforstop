@@ -7495,6 +7495,55 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed and fixed; this was my own error. When I corrected the overclaiming passage in commit a9a59eb674 I updated the second sentence of the paragraph to say queryFiltering is deliberately NOT bound, but missed the first sentence of the SAME paragraph which still listed it among the bound fields. Verified the contradiction directly at lines 199-207 before fixing, and verified against handlers/review-inventory.ts captureReviewInventoryScope that the real binding is only schemaVersion, mode, candidates[].{path,contentHash} and scanEscalationReason. Removed the stale mention; the file now contains exactly one queryFiltering reference, the deliberately-NOT-bound one. Confirmed node scripts/verify-process-fact-contract.mjs still passes. The lane was also right that this was an over-cautious inconsistency rather than a revival of the false-safety overclaim: it wrongly implied MORE was bound, not that the leak was closed, so it did not undermine the Known incomplete callout that tracks BUG-F107-INCOMPLETE and points at B-8af0.",
       "resolvedAt": "2026-08-17T02:48:56.822Z"
+    },
+    {
+      "id": "B-3f3d:F-110",
+      "desc": "Low-severity scope-contract accuracy note (not the reviewed doc itself): commit c01daa57c4 acknowledged packages/main/src/tasks/review-inventory-handler-smoke.ts in scope-contract.json as \"the home of the F-107/F-108 end-to-end routing-neutral fixture\", but grep of the committed file shows no such fixture -- only the pre-existing F-039 candidateDrift test, which asserts the OPPOSITE direction (a real candidate drift correctly invalidates the epoch). The actual F-107/F-108 routing-neutral disproof fixture (the one whose corpusDigest d49896cf->d49896cf / candidateSpecSetDigest a4cb4561->9dffdc85 result grounds the doc's new Known-incomplete callout) exists only in this worktree's git stash@{0} (WIP F-107/F-108 end-to-end fixture, assertion currently failing), per BUG-F107-INCOMPLETE's own evidence field in bug.json and F-108's resolvedReason in findings.json. The reviewed doc text itself (review-inventory-epoch-and-saturation-gate.md lines 215-224) does not overclaim -- it correctly says only that an end-to-end fixture SHOWS the leak, without claiming that fixture is committed/passing in this tree. But the scope-contract entry is a durable process artifact that now asserts test coverage exists in a file where it does not; a future reader trusting scope-contract.json (rather than grep) would believe review-inventory-handler-smoke.ts already carries this regression coverage. Recommend either popping stash@{0} into review-inventory-handler-smoke.ts before DONE, or correcting the scope-contract acknowledgment text to say the fixture is carried to B-8af0 (consistent with BUG-F107-INCOMPLETE and the doc's own carried-to-B-8af0 language) rather than already landed in this file.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-17T03:15:16.613Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-442",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3f3d/bug.json",
+          ".lattice/story/actives/B-3f3d/findings.json",
+          ".lattice/story/actives/B-3f3d/scope-contract.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "da1aafabb768abf955ba64460f314b7c9f01bda5528e0fb540c5333a3c2a3b03",
+      "files": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        ".lattice/story/actives/B-3f3d/scope-contract.json",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|severity-scope-contract",
+      "signatureTagSource": "auto"
     }
   ]
 }
