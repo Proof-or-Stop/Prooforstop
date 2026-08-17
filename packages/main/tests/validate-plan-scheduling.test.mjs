@@ -23,6 +23,11 @@
  *
  * Timing is only used where a claim is inherently about time (jobs=1 must not
  * overlap). Ordering claims are proven structurally, so they cannot flake.
+ *
+ * Every plan below passes `jobs` EXPLICITLY, so an operator running the whole
+ * validate under `LATTICE_VALIDATE_JOBS=<n>` does not silently change what this
+ * file asserts. The default itself is checked through `resolveValidatePlanJobs`
+ * with an explicit env object instead.
  */
 import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
@@ -83,7 +88,7 @@ try {
       probe('charlie', { sleepMs: 300 }),
       probe('delta', { sleepMs: 10 }),
     ],
-  }, root, 'HEAD-ORDER');
+  }, root, 'HEAD-ORDER', undefined, { jobs: 4 });
 
   assert.deepEqual(labelsOf(ordered), ['alpha', 'bravo', 'charlie', 'delta']);
   // The first command is the slowest, so a completion-ordered array would be
@@ -118,7 +123,7 @@ try {
       probe('optional-failing', { code: 5, optional: true }),
       probe('last'),
     ],
-  }, root);
+  }, root, undefined, undefined, { jobs: 4 });
 
   assert.equal(withFailure.commands.length, 5);
   assert.deepEqual(labelsOf(withFailure), ['first', 'failing', 'third', 'optional-failing', 'last']);
@@ -143,6 +148,7 @@ try {
       provider: 'b7dff-chk003-deadline',
       commands: [probe('slow-a', { sleepMs: 5_000 }), probe('slow-b', { sleepMs: 5_000 })],
     }, root, undefined, undefined, {
+      jobs: 4,
       deadlineAt: Date.now() - 1_000,
       deadlineError: () => deadlineError,
     });
@@ -160,7 +166,7 @@ try {
   const aborted = await executeValidationPlan({
     provider: 'b7dff-chk003-abort',
     commands: [probe('abort-a', { sleepMs: 5_000 }), probe('abort-b', { sleepMs: 5_000 })],
-  }, root, undefined, undefined, { abortSignal: controller.signal });
+  }, root, undefined, undefined, { jobs: 4, abortSignal: controller.signal });
   assert.equal(aborted.commands.length, 2);
   assert.equal(aborted.allPass, false);
   assert.equal(aborted.status, 'fail');
@@ -203,7 +209,7 @@ try {
   assertions++;
 
   assert.equal(schedulerLine(sequential), 'validate scheduler: jobs=1 commands=2 declared=2 exclusiveByDefault=0');
-  assert.equal(schedulerLine(ordered), `validate scheduler: jobs=${DEFAULT_VALIDATE_PLAN_JOBS} commands=4 declared=4 exclusiveByDefault=0`);
+  assert.equal(schedulerLine(ordered), 'validate scheduler: jobs=4 commands=4 declared=4 exclusiveByDefault=0');
   // The barrier default must still be visible in the report: an undeclared
   // command is counted as exclusiveByDefault, not as a declared one.
   const undeclared = await executeValidationPlan({
@@ -212,8 +218,8 @@ try {
       { label: 'bare-a', command: process.execPath, args: ['-e', 'process.exit(0)'] },
       probe('declared-b'),
     ],
-  }, root);
-  assert.equal(schedulerLine(undeclared), `validate scheduler: jobs=${DEFAULT_VALIDATE_PLAN_JOBS} commands=2 declared=1 exclusiveByDefault=1`);
+  }, root, undefined, undefined, { jobs: 2 });
+  assert.equal(schedulerLine(undeclared), 'validate scheduler: jobs=2 commands=2 declared=1 exclusiveByDefault=1');
   assert.equal(schedulerLine(undeclared), undeclared.details.at(-1), 'the scheduler line is appended last so details[0] stays the headline');
   assertions += 4;
   console.log('VI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count');
