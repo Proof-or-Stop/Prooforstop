@@ -42,7 +42,6 @@
  */
 
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
-import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -360,36 +359,30 @@ void (async () => {
       rmSync(zeroTimeoutRoot, { recursive: true, force: true });
     }
 
-    // 12. B-16df F-004 (H-003): validation-executor.ts and verifier.ts — the shared
-    //     validate-command execution/config-parsing primitives this story's fix builds on
-    //     top of — must remain byte-for-byte unmodified from main. The fix lives entirely
-    //     in checklist.ts's new resolvePinnedCommandTimeoutMs helper + its call sites,
-    //     never by editing either shared primitive. First a hard sanity check that
-    //     REPO_ROOT actually resolved to the real repo root (so a broken path computation
-    //     fails loudly here rather than being silently swallowed by the soft-skip below);
-    //     then `git diff main` against both files must produce empty output. Soft-skip
-    //     (console.warn, no hard failure) only if `git diff` ITSELF throws (e.g. `git` is
-    //     missing or `main` is unresolvable in some CI checkout) -- that guard covers ONLY the
-    //     execSync call. B-16df F-006: the check(...) assertion on the diff CONTENT must NEVER
-    //     live inside that same try/catch, or a genuine modification (check() throwing) would
-    //     be caught by the environment-only catch and silently downgraded to a console.warn
-    //     SOFT-SKIP instead of failing the smoke -- so it runs unguarded below, gated only on
-    //     whether execSync actually produced output (diffOutput !== null), never on whether
-    //     that output happens to be empty.
+    // 12. B-16df F-004 (H-003): the pinned-timeout matching logic must live in checklist.ts's
+    //     resolvePinnedCommandTimeoutMs helper + its call sites, never inside the shared
+    //     validate-command execution/config-parsing primitives (validation-executor.ts,
+    //     verifier.ts) that it builds on top of. First a hard sanity check that REPO_ROOT
+    //     actually resolved to the real repo root, so a broken path computation fails loudly
+    //     here instead of making the source reads below vacuous.
+    //
+    //     B-7dff: this was originally asserted as `git diff main -- <those two files>` being
+    //     EMPTY. While B-16df was in flight that read as "MY fix did not edit them"; the
+    //     moment B-16df merged, the identical line started reading as "these two shared
+    //     primitives may never change again", which fails for any later story that edits them
+    //     for unrelated reasons (B-7dff declares resource claims for the routine validate plan
+    //     in exactly those files). A diff-vs-main pin cannot distinguish the two, so the check
+    //     now asserts the invariant it was actually defending — no copy of the pinned-timeout
+    //     matching logic in either shared primitive — which stays true under later edits and
+    //     still fails if the logic is duplicated out of checklist.ts. Checks 13 and 14 below
+    //     complete it from the other side: exactly one declaration and exactly four call
+    //     sites, all in checklist.ts.
     check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
-    let diffOutput: string | null = null;
-    try {
-      diffOutput = execSync(
-        'git diff main -- packages/main/src/core/validation-executor.ts packages/main/src/handlers/verifier.ts',
-        { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-      );
-    } catch (e) {
-      console.warn(`validate-command-timeout-smoke: SOFT-SKIP git-diff-vs-main check (H-003) — execSync itself failed (e.g. git missing / main unresolvable), not a content evaluation — ${e instanceof Error ? e.message : String(e)}`);
-    }
-    if (diffOutput !== null) {
+    for (const sharedPrimitive of ['packages/main/src/core/validation-executor.ts', 'packages/main/src/handlers/verifier.ts']) {
+      const sharedSource = readFileSync(join(REPO_ROOT, sharedPrimitive), 'utf-8');
       check(
-        'validation-executor.ts and verifier.ts are byte-for-byte unmodified from main (empty git diff)',
-        diffOutput.trim().length === 0,
+        `${sharedPrimitive} carries no copy of the pinned-timeout matching logic (it stays in checklist.ts)`,
+        !sharedSource.includes('resolvePinnedCommandTimeoutMs'),
       );
     }
 

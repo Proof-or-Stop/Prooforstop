@@ -1,3 +1,5 @@
+import type { ResourceClaim } from './keyed-scheduler.js';
+
 export type ValidationStatus = 'pass' | 'fail' | 'warn';
 export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
 
@@ -11,6 +13,18 @@ export interface ValidationCommand {
   timeoutMs?: number;
   optional?: boolean;
   focus?: string[];
+  /**
+   * What this command touches, in the SAME vocabulary the full test suite
+   * declares (core/keyed-scheduler.ts): git-common-dir / fixed-path /
+   * fixed-port / runtime-lock / main-write-lock, shared or exclusive. Keys are
+   * resolved relative to the PROJECT ROOT, not to `cwd`.
+   *
+   * Absent (or empty) means UNDECLARED, which is not the same as "touches
+   * nothing": an undeclared command is scheduled exclusively by
+   * `resolveValidationCommandResources`, so it can never overlap another
+   * command. Declare claims only for a command proven safe to share.
+   */
+  resources?: ResourceClaim[];
 }
 
 export interface ValidationCommandResult {

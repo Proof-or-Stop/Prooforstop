@@ -34,6 +34,7 @@ import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand, ValidationProgressReporter } from '../core/validation-types.js';
+import { validateResourceClaims, type ResourceClaim } from '../core/keyed-scheduler.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommandResult } from '../core/validation-types.js';
 import {
   executeValidationPlan,
@@ -159,6 +160,39 @@ function commandFromString(label: string, value: string): ValidationCommand | nu
   return { label, command: parts[0], args: parts.slice(1) };
 }
 
+/**
+ * Parse `validate.commands[].resources` from config into resource claims.
+ *
+ * Malformed or unrecognised claims THROW here, at declaration time, so a typo'd
+ * class fails the whole validate run loudly instead of being dropped and
+ * quietly turning into a command with no declared claim. (The fail-closed
+ * default in resolveValidationCommandResources would still schedule such a
+ * command alone, but a silently ignored declaration is a lie the operator
+ * cannot see.)
+ */
+function parseConfiguredResourceClaims(value: unknown, owner: string): ResourceClaim[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${owner}: resources must be an array of resource claims`);
+  }
+  const claims = value.map((raw) => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
+    }
+    const entry = raw as Record<string, unknown>;
+    if (typeof entry.class !== 'string' || typeof entry.key !== 'string' || typeof entry.access !== 'string') {
+      throw new Error(`${owner}: every resource claim must be an object with class, key and access`);
+    }
+    return {
+      class: entry.class as ResourceClaim['class'],
+      key: entry.key,
+      access: entry.access as ResourceClaim['access'],
+      ...(entry.ownership !== undefined ? { ownership: entry.ownership as ResourceClaim['ownership'] } : {}),
+    };
+  });
+  validateResourceClaims(claims, owner);
+  return claims;
+}
+
 function normalizeValidateFocus(value: unknown): string[] | undefined {
   const raw = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
   const focus = [...new Set(raw.map((v) => String(v).trim()).filter(Boolean))];
@@ -250,6 +284,9 @@ export function configuredValidationCommands(projectRoot: string): ValidationCom
           ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
           ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
           ...(focus ? { focus } : {}),
+          ...(entry.resources !== undefined
+            ? { resources: parseConfiguredResourceClaims(entry.resources, `configured validate.commands[${i}]`) }
+            : {}),
         });
       }
     }

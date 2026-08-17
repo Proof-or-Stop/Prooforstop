@@ -11,6 +11,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import { validateResourceClaims, type ResourceClaim, type SchedulableEntry } from './keyed-scheduler.js';
 import type {
   ValidationCommand,
   ValidationCommandResult,
@@ -603,6 +604,91 @@ export async function runSingleAllowlistedCommand(
     timedOut: Boolean(result.timedOut),
     durationMs: result.durationMs,
   };
+}
+
+/**
+ * The one synthetic resource every routine-validate plan entry claims.
+ *
+ * A command that DECLARED resources holds this key `shared`, so two declared
+ * commands may overlap whenever their declared claims are disjoint. A command
+ * that declared NOTHING holds it `exclusive`, so it conflicts with every other
+ * entry in the plan — declared or not — and is therefore scheduled alone.
+ *
+ * The default is exclusive on purpose. Routine validate commands write under
+ * `.lattice/`, rebuild `packages/main/dist`, take repository build/runtime
+ * locks and drive git; an unclassified command that silently ran concurrently
+ * would corrupt exactly the evidence validate exists to produce. Defaulting to
+ * shared would assume the disjointness nobody has proven yet, and a declaration
+ * is precisely the record of that proof. Under-declaring only costs latency.
+ */
+export const VALIDATE_PLAN_BARRIER_CLAIM_CLASS = 'fixed-path' as const;
+export const VALIDATE_PLAN_BARRIER_CLAIM_KEY = '.lattice/runtime/validate-plan-barrier';
+
+/** One plan command as the keyed scheduler sees it. */
+export interface ValidationScheduleEntry extends SchedulableEntry {
+  /** Unique per plan (the plan index is part of it: labels may repeat). */
+  name: string;
+  resources: ResourceClaim[];
+  command: ValidationCommand;
+  /** 1-based position in the plan, so results can be restored to plan order. */
+  commandIndex: number;
+  /** True when the command declared nothing and got the fail-closed exclusive default. */
+  exclusiveByDefault: boolean;
+}
+
+/**
+ * Resolve one command's effective claims.
+ *
+ * - Declared: `[barrier(shared), ...declared]`.
+ * - Undeclared or empty: `[barrier(exclusive)]` — a single exclusive claim on
+ *   the synthetic key, which is what makes an unclassified command run alone.
+ *
+ * An unrecognised class / access / ownership is REFUSED here, at declaration
+ * time, rather than being dropped (which would silently leave the command in
+ * some other key's admission set). Any `canonicalKey` arriving from a caller or
+ * from config is discarded: canonicalization is the scheduler's job
+ * (`canonicalizeEntries`), and accepting a pre-set one would let untrusted
+ * input choose which entries it conflicts with.
+ */
+export function resolveValidationCommandResources(command: ValidationCommand, owner: string): ResourceClaim[] {
+  const declared = command.resources;
+  if (declared !== undefined && !Array.isArray(declared)) {
+    throw new Error(`validate command ${owner} declared a non-array resources field`);
+  }
+  const claims: ResourceClaim[] = (declared ?? []).map((claim) => {
+    if (!claim || typeof claim !== 'object') throw new Error(`validate command ${owner} declared a non-object resource claim`);
+    return {
+      class: claim.class,
+      key: claim.key,
+      access: claim.access,
+      ...(claim.ownership ? { ownership: claim.ownership } : {}),
+    };
+  });
+  validateResourceClaims(claims, owner);
+  if (claims.length === 0) {
+    return [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'exclusive' }];
+  }
+  return [{ class: VALIDATE_PLAN_BARRIER_CLAIM_CLASS, key: VALIDATE_PLAN_BARRIER_CLAIM_KEY, access: 'shared' }, ...claims];
+}
+
+/**
+ * Resolve a whole plan into scheduler entries, in plan order. The claims are
+ * NOT canonicalized here (that needs a project root and touches the filesystem
+ * and git); the scheduler's `canonicalizeEntries` does it and refuses to run
+ * any entry whose claims were never canonicalized.
+ */
+export function resolveValidationPlanEntries(plan: ValidationPlan): ValidationScheduleEntry[] {
+  return plan.commands.map((command, index) => {
+    // The index keeps names unique: two plan commands may share a label.
+    const name = `${index}:${command.label}`;
+    return {
+      name,
+      resources: resolveValidationCommandResources(command, name),
+      command,
+      commandIndex: index + 1,
+      exclusiveByDefault: !(Array.isArray(command.resources) && command.resources.length > 0),
+    };
+  });
 }
 
 export async function executeValidationPlan(
