@@ -10,9 +10,9 @@ import {
   type ExistingMkdirLockSnapshot,
   type MkdirLockHolderInfo,
 } from './mkdir-lock.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
-export const VALIDATION_EXECUTION_LOCKS_REL = `${LATTICE_DIR}/locks/validation`;
+export const VALIDATION_EXECUTION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/validation`;
 export const VALIDATION_EXECUTION_LOCK_STALE_MS = 120000;
 export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_MS = 2000;
 export const VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE = 'heartbeat.json';
@@ -66,7 +66,7 @@ export function storyRuntimeLockPath(
   if (!projectRoot) throw new Error('storyRuntimeLockPath: root is required');
   if (!id) throw new Error('storyRuntimeLockPath: storyId is required');
   const sharedRoot = resolveSharedLockRoot(projectRoot);
-  return join(sharedRoot, LATTICE_DIR, 'locks', category, `${sanitizeLockSegment(id)}-${name}.lock`);
+  return join(sharedRoot, PROOF_OR_STOP_DIR, 'locks', category, `${sanitizeLockSegment(id)}-${name}.lock`);
 }
 
 function currentContextOwns(lockKey: string): boolean {
@@ -258,7 +258,7 @@ function buildValidationLockContentionMessage(args: {
       `(pid ${args.holder.pid} on ${args.holder.hostname}), ${heartbeat}. ${retry}`
     );
   }
-  return `${prefix} by another Proofbound process (holder details unavailable), ${heartbeat}. ${retry}`;
+  return `${prefix} by another Proof-or-Stop process (holder details unavailable), ${heartbeat}. ${retry}`;
 }
 
 function writeValidationHeartbeat(lockDir: string, holder: MkdirLockHolderInfo): void {

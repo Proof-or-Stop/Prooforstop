@@ -813,8 +813,8 @@ async function run(): Promise<void> {
         worktree: {
           branch: 'story/B-smoke',
           worktreePath: join(root, '.worktrees', 'B-smoke'),
-          cleanupCommand: 'lattice handoff_worktree_cleanup',
-          reviewCommand: 'lattice finding_list',
+          cleanupCommand: 'proof-or-stop handoff_worktree_cleanup',
+          reviewCommand: 'proof-or-stop finding_list',
         },
         preflight: { memoryFreshnessPack: pack },
         prefetchManifest: {

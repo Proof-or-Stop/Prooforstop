@@ -17,7 +17,7 @@ import {
 } from '../core/planner.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
 import { canonicalDigest } from '../core/authority-signing.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 
 /**
  * @task B-e3d9
@@ -100,7 +100,7 @@ function backgroundForDraft(draft: PlannerDraft): string {
     `Planner request ${draft.plannerRunId} created this Story from canonical natural-language input.`,
     '',
     '## Key Insights',
-    'The Story must keep Proofbound evidence, receipt, and lifecycle gates mechanical. Provider prose is not gate evidence.',
+    'The Story must keep Proof-or-Stop evidence, receipt, and lifecycle gates mechanical. Provider prose is not gate evidence.',
     '',
     '## Solution Tradeoffs',
     'Use the smallest verifiable plannedSteps set. Defer unrelated refactors and optimizations unless required by safety or verification.',
@@ -117,7 +117,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       const record = draftRecord(draft);
       saveRecord(ctx, record);
       if (wantsJson(args)) return draft;
-      return renderLines(`Proofbound planner draft (${draft.schemaVersion})`, {
+      return renderLines(`Proof-or-Stop planner draft (${draft.schemaVersion})`, {
         plannerRunId: draft.plannerRunId,
         plannerDraftId: draft.plannerDraftId,
         interactionMode: draft.interactionMode,
@@ -145,7 +145,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.updatedAt = new Date().toISOString();
       saveRecord(ctx, record);
       if (wantsJson(args)) return review;
-      return renderLines(`Proofbound planner review (${review.schemaVersion})`, {
+      return renderLines(`Proof-or-Stop planner review (${review.schemaVersion})`, {
         plannerRunId: review.plannerRunId,
         status: review.status,
         issueCount: review.issueCount,
@@ -165,7 +165,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
           issues: review.issues,
         };
         if (wantsJson(args)) return result;
-        return renderLines(`Proofbound planner create-story (${result.schemaVersion})`, result);
+        return renderLines(`Proof-or-Stop planner create-story (${result.schemaVersion})`, result);
       }
       if (draft.plannerPolicy.requiresConfirmationBeforeStoryCreate) {
         let record: PlannerRunRecord | null = null;
@@ -178,7 +178,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
             blockedReason: 'confirmation required before Story creation',
           };
           if (wantsJson(args)) return result;
-          return renderLines(`Proofbound planner create-story (${result.schemaVersion})`, result);
+          return renderLines(`Proof-or-Stop planner create-story (${result.schemaVersion})`, result);
         }
       }
       const storyCreate = createStoryCreateHandlers(ctx).story_create;
@@ -224,7 +224,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         storyCreateOutput: output,
       };
       if (wantsJson(args)) return result;
-      return renderLines(`Proofbound planner create-story (${result.schemaVersion})`, result);
+      return renderLines(`Proof-or-Stop planner create-story (${result.schemaVersion})`, result);
     },
 
     planner_create_job(args: { storyId?: string; draftFile?: string; runId?: string; projectId?: string; requireMultiHost?: boolean; requiredHostVerdictCount?: number } & JsonArgs) {
@@ -236,7 +236,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       const review = reviewPlannerDraft(draft);
       if (review.status !== 'pass') {
         const result = { schemaVersion: 'lattice.job_plan.v1' as const, status: 'blocked' as const, storyId, plannerRunId: draft.plannerRunId, issues: review.issues };
-        return wantsJson(args) ? result : renderLines('Proofbound planner create-job (blocked)', result);
+        return wantsJson(args) ? result : renderLines('Proof-or-Stop planner create-job (blocked)', result);
       }
       const jobPlan = buildJobPlan(draft, storyId, args.projectId, {
         requireMultiHost: args.requireMultiHost,
@@ -263,7 +263,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         status: jobPlan.status,
       });
       if (wantsJson(args)) return jobPlan;
-      return renderLines(`Proofbound planner create-job (${jobPlan.schemaVersion})`, {
+      return renderLines(`Proof-or-Stop planner create-job (${jobPlan.schemaVersion})`, {
         plannerRunId: jobPlan.plannerRunId,
         storyId: jobPlan.storyId,
         status: jobPlan.status,
@@ -278,8 +278,8 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         ? readPlannerRun(ctx.root, args.runId)
         : { schemaVersion: 'lattice.planner_status.v1' as const, runs: listPlannerRuns(ctx.root) };
       if (wantsJson(args)) return result;
-      if ('runs' in result) return renderLines(`Proofbound planner status (${result.schemaVersion})`, { runs: result.runs.length });
-      return renderLines(`Proofbound planner status (${result.schemaVersion})`, {
+      if ('runs' in result) return renderLines(`Proof-or-Stop planner status (${result.schemaVersion})`, { runs: result.runs.length });
+      return renderLines(`Proof-or-Stop planner status (${result.schemaVersion})`, {
         plannerRunId: result.plannerRunId,
         storyId: result.storyId ?? '',
         finalStatus: result.finalStatus,
@@ -296,7 +296,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.updatedAt = new Date().toISOString();
       saveRecord(ctx, record);
       const result = { schemaVersion: 'lattice.planner_answer.v1' as const, plannerRunId: record.plannerRunId, answersDigest: record.answersDigest, confirmationDigest: record.confirmationDigest ?? null, status: record.finalStatus };
-      return wantsJson(args) ? result : renderLines(`Proofbound planner answer (${result.schemaVersion})`, result);
+      return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner answer (${result.schemaVersion})`, result);
     },
 
     planner_decision_submit(args: { runId: string; decisionFile: string } & JsonArgs) {
@@ -307,7 +307,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.updatedAt = new Date().toISOString();
       saveRecord(ctx, record);
       const result = { schemaVersion: 'lattice.planner_decision.v1' as const, plannerRunId: record.plannerRunId, decisionReceiptDigest: digest, status: record.finalStatus };
-      return wantsJson(args) ? result : renderLines(`Proofbound planner decision (${result.schemaVersion})`, result);
+      return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner decision (${result.schemaVersion})`, result);
     },
 
     planner_resume(args: { runId: string } & JsonArgs) {
@@ -318,7 +318,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         saveRecord(ctx, record);
       }
       const result = { schemaVersion: 'lattice.planner_resume.v1' as const, plannerRunId: record.plannerRunId, status: record.finalStatus, storyId: record.storyId ?? null, jobPlanDigest: record.jobPlan?.jobPlanDigest ?? null };
-      return wantsJson(args) ? result : renderLines(`Proofbound planner resume (${result.schemaVersion})`, result);
+      return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner resume (${result.schemaVersion})`, result);
     },
 
     async planner_run(args: PlannerDraftArgs & { projectId?: string; planOnly?: boolean; execute?: boolean; maxExecuteSteps?: number; requireMultiHost?: boolean; requiredHostVerdictCount?: number } & JsonArgs = {}) {
@@ -334,13 +334,13 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         record.finalStatus = 'blocked';
         saveRecord(ctx, record);
         const result = { schemaVersion: 'lattice.planner_run.v1' as const, status: 'blocked' as const, plannerRunId: draft.plannerRunId, review };
-        return wantsJson(args) ? result : renderLines(`Proofbound planner run (${result.schemaVersion})`, result);
+        return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner run (${result.schemaVersion})`, result);
       }
       if (draft.status === 'paused') {
         record.finalStatus = 'paused';
         saveRecord(ctx, record);
         const result = { schemaVersion: 'lattice.planner_run.v1' as const, status: 'paused' as const, plannerRunId: draft.plannerRunId, questions: draft.questions, requiredDecisions: draft.requiredDecisions };
-        return wantsJson(args) ? result : renderLines(`Proofbound planner run (${result.schemaVersion})`, { plannerRunId: draft.plannerRunId, status: 'paused', questions: draft.questions.length, requiredDecisions: draft.requiredDecisions.length });
+        return wantsJson(args) ? result : renderLines(`Proof-or-Stop planner run (${result.schemaVersion})`, { plannerRunId: draft.plannerRunId, status: 'paused', questions: draft.questions.length, requiredDecisions: draft.requiredDecisions.length });
       }
       const storyResult = handlers.planner_create_story({ runId: draft.plannerRunId, json: true }) as { status: string; storyId?: string };
       if (storyResult.status !== 'created' || !storyResult.storyId) {
@@ -348,7 +348,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         saveRecord(ctx, record);
         return wantsJson(args)
           ? storyResult
-          : renderLines('Proofbound planner run (blocked)', { plannerRunId: draft.plannerRunId, status: storyResult.status });
+          : renderLines('Proof-or-Stop planner run (blocked)', { plannerRunId: draft.plannerRunId, status: storyResult.status });
       }
       const jobPlan = handlers.planner_create_job({
         runId: draft.plannerRunId,
@@ -361,7 +361,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       if (jobPlan.status !== 'planned' || args.planOnly === true || args.execute === false) {
         return wantsJson(args)
           ? jobPlan
-          : renderLines('Proofbound planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: jobPlan.status ?? 'planned' });
+          : renderLines('Proof-or-Stop planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: jobPlan.status ?? 'planned' });
       }
       const execution = executePlannedSteps({
         root: ctx.root,
@@ -411,16 +411,16 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       };
       return wantsJson(args)
         ? result
-        : renderLines('Proofbound planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: plannerRunStatus, stopReason: execution.stopReason, completed: completion.completed, localDoneReady: completion.localDoneReady, nextAction: completion.nextAction });
+        : renderLines('Proof-or-Stop planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: plannerRunStatus, stopReason: execution.stopReason, completed: completion.completed, localDoneReady: completion.localDoneReady, nextAction: completion.nextAction });
     },
 
     planner_source_manifest(args: { sourceRepo: string; includedPaths?: string[] | string; excludedPaths?: string[] | string } & JsonArgs) {
       const includedPaths = Array.isArray(args.includedPaths) ? args.includedPaths : typeof args.includedPaths === 'string' ? args.includedPaths.split(',').map(s => s.trim()).filter(Boolean) : [];
       const excludedPaths = Array.isArray(args.excludedPaths) ? args.excludedPaths : typeof args.excludedPaths === 'string' ? args.excludedPaths.split(',').map(s => s.trim()).filter(Boolean) : [];
       const result = sourceManifestDigest(ctx.root, args.sourceRepo, includedPaths, excludedPaths);
-      const artifactRef = writePlannerArtifact(ctx.root, `${LATTICE_DIR}/planner/source-manifests/${result.digest}.json`, result);
+      const artifactRef = writePlannerArtifact(ctx.root, `${PROOF_OR_STOP_DIR}/planner/source-manifests/${result.digest}.json`, result);
       const output = { schemaVersion: 'lattice.planner_source_manifest.v1' as const, ...result, artifactRef };
-      return wantsJson(args) ? output : renderLines(`Proofbound planner source-manifest (${output.schemaVersion})`, { digest: result.digest, files: result.files.length, blocked: result.blocked, artifactRef });
+      return wantsJson(args) ? output : renderLines(`Proof-or-Stop planner source-manifest (${output.schemaVersion})`, { digest: result.digest, files: result.files.length, blocked: result.blocked, artifactRef });
     },
   };
   return handlers;

@@ -18,7 +18,7 @@ import {
   type DispatchPolicy,
   type DispatchPolicyCheckResult,
 } from './dispatch-policy.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import {
   buildHandoffWorktreeProjection,
   createHandoffPack,
@@ -53,6 +53,7 @@ import {
   recordDispatchPreflight,
   type DispatchUsageContext,
 } from './usage-ledger/dispatch-usage.js';
+import { BRAND_ENV_PREFIX, deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
 
 export type HostRuntimeId = 'fake' | 'codex' | 'claude-code' | 'antigravity' | 'gemini';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
@@ -536,7 +537,7 @@ function detectCommandPath(command: string): string | null {
 }
 
 function currentCodexSessionAvailable(): boolean {
-  return process.env.LATTICE_ACTIVITY_SOURCE === 'codex'
+  return readBrandEnv('ACTIVITY_SOURCE') === 'codex'
     || typeof process.env.CODEX_SESSION_ID === 'string'
     || typeof process.env.CODEX_HOME === 'string';
 }
@@ -632,7 +633,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
   // Environment safety: Claude Code inherits the invoker's environment
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   // Login readiness: ANTHROPIC_API_KEY is a strong signal for non-interactive auth
@@ -640,7 +641,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
     ? 'ready'
     : (commandPath ? 'unknown' : 'unknown');
 
-  // Receipt support: stdout/stderr captured as transcript; Proofbound builds receipt from transcript + git
+  // Receipt support: stdout/stderr captured as transcript; Proof-or-Stop builds receipt from transcript + git
   const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
 
   if (!commandPath) {
@@ -690,7 +691,7 @@ function probeGeminiCapabilities(commandPath: string | null): RealHostCapabiliti
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   // Login readiness: gemini typically requires gcloud auth or application default credentials
@@ -740,7 +741,7 @@ function probeAntigravityCapabilities(commandPath: string | null): RealHostCapab
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -773,7 +774,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   if (isCodexSession) {
     // Running inside a Codex session: capabilities are available in-process
-    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Proofbound policy.');
+    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Proof-or-Stop policy.');
     unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
     return {
       versionStatus: 'unknown',
@@ -808,7 +809,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -892,7 +893,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? supportsLiveDispatch
       ? []
       : [
-        `${normalized} runtime is scaffolded only: Proofbound records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
+        `${normalized} runtime is scaffolded only: Proof-or-Stop records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
       ]
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
@@ -941,7 +942,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       ]
       : [
         'Real-host execution is scaffolded only in this milestone.',
-        'No external host is auto-driven by Proofbound dispatch_run.',
+        'No external host is auto-driven by Proof-or-Stop dispatch_run.',
         'A local receipt is still diagnostic-only and leaves release readiness unestablished.',
       ],
     warnings,
@@ -1001,7 +1002,7 @@ function sanitizeSegment(value: string): string {
 }
 
 function dispatchStorageRoot(root: string): string {
-  return join(root, LATTICE_DIR, 'dispatches');
+  return join(root, PROOF_OR_STOP_DIR, 'dispatches');
 }
 
 function projectedDispatchWorktreePath(storyId: string, packId: string): string {
@@ -1064,7 +1065,7 @@ function dispatchPrompt(
   continuity?: DispatchPromptContinuity,
 ): string {
   const lines = [
-    `# Proofbound Dispatch ${dispatchId}`,
+    `# Proof-or-Stop Dispatch ${dispatchId}`,
     '',
     `Story: ${pack.storyId}`,
     `Host runtime: ${runtime.host}`,
@@ -1346,7 +1347,7 @@ function assertClaudePrintLauncherAllowed(
 ): void {
   if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
   throw new Error(
-    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
+    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proof-or-Stop may start claude --print.`,
   );
 }
 
@@ -1641,6 +1642,18 @@ function isUnsafeCommandEnvName(name: string): boolean {
   return UNSAFE_COMMAND_ENV_PATTERN.test(name);
 }
 
+/**
+ * B-cdf6:F-061/F-065 — both spellings of the session-id env name, as a SHARED
+ * constant. Two separate allow/deny checks in this file each hardcoded the
+ * deprecated literal and each had to be found by a reviewer, the second one two
+ * lines from the first one's fix. Route every brand-keyed env comparison through
+ * this list so a future site cannot silently recognize only one spelling.
+ */
+const SESSION_ID_ENV_NAMES: readonly string[] = [
+  `${BRAND_ENV_PREFIX}SESSION_ID`,
+  'LATTICE_SESSION_ID',
+];
+
 function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Record<string, string | undefined> {
   if (!policy) return process.env;
 
@@ -1655,8 +1668,13 @@ function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Recor
 
   for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
   for (const name of policy.envAllowlist) copyIfAllowed(name);
-  if (!denied.has('LATTICE_SESSION_ID')) {
-    env.LATTICE_SESSION_ID = getSessionId();
+  // B-cdf6:F-065 — same class as F-061, two lines away: this tested only the
+  // deprecated literal, so `envDenylist: ['PROOF_OR_STOP_SESSION_ID']` failed to
+  // suppress injection. Unlike buildCanonicalHostRuntimeEnv (which overwrites
+  // SESSION_ID downstream with the fixed logic), the dispatch_auto default-param
+  // path and the fake-dispatch-runtime path call this directly and are unprotected.
+  if (!SESSION_ID_ENV_NAMES.some(name => denied.has(name))) {
+    setBrandEnv(env, 'SESSION_ID', getSessionId());
   }
   return env;
 }
@@ -1681,26 +1699,32 @@ export function buildCanonicalHostRuntimeEnv(
   const env = buildRequiredCommandEnv(policy) as NodeJS.ProcessEnv;
   const allowedEnvNames = new Set(policy.envAllowlist.map(name => name.trim()).filter(Boolean));
   const deniedEnvNames = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
-  const deliberateOverride = allowedEnvNames.has('LATTICE_SESSION_ID')
-    && !deniedEnvNames.has('LATTICE_SESSION_ID')
-    ? process.env.LATTICE_SESSION_ID?.trim()
+  // B-cdf6:F-061 — the allow/deny lookup must accept EITHER spelling. It previously
+  // tested only the deprecated literal, so an operator whose dispatch policy allowlists
+  // the CANONICAL `PROOF_OR_STOP_SESSION_ID` had the override silently dropped: the
+  // rename broke the new name while the old one kept working, which is backwards.
+  // Denylist is checked across both names so denying either spelling still denies.
+  const sessionIdAllowed = SESSION_ID_ENV_NAMES.some(name => allowedEnvNames.has(name));
+  const sessionIdDenied = SESSION_ID_ENV_NAMES.some(name => deniedEnvNames.has(name));
+  const deliberateOverride = sessionIdAllowed && !sessionIdDenied
+    ? readBrandEnv('SESSION_ID')?.trim()
     : undefined;
   if (deliberateOverride) {
-    env.LATTICE_SESSION_ID = deliberateOverride;
+    setBrandEnv(env, 'SESSION_ID', deliberateOverride);
   } else {
-    delete env.LATTICE_SESSION_ID;
+    deleteBrandEnv(env, 'SESSION_ID');
   }
-  env.LATTICE_OWNER_SESSION_ADAPTER_TASK = identity.taskIdentity;
-  env.LATTICE_OWNER_SESSION_ADAPTER_AGENT = identity.agentOrRoleIdentity;
-  delete env.LATTICE_OWNER_SESSION_ADAPTER_ROLE;
-  env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY = identity.adapterBoundary;
-  delete env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED;
-  env.LATTICE_ACTIVITY_SOURCE = host;
-  delete env.LATTICE_ACTIVITY_SESSION;
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_TASK', identity.taskIdentity);
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_AGENT', identity.agentOrRoleIdentity);
+  deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_ROLE');
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_BOUNDARY', identity.adapterBoundary);
+  deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_GENERATED');
+  setBrandEnv(env, 'ACTIVITY_SOURCE', host);
+  deleteBrandEnv(env, 'ACTIVITY_SESSION');
   const provider = ownerSessionProviderForHostRuntime(host);
   if (provider !== null) {
-    env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
-    delete env.LATTICE_OWNER_SESSION_ADAPTER_SESSION;
+    setBrandEnv(env, 'OWNER_SESSION_ADAPTER_PROVIDER', provider);
+    deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_SESSION');
   }
   return env;
 }
@@ -2292,7 +2316,7 @@ function buildBudgetBlockedDispatchResult(
     warnings: [...baseWarnings, blockedWarning],
     nextAction:
       `Claude Code dispatch ${record.dispatchId} was blocked before spawn by the hard token budget ` +
-      `(${policyLabel}). Raise LATTICE_HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
+      `(${policyLabel}). Raise ${BRAND_ENV_PREFIX}HARD_BUDGET_TOKENS or reduce the prompt size, then retry. ` +
       `No provider call was made.`,
   });
   writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
@@ -3599,7 +3623,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
     }
     if (!policyAllowsRealHostSubprocess(policy)) {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Proofbound may start claude --print.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Proof-or-Stop may start claude --print.`,
       );
     }
     if (probe.noninteractiveSupport !== 'supported') {

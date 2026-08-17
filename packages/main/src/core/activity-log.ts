@@ -10,13 +10,13 @@
 import { appendFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import {
-  LATTICE_ACTIVITY_LOG,
+  PROOF_OR_STOP_ACTIVITY_LOG,
   LEGACY_DOCS_ACTIVITY_LOG,
 } from './lattice-paths.js';
 
 /** Runtime activity log path: <projectRoot>/.lattice/activity.jsonl */
 export function getRuntimeActivityLogPath(projectRoot: string): string {
-  return join(projectRoot, LATTICE_ACTIVITY_LOG);
+  return join(projectRoot, PROOF_OR_STOP_ACTIVITY_LOG);
 }
 
 /** Legacy path (read-only compat): <projectRoot>/docs/story/activity.jsonl */

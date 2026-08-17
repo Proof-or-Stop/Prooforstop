@@ -7,7 +7,7 @@
 > from the control-plane perspective; Tier-C automated cleanup and external
 > production done remain unavailable/non-goals.
 > Date: 2026-06-25.
-> Scope: top-level Proofbound lifecycle management across runtime closure,
+> Scope: top-level Proof-or-Stop lifecycle management across runtime closure,
 > evidence consumption closure, and queue governance.
 > Related baselines:
 > `docs/evidence/evidence-platform-architecture.md` and
@@ -208,7 +208,7 @@ coordination failures:
 | Remaining failure | Layer | Example symptom |
 |---|---|---|
 | Worktree authority and main mirror disagree | Runtime closure | `story_authority_resolve` says worktree DEV/REVIEW while main mirror says INIT_CHECK |
-| Validation locks survive or re-enter | Runtime closure | `lattice validate --story` sees its own pid as already running |
+| Validation locks survive or re-enter | Runtime closure | `proof-or-stop validate --story` sees its own pid as already running |
 | Evidence is valid but stale after metadata/main drift | Runtime closure + consumption closure | PASS validation exists, but later commits make materialHash stale |
 | Candidate evidence is mistaken for lifecycle completion | Consumption closure | Repro red evidence is treated as current green evidence |
 | Gate output shows warnings but no operator waterline | Consumption closure | Humans cannot see which clause or consumer is weak |
@@ -581,7 +581,7 @@ control-plane consumption lane.
 
 Implementation tasks:
 
-1. Consume `lattice admissibility_waterline` if implemented by the Proof
+1. Consume `proof-or-stop admissibility_waterline` if implemented by the Proof
    Admissibility plan, or implement that plan's Appendix D verbatim. Do not
    define a competing waterline schema.
 2. Call `ProofAdmissibilityService` /
@@ -774,11 +774,11 @@ lane, but it must not implement a parallel proof enforcement policy.
 Suggested future commands:
 
 ```text
-lattice global_control_status --format=json                  # read-only
-lattice runtime_closure_status --storyId=B-xxxx --format=json # read-only
-lattice admissibility_waterline --storyId=B-xxxx --format=json # read-only; owned by Proof Admissibility if already implemented there
-lattice queue_governance_status --format=json                # read-only
-lattice queue_exception_set --storyId=B-xxxx --experimentBatchId=<id> --reason=<reason> # guarded write
+proof-or-stop global_control_status --format=json                  # read-only
+proof-or-stop runtime_closure_status --storyId=B-xxxx --format=json # read-only
+proof-or-stop admissibility_waterline --storyId=B-xxxx --format=json # read-only; owned by Proof Admissibility if already implemented there
+proof-or-stop queue_governance_status --format=json                # read-only
+proof-or-stop queue_exception_set --storyId=B-xxxx --experimentBatchId=<id> --reason=<reason> # guarded write
 ```
 
 The first implementation can be one command with subreports. Separate commands

@@ -1463,7 +1463,7 @@ export const QUANTUM_FAILURE_INJECTIONS: readonly QuantumFailureInjectionSpec[] 
 const QUANTUM_BENCHMARK_GENERATED_AT = '2026-07-03T00:00:00.000Z' as const;
 
 const QUANTUM_DIAGNOSTIC_LIMITATIONS = Object.freeze([
-  'Local diagnostic benchmark only; it is not Proofbound lifecycle gate evidence.',
+  'Local diagnostic benchmark only; it is not Proof-or-Stop lifecycle gate evidence.',
   'No Authority, DONE, production-readiness, hardware, laboratory, quantum-theory, external-solver, or solver-improvement claim is made.',
   'Generic claim-admissibility framework gate-adapter and lifecycle integration remain future work and out of scope for this local slice.',
 ] as const);

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfig, type LatticeConfig } from './config.js';
+import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { evaluateDoneRequiredEvidence, resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { digestScopeContract } from './guard-session.js';
@@ -159,8 +159,8 @@ function sha256(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function configuredValidateSource(config: LatticeConfig): unknown {
-  const raw = config as LatticeConfig & { validation?: unknown };
+function configuredValidateSource(config: ProofOrStopConfig): unknown {
+  const raw = config as ProofOrStopConfig & { validation?: unknown };
   return {
     validate: raw.validate ?? null,
     validation: raw.validation ?? null,
@@ -176,7 +176,7 @@ function validateEntrypointDigests(root: string): Record<string, string | null> 
   return out;
 }
 
-function configHash(root: string, config: LatticeConfig): string {
+function configHash(root: string, config: ProofOrStopConfig): string {
   return sha256(stableStringify({
     scanRoot: config.scanRoot,
     rootDir: config.rootDir ?? null,
@@ -184,7 +184,7 @@ function configHash(root: string, config: LatticeConfig): string {
     requirementsDir: config.requirementsDir,
     gitRoot: config.gitRoot ?? null,
     validate: configuredValidateSource(config),
-    doneRequiredCommands: (config as LatticeConfig & Record<string, unknown>).doneRequiredCommands ?? null,
+    doneRequiredCommands: (config as ProofOrStopConfig & Record<string, unknown>).doneRequiredCommands ?? null,
     validationProfiles: config.validationProfiles ?? null,
     proofAdmissibility: config.proofAdmissibility ?? null,
     proofStory: config.proofStory ?? null,
@@ -192,7 +192,7 @@ function configHash(root: string, config: LatticeConfig): string {
   }));
 }
 
-function validateCommandSetHash(root: string, config: LatticeConfig): string {
+function validateCommandSetHash(root: string, config: ProofOrStopConfig): string {
   return sha256(stableStringify({
     configured: configuredValidateSource(config),
     entrypoints: validateEntrypointDigests(root),

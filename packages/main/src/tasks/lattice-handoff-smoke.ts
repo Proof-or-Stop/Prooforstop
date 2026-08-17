@@ -46,7 +46,7 @@ function seedStory(store: StoryStore): void {
     storyId: 'B-handoff',
     name: 'handoff-smoke',
     title: 'Handoff smoke story',
-    description: 'Smoke story for Proofbound handoff packs.',
+    description: 'Smoke story for Proof-or-Stop handoff packs.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',
@@ -318,4 +318,4 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
-console.log('✓ lattice handoff smoke passed');
+console.log('✓ proof-or-stop handoff smoke passed');

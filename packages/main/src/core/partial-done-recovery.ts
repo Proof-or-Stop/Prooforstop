@@ -147,7 +147,7 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
       worktreeRegistered: registered,
       worktreeExists,
       mergeTreeClean,
-      recoverCommand: `lattice done_recover --storyId=${storyId}`,
+      recoverCommand: `proof-or-stop done_recover --storyId=${storyId}`,
       reason: 'story is phase=DONE but its story branch is not merged into main',
     });
   }

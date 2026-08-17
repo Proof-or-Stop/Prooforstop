@@ -170,7 +170,7 @@ function finishDecisionStoryId(storyId?: string): { recordStoryId?: string; path
   if (!isCanonicalStoryId(trimmed)) {
     throw new Error(
       `dev_memory_finish_decision: invalid storyId ${JSON.stringify(storyId)}; ` +
-      'must be a canonical, path-safe Proofbound story id',
+      'must be a canonical, path-safe Proof-or-Stop story id',
     );
   }
   return { recordStoryId: trimmed, pathSegment: trimmed };

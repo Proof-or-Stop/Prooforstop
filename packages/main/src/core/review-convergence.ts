@@ -16,6 +16,7 @@
  * module does NOT reimplement round/blocking logic.
  */
 import { resolveReviewRoundCount, isFindingBlocking } from './advisory.js';
+import { readBrandEnv } from './brand-env.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 // B-7813 CHK-002 fills the CHK-001 seam: read the signed stall-adjudication.json
@@ -404,8 +405,12 @@ export const STALL_CEILING_CODE = 'review_convergence_stall_ceiling';
  */
 export const STALL_HARD_CEILING_ROUNDS = 3 * STALL_MIN_ROUNDS; // 12
 
-/** Env override for the hard ceiling (mirrors convergence-breaker's env pattern). */
-export const STALL_HARD_CEILING_ENV = 'LATTICE_STALL_HARD_CEILING_ROUNDS';
+/**
+ * Env override for the hard ceiling (mirrors convergence-breaker's env pattern).
+ * Canonical spelling; `resolveStallHardCeiling` reads it via `readBrandEnv`, so the
+ * deprecated `LATTICE_STALL_HARD_CEILING_ROUNDS` export is still honoured.
+ */
+export const STALL_HARD_CEILING_ENV = 'PROOF_OR_STOP_STALL_HARD_CEILING_ROUNDS';
 
 /** Sanity ceiling: a value above this is a typo, not a threshold. */
 export const STALL_HARD_CEILING_ENV_MAX = 100_000;
@@ -418,7 +423,8 @@ export const STALL_HARD_CEILING_ENV_MAX = 100_000;
  * ceiling brake.
  */
 export function resolveStallHardCeiling(env: Record<string, string | undefined>): number {
-  const raw = env[STALL_HARD_CEILING_ENV];
+  // Stays pure (env is injected) while accepting either brand spelling.
+  const raw = readBrandEnv(STALL_HARD_CEILING_ENV, env);
   if (raw === undefined) return STALL_HARD_CEILING_ROUNDS;
   const trimmed = raw.trim();
   if (trimmed.length === 0) return STALL_HARD_CEILING_ROUNDS;

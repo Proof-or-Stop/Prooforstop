@@ -2,7 +2,7 @@
 
 **Status:** proposal / optimization roadmap
 **Origin:** empirical baseline from an autonomous agent driving Proof-or-Stop
-without an operator recipe, told only to follow Proofbound's own CLI guidance.
+without an operator recipe, told only to follow Proof-or-Stop's own CLI guidance.
 
 The motivating run used a trivial Terminal-Bench `fix-git` task. The agent ran
 93 bash commands, encountered roughly 45 error outputs, created three stories,
@@ -15,7 +15,7 @@ for relaxing review, scope, verification, or DONE requirements.
 
 ## Root Pattern
 
-Proofbound often has the right aggregating command, but the command is not
+Proof-or-Stop often has the right aggregating command, but the command is not
 surfaced at the moment an agent needs it. The strongest example is
 `init_preflight`: it can aggregate INIT_CHECK prerequisites, but the observed
 run followed higher-traffic guidance into one-at-a-time gate failures instead.
@@ -50,7 +50,7 @@ agent-self-attested express lane.
   `commands-to-DEV`, total command count, error-output count, story churn, and
   whether DEV was reached before timeout.
 - Do not overclaim: M0 is baseline documentation, not product proof, not gate
-  evidence, and not proof that Proofbound is agent-drivable.
+  evidence, and not proof that Proof-or-Stop is agent-drivable.
 
 ### M1 - INIT Drivability and `init_preflight` Routing
 
@@ -94,11 +94,11 @@ agent-self-attested express lane.
 ### M5 - Global-Thin / Profile Asset Correctness
 
 - Remove `node bin/lattice.js` from global-thin `CLAUDE.md` output and name
-  the global `lattice` command as primary.
+  the global `proof-or-stop` command as primary.
 - Extend the thin-init smoke to cover `--profile=claude`, asserting
   `CLAUDE.md` as well as `AGENTS.md` is clean.
 - If a hook or helper encounters a missing local `bin/lattice.js`, it should
-  fall back to `command -v lattice` instead of training the agent into a crash.
+  fall back to `command -v proof-or-stop` instead of training the agent into a crash.
 
 ### M6 - End-to-End Drivability Verification
 

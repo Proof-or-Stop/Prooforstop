@@ -1,11 +1,11 @@
-# Proofbound Authority Customer API Key Access
+# Proof-or-Stop Authority Customer API Key Access
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 ## Status
 
 Requirements optimization. This document defines the production access model for
-customers connecting Proofbound CLI / local runners to a hosted Proofbound Authority
+customers connecting Proof-or-Stop CLI / local runners to a hosted Proof-or-Stop Authority
 server. It complements, but does not replace, the signed actor-envelope and
 receipt requirements in `lattice-authority-live-integration.md`.
 
@@ -15,25 +15,25 @@ usage real, auditable, revocable, and tenant-isolated.
 
 ## Problem
 
-The localhost live verification proves that Proofbound CLI can talk to a real
-Python Proofbound Authority server with real Ed25519 actor signatures. That is not
+The localhost live verification proves that Proof-or-Stop CLI can talk to a real
+Python Proof-or-Stop Authority server with real Ed25519 actor signatures. That is not
 enough for a hosted customer service.
 
 In hosted usage, each customer must receive a server access credential before
-their CLI, runner, or project can use Proofbound Authority APIs. Without a
+their CLI, runner, or project can use Proof-or-Stop Authority APIs. Without a
 customer-scoped API key layer, any client that can register an actor public key
 in development mode could become an authority actor. That is acceptable for
 local development only, not for a customer-facing service.
 
 ## Required Access Model
 
-Production Proofbound Authority access has two distinct credentials:
+Production Proof-or-Stop Authority access has two distinct credentials:
 
 | Credential | Owner | Purpose | Sent on every request? | Stored by server? |
 |---|---|---|---|---|
 | Customer API key | Customer / workspace / project | Authenticates the paying or allowed tenant and scopes access to projects / APIs. | Yes for tenant-scoped APIs; policy discovery may stay public or key-optional. | Hash only; never raw. |
 | Actor private key | Local CLI, runner, reviewer, main actor, host verifier | Signs the exact command/job/evidence/verdict envelope. Proves which actor performed the action. | Never as raw key; only signatures are sent. | Public key only. |
-| Server signing key | Proofbound Authority server | Signs policy and native receipts. | No. Server public key is advertised/pinned. | Private key stays server-side only. |
+| Server signing key | Proof-or-Stop Authority server | Signs policy and native receipts. | No. Server public key is advertised/pinned. | Private key stays server-side only. |
 
 Both customer API key and actor signature are required for production mutating
 operations. The API key answers "which customer/project is allowed to call this
@@ -43,7 +43,7 @@ action."
 ## Non-Goals
 
 - Do not use provider API keys, OpenAI keys, GitHub tokens, or other third-party
-  secrets as Proofbound Authority access keys.
+  secrets as Proof-or-Stop Authority access keys.
 - Do not upload real customer secrets to test redaction. Use canary values and
   prove the server never stores the canary in raw form.
 - Do not let a customer API key replace Ed25519 actor signatures. A bearer key
@@ -51,7 +51,7 @@ action."
 - Do not let actor key registration in production behave like localhost
   development mode.
 - Do not block local non-authority mode. Customers can still run local-only
-  Proofbound workflows without an Authority server or API key.
+  Proof-or-Stop workflows without an Authority server or API key.
 
 ## Canonical Environment And Config
 
@@ -194,7 +194,7 @@ The server must verify:
 
 ### 5. Receipts
 
-Customer API keys do not create authority receipts. Only Proofbound Authority
+Customer API keys do not create authority receipts. Only Proof-or-Stop Authority
 server signing keys mint native receipts.
 
 `authorityDone` requires:
@@ -206,7 +206,7 @@ server signing keys mint native receipts.
 
 ## CLI Behavior
 
-`lattice authority status --json` must distinguish:
+`proof-or-stop authority status --json` must distinguish:
 
 - `customerApiKeyConfigured`
 - `customerApiKeySource`: `env | path | authority_md | missing`
@@ -218,7 +218,7 @@ server signing keys mint native receipts.
 - `localWorkflowUsable`
 - `productionAuthorityUsable`
 
-`lattice authority doctor --json` should run a bounded live check:
+`proof-or-stop authority doctor --json` should run a bounded live check:
 
 1. discover policy;
 2. verify/pin server public key;

@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import type { WorkflowProfile } from './types.js';
 import { VALID_PARALLEL_MODES } from './parallel-decomposition.js';
 import type { ParallelGateConfig, ParallelGateMode } from './parallel-decomposition.js';
@@ -238,7 +238,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
       merged.mode = userOverrides.mode as AuditMode;
     } else {
       console.warn(
-        `[audit-config] invalid mode "${userOverrides.mode}" in ${LATTICE_DIR}/audit-config.json, falling back to "semi-auto".`,
+        `[audit-config] invalid mode "${userOverrides.mode}" in ${PROOF_OR_STOP_DIR}/audit-config.json, falling back to "semi-auto".`,
       );
       merged.mode = 'semi-auto';
     }
@@ -263,7 +263,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
  */
 function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
   const path = [
-    join(projectRoot, LATTICE_DIR, 'audit-config.json'),
+    join(projectRoot, PROOF_OR_STOP_DIR, 'audit-config.json'),
   ].find((candidate) => existsSync(candidate));
   if (!path) return null;
 

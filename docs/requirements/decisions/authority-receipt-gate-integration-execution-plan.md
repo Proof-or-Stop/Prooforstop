@@ -1,12 +1,12 @@
 # Authority Receipt Gate Integration Execution Plan
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 > Status: execution plan for the remaining validation and rollout slice.
 > Parent: [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
 > Related:
-> [Proofbound Authority Receipt Contract](lattice-authority-receipt-contract.md),
-> [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
+> [Proof-or-Stop Authority Receipt Contract](lattice-authority-receipt-contract.md),
+> [Proof-or-Stop CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
 > [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md),
 > [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md).
 
@@ -14,10 +14,10 @@
 
 The first slice established the primitives:
 
-- Proofbound Authority Server signs `gate_decision` receipts with subject binding.
-- Proofbound CLI can verify Ed25519 receipts with Python-compatible hex keys and
+- Proof-or-Stop Authority Server signs `gate_decision` receipts with subject binding.
+- Proof-or-Stop CLI can verify Ed25519 receipts with Python-compatible hex keys and
   signatures.
-- Proofbound CLI has a pure receipt-ref eligibility and consumption predicate.
+- Proof-or-Stop CLI has a pure receipt-ref eligibility and consumption predicate.
 - `authority-receipt-refs.json` is registered as an L4 process fact artifact.
 
 This plan now tracks the remaining slice: prove the deployed staging path and
@@ -31,7 +31,7 @@ semantics for stories that do not require Authority-backed evidence.
 2. Do not add arbitrary abstractions or product surfaces.
 3. Fix only correctness gaps required for the signed receipt chain.
 4. Keep host-neutral logic: Claude CLI, Codex CLI, local runners, and future
-   hosts are evidence producers; only Proofbound Authority Server can mint a
+   hosts are evidence producers; only Proof-or-Stop Authority Server can mint a
    production `gate_decision` receipt.
 5. Fail closed only when Authority-backed evidence is explicitly required.
    Otherwise degrade to local-only or shadow diagnostics.
@@ -63,9 +63,9 @@ Server proof bundle support is current baseline, not remaining work:
 receipt, `inputPayload`, `decisionPayload`, `decisionDigestPayload`, and server
 key metadata needed by a remote verifier.
 
-Proofbound CLI and local gate primitives are also current baseline:
+Proof-or-Stop CLI and local gate primitives are also current baseline:
 
-- `authority_receipt_verify` / `lattice authority receipt verify` verifies proof
+- `authority_receipt_verify` / `proof-or-stop authority receipt verify` verifies proof
   bundles and writes production `gate_decision` refs only after production
   classification.
 - `AuthorityClient.fetchGateReceiptProof()` fetches server-relative proof paths.
@@ -94,7 +94,7 @@ The remaining gaps are:
 
 ### Wave 1: Server Receipt Proof Bundle
 
-Owner: Proofbound Authority Server.
+Owner: Proof-or-Stop Authority Server.
 
 Status: baseline complete on staging as of 2026-06-10.
 
@@ -141,7 +141,7 @@ Acceptance tests:
 
 ### Wave 2: CLI Receipt Verification and Writer
 
-Owner: Proofbound CLI.
+Owner: Proof-or-Stop CLI.
 
 Status: local baseline implemented; needs staging/live proof verification and
 rollout hardening.
@@ -181,7 +181,7 @@ Implemented baseline:
    - applies `maxVerifiedAgeMs` plus `allowedClockSkewMs`;
    - returns machine-readable fail reasons.
 4. `authority_receipt_verify` is exposed as:
-   `lattice authority receipt verify`.
+   `proof-or-stop authority receipt verify`.
 5. The command writes `authority-receipt-refs.json` only when classification is
    `production-gate-decision`.
 6. Store methods exist for this artifact instead of direct ad hoc story JSON
@@ -208,7 +208,7 @@ Acceptance tests:
 
 ### Wave 3: Idempotent Gate Consumption
 
-Owner: Proofbound CLI lifecycle gates.
+Owner: Proof-or-Stop CLI lifecycle gates.
 
 Status: local TEST/DONE baseline implemented; REVIEW policy and production
 rollout need explicit decision before hard enforcement.
@@ -266,7 +266,7 @@ Remaining rollout work:
    `consumerDecisionId` field, or whether the current composite-key
    consumption identity remains the canonical contract.
 5. Keep TEST/DONE positive and negative controls current for
-   `lattice validate` and transition preflight.
+   `proof-or-stop validate` and transition preflight.
 6. For production DONE rollout:
    - re-check head/material immediately before DONE;
    - prefer a distinct DONE receipt unless policy explicitly allows a TEST
@@ -288,7 +288,7 @@ Acceptance tests:
 
 ### Wave 4: Status and Operator Feedback
 
-Owner: Proofbound CLI.
+Owner: Proof-or-Stop CLI.
 
 Goal: make output truthful and actionable.
 
@@ -339,14 +339,14 @@ contract-only.
 
 Minimum command sequence:
 
-1. Use the deployed staging Proofbound Authority Server with a configured
+1. Use the deployed staging Proof-or-Stop Authority Server with a configured
    non-default key.
 2. Discover policy and server key.
 3. Register actor key and runner heartbeat.
 4. Create or claim a story-scoped job.
 5. Submit signed evidence.
 6. Evaluate a TEST gate on the server.
-7. Fetch and verify receipt proof through `lattice authority receipt verify`.
+7. Fetch and verify receipt proof through `proof-or-stop authority receipt verify`.
 8. Write `authority-receipt-refs.json`.
 9. Run the local TEST gate and consume the receipt.
 10. Run negative controls:

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Shared bootstrap runner for local Lattice wrappers.
+ * Shared bootstrap runner for local Proof-or-Stop wrappers.
  *
  * These wrappers are repo-local convenience entrypoints. When their compiled
  * dependencies are missing we want a recovery hint, not an opaque
@@ -24,7 +24,7 @@ function printBootstrapFailure(error) {
   if (!existsSync(MAIN_DIST)) missing.push(MAIN_DIST);
   if (!existsSync(UTILS_DIST)) missing.push(UTILS_DIST);
 
-  console.error('lattice local bootstrap is not ready.');
+  console.error('proof-or-stop local bootstrap is not ready.');
 
   if (missing.length > 0) {
     console.error('');
@@ -42,7 +42,7 @@ function printBootstrapFailure(error) {
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
   console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief');
+  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
   console.error('    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.');
 
   if (error) {

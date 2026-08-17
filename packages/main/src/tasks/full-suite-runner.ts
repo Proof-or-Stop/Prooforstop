@@ -100,6 +100,11 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:lattice-residue'), repoRead('test:proof-or-stop-prompt-baseline'),
+  // B-cdf6: both added to test:serial-reference by this story. Membership authority is
+  // test:serial-reference and a member without a policy fails closed before execution,
+  // so the policy entry is mandatory, not optional. Both only read the repo and hold no
+  // exclusive path, port or runtime lock, so the plain repoRead policy is correct.
+  repoRead('test:codex-heartbeat-timeout'), repoRead('test:audit-scan-bin-token'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
   isolated('test:flow-stability-smoke'), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),

@@ -358,15 +358,41 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'ead33ddd7eae65fe2c2baf1411b7f0cf26b74ab16d28d9e5132fe777aef71663'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
   // whole-file structural fingerprint gates both that call-site approval and the
   // pinned-source drift check, so it moves with any cli-engine.ts edit.
-  ['packages/main/src/cli-engine.ts', 'a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0'],
-  ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
+  // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
+  // hint/error strings derive from the invoked bin token (proof-or-stop, with
+  // lattice kept as a deprecated alias). Only string interpolation and the
+  // redundant-bin-token tolerance changed; the approved non-literal loader call
+  // site above is untouched, and no new dynamic load was introduced.
+  // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
+  // the WHOLE file by design, so any edit invalidates the approved non-literal loader
+  // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
+  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // not refreshed, so the smoke went red on this branch while passing on main.
+  //
+  // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
+  // on cli-engine.ts touches ZERO import()/require() calls, arguments, or path
+  // producers — every change is a brand string, an env read routed through
+  // readBrandEnv, or the bin-name check. The approved call site itself
+  // (anchor runCli, argument `file://${initPath}`) is byte-identical to main, so the
+  // loader behaviour being approved is unchanged.
+  // Repinned again by commit 32a083b987 (delivery-review follow-up), which added a
+  // BRAND_ENV_PREFIX import and rewrote ONE diagnostic string so the timeout-budget
+  // line stops teaching the deprecated env-var name. Re-approval basis, checked
+  // before repinning rather than after: `git diff main...HEAD` on cli-engine.ts still
+  // touches ZERO import()/require() calls, arguments, or path producers, and the
+  // approved call site itself (anchor runCli, `await import(\`file://${initPath}\`)`,
+  // with its initPath producer) is byte-identical to main — only its line number moved
+  // (807 -> 812). The loader behaviour being approved is therefore unchanged; the digest
+  // moved solely because this algorithm fingerprints the whole enclosing file.
+  ['packages/main/src/cli-engine.ts', 'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d'],
+  ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
@@ -1417,14 +1443,27 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
   }],
-  ['bin/lattice-codex.js', {
-    calls: [{ anchor: 'main', argument: 'pathToFileURL(localLattice).href' }],
+  // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
+  // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
+  // fallback) instead of a single hardcoded one — so the loader argument changed from
+  // `localLattice` to the loop variable `candidate`. Same benign class: resolving a sibling
+  // dist path at runtime is inherent to a bootstrap wrapper. bin/lattice-codex.js is now a
+  // thin delegating alias with no loader of its own, so only the canonical file is listed.
+  ['bin/proof-or-stop-codex.js', {
+    calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
   }],
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
-  ['bin/bootstrap-runner.js', '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765'],
-  ['bin/lattice-codex.js', '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8'],
+  // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
+  // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
+  // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
+  // bin names (canonical proof-or-stop + the retained lattice alias), and because the
+  // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
+  // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
+  // file is what must be pinned here.
+  ['bin/bootstrap-runner.js', 'b6f153f43aadcfd8e1720298765b1c491c638be47bc13e1bbdac0d6f72e8ceaf'],
+  ['bin/proof-or-stop-codex.js', 'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {

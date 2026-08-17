@@ -223,16 +223,16 @@ function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | nu
 }
 
 function initPreflightGuidance(storyId: string): string {
-  return `→ To see all INIT_CHECK prerequisites, run \`lattice init_preflight --storyId=${storyId}\`.`;
+  return `→ To see all INIT_CHECK prerequisites, run \`proof-or-stop init_preflight --storyId=${storyId}\`.`;
 }
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
     if (agentId === 'lattice-review-story-init') {
-      return `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })`;
+      return `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })`;
     }
     if (agentId === 'product-reviewer') {
-      return `   Agent({ subagent_type: "product-reviewer", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
+      return `   Agent({ subagent_type: "product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
@@ -1149,11 +1149,11 @@ export function getGuardFailureReason(
         `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
-        `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
+        `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
         `   and have product-reviewer call init_check_set as well.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
-        `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
+        `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
@@ -1166,7 +1166,7 @@ export function getGuardFailureReason(
         `${renderMissingInitReviewerDispatches(storyId, missingAgents)}\n` +
         `${renderAgentLivenessGuidance({ label: 'missing INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
-        `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
+        `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const blockers = blockingInitCheckIssues(initCheck);
     if (blockers.length > 0) {
@@ -1329,7 +1329,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run lattice validate first)';
+      return 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)';
     }
     if (evidence.result !== 'PASS') {
       return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;
@@ -1358,7 +1358,7 @@ export function getGuardFailureReason(
     }
     const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
     if (!liveSmokeTranscript.ok) {
-      return `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run lattice live_smoke_transcript with a passing command and --write`;
+      return `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run proof-or-stop live_smoke_transcript with a passing command and --write`;
     }
     if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
       return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run lattice-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;

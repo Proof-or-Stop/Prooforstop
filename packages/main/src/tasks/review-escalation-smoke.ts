@@ -334,7 +334,7 @@ try {
       const canonicalCoverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
       const canonicalEvidence = {
         result: 'PASS',
-        command: `lattice validate --story=${STORY_ID} --json`,
+        command: `proof-or-stop validate --story=${STORY_ID} --json`,
         output: JSON.stringify({ allPass: true, verificationCoverage: canonicalCoverage }),
         timestamp: '2026-06-13T11:30:00.000Z',
         headHash: git(commandRoot, ['rev-parse', 'HEAD']),
@@ -378,7 +378,7 @@ try {
       }
 
       const invalidEvidenceCases = [
-        ['wrong command', { command: 'npm test' }, /command is not lattice validate/],
+        ['wrong command', { command: 'npm test' }, /command is not proof-or-stop validate/],
         ['non-allPass output', { output: '{"allPass":false}' }, /not allPass\/allPassed=true/],
         ['missing coverage', { verificationCoverage: undefined }, /missing verificationCoverage/],
         ['stale coverage snapshot', { verificationCoverage: { ...canonicalCoverage, total: 1 } }, /does not match current checklist/],
@@ -526,7 +526,7 @@ try {
       store.writeChecklist(STORY_ID, { items: [] });
       const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
       store.writeTestEvidence(STORY_ID, {
-        command: `lattice validate --story=${STORY_ID} --json`,
+        command: `proof-or-stop validate --story=${STORY_ID} --json`,
         output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
         result: 'PASS', timestamp: '2026-06-13T11:30:00.000Z',
         headHash: currentGitHead(gitRoot)!,

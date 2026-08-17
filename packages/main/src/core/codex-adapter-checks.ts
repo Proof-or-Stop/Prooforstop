@@ -6,7 +6,7 @@ import {
   LATTICE_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
-  renderLatticeCodexAdapterManifest,
+  renderProofOrStopCodexAdapterManifest,
   type CodexPromptMode,
 } from '../init-assets.js';
 import { readActivityLogTail } from './activity-log.js';
@@ -16,6 +16,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
+import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -24,6 +25,7 @@ import {
 } from './prompt-registry.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
+import { readBrandEnv } from './brand-env.js';
 
 export type CodexAdapterCheckStatus = 'pass' | 'warn' | 'fail';
 
@@ -50,16 +52,133 @@ export interface CodexAdapterMaterialSnapshot {
   files: string[];
 }
 
-export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_codex';
-export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
-export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
-export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
+/**
+ * Local wrapper basenames, canonical first (B-cdf6).
+ *
+ * The rename is additive: `bin/proof-or-stop-codex.js` / `bin/proof-or-stop.js` are
+ * canonical, but the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases are
+ * retained and must keep satisfying this gate. A checkout generated before the rename
+ * (or a teammate branch that has only the old wrappers) therefore still passes: every
+ * consumer below picks the first entry that exists on disk rather than asserting one name.
+ */
+export const LOCAL_CODEX_WRAPPERS: readonly string[] = [
+  'bin/proof-or-stop-codex.js',
+  'bin/lattice-codex.js',
+];
+export const LOCAL_BOOTSTRAP_WRAPPERS: readonly string[] = [
+  'bin/proof-or-stop.js',
+  'bin/lattice.js',
+];
+
+/** First existing candidate, or the canonical name when none is present. */
+function resolveWrapperRelPath(root: string, candidates: readonly string[]): string {
+  return candidates.find(rel => existsSync(join(root, rel))) ?? candidates[0];
+}
+
+export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/proof-or-stop-codex.js verify_codex';
+export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/proof-or-stop.js verify_codex';
+export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'proof-or-stop codex verify';
+export const LOCAL_INIT_VERIFY_COMMAND = 'proof-or-stop init --verify-codex';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
-// The global fallback runs the real installed `lattice session_brief`, which can
+// The global fallback runs the real installed `proof-or-stop session_brief`, which can
 // traverse a large repo before writing its heartbeat. Keep local wrapper probes
 // conservative, but give this fallback enough budget for real-world repos.
 export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
+
+/**
+ * B-cdf6 (B-META F-013): hard cap for a global-fallback heartbeat timeout override.
+ *
+ * `session_brief` aggregates every active story before it writes its heartbeat, so its
+ * cost scales with repository size: on this repo (319 entries under the active story
+ * dir) it needs ~101s and cannot finish inside the 30s default, which made the check
+ * fail on any sufficiently large repo with no way for an operator to pass it honestly.
+ *
+ * The cap is 10 minutes: one order of magnitude above the default, which is ample for a
+ * single `session_brief` on a very large repo while still bounding a diagnostic that an
+ * operator waits on interactively. A request ABOVE the cap is REFUSED, never silently
+ * clamped (same rule as {@link EVIDENCE_COMMAND_TIMEOUT_CAP_MS} for F-012).
+ *
+ * Canonical single source of truth: the CLI schema (`command-catalog.ts`) and the
+ * runtime re-validation in {@link resolveGlobalFallbackHeartbeatTimeoutMs} both use THIS
+ * constant, so the Zod bound and the handler enforcement can never drift apart.
+ */
+export const GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS = 600_000;
+
+/**
+ * B-cdf6 (B-META F-013): minimum characters for `heartbeatTimeoutReason`.
+ * Mirrors the F-012 `commandTimeoutReason` bar so a raised budget always explains itself.
+ */
+export const HEARTBEAT_TIMEOUT_REASON_MIN_CHARS = 30;
+
+/**
+ * B-cdf6 (B-META F-013): the audited override block for the global-fallback heartbeat.
+ * Supplying `timeoutMs` REQUIRES a `reason`; both are echoed into the check detail so a
+ * reviewer sees the budget the pass was earned under.
+ */
+export interface GlobalFallbackHeartbeatTimeoutOverride {
+  timeoutMs: number;
+  reason: string;
+}
+
+/**
+ * B-cdf6 (B-META F-013): resolve + BOUND the global-fallback heartbeat budget.
+ *
+ * Per the Handler 编码约定 this is the runtime re-validation layer: the Zod bound in
+ * `command-catalog.ts` is only the first line of defence, and this function is called at
+ * the `runCodexAdapterChecks` entry so any Zod-bypassing path (internal fn call, stale
+ * JSON, direct core import) is rejected on exactly the same terms.
+ *
+ * Rules (all REFUSALS, never a silent clamp or a silent downgrade to the default):
+ * - non-finite / non-integer / non-positive `timeoutMs` → throw
+ * - `timeoutMs` above {@link GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS} → throw
+ * - `timeoutMs` without a `reason` of >= {@link HEARTBEAT_TIMEOUT_REASON_MIN_CHARS}
+ *   trimmed chars → throw
+ * - a `reason` with no `timeoutMs` → throw (a reason alone raises nothing, so accepting
+ *   it silently would let an operator believe a budget was armed when it was not)
+ *
+ * With no override supplied the result is byte-identical to the pre-F-013 default.
+ */
+export function resolveGlobalFallbackHeartbeatTimeoutMs(
+  override?: Partial<GlobalFallbackHeartbeatTimeoutOverride>,
+  legacyTimeoutMs?: number,
+): { timeoutMs: number; override?: GlobalFallbackHeartbeatTimeoutOverride } {
+  const rawTimeout = override?.timeoutMs;
+  const rawReason = override?.reason;
+  const hasTimeout = rawTimeout !== undefined && rawTimeout !== null;
+  const trimmedReason = typeof rawReason === 'string' ? rawReason.trim() : '';
+
+  if (!hasTimeout) {
+    if (trimmedReason.length > 0) {
+      throw new Error(
+        '[heartbeat_timeout_reason_without_override] heartbeatTimeoutReason was supplied without heartbeatTimeoutMs; '
+        + 'a reason alone raises no budget. Pass both, or neither.',
+      );
+    }
+    // No override: preserve the legacy single-knob behaviour exactly.
+    return { timeoutMs: legacyTimeoutMs ?? DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS };
+  }
+
+  if (typeof rawTimeout !== 'number' || !Number.isFinite(rawTimeout) || !Number.isInteger(rawTimeout) || rawTimeout <= 0) {
+    throw new Error(
+      `[heartbeat_timeout_invalid] heartbeatTimeoutMs must be a positive integer number of milliseconds, got ${JSON.stringify(rawTimeout)}.`,
+    );
+  }
+  if (rawTimeout > GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS) {
+    throw new Error(
+      `[heartbeat_timeout_above_cap] heartbeatTimeoutMs=${rawTimeout}ms exceeds the cap `
+      + `${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms. This is REFUSED, not clamped: if a single session_brief truly `
+      + 'needs longer than the cap, the repository scale itself is the defect to fix.',
+    );
+  }
+  if (trimmedReason.length < HEARTBEAT_TIMEOUT_REASON_MIN_CHARS) {
+    throw new Error(
+      `[heartbeat_timeout_reason_too_short] heartbeatTimeoutReason must be >= ${HEARTBEAT_TIMEOUT_REASON_MIN_CHARS} `
+      + `characters after trimming (got ${trimmedReason.length}); a raised heartbeat budget must be attributable.`,
+    );
+  }
+  return { timeoutMs: rawTimeout, override: { timeoutMs: rawTimeout, reason: trimmedReason } };
+}
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
@@ -67,9 +186,13 @@ export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
   if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
+  // Canonical codex wrapper, then canonical bootstrap, then the deprecated aliases:
+  // whichever this checkout actually has is what the operator is told to run.
   const candidates: Array<[string, string]> = [
-    ['bin/lattice-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
-    ['bin/lattice.js',       LOCAL_MAIN_VERIFY_COMMAND],
+    ['bin/proof-or-stop-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
+    ['bin/proof-or-stop.js',       LOCAL_MAIN_VERIFY_COMMAND],
+    ['bin/lattice-codex.js',       'node bin/lattice-codex.js verify_codex'],
+    ['bin/lattice.js',             'node bin/lattice.js verify_codex'],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -79,14 +202,11 @@ export function resolveLocalCodexVerifyCommand(root: string): string {
 
 export function resolveCodexSessionBriefCommand(root: string): string {
   if (isGlobalThinProject(root)) return `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
-  const candidates: Array<[string, string]> = [
-    ['bin/lattice-codex.js', 'node bin/lattice-codex.js session_brief'],
-    ['bin/lattice.js',       'node bin/lattice.js session_brief'],
-  ];
-  for (const [rel, cmd] of candidates) {
-    if (existsSync(join(root, rel))) return cmd;
+  const candidates: readonly string[] = [...LOCAL_CODEX_WRAPPERS, ...LOCAL_BOOTSTRAP_WRAPPERS];
+  for (const rel of candidates) {
+    if (existsSync(join(root, rel))) return `node ${rel} session_brief`;
   }
-  return 'node bin/lattice-codex.js session_brief';
+  return `node ${LOCAL_CODEX_WRAPPERS[0]} session_brief`;
 }
 
 const CODEX_MATERIAL_PATHS = [
@@ -98,6 +218,11 @@ const CODEX_MATERIAL_PATHS = [
   '.claude/agents',
   'AGENTS.md',
   'README.md',
+  // Both the canonical wrappers and the retained deprecated aliases are adapter
+  // material: editing either changes what a Codex session actually executes, so a
+  // stale verification must not survive a change to any of the four.
+  'bin/proof-or-stop-codex.js',
+  'bin/proof-or-stop.js',
   'bin/lattice-codex.js',
   'bin/lattice.js',
   'bin/bootstrap-runner.js',
@@ -119,6 +244,18 @@ interface RunCodexChecksOptions {
   storyId?: string;
   store?: StoryStore;
   timeoutMs?: number;
+  /**
+   * B-cdf6 (B-META F-013): bounded audited override for the GLOBAL-FALLBACK heartbeat
+   * budget only. Requires {@link heartbeatTimeoutReason}; validated (and REFUSED above
+   * the cap) by {@link resolveGlobalFallbackHeartbeatTimeoutMs} at this entry, so a
+   * Zod-bypassing internal caller is held to the same bounds as the CLI.
+   *
+   * Deliberately separate from the legacy `timeoutMs`, which collapses the local-wrapper
+   * and global-fallback budgets into one knob: raising the global budget must not also
+   * loosen the deliberately conservative 10s local wrapper probe.
+   */
+  heartbeatTimeoutMs?: number;
+  heartbeatTimeoutReason?: string;
 }
 
 function readText(path: string): string {
@@ -260,7 +397,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
   }
   const manifestPath = join(root, selection.relPath);
   const actual = readText(manifestPath);
-  const expected = renderLatticeCodexAdapterManifest();
+  const expected = renderProofOrStopCodexAdapterManifest();
   const expectedIdentity = LATTICE_CODEX_ADAPTER_MANIFEST;
   let parsed: unknown;
   try {
@@ -302,9 +439,9 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       );
       return 'registry';
     }
-    const expectedRegistryManifest = renderLatticeCodexAdapterManifest({ promptMode: 'registry' });
+    const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
     if (actual !== expectedRegistryManifest) {
-      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound registry template`, LOCAL_INIT_VERIFY_COMMAND);
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
@@ -315,10 +452,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     return null;
   }
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound template`, LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proofbound template`);
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proof-or-Stop template`);
   return 'legacy-mirror';
 }
 
@@ -424,7 +561,7 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
   const hooksJsonPath = join(root, '.codex', 'hooks.json');
   const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
   if (!existsSync(hooksJsonPath)) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proofbound PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proof-or-Stop PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   if (!existsSync(hookScriptPath)) {
@@ -473,6 +610,25 @@ function activityForEntrypoint(root: string, tool: string, entrypoint: string): 
     .find(entry => entry.tool === tool && entry.entrypoint === entrypoint) || null;
 }
 
+/**
+ * B-cdf6 (B-META F-013): did the child get KILLED by our own timeout, rather than
+ * exiting on its own with a real error?
+ *
+ * `execFileSync` surfaces a timeout kill as `code === 'ETIMEDOUT'`; Node also sets
+ * `signal` to the kill signal (SIGTERM by default) and may set `killed`. Any one of
+ * those is sufficient evidence, so all three are accepted: a heartbeat that was killed
+ * has no chance to print its verdict, so reporting it as a generic "command failed" (the
+ * F-013 misdiagnosis: the stderr progress line `[0.1s] running session_brief...` was
+ * shown as if it were the failure reason) actively misleads the operator into hunting a
+ * brand/adapter defect instead of raising the budget.
+ */
+function isTimeoutKill(e: any): boolean {
+  return e?.code === 'ETIMEDOUT'
+    || e?.signal === 'SIGTERM'
+    || e?.signal === 'SIGKILL'
+    || e?.killed === true;
+}
+
 function runHeartbeat(
   root: string,
   checks: CodexAdapterCheck[],
@@ -484,12 +640,20 @@ function runHeartbeat(
   expectedEntrypoint: string,
   timeoutMs: number,
   displayCommand?: string,
+  timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
 ): void {
+  // B-cdf6:F-039 — this fallback hardcoded the deprecated `bin/lattice-codex.js`,
+  // against the canonical-name-first convention the rest of this file follows. It is
+  // currently unreachable (every call site for this id supplies displayCommand), but
+  // an unreachable string that teaches the old bin name is still a trap for the next
+  // maintainer and for anyone grepping for remaining aliases. Derived from
+  // LOCAL_CODEX_WRAPPERS[0] so it tracks the canonical wrapper automatically.
   const retryCommand = displayCommand || (
     id === 'local-wrapper-heartbeat'
-      ? 'node bin/lattice-codex.js session_brief'
+      ? `node ${LOCAL_CODEX_WRAPPERS[0]} session_brief`
       : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`
   );
+  const startedAt = Date.now();
   try {
     execFileSync(command, args, {
       cwd: root,
@@ -502,14 +666,46 @@ function runHeartbeat(
         LATTICE_ACTIVITY_RECORD_READONLY: '1',
         LATTICE_ACTIVITY_SESSION: session,
         CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
-        LATTICE_AGENT: 'main',
+        PROOF_OR_STOP_AGENT: 'main',
         LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
+    // B-cdf6 (B-META F-013): a KILLED heartbeat is a distinct failure from a heartbeat
+    // that ran and reported an error. Name the budget it was killed at and the remedy,
+    // instead of printing the truncated progress line as if it were the cause.
+    if (isTimeoutKill(e)) {
+      const elapsedMs = Date.now() - startedAt;
+      const isGlobalFallback = id === 'global-fallback-heartbeat';
+      const remedy = isGlobalFallback
+        ? ` Raise the budget for this run with --heartbeatTimeoutMs=<ms> (cap ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms) plus `
+          + `--heartbeatTimeoutReason='<>= ${HEARTBEAT_TIMEOUT_REASON_MIN_CHARS} chars explaining why this repo needs longer>'.`
+        : '';
+      push(
+        checks,
+        id,
+        label,
+        'fail',
+        true,
+        `[heartbeat_command_timeout] heartbeat did not finish within the armed budget of ${timeoutMs}ms `
+        + `(killed after ~${elapsedMs}ms). The command was killed before it could print a verdict, so this is a BUDGET `
+        + `outcome, not evidence that the entrypoint is broken. On a large repository session_brief aggregates every `
+        + `active story before writing its heartbeat, so its cost scales with repository size.${remedy}`,
+        retryCommand,
+      );
+      return;
+    }
     push(checks, id, label, 'fail', true, `heartbeat command failed: ${e?.stderr?.toString?.().trim() || e?.message || e}`, retryCommand);
     return;
   }
+
+  // B-cdf6 (B-META F-013): a raised budget is an exceptional act, so every verdict earned
+  // under one says so. Appended to the DETAIL (not swapped in) so the existing assertions
+  // on these strings keep matching, and empty when no override was armed.
+  const armedSuffix = timeoutOverride
+    ? ` (heartbeatTimeoutMs=${timeoutOverride.timeoutMs}ms override armed, default `
+      + `${DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS}ms; reason: ${timeoutOverride.reason})`
+    : '';
 
   const record = activityForEntrypoint(root, 'session_brief', expectedEntrypoint);
   if (!record) {
@@ -542,18 +738,18 @@ function runHeartbeat(
     return;
   }
   if (!record.entrypoint && expectedEntrypoint === 'global-fallback') {
-    push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession}; installed global CLI has no entrypoint field yet`);
+    push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession}; installed global CLI has no entrypoint field yet${armedSuffix}`);
     return;
   }
   if (record.entrypoint !== expectedEntrypoint) {
     push(checks, id, label, 'fail', true, `entrypoint=${String(record.entrypoint)} expected ${expectedEntrypoint}`, retryCommand);
     return;
   }
-  push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession} entrypoint=${expectedEntrypoint}`);
+  push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession} entrypoint=${expectedEntrypoint}${armedSuffix}`);
 }
 
 function isPackagedDesktopRuntime(): boolean {
-  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
+  return readBrandEnv('DESKTOP_PACKAGED_RUNTIME') === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
@@ -570,42 +766,111 @@ function pathContains(parent: string, child: string): boolean {
   return rel === '' || (!!rel && !rel.startsWith('..') && !rel.startsWith('/'));
 }
 
-function resolveLatticeCommandPath(root: string): string | null {
-  const command = process.platform === 'win32' ? 'where' : 'sh';
-  const args = process.platform === 'win32' ? ['lattice'] : ['-lc', 'command -v lattice'];
-  try {
-    const out = execFileSync(command, args, {
-      cwd: root,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 2_000,
-      env: process.env,
-    }).trim();
-    return out.split(/\r?\n/).find(Boolean) || null;
-  } catch {
-    // probe: PATH may not expose a global lattice; heartbeat execution reports the real failure.
-    return null;
+/**
+ * Locate a globally installed CLI on PATH, preferring the canonical bin name.
+ *
+ * Read-both by design (B-cdf6): a globally installed package built before the rename
+ * exposes only `lattice`, so probing `proof-or-stop` alone would report "no global CLI"
+ * on a machine that has a perfectly working one. Canonical name wins when both exist.
+ */
+function resolveGlobalCliCommandPath(root: string): string | null {
+  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
+    const command = process.platform === 'win32' ? 'where' : 'sh';
+    const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
+    try {
+      const out = execFileSync(command, args, {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 2_000,
+        env: process.env,
+      }).trim();
+      const found = out.split(/\r?\n/).find(Boolean);
+      if (found) return found;
+    } catch {
+      // probe: this bin name is not on PATH; try the next alias.
+    }
   }
+  // No global CLI under any known name; heartbeat execution reports the real failure.
+  return null;
+}
+
+/**
+ * Read a wrapper's text, concatenating any sibling wrapper it re-exports.
+ *
+ * B-cdf6: `bin/lattice-codex.js` is a retained deprecated alias whose whole body is
+ * `import './proof-or-stop-codex.js'`, so the env contract lives one hop away. Only
+ * relative sibling imports inside `bin/` are followed, and only one hop, so this
+ * cannot be used to satisfy the check from an arbitrary file.
+ */
+function readWrapperTextFollowingDelegation(root: string, wrapperRelPath: string): string {
+  const wrapperAbs = join(root, wrapperRelPath);
+  let text = readText(wrapperAbs);
+  const delegated = new Set<string>();
+  for (const match of text.matchAll(/(?:^|\n)\s*import\s+['"]\.\/([A-Za-z0-9._-]+\.[cm]?js)['"]/g)) {
+    delegated.add(match[1]);
+  }
+  const binDir = wrapperRelPath.split('/').slice(0, -1).join('/');
+  for (const sibling of delegated) {
+    const siblingAbs = join(root, binDir, sibling);
+    if (!existsSync(siblingAbs)) continue;
+    try {
+      text += `\n${readText(siblingAbs)}`;
+    } catch {
+      // probe: unreadable sibling just means no extra evidence; the base text still applies.
+    }
+  }
+  return text;
 }
 
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
   // Global-thin projects: executable Codex adapter behavior lives in the global lattice CLI.
   // Local wrapper is not required regardless of whether legacy bin/ files exist.
   if (isGlobalThinProject(root)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor');
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor');
     return;
   }
-  const wrapperRelPath = 'bin/lattice-codex.js';
-  const bootstrapRelPath = 'bin/lattice.js';
+  // Accept whichever wrapper name this checkout has, canonical preferred. A pre-rename
+  // checkout with only `bin/lattice-codex.js` still passes (additive compat), and a
+  // post-rename one is verified against the canonical file it actually executes.
+  const wrapperRelPath = resolveWrapperRelPath(root, LOCAL_CODEX_WRAPPERS);
+  const bootstrapRelPath = resolveWrapperRelPath(root, LOCAL_BOOTSTRAP_WRAPPERS);
   const wrapper = join(root, wrapperRelPath);
   const localBootstrap = join(root, bootstrapRelPath);
   if (!existsSync(wrapper)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/lattice-codex.js', LOCAL_INIT_VERIFY_COMMAND);
+    push(
+      checks,
+      'local-wrapper',
+      'Local Codex wrapper',
+      'fail',
+      true,
+      `missing local Codex wrapper (looked for: ${LOCAL_CODEX_WRAPPERS.join(', ')})`,
+      LOCAL_INIT_VERIFY_COMMAND,
+    );
     return;
   }
-  const text = readText(wrapper);
-  const required = ['LATTICE_ACTIVITY_SOURCE', 'codex', 'LATTICE_ACTIVITY_RECORD_READONLY', 'LATTICE_CODEX_ENTRYPOINT'];
-  const missing = required.filter(piece => !text.includes(piece));
+  // A retained deprecated alias may hold no behaviour of its own and simply
+  // `import` its canonical sibling (that is how B-cdf6 keeps the two from drifting).
+  // Verify the env contract on whichever file actually sets it, so a thin alias is
+  // not reported as a wrapper "missing LATTICE_ACTIVITY_SOURCE".
+  const text = readWrapperTextFollowingDelegation(root, wrapperRelPath);
+  // B-cdf6: this is a STATIC text check over generated wrapper source, so it must
+  // accept both the pre-rename literal spelling AND the post-rename composed form.
+  // The generated wrapper no longer contains the literal `LATTICE_ACTIVITY_SOURCE`:
+  // it emits `setEnv('ACTIVITY_SOURCE', 'codex')`, whose helper writes BOTH brand
+  // prefixes at runtime. Grepping only the old literal reported a wrapper that is
+  // functionally correct as "missing LATTICE_ACTIVITY_SOURCE". Each entry below is
+  // satisfied by ANY of its accepted spellings; a wrapper that sets none of them
+  // still fails, so the contract is unchanged — only its spelling tolerance widened.
+  const required: ReadonlyArray<readonly string[]> = [
+    ['LATTICE_ACTIVITY_SOURCE', 'PROOF_OR_STOP_ACTIVITY_SOURCE', "setEnv('ACTIVITY_SOURCE'"],
+    ['codex'],
+    ['LATTICE_ACTIVITY_RECORD_READONLY', 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', "setEnv('ACTIVITY_RECORD_READONLY'"],
+    ['LATTICE_CODEX_ENTRYPOINT', 'PROOF_OR_STOP_CODEX_ENTRYPOINT', "setEnv('CODEX_ENTRYPOINT'"],
+  ];
+  const missing = required
+    .filter(accepted => !accepted.some(piece => text.includes(piece)))
+    .map(accepted => accepted[0]);
   if (missing.length > 0) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
     return;
@@ -625,7 +890,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
         'Local wrapper heartbeat',
         'pass',
         true,
-        'packaged runtime uses embedded Proofbound CLI; wrapper env contract verified without external Node',
+        'packaged runtime uses embedded Proof-or-Stop; wrapper env contract verified without external Node',
       );
       return;
     }
@@ -647,7 +912,13 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   }
 }
 
-function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
+function checkGlobalFallback(
+  root: string,
+  checks: CodexAdapterCheck[],
+  executeHeartbeats: boolean,
+  timeoutMs: number,
+  timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
+): void {
   if (!executeHeartbeats) {
     push(checks, 'global-fallback-heartbeat', 'Global fallback heartbeat', 'warn', false, 'not executed in this diagnostic mode', `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
     return;
@@ -679,7 +950,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     if (existsSync(currentCore) && globalCore) {
       const currentReal = realpathSync(currentCore);
       const globalReal = realpathSync(globalCore.path);
-      const latticeCommand = resolveLatticeCommandPath(root);
+      const latticeCommand = resolveGlobalCliCommandPath(root);
       const latticeReal = latticeCommand && existsSync(latticeCommand) ? realpathSync(latticeCommand) : '';
       const actualLatticeUsesGlobalCore = !!latticeReal && pathContains(globalReal, latticeReal);
       if (actualLatticeUsesGlobalCore && currentReal !== globalReal) {
@@ -703,17 +974,19 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveLatticeCommandPath(root) ?? 'lattice',
+    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_DEPRECATED_BIN,
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',
     timeoutMs,
+    undefined,
+    timeoutOverride,
   );
 }
 
 function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<string>): void {
   if (!registryNames) {
-    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through lattice doctor for live command inventory');
+    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through proof-or-stop doctor for live command inventory');
     return;
   }
   if (!registryNames.has('aux_doc_list')) {
@@ -726,7 +999,13 @@ function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<s
 export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptions = {}): CodexAdapterCheckResult {
   const checks: CodexAdapterCheck[] = [];
   const localHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS;
-  const globalFallbackHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS;
+  // B-cdf6 (B-META F-013): runtime re-validation boundary. Throws (never clamps) on an
+  // out-of-bounds / unattributed override, including on paths that never touched Zod.
+  const resolvedGlobalHeartbeat = resolveGlobalFallbackHeartbeatTimeoutMs(
+    { timeoutMs: options.heartbeatTimeoutMs, reason: options.heartbeatTimeoutReason },
+    options.timeoutMs,
+  );
+  const globalFallbackHeartbeatTimeoutMs = resolvedGlobalHeartbeat.timeoutMs;
   const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
   const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
   const agentAssetResolution = resolveAgentAssetResolution(root);
@@ -740,7 +1019,13 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   checkExcludedAssets(root, checks);
   checkCodexNativeHooks(root, checks);
   checkLocalWrapper(root, checks, executeLocalHeartbeat, localHeartbeatTimeoutMs);
-  checkGlobalFallback(root, checks, executeGlobalHeartbeat, globalFallbackHeartbeatTimeoutMs);
+  checkGlobalFallback(
+    root,
+    checks,
+    executeGlobalHeartbeat,
+    globalFallbackHeartbeatTimeoutMs,
+    resolvedGlobalHeartbeat.override,
+  );
   checkAuxAvailability(checks, options.registryNames);
 
   const hardFailures = checks.filter(check => check.hard && check.status === 'fail');
@@ -776,7 +1061,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|lattice codex (?:verify|doctor))/i.test(haystack);
+    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|proof-or-stop codex (?:verify|doctor))/i.test(haystack);
   } catch {
     return false;
   }

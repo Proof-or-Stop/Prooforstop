@@ -173,7 +173,7 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     staleThresholds: {
       phaseStale: 10_000_000,
       itemStale: 10_000_000,
-      idleLattice: 10_000_000,
+      idleProofOrStop: 10_000_000,
       bugStale: 10_000_000,
     },
   };
@@ -420,7 +420,7 @@ async function assertModifiedTrackedPathExactness(): Promise<void> {
     });
     assert.match(
       metadataOnly,
-      /only pre-existing Proofbound story lifecycle metadata is dirty/,
+      /only pre-existing Proof-or-Stop story lifecycle metadata is dirty/,
       metadataOnly,
     );
     assert.doesNotMatch(metadataOnly, /process-metrics\.json: unrelated dirty file/, metadataOnly);

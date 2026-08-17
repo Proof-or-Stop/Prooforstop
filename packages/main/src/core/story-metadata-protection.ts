@@ -17,7 +17,7 @@
  * `CommandRunner` dependency-injection pattern in validate-lint.ts. This keeps
  * the predicate trivially unit-testable without spawning git.
  *
- * The incident (ClawCreek, Proofbound 0.3.5): a project that broadly ignores
+ * The incident (ClawCreek, Proof-or-Stop 0.3.5): a project that broadly ignores
  * `.lattice/` keeps the volatile runtime safe from `git clean` but SILENTLY
  * untracks the persistent story metadata. The metadata is then never committed,
  * and the next `git clean -fdx` (ignored + untracked = exactly what clean
@@ -151,7 +151,7 @@ export function evaluateStoryMetadataProtection(args: {
 
 /**
  * Loud, actionable warning text for the data-loss state, pointing the operator
- * at `lattice doctor --repair` (which installs the managed ignore-volatile /
+ * at `proof-or-stop doctor --repair` (which installs the managed ignore-volatile /
  * track-metadata allowlist). Shared by the bootstrap guard and the doctor scan
  * so the remediation phrasing stays in one place.
  */
@@ -164,7 +164,7 @@ export function renderStoryMetadataProtectionWarning(leafPath: string): string {
     '      B-02a6 INIT window), even a plain `git clean -fd` removes it. A wrong-branch',
     '      checkout can also PERMANENTLY delete it. Only a committed object is clean-proof.',
     '      → Commit the story metadata (story_create now lands a safe-init commit), or run',
-    '        `lattice doctor --repair` to install the managed ignore-volatile/track-metadata',
+    '        `proof-or-stop doctor --repair` to install the managed ignore-volatile/track-metadata',
     '        allowlist so story metadata stays tracked while runtime stays ignored.',
   ].join('\n');
 }

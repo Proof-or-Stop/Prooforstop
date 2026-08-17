@@ -809,7 +809,7 @@ export function describeRedEvidenceReadFailure(error: unknown): string | null {
  */
 export function redEvidenceRepairGuidance(storyId: string): string {
   return (
-    `→ Inspect it with \`lattice red_evidence_get --storyId=${storyId}\` — that command DISPLAYS corruption ` +
+    `→ Inspect it with \`proof-or-stop red_evidence_get --storyId=${storyId}\` — that command DISPLAYS corruption ` +
     `instead of aborting (§9) — then repair red-evidence.json and retry.`
   );
 }

@@ -41,7 +41,7 @@ import {
 import type { StoryStore } from '../core/store.js';
 import type { Finding, StoryInfo, StoryEvent } from '../core/types.js';
 
-/** Marker line printed by the smoke so `lattice validate` output is greppable. */
+/** Marker line printed by the smoke so `proof-or-stop validate` output is greppable. */
 const MARKER = 'review-convergence-smoke:';
 
 /** A fixed base time so synthetic round timestamps are deterministic + ordered. */

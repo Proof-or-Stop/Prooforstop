@@ -1,5 +1,5 @@
 /**
- * Proofbound CLI engine
+ * Proof-or-Stop engine
  *
  * Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.
  * The main package cli.ts is the binary entrypoint and calls runCli() directly.
@@ -33,8 +33,10 @@ import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import {
   formatLatticeVersionLine,
+  detectProofOrStopBrand,
+  PROOF_OR_STOP_BIN_NAMES,
 } from './core/lattice-brand.js';
-import { LATTICE_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
@@ -133,6 +135,7 @@ export {
   parseFlags,
   parseFlagsTest,
 } from './cli/flag-parser.js';
+import { BRAND_ENV_PREFIX, readBrandEnv } from './core/brand-env.js';
 export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
 export { MAIN_TOOLS };
@@ -495,7 +498,7 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
 ]);
 
 // B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
-// verbosity injection at the dispatch seam (flag > LATTICE_BRIEF_OUTPUT env >
+// verbosity injection at the dispatch seam (flag > PROOF_OR_STOP_BRIEF_OUTPUT env >
 // brief default). The seam passes `brief:true`/`full:true` to the handler, so
 // IN-PROCESS handler callers (smokes, other handlers) keep today's full return
 // shape, and explicit machine JSON keeps the frozen full shape.
@@ -660,7 +663,7 @@ function commitFromDraftMetadataOnMain(root: string, store: StoryStore, storyId:
       );
     }
 
-    const commitMessage = `lattice: from-draft metadata ${storyId}`;
+    const commitMessage = `proof-or-stop: from-draft metadata ${storyId}`;
     gitCli(root, [
       '-c', 'commit.gpgsign=false',
       'commit',
@@ -714,7 +717,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli: Proofbound CLI runtime entry point.
+ * runCli: Proof-or-Stop runtime entry point.
  *
  * @param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.
  * @param opts.extraRegister register function from third-party packages, called after createMainRegistry.
@@ -746,7 +749,9 @@ export async function runCli(opts?: {
     argv.splice(0, argv.length, ...normalizedAlias.argv);
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
-  } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+    // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
+    // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
+  } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
     arg = undefined;
@@ -783,7 +788,7 @@ export async function runCli(opts?: {
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
-    // B-7c05 CHK-003: help is BRIEF by default; --full (or LATTICE_BRIEF_OUTPUT=0)
+    // B-7c05 CHK-003: help is BRIEF by default; --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0)
     // restores the current verbose catalog. --brief forces brief over the env hatch.
     const helpFull = wantsFullOutput({
       full: argv.includes('--full'),
@@ -823,11 +828,15 @@ export async function runCli(opts?: {
     return;
   }
 
+  // B-cdf6 CHK-002: next-action guidance must name a bin the caller can retype,
+  // so mirror how this process was actually invoked.
+  const usageBin = detectProofOrStopBrand().usageBin;
+
   if (cmd === 'codex' && (argv[1] === 'session_brief' || argv[1] === 'aux_doc_list')) {
     const ordinary = argv[1];
-    console.error(`Unsupported command: lattice codex ${ordinary}`);
-    console.error('The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor.');
-    console.error(`Use the ordinary command instead: lattice ${ordinary}`);
+    console.error(`Unsupported command: ${usageBin} codex ${ordinary}`);
+    console.error(`The Codex adapter namespace only supports: ${usageBin} codex verify, ${usageBin} codex doctor.`);
+    console.error(`Use the ordinary command instead: ${usageBin} ${ordinary}`);
     process.exit(1);
   }
 
@@ -835,8 +844,8 @@ export async function runCli(opts?: {
   if (!tool) {
     console.error(`Unknown command: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  lattice ${t.name}`); }
-    console.error('Use lattice help to view all commands.');
+    if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  ${usageBin} ${t.name}`); }
+    console.error(`Use ${usageBin} help to view all commands.`);
     process.exit(1);
   }
 
@@ -929,7 +938,7 @@ export async function runCli(opts?: {
 
     // B-7c05 CHK-001: the post-mutation ledger suffix is BRIEF by default. Per-call
     // flags on a mutating command are stripped by that command's own schema, so the
-    // primary override here is LATTICE_BRIEF_OUTPUT=0 (env hatch); a mutating command
+    // primary override here is PROOF_OR_STOP_BRIEF_OUTPUT=0 (env hatch); a mutating command
     // that DOES expose --full/--brief in its schema is still honored via `parsed`.
     const wantFull = wantsFullOutput(parsed);
     // Force the resolved verbosity explicitly so the milestone handler renders the
@@ -950,7 +959,7 @@ export async function runCli(opts?: {
     const visibleFailure = (e: Error): string =>
       `${output}\n\n⚠ Milestone Ledger: render FAILED for ${storyId} — ${e.message}.\n` +
       `  The write above SUCCEEDED; this is a display failure, not a data failure.\n` +
-      `  Run \`lattice milestone_status --storyId=${storyId}\` to view status.`;
+      `  Run \`proof-or-stop milestone_status --storyId=${storyId}\` to view status.`;
 
     // Anchor to a line start so a header substring echoed inside the command's own
     // output (e.g. a milestone claim rendered in a table cell) cannot be mistaken
@@ -1036,7 +1045,7 @@ export async function runCli(opts?: {
   try {
     staleWarnings = detectStaleState(ctx);
     if (staleWarnings.length > 0) {
-      process.stderr.write('⚠ Proofbound stale state warnings:\n');
+      process.stderr.write('⚠ Proof-or-Stop stale state warnings:\n');
       for (const w of staleWarnings) process.stderr.write(`  - ${w}\n`);
     }
   } catch { /* never block */ }
@@ -1044,7 +1053,7 @@ export async function runCli(opts?: {
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
   // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const explicitIdle = Number(process.env.LATTICE_IDLE_TIMEOUT_MS);
+  const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
   const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
     ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
@@ -1056,7 +1065,10 @@ export async function runCli(opts?: {
   log = (msg: string) => { lastActivity = Date.now(); originalLog(msg); };
   ctx.log = log;
   if (cmd === 'done_prepare' || cmd === 'done_required_validate') {
-    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? 'LATTICE_MAX_TIMEOUT_MS' : effectiveMaxBudget.source}`);
+    // B-cdf6 delivery review: this diagnostic named the deprecated env var, so a
+    // user copying it back would set the pre-rename name. The resolver reads both
+    // (brand-env.ts), but new user-visible output must teach the canonical form.
+    originalLog(`${cmd} timeout budget: maxMs=${MAX_TIMEOUT} source=${effectiveMaxBudget.source === 'explicit-max-env' ? `${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS` : effectiveMaxBudget.source}`);
   }
 
   const structuredWatchdog = cmd === 'done_prepare' || cmd === 'done_required_validate';
@@ -1178,7 +1190,7 @@ export async function runCli(opts?: {
           projectRoot: effectiveRoot,
         }),
         phase: activeStory?.phase || null,
-        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
+        role: inferActivityRole(entry.args, readBrandEnv('ACTIVITY_ROLE') || readBrandEnv('AGENT')),
       };
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
@@ -1187,7 +1199,7 @@ export async function runCli(opts?: {
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
-        logDir: join(root, LATTICE_DIR),
+        logDir: join(root, PROOF_OR_STOP_DIR),
       });
     }
   }
@@ -1256,7 +1268,7 @@ export async function runCli(opts?: {
         session: sessionIdentity.sessionId,
         sessionSource: sessionIdentity.sessionSource,
         hostProvider: sessionIdentity.hostProvider ?? null,
-        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
+        role: inferActivityRole(entry.args, readBrandEnv('ACTIVITY_ROLE') || readBrandEnv('AGENT')),
         storyId,
         phase,
         command: entry.command,

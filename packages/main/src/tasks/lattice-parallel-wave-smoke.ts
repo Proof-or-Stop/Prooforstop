@@ -27,7 +27,7 @@ import {
   type LatticeParallelPlan,
   type LatticeParallelReport,
   type LatticeParallelStatus,
-  type LatticeParallelWave,
+  type ProofOrStopParallelWave,
   type LatticeParallelWaveInspection,
 } from '../core/lattice-parallel-wave.js';
 import { getProcessFactLevelEntry } from '../core/process-fact-levels.js';
@@ -77,7 +77,7 @@ function story(id: string, patch: Partial<StoryInfo>): StoryInfo {
     storyId: id,
     name: id.toLowerCase(),
     title: `${id} parallel wave smoke`,
-    description: `${id} seeded for Proofbound Parallel Wave smoke coverage.`,
+    description: `${id} seeded for Proof-or-Stop Parallel Wave smoke coverage.`,
     type: 'feature',
     phase: 'DEV',
     priority: 'medium',
@@ -95,7 +95,7 @@ function checklist(intentRef: string, receiptRef?: string): ChecklistData {
     kind: 'logic_test',
     command: 'npm --prefix packages/main run test:lattice-parallel-wave-smoke',
     result: 'pass',
-    note: 'Seed evidence for Proofbound Parallel Wave smoke coverage.',
+    note: 'Seed evidence for Proof-or-Stop Parallel Wave smoke coverage.',
     timestamp: now,
     ...(receiptRef ? { receiptRef } : {}),
   };
@@ -208,7 +208,7 @@ function seedStories(store: StoryStore, root: string): void {
   store.writeChecklist('B-idea-adjacent', checklist('B-idea-adjacent:happy:0'));
 }
 
-function ref(wave: LatticeParallelWave, storyId: string) {
+function ref(wave: ProofOrStopParallelWave, storyId: string) {
   const found = wave.storyRefs.find(candidate => candidate.storyId === storyId);
   assert.ok(found, `${storyId} should be present in wave`);
   return found;
@@ -226,7 +226,7 @@ function assertAuthorityBoundary(value: {
   assert.deepEqual(value.authority.receiptRefs, [], 'Parallel Wave top-level receiptRefs must stay empty');
 }
 
-function assertWave(wave: LatticeParallelWave, root: string): void {
+function assertWave(wave: ProofOrStopParallelWave, root: string): void {
   assert.equal(wave.schemaVersion, 'lattice.parallel_wave.v1');
   assert.equal(wave.waveId, 'wave-smoke');
   assert.equal(wave.storyRefs.length, WAVE_STORY_IDS.length);
@@ -518,7 +518,7 @@ function assertActiveWorktreeOverlapProjection(): void {
     const metadataOnly = ref(wave, 'B-metadata-only');
     assert.equal(metadataOnly.changedFiles!.status, 'ok');
     assert.deepEqual(metadataOnly.changedFiles!.materialChangedFiles, []);
-    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/')), 'metadata-only Proofbound changes are visible as ignored');
+    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/')), 'metadata-only Proof-or-Stop changes are visible as ignored');
     assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/runtime/')), 'registered runtime changes are visible as ignored');
     assert.deepEqual(metadataOnly.actualFileOverlaps ?? [], []);
     assert.equal(metadataOnly.recommendation, 'parallel_dev', 'metadata-only changes do not create overlap noise');
@@ -706,7 +706,7 @@ try {
     hosts: ['codex'],
     waveId: 'wave-smoke',
     format: 'json',
-  }) as LatticeParallelWave, root);
+  }) as ProofOrStopParallelWave, root);
 
   const wavePath = join(root, 'parallel-wave.json');
   registry.get('parallel_wave_create')!({
@@ -715,7 +715,7 @@ try {
     waveId: 'wave-smoke',
     output: wavePath,
   });
-  assertWave(JSON.parse(readFileSync(wavePath, 'utf8')) as LatticeParallelWave, root);
+  assertWave(JSON.parse(readFileSync(wavePath, 'utf8')) as ProofOrStopParallelWave, root);
   assert.throws(
     () => registry.get('parallel_wave_create')!({
       storyIds: [...WAVE_STORY_IDS],
@@ -815,7 +815,7 @@ try {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
-  assertWave(JSON.parse(cliWaveStdout) as LatticeParallelWave, root);
+  assertWave(JSON.parse(cliWaveStdout) as ProofOrStopParallelWave, root);
 
   const cliInspectStdout = execFileSync(process.execPath, [
     cliPath,

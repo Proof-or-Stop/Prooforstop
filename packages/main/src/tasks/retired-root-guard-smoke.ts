@@ -16,24 +16,24 @@
  */
 import assert from 'node:assert/strict';
 import { enforceRetiredRootGuard } from '../cli/ownership-gate.js';
-import type { LatticeConfig } from '../core/config.js';
+import type { ProofOrStopConfig } from '../core/config.js';
 
 const retiredRoot = '/tmp/lattice-retired-root';
 const canonicalRoot = '/tmp/lattice-canonical-root';
 const activeStory = { storyId: 'B-bcd4', phase: 'DEV' };
 
-const retiredConfig: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'> = {
+const retiredConfig: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'> = {
   retiredRoot: true,
   canonicalRoot,
 };
 
-const normalConfig: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'> = {};
+const normalConfig: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'> = {};
 
 function allow(
   label: string,
   cmd: string,
   args: Record<string, unknown>,
-  config: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'> = retiredConfig,
+  config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'> = retiredConfig,
 ): void {
   assert.doesNotThrow(
     () => enforceRetiredRootGuard(cmd, args, config, activeStory, retiredRoot),
@@ -45,13 +45,13 @@ function block(
   label: string,
   cmd: string,
   args: Record<string, unknown>,
-  config: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'> = retiredConfig,
+  config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'> = retiredConfig,
 ): Error {
   try {
     enforceRetiredRootGuard(cmd, args, config, activeStory, retiredRoot);
   } catch (error) {
     assert.ok(error instanceof Error, `${label}: thrown value is Error`);
-    assert.match(error.message, /Proofbound root is retired:/, `${label}: retired-root phrase`);
+    assert.match(error.message, /Proof-or-Stop root is retired:/, `${label}: retired-root phrase`);
     assert.match(error.message, /Use canonicalRoot:/, `${label}: canonicalRoot phrase`);
     return error;
   }

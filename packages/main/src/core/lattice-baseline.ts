@@ -728,7 +728,7 @@ const CLAIM_DEFINITIONS = {
     requestedClaim: 'basic bounded development',
     dependsOn: ['development'] as BaselineLayer[],
     allowedWording: [
-      'Proofbound has validated basic bounded development for the tested CLI, API, repair, and redevelopment scenarios.',
+      'Proof-or-Stop has validated basic bounded development for the tested CLI, API, repair, and redevelopment scenarios.',
     ],
   },
   'CLAIM-ENGINEERING-DEV': {
@@ -736,7 +736,7 @@ const CLAIM_DEFINITIONS = {
     requestedClaim: 'real engineering development in tested project classes',
     dependsOn: ['development', 'engineering'] as BaselineLayer[],
     allowedWording: [
-      'Proofbound has validated real engineering development for the tested project classes.',
+      'Proof-or-Stop has validated real engineering development for the tested project classes.',
     ],
   },
   'CLAIM-LOOP-ENGINEERING': {
@@ -744,7 +744,7 @@ const CLAIM_DEFINITIONS = {
     requestedClaim: 'correctness-protected unattended development model',
     dependsOn: ['development', 'engineering', 'loop-engineering'] as BaselineLayer[],
     allowedWording: [
-      'Proofbound has validated a correctness-protected Loop Engineering model for the tested task classes.',
+      'Proof-or-Stop has validated a correctness-protected Loop Engineering model for the tested task classes.',
     ],
   },
   'CLAIM-PRODUCTION-SAFETY': {
@@ -752,7 +752,7 @@ const CLAIM_DEFINITIONS = {
     requestedClaim: 'approaching production-grade unattended development safety',
     dependsOn: ['development', 'engineering', 'loop-engineering', 'production-safety'] as BaselineLayer[],
     allowedWording: [
-      'Proofbound is approaching production-grade unattended development safety for the tested project classes and stated maturity target.',
+      'Proof-or-Stop is approaching production-grade unattended development safety for the tested project classes and stated maturity target.',
     ],
   },
   'CLAIM-GLOBAL-CAPABILITY': {
@@ -760,16 +760,16 @@ const CLAIM_DEFINITIONS = {
     requestedClaim: 'global production capability claim',
     dependsOn: ['development', 'engineering', 'loop-engineering', 'production-safety'] as BaselineLayer[],
     allowedWording: [
-      'Proofbound has a production-grade unattended development capability claim backed by all required baseline layers.',
+      'Proof-or-Stop has a production-grade unattended development capability claim backed by all required baseline layers.',
     ],
   },
 } as const;
 
 const PROHIBITED_WORDING = [
-  'Proofbound is production-ready for all unattended development.',
-  'Proofbound can claim production DONE without Authority receipt verification.',
-  'Proofbound can skip multi-host review.',
-  'Proofbound can replace Authority receipts with local files.',
+  'Proof-or-Stop is production-ready for all unattended development.',
+  'Proof-or-Stop can claim production DONE without Authority receipt verification.',
+  'Proof-or-Stop can skip multi-host review.',
+  'Proof-or-Stop can replace Authority receipts with local files.',
   'Parallel implementation proves higher capability layers in parallel.',
 ];
 

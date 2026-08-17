@@ -73,10 +73,15 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+// B-cdf6 CHK-005: the validate-command term follows the renamed canonical bin. Every doc in
+// activeLifecycleDocPaths is an ACTIVE doc that tells a reader what to run now, so per
+// docs/requirements/decisions/brand-rename-mapping.md it is RENAMED, not frozen. The assertion is
+// unchanged in strength — each doc must still literally contain each term, so dropping the
+// validate guidance from a lifecycle doc still fails.
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
-  'lattice validate',
+  'proof-or-stop validate',
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
@@ -291,11 +296,11 @@ const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
   },
   test_story: {
     destructiveRisk: 'fixture-write',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   test_fixture: {
     destructiveRisk: 'fixture-write',
@@ -476,7 +481,11 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Lattice cannot mechanically prove true subagent context isolation',
+  // B-cdf6 CHK-005: product-name prose follows the renamed canonical form `Proof-or-Stop` (see
+  // docs/requirements/decisions/brand-rename-mapping.md, first RENAMED row). The phrase is still
+  // pinned in full, so deleting or softening the "cannot mechanically prove isolation" boundary
+  // claim from CLAUDE.md / testing-infra.md still fails this check.
+  'Proof-or-Stop cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];
@@ -1400,7 +1409,10 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceWriterPolicy?.status === 'gateEvidence'
       && acceptanceWriterPolicy.gateEvidence === true
       && /name:\s*'acceptance_basis_generate',\s*level:\s*'L4'[\s\S]{0,500}acceptance_topology_check/.test(processLevelText)
-      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      // B-cdf6 CHK-005: the sole-writer command is now taught under the renamed canonical bin.
+      // Assertion strength is unchanged — all three prompt surfaces must still name the writer
+      // command, so dropping the acceptance-basis boundary from any of them still fails.
+      && acceptancePromptPaths.every(path => read(path).includes('proof-or-stop acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
   );
@@ -1871,10 +1883,23 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
-    'a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0',
-    '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
-    '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
+    'ead33ddd7eae65fe2c2baf1411b7f0cf26b74ab16d28d9e5132fe777aef71663',
+    // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
+    // after the user-facing bin rename changed cli-engine.ts hint/error strings.
+    //
+    // B-cdf6:F-057 follow-on: this is the SECOND copy of that fingerprint. When the
+    // guard's own allowlist was repinned I updated only that file, and this verifier —
+    // which cross-checks that the guard pins the expected value — kept the old hash and
+    // failed closed. The two are coupled by design (the comment above already said so),
+    // so they must always move together. Same re-approval basis as the guard: the
+    // cli-engine.ts diff vs main touches zero import()/require() calls, arguments or
+    // path producers, and the approved loader call site is byte-identical to main.
+    // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
+    // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
+    // both copies were updated in the same commit, as the note above requires.
+    'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d',
+    '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
+    '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
     'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint',
     'changing the path producer behind an otherwise identical benign loader call must invalidate its source fingerprint',
@@ -1968,8 +1993,8 @@ function assertCloseoutTrustBoundary() {
     'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
     'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '1ec6b25bb116809b885adb83768d9fb96d24ad7549f31a144507dc4d84875765',
-    '4df693798fca7584fd2666249134120b891d6336ff433768891b5ed6483da1b8',
+    'b6f153f43aadcfd8e1720298765b1c491c638be47bc13e1bbdac0d6f72e8ceaf',
+    'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
@@ -3382,8 +3407,10 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  const commandPattern = new RegExp(`\\b(?:lattice|koala)\\s+${command}\\b`);
-  const anyCliCommandPattern = /\b(?:lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
+  // `proof-or-stop` is the canonical bin; `lattice` / `koala` stay accepted so this
+  // detector keeps recognizing pre-rename prompt text (B-cdf6 CHK-006).
+  const commandPattern = new RegExp(`\\b(?:proof-or-stop|lattice|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:proof-or-stop|lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 
@@ -5101,7 +5128,12 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
   );
   for (const token of [
-    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
+    // B-cdf6 CHK-006 Pass B: the pinned list stays byte-frozen (its digest is
+    // compared against already-persisted receipts), and the new brand spellings
+    // are folded in at the FILTER via brandEnvNames() so a PROOF_OR_STOP_* export
+    // is still stripped without entering the digested list.
+    'VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>',
+    'isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],',
     "platform === 'win32'",
     "effective[canonicalKey('PWD')] = cwd",
     'effective[canonicalKey(key)] = value',
@@ -5126,7 +5158,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
-  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
+  // B-cdf6 CHK-006 Pass B: the phase-timeout override is now read through the
+  // read-both brand resolver, so the pinned token is the resolver call (which
+  // accepts BOTH `PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS` and the legacy
+  // `LATTICE_` spelling) rather than one hardcoded variable name.
+  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', "readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS')"]) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
   }
   const validationExecutorText = read('packages/main/src/core/validation-executor.ts');
@@ -7511,11 +7547,11 @@ const inventory = [
         patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {
@@ -7851,7 +7887,7 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / the `lattice validate --json` gate / the two
+        // (runReviewCliGates / the `proof-or-stop validate --json` gate / the two
         // English `Cannot enter TEST` strings) into phase-gates.ts. B-914f
         // keeps test-evidence persistence exclusively in verifier.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
@@ -7862,12 +7898,12 @@ const inventory = [
         relPath: 'packages/main/src/handlers/phase-gates.ts',
         patterns: [
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'buildDoneChecklist',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {

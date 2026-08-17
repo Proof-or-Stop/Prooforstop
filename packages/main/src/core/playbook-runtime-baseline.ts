@@ -27,6 +27,7 @@ import {
   type RuntimeMemoryIndexCandidateStats,
   type RuntimeMemoryIndex,
 } from './playbook-runtime-memory-index.js';
+import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -864,16 +865,16 @@ function playbookFromBaseline(record: BaselineRecord): Playbook {
 }
 
 function withIsolatedGlobalMemory<T>(fn: () => T): T {
-  const previous = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const previous = readBrandEnv('GLOBAL_MEMORY_DIR');
   const dir = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-global-'));
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = dir;
+  setBrandEnv(process.env, 'GLOBAL_MEMORY_DIR', dir);
   try {
     return fn();
   } finally {
     if (previous === undefined) {
-      delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+      deleteBrandEnv(process.env, 'GLOBAL_MEMORY_DIR');
     } else {
-      process.env.LATTICE_GLOBAL_MEMORY_DIR = previous;
+      setBrandEnv(process.env, 'GLOBAL_MEMORY_DIR', previous);
     }
     rmSync(dir, { recursive: true, force: true });
   }

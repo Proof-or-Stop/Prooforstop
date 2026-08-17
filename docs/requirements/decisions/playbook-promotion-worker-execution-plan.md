@@ -11,7 +11,7 @@ backfill, and timers remain future work.
 
 ## 1. Why This Document Exists
 
-Proofbound already has the first half of the playbook learning loop:
+Proof-or-Stop already has the first half of the playbook learning loop:
 
 - `playbook_propose` can distil a resolved finding into a staged proposal.
 - `playbook_approve` can turn a reviewed proposal into a `candidate` playbook.
@@ -27,7 +27,7 @@ that runtime memory was designed to fix: useful experience exists on disk, but
 the workflow does not reliably consume or curate it.
 
 This document defines a scoped promotion-worker plan that closes that loop
-without weakening Proofbound's evidence model.
+without weakening Proof-or-Stop's evidence model.
 
 Short version:
 
@@ -98,7 +98,7 @@ The practical failure modes are:
 
 ## 4. Design Principles
 
-This plan follows Proofbound's core constraints:
+This plan follows Proof-or-Stop's core constraints:
 
 1. Do not optimize for the sake of optimization.
 2. Do not optimize arbitrarily.
@@ -177,7 +177,7 @@ The first implementation must not:
 - require matched control samples before the system can make any useful V1
   decision;
 - write every story lesson into a global/project active playbook;
-- require a daemon for ordinary Proofbound operation;
+- require a daemon for ordinary Proof-or-Stop operation;
 - hardcode a closed set of host products into the outcome schema;
 - create unbounded learning files without retention or compaction strategy.
 
@@ -695,10 +695,10 @@ Purpose: evaluate affected candidates/active playbooks and produce decisions.
 Suggested flags:
 
 ```bash
-lattice playbook_promotion_sweep --dryRun
-lattice playbook_promotion_sweep --apply
-lattice playbook_promotion_sweep --playbookId=PB-123 --dryRun
-lattice playbook_promotion_sweep --since=2026-07-01T00:00:00.000Z --dryRun
+proof-or-stop playbook_promotion_sweep --dryRun
+proof-or-stop playbook_promotion_sweep --apply
+proof-or-stop playbook_promotion_sweep --playbookId=PB-123 --dryRun
+proof-or-stop playbook_promotion_sweep --since=2026-07-01T00:00:00.000Z --dryRun
 ```
 
 Rules:

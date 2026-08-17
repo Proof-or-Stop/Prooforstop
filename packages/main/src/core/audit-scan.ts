@@ -2,13 +2,27 @@
  * audit-scan — mechanically scan for drift between CLAUDE.md promises and actual CLI behavior (B-9bd9 CHK-001).
  *
  * Three pure scanner functions:
- *   - scanCommandDrift: extract `lattice <cmd>` command name → run `lattice <cmd> --help`, exit≠0 → drift
- *   - scanFlagDrift:    extract `lattice <cmd> ... --<flag>` → `lattice <cmd> --help` doesn't contain → drift
+ *   - scanCommandDrift: extract `<bin> <cmd>` command name → run `<bin> <cmd> --help`, exit≠0 → drift
+ *   - scanFlagDrift:    extract `<bin> <cmd> ... --<flag>` → `<bin> <cmd> --help` doesn't contain → drift
  *   - scanPathDrift:    extract path assertions from docs → grep whole repo → not found → drift
  *
  * All scanners are pure functions (input md text + repo root); the top-level `runMechanicalAudit`
- * aggregates and returns `{drifts, skipped}`. skipped records commands that couldn't be run (ENOENT / timeout /
- * permissions), not counted as drift, to avoid treating lattice itself not being installed as a doc error.
+ * aggregates and returns `{drifts, skipped, extractedCommands}`. skipped records commands that couldn't be run
+ * (ENOENT / timeout / permissions), not counted as drift, to avoid treating the CLI itself not being installed
+ * as a doc error.
+ *
+ * B-cdf6 CHK-005 — vacuous-pass hardening. `<bin>` used to be the single hardcoded literal
+ * `lattice`. Once the docs were rewritten to the renamed bin (`proof-or-stop <cmd>`), that regex
+ * matched NOTHING: the loop body never ran, zero drifts were returned, and the gate reported a
+ * PASS. That is strictly worse than a loud failure — a doc could reference a nonexistent command
+ * forever undetected, which is the exact drift class this scanner exists to catch. Two fixes:
+ *
+ *   1. The extractor now accepts EVERY bin token the CLI answers to (`PROOF_OR_STOP_BIN_NAMES`:
+ *      canonical `proof-or-stop` plus the deprecated `lattice` alias), so mixed-token docs stay
+ *      covered for the whole transition rather than only after a flag day.
+ *   2. `extractedCommands` is reported alongside `drifts`, so callers can tell "scanned N
+ *      documented commands, all clean" apart from "extracted nothing at all". An empty extraction
+ *      is a scanner-blindness signal, NOT evidence of a clean scan.
  */
 
 import { execFileSync, execSync } from 'node:child_process';
@@ -18,10 +32,11 @@ import {
   checkDocsDrift,
   DOCS_DRIFT_ALLOWLIST,
 } from '../handlers/validate-docs-drift.js';
+import { PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#lattice CLI quick reference"
-  symbol: string;      // e.g., "lattice finding_cluster" / "--channel" / "foo/bar.json"
+  symbol: string;      // e.g., "proof-or-stop finding_cluster" / "--channel" / "foo/bar.json"
   driftType: 'missing-command' | 'missing-flag' | 'missing-path';
   severity: 'medium' | 'low';
   desc: string;        // one-line readable description (used for finding desc)
@@ -38,6 +53,49 @@ export interface SkippedEntry {
 export interface AuditReport {
   drifts: DriftCandidate[];
   skipped: SkippedEntry[];
+  /**
+   * B-cdf6 CHK-005: every distinct `<bin> <cmd>` name the extractor actually pulled out of the
+   * scanned docs. Exists so an EMPTY extraction can never be read as "the scan was clean" — a
+   * zero-length list means the scanner saw no documented commands at all, which for a repo whose
+   * docs are full of command examples means the extractor went blind (the exact vacuous-pass bug
+   * the brand rename introduced). Callers surface this count rather than only `drifts.length`.
+   */
+  extractedCommands: string[];
+}
+
+/**
+ * Every bin token a doc may legitimately instruct the user to run, canonical first.
+ * B-cdf6 CHK-005: sourced from `PROOF_OR_STOP_BIN_NAMES` rather than a local literal, so adding or
+ * retiring a bin alias in lattice-brand.ts cannot silently desync the drift extractor from the
+ * names the CLI actually answers to.
+ */
+const BIN_TOKEN_ALTERNATION = [...PROOF_OR_STOP_BIN_NAMES]
+  // Longest first: alternation is ordered, so an entry that is a prefix of another
+  // (`proof-or-stop` of `proof-or-stop-codex`, `lattice` of `lattice-codex`) must not
+  // get first refusal. Backtracking would recover here, but relying on it is fragile —
+  // one added quantifier away from `proof-or-stop-codex doctor` extracting nothing.
+  .sort((a, b) => b.length - a.length)
+  .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  .join('|');
+
+/**
+ * Matches `<bin> <cmd>`, capturing the bin token in group 1 and the command in group 2.
+ * Commands must end with a letter or digit, so bare prefixes like `story_` / `checklist_` are not
+ * treated as wildcard matches. A bare bin token with no argument is not extracted, and neither is
+ * `$(proof-or-stop)` (the prefix is not `$` directly followed by a letter).
+ *
+ * Built fresh per call: a shared /g regex carries mutable `lastIndex` state across calls.
+ */
+function buildCommandRegex(): RegExp {
+  return new RegExp(`\\b(${BIN_TOKEN_ALTERNATION})\\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\\b`, 'g');
+}
+
+/** Same as buildCommandRegex, plus group 3 = rest of line, for flag extraction. */
+function buildCommandWithTailRegex(): RegExp {
+  return new RegExp(
+    `\\b(${BIN_TOKEN_ALTERNATION})\\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\\b([^\\n\`]*)`,
+    'g',
+  );
 }
 
 /** Internal: extract the nearest top-level heading for each line ("# " / "## " / "### " etc.) */
@@ -71,44 +129,50 @@ const COMMAND_SCAN_IGNORE = new Set<string>([
 /**
  * Explicit YAGNI command whitelist — commands for which CLAUDE.md text explicitly explains "why this CLI is not provided".
  * Don't report missing-command drift when these are scanned (it's a false positive); record in skipped with reason=explicit-yagni-whitelist.
- * Example: `lattice audit_config_set` (CLAUDE.md explicitly states editing JSON is enough, no command created).
+ * Example: `proof-or-stop audit_config_set` (CLAUDE.md explicitly states editing JSON is enough, no command created).
  */
 const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
   'audit_config_set',
 ]);
 
 /**
- * scanCommandDrift: extract command names of the form `lattice <cmd>` from md;
- * for each one not in the ignore list, run `lattice <cmd> --help`, exit≠0 → drift.
+ * scanCommandDrift: extract command names of the form `<bin> <cmd>` from md;
+ * for each one not in the ignore list, run `<bin> <cmd> --help`, exit≠0 → drift.
  *
- * Regex: \blattice\s+([a-z][a-z0-9_]*)\b
- * Bare lattice (without arguments) is not extracted; expressions like $(lattice) are also not falsely extracted (the prefix is not $ directly followed by a letter).
+ * B-cdf6 CHK-005: `<bin>` is any token in `PROOF_OR_STOP_BIN_NAMES` (canonical `proof-or-stop` plus the
+ * deprecated `lattice` alias), not a single hardcoded literal. Also returns `extractedCommands`
+ * so an empty extraction is distinguishable from a clean scan.
  */
 export function scanCommandDrift(
   md: string,
   mdPath: string,
   opts: { runHelp?: (cmd: string) => { ok: boolean; reason?: string; output?: string } } = {},
-): { drifts: DriftCandidate[]; skipped: SkippedEntry[] } {
+): { drifts: DriftCandidate[]; skipped: SkippedEntry[]; extractedCommands: string[] } {
   const runHelp = opts.runHelp ?? defaultRunHelp;
   const headings = buildHeadingIndex(md);
   const lines = md.split('\n');
   const seen = new Set<string>();
   const drifts: DriftCandidate[] = [];
   const skipped: SkippedEntry[] = [];
+  const extractedCommands: string[] = [];
 
-  // Commands must end with a letter or digit; bare prefixes like `story_` / `checklist_` are not allowed as wildcard matches
-  const re = /\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g;
+  const re = buildCommandRegex();
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let m: RegExpExecArray | null;
     re.lastIndex = 0;
     while ((m = re.exec(line))) {
-      const cmd = m[1];
+      const bin = m[1];
+      const cmd = m[2];
       if (COMMAND_SCAN_IGNORE.has(cmd)) continue;
       if (seen.has(cmd)) continue;
       seen.add(cmd);
+      // Recorded BEFORE the YAGNI / help branches: this list answers "did the extractor see any
+      // documented command at all", which is independent of each command's verdict.
+      extractedCommands.push(cmd);
       const sectionPath = `${mdPath}#${headingFor(i, headings)}`;
-      const symbol = `lattice ${cmd}`;
+      // Echo the bin token the doc actually used, so drift output points at the real doc text.
+      const symbol = `${bin} ${cmd}`;
       // Commands explicitly marked YAGNI (CLAUDE.md itself explains why this CLI is not provided) → record as skipped, do not report drift
       if (EXPLICIT_YAGNI_COMMANDS.has(cmd)) {
         skipped.push({ sectionPath, symbol, driftType: 'missing-command', reason: 'explicit-yagni-whitelist' });
@@ -126,20 +190,23 @@ export function scanCommandDrift(
         symbol,
         driftType: 'missing-command',
         severity: 'medium',
-        desc: `CLAUDE.md references command \`lattice ${cmd}\`, but \`lattice ${cmd} --help\` exited non-zero (command not registered or removed)`,
+        desc: `CLAUDE.md references command \`${bin} ${cmd}\`, but \`${bin} ${cmd} --help\` exited non-zero (command not registered or removed)`,
         evidence: (r.output || '').slice(0, 400),
       });
     }
   }
-  return { drifts, skipped };
+  return { drifts, skipped, extractedCommands };
 }
 
 /**
- * scanFlagDrift: extract flag assertions of the form `lattice <cmd> [^\n]*--<flag>`;
- * for each pair <cmd, flag>, run `lattice <cmd> --help`; output not containing `--<flag>` → drift.
+ * scanFlagDrift: extract flag assertions of the form `<bin> <cmd> [^\n]*--<flag>`;
+ * for each pair <cmd, flag>, run `<bin> <cmd> --help`; output not containing `--<flag>` → drift.
  *
  * Note: only scan flags inside code fences / inline code, to avoid falsely extracting prose like "with --json option".
  * Simplification: scan the full text directly with regex (doc flags are generally in bash snippets).
+ *
+ * B-cdf6 CHK-005: shares the multi-bin-token extractor with scanCommandDrift, so flag drift does
+ * not go blind on renamed-bin docs either.
  */
 export function scanFlagDrift(
   md: string,
@@ -154,16 +221,17 @@ export function scanFlagDrift(
   const skipped: SkippedEntry[] = [];
   const helpCache = new Map<string, { ok: boolean; reason?: string; output?: string }>();
 
-  // Multiple flags may appear on a single line: `lattice validate --full --json`
-  const cmdRe = /\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b([^\n`]*)/g;
+  // Multiple flags may appear on a single line: `proof-or-stop validate --full --json`
+  const cmdRe = buildCommandWithTailRegex();
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let cm: RegExpExecArray | null;
     cmdRe.lastIndex = 0;
     while ((cm = cmdRe.exec(line))) {
-      const cmd = cm[1];
+      const bin = cm[1];
+      const cmd = cm[2];
       if (COMMAND_SCAN_IGNORE.has(cmd)) continue;
-      const tail = cm[2] || '';
+      const tail = cm[3] || '';
       const flagRe = /--([a-z][a-z0-9-]*)/g;
       let fm: RegExpExecArray | null;
       while ((fm = flagRe.exec(tail))) {
@@ -172,7 +240,7 @@ export function scanFlagDrift(
         if (seen.has(key)) continue;
         seen.add(key);
         const sectionPath = `${mdPath}#${headingFor(i, headings)}`;
-        const symbol = `lattice ${cmd} --${flag}`;
+        const symbol = `${bin} ${cmd} --${flag}`;
         let r = helpCache.get(cmd);
         if (!r) {
           r = runHelp(cmd);
@@ -192,7 +260,7 @@ export function scanFlagDrift(
           symbol,
           driftType: 'missing-flag',
           severity: 'medium',
-          desc: `CLAUDE.md references \`lattice ${cmd} --${flag}\`, but help output does not contain the \`--${flag}\` parameter`,
+          desc: `CLAUDE.md references \`${bin} ${cmd} --${flag}\`, but help output does not contain the \`--${flag}\` parameter`,
           evidence: output.slice(0, 400),
         });
       }
@@ -300,6 +368,7 @@ export function runMechanicalAudit(
 ): AuditReport {
   const drifts: DriftCandidate[] = [];
   const skipped: SkippedEntry[] = [];
+  const extractedCommandSet = new Set<string>();
 
   for (const abs of mdPaths) {
     let md = '';
@@ -309,6 +378,7 @@ export function runMechanicalAudit(
     const c = scanCommandDrift(md, rel, { runHelp: opts.runHelp });
     drifts.push(...c.drifts);
     skipped.push(...c.skipped);
+    for (const cmd of c.extractedCommands) extractedCommandSet.add(cmd);
 
     const f = scanFlagDrift(md, rel, { runHelp: opts.runHelp });
     drifts.push(...f.drifts);
@@ -326,27 +396,42 @@ export function runMechanicalAudit(
     }).join('\n');
     const result = checkDocsDrift(allMd, opts.registryNames, DOCS_DRIFT_ALLOWLIST);
     for (const cmd of result.missing) {
-      const alreadyCaught = drifts.some(d => d.symbol === `lattice ${cmd}` && d.driftType === 'missing-command');
+      // B-cdf6 CHK-005: dedup against ANY bin token, not just `lattice`. scanCommandDrift now
+      // echoes whichever token the doc used, so a hardcoded `lattice ${cmd}` comparison would
+      // stop matching on renamed-bin docs and emit a duplicate advisory drift for a command the
+      // command scanner already reported.
+      const alreadyCaught = drifts.some(
+        d => d.driftType === 'missing-command'
+          && PROOF_OR_STOP_BIN_NAMES.some(bin => d.symbol === `${bin} ${cmd}`),
+      );
       if (!alreadyCaught) {
         drifts.push({
           sectionPath: 'docs-drift-registry',
-          symbol: `lattice ${cmd}`,
+          symbol: `${PROOF_OR_STOP_PRIMARY_BIN} ${cmd}`,
           driftType: 'missing-command',
           severity: 'low',
-          desc: `CLAUDE.md references \`lattice ${cmd}\` but registry has no such command (docs-drift advisory)`,
+          desc: `CLAUDE.md references \`${PROOF_OR_STOP_PRIMARY_BIN} ${cmd}\` but registry has no such command (docs-drift advisory)`,
           evidence: 'registry.list() does not contain this command',
         });
       }
     }
   }
 
-  return { drifts, skipped };
+  return { drifts, skipped, extractedCommands: [...extractedCommandSet].sort() };
 }
 
-/** Default runHelp: invokes `lattice <cmd> --help` with a 2-second timeout. */
+/**
+ * Default runHelp: invokes `<canonical bin> <cmd> --help` with a 5-second timeout.
+ *
+ * B-cdf6 CHK-005: resolves the executable from `PROOF_OR_STOP_PRIMARY_BIN` instead of the old hardcoded
+ * `'lattice'` literal. The doc token being scanned is deliberately NOT used as the executable
+ * name: a doc could name a bin that is not installed, and probing help through the canonical bin
+ * keeps the "is this command registered" question independent of which alias the prose used.
+ * An absent executable still lands in `skipped` (reason=ENOENT), never in `drifts`.
+ */
 function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: string } {
   try {
-    const out = execFileSync('lattice', [cmd, '--help'], {
+    const out = execFileSync(PROOF_OR_STOP_PRIMARY_BIN, [cmd, '--help'], {
       encoding: 'utf-8',
       timeout: 5000,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -356,7 +441,7 @@ function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: s
     const err = e as { code?: string; signal?: string; killed?: boolean; status?: number; stdout?: Buffer | string; stderr?: Buffer | string };
     if (err?.code === 'ENOENT') return { ok: false, reason: 'ENOENT' };
     if (err?.signal === 'SIGTERM' || err?.killed) return { ok: false, reason: 'timeout' };
-    // The lattice main entry typically uses stderr for help output
+    // The CLI main entry typically uses stderr for help output
     const merged = (err?.stdout?.toString?.() || '') + (err?.stderr?.toString?.() || '');
     if (err?.status === 0) return { ok: true, output: merged };
     return { ok: false, reason: 'exit-nonzero', output: merged };

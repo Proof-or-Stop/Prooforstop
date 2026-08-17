@@ -675,14 +675,14 @@ function commitBackfilledCapabilityReleaseLedger(
     runGit(
       [
         '-c', 'commit.gpgsign=false', 'commit', '-m',
-        `lattice: backfill product capability release for ${storyIds.join(', ')}`,
+        `proof-or-stop: backfill product capability release for ${storyIds.join(', ')}`,
       ],
       ledgerRoot,
     );
   } catch (e: any) {
     throw new Error(
       `capability_release_backfill: capability release ledger commit failed: ${e?.message ?? e}\n` +
-      `Recovery: git add ${CAPABILITY_RELEASE_LEDGER_REL_PATH} && git commit -m "lattice: backfill product capability release"`,
+      `Recovery: git add ${CAPABILITY_RELEASE_LEDGER_REL_PATH} && git commit -m "proof-or-stop: backfill product capability release"`,
     );
   }
 }

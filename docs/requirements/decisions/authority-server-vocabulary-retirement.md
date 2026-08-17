@@ -3,7 +3,7 @@
 Status: active source of truth.
 
 This document is the migration contract for retiring server-backed Authority
-Server vocabulary from active Proofbound surfaces. The active CLI is a local
+Server vocabulary from active Proof-or-Stop surfaces. The active CLI is a local
 assurance system. It can prove admissibility of local evidence, signed/offline
 receipt bundles, and local review quorum. It does not advertise or require a
 live server-backed authority path.
@@ -50,8 +50,8 @@ The retired-vocabulary guard scans these active surfaces:
 
 - root README and guide docs used by operators
 - active agent prompts and project prompt assets
-- CLI command names, aliases, descriptions, and generated `lattice help`
-  / `lattice <command> --help` output
+- CLI command names, aliases, descriptions, and generated `proof-or-stop help`
+  / `proof-or-stop <command> --help` output
 - active phase allowlists, validate commands, and command catalog data
 - source files that produce user-facing CLI text for local assurance, DONE
   readiness, proof admissibility, receipt bundles, delivery checks, dispatch,

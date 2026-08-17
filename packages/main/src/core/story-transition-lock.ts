@@ -8,7 +8,8 @@ import {
   type MkdirLockOptions,
 } from './mkdir-lock.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { readBrandEnv } from './brand-env.js';
 
 /**
  * B-d877 CHK-002: per-story transition lock.
@@ -72,7 +73,7 @@ import { LATTICE_DIR } from './lattice-paths.js';
  * exact mechanism `withValidationExecutionLock` / `story_create` use — instead
  * of hand-rolling a lock. `mkdir` of a non-existent directory is atomic on
  * POSIX/Win32, so exactly one caller wins across SEPARATE PROCESSES; this
- * serializes concurrent `lattice story_advance` CLI invocations (and, like the
+ * serializes concurrent `proof-or-stop story_advance` CLI invocations (and, like the
  * validation lock which roots at the same project root, transitions across
  * worktrees of the same story), not merely in-process callers.
  *
@@ -94,7 +95,7 @@ import { LATTICE_DIR } from './lattice-paths.js';
  */
 
 /** Lock-directory root (relative to the project root) for per-story transition locks. */
-export const STORY_TRANSITION_LOCKS_REL = `${LATTICE_DIR}/locks/transition`;
+export const STORY_TRANSITION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/transition`;
 
 /**
  * Stale threshold generously exceeds any legitimate non-DONE transition
@@ -250,7 +251,7 @@ export function acquireStoryTransitionLock(
   // contention reduction (transitions may do redundant gate work in parallel) —
   // never correctness. transition-integrity-smoke sets it to prove the atomic claim
   // ALONE serializes two genuinely-concurrent persists into exactly one.
-  if (process.env.LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK === '1') {
+  if (readBrandEnv('TEST_DISABLE_TRANSITION_ADVISORY_LOCK') === '1') {
     return { lockDir, release() { /* no-op: advisory lock bypassed for test */ } };
   }
   // B-d877 R2 FIX E: in-process fail-fast guard — never enter the blocking mkdir

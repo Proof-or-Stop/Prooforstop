@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- * Package-owned registry for Proofbound agent prompt templates. Project
+ * Package-owned registry for Proof-or-Stop agent prompt templates. Project
  * assets can point at this registry instead of materializing every prompt file.
  * @changes
  * - [CHK-002] Add stable prompt metadata, hashes, and host-specific rendering.
@@ -39,25 +39,53 @@ export const MODULAR_COMPLEX_ROLE_IDS = [
 ] as const;
 export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
+/**
+ * B-cdf6 CHK-005: re-approved after the `lattice` -> `proof-or-stop` bin rename
+ * rewrote command-invocation prose inside every registry template. The digests
+ * below are recomputed content addresses, not a relaxation: the reconstruction
+ * check still fails closed on any unapproved template edit. Repinning in place
+ * follows the precedent set by the previous template-content stories (see the
+ * git history of these two constants, e.g. commits 8e4e36cbad / de9bd22659,
+ * which likewise repinned rather than weakened the assertion). Verified before
+ * repinning that `git diff main...HEAD -- packages/main/templates/agents/`
+ * contains no changed line that mentions neither brand token.
+ *
+ * B-cdf6 CHK-003 follow-up: repinned a SECOND time, because CHK-005 only covered
+ * the registry TEMPLATES while the injected slice below
+ * (`LOAD_BEARING_LATTICE_PROMPT_SLICE`) and `TEST_COVERAGE_LEGACY_PROCESS_CONTRACT`
+ * / `STORY_INIT_LEGACY_TAIL` still taught `lattice <cmd>` to every spawned agent.
+ * Those three payloads are reconstruction inputs, so rebranding them necessarily
+ * moves every digest here. Same discipline as above, and additionally proven
+ * before repinning: normalizing brand tokens and line-wrapping makes the new
+ * slice byte-identical to the HEAD slice, i.e. the drift is brand-only with no
+ * semantic edit. The assertion is preserved, never deleted or loosened.
+ */
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
-  'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
-  'lattice-review-concept': 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c',
-  'lattice-review-docs': 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af',
-  'lattice-review-quality': '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504',
-  'lattice-review-test-coverage': '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88',
+  'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
+  'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
+  'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
+  'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
+  'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
 });
 
+/** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
-  'lattice-review-story-init': '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
-  'lattice-review-scope-plan': '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
-  'lattice-implementer': 'c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163',
-  'lattice-review-delivery': 'e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7',
-  'lattice-evaluator': 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+  'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
+  'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
+  'lattice-implementer': '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+  'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
+  'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });
 
 const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proofbound:story-init-legacy-tail:v1 -->';
 // Frozen gzip -n payload of the pre-Story-6 `## 4. Procedure` through EOF.
-const STORY_INIT_LEGACY_TAIL_GZIP_BASE64 = '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';
+// B-cdf6 CHK-003: re-encoded after the `lattice` -> `proof-or-stop` bin rename.
+// This payload is injected into the LIVE story-init reviewer body (default mode
+// is `legacy-full-context`), so its `init_check_set` invocations were teaching
+// the retired bin name. Only RENAMED-class tokens changed: the bin name in
+// invocations plus the product prose. The FROZEN `lattice-review-story-init`
+// role ID is preserved verbatim wherever it appears as an `agentId` value.
+const STORY_INIT_LEGACY_TAIL_GZIP_BASE64 = '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';
 const STORY_INIT_LEGACY_TAIL = gunzipSync(
   Buffer.from(STORY_INIT_LEGACY_TAIL_GZIP_BASE64, 'base64'),
 ).toString('utf8');
@@ -71,13 +99,13 @@ Scope is limited to process facts: phase / state transition, pass / no-issue con
 
 Execution rules:
 - Reviewer conclusions like no finding / no blocker / check passed must be recorded with \`review_pass_set\`; if a reviewer incorrectly uses a pass-only \`finding_add\`, the handler must convert it into a review pass.
-- For the current REVIEW round, reviewer evidence must first call \`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}\` to obtain a \`reviewRunId\`; every \`finding_add\` / \`review_pass_set\` from that reviewer in this round must then carry this current \`reviewRunId\`.
+- For the current REVIEW round, reviewer evidence must first call \`proof-or-stop review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}\` to obtain a \`reviewRunId\`; every \`finding_add\` / \`review_pass_set\` from that reviewer in this round must then carry this current \`reviewRunId\`.
 - The \`category\` field of \`finding_add\` only accepts the current canonical \`happy|edge|adversarial|missing\`. Known legacy values \`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary\` are accepted as compatibility inputs and normalized to \`missing\`, but must not continue to propagate as active prompt examples.
 - Gates consume structured facts: signatures, hashes, verificationEvidence, review pass, init/scope/delivery check, and validate evidence. Do not let gates infer process facts from ordinary text like "passed / no problem".
 - When changing reviewer prompts, CLI schema, handlers, or gates, run \`npm run test:process-fact-contract\` to confirm the prompt has not drifted and the process fact inventory still proves the hard fallback exists.
 `;
 export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
-# Lattice Load-Bearing Runtime Guide
+# Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
 snapshot while preserving the process facts that prompts rely on. For broad
@@ -87,11 +115,11 @@ assuming hidden context.
 ## Session And Story Flow
 
 - At the start of every new session or interrupted-work resume, first run
-  \`lattice session_brief\` from the current story worktree.
-- Before acting, run \`lattice aux_doc_list\` and read only the relevant
+  \`proof-or-stop session_brief\` from the current story worktree.
+- Before acting, run \`proof-or-stop aux_doc_list\` and read only the relevant
   source-of-truth files. If an aux command is unavailable, fall back to shell
   search/read tools.
-- Story operations must use Lattice CLI commands. Do not directly read or write
+- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write
   story metadata under \`docs/story/\`, and do not write fixtures directly under
   \`tests/fixtures/\`.
 - Current lifecycle:
@@ -106,30 +134,30 @@ For routine status refreshes, prefer compact read-only queries. These examples
 are opt-in; default \`story_get\` and \`checklist_get\` output remains full.
 
 \`\`\`bash
-lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
 \`\`\`
 
 Before evidence-sensitive conclusions or mutations, reload the full output:
 
 \`\`\`bash
-lattice story_get '{"storyId":"B-xxxx"}'
-lattice checklist_get '{"storyId":"B-xxxx"}'
+proof-or-stop story_get '{"storyId":"B-xxxx"}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 \`\`\`
 
 ## Fresh-Context Fence
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden
-mechanical identity boundary. Subagents and the main agent can look similar to
-the shell, so auditability comes from structured Lattice facts plus this fence.
+mechanical identity boundary. Subagents and the main agent can look similar to the
+shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
 
 - A worker/reviewer must infer only from its provided inputs, code diff, story
-  metadata exposed by Lattice commands, and explicitly read source files.
+  metadata exposed by Proof-or-Stop commands, and explicitly read source files.
 - Do not assume the main agent's private intent or full conversation history.
 - For reviewer lanes, an unregistered issue is not a finding. Every real issue
-  must be recorded with \`lattice finding_add\`; no-issue conclusions must be
-  recorded with \`lattice review_pass_set\`.
-- For implementer lanes, mark checklist progress through \`lattice
+  must be recorded with \`proof-or-stop finding_add\`; no-issue conclusions must
+  be recorded with \`proof-or-stop review_pass_set\`.
+- For implementer lanes, mark checklist progress through \`proof-or-stop
   checklist_update\` and record verificationEvidence for completed items.
 
 ## Process Fact Contract
@@ -141,7 +169,7 @@ normalization, signing, validation, and gate consumption.
 - Reviewer conclusions such as no finding / no blocker / check passed must use
   \`review_pass_set\`. Pass-only \`finding_add\` is a misuse.
 - Reviewer evidence for the current REVIEW round must first call
-  \`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}\`
+  \`proof-or-stop review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}\`
   to obtain a \`reviewRunId\`; every \`finding_add\` / \`review_pass_set\` in
   that round must carry the current \`reviewRunId\`.
 - \`finding_add\` categories are \`happy|edge|adversarial|missing\`. Legacy
@@ -159,9 +187,9 @@ normalization, signing, validation, and gate consumption.
 
 ## Local Admissibility And Handoff Boundaries
 
-- Local Proofbound evidence can be admissible when it is fresh, scoped, and gate-consumed through \`admissibilityStatus\`, \`assuranceLevel\`, and \`evidenceScope\`.
+- Local Proof-or-Stop evidence can be admissible when it is fresh, scoped, and gate-consumed through \`admissibilityStatus\`, \`assuranceLevel\`, and \`evidenceScope\`.
 - Local tests, prompt text, and story metadata may support local admissibility only when they are recorded as structured gate evidence.
-- Handoff packs are bounded overflow execution. Story ownership, merge responsibility, DONE readiness, signed/offline receipt bundles, and local review quorum assurance remain local Proofbound responsibilities unless a human explicitly changes the boundary.
+- Handoff packs are bounded overflow execution. Story ownership, merge responsibility, DONE readiness, signed/offline receipt bundles, and local review quorum assurance remain local Proof-or-Stop responsibilities unless a human explicitly changes the boundary.
 
 ## Debugging Contract
 
@@ -337,14 +365,14 @@ export function extractTemplateFrontmatter(
   const lines = raw.replace(/\r\n/g, '\n').split('\n');
   if (lines[0]?.trim() !== '---') {
     throw new Error(
-      `Proofbound agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
+      `Proof-or-Stop agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
         'Cannot generate a host bootstrap without a frontmatter block.',
     );
   }
   const endIdx = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
   if (endIdx === -1) {
     throw new Error(
-      `Proofbound agent template ${file} has an unterminated frontmatter block (no closing '---').`,
+      `Proof-or-Stop agent template ${file} has an unterminated frontmatter block (no closing '---').`,
     );
   }
   const frontmatterLines = lines.slice(1, endIdx);
@@ -358,7 +386,7 @@ export function extractTemplateFrontmatter(
   }
   if (!name) {
     throw new Error(
-      `Proofbound agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
+      `Proof-or-Stop agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
     );
   }
   return { frontmatter, name };
@@ -366,8 +394,8 @@ export function extractTemplateFrontmatter(
 
 export function buildReviewerRunBootstrapBody(role: string): string {
   return [
-    'Proofbound selects this reviewer role body at runtime.',
-    `FIRST run: \`lattice review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
+    'Proof-or-Stop selects this reviewer role body at runtime.',
+    `FIRST run: \`proof-or-stop review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
     'Follow only the exact prompt returned by that command; this bootstrap intentionally contains no role body.',
   ].join('\n');
 }

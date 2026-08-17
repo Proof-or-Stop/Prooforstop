@@ -15,7 +15,7 @@ import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
@@ -55,7 +55,7 @@ function formatAutopilotReviewStatus(result: AutopilotReviewStatusResult): strin
     ...selectedRun
   } = result;
   return [
-    render(`Proofbound autopilot review status (${result.schemaVersion})`, selectedRun as unknown as Record<string, unknown>),
+    render(`Proof-or-Stop autopilot review status (${result.schemaVersion})`, selectedRun as unknown as Record<string, unknown>),
     `runs: ${allRunIds.length > 0 ? allRunIds.join(', ') : '<none>'}`,
     `latestRuns: ${latestRuns.length}`,
     ...latestRuns.map(run => `  - ${formatRunSummary(run)}`),
@@ -211,7 +211,7 @@ function writeVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs):
   const verdictJson = {
     filePath: join(
       ctx.root,
-      LATTICE_DIR,
+      PROOF_OR_STOP_DIR,
       mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts',
       verdict.storyId || verdict.jobId || 'global',
       `${verdict.verdictId}.json`,
@@ -290,10 +290,10 @@ export function createVerdictHandlers(ctx: HandlerContext) {
       if (args.deriveBindings) {
         return submitWithDerivedBindings(ctx, args).then(result => wantsJson(args)
           ? result
-          : render(`Proofbound autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>));
+          : render(`Proof-or-Stop autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>));
       }
       const result = submitLocal('local', args);
-      return wantsJson(args) ? result : render(`Proofbound autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proof-or-Stop autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
     autopilot_review_status(args: { storyId: string; runId?: string; requiredHosts?: number } & FormatArgs) {
       const result = localReviewStatus(args);

@@ -9,7 +9,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
-import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
@@ -23,6 +23,7 @@ import {
   validatePlannedPathDeclarationsForChecklistItem,
   verificationIntentHasPlannedPathDeclarations,
 } from '../core/acceptance-topology.js';
+import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -138,7 +139,7 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return readBrandEnv('AGENT')?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerChecklistActor(actor: string): boolean {
@@ -210,7 +211,7 @@ function hasMilestoneLedgerArtifact(store: HandlerContext['store'], storyId: str
 }
 
 function checklistAddMilestoneLedgerAdvisory(storyId: string, itemId: string): string {
-  return `Advisory: milestone ledger exists for ${storyId}; if this new checklist item (${itemId}) changes milestone coverage, update/sync the ledger with \`lattice milestone_ledger_add\` or an explicit ledger update.`;
+  return `Advisory: milestone ledger exists for ${storyId}; if this new checklist item (${itemId}) changes milestone coverage, update/sync the ledger with \`proof-or-stop milestone_ledger_add\` or an explicit ledger update.`;
 }
 
 export function assertChecklistAddAllowed(
@@ -358,6 +359,92 @@ function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; c
 const VERIFICATION_OUTPUT_TAIL_CHARS = 4000;
 const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
 
+// ── B-cdf6 (B-META F-012): bounded, audited per-evidence command timeout override ──
+//
+// PROBLEM: a verification intent whose proof IS "the root DONE-blocking suite passes"
+// could not be witnessed by a tool-executed receipt. Every production call site ran the
+// pinned command under DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270s) while that suite takes
+// 21-24 min, so the run was KILLED mid-flight, no verdict line was ever printed, and the
+// refusal named only [receipt_selector_absent] — a multi-attempt guessing game with no
+// hint that a ceiling existed. The framework already knows this command legitimately
+// needs longer: lattice.config.json gives the same `npm test` a 7200000ms budget as a
+// DONE-required command. Only the evidence path disagreed.
+//
+// FIX (two parts): (1) a DISTINCT [receipt_command_timeout] refusal naming the elapsed
+// budget, so a killed run is diagnosable in one line; (2) this bounded override so a
+// legitimately long witness can earn a REAL receipt.
+//
+// The cap is exactly the value lattice.config.json already uses for the DONE-required
+// root suite. Above the cap is REFUSED, never silently clamped — a caller who asked for
+// more than the framework's own longest sanctioned budget has a design problem the tool
+// must not paper over. The cap is imported from validation-executor.ts (the single source
+// of truth shared with the Zod bound in command-catalog.ts) so the schema's first line of
+// defense and this runtime re-validation can never drift apart.
+const MAX_EVIDENCE_COMMAND_TIMEOUT_MS = EVIDENCE_COMMAND_TIMEOUT_CAP_MS;
+/** Same floor as nonMechanicalReason: a raised budget is exceptional and must explain itself. */
+const MIN_COMMAND_TIMEOUT_REASON = 30;
+
+/**
+ * B-cdf6 (B-META F-012): validate the audited timeout-override pair at the handler
+ * entry. Per CLAUDE.md's Handler coding convention the Zod `.int().positive().max()` /
+ * `.min(30)` constraints are only the FIRST line of defense: this runs on EVERY path
+ * (CLI JSON, internal fn call, old JSON) so a bypassing payload is still rejected.
+ *
+ * Returns the effective ceiling (undefined = use the executor default), or throws.
+ */
+function resolveEvidenceCommandTimeout(
+  label: string,
+  input: { commandTimeoutMs?: number; commandTimeoutReason?: string },
+): { timeoutMs: number; reason: string } | undefined {
+  const raw = input.commandTimeoutMs;
+  const reason = input.commandTimeoutReason?.trim() || '';
+
+  if (raw === undefined || raw === null) {
+    // A reason with no raised budget is a caller mistake worth naming: silently dropping
+    // it would record an audit trail for an override that never happened.
+    if (reason.length > 0) {
+      throw new Error(
+        `${label}: commandTimeoutReason was supplied without commandTimeoutMs — there is no raised budget to justify. ` +
+        `Pass commandTimeoutMs (≤ ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms) or drop the reason. [command_timeout_reason_without_override]`,
+      );
+    }
+    return undefined;
+  }
+
+  if (typeof raw !== 'number' || !Number.isFinite(raw) || !Number.isInteger(raw) || raw <= 0) {
+    throw new Error(
+      `${label}: commandTimeoutMs must be a positive integer number of milliseconds, got ${JSON.stringify(raw)} ` +
+      `[command_timeout_invalid]`,
+    );
+  }
+  if (raw > MAX_EVIDENCE_COMMAND_TIMEOUT_MS) {
+    throw new Error(
+      `${label}: commandTimeoutMs ${raw}ms exceeds the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap (the longest budget the ` +
+      `framework itself sanctions — lattice.config.json's DONE-required root suite). REFUSED rather than clamped: a ` +
+      `witness that needs more than that is a design problem, not a budget problem. [command_timeout_above_cap]`,
+    );
+  }
+  if (reason.length < MIN_COMMAND_TIMEOUT_REASON) {
+    throw new Error(
+      `${label}: raising the pinned command budget to ${raw}ms requires commandTimeoutReason ≥ ${MIN_COMMAND_TIMEOUT_REASON} ` +
+      `characters explaining why this witness legitimately needs longer than the ${DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS}ms ` +
+      `default. The reason is recorded on the receipt and is gate-visible. [command_timeout_reason_too_short]`,
+    );
+  }
+  return { timeoutMs: raw, reason };
+}
+
+/**
+ * B-cdf6 (B-META F-012): make a raised budget visible in the command's own stdout, not
+ * only inside the persisted receipt, so an operator (and a reviewer reading a transcript)
+ * sees at the moment of the write that this receipt was NOT earned under the default.
+ */
+function renderTimeoutOverrideNote(receipt: VerificationExecutionReceipt | undefined): string {
+  const override = receipt?.timeoutOverride;
+  if (!override) return '';
+  return `, timeoutOverride=${override.timeoutMs}ms (raised above the ${override.defaultTimeoutMs}ms default)`;
+}
+
 function sha256Hex(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -377,6 +464,14 @@ interface EvidenceWriteInput {
   selector?: string;
   result?: 'pass' | 'fail';
   nonMechanicalReason?: string;
+  /**
+   * B-cdf6 (B-META F-012): bounded, audited raise of the pinned command's wall-clock
+   * ceiling. Validated by {@link resolveEvidenceCommandTimeout} at the handler entry AND
+   * re-checked inside {@link enforceAndStampEvidence} (the single enforcement boundary),
+   * so no path — CLI, internal fn call, or batch entry — can arm an unjustified budget.
+   */
+  commandTimeoutMs?: number;
+  commandTimeoutReason?: string;
 }
 
 /**
@@ -408,7 +503,7 @@ function resolveIntentForRef(
 /**
  * B-ec67 F-008: caller-supplied tool-execution provenance is UNTRUSTED BY DESIGN.
  * The CLI schema (verificationEvidenceSchema, command-schemas.ts) explicitly .strip()s
- * mechanical / receipt / nonMechanicalReason, so a real `lattice checklist_update` caller
+ * mechanical / receipt / nonMechanicalReason, so a real `proof-or-stop checklist_update` caller
  * can never inject them (fabricating mechanical:true + a fake receipt to launder an
  * executable intent as covered = receipt injection). We ALSO drop any caller-supplied
  * provenance here so the internal fn-call path (which bypasses Zod) is protected the same.
@@ -510,7 +605,13 @@ function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: Verifi
   );
 }
 
-type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleCommandExecutionResult>;
+/**
+ * B-cdf6 (B-META F-012): the runner now carries the per-run `timeoutMs`. It was always
+ * accepted by runSingleAllowlistedCommand but no production call site forwarded one, so
+ * every pinned evidence command silently ran under the 270s default. `undefined` means
+ * "use the executor default" — the byte-identical pre-B-cdf6 behavior.
+ */
+type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) => Promise<SingleCommandExecutionResult>;
 
 /**
  * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
@@ -548,6 +649,13 @@ async function enforceAndStampEvidence(
   const callerCommand = input.command?.trim() || undefined;
   const callerSelector = input.selector?.trim() || undefined;
   const escapeReason = input.nonMechanicalReason?.trim() || undefined;
+  // B-cdf6 (B-META F-012): re-validate the audited timeout override HERE, at the single
+  // enforcement boundary, not only at the two handler entries. This is the consuming
+  // point required by CLAUDE.md's Handler coding convention: an internal fn call or a
+  // future third call site that skips the entry check still cannot arm an unjustified or
+  // above-cap budget. Runs BEFORE the waiver / attestation-only early returns so an
+  // invalid override is refused rather than silently ignored on a non-executing path.
+  const timeoutOverride = resolveEvidenceCommandTimeout('verification evidence refused', input);
 
   // waiver: explicit exemption, never executed
   if (input.kind === 'waiver') {
@@ -640,14 +748,41 @@ async function enforceAndStampEvidence(
   }
 
   // Execute the pinned command; the receipt (not the caller) determines result.
-  const run = await deps.runCommand(pinCommand, deps.cwd);
+  const run = await deps.runCommand(pinCommand, deps.cwd, timeoutOverride?.timeoutMs);
+  // `!run.timedOut` is retained deliberately: the timeout refusal below already returns
+  // for every timedOut run, so this is belt-and-braces should that ordering ever change.
   const exitOk = run.code === 0 && !run.timedOut;
   const selectorMatched = run.output.includes(pinSelector);
 
+  // B-cdf6 (B-META F-012) — REFUSE FIRST, with a DISTINCT diagnosis: the runner KILLED
+  // the pinned command at its wall-clock ceiling. This check MUST precede the selector
+  // check: a killed run never got to print its verdict line, so the selector is trivially
+  // absent and [receipt_selector_absent] would masquerade as "your selector is wrong" —
+  // the exact multi-attempt guessing game F-012 records (three attempts refused at
+  // ~270.3s, misdiagnosed first as a stdout capture problem, then as a clean-tree
+  // assertion, before anyone read the executor and found the constant). Naming the budget
+  // and the override turns that into a one-line diagnosis.
+  if (run.timedOut) {
+    const elapsed = Math.round(run.durationMs / 1000);
+    const armed = run.timeoutMs;
+    const raiseHint = armed >= MAX_EVIDENCE_COMMAND_TIMEOUT_MS
+      ? `That is already the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap, so this witness cannot be raised further — shrink the ` +
+        `pinned command (a focused suite / single verifier) instead of widening the budget.`
+      : `If this witness legitimately needs longer, re-run with commandTimeoutMs (≤ ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms) plus a ` +
+        `commandTimeoutReason ≥ ${MIN_COMMAND_TIMEOUT_REASON} characters; the raised budget is recorded on the receipt. NOTE: the ` +
+        `outer CLI watchdog still applies (5 min without output / 15 min total by default), so a multi-minute silent command also ` +
+        `needs ${BRAND_ENV_PREFIX}IDLE_TIMEOUT_MS / ${BRAND_ENV_PREFIX}MAX_TIMEOUT_MS raised for the same invocation.`;
+    throw new Error(
+      `verification evidence refused: pinned command was KILLED at its ${armed}ms wall-clock ceiling after ~${elapsed}s ` +
+      `(exit ${run.code}) for ${input.intentRef}, so it never printed a verdict and NO receipt can be minted. ` +
+      `This is a TIMEOUT, not a wrong selector${timeoutOverride ? ' (a raised budget was already in effect)' : ''}. ${raiseHint} ` +
+      `[receipt_command_timeout]`,
+    );
+  }
   // Refuse: a caller cannot claim pass when the command did not exit 0.
   if (input.result === 'pass' && !exitOk) {
     throw new Error(
-      `verification evidence refused: pinned command exited ${run.code}${run.timedOut ? ' (timed out)' : ''} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
+      `verification evidence refused: pinned command exited ${run.code} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
     );
   }
   // Refuse: the pinned selector must appear in captured output (kills same-command,
@@ -664,6 +799,21 @@ async function enforceAndStampEvidence(
     outputTail: boundedOutputTail(run.output),
     selectorMatched,
     executedAt: new Date().toISOString(),
+    // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
+    // RAISED it — an attributable override block, so a reviewer reading the receipt can
+    // see this pass was earned under a raised budget rather than the default. Lives in
+    // the tool-owned receipt, which every caller-facing schema strips, so it can never be
+    // caller-injected onto a receipt actually earned under the default.
+    timeoutMs: run.timeoutMs,
+    ...(timeoutOverride
+      ? {
+          timeoutOverride: {
+            timeoutMs: timeoutOverride.timeoutMs,
+            defaultTimeoutMs: DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+            reason: timeoutOverride.reason,
+          },
+        }
+      : {}),
   };
   const derivedResult: 'pass' | 'fail' = exitOk && selectorMatched ? 'pass' : 'fail';
 
@@ -950,7 +1100,7 @@ function writeStaleRefresh(
     if (!opts.dryRun) store.writeChecklist(storyId, cl);
     lines.push(opts.dryRun
       ? '→ Rerun the above command without dryRun to refresh evidence metadata'
-      : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${storyId} --json`);
+      : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run proof-or-stop validate --story=${storyId} --json`);
     if (!opts.dryRun) {
       const commitHint = autoCommitStoryMetadata(root, storyId, 'verification_evidence_refresh_stale');
       if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
@@ -1202,13 +1352,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           `checklist_update refused: status='withdrawn' cannot be set directly. ` +
           `A withdrawal must be recorded by scope_shrinkage_decision_set (the sole authorized applier), ` +
           `which stamps the item with a confirmed decision's decisionRef. ` +
-          `Run lattice scope_shrinkage_decision_set with withdrawnChecklistItemRefs including ${args.itemId}. [withdrawn_requires_scope_shrinkage_decision]`,
+          `Run proof-or-stop scope_shrinkage_decision_set with withdrawnChecklistItemRefs including ${args.itemId}. [withdrawn_requires_scope_shrinkage_decision]`,
         );
       }
 
       // USER is retained below for human audit attribution, but it is not a
       // dispatched-agent identity. Only an explicit actor/agent or
-      // LATTICE_AGENT participates in registry authorization.
+      // PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) participates in registry authorization.
       const authority = resolveAgentMutationAuthority({
         command: 'checklist_update',
         payloadActors: [args.agent, args.actor],
@@ -1271,8 +1421,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           // and INIT is not in titleContextProtectedPhases, so this refusal fires
           // only at PLAN and DEV — the two branches below cover exactly those.
           `${story.phase === 'PLAN'
-            ? `From PLAN: run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit the title, then re-run INIT review and re-advance INIT_CHECK -> PLAN`
-            : `From DEV: first roll back to PLAN with lattice story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}', then lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
+            ? `From PLAN: run proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit the title, then re-run INIT review and re-advance INIT_CHECK -> PLAN`
+            : `From DEV: first roll back to PLAN with proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}', then proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
           `(INIT_CHECK stays frozen and reopening resets non-pending checklist items to pending, so the scope-freeze invariant is preserved.)`
         );
       }
@@ -1442,13 +1592,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // not keep trusting a stale pre-write snapshot (e.g. "still in_progress" when
       // the write already flipped it to done). The reminder goes to STDERR, never
       // stdout, following the B-6812 advisory-to-stderr precedent: stdout stays the
-      // pure conclusion so `lattice checklist_update | tail` pipelines are unaffected.
+      // pure conclusion so `proof-or-stop checklist_update | tail` pipelines are unaffected.
       try {
         const persisted = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
         const persistedStatus = persisted ? persisted.status : '<unknown>';
         process.stderr.write(
           `↻ Written and persistence confirmed: ${args.itemId} current status=${persistedStatus}. ` +
-          `For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\n`,
+          `For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n`,
         );
       } catch (e) {
         // Reminder is advisory only — a read-back failure must never change the
@@ -1527,11 +1677,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       result?: 'pass' | 'fail';
       note: string;
       nonMechanicalReason?: string;
+      commandTimeoutMs?: number;
+      commandTimeoutReason?: string;
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
     }): Promise<string> {
-      // Local-only evidence write: record scoped Proofbound evidence and never POST.
+      // Local-only evidence write: record scoped Proof-or-Stop evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
       }
@@ -1544,6 +1696,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (contradiction) {
         throw new Error(`verification_evidence_add: ${contradiction}`);
       }
+      // B-cdf6 (B-META F-012): handler-entry re-validation of the audited timeout override
+      // (the Zod constraints are only the first line of defense). enforceAndStampEvidence
+      // re-checks the same pair at the enforcement boundary.
+      resolveEvidenceCommandTimeout('verification_evidence_add', args);
 
       // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
       // lock (execution is async; withChecklistLock releases synchronously). The
@@ -1553,8 +1709,18 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
       const stamp = await enforceAndStampEvidence(
         preItem,
-        { intentRef: args.intentRef, kind, command: args.command, selector: args.selector, result: args.result, nonMechanicalReason: args.nonMechanicalReason },
-        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: gitCwd },
+        {
+          intentRef: args.intentRef, kind, command: args.command, selector: args.selector,
+          result: args.result, nonMechanicalReason: args.nonMechanicalReason,
+          ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
+          ...(args.commandTimeoutReason !== undefined ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
+        },
+        {
+          runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
+            command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
+          ),
+          cwd: gitCwd,
+        },
       );
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -1592,7 +1758,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
         store.writeChecklist(args.storyId, cl);
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
-        const receiptNote = evidence.receipt ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}` : '';
+        const receiptNote = evidence.receipt
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderTimeoutOverrideNote(evidence.receipt)}`
+          : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
         return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
       });
@@ -1612,6 +1780,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         result?: 'pass' | 'fail';
         note: string;
         nonMechanicalReason?: string;
+        commandTimeoutMs?: number;
+        commandTimeoutReason?: string;
         attestation?: VerificationEvidence['attestation'];
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
@@ -1637,6 +1807,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (entryContradiction) {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} ${entryContradiction}`);
         }
+        // B-cdf6 (B-META F-012): per-entry handler-entry re-validation of the audited
+        // timeout override, so ONE bad entry fails the whole batch BEFORE any command is
+        // executed (all-or-nothing). enforceAndStampEvidence re-checks it as well.
+        resolveEvidenceCommandTimeout(
+          `verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef}`,
+          entry,
+        );
         normalizedKinds.push(kind);
       }
 
@@ -1645,7 +1822,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // refusal throws before the all-or-nothing write below, so the batch path is never
       // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const runCommand: SingleCommandRunner = (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd });
+      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
+        command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
+      );
       const preCl = store.readChecklist(args.storyId);
       const stamps: EnforceAndStampResult[] = [];
       for (let i = 0; i < args.evidences.length; i++) {
@@ -1654,7 +1833,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         stamps.push(await enforceAndStampEvidence(
           item,
-          { intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command, selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason },
+          {
+            intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command,
+            selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
+            ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
+            ...(entry.commandTimeoutReason !== undefined ? { commandTimeoutReason: entry.commandTimeoutReason } : {}),
+          },
           { runCommand, cwd: gitCwd },
         ));
       }
@@ -1773,10 +1957,23 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // OWN command+selector (never a caller value); result:'pass' is the fixed expectation
       // so a non-zero exit or absent selector is REFUSED here (no row minted).
       // enforceAndStampEvidence derives the recorded result from the actual receipt.
+      //
+      // B-cdf6 (B-META F-012): verification_run deliberately exposes NO timeout override —
+      // its whole point is that the caller authors nothing, and the pin carries no budget.
+      // It therefore keeps the executor default (byte-identical to pre-B-cdf6). A long
+      // witness that needs a raised budget must be recorded via verification_evidence_add,
+      // where the raise is attributable to a commandTimeoutReason. A timed-out run here
+      // still gets the DISTINCT [receipt_command_timeout] diagnosis instead of a
+      // misleading selector-absent refusal.
       const stamp = await enforceAndStampEvidence(
         preItem,
         { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
-        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: runCwd },
+        {
+          runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
+            command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
+          ),
+          cwd: runCwd,
+        },
       );
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -1851,11 +2048,30 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           const pin = resolved?.intent.verification;
           if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) continue;
           const kind = intentTypeToEvidenceKind(resolved.intent.type);
+          // B-cdf6 (B-META F-012): CARRY FORWARD the budget the stale receipt was
+          // originally earned under. Without this, a receipt legitimately earned under a
+          // raised ceiling would be re-run under the 270s default, get KILLED, and be
+          // silently DEMOTED on every refresh — turning the override into a one-shot that
+          // decays. The reason is carried from the prior TOOL-OWNED receipt (never from a
+          // caller), so the re-earned receipt keeps the same attributable justification;
+          // an invalid/above-cap carried value is still refused by the shared boundary,
+          // and the row then falls through to the demote path as before.
+          const priorOverride = entry.evidence?.receipt?.timeoutOverride;
           try {
             const stamp = await enforceAndStampEvidence(
               item,
-              { intentRef: entry.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
-              { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: computed.refreshGitCwd },
+              {
+                intentRef: entry.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass',
+                ...(priorOverride
+                  ? { commandTimeoutMs: priorOverride.timeoutMs, commandTimeoutReason: priorOverride.reason }
+                  : {}),
+              },
+              {
+                runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
+                  command, root, { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
+                ),
+                cwd: computed.refreshGitCwd,
+              },
             );
             if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
               reexecByKey.set(`${entry.itemId}::${entry.intentRef}`, {
@@ -1919,7 +2135,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
         store.writeChecklist(args.storyId, cl);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_intent_repair');
-        lines.push(`Wrote ${filled.length} reconstructed intent(s). Re-run lattice validate --story=${args.storyId} --json`);
+        lines.push(`Wrote ${filled.length} reconstructed intent(s). Re-run proof-or-stop validate --story=${args.storyId} --json`);
         if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
         return lines.join('\n');
       });

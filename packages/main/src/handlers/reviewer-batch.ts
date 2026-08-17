@@ -270,7 +270,7 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     // so a crafted `../../outside`-style id cannot escape the story tree.
     if (!isCanonicalStoryId(storyId)) {
       throw new Error(
-        `reviewer_batch: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`,
+        `reviewer_batch: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`,
       );
     }
 

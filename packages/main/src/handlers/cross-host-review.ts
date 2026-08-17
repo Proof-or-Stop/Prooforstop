@@ -15,7 +15,7 @@ import {
   currentStoryFilesHash,
   GIT_TREE_OUTPUT_MAX_BUFFER,
 } from '../core/evidence-freshness.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { Finding } from '../core/adversarial-review.js';
 import { FINDING_SEVERITIES } from '../core/adversarial-review.js';
@@ -94,7 +94,7 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
   }
   const rows = raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
   if (rows.length === 0) return;
-  const latticePrefix = `${LATTICE_DIR}/`; // e.g. ".lattice/"
+  const latticePrefix = `${PROOF_OR_STOP_DIR}/`; // e.g. ".lattice/"
   const material: string[] = [];
   for (const line of rows) {
     if (line.length < 4) continue;
@@ -108,7 +108,7 @@ export function assertMaterialCleanForReview(gitCwd: string): void {
       if (!normalized) continue;
       // Drop the story's own Lattice metadata dir — Codex reviews source, not
       // story bookkeeping, and `.lattice/` churns constantly during a story.
-      if (normalized === LATTICE_DIR || normalized.startsWith(latticePrefix)) continue;
+      if (normalized === PROOF_OR_STOP_DIR || normalized.startsWith(latticePrefix)) continue;
       material.push(normalized);
     }
   }
@@ -606,7 +606,7 @@ function writeCrossHostVerdictPair(
   hostAVerdict: HostVerdict,
   hostBVerdict: HostVerdict,
 ): void {
-  const dir = join(ctx.root, LATTICE_DIR, 'autopilot-verdicts', storyId);
+  const dir = join(ctx.root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', storyId);
   mkdirSync(dir, { recursive: true });
   const paths = [
     join(dir, `${hostAVerdict.verdictId}.json`),
@@ -622,7 +622,7 @@ function writeCrossHostVerdictPair(
 }
 
 function deleteCrossHostVerdictPair(ctx: HandlerContext, storyId: string, ...verdicts: HostVerdict[]): void {
-  const dir = join(ctx.root, LATTICE_DIR, 'autopilot-verdicts', storyId);
+  const dir = join(ctx.root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', storyId);
   for (const verdict of verdicts) {
     rmSync(join(dir, `${verdict.verdictId}.json`), { force: true });
   }
@@ -671,7 +671,7 @@ export function createCrossHostReviewHandlers(
       const storyId = normalizeString(args.storyId);
       if (!storyId) throw new Error('cross_host_review: storyId is required');
       if (!isCanonicalStoryId(storyId)) {
-        throw new Error(`cross_host_review: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`);
+        throw new Error(`cross_host_review: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`);
       }
 
       const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);

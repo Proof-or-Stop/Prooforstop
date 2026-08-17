@@ -3,9 +3,9 @@
 Status: implementation baseline for the B-0aa1 candidate-only MVP plus the
 B-0985 proof-admissibility classification MVP.
 Date: 2026-06-24.
-Scope: shared local evidence platform for Proofbound CLI.
+Scope: shared local evidence platform for Proof-or-Stop CLI.
 
-Current vocabulary: active Proofbound CLI/runtime evidence is expressed with
+Current vocabulary: active Proof-or-Stop CLI/runtime evidence is expressed with
 `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local
 evidence, local signed/offline receipt bundles, and local review quorum
 assurance. Authority Server and server-backed receipt semantics are retired

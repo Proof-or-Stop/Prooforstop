@@ -34,6 +34,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -208,13 +209,28 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
   const start = Date.now();
   const child = spawn(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    env: {
-      ...process.env,
-      LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
-      LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
-      LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
-      ...env,
-    },
+    // B-cdf6: brand-env resolves the CANONICAL PROOF_OR_STOP_* name ahead of the
+    // deprecated LATTICE_* one, and this spreads process.env — so a canonical value
+    // exported by the CALLER silently outranks any LATTICE_*-only pin below, and the
+    // child runs on the caller's budget instead of the test's. That is exactly how
+    // this smoke failed inside `validate` when the invoking shell had
+    // PROOF_OR_STOP_MAX_TIMEOUT_MS set (budget line printed
+    // source=PROOF_OR_STOP_MAX_TIMEOUT_MS; assertion failed `0 !== 1`).
+    //
+    // Fix at the choke point rather than at each call site: strip every canonical
+    // twin of the knobs this smoke controls, so the LATTICE_* pins (whether from the
+    // defaults here or from a per-case `env` override) are authoritative again. Each
+    // call site keeps its existing single-spelling shape and stays correct.
+    env: stripCanonicalBrandEnvTwins(
+      {
+        ...process.env,
+        LATTICE_IDLE_TIMEOUT_MS: String(IDLE_TIMEOUT_MS),
+        LATTICE_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+        LATTICE_VALIDATE_HEARTBEAT_MS: String(HEARTBEAT_MS),
+        ...env,
+      },
+      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+    ),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
@@ -688,7 +704,7 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
       NON_MAX_HARNESS_CEILING_MS,
     );
     assert.notEqual(result.status, 0, 'failed internal validation must block TEST transition');
-    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: lattice validate did not pass/);
+    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: proof-or-stop validate did not pass/);
 
     const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'REVIEW',

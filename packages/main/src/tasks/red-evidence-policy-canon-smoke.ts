@@ -13,7 +13,7 @@
 //      FROZEN default policyDigest, and §1.12 clamp-REJECTS every hard floor,
 //      forbidden env key, bare catch-all / material-overlap glob, and
 //      unresolvable argv placeholder — fail-closed, one DISTINCT diagnostic each.
-//   4. `lattice doctor` renders exactly one non-gating red-evidence line.
+//   4. `proof-or-stop doctor` renders exactly one non-gating red-evidence line.
 //   5. lattice.config.json carries NO redEvidence block (pinnedPath is
 //      host-specific), and no new red-evidence string overclaims beyond the §0.6
 //      practical assurance tier.
