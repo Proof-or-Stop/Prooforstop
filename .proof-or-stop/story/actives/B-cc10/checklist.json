@@ -629,7 +629,11 @@
           {
             "desc": "node bin/lattice.js exits non-zero with a command-not-found style error rather than a silent no-op",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+              "selector": "REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1"
+            }
           }
         ],
         "adversarial": [
@@ -660,6 +664,27 @@
           "materialHash": "2bed4623bfb79225a4a3e989a76dedf9cd35069bffdcbcbfa0f8570ac84b6b84",
           "storyFilesHash": "b212cb4908704935090175323cdb33e098558d2d317695ffe8669154421c9039",
           "timestamp": "2026-08-17T16:12:26.327Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+          "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+          "result": "pass",
+          "note": "Invoking the removed alias exits non-zero with Cannot find module rather than silently no-opping. The guard asserts notEqual(status,0) AND the MODULE_NOT_FOUND shape for BOTH aliases; proven non-vacuous by temporarily restoring bin/lattice.js, which made it fail.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "750dea3d9dac27d23cd451a647f8f1d6df426a05bf9083c97dba5bb7859896d4",
+            "outputTail": "REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1\nREMOVED_ALIAS_FAILS_LOUDLY bin/lattice-codex.js exit=1\nCANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261\nCHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named\nPASS red-cc10-chk006-removed-bin-aliases\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:13:36.146Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1503104fb2e4c21e139a59e9abf02e10bd812928",
+          "materialHash": "2bed4623bfb79225a4a3e989a76dedf9cd35069bffdcbcbfa0f8570ac84b6b84",
+          "storyFilesHash": "b212cb4908704935090175323cdb33e098558d2d317695ffe8669154421c9039",
+          "timestamp": "2026-08-17T16:13:36.365Z"
         }
       ]
     },
