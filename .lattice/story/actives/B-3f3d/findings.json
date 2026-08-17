@@ -8217,6 +8217,21 @@
       ],
       "signatureTag": "happy|ts|usersees-literal-string",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3f3d:F-121",
+      "desc": "WAVE-4-EXEC: topology_critic_receipt_set now throws identically for verdict=pass and verdict=request_changes in this execution context: no current registered dispatch provenance for lattice-review-topology-critic in session sess-710f39e27d7dd62bbdfd2c4c5b404ede. process-events.jsonl has zero dispatch events for this sessionId; the only recorded topology-critic dispatches are bound to sess-60b0d01cf32ddaf04d1ef8467d5fcef8 (a different session). Root cause: proofstory.ts:573 calls deriveRoleProvenance unconditionally before the pass/request_changes branch at line 582, so the fix cannot be exercised end-to-end without a fresh lattice dispatch --agentType=lattice-review-topology-critic issued from an authoritative session. This is a real, current stop condition for independent Wave-4 verification, not evasion: I could not confirm request_changes now succeeds on a stale basis, nor independently confirm pass is still refused via the intended code path, because both die earlier at the mandatory session/dispatch check. Read-only checks were fully executed and confirm the story is not acceptable: acceptance_topology_check=fail (AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE), pre_review_check_read=FAIL (PR_ARTIFACT_TAMPERED plus 13 other unmet codes), acceptance_rollout_report_read/acceptance_rollout_check=FAIL (AR_REPORT_STALE, mode=enforce, blocking=true, promotionEligible=false; the stored receipt/report is bound to a stale headHash a02963bd, not current 9f9f53a), and topology_critic_receipt_check on the existing stored receipt returns REJECTED (AT_TOPOLOGY_CRITIC_INCOMPLETE_BASIS). 6 explicitExcludes are declared in scope-contract.json with zero topology_exclusion_approval_set records on disk (no topology-critic-exclusion-approvals file exists at all). 9 open findings remain including F-089/F-113/F-117 from the topology-critic lane itself and F-114/F-115/F-116/F-118/F-119/F-120 from behavior/test-coverage/docs lanes. request_changes is the only defensible verdict on the merits, but I cannot mechanically record a signed topology_critic_receipt_set for either verdict from this session; a fresh, verifiably independent lattice dispatch --agentType=lattice-review-topology-critic invocation is required before any receipt (pass or request_changes) can be issued.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-17T14:58:28.828Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-545",
+      "_hash": "dcc7591469728d2e33d7126e2605c0e3929c7128625d72c2223bc96ad7ecc1dd",
+      "signatureTag": "missing|unknown|wave-exec-topology",
+      "signatureTagSource": "auto"
     }
   ]
 }
