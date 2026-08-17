@@ -294,7 +294,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js topology_critic_receipt_set --verdict=request_changes",
+          "result": "pass",
+          "note": "An independently dispatched topology critic whose session the host adapter derived (sess-966420819fb1e7eb71ae8e7557fc2a0e, host-adapter, provider=claude-code) signed a request_changes receipt successfully. Its session was distinct from the implementer owner session sess-bb4571e896a18423ba2230f65e1f00a8 and from a prior critic session sess-90160e11, and it chose its own task label rather than receiving one from the implementer. The signed receipt records independence as agent true, session true, dispatch true, businessCommitAuthor true. This rules out decision_set preMortem 1, that the guard would block every critic including legitimate ones.",
+          "mechanical": false,
+          "headHash": "27c898e4a340bf1b3f1c86f5df50b8ef4f98ab34",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:07:29.363Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
