@@ -18575,6 +18575,36 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "890f8ae948bae63149d6f7ae3706f834d152a37bf9ed509a80b9f6eb9817f3c3"
+    },
+    {
+      "id": "B-3f3d:RP-333",
+      "agent": "lattice-review-docs",
+      "note": "Wave-2 docs saturation pass on unchanged material (headHash 05e565a). Step1 extracted 313 exported symbols from the story-scoped diff (review-inventory-epoch.ts, review-inventory.ts, command-catalog.ts, command-policy.ts, process-fact-levels.ts, process-fact-registry.ts, store.ts, types.ts, registry.ts, verify-process-fact-contract.mjs, scope-pretool hooks, prewrite-guard files, finding.ts, review-run.ts, transition-orchestrator.ts, adversarial-review files, reviewer-batch.ts, reviewer-list.ts, machine.ts, review-incremental-context.ts, transition-effects.ts, review-inventory-epoch-and-saturation-gate.md); grepping README/CLAUDE.md/docs for those exact symbol names produced 0 hits (internal implementation identifiers, expected per Fallback-2 territory), so I fell back to concept-level verification of every CLAUDE.md paragraph that discusses this feature by command or concept name. Independently re-verified against current code: forceReviewer persistence via story.events reviewer_forced plus no unforceReviewer command anywhere in the repo, confirmed in reviewer-list.ts and a repo-wide grep for unforce; canPassReviewGuard in machine.ts around lines 790-867 now requires EVERY currently-selected reviewer via computeFinalReviewRoster in every round with no round-based relaxation, matching CLAUDE.md's current text exactly, and no stale round1-vs-round2+ or operator-judgement re-review language remains anywhere in CLAUDE.md; renderFinalReviewRoster in reviewer-list.ts emits exactly the three lines Final-review lanes, Selection, and Next as documented; candidateSpecSetDigest and corpusDigest capture plus drift-compare semantics in review-inventory.ts match the decision doc's routing-universe-projection description; review-incremental-context.ts implements isFirstPass and scopeChanged exactly as documented including the two isFirstPass sub-cases; lattice.config.json sets acceptanceRolloutGateMode to enforce; command-catalog.ts registers all six review_inventory_* commands (begin, status, critic_set, wave_advance, finalize, cancel) plus review_run_start, and every lattice-prefixed command name cited in review-inventory-epoch-and-saturation-gate.md resolves to a real catalog entry; the decision doc no longer links the excluded untracked B-cdf6 analysis file and instead cites tracked commits which I confirmed all resolve via git cat-file, and review-inventory-handler-smoke.ts independently verifies the same commits via git cat-file, matching the doc's provenance claim. I also independently rediscovered the CHK-004 and CHK-005 userSees-vs-code mismatches, where no code anywhere prints the literal report lines the checklist userSees promises, but confirmed these are already registered as B-3f3d:F-118 and B-3f3d:F-119 by lattice-review-behavior in this same wave, so I did not duplicate them; F-116 is also a pre-existing open docs finding from this wave and not mine to re-file. No new doc-code drift or undelivered doc promise found beyond the already-registered findings. Zero new findings this pass.",
+      "createdAt": "2026-08-17T10:19:05.155Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-534",
+      "envelopeId": "5915301dc033ac162903bbfebc29091c4c561832956f9dcb52cd36c0a13486cf",
+      "writerSessionId": "sess-b448c91ec55d4013b822707e78b22e27",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c866044b23a7b3d43b4f488fa2fe4c8668d57374960d840ca05f0bcac667d50"
     }
   ]
 }
