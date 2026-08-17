@@ -729,9 +729,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "`node scripts/verify-lattice-residue.mjs` prints \"PASS lattice-residue\" for every check; a deliberately reintroduced .lattice literal flips it to a non-zero exit",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T17:28:11.632Z",
       "files": {
         "modify": [
           "scripts/verify-lattice-residue.mjs"
@@ -838,7 +838,14 @@
           "storyFilesHash": "7a461a13af5608bf9cfa97dd11b1bf5c5719202a75c989e9e77f1dd070ef64fc",
           "timestamp": "2026-08-17T17:23:26.145Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "3fcdbea1e90a8b5f85691001e220b87d5defb9091078efd2e050a286ec57f68b",
+        "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
+        "headHash": "f5fe23f9a81a82bd936f221b3743ebceefffffd4",
+        "attestedAt": "2026-08-17T17:28:12.011Z",
+        "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb"
+      }
     },
     {
       "id": "CHK-008",
