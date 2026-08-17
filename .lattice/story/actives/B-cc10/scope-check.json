@@ -296,10 +296,11 @@
       "evidence": "brand-rename-mapping.md:130 'packages/main npm package name @lattice/core | FROZEN | (dash) | .githooks/pre-push:148 gates the entire recursive-tsc pre-push defence on PKG_NAME = @lattice/core and exit 0s on mismatch (verified). Renaming the package therefore silently self-disarms the hook rather than failing loudly the worst possible failure mode.' vs checklist.json CHK-005 title 'Rename the npm package to @proof-or-stop/core' and plan.md CHK-005 Files listing packages/main/package.json etc, plus CHK-006 Files listing .githooks/pre-push as a file to modify in the same story.",
       "sourcePointers": [
         "docs/requirements/decisions/brand-rename-mapping.md:130",
-        "docs/story/actives/B-cc10/checklist.json#CHK-005",
-        "docs/story/actives/B-cc10/plan.md#CHK-005",
-        "docs/story/actives/B-cc10/plan.md#CHK-006"
-      ]
+        ".githooks/pre-push:148-161 (case \"$PKG_NAME\" in @lattice/core|@proof-or-stop/core)",
+        "docs/requirements/decisions/brand-rename-mapping.md:124"
+      ],
+      "resolution": "The FROZEN verdict is deliberately superseded, and the specific hazard it cited no longer exists — verified in code, not assumed. brand-rename-mapping.md:130 froze @lattice/core because '.githooks/pre-push:148 gates the entire recursive-tsc pre-push defence on PKG_NAME = \"@lattice/core\" and exit 0s on mismatch', i.e. renaming would SILENTLY self-disarm the hook. I read the current hook: the case statement is now `'@lattice/core'|'@proof-or-stop/core')`, and the comment above it records that B-cdf6 pre-widened the detection precisely so a later rename could not disarm it. So the freeze's premise is stale relative to the code it describes; the doc was not updated when the hook was widened. The rename is therefore safe with respect to the stated hazard. Two obligations follow and are now recorded in the plan: (1) CHK-005 must grep for OTHER exact-name consumers before renaming rather than assuming pre-push was the only one, and must re-run verify-entrypoints afterward; (2) CHK-001's contract doc must record this supersession explicitly, citing brand-rename-mapping.md:130 and the widened hook, so the next reader sees the freeze was overridden on evidence rather than ignored. Also noting per the reviewer that this story overrides a FROZEN verdict TWICE — @lattice/core here and the bin aliases in CHK-006 — and CHK-001 must cite both in one place.",
+      "resolvedAt": "2026-08-17T10:12:38.922Z"
     },
     {
       "id": "OQ-2",
