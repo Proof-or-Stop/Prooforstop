@@ -488,6 +488,13 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   REVIEW: [
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
+    // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
+    // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
+    // -> REVIEW->DEV is refused -> the basis can never be regenerated. PLAN is unreachable from
+    // REVIEW (REPLAN belongs to DEV), so REVIEW is the only place left to repair it. Safe because
+    // the basis signature covers structural bindings only (scope-contract digest, closure files
+    // hash, story files hash) and never reviewer verdicts, so it cannot launder a review pass.
+    'acceptance_basis_generate',
     'review_run_start',
     'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_wave_advance', 'review_inventory_finalize', 'review_inventory_cancel',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
