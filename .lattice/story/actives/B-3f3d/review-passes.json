@@ -18391,6 +18391,51 @@
       },
       "readDiagnostics": [],
       "_hash": "acce0278f706111dd2a4cce8b062ce48fe4ab5739f9c92eb5e7e316a202dd32f"
+    },
+    {
+      "id": "B-3f3d:RP-328",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue check for the round-2+ single-receipt reviewer-roster shortcut, superseded by the review-inventory-epoch saturation gate. Zero residue found; docs synced. No blocker.",
+      "createdAt": "2026-08-17T08:30:27.142Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-465",
+      "envelopeId": "0cd3884ea1a4986d658f4240a1f216f57a2ce38d844b96899c707709b0753993",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39498fba3747c288216f409f01ba793859b4b3a12e5fb391484b8eceaac1ddbe"
     }
   ]
 }
