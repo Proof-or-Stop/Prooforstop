@@ -4,7 +4,9 @@ Baseline to beat, measured twice independently (B-3434 test-evidence 2026-08-16T
 test-evidence 2026-08-17T00:09): 858s serial total across 99-102 commands, with
 `quorum-submit-smoke.js` at 267-271s as the critical-path floor. Target is that floor, not better.
 
-Execution order is strictly serial across checklist items: CHK-001 -> CHK-002 -> CHK-003 -> CHK-004.
+Execution order is strictly serial across checklist items: CHK-001 -> CHK-002 -> CHK-003 -> CHK-005
+-> CHK-004. CHK-005 was added during DEV once CHK-003 measured the real outcome, and CHK-004 runs
+last because it measures the final state rather than an intermediate one.
 Two implementers must never run at once in this worktree, even on disjoint files, because they share
 one git index and auto-commit path.
 
@@ -98,3 +100,41 @@ one git index and auto-commit path.
 - Observed overlap between two conflicting claims fails the smoke rather than being reported as a
   faster run.
 - The printed speedup is the measured one. No hardcoded 3.17x.
+
+## CHK-005: Classify the heavy validate commands so the fail-closed default stops dominating the makespan
+
+Added during DEV after CHK-003 measured the real outcome. Kept in this story because without it the
+story delivers no speedup at all; the original four items build the mechanism, this one supplies the
+input that mechanism needs.
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-003
+**Files**:
+- Modify: `lattice.config.json`
+- Test: `packages/main/tests/validate-resource-claims.test.mjs`
+
+**Measured starting point** (two full `validate --json` runs, same host, CHK-003):
+
+| | wall | sum(durationMs) | undeclared barrier | declared |
+|---|---|---|---|---|
+| jobs=1 | 1056s | 1054.4s | 1005.2s | 49.2s |
+| jobs=4 | 1006s | 1030.4s | 982.4s | 48.1s |
+
+68 of 104 commands are undeclared and hold the plan-wide barrier, carrying 982.4s of the 1030.4s of
+work. The infinite-worker floor under current claims is 1003.8s and the achieved makespan is 1006s,
+so the scheduler is within 0.2% of optimal. Declaration coverage is the only remaining lever.
+
+**Verify**:
+- A real `node bin/lattice.js validate --json` run prints `validate scheduler: jobs=<N> commands=<N> declared=<N> exclusiveByDefault=<N>` with a declared count materially above 36
+- Wall time on the same host is below the 1006s recorded at 36 declarations
+- A collision probe fails if a declared command actually writes a repo-shared path
+
+**DoneWhen**:
+- Each newly declared command has a stated reason it is safe: it writes only inside a per-process
+  temp root, or it is provably read-only against the repo.
+- Every command that could NOT be proven isolated is still a barrier and is NAMED in the report as
+  still-unclassified. Under-declaring is the correct outcome for anything uncertain; the fail-closed
+  default from CHK-002 must not be weakened, and no command may be declared to improve the number.
+- `packages/main/src/tasks/quorum-submit-smoke.ts` is untouched. If it stays a barrier, the report
+  says so and states the floor it imposes.
+- The report states the measured before/after wall time on the same host, not a projection.
