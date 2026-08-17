@@ -1269,6 +1269,25 @@
       ],
       "signatureTag": "doc-code-drift|ts|fullstorydiffcontext-reasoncodes-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-052",
+      "desc": "Scanned the new fallback prose per item 2/3. Neither review-incremental-context.ts:558 ('the conservative direction is show everything', reused verbatim on the new branch) nor scope-ack:4's 'Adding that branch makes the basis STRICTLY MORE conservative - reviewers see the whole story diff instead of nothing at all' is false as literally written: both are correctly scoped against the actual pre-fix behavior, a hard throw that serves a reviewer NO context at all, and I verified review_run_start had no fallback for this branch before 161506c59c. But this is the exact phrase that already produced one confirmed misreading in this story's own oversight trail: I (the dispatching agent, per the supplied basis-context.md) stated the degradation was 'strictly more conservative - show everything' meaning something closer to a superset, and had to be corrected that the degraded set is smaller (10 material paths against the 553 material / 625 raw the blocked incremental basis would have carried, which I independently reproduced: git diff --name-only 3206ba5f6360704929f0ce7751ed165aa0092415 HEAD = 625 raw / 553 material via isMaterialExcludedPath, against git diff --name-only main HEAD = 10 material). The phrase 'show everything' is doing two different jobs in this file: on the pre-existing FULL_MISSING_TRUSTED_PRIOR_PASS branch it means 'there is no smaller basis to fall back to, so the full diff is the maximal available view'; reused verbatim on the new branch it reads as if the fallback is MORE inclusive than what it replaces, when measured against the diff that would otherwise have been served it is materially less inclusive (553 to 10). Nothing downstream is broken by this - contextMode stays full either way and I verified in review-run.ts (~line 780-798) that full only ever causes verifyReviewRun to REJECT an incremental-labelled envelope, never to authorize one - but a comment whose own author misread it once, in a file every future reviewer of every future story reads for exactly this kind of degradation logic, should say plainly which baseline it means rather than repeat an ambiguous phrase that already cost one correction cycle.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T15:58:42.314Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-080",
+      "_hash": "a634e970ae5f6811530dc207c55eba6284bd9a54d27ede5de60c6dd0456ad5d5",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        ".lattice/story/actives/B-3434/scope-contract.json"
+      ],
+      "signatureTag": "missing|ts|scanned-fallback-prose",
+      "signatureTagSource": "auto"
     }
   ]
 }
