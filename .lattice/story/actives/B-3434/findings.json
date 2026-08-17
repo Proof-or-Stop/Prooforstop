@@ -1214,6 +1214,25 @@
       "resolvedAt": "2026-08-17T13:48:35.452Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3434:F-049",
+      "desc": "review-incremental-context.ts:565-566 adds a new degradation branch (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList -> fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS'])) that fixes the exact production crash this story exists to fix (IncrementalReviewBasis.changedFiles exceeds 512 entries, thrown by requireBoundedStringArray at prompt-contracts.ts:469-470). No automated test anywhere in the repository exercises this branch: grep -rn FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS packages/main/src matches only the implementation itself. review-incremental-context-smoke.ts documents and asserts cases (a) returning reviewer, (b) first-timer, (c) rename, (e) unresolvable-headHash fallback, and (d) gate-unchanged, but has no case for a resolvable-headHash trusted prior whose diff exceeds the path cap. The sibling FULL_MISSING_TRUSTED_PRIOR_PASS branch it reuses IS tested (cases b/e), so the shared fullStoryDiffContext closure body is exercised by proxy, but the NEW routing predicate at line 565 -- the only genuinely new logic in commit 161506c59c -- is not. I confirmed the predicate correctly fires in production: this story's own dispatch for RR-078 (envelope dce003ce9a7382f61ede4b5e61c1a58649ef177401724e2906ab4b50c09adb39) carries eligibilityReasonCodes including FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS, contextMode=full, reviewBasisDigest=null -- so the code is currently correct in the one real instance available -- but nothing in the test suite would catch a future regression (an accidental >= -> > flip, a wrong constant reference, or the branch being deleted in a later refactor) silently reintroducing the exact crash this story fixes.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T15:58:08.552Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-078",
+      "_hash": "2954df8cc90ea36a27d79b69331ea0f4f86b4b3e10aec0466313cfd15446fd11",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|review-incremental-context",
+      "signatureTagSource": "auto"
     }
   ]
 }

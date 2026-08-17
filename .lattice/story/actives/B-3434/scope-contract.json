@@ -72,10 +72,26 @@
       "phase": "REVIEW",
       "headHash": "17dc863c0552c630699f40d9d1529a2cf112559d",
       "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-approved scope expansion to fix a hard tool limit that structurally blocks REVIEW for this story and for any story that merges a large main. THE BLOCK, measured rather than inferred: review_run_start fails with IncrementalReviewBasis.changedFiles exceeds 512 entries. The incremental basis is computed at review-incremental-context.ts:539 as changedFilesBetweenRenameAware(root, prior.run.headHash, HEAD). This story's prior reviewer run sits before a 445-commit merge from main, so that diff spans 624 files against a hard cap of 512 enforced by a throw at prompt-contracts.ts:469-470 with no fallback. The 624 measures THE MERGE, not the story: after the merge behind-main is 0 and git diff main HEAD is 36 files, which is exactly the basis a reviewer of this story needs. THE FIX IS THE CODE'S OWN STATED CONSERVATIVE DIRECTION, not a new invention. Lines 512-536 already fall back to the full main-to-HEAD diff when a prior verdict's bound headHash cannot be resolved, with the recorded rationale that we never compute an incremental diff from an unknown base and the conservative direction is show everything. There is simply no branch for a prior that resolves but whose diff exceeds the cap. Adding that branch makes the basis STRICTLY MORE conservative - reviewers see the whole story diff instead of nothing at all - so this is not a bar being lowered to let this story through. WHY THIS IS NOT SELF-SERVING, stated so it can be checked rather than asserted: the defect fires for any story merging a large main, the change widens what reviewers see, and it cannot make a review pass that would otherwise fail. The distinction from the earlier BUG-B16DF-BYTEPIN removal is deliberate: that assertion was unsatisfiable by construction for every story, whereas this cap is a working safety limit that this story legitimately exceeded, so the honest fix is a documented degradation path rather than raising or removing the cap. The cap itself is NOT being changed. The user approved this expansion in chat after being shown the measurement and the alternatives, which were a separate story owning the fix while B-3434 waits, or parking B-3434 at REVIEW. Legitimacy of a story editing the review machinery that reviews it will be put to all four reviewer lanes and to the cross-vendor host-B reviewer explicitly.",
+      "timestamp": "2026-08-17T15:28:04.971Z",
+      "paths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "83d32ac32929fbb63650ba9c8b348959ef9455e9",
+      "materialHash": "d2cc931069f2be895dbacb34509611b50eb4c6542e7326652bc69909a23a2e32"
     }
   ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-17T13:33:24.157Z",
+  "updatedAt": "2026-08-17T15:28:04.971Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -93,6 +109,7 @@
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl",
-    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
   }
 }
