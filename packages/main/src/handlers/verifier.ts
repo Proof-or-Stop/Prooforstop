@@ -7,21 +7,21 @@
  * @description
  *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
  *   implementation: when no validate.ts/js/mts exists, no configured
- *   validate.command(s) exist, and no fallback command can be discovered, Proofbound
+ *   validate.command(s) exist, and no fallback command can be discovered, Proof-or-Stop
  *   returns warn/skip instead of failure. Projects needing strong validation
  *   gates must configure validate.command(s).
  * @changes
  *   - [CHK-001] Bind no-validator warn/skip requirement to verifier implementation
  *   - [CHK-002] Cover no-entry warn/skip and configured-command hard-fail behavior
  *
- * Verifier handlers — lattice validate / status / serve
+ * Verifier handlers — proof-or-stop validate / status / serve
  *
  * These commands prefer the project's validate.ts file when present (D/M/F verifier
  * pattern), then fall back to configured or auto-discovered language test commands.
  *
- * lattice validate   → validate.ts/js/mts or configured/discovered project tests
- * lattice status     → spawn `npx tsx validate.ts --status` in project root
- * lattice serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
+ * proof-or-stop validate   → validate.ts/js/mts or configured/discovered project tests
+ * proof-or-stop status     → spawn `npx tsx validate.ts --status` in project root
+ * proof-or-stop serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -70,6 +70,7 @@ import {
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -189,7 +190,7 @@ function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: s
   if (selected.length === 0) {
     throw new Error(
       `validate --focus=${focus}: no configured validate.commands are tagged with focus "${focus}"; ` +
-      `tag one or more commands with focus: ["${focus}"] or run lattice validate --json for full validation.`,
+      `tag one or more commands with focus: ["${focus}"] or run proof-or-stop validate --json for full validation.`,
     );
   }
   return selected;
@@ -470,7 +471,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   // hint naming the repair command. Additive only — never alters coverage math
   // or allPass, so the hint can never become a pass condition.
   for (const h of legacyHints) {
-    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
+    details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`proof-or-stop ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
   }
   const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
   return {
@@ -718,10 +719,14 @@ function reusedStoryValidationResult(args: {
   // B-3434 F-014: the reuse path wrote JSON.stringify(reused) with no bound at all, so a reused
   // result from a large command set produced the same oversized file the executed path was fixed
   // for. Same boundary, same enforcement: bound the serialised record, not the inner string.
+  //
+  // The command string is NOT cosmetic: assessStoredValidationPassAdmissibility compares this exact
+  // field against `proof-or-stop validate --story=<id> --json` (phase-gates.ts) and any other value
+  // is rejected with `command_mismatch`, which would silently disable reuse entirely.
   const reusedBound = boundPersistedValidationEvidence({
     result: reused,
     buildRecord: (output): TestEvidenceData => ({
-      command: `lattice validate --story=${args.storyId} --json`,
+      command: `proof-or-stop validate --story=${args.storyId} --json`,
       output,
       result: 'PASS',
       timestamp: new Date().toISOString(),
@@ -1060,7 +1065,7 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
 }
 
 function validateFileDefaultTimeoutMs(): number | undefined {
-  const raw = Number(process.env.LATTICE_VALIDATE_FILE_TIMEOUT_MS);
+  const raw = Number(readBrandEnv('VALIDATE_FILE_TIMEOUT_MS'));
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
 }
 
@@ -1089,7 +1094,7 @@ function decorateAndMaybePersistStoryValidation(
       ctx,
       storyId,
       executed,
-      `lattice validate --story=${storyId} --json`,
+      `proof-or-stop validate --story=${storyId} --json`,
       identity,
       commandResults,
       expectedCommandCount,
@@ -1103,7 +1108,7 @@ function decorateAndMaybePersistStoryValidation(
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * lattice validate [--full[=filter]] [--story=B-xxx] [--json]
+     * proof-or-stop validate [--full[=filter]] [--story=B-xxx] [--json]
      *
      * Runs the project's validate.ts with appropriate flags.
      * Returns human-readable output by default, or ExternalVerifierResult with --json.
@@ -1561,7 +1566,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice status [--concise]
+     * proof-or-stop status [--concise]
      *
      * Unified project status: story progress + Machine code status.
      * Two sections run in parallel (Promise.all).
@@ -1585,7 +1590,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const validateFile = findValidateFile(projectRoot);
         if (!validateFile) return '';
 
-        // Try serve cache first (if lattice serve is running, result is instant)
+        // Try serve cache first (if proof-or-stop serve is running, result is instant)
         try {
           const { stablePort } = await import('../verifier/browser-executor.js');
           const httpPort = stablePort(projectRoot, 1);
@@ -1603,7 +1608,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const cmd = `npx tsx ${validateFile} --status`;
           const body = [
             `✗ ${cmd} timed out after ${Math.round(STATUS_FALLBACK_TIMEOUT_MS / 1000)}s.`,
-            '  Run `lattice validate` for full diagnostics, or start `lattice serve` to use cached status.',
+            '  Run `proof-or-stop validate` for full diagnostics, or start `proof-or-stop serve` to use cached status.',
           ];
           if (output.trim()) body.push(...output.trim().split('\n').map(line => `  ${line}`));
           return '\n── Code Verification ──\n' + body.join('\n');
@@ -1621,7 +1626,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice serve [--dev="..."] [--port=N]
+     * proof-or-stop serve [--dev="..."] [--port=N]
      *
      * Start HTTP API server for real-time debugging.
      * This is a long-running process, so we spawn it and return the startup info.

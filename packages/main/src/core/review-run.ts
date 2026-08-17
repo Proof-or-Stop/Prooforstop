@@ -130,6 +130,36 @@ const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
   'prompt_envelope_mismatch',
 ]);
 
+// B-cdf6 / B-META F-019: the ONLY admissible finding statuses whose recorded
+// defect is considered already discharged, and therefore whose binding-freshness
+// (SUPERSEDED_PASS_ISSUE_CODES) issue may be forgiven in
+// collectReviewerEvidenceState.
+//
+// Deliberately an explicit allowlist rather than a `!== 'open'` negation: a
+// negation would silently grant forgiveness to any status added later (or to a
+// hand-edited / legacy findings.json carrying an unknown or empty status), which
+// is precisely the fail-OPEN shape this gate must not have. Anything not listed
+// here — 'open', 'suspected', 'disproven', undefined, '', or an arbitrary
+// injected string — is treated as NON-terminal and keeps its stale binding
+// blocking. Per the Handler 编码约定 this predicate is the single re-validation
+// point shared by every consumer, so a caller that bypasses Zod (internal fn
+// call, old on-disk JSON) is still rejected.
+const TERMINAL_REVIEWER_FINDING_STATUSES: ReadonlySet<string> = new Set([
+  'resolved',
+  'dismissed',
+]);
+
+// Matched EXACTLY — deliberately no trim()/lowercase normalization. A canonical
+// finding status is written by finding_add / finding_resolve and never carries
+// padding or alternate casing, so 'resolved ' or 'RESOLVED' signals hand-edited
+// or foreign data. Normalizing it would widen the forgiveness surface to inputs
+// no legitimate writer produces, so such values are treated as NON-terminal and
+// keep their stale binding blocking.
+export function isTerminalReviewerFindingStatus(status: unknown): boolean {
+  if (typeof status !== 'string') return false;
+  return TERMINAL_REVIEWER_FINDING_STATUSES.has(status);
+}
+
 export function isReviewRunLane(value: string): value is ReviewRunLane {
   return (REVIEW_RUN_LANES as readonly string[]).includes(value);
 }
@@ -343,7 +373,7 @@ export function diagnoseReviewRunSnapshot(projectRoot: string, metadataRoot: str
     return {
       code: 'not_git_repo',
       reason: `signed workspace is not a git repository: ${projectRoot}`,
-      nextAction: 'Run inside a git-backed Proofbound project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
+      nextAction: 'Run inside a git-backed Proof-or-Stop project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
     };
   }
   if (!currentGitHead(projectRoot)) {
@@ -815,7 +845,7 @@ function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string)
 }
 
 function startRunHint(storyId: string, lane: string): string {
-  return `→ Current REVIEW round has no available reviewer run: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
+  return `→ Current REVIEW round has no available reviewer run: run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}', then resubmit finding_add/review_pass_set with the returned reviewRunId`;
 }
 
 function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
@@ -824,17 +854,17 @@ function latestRunHint(storyId: string, lane: string, latestRunId?: string): str
 }
 
 function roundMismatchHint(storyId: string, lane: string): string {
-  return `→ This reviewRunId does not belong to the current REVIEW round: run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
+  return `→ This reviewRunId does not belong to the current REVIEW round: run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to obtain the reviewRunId for the current round, then resubmit finding_add/review_pass_set`;
 }
 
 function staleMaterialHint(storyId: string, lane: string): string {
-  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run proof-or-stop story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' to enter a new currentReviewRound, and subsequently run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 // ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──
 
 function scopeBindingHint(storyId: string, lane: string): string {
-  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
+  return `→ scope-protected story: reviewer evidence must be bound to the current scope contract and diff. Re-run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' to capture the latest scopeContractHash/diffPackHash, then use the new reviewRunId to resubmit finding_add/review_pass_set`;
 }
 
 /**
@@ -1014,7 +1044,7 @@ function validateRunWorkspaceBinding(
 }
 
 function workspaceBindingHint(storyId: string, lane: string): string {
-  return `→ Re-run lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
+  return `→ Re-run proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' from the resolved signed workspace, then resubmit finding_add/review_pass_set with the new reviewRunId`;
 }
 
 function uncommittedPathsUnder(gitCwd: string, prefix: string): string[] {
@@ -1558,18 +1588,41 @@ export function collectReviewerEvidenceState(
   const evidenceById = new Map(
     [...reviewerFindings, ...reviewerPasses].map(evidence => [evidence.id, evidence]),
   );
-  const agentsWithCurrentValidEvidence = new Set(valid.map(evidence => evidence.agent));
   const terminalReviewerFindingIds = new Set(
     reviewerFindings
-      .filter((evidence) => evidence.finding?.status === 'resolved' || evidence.finding?.status === 'dismissed')
+      .filter((evidence) => isTerminalReviewerFindingStatus(evidence.finding?.status))
       .map((evidence) => evidence.id),
   );
   const invalid = rawInvalid.filter((issue) => {
     if (!SUPERSEDED_PASS_ISSUE_CODES.has(issue.code)) return true;
+    // B-cdf6 / B-META F-019: a TERMINAL (resolved/dismissed) reviewer finding is
+    // forgiven for a binding-freshness-class issue WITHOUT requiring its lane to
+    // also hold currently-valid evidence.
+    //
+    // Why the old `&& agentsWithCurrentValidEvidence.has(...)` conjunct was a
+    // deadlock, not a safeguard: every remedy for staleness (finding_resolve,
+    // review_pass_set, verification_evidence_refresh_stale, ...) writes its own
+    // `proof-or-stop: record ... metadata` commit, which advances HEAD and re-stales
+    // the bindings that very command just established. Once a whole lane goes
+    // stale in one sweep, its passes never enter `valid`, so the lane held no
+    // currently-valid evidence, so the forgiveness for its already RESOLVED
+    // findings never fired — the same staleness that needs forgiving is what
+    // withheld the precondition for forgiving it. Measured on B-cdf6: 19 review
+    // runs produced 7 passes and still could not converge.
+    //
+    // Why dropping the conjunct does not weaken the gate: this branch is reached
+    // only for SUPERSEDED_PASS_ISSUE_CODES (binding freshness/supersession), and
+    // only for a finding whose recorded defect is already terminal. A resolved
+    // finding asserts nothing about current material — its envelope's job is
+    // done — so a stale binding on it cannot mislead. Everything that CAN
+    // mislead is untouched below: an OPEN finding and ANY pass still fall
+    // through to the newer-valid-evidence rule, and non-freshness codes
+    // (invalid_run_signature / unknown_run / wrong_lane / wrong_round /
+    // workspace_binding_tampered / ...) already returned true above and remain
+    // fail-closed for terminal findings too.
     if (
       issue.kind === 'finding'
       && terminalReviewerFindingIds.has(issue.evidenceId)
-      && agentsWithCurrentValidEvidence.has(issue.agent)
     ) return false;
     const invalidEvidence = evidenceById.get(issue.evidenceId);
     const hasNewerValidEvidence = Boolean(invalidEvidence) && valid.some(evidence =>

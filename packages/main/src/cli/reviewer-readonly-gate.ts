@@ -3,11 +3,12 @@ import {
   resolveEffectiveOwnershipClass,
   storyIdFromArgs,
 } from './ownership-gate.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
-export const REVIEWER_READONLY_ENV = 'LATTICE_REVIEWER_READONLY';
+export const REVIEWER_READONLY_ENV = 'PROOF_OR_STOP_REVIEWER_READONLY';
 
 export function isReviewerReadOnlyModeEnabled(): boolean {
-  return process.env[REVIEWER_READONLY_ENV] === '1';
+  return readBrandEnv(REVIEWER_READONLY_ENV) === '1';
 }
 
 export function enforceReviewerReadOnlyCommandGate(
@@ -26,7 +27,7 @@ export function enforceReviewerReadOnlyCommandGate(
   throw new Error(
     `[${REVIEWER_READONLY_ENV}=1] Command "${cmd}" is not allowed in read-only reviewer mode ` +
     `(effective ownershipClass: ${clsLabel}). ` +
-    `Advisory read-only reviewers may only run read-only Proofbound commands and should return ` +
+    `Advisory read-only reviewers may only run read-only Proof-or-Stop commands and should return ` +
     `structured findings to the story owner. ` +
     `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
   );

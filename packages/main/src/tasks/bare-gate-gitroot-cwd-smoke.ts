@@ -4,7 +4,7 @@
  * B-3990 smoke: no-`--story` CLI-gate gitCwd resolution on wrapper-root projects.
  *
  * BUG: verifier.ts resolved the shared gitCwd that feeds the BARE channel /
- * concept / lint gates (`lattice validate --concept` etc. with NO `--story`) to
+ * concept / lint gates (`proof-or-stop validate --concept` etc. with NO `--story`) to
  * `projectRoot` unconditionally. In a WRAPPER-ROOT layout the projectRoot
  * (metadataRoot) is NOT a git repo and the real repo is a configured gitRoot
  * subdir, so the bare concept gate's `git diff main...HEAD` ran in the non-git

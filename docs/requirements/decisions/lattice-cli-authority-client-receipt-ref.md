@@ -1,14 +1,14 @@
-# Proofbound CLI Authority Client and Receipt Ref
+# Proof-or-Stop CLI Authority Client and Receipt Ref
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
-> Owner: Orchestrate / Proofbound CLI.
+> Owner: Orchestrate / Proof-or-Stop CLI.
 
 ## Purpose
 
-This document defines the Proofbound CLI contract for verifying Authority receipts
+This document defines the Proof-or-Stop CLI contract for verifying Authority receipts
 and persisting structured receipt refs that lifecycle gates can consume.
 
 The local CLI baseline includes proof verification and receipt-ref writing. The
@@ -18,7 +18,7 @@ where required.
 
 ## Boundary
 
-Ordinary Proofbound workflow remains local unless the explicit Authority enforce
+Ordinary Proof-or-Stop workflow remains local unless the explicit Authority enforce
 path is approved and configured.
 
 These surfaces remain diagnostic unless `authority_receipt_verify` verifies a
@@ -197,7 +197,7 @@ Recommended schema:
       "sessionId": "session-...",
       "evidenceDigests": ["sha256:..."],
       "verifiedAt": "2026-06-10T00:00:00.000Z",
-      "verifiedBy": "lattice authority receipt verify",
+      "verifiedBy": "proof-or-stop authority receipt verify",
       "eligibleGates": ["TEST"],
       "consumptionEvents": []
     }

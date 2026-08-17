@@ -1,6 +1,6 @@
 # Authority Receipt Cross-Repo Live Smoke
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
@@ -9,7 +9,7 @@
 ## Purpose
 
 This document defines the final live proof that the Authority receipt chain works
-across the deployed staging Authority Server, Runner, and Proofbound CLI.
+across the deployed staging Authority Server, Runner, and Proof-or-Stop CLI.
 
 The smoke is valid only when it uses a real Authority Server, a registered
 runner, real signed envelopes, a verified `gate_decision` receipt, and a local
@@ -17,7 +17,7 @@ gate that consumes the receipt ref.
 
 ## Required Environment
 
-- deployed staging production-capable Proofbound Authority Server;
+- deployed staging production-capable Proof-or-Stop Authority Server;
 - non-ephemeral server private key;
 - non-default server key id;
 - trusted server public key or pinned digest;
@@ -26,7 +26,7 @@ gate that consumes the receipt ref.
 - valid runner session id;
 - repo with a story requiring Authority-backed evidence;
 - clean or policy-accepted dirty state;
-- Proofbound CLI build containing receipt verification and gate consumption.
+- Proof-or-Stop CLI build containing receipt verification and gate consumption.
 
 Fake server fixtures and local contract servers can run earlier contract tests,
 but this live smoke must label them invalid for production authority. A local
@@ -76,7 +76,7 @@ artifacts and reproducible commands.
 Store or attach:
 
 - Authority Server version and commit;
-- Proofbound CLI version and commit;
+- Proof-or-Stop CLI version and commit;
 - Runner version and commit;
 - server policy response;
 - server public key digest;

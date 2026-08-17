@@ -1,0 +1,79 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Represent the frozen review-inventory epoch and its receipt as signed gate-consumed process facts",
+      "context": "Create one deep owner for epochId, cutoff hashes, scope digest, required lanes, wave identities, host and prompt identities, terminal states, verified finding-set digest, coverage or read evidence, saturation result, state OPEN FINALIZED INVALIDATED CANCELLED, and bounded-budget adjudication. Expose supported start and status operations. Status must return epochId, frozen cutoff, state, required lanes, current wave, per-lane progress or terminal state, verified/new finding counts, blockers and one exact next command. Do not reuse audit-only signatureTag as gate authority without a new validated canonical duplicate or finding-family disposition contract. The receipt proves inventory saturation on the frozen candidate, not correctness of later remediation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/evidence-integrity-program-spec.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The operator can start an inventory epoch and inspect one consolidated status view showing the frozen cutoff, lane and wave progress, blocker codes and the exact next command; the finalized signed receipt is recognizable and cannot be confused with final implementation approval."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Enforce the OPEN-epoch material mutation barrier at every authoritative write boundary",
+      "context": "While an epoch is OPEN, reject edits or commits that change source, tests, verifier, workflow policy, prompt contract or other review-subject material. Prompt guidance is insufficient: handler admission, Codex or Claude mutation hooks where supported, Git or commit checks, finding and pass binding, and lifecycle transitions must consume the same epoch fact. Revalidate the cutoff before every receipt, finalization and transition. Any unmediated material drift fail-closes the epoch to INVALIDATED, makes prior verdicts advisory only, and status reports the changed lineage plus an exact recovery command: cancel and start a fresh epoch or return to DEV. Explicit cancel preserves unfinished verdicts only as advisory history.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "An attempted material change during OPEN is rejected with the epoch ID, changed subject and recovery command; if drift bypasses an admission boundary, the next authoritative operation visibly invalidates the epoch instead of silently accepting stale reviews."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Require complete discovery lenses and a verified zero-new-finding saturation wave before inventory finalization",
+      "context": "Run all scope and risk selected required lanes on the same cutoff, then run the completeness critic over the verified finding set. A wave is clean only when every required lane has a valid terminal receipt, mechanical coverage or bounded read evidence is complete, raw findings and duplicate claims are independently verified, and the wave adds zero new verified findings. Status exposes current wave, lane progress, new verified findings, remaining blockers and next dispatch or finalize command. Repeating the same reviewer, missing output, timeout, cancellation, unsupported host or prose-only PASS cannot satisfy saturation. New findings reopen another bounded wave on the same material; exhaustion visibly requires replan, decomposition, root-cause escalation or human adjudication and provides the corresponding command, never PASS.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The operator sees whether discovery is still finding new verified issues, which lanes or critic remain, and why finalization is blocked; budget exhaustion produces a visible replan or human-adjudication action rather than a manufactured PASS."
+    },
+    {
+      "id": "CHK-004",
+      "title": "Gate remediation DEV and subsequent final review on fresh inventory and material lineage",
+      "context": "A valid ReviewInventoryReceipt may authorize one REVIEW to remediation-DEV transition carrying the immutable aggregated finding set; rejection reports the stale or missing fact and exact corrective command. It must not authorize TEST or certify the defective cutoff. The remediation commit creates new material and makes the inventory receipt historical; returning to REVIEW must compute and display impacted required lanes from the repair and dependency closure, require current evidence on the repaired material, and preserve full review escalation when scope or policy cannot be proven narrow. Replace the current Round 2 plus one-receipt shortcut wherever it could be used to claim sufficient final review. Cancel and replan remain explicit, auditable operations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The operator gets one deliberate remediation transition containing the complete frozen finding set, then sees which fresh final-review lanes are required on the repaired material and an actionable reason whenever a transition is rejected."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Prove the epoch reduces review churn without weakening escaped-defect assurance",
+      "context": "Replay the deterministic B-cdf6 RR-043 through RR-046 failure shape, whose baseline accepted a material commit after the first lane and forced at least five later reviewer redispatches RR-047 through RR-051. Acceptance requires exactly one frozen discovery epoch before remediation, zero accepted material commits while OPEN, zero stale old-cutoff passes accepted, one aggregated remediation-DEV transition, and at most one final-review epoch when the injected remediation introduces no regression; redispatches caused by first-finding mutation must fall from at least five to zero. Required lane and host counts must not decrease, all historical critical/high cases must still be caught, and escaped critical/high findings, historical mutation survival, post-cert source commits, stale acceptance or budget-manufactured PASS must remain zero. Cover timeout, cancelled lane, duplicate identity, forged duplicate disposition, scope expansion, related drift, stale receipt, wave-budget exhaustion and post-remediation regression. Report before/after cycles, reviewer executions and wall-time projection. Round reduction is a metric, never a gate input.",
+      "relatedDocs": [
+        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A reproducible report compares the B-cdf6 baseline with the new workflow and fails unless mutation-driven redispatches drop from at least five to zero while reviewer/host coverage is unchanged and every stated quality invariant remains at zero regressions."
+    }
+  ]
+}

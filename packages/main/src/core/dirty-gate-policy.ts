@@ -62,7 +62,7 @@ export const DIRTY_GATE_POLICY: Readonly<Record<DirtyWorktreeCategory, DirtyGate
   },
   declared_artifact_changes: {
     blocking: false,
-    auditReason: 'declared by lattice artifact_declare (B-cf60); referenced by verificationEvidence or delivery-check',
+    auditReason: 'declared by proof-or-stop artifact_declare (B-cf60); referenced by verificationEvidence or delivery-check',
   },
   material_source_changes: {
     blocking: true,

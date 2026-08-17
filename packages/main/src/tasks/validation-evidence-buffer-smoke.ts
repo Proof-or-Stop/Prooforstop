@@ -58,7 +58,7 @@ const OUTPUT_LINE_CHARS = 120;
 /** The TestEvidenceData shape persistStoryValidationEvidence builds, minus the parts we do not size. */
 function buildRecord(output: string): Record<string, unknown> {
   return {
-    command: 'lattice validate --story=B-3434 --json',
+    command: 'proof-or-stop validate --story=B-3434 --json',
     output,
     result: 'PASS',
     timestamp: '2026-08-15T00:00:00.000Z',
@@ -489,7 +489,7 @@ function validationResult(
   // Padding in a field the reducer does not model (as in section 10), so the record's size is set by
   // `pad` alone and no reduction can carry it back across the boundary.
   const windowRecord = (output: string, pad: number, withHashes: boolean): Record<string, unknown> => ({
-    command: 'lattice validate --story=B-3434 --json',
+    command: 'proof-or-stop validate --story=B-3434 --json',
     output,
     result: 'PASS',
     timestamp: '2026-08-15T00:00:00.000Z',

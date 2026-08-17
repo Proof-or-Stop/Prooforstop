@@ -3,7 +3,7 @@
  * Codex PreToolUse hook: evidence-pin seatbelt (B-1507 CHK-003)
  *
  * Intercepts Codex shell-tool invocations before they run. When the command is a
- * lattice verification_evidence_add / verification_run whose caller command or
+ * proof-or-stop verification_evidence_add / verification_run whose caller command or
  * selector would NOT match the intent's immutable pinned verification (B-ec67),
  * it blocks the write early with a teaching message.
  *
@@ -12,7 +12,7 @@
  *
  * FAIL-OPEN SEATBELT: unlike the scope guard, ANY error / timeout / missing CLI /
  * non-shell tool passes through (exit 0). The seatbelt must never block legitimate
- * work; the real floor is enforceAndStampEvidence in the Proofbound CLI handler.
+ * work; the real floor is enforceAndStampEvidence in the Proof-or-Stop CLI handler.
  *
  * PENDING-REAL-TOKEN: Codex's real emitted shell tool_name is not confirmable in
  * the authoring environment. This matcher uses the best-documented candidates
@@ -120,21 +120,28 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
+  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
+  // generated before the rename only has bin/lattice.js, and a globally installed
+  // package built before the rename only exposes the `lattice` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
     path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'proof-or-stop.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 2000,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  const command = String(found.stdout || '').split(/\r?\n/).find(Boolean);
-  return command ? { command, args: [] } : null;
+  for (const bin of ['proof-or-stop', 'lattice']) {
+    const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 2000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const command = String(found.stdout || '').split(/\r?\n/).find(Boolean);
+    if (command) return { command, args: [] };
+  }
+  return null;
 }

@@ -11,7 +11,7 @@
  *
  *   PERSIST-class failures were previously swallowed and could not be traced afterward. This module provides a lightweight
  *   JSONL append receiver: each issue is written to ~/.lattice/health.jsonl,
- *   and `lattice doctor` can read them out.
+ *   and `proof-or-stop doctor` can read them out.
  *
  * Design constraints:
  *   - reportHealthIssue itself must not throw. A crash in the health module must not drag down the main flow.
@@ -34,7 +34,8 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { readBrandEnv } from './brand-env.js';
 
 export interface HealthIssue {
   schemaVersion: 1;
@@ -51,8 +52,9 @@ export interface HealthIssue {
 /** Default health.jsonl path: ~/.lattice/health.jsonl */
 export function getHealthPath(): string {
   // Allow overriding the path via env for easier testing
-  if (process.env.LATTICE_HEALTH_PATH) return process.env.LATTICE_HEALTH_PATH;
-  return join(homedir(), LATTICE_DIR, 'health.jsonl');
+  const envHealthPath = readBrandEnv('HEALTH_PATH');
+  if (envHealthPath) return envHealthPath;
+  return join(homedir(), PROOF_OR_STOP_DIR, 'health.jsonl');
 }
 
 /**

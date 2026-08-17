@@ -86,12 +86,12 @@ checks and expose them in handoff logs:
 
 Every host handoff must materialize the following facts bundle before responding:
 
-- `sessionBrief`: raw output of `lattice session_brief`.
-- `devMemoryPreflight`: raw output of `lattice dev_memory_preflight` (or equivalent host-specific entrypoint), or explicit `unavailable` proof.
-- `activeStorySummary`: full output of `lattice story_get` for the target story if present.
+- `sessionBrief`: raw output of `proof-or-stop session_brief`.
+- `devMemoryPreflight`: raw output of `proof-or-stop dev_memory_preflight` (or equivalent host-specific entrypoint), or explicit `unavailable` proof.
+- `activeStorySummary`: full output of `proof-or-stop story_get` for the target story if present.
 - `doneStorySummary`: summary of DONE artifact for same target when done evidence exists.
-- `gapAnalyzeSummary`: raw output of `lattice gap_analyze`.
-- `learningSignalSummary`: raw output of `lattice learning_validate` (or explicit refusal with reason) when callable.
+- `gapAnalyzeSummary`: raw output of `proof-or-stop gap_analyze`.
+- `learningSignalSummary`: raw output of `proof-or-stop learning_validate` (or explicit refusal with reason) when callable.
 
 Minimal gate-like decision rule used by hosts:
 
@@ -194,11 +194,11 @@ Verification evidence that must be recorded for each round:
 
 ### Recommended command sequence (per host)
 
-- `lattice session_brief`
-- `lattice story_get '{"storyId":"<target_story>"}'`
-- `lattice checklist_get '{"storyId":"<target_story>"}'`
-- `lattice gap_analyze` (existing command behavior reference)
-- `lattice learning_validate` (advisory confidence check only)
+- `proof-or-stop session_brief`
+- `proof-or-stop story_get '{"storyId":"<target_story>"}'`
+- `proof-or-stop checklist_get '{"storyId":"<target_story>"}'`
+- `proof-or-stop gap_analyze` (existing command behavior reference)
+- `proof-or-stop learning_validate` (advisory confidence check only)
 
 Failure mode for any round:
 

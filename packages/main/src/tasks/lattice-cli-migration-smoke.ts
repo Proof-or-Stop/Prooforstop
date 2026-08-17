@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { isCommandAllowed } from '../core/config.js';
 import { getCommandLifecyclePolicy } from '../core/command-policy.js';
-import { LATTICE_CLI_VERSION } from '../core/lattice-brand.js';
+import { LATTICE_CLI_VERSION, PROOF_OR_STOP_PRODUCT_NAME } from '../core/lattice-brand.js';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
@@ -85,18 +85,21 @@ function degradationByCategory(degradations: any[], category: string): any {
 }
 
 // Product identity and package entrypoints.
-assert.match(runCli(['--version']), new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION}`));
-assert.match(runCli(['version']), /Proofbound CLI/);
+// B-cdf6 CHK-002: the product name is Proof-or-Stop and the canonical bin is
+// proof-or-stop; `lattice` survives only as a deprecated invocation alias.
+assert.match(runCli(['--version']), new RegExp(`${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION}`));
+assert.match(runCli(['version']), new RegExp(PROOF_OR_STOP_PRODUCT_NAME));
 const rootPackage = readJson(join(repoRoot, 'package.json'));
 const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'));
 assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.version, LATTICE_CLI_VERSION, `packages/main version is ${LATTICE_CLI_VERSION}`);
-assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'lattice package bin points at CLI');
+assert.equal(mainPackage.bin['proof-or-stop'], 'dist/cli.js', 'canonical proof-or-stop bin points at CLI');
+assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'deprecated lattice bin alias still points at CLI');
 
-// Help exposes first-class Proofbound identity and the new command set.
+// Help exposes first-class Proof-or-Stop identity and the new command set.
 const help = runCli(['help']);
-assert.match(help, new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
-assert.match(help, /(?:^|\n)\s+Entrypoint:\s+lattice/);
+assert.match(help, new RegExp(`${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
+assert.match(help, /(?:^|\n)\s+Entrypoint:\s+proof-or-stop/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
@@ -106,23 +109,35 @@ for (const command of COMMANDS) {
 for (const alias of [
   'lattice host status',
   'lattice host dispatch',
-  'lattice handoff create',
-  'lattice handoff receipt submit',
-  'lattice handoff worktree create',
+  'proof-or-stop handoff create',
+  'proof-or-stop handoff receipt submit',
+  'proof-or-stop handoff worktree create',
 ] as const) {
   assert.match(help, new RegExp(alias.replace(/\s+/g, '\\s+')), `help exposes alias ${alias}`);
 }
 
 const storyCreateHelp = runCli(['story_create', '--help']);
-assert.match(storyCreateHelp, /lattice story_create with checklist/);
-assert.match(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
+// B-cdf6 (F-030): these pinned the PRE-rename bin name and so failed BECAUSE the
+// rename succeeded — the same class already fixed in decision-doc-promotion-smoke
+// and asserted correctly by `Try proof-or-stop story_advance` further down this
+// very block. They were MASKED until now: the genuinely pre-existing `host
+// status` alias assertion above throws first, so these never executed. Measured
+// help output: `proof-or-stop story_create with checklist` and `proof-or-stop
+// story_advance phase=INIT_CHECK`, zero `lattice`. Paired doesNotMatch guards
+// keep the example text from regressing to the deprecated bin.
+assert.match(storyCreateHelp, /proof-or-stop story_create with checklist/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_create with checklist/);
+assert.match(storyCreateHelp, /proof-or-stop story_advance phase=INIT_CHECK/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
 assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses lattice-prefixed commands');
-assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses lattice checklist_add');
+assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses proof-or-stop checklist_add');
 
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
-assert.match(storyAdvanceHelp, /lattice story_review/);
-assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
-assert.match(storyAdvanceHelp, /Try lattice story_advance/);
+assert.match(storyAdvanceHelp, /proof-or-stop story_review/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_review/);
+assert.match(storyAdvanceHelp, /proof-or-stop story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.match(storyAdvanceHelp, /Try proof-or-stop story_advance/);
 assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
 
 const storyReconcileHelp = runCli(['story_reconcile', '--help']);
@@ -169,7 +184,7 @@ for (const category of [
   'receipt-verify',
   'multimodal-research',
 ] as const) {
-  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Proofbound projection`);
+  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Proof-or-Stop projection`);
   assert.equal(degradationByCategory(desktopFromList.degradations, category).visible, true, `desktop-app ${category} degradation is visible`);
 }
 assert.equal(capabilityByCategory(desktopFromList, 'approval').status, 'available', 'desktop-app keeps dashboard approval available');
@@ -177,12 +192,12 @@ assert.equal(capabilityByCategory(desktopFromList, 'artifact-display').status, '
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'evidence-submit').authorityImpact,
   'evidence-local-only',
-  'desktop-app evidence submission remains local-only in Proofbound projection',
+  'desktop-app evidence submission remains local-only in Proof-or-Stop projection',
 );
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'receipt-verify').authorityImpact,
   'local-assurance-required',
-  'desktop-app receipt verification blocks productionDone in Proofbound projection',
+  'desktop-app receipt verification blocks productionDone in Proof-or-Stop projection',
 );
 
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);
@@ -235,10 +250,12 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-// config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin.
+// B-cdf6:F-046 — this comment and the assertion message below both claimed the package
+// exposes ONLY the lattice bin. That became false with the rename: package.json now lists
+// proof-or-stop as the primary bin with lattice retained as a compatibility alias.
 assert.ok(
   configDoctor.checks.some((c: any) => c.id === 'package-bin-aliases' && c.ok === true),
-  'package-bin-aliases check confirms the package exposes only the lattice bin',
+  'package-bin-aliases check confirms the package exposes the proof-or-stop bin plus the retained lattice alias',
 );
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');

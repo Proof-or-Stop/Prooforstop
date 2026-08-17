@@ -21,9 +21,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   renderCodexAgentContent,
-  renderLatticeBootstrapScript,
-  renderLatticeCodexAdapterManifest,
-  renderLatticeCodexWrapperScript,
+  renderProofOrStopBootstrapScript,
+  renderProofOrStopCodexAdapterManifest,
+  renderProofOrStopCodexWrapperScript,
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
@@ -45,8 +45,8 @@ function writeText(root: string, relPath: string, content: string): void {
 
 function makeRoot(name: string): string {
   const root = mkdtempSync(join(tmpdir(), `lattice-${name}-`));
-  writeText(root, 'bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
-  writeText(root, 'bin/lattice-codex.js', renderLatticeCodexWrapperScript());
+  writeText(root, 'bin/lattice.js', renderProofOrStopBootstrapScript(packageRoot));
+  writeText(root, 'bin/lattice-codex.js', renderProofOrStopCodexWrapperScript());
   seedCodexNativeHooks(root);
   return root;
 }
@@ -77,7 +77,7 @@ function assertOk(result: ReturnType<typeof runCodexAdapterChecks>): void {
 
 const mirrorRoot = makeRoot('codex-mirror');
 try {
-  writeText(mirrorRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
+  writeText(mirrorRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
   seedLegacyPrompts(mirrorRoot);
   const mirror = runCodexAdapterChecks(mirrorRoot, { executeHeartbeats: false });
   assertOk(mirror);
@@ -90,7 +90,7 @@ try {
 
 const jointlyDriftedHostRoot = makeRoot('codex-joint-host-drift');
 try {
-  writeText(jointlyDriftedHostRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
+  writeText(jointlyDriftedHostRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
   seedLegacyPrompts(jointlyDriftedHostRoot);
   const file = 'lattice-review-quality.md';
   const drift = '\n<!-- jointly drifted host asset -->\n';
@@ -108,9 +108,9 @@ try {
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
 try {
-  writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderLatticeCodexAdapterManifest());
-  writeText(legacyOnlyRoot, 'bin/legacy-bootstrap.js', renderLatticeBootstrapScript(packageRoot));
-  writeText(legacyOnlyRoot, 'bin/legacy-codex.js', renderLatticeCodexWrapperScript());
+  writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderProofOrStopCodexAdapterManifest());
+  writeText(legacyOnlyRoot, 'bin/legacy-bootstrap.js', renderProofOrStopBootstrapScript(packageRoot));
+  writeText(legacyOnlyRoot, 'bin/legacy-codex.js', renderProofOrStopCodexWrapperScript());
   seedCodexNativeHooks(legacyOnlyRoot);
   seedLegacyPrompts(legacyOnlyRoot);
   const legacyOnly = runCodexAdapterChecks(legacyOnlyRoot, { executeHeartbeats: false });
@@ -123,7 +123,7 @@ try {
 
 const thinRoot = makeRoot('codex-thin');
 try {
-  writeText(thinRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
+  writeText(thinRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
   const thin = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
   assertOk(thin);
   assert.equal(checkById(thin, 'manifest').status, 'pass');
@@ -227,7 +227,7 @@ try {
 
 const driftRoot = makeRoot('codex-registry-drift');
 try {
-  const manifest = JSON.parse(renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
+  const manifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.recommendedEntrypoints[0].command = 'node bin/changed.js';
   writeText(driftRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const drift = runCodexAdapterChecks(driftRoot, { executeHeartbeats: false });
@@ -241,7 +241,7 @@ try {
 
 const tamperedRoot = makeRoot('codex-tampered');
 try {
-  const manifest = JSON.parse(renderLatticeCodexAdapterManifest({ promptMode: 'registry' }));
+  const manifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.promptRegistry.materialHash = 'tampered';
   writeText(tamperedRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const tampered = runCodexAdapterChecks(tamperedRoot, { executeHeartbeats: false });

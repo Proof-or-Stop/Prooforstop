@@ -319,18 +319,27 @@ const { root, store } = makeRepo();
 try {
   check('command-specific help exposes registered schemas phase-independently', () => {
     const proposalHelp = runHelp(root, 'decision_doc_proposal');
-    assert.match(proposalHelp, /lattice decision_doc_proposal/);
-    assert.match(proposalHelp, /Alias: lattice decision doc proposal/);
+    // B-cdf6: these pinned the PRE-rename bin name, so they failed BECAUSE the
+    // rename succeeded. Measured help output is `proof-or-stop decision_doc_*`
+    // (2 occurrences each) with `Alias: proof-or-stop decision doc proposal`.
+    // Each canonical assertion is paired with a doesNotMatch on the deprecated
+    // form so the help text cannot silently regress to teaching the old bin.
+    assert.match(proposalHelp, /proof-or-stop decision_doc_proposal/);
+    assert.doesNotMatch(proposalHelp, /lattice decision_doc_proposal/);
+    assert.match(proposalHelp, /Alias: proof-or-stop decision doc proposal/);
+    assert.doesNotMatch(proposalHelp, /Alias: lattice decision doc proposal/);
     assert.match(proposalHelp, /--slug/);
     assert.match(proposalHelp, /--verificationRequirements/);
 
     const previewHelp = runHelp(root, 'decision_doc_preview');
-    assert.match(previewHelp, /lattice decision_doc_preview/);
+    assert.match(previewHelp, /proof-or-stop decision_doc_preview/);
+    assert.doesNotMatch(previewHelp, /lattice decision_doc_preview/);
     assert.match(previewHelp, /Read-only render/);
     assert.match(previewHelp, /--proposalId/);
 
     const saveHelp = runHelp(root, 'decision_doc_save');
-    assert.match(saveHelp, /lattice decision_doc_save/);
+    assert.match(saveHelp, /proof-or-stop decision_doc_save/);
+    assert.doesNotMatch(saveHelp, /lattice decision_doc_save/);
     assert.match(saveHelp, /create\|update/);
     assert.match(saveHelp, /--confirm/);
     assert.match(saveHelp, /--expectedProposalDigest/);

@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-The verified gap is that the local DONE gate currently consumes evidence produced by `lattice validate`, and `lattice validate` runs the configured validation subset when `validate.commands` exists. A root full `npm test` failure can therefore sit outside the configured validation subset and still be invisible to local DONE, allowing a story to merge locally if every configured `validate.commands` entry passes.
+The verified gap is that the local DONE gate currently consumes evidence produced by `proof-or-stop validate`, and `proof-or-stop validate` runs the configured validation subset when `validate.commands` exists. A root full `npm test` failure can therefore sit outside the configured validation subset and still be invisible to local DONE, allowing a story to merge locally if every configured `validate.commands` entry passes.
 
 Important caveat: this proves a gate coverage gap, not that current main `npm test` is red. The claim is about what the current gate is capable of proving. It does not assert a live root-suite failure on `main`.
 
@@ -11,7 +11,7 @@ Important caveat: this proves a gate coverage gap, not that current main `npm te
 - `lattice.config.json` defines 8 entries under `validate.commands` at `validate.commands[0..7]`.
 - Root `package.json` defines `scripts.test` as the resource-aware full-suite runner. Canonical membership is independently derived from `test:serial-reference-prefix` plus `test:serial-reference`; the current authority contains 47 members and bidirectional inventory validation rejects missing, duplicate, stale-policy, or later unclassified members.
 - `packages/main/src/handlers/verifier.ts` reads configured `validate.command` / `validate.commands` first. When configured commands exist, fallback discovery is skipped, so the fallback `npm test` path is not used for this repository.
-- `packages/main/src/handlers/phase-gates.ts` runs `lattice validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
+- `packages/main/src/handlers/phase-gates.ts` runs `proof-or-stop validate --story=<storyId> --json` when entering TEST and writes the result to `test-evidence.json`.
 - `packages/main/src/core/done-oracle.ts` builds the DONE row from `test-evidence.json`, including result and freshness, and does not independently require root full-suite evidence.
 - `.githooks/pre-push` does not run root `npm test`. Its build plus recursive `tsc --noEmit` path is scoped to the self-host package name `@lattice/core`; it is a type/build push guard, not the root full-suite gate.
 
@@ -27,14 +27,14 @@ Add a dedicated DONE/release-required validation profile, or an equivalent `done
 
 Implementation boundary after B-ac25: the local DONE-required surface is `doneRequiredCommands` / `validationProfiles.done` plus `done_required_validate --storyId=<id>`, which writes `.lattice/story/actives/<storyId>/done-required-evidence.json`. The DONE oracle consumes this in a separate `done-required-validation` row. Missing policy remains advisory/non-blocking for external projects and must not be described as full-suite assurance.
 
-Execution-capacity boundary: `lattice done_required_validate`, every `lattice validate` mode, and derived host-verdict binding share one capacity lease under the resolved workspace git-common-dir, not a metadata wrapper. Expected Git identity failure—including an unresolved configured no-story `gitRoot`—stops before callback entry rather than splitting the lock. Contenders wait asynchronously with `waiting for workspace validation capacity` holder/heartbeat progress and then continue automatically; story-scoped runs acquire capacity before the per-story evidence lock. Both capacity and story-lock reentrancy require the current acquisition token, preventing a detached context from an earlier owner from borrowing a later holder's identical path. Complete identity is prepared before atomic queue publication. The capacity classifier never reclaims on age, unknown ownership, or malformed metadata alone. Mechanically stale ownership is isolated by atomically renaming its never-reused UUID ticket to a unique quarantine and deleting only that quarantine, so stale-A cleanup cannot delete live successor-B. Owner release and queued-waiter abort/deadline cleanup retry exact-ticket isolation. Persistent failure attempts a best-effort released marker on that unique ticket; marker success allows mechanical recovery after filesystem repair, while marker failure remains fail-closed until repair. A successful callback reports release failure. An original callback, abort, or deadline error remains primary and the secondary cleanup failure is not separately surfaced. Direct `lattice validate` enters the structured watchdog only to propagate abort/deadline into the capacity wait and clean its waiter ticket; it keeps the pre-existing `validate` result classification and exit contract. `structuredDoneResult` and the DONE-result classifier remain exclusive to `done_prepare` / `done_required_validate`. Derived host-verdict binding has no public cancellation arguments and continues to rely on its CLI host timeout as the outer boundary. A bare `npm test` / direct full-suite command remains outside this lease and must not be launched concurrently with either official command. This coordination adds no timeout, inventory, receipt, freshness, or gate-policy exception.
+Execution-capacity boundary: `proof-or-stop done_required_validate`, every `proof-or-stop validate` mode, and derived host-verdict binding share one capacity lease under the resolved workspace git-common-dir, not a metadata wrapper. Expected Git identity failure—including an unresolved configured no-story `gitRoot`—stops before callback entry rather than splitting the lock. Contenders wait asynchronously with `waiting for workspace validation capacity` holder/heartbeat progress and then continue automatically; story-scoped runs acquire capacity before the per-story evidence lock. Both capacity and story-lock reentrancy require the current acquisition token, preventing a detached context from an earlier owner from borrowing a later holder's identical path. Complete identity is prepared before atomic queue publication. The capacity classifier never reclaims on age, unknown ownership, or malformed metadata alone. Mechanically stale ownership is isolated by atomically renaming its never-reused UUID ticket to a unique quarantine and deleting only that quarantine, so stale-A cleanup cannot delete live successor-B. Owner release and queued-waiter abort/deadline cleanup retry exact-ticket isolation. Persistent failure attempts a best-effort released marker on that unique ticket; marker success allows mechanical recovery after filesystem repair, while marker failure remains fail-closed until repair. A successful callback reports release failure. An original callback, abort, or deadline error remains primary and the secondary cleanup failure is not separately surfaced. Direct `proof-or-stop validate` enters the structured watchdog only to propagate abort/deadline into the capacity wait and clean its waiter ticket; it keeps the pre-existing `validate` result classification and exit contract. `structuredDoneResult` and the DONE-result classifier remain exclusive to `done_prepare` / `done_required_validate`. Derived host-verdict binding has no public cancellation arguments and continues to rely on its CLI host timeout as the outer boundary. A bare `npm test` / direct full-suite command remains outside this lease and must not be launched concurrently with either official command. This coordination adds no timeout, inventory, receipt, freshness, or gate-policy exception.
 
 The checked-in regression/evidence contract contains a genuine exact-12 child-process stale/ABA cohort, separate from the exact-12 same-process Promise cohort, and proves `maxConcurrency=1`, zero overlap, zero child errors, and zero queue-artifact leaks. It is not a runtime capacity promise to users. Its exact managed terminal pins are focused `validate-execution-lock workspace capacity contract passed: 15 assertion groups` and full `validate-execution-lock smoke passed: 26 assertion groups`.
 
 Reasons:
 
-- Normal `lattice validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.
-- Root full `npm test` is self-host expensive and should not be forced onto every Proofbound user by default.
+- Normal `proof-or-stop validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.
+- Root full `npm test` is self-host expensive and should not be forced onto every Proof-or-Stop user by default.
 - DONE/release assurance needs a stronger evidence contract than "the normal validation subset happened to pass".
 - A named DONE-required profile makes the claim explicit: self-host DONE is blocked unless the full required suite has fresh PASS evidence for the current material.
 - Release/push alignment can then decide whether to reuse the same artifact, require it before remote publish approval, or keep remote push as a narrower build+tsc safety net with clear wording.
@@ -77,7 +77,7 @@ The full-suite gate must be opt-in and configurable for external projects.
 
 Default behavior for projects without a DONE-required policy:
 
-- Existing `lattice validate` behavior remains unchanged.
+- Existing `proof-or-stop validate` behavior remains unchanged.
 - DONE may show an advisory row such as "No DONE-required validation profile configured".
 - The advisory row must not block by default.
 - Documentation must explain how projects opt into a blocking full-suite policy.
@@ -88,7 +88,7 @@ Self-host behavior for Orchestrate/Lattice:
 - Missing, failing, or stale DONE-required evidence blocks local DONE.
 - A degraded or emergency path may continue only under an explicitly lower assurance label.
 
-This avoids imposing Orchestrate-specific cost on every Proofbound user while fixing the self-host overclaim.
+This avoids imposing Orchestrate-specific cost on every Proof-or-Stop user while fixing the self-host overclaim.
 
 ## Evidence Data Model
 
@@ -195,7 +195,7 @@ Emergency or degraded path:
 
 ## Runner And Artifact State
 
-1. `doneRequiredCommands` executes independently from ordinary `lattice validate`.
+1. `doneRequiredCommands` executes independently from ordinary `proof-or-stop validate`.
 2. The self-host policy builds `packages/main` and then invokes root `npm test`.
 3. Root `npm test` derives all 47 current canonical members from the independent serial reference, schedules compatible resource claims concurrently, preserves canonical report order, and stops on the first FAIL/TIMEOUT without retry masking.
 4. The runner emits bounded member logs plus wall/CPU/resource/identity telemetry and an atomic out-of-tree JSON result.
@@ -242,7 +242,7 @@ Exit criteria:
 - Add a `done-required-validation` row to DONE checklist assembly.
 - For self-host required policy, fail on missing, failing, or stale evidence.
 - For projects without policy, render optional/advisory status.
-- Keep ordinary `test-evidence` row intact for `lattice validate`.
+- Keep ordinary `test-evidence` row intact for `proof-or-stop validate`.
 - Consume the registered process fact contract for the DONE-required artifact rather than relying on prose-only semantics.
 
 Exit criteria:
@@ -331,13 +331,13 @@ npm --prefix packages/main run build
 node packages/main/dist/tasks/done-required-validation-smoke.js
 node scripts/verify-process-fact-contract.mjs
 npm test
-lattice validate --story=<storyId> --json
-lattice story_advance '{"storyId":"<storyId>","phase":"DONE"}'
+proof-or-stop validate --story=<storyId> --json
+proof-or-stop story_advance '{"storyId":"<storyId>","phase":"DONE"}'
 ```
 
 Expected artifacts:
 
-- Ordinary validation still writes `test-evidence.json` from `lattice validate`.
+- Ordinary validation still writes `test-evidence.json` from `proof-or-stop validate`.
 - DONE-required validation writes the separate `done-required-evidence.json` artifact.
 - DONE-required validation records `npm --prefix packages/main run build` before root `npm test`, or records a root `pretest` / equivalent receipt proving same-material `packages/main/dist`.
 - The DONE checklist renders both ordinary validation and full-suite rows.
@@ -377,7 +377,7 @@ Review requirements:
 - Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`, or runtime TypeScript in B-3321.
 - Do not append root `npm test` to normal `validate.commands` as the final solution.
 - Do not force root full-suite execution on external projects that have not opted in.
-- Do not make the pre-push hook depend on Proofbound CLI as a hidden requirement.
+- Do not make the pre-push hook depend on Proof-or-Stop CLI as a hidden requirement.
 - Do not claim root full-suite assurance from ordinary `test-evidence.json`.
 - Do not store unbounded command output in story evidence.
 - Do not reopen historical DONE stories solely for this new policy.

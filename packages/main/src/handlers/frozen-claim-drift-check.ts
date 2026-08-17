@@ -2,7 +2,7 @@
  * B-2296 CHK-003 (evidence-integrity §5 follow-on, Phase 1 of 2) — read-only,
  * NON-blocking FROZEN_CLAIM_DRIFT advisory surface.
  *
- * `lattice frozen_claim_drift_check --storyId=B-xxx [--json]` reads a story's
+ * `proof-or-stop frozen_claim_drift_check --storyId=B-xxx [--json]` reads a story's
  * checklist and, for every item carrying a non-empty `userSees`, compares the
  * item's frozen {@link FrozenClaimSnapshot} (pinned once at the CHK-002
  * status→done attestation) against the CURRENT normalized claim digest + the

@@ -76,7 +76,7 @@ function check(name: string, condition: boolean, detail?: string): void {
 
 const COMMIT_ENV = [
   '-c', 'user.email=smoke@example.test',
-  '-c', 'user.name=Proofbound Smoke',
+  '-c', 'user.name=Proof-or-Stop Smoke',
 ];
 
 function git(cwd: string, args: string[]): string {
@@ -118,7 +118,7 @@ function runLatticeFromCwd(
 }
 
 /** Run the CLI expecting a non-zero exit; returns the combined stdout+stderr+message. */
-function runLatticeExpectFail(
+function runProofOrStopExpectFail(
   cwd: string,
   command: string,
   args: Record<string, unknown>,
@@ -324,7 +324,7 @@ function assertExternalAdvanceAbortsBeforePersist(): void {
     shimDir = shim.shimDir;
 
     // Prepend the shim so the CLL child resolves `git` to it first.
-    const output = runLatticeExpectFail(
+    const output = runProofOrStopExpectFail(
       worktreePath,
       'story_advance',
       { storyId, phase: 'DONE' },

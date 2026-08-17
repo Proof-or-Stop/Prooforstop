@@ -4,7 +4,7 @@
  * (core/review-incremental-context.ts, CHK-001) reports the right shape for a
  * returning reviewer, a first-timer, and a rename, AND proves the LOAD-BEARING
  * invariant of this whole story: calling reviewIncrementalContext (and having the
- * lattice review_incremental_context CLI registered) changes NOTHING about the
+ * proof-or-stop review_incremental_context CLI registered) changes NOTHING about the
  * REVIEW→TEST gate canPassReviewGuard.
  *
  * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
@@ -101,11 +101,11 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 
-/** Marker line printed by the smoke so `lattice validate` output is greppable. */
+/** Marker line printed by the smoke so `proof-or-stop validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {

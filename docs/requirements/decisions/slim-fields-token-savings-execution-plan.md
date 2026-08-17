@@ -5,14 +5,14 @@ Date: 2026-06-15
 ## Purpose
 
 This document defines a low-risk execution plan for reducing repeated LLM context
-cost from Proofbound status queries.
+cost from Proof-or-Stop status queries.
 
 The goal is not to change command semantics. The goal is to update agent prompts
 and documentation so agents use compact read-only query forms by default:
 
 ```bash
-lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
 ```
 
 Agents must still request full output when they need full evidence, full
@@ -91,8 +91,8 @@ Full output is required before:
 
 ## Execution Discipline
 
-Implementation must run as a dedicated Proofbound story, not as part of B-f495.
-That story must begin with `lattice session_brief` and `lattice aux_doc_list`
+Implementation must run as a dedicated Proof-or-Stop story, not as part of B-f495.
+That story must begin with `proof-or-stop session_brief` and `proof-or-stop aux_doc_list`
 from its own worktree before reading or editing implementation files.
 
 The implementing story should enter ordinary REVIEW first. If the first REVIEW
@@ -111,13 +111,13 @@ templates:
 ```text
 For routine status refreshes, prefer compact read-only queries:
 
-lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
 
 Before evidence-sensitive conclusions or mutations, reload the full output:
 
-lattice story_get '{"storyId":"B-xxxx"}'
-lattice checklist_get '{"storyId":"B-xxxx"}'
+proof-or-stop story_get '{"storyId":"B-xxxx"}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 ```
 
 The wording must be advisory, not a hard replacement for full output.
@@ -151,15 +151,15 @@ routine orientation.
 Preferred examples:
 
 ```bash
-lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
+proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'
 ```
 
 Keep full-output examples where the surrounding text requires complete data:
 
 ```bash
-lattice story_get '{"storyId":"B-xxxx"}'
-lattice checklist_get '{"storyId":"B-xxxx"}'
+proof-or-stop story_get '{"storyId":"B-xxxx"}'
+proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 ```
 
 ### Step 4. Add Regression Checks
@@ -256,7 +256,7 @@ B-f495 accepts this plan after the execution-order and review-discipline
 corrections above. The evidence cited here is local repository evidence and is
 not Authority Server evidence. Provider billing savings are not proven; the
 token figures are approximate context-size estimates only. Implementation should
-proceed as a separate dedicated Proofbound story.
+proceed as a separate dedicated Proof-or-Stop story.
 
 ## Rollback
 

@@ -4,7 +4,7 @@ Status: revised draft after 4-host audit (Claude CLI x2, Codex CLI, agy CLI)
 
 ## 1. Problem
 
-Proofbound currently has two useful experience mechanisms, but they do not yet
+Proof-or-Stop currently has two useful experience mechanisms, but they do not yet
 form a reliable "remember before acting" runtime:
 
 - `dev_memory_*` stores and searches non-authoritative experience entries.
@@ -25,7 +25,7 @@ memory even when the right lesson exists on disk.
 
 ## 2. Target Outcome
 
-Every normal Proofbound development entrypoint must receive the latest relevant
+Every normal Proof-or-Stop development entrypoint must receive the latest relevant
 experience context before making claims or starting work:
 
 1. Live facts from `session_brief` and story state remain the source of truth.
@@ -40,7 +40,7 @@ experience context before making claims or starting work:
 Short version:
 
 > Memory must move from "available if searched" to "automatically consumed at
-> the Proofbound entrypoints where forgetting causes mistakes."
+> the Proof-or-Stop entrypoints where forgetting causes mistakes."
 
 ## 3. Non-Goals
 
@@ -185,9 +185,9 @@ Candidate blocking examples are intentionally rare:
 
 Ordinary playbooks stay advisory.
 
-`final_response_check` is advisory only. Proofbound CLI can provide a check that
+`final_response_check` is advisory only. Proof-or-Stop CLI can provide a check that
 hosts should run before making a final claim, but it cannot mechanically intercept
-an arbitrary LLM final response outside Proofbound entrypoints.
+an arbitrary LLM final response outside Proof-or-Stop entrypoints.
 
 ### 4.4 Parent And Child Milestone Model
 
@@ -458,7 +458,7 @@ Deliverables:
 - `done_prepare` / `done_closure` display active intent-totality and delivery
   playbooks.
 - Final response check projects "memory facts considered" when available.
-- Final response check is advisory because Proofbound cannot mechanically
+- Final response check is advisory because Proof-or-Stop cannot mechanically
   intercept arbitrary host final text.
 - Parent roadmap full-complete wording is checked against
   `ParentRollupResult` / current structured facts. The active intent-totality
@@ -728,7 +728,7 @@ Required proof:
 | 1M output pollutes repo/material hash | Default to temp output; project-local output requires runtime artifact registration, gitignore, cleanup, and materialHash exclusion. |
 | Multi-host writes lose rows | Use main-write-lock, compare-and-swap, or equivalent no-lost-update semantics for playbook activation and generated project-local artifacts. |
 | Old or wrong memory misleads hosts | Freshness digests, supersession preference, active playbook review, stale/deprecate lifecycle. |
-| Host bypasses Proofbound entrypoints | Wrapper/handoff guidance plus health check; cannot solve bypass outside Proofbound without operator discipline. |
+| Host bypasses Proof-or-Stop entrypoints | Wrapper/handoff guidance plus health check; cannot solve bypass outside Proof-or-Stop without operator discipline. |
 
 ## 10. Definition Of Done
 
@@ -752,17 +752,17 @@ This plan is complete only when:
 
 Operational commands:
 
-- `lattice memory_playbook_baseline_generate '{"profile":"small"}'` creates a
+- `proof-or-stop memory_playbook_baseline_generate '{"profile":"small"}'` creates a
   quick deterministic corpus; `profile:"full"` creates exactly 1,000,000
   records. Output is benchmark/runtime material only.
-- `lattice memory_playbook_baseline_verify '{"profile":"full"}'` generates and
+- `proof-or-stop memory_playbook_baseline_verify '{"profile":"full"}'` generates and
   verifies the full million-record profile when `inputDir` is omitted. It
   reports correctness thresholds, stale detection, false-surface rates, elapsed
   time, RSS, and heap before any rollout claim.
-- `lattice playbook_runtime_health` checks configured required memory classes
+- `proof-or-stop playbook_runtime_health` checks configured required memory classes
   and consumer wiring drift. It is advisory; missing memory cannot create a DONE
   blocker by itself.
-- `lattice dev_memory_finish_decision '{"decision":"captured"}'` or
+- `proof-or-stop dev_memory_finish_decision '{"decision":"captured"}'` or
   `no-reusable-lesson` / `defer-with-reason` records the end-of-work memory
   decision. It never promotes project/global memory automatically.
 

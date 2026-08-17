@@ -2,7 +2,7 @@
 
 ## Decision
 
-`lattice validate --story=<id>` may reuse a prior project-command PASS instead
+`proof-or-stop validate --story=<id>` may reuse a prior project-command PASS instead
 of spawning the same commands again. Reuse is an optimization only: any missing,
 legacy, malformed, changed, dirty, or unreadable input falls back to real
 execution and can never manufacture PASS.

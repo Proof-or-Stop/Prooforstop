@@ -1,5 +1,5 @@
 /**
- * Scope Check handler — lattice scope_check_save
+ * Scope Check handler — proof-or-stop scope_check_save
  *
  * Lets the scope agent subagent write a signed scope-check.json.
  * The _hash field allows story_review to verify integrity (prevent manual forgery).

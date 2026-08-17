@@ -21,7 +21,7 @@ import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../c
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
-import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '../init-assets.js';
+import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -382,7 +382,7 @@ try {
   }
 
   // B-38d6 CHK-002: lattice.config.json is canonical; validate.commands there
-  // must be loaded and used by lattice validate.
+  // must be loaded and used by proof-or-stop validate.
   const latticeCanonicalRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-canonical-'));
   try {
     writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
@@ -470,7 +470,7 @@ try {
     }));
     writeFileSync(join(dirtyFallbackRoot, 'report.md'), 'baseline\n');
     execFileSync('git', ['init'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed dirty fallback smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -582,7 +582,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed classified pollution smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -638,7 +638,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     mkdirSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass'), { recursive: true });
     writeFileSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
@@ -803,7 +803,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed declared e2e smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -902,7 +902,7 @@ try {
     mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(attackChainRoot, ATTACK_SOURCE), 'export const seed = 1;\n');
     execFileSync('git', ['init'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed attack-chain smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -1169,21 +1169,21 @@ try {
     }
     assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
     assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
-    assert.match(driftText, /Next action: run lattice check --apply to sync MISSING\/STALE_SAFE assets/);
-    assert.match(driftText, /Proofbound managed asset check: DRIFT/);
+    assert.match(driftText, /Next action: run proof-or-stop check --apply to sync MISSING\/STALE_SAFE assets/);
+    assert.match(driftText, /Proof-or-Stop managed asset check: DRIFT/);
 
     runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
     const cleanText = check({ profile: 'core' }) as string;
     assert.ok(cleanText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check OK should start with runtime footprint');
     assert.match(cleanText, /Next action: no managed asset drift/);
-    assert.match(cleanText, /Proofbound managed asset check: OK/);
+    assert.match(cleanText, /Proof-or-Stop managed asset check: OK/);
   } finally {
     rmSync(checkRoot, { recursive: true, force: true });
   }
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Proofbound Notes\ncustom text\n<!-- lattice:end -->\n');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- lattice:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
@@ -1203,7 +1203,7 @@ try {
       'plain check stale local edit should render runtime footprint before drift details',
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
-    assert.match(staleLocalCheckText, /Proofbound managed asset check: DRIFT/);
+    assert.match(staleLocalCheckText, /Proof-or-Stop managed asset check: DRIFT/);
     assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
@@ -1255,19 +1255,19 @@ try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
     const latticeWrapperPath = join(wrapperRoot, 'bin', 'lattice.js');
     const codexWrapperPath = join(wrapperRoot, 'bin', 'lattice-codex.js');
-    writeFileSync(latticeWrapperPath, renderLatticeBootstrapScript(packageRoot));
-    writeFileSync(codexWrapperPath, renderLatticeCodexWrapperScript());
+    writeFileSync(latticeWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
+    writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());
     const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
-    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Proofbound wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Proof-or-Stop wrapper should be CommonJS so non-JS repos do not need package.json type=module');
     assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
     assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
-    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Proofbound wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Proof-or-Stop wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 
     const latticeHelp = spawnSync(process.execPath, [latticeWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(latticeHelp.status, 0, latticeHelp.stderr || latticeHelp.stdout);
-    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Proofbound wrapper help must not emit Node module-type warnings');
+    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Proof-or-Stop wrapper help must not emit Node module-type warnings');
 
     const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
@@ -1280,7 +1280,7 @@ try {
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
   }));
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
-  execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['config', 'user.name', 'Proof-or-Stop Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   mkdirSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo'), { recursive: true });
   mkdirSync(join(tmp, '.lattice', 'runtime'), { recursive: true });
@@ -1414,7 +1414,7 @@ try {
   }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
+  // The DEV->TEST proof-or-stop validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
   // validate run must throw "Cannot enter TEST" while preserving the verifier's
@@ -1459,7 +1459,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const evidence: any = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1491,7 +1491,7 @@ try {
       const actor = { stop() { stopped = true; } };
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: lattice validate did not pass/,
+        /Cannot enter TEST: proof-or-stop validate did not pass/,
         `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
@@ -1511,7 +1511,7 @@ try {
         `${args.name}: rerun log should include "${args.reason}"`,
       );
       assert.ok(
-        !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+        !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
         `${args.name}: unsafe evidence must not log fresh skip`,
       );
     } finally {
@@ -1553,7 +1553,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const evidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1582,8 +1582,8 @@ try {
     assert.equal(after?.timestamp, evidence.timestamp, 'fresh skip path must not rewrite test-evidence timestamp');
     assert.equal(after?.output, evidence.output, 'fresh skip path must not rewrite test-evidence output');
     assert.ok(
-      logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
-      'fresh skip path must log that lattice validate was not rerun',
+      logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
+      'fresh skip path must log that proof-or-stop validate was not rerun',
     );
   } finally {
     rmSync(gateFreshRoot, { recursive: true, force: true });
@@ -1606,7 +1606,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
@@ -1623,7 +1623,7 @@ try {
   await assertUnsafePassEvidenceReruns({
     name: 'wrong-command',
     reason: 'existing validation PASS command is not',
-    mutateEvidence: evidence => { evidence.command = 'lattice validate --story=B-other --json'; },
+    mutateEvidence: evidence => { evidence.command = 'proof-or-stop validate --story=B-other --json'; },
   });
 
   await assertUnsafePassEvidenceReruns({
@@ -1774,7 +1774,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const legacyEvidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"legacy pass without coverage"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1793,7 +1793,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1801,11 +1801,11 @@ try {
     assert.equal(after?.result, 'FAIL', 'legacy PASS without verificationCoverage followed by failing validate must persist FAIL evidence');
     assert.notEqual(after?.timestamp, legacyEvidence.timestamp, 'legacy no coverage path must rewrite stale-format PASS evidence');
     assert.ok(
-      logs.some(line => line.includes('missing verificationCoverage from lattice validate')),
+      logs.some(line => line.includes('missing verificationCoverage from proof-or-stop validate')),
       'legacy no coverage path must log why the existing PASS was not consumed',
     );
     assert.ok(
-      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
       'legacy no coverage path must not log the fresh skip message',
     );
   } finally {
@@ -1846,7 +1846,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const staleEvidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"old pass"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1869,7 +1869,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'stale PASS evidence must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1881,7 +1881,7 @@ try {
       'stale rerun path must log why the existing PASS was not consumed',
     );
     assert.ok(
-      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
       'stale rerun path must not log the fresh skip message',
     );
   } finally {
@@ -1912,8 +1912,8 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
-      'runValidateGate must block TEST when lattice validate fails',
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
@@ -1945,7 +1945,7 @@ try {
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'runValidateGate must block TEST when the validation runner times out',
     );
     const evidence = store.readTestEvidence(storyId);

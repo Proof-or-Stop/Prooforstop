@@ -12,6 +12,7 @@ import {
   rmdirSync,
 } from 'fs';
 import { dirname, join } from 'path';
+import { readBrandEnv } from './brand-env.js';
 
 /**
  * B-6812 CHK-001: shared mkdir-based advisory lock primitive.
@@ -637,7 +638,7 @@ function reviewMetadataBarrierConfig(
   operation: string,
 ): { root: string; id: 'w1' | 'w2' } | null {
   if (process.env.NODE_ENV !== 'test') return null;
-  if (process.env.LATTICE_INTERNAL_REVIEW_METADATA_BARRIER !== 'enabled') return null;
+  if (readBrandEnv('INTERNAL_REVIEW_METADATA_BARRIER') !== 'enabled') return null;
   const id = operation.startsWith('review_run_start') ? 'w2'
     : operation.startsWith('agent_prompt') ? 'w1'
       : null;

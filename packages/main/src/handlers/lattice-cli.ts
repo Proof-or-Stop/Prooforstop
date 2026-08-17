@@ -3,8 +3,8 @@ import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import {
   LATTICE_CLI_VERSION,
-  LATTICE_PRODUCT_NAME,
-  formatLatticeProductLine,
+  PROOF_OR_STOP_PRODUCT_NAME,
+  formatProofOrStopProductLine,
 } from '../core/lattice-brand.js';
 import {
   buildLatticeHostInstallGuidance,
@@ -18,7 +18,7 @@ import {
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
 import {
-  LATTICE_CONFIG_FILENAME,
+  PROOF_OR_STOP_CONFIG_FILENAME,
   loadConfig,
   pickProjectConfigPath,
   resetConfigCache,
@@ -29,7 +29,7 @@ import { createQuorumPruneHandlers } from './quorum-prune.js';
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
 const LOCAL_ASSURANCE_NOTE =
-  'Local Proofbound assurance uses proof admissibility, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum. Retired server Authority modes are not active CLI runtime paths.';
+  'Local Proof-or-Stop assurance uses proof admissibility, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum. Retired server Authority modes are not active CLI runtime paths.';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -117,7 +117,10 @@ function listImmediateChildGitRoots(metadataRoot: string): string[] {
 }
 
 function configRepairCommandFor(gitRoot: string): string {
-  return `lattice config repair --set-git-root=${gitRoot} --confirm`;
+  // B-cdf6:F-041 — this string is printed TO THE USER as confirmCommand and in trailing
+  // prose, so it was actively teaching the deprecated bin name even though the command's
+  // own --help already advertises the `proof-or-stop config repair` alias.
+  return `proof-or-stop config repair --set-git-root=${gitRoot} --confirm`;
 }
 
 function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDiagnostics {
@@ -160,7 +163,7 @@ function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDia
       candidates,
       suggestedGitRoot: candidates[0],
       repairCommand: configRepairCommandFor(candidates[0]),
-      note: 'Operator suggestion only: Proofbound never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
+      note: 'Operator suggestion only: Proof-or-Stop never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
     };
   }
   return {
@@ -169,7 +172,9 @@ function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDia
     candidates,
     suggestedGitRoot: null,
     repairCommand: null,
-    note: 'Multiple immediate child git repositories were found; ambiguous layouts stay fail-closed and no repair target is chosen. Pick one explicitly: lattice config repair --set-git-root=<dir> --confirm.',
+    // B-cdf6:F-046 — hardcoded the deprecated bin while configRepairCommandFor()
+    // (fixed for F-041 in this same file) already emits the canonical form.
+    note: `Multiple immediate child git repositories were found; ambiguous layouts stay fail-closed and no repair target is chosen. Pick one explicitly: ${configRepairCommandFor('<dir>')}.`,
   };
 }
 
@@ -200,13 +205,15 @@ function buildConfigDoctor(ctx: HandlerContext) {
     {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
-      detail: 'packages/main package.json exposes only the lattice bin',
+      // B-cdf6:F-046 — this said 'only the lattice bin', which became FALSE when the
+      // rename added proof-or-stop as the primary bin alongside the retained alias.
+      detail: 'packages/main package.json exposes the proof-or-stop bin (with the lattice alias retained for compatibility)',
     },
   ];
   const ok = checks.every(check => check.ok);
   return {
     schemaVersion: 'lattice.config_doctor.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     ok,
     status: ok ? 'pass' as const : 'warn' as const,
     migration: {
@@ -227,7 +234,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
 
 function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): string {
   return [
-    `${formatLatticeProductLine()} config doctor (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} config doctor (${result.schemaVersion})`,
     `status: ${result.status}`,
     `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=lattice`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
@@ -340,21 +347,21 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const requested = typeof args.setGitRoot === 'string' ? args.setGitRoot.trim() : '';
   if (requested.length === 0) {
     throw new Error(
-      'lattice_config_repair requires an explicit --set-git-root=<relative-dir>; it never guesses a repair target. Run `lattice config doctor` first to see wrapper-root candidates.',
+      'lattice_config_repair requires an explicit --set-git-root=<relative-dir>; it never guesses a repair target. Run `proof-or-stop config doctor` first to see wrapper-root candidates.',
     );
   }
   const verifiedTarget = validateRepairGitRootTarget(metadataRoot, requested);
   const picked = pickProjectConfigPath(metadataRoot);
   if (!picked) {
     throw new Error(
-      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
+      `Cannot repair gitRoot because no existing ${PROOF_OR_STOP_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
     );
   }
   const configPath = picked.path;
   const configFilename = picked.filename;
   const base = {
     schemaVersion: 'lattice.config_repair.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     metadataRoot: canonicalFsPath(metadataRoot),
     gitRoot: verifiedTarget.relativePath,
     verifiedGitRootPath: verifiedTarget.absolutePath,
@@ -401,14 +408,14 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
     gitRootWritten,
     gitRootVerified,
     note: gitRootVerified
-      ? `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} and verifies as a git repository root. Story resolution is not claimed here; check with: lattice story_resolve '{"storyId":"B-xxx"}'`
+      ? `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} and verifies as a git repository root. Story resolution is not claimed here; check with: proof-or-stop story_resolve '{"storyId":"B-xxx"}'`
       : `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} but did not verify after reload; inspect ${configPath} manually.`,
   };
 }
 
 function renderConfigRepairText(result: ReturnType<typeof buildConfigRepair>): string {
   const lines = [
-    `${formatLatticeProductLine()} config repair (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} config repair (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mutated: ${result.mutated}`,
     `metadataRoot: ${result.metadataRoot}`,
@@ -429,7 +436,7 @@ export function buildConduitStatus(
 ) {
   return {
     schemaVersion: 'lattice.conduit_status.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     conduitAvailable: true as const,
     conduitRole: 'cli-diagnostics-and-handoff' as const,
     runnerProvisioned: false as const,
@@ -470,7 +477,7 @@ export function buildConduitStatus(
 
 function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>): string {
   const lines = [
-    `${formatLatticeProductLine()} conduit status (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} conduit status (${result.schemaVersion})`,
     `conduitAvailable: ${result.conduitAvailable}`,
     `conduitRole: ${result.conduitRole}`,
     `localWorkflowUsable: ${result.localWorkflowUsable}`,
@@ -507,17 +514,17 @@ function buildConduitExplain() {
     ...buildConduitStatus(),
     schemaVersion: 'lattice.conduit_explain.v1' as const,
     explanation: [
-      'Proofbound CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
+      'Proof-or-Stop 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
       'It is intentionally not a model runner or receipt authority. Completion assurance is local: proof admissibility, signed/offline receipt bundles, and local review quorum remain the supported paths.',
-      'Retired server Authority modes are no longer active Proofbound CLI runtime concepts. Use local Proofbound workflow commands and local assurance artifacts instead.',
+      'Retired server Authority modes are no longer active Proof-or-Stop runtime concepts. Use local Proof-or-Stop workflow commands and local assurance artifacts instead.',
     ],
   };
 }
 
 function renderConduitExplainText(result: ReturnType<typeof buildConduitExplain>): string {
   return [
-    `${formatLatticeProductLine()} conduit explain (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} conduit explain (${result.schemaVersion})`,
     ...result.explanation,
     '',
     renderConduitStatusText({ ...result, schemaVersion: 'lattice.conduit_status.v1' }),

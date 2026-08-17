@@ -322,7 +322,7 @@ When multiple methods of a module/class share one fixture, **each case must be a
 ### ❌ Do not put dispatch routing fields in input
 
 ```json
-// ❌ Wrong: scenario/method are dispatch-framework fields, lattice does not recognize them
+// ❌ Wrong: scenario/method are dispatch-framework fields, proof-or-stop does not recognize them
 { "input": { "scenario": "send_no_adapter", "method": "sendRoomMessage", "content": "Hello" } }
 
 // ✅ Correct: use a top-level fn + clean input
@@ -373,14 +373,14 @@ The handler is preferentially part of the `js.execute` compatibility path only; 
 
 When `test_auto` runs, it creates a temporary store to isolate the test data, and loads handlers:
 
-1. **Proofbound itself**: uses `createToolHandlers(testStore, root)` directly
+1. **Proof-or-Stop itself**: uses `createToolHandlers(testStore, root)` directly
 2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `lattice.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
 
 ## Browser Real-Machine Tests (browser case)
 
 ### Configuration
 
-Add a `browser` config to `lattice.config.json` (`lattice init` will auto-detect a browser project):
+Add a `browser` config to `lattice.config.json` (`proof-or-stop init` will auto-detect a browser project):
 
 ```json
 {

@@ -83,13 +83,13 @@ metadataHash
 
 `usage_sweep --since=1d --alert` 可以发现长期、高 token 消耗的 Codex/Claude desktop 会话，并给出：
 
-> Close/restart it; lattice cannot stop sessions it did not launch (advisory only, no gate).
+> Close/restart it; proof-or-stop cannot stop sessions it did not launch (advisory only, no gate).
 
 但它不会改变 Story 状态，也不会触发 convergence breaker。
 
 ### 为什么之前不明显
 
-外部 desktop/Claude 会话不一定由 Lattice 启动，且可能完全不产生 Story event。现有 breaker 主要观察：
+外部 desktop/Claude 会话不一定由 Proof-or-Stop 启动，且可能完全不产生 Story event。现有 breaker 主要观察：
 
 - Story advance；
 - gate failure；
@@ -160,7 +160,7 @@ AND storyHasNoAdvanceFor(N hours)
 - 无 Story 关联的 session 只告警，不冻结 Story；
 - 正常推进的 Story 不得被误判；
 - burn signal 不能伪造 validation、review pass 或 DONE evidence；
-- Lattice 不强制杀死外部 desktop/Claude session；
+- Proof-or-Stop 不强制杀死外部 desktop/Claude session；
 - freeze/recovery 必须写入结构化 process event；
 - 人工恢复不能绕过 review、validation、delivery 或 DONE gate。
 

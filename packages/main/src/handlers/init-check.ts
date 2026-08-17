@@ -1,5 +1,5 @@
 /**
- * Init Check handler — lattice init_check_set command shell + metadata lock.
+ * Init Check handler — proof-or-stop init_check_set command shell + metadata lock.
  *
  * The signature/gate primitives (INIT_CHECK_SALT, REQUIRED_INIT_CHECK_AGENTS,
  * normalize/match/results helpers, missingRequiredInitCheckAgents,
@@ -72,7 +72,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * init_check_set handler factory.
  *
  * Called by the lattice-review-story-init subagent (CHK-002 template); writes init-check.json.
- * The registry validates mutation authority. A registered LATTICE_AGENT is the
+ * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) is the
  * authoritative dispatched identity, so payload agent/agentId attribution
  * cannot impersonate a trusted host or a different reviewer lane.
  *
@@ -337,7 +337,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           const lines = blockers.slice(0, 8).map(({ issue }) => `  - ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`);
           return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n⚠ but high/critical issues were recorded, the INIT_CHECK gate will still block. Please fix them and rerun first:\n${lines.join('\n')}${commitHint}`;
         }
-        return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n→ You can now run lattice story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
+        return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n→ You can now run proof-or-stop story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
       });
     },
   };

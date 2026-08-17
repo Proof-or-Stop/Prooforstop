@@ -1,4 +1,4 @@
-import type { LatticeConfig } from './config.js';
+import type { ProofOrStopConfig } from './config.js';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
 import type { StoryStore } from './store.js';
@@ -160,7 +160,7 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
   // B-8db9 CRITICAL hard gate: the declared-artifact check runs AFTER fixture
   // AND material so a declared path can only RESCUE rows that would otherwise
   // fall through to unexpected_dirty_files. It must never reclassify a blocking
-  // material_source_changes / fixture_changes row — `lattice artifact_declare`
+  // material_source_changes / fixture_changes row — `proof-or-stop artifact_declare`
   // (or a hand-injected declared-artifacts.json) of a dirty source/fixture file
   // can no longer downgrade it to non-blocking declared_artifact_changes.
   if (isDeclaredArtifactPath(row, options)) {
@@ -246,7 +246,7 @@ export function classifyGitStatusRows(
  * paths like `tests/output/other.json` remain `unexpected_dirty_files`.
  */
 export function dirtyWorktreeClassifierOptionsForStory(
-  config: LatticeConfig,
+  config: ProofOrStopConfig,
   storyId: string,
   store: StoryStore,
   projectRoot?: string,
@@ -271,7 +271,7 @@ export function dirtyWorktreeClassifierOptionsForStory(
   };
 }
 
-export function dirtyWorktreeClassifierOptionsFromConfig(config: LatticeConfig, projectRoot?: string): DirtyWorktreeClassifierOptions {
+export function dirtyWorktreeClassifierOptionsFromConfig(config: ProofOrStopConfig, projectRoot?: string): DirtyWorktreeClassifierOptions {
   const sourceRoot = joinRelPath(config.scanRoot, config.rootDir || undefined);
   const packageRoot = normalizePath(config.scanRoot);
   const configFiles = [

@@ -1,10 +1,10 @@
 /**
- * Task B-3506: Shared auto-commit helper for Proofbound metadata writes
+ * Task B-3506: Shared auto-commit helper for Proof-or-Stop metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
  * (B-6326 lifecycle). All lattice CLI handlers that mutate files under the
  * configured story directory should call this AFTER a successful write so the
- * worktree-dirty gate stops blocking on Proofbound's own bookkeeping.
+ * worktree-dirty gate stops blocking on Proof-or-Stop's own bookkeeping.
  *
  * Safety contract (preMortem #1 anchor):
  *   - Path scope is derived from the configured storyDir plus `storyId` itself.
@@ -22,7 +22,7 @@
  *     an empty staged set and returns ''.
  *
  * Vocabulary (preMortem #3 anchor):
- *   - User-visible prefix is the literal `\n✓ lattice metadata auto-committed:`,
+ *   - User-visible prefix is the literal `\n✓ proof-or-stop metadata auto-committed:`,
  *     re-exported as AUTO_COMMIT_METADATA_PREFIX so callers and tests can pin it.
  *   - Coexisting non-metadata dirt is announced with the anchor word
  *     `untouched` — never `handled` / `committed` / `all clean`.
@@ -40,7 +40,7 @@ import {
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { loadConfig } from './config.js';
-import { LATTICE_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
 import { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
@@ -64,10 +64,38 @@ import {
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
  * across handlers + smoke (preMortem #3 anchor — CHK-003 / CHK-004).
  */
-export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committed:';
+export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ proof-or-stop metadata auto-committed:';
+
+/**
+ * B-cdf6:F-047 — canonical subject prefix for commits this runtime WRITES.
+ *
+ * These are new writes at commit time, not reads of stored evidence, so the
+ * corrected governing rule in docs/requirements/decisions/brand-rename-mapping.md
+ * puts them squarely in the RENAMED class: "any `lattice` that has no effect on the
+ * past evidence chain must be refactored". The surface had zero rows in that
+ * mapping table and is structurally invisible to verify-lattice-residue.mjs, whose
+ * detectors match `lattice <subcommand>` CLI-invocation syntax rather than a
+ * `lattice: <verb>` commit-message prefix — so nothing caught it until a reviewer
+ * read the story's own git log.
+ */
+export const COMMIT_SUBJECT_PREFIX = 'proof-or-stop:';
+
+/** Deprecated subject prefix, still RECOGNIZED so pre-rename history keeps parsing. */
+export const DEPRECATED_COMMIT_SUBJECT_PREFIX = 'lattice:';
+
+/**
+ * Read-both matcher for runtime-authored commit subjects. Writers emit the
+ * canonical prefix; readers must accept either, because a repository can contain
+ * commits written before this rename and those commits are exactly the past
+ * evidence the compatibility contract protects.
+ */
+export function matchesRuntimeCommitSubject(subject: string, body: string): boolean {
+  return subject === `${COMMIT_SUBJECT_PREFIX} ${body}`
+    || subject === `${DEPRECATED_COMMIT_SUBJECT_PREFIX} ${body}`;
+}
 
 /** Canonical literal path prefix the helper is allowed to stage. */
-export const AUTO_COMMIT_STORY_DIR_PREFIX = `${LATTICE_STORY_DIR}/`;
+export const AUTO_COMMIT_STORY_DIR_PREFIX = `${PROOF_OR_STOP_STORY_DIR}/`;
 
 function appendLocalCausalReceiptsBeforeCommit(args: {
   projectRoot: string;
@@ -320,7 +348,7 @@ export function commitLifecycleMetadataTransaction(args: {
       gitCwd: args.gitCwd,
       paths: changedPaths,
       verifiedHashes: new Map(changedPaths.map((path) => [path, args.verifiedHashes.get(path)!])),
-      message: `lattice: record ${args.storyId} ${args.capture.kind} metadata`,
+      message: `${COMMIT_SUBJECT_PREFIX} record ${args.storyId} ${args.capture.kind} metadata`,
       testHooks: args.testHooks,
     });
     if (!committed.ok) return rollback(committed.reason || `${args.capture.kind} immutable metadata commit failed`);
@@ -378,7 +406,7 @@ export function commitValidationReuseMetadataTransaction(args: {
       reason: args.reason,
       artifactPaths: args.closeoutArtifactPaths,
     });
-    const subject = `lattice: record ${args.storyId} ${args.reason} metadata`;
+    const subject = `${COMMIT_SUBJECT_PREFIX} record ${args.storyId} ${args.reason} metadata`;
     const committed = commitImmutableMetadataTree({
       root: args.gitCwd,
       gitCwd: args.gitCwd,
@@ -581,7 +609,7 @@ export function autoCommitStoryMetadata(
     if (!staged) return '';
 
     // 8. commit
-    const subject = `lattice: record ${storyId} ${reason} metadata`;
+    const subject = `${COMMIT_SUBJECT_PREFIX} record ${storyId} ${reason} metadata`;
     execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject], {
       cwd: gitCwd,
       encoding: 'utf-8',
@@ -612,6 +640,6 @@ export function autoCommitStoryMetadata(
       reason,
       projectRoot,
     });
-    return `\n⚠ lattice metadata auto-commit failed: ${e?.message || e}`;
+    return `\n⚠ proof-or-stop metadata auto-commit failed: ${e?.message || e}`;
   }
 }

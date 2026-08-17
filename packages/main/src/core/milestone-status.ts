@@ -795,7 +795,7 @@ export function buildMilestoneStatusReportFromCloseoutSnapshot(
 
 function missingLedgerReport(input: BuildMilestoneStatusReportInput): MilestoneStatusReport {
   const risk = 'Missing milestone ledger: milestone_status cannot infer milestone progress without milestone-ledger.json.';
-  const nextAction = `Create or restore the ProofStory milestone ledger with \`lattice milestone_ledger_set --storyId=${input.story.storyId} ...\`; milestone_status is read-only and will not create it.`;
+  const nextAction = `Create or restore the ProofStory milestone ledger with \`proof-or-stop milestone_ledger_set --storyId=${input.story.storyId} ...\`; milestone_status is read-only and will not create it.`;
   const summary = summaryProjection(input.summary);
   return {
     schemaVersion: MILESTONE_STATUS_SCHEMA_VERSION,
@@ -976,7 +976,7 @@ export function buildMilestoneCloseoutMissingReport(
     ...(expectedPath ? { expectedPath } : {}),
     diagnostic: `No ${MILESTONE_CLOSEOUT_FILENAME} snapshot exists for ${storyId}.`,
     nextAction:
-      `Run \`lattice milestone_status --storyId=${storyId}\` to inspect the live report, then complete a risk-free DONE path so Proofbound can capture ${MILESTONE_CLOSEOUT_FILENAME}.`,
+      `Run \`proof-or-stop milestone_status --storyId=${storyId}\` to inspect the live report, then complete a risk-free DONE path so Proof-or-Stop can capture ${MILESTONE_CLOSEOUT_FILENAME}.`,
   };
 }
 
@@ -1231,7 +1231,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
 }
 
 const MILESTONE_BRIEF_HINT_SUFFIX =
-  '→ Full 7-column table: add --full (or set LATTICE_BRIEF_OUTPUT=0).';
+  '→ Full 7-column table: add --full (or set PROOF_OR_STOP_BRIEF_OUTPUT=0).';
 
 /**
  * B-7c05 CHK-001: compact milestone view rendered by default.
@@ -1347,7 +1347,7 @@ export function renderChecklistDerivedLedger(
   // (plus the counts line above, which covers the whole checklist so nothing is
   // silently hidden) and the first not-started item as the next action. The full
   // grouped list (Done / In progress / Not started) is restored behind --full /
-  // LATTICE_BRIEF_OUTPUT=0.
+  // PROOF_OR_STOP_BRIEF_OUTPUT=0.
   if (opts.brief) {
     renderGroup('In progress', '⏳', groups.in_progress);
     const next = groups.pending[0];

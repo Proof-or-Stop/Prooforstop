@@ -235,7 +235,7 @@ export function checkPathDrift(
 /**
  * B-a7b0 CHK-002: the managed-asset kinds the framework itself CREATES.
  * A CLAUDE.md claim that forbids one of these (do not create / must not exist)
- * is a contradiction — the doc forbids something `lattice init` actively
+ * is a contradiction — the doc forbids something `proof-or-stop init` actively
  * generates. NON-generated kinds (excluded-path / remove-extra) describe paths
  * the framework deliberately does NOT create, so a "do not create" claim about
  * them is consistent, not contradictory.
@@ -340,7 +340,7 @@ function extractForbiddenPathClaims(mdContent: string): Set<string> {
  * B-a7b0 CHK-002: pure managed-asset contradiction check. Flags any do-not-create /
  * must-not-exist claim in mdContent whose forbidden path matches (or is an ancestor
  * directory of) the relPath of a GENERATED managed-asset definition — i.e. the doc
- * forbids something `lattice init` actually creates.
+ * forbids something `proof-or-stop init` actually creates.
  *
  * Provider-injected: managedDefs come from the caller (review-preflight passes the
  * real registry via listManagedAssetDefinitions); the check NEVER hardcodes asset

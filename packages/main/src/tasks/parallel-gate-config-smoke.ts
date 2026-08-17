@@ -19,7 +19,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolveAuditConfig, resolveParallelGate } from '../core/audit-config.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import type { ParallelGateConfig } from '../core/parallel-decomposition.js';
 
 let passed = 0;
@@ -50,8 +50,8 @@ const cleanup: string[] = [];
 function tmpProject(config: unknown): string {
   const dir = mkdtempSync(join(tmpdir(), 'parallel-gate-config-'));
   cleanup.push(dir);
-  mkdirSync(join(dir, LATTICE_DIR), { recursive: true });
-  writeFileSync(join(dir, LATTICE_DIR, 'audit-config.json'), JSON.stringify(config));
+  mkdirSync(join(dir, PROOF_OR_STOP_DIR), { recursive: true });
+  writeFileSync(join(dir, PROOF_OR_STOP_DIR, 'audit-config.json'), JSON.stringify(config));
   return dir;
 }
 function tmpEmptyProject(): string {
