@@ -253,7 +253,11 @@
           {
             "desc": "Each refused source is asserted individually rather than as one combined case, so a partial regression cannot hide",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+              "selector": "refused (forgeable): explicit-env, derived-ppid"
+            }
           }
         ],
         "adversarial": [
@@ -285,6 +289,27 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:08:42.510Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "result": "pass",
+          "note": "Each refused source is enumerated individually rather than as one combined case, so a partial regression in either cannot hide behind the other.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:08:43.892Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "01758b77da235043b5d7b3db35874194cc508e41",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:08:44.045Z"
         }
       ]
     },
