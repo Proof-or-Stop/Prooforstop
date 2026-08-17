@@ -1,5 +1,55 @@
 # Changelog
 
+## Proof-or-Stop v0.3.261 - 2026-08-17
+
+This release completes the public CLI brand migration and makes mechanical
+verification receipts honor realistic command budgets without weakening timeout
+controls.
+
+**CLI and product identity**
+
+- **Canonical `proof-or-stop` entrypoint (B-cdf6).** Added `bin/proof-or-stop.js`
+  as the primary CLI entrypoint and retained `lattice` as a deprecated compatibility
+  alias, so existing automation continues to work while new help text and examples
+  point to the canonical command.
+- **Centralized brand resolution.** Expanded the brand registry with canonical and
+  compatibility bin names, normalized usage rendering for direct script execution,
+  and a forward-readable version alias while preserving the stable version-bump
+  symbol consumed by release automation.
+- **Repository-wide surface alignment.** Updated active documentation, generated
+  agent assets, hooks, command help, templates, diagnostics, task output, and
+  brand-pinned gates. Added a migration mapping and negative verification script so
+  retired public-facing terms cannot silently return.
+- **Environment compatibility.** Added centralized branded environment lookup so
+  canonical variables are preferred while supported legacy variables remain readable
+  during migration.
+
+**Verification command reliability**
+
+- **Configured timeout inheritance (B-16df).** Pinned verification commands now
+  resolve an exact executable-and-arguments match against
+  `validate.commands[].timeoutMs`. Commands with an approved project-level budget no
+  longer fall back to the fixed 270-second evidence default.
+- **Bounded explicit overrides.** Evidence writes may provide an attributable timeout
+  override with a required reason. Runtime validation rejects invalid or excessive
+  values, caps the budget at 7,200,000 ms, and records the effective override on the
+  execution receipt.
+- **Clear timeout diagnosis.** A command killed by its wall-clock ceiling now reports
+  a dedicated timeout refusal with elapsed time and active budget instead of being
+  misreported as a missing output selector.
+- **All evidence paths covered.** Single-add, batch-add, rerun, and stale-evidence
+  refresh paths share the same resolution rule. An explicit audited override takes
+  precedence; otherwise the project configuration is inherited; unmatched commands
+  retain the safe default.
+
+**Merge integrity and verification**
+
+- Reconciled the brand migration and timeout work without dropping either side's
+  enforcement semantics.
+- `packages/main` build completed successfully.
+- The validation-timeout smoke suite passed all 45 assertions.
+- The brand negative gate detected an injected regression and accepted the clean tree.
+
 ## Proof-or-Stop v0.3.260 - 2026-08-16
 
 This release lands the cross-platform build-concurrency hardening deferred from
