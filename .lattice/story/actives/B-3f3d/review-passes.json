@@ -18473,6 +18473,33 @@
         "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
       },
       "_hash": "eb8dccb6e62bea8f668b2981a89e67ce83bb52e2233feab663bb8da07d027793"
+    },
+    {
+      "id": "B-3f3d:RP-330",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 saturation pass: review_incremental_context confirms scopeChanged=false, changedFiles=(none) since prior PASS RP-329. Re-inspected the command-policy.ts / config.ts acceptance_basis_generate REVIEW-widening diff for quality-lane concerns (dead code, type safety, I/O isolation): none found. The causal claim in the reason string is factually wrong but that is already registered under F-114 (behavior lane) / F-115 (test-coverage lane) / F-116 (docs lane), none of which are quality-lane categories, so re-raising here would be a duplicate mischaracterized by category. Proof-metadata dual-location rule not applicable this round (diff does not touch proof/receipt/provider job/run metadata authoring). No new quality-lane finding this wave.",
+      "createdAt": "2026-08-17T09:33:09.479Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-480",
+      "envelopeId": "438d32b2614c915ce3f839f6ad5a5e80bd501d64949206a7065dfdc5f16812a2",
+      "writerSessionId": "sess-28ec63e75036e727d9a4fc86aac9b756",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3f3d/background.md",
+          ".lattice/story/actives/B-3f3d/checklist.json",
+          ".lattice/story/actives/B-3f3d/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52e5141083139945a30ccf9c74432c3d93d7faecc877f27f834a00279f6aad4f"
     }
   ]
 }
