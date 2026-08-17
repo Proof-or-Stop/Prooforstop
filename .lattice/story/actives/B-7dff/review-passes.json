@@ -161,6 +161,30 @@
         "scanEscalationReason": null
       },
       "_hash": "6e66118597170a738282a24bacb2b6de729ac66a76fad643ea04e3b10ac233c1"
+    },
+    {
+      "id": "B-7dff:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 4, single commit 5b9431b04a (test-file only, resolves F-010). Old handshake shape (writes/awaitWrite param, wrote marker, Date.now()+30000 deadline, waitFor helper) fully replaced by writes/observes/awaitObservedBy params, per-self .observed marker, hrtime.bigint()-based budget. Grepped this file and whole repo for awaitWrite/waitFor/deadline/wrote-marker: zero residue; unrelated wrote hits elsewhere (doctor.ts, red-b2aa7, recovery-runner) are a pre-existing unrelated property name. No file imports/requires this test file, so no sibling depended on old shape. All 4 handshakeCommand call sites use new signature consistently. Ran file standalone 4x, 61 assertions PASS each time including new precondition assertions. No blocker.",
+      "createdAt": "2026-08-17T21:38:16.261Z",
+      "reviewRound": "2026-08-17T21:34:54.142Z",
+      "reviewRunId": "B-7dff:RR-014",
+      "envelopeId": "f94390b73e484f67b75e28c987584a3d9bc5a2b7f8b96d3a09bd73a74cfadf4c",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f92659bd025405acda611220a5e6e3bf3b4b71da55be63a05e02e77baf1367dd"
     }
   ]
 }
