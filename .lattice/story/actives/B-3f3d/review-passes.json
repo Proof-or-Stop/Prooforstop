@@ -18866,6 +18866,39 @@
         "scanEscalationReason": null
       },
       "_hash": "fe694b4475ad4c7f505026cd43a82d2381667187d67546fd1a948a98f2f8f2f7"
+    },
+    {
+      "id": "B-3f3d:RP-342",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independently reproduced F-089/F-113/F-117 receipt-path failure and RI-048 requiredLanes exclusion live this run; independently re-derived F-120 literal-string mismatch by direct code read; ran acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check live, confirmed stale/inconclusive/enforce-fail results and genuine 3x2 host/round structure. No new topology-critic finding this run; existing findings stand.",
+      "createdAt": "2026-08-17T14:38:10.840Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-543",
+      "envelopeId": "50f2ab958e4b0558823ad97084b1d3500b0718bb3c05216bdb5f380177861d55",
+      "writerSessionId": "sess-710f39e27d7dd62bbdfd2c4c5b404ede",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1f2bafc4b718062a9c7a6388fa45654d61c22c40617e3a4cbc0568d50df6f5df"
     }
   ]
 }
