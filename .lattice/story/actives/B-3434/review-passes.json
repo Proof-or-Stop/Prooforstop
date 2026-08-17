@@ -1070,6 +1070,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5486c5ce5c81f092c92e8891a7c68a4c6b39e68183526653dc2c3cf94a6d02f5"
+    },
+    {
+      "id": "B-3434:RP-042",
+      "agent": "lattice-review-concept",
+      "note": "Item 1 (accounting, by construction): reviewIncrementalContext's fullStoryDiffContext computes git diff main HEAD, a literal two-tree comparison that by definition of git diff includes every path where HEAD's blob differs from main's current blob. Verified this is exhaustive (GIT_EXEC_OPTS maxBuffer=1GB in changedFilesBetweenRenameAware, no internal truncation) and empirically checked containment: material(main..HEAD)=10 files vs material(3206ba5f636..HEAD, the actual bound prior for this lane's RP-040)=553 files (625 raw, matching the 624/625 the story already measured). The 4 files present only in the 10-file set are files unchanged since the prior verdict but absent from main (genuine new story files main does not have yet); every one of the ~547 files dropped from the 553-file set is, by definition of git diff, byte-identical between HEAD and main, i.e. not story-attributable content, already covered by main's own review. No construction lets a reviewer miss real story content this way. Not blocking. Item 2/3 (prose scan + scope-ack:4 clause check): verified line-number and symbol citations (review-incremental-context.ts:539 pre-fix, prompt-contracts.ts:469-470, 624/36-file counts at headHash 83d32ac329) are all exactly accurate, and confirmed prompt-contracts.ts is untouched by this story (git diff main HEAD -- prompt-contracts.ts is empty) and FULL_TASK_CONTEXT_LIMITS.pathsPerList stays 512. Confirmed reviewBasis stays null and validateIncrementalReviewBasis is never invoked on the full-diff path (unchanged from the pre-existing branch), and contextMode can never resolve to incremental when a FULL_ reason code is present (eligibilityReasonCodes.every(startsWith ELIGIBLE_) fails by construction). Filed 3 medium findings for residuals that are real but non-blocking: F-050 (the literal, unpinned 'main' ref this fallback diffs against genuinely moved during this review - HEAD..main went 0 to 2 to 3 live, via unrelated story B-6ab9 - so scope-ack:4's 'behind-main is 0' is a snapshot, not an invariant; currently harmless because materialOnly filters the added churn, and verifyReviewRun fails CLOSED on any resulting digest drift, not open), F-052 (the reused 'conservative direction is show everything' phrasing is not false but is the exact ambiguity that already produced one real misreading in this story's own audit trail, comparing against 'nothing at all' vs the blocked 553-file incremental basis), F-053 (the new FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS branch has zero test coverage anywhere in the repo, unlike every sibling FULL_ reason code in review-incremental-context-smoke.ts). Item 4 (merge prose line citations): verified exact - assessStoredValidationPassAdmissibility at handlers/phase-gates.ts:691, command_mismatch bare equality at core/validation-evidence-admissibility.ts:80 - both match current HEAD precisely, no drift. Item 5 (legitimacy): this is not a story granting itself passage. Verified directly in review-run.ts (~757-798) that verifyReviewRun independently recomputes reviewIncrementalContext and uses contextMode==full only to REJECT an envelope that claims incremental, never to authorize one; the cap (prompt-contracts.ts, untouched) still throws inside validateIncrementalReviewBasis for any actual incremental basis over 512 entries; and the fix replaces a hard, unconditional block (zero review context, this story could not be reviewed at all) with a full diff that is, by git-diff construction, a complete account of the story's own current content relative to main - not a laundered subset. The distinction from BUG-B16DF-BYTEPIN holds: that assertion was unsatisfiable by construction for every story; this cap is a real, working safety boundary this story legitimately exceeded, and the degradation path preserves rather than loosens it. Item 6, real output: node packages/main/dist/tasks/review-incremental-context-smoke.js -> PASS (25 logged assertions/receipts, exit 0, no reference to the new reason code). node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS (10 checks, red-b3434-blob-buffer-ceiling: PASS). node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS (20 checks including CHK-004 rationale-doc cross-reference, validation-evidence-buffer-smoke: PASS).",
+      "createdAt": "2026-08-17T16:01:17.243Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-080",
+      "envelopeId": "dcbf6fd5344cbd31e9b9e9fd3306ea26c378a89d6a2bfa07aa913626b42b0db1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/scope-contract.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c6d8b66ea1e7a7aa96a301341162c1f29bedba88677c27e5ced600273cd13e76"
     }
   ]
 }

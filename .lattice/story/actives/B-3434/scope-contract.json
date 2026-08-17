@@ -88,10 +88,26 @@
       "phase": "REVIEW",
       "headHash": "83d32ac32929fbb63650ba9c8b348959ef9455e9",
       "materialHash": "d2cc931069f2be895dbacb34509611b50eb4c6542e7326652bc69909a23a2e32"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Extension of acknowledgement 4, to close B-3434:F-049 which the quality lane filed against that acknowledgement's own change. Acknowledgement 4 covered packages/main/src/core/review-incremental-context.ts so this story could add a fallback that degrades an over-bounded incremental review basis to the full main-to-HEAD basis. The quality lane then established that the new branch and its predicate have ZERO automated test coverage anywhere in the repository - confirmed by grep and by reading the smoke's own documented cases (a) through (e), none of which exercise a resolvable prior headHash whose diff exceeds the cap. Adding a branch to the machinery that computes every story's review while leaving it untested is not an acceptable end state, and the test belongs beside the code it covers, which is this file. The change here is confined to adding a case that drives the new predicate and asserts the resulting reason code, contextMode and basis; no existing case is modified or removed. Recorded rather than folded silently into acknowledgement 4 because it names a different file and was prompted by a reviewer finding rather than by the original plan.",
+      "timestamp": "2026-08-17T16:00:08.799Z",
+      "paths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "50804e323aeb500a1554415d19fcd41c3ab255ce",
+      "materialHash": "11b340da8025970e08d9cf5cc278c8ca420fe7e14aefce186623f673b2e22eca"
     }
   ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-17T15:28:04.971Z",
+  "updatedAt": "2026-08-17T16:00:08.799Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -110,6 +126,7 @@
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     ".lattice/dev-memory/experience.jsonl": ".lattice/dev-memory/experience.jsonl",
     "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
-    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts"
   }
 }
