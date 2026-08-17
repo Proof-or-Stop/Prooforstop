@@ -2,6 +2,18 @@
 
 Phase: **PLAN**, fully prepared. Blocked by the convergence breaker (`gate-repeat 2>=2`).
 
+**Progress: CHK-001 done (committed 63b9b081d5, mechanical receipt exit=0 selectorMatched=true).**
+CHK-002..008 are hard-blocked and this was verified, not assumed:
+
+```
+dispatch failed: lattice-implementer cannot be dispatched during PLAN;
+allowed phases: DEV, TEST_CASE
+```
+
+This story is normal channel (8 items + riskSignal `Data Migration/Destructive`), so the remaining
+seven are code items an implementer subagent must write — the planner writing them would defeat the
+channel constraint. Implementer dispatch needs DEV; DEV needs the ack below. Closed loop.
+
 ## To unblock
 
 Run as **two separate commands** in an interactive terminal. A `cd … && node …` chain strips
