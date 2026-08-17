@@ -1,0 +1,25 @@
+{
+  "storyId": "B-cc10",
+  "checkedAt": "2026-08-17T10:01:02.422Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-17T09:58:06.327Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-004 userSees requires that a project with only the old config filename still loads with a deprecation notice, but does not specify what the notice says, where it appears (stderr, log line, structured warning), or whether it is machine-parseable. Contrast with CHK-006, which now requires a CHANGELOG entry naming both aliases and replacements. CHK-004 could benefit from a similarly concrete notice specification, but this is advisory — the implementer can reasonably infer an appropriate format during PLAN."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-17T10:01:02.422Z",
+      "issues": []
+    }
+  ],
+  "_hash": "dc7a1d9e42e156cd48b31dbcc2eafc9ec0ee52611a8c1ceb69ab134d0eddd834"
+}

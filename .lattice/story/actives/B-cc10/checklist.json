@@ -32,7 +32,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "proof-or-stop session_brief and story_get on an archived story both succeed against .proof-or-stop, and a historical finding signature still verifies",
+      "userSees": "proof-or-stop session_brief and story_get both succeed against .proof-or-stop, and signature verification passes on at least TWO archived stories drawn from different eras of the 326-story corpus (one earliest-era, one immediately pre-migration), named explicitly in the evidence",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -44,7 +44,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
-      "userSees": "a project containing only proof-or-stop.config.json loads correctly, and one containing only the old filename still loads with a deprecation notice",
+      "userSees": "a project containing only proof-or-stop.config.json loads correctly with no notice; a project containing only lattice.config.json still loads AND emits a single-line deprecation notice on STDERR naming both the deprecated filename and its canonical replacement (stderr so it never contaminates --json stdout, which B-cdf6 established as a hard constraint for piped consumers)",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -64,12 +64,12 @@
     {
       "id": "CHK-006",
       "title": "Remove the deprecated bin aliases and prove nothing depends on them",
-      "context": "Delete bin/lattice.js and bin/lattice-codex.js. Do this LAST, after the rest is green, because it is the one irreversible break of the multi-developer compatibility guarantee B-cdf6 established. bin/proof-or-stop-codex.js references the codex alias and verify_codex has a check for it; both need updating. Also update the package.json bin map, the pre-push hook's self-repo detection, and CLAUDE.md.",
+      "context": "Delete bin/lattice.js and bin/lattice-codex.js. Do this LAST, after the rest is green, because it is the one irreversible break of the multi-developer compatibility guarantee B-cdf6 established. bin/proof-or-stop-codex.js references the codex alias and verify_codex has a check for it; both need updating. Also update the package.json bin map, the pre-push hook's self-repo detection, and CLAUDE.md.\n\nINIT product-reviewer issue (medium): the original form of this item hard-cut the guarantee with NO transition signal, so a teammate would discover the break only when their 'lattice' invocation failed — a silent UX cliff. Amended acceptance: the removal must be ANNOUNCED, not merely performed. Required: a CHANGELOG entry naming both removed aliases and their replacements. PLAN must additionally decide between (a) a deprecation-warning phase where bin/lattice.js prints a visible notice before delegating, held one release cycle before removal, versus (b) immediate removal with the changelog as the only signal — and RECORD which was chosen and why. Option (a) is the reviewer's preference; the operator asked for removal, so the tradeoff is explicit rather than assumed.",
       "relatedDocs": [
         "CLAUDE.md",
         "docs/CLI.md"
       ],
-      "userSees": "node bin/lattice.js fails with command-not-found while proof-or-stop --version and proof-or-stop codex verify both succeed",
+      "userSees": "node bin/lattice.js fails with command-not-found while proof-or-stop --version and proof-or-stop codex verify both succeed; AND the removal is announced rather than discovered: a CHANGELOG entry names both removed aliases and the replacement commands",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -83,6 +83,18 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "node scripts/verify-lattice-residue.mjs passes and fails loudly if a bare .lattice or @lattice/core is reintroduced into packages/*/src",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Prove the state-directory move is reversible before performing it",
+      "context": "INIT-002, raised by the INIT reviewer and matching my own stated uncertainty: CHK-002's read-both resolver gives CODE-level reversibility but not DATA-move reversibility, and nothing covered aborting a partially-completed git mv of ~7574 tracked files. This item supplies the missing half. Establish and rehearse the abort procedure: confirm the move is a single atomic commit that 'git revert' undoes cleanly (git mv preserves content, so a revert restores paths without content loss), verify on a scratch clone that reverting restores story archives to a readable state, and record the exact abort command plus how to detect a half-done state.\n\nSEQUENCING, corrected per INIT-005: this item's ID is CHK-008 because checklist_add appends, so its array POSITION is last — but it is an EXECUTION PREREQUISITE of CHK-003 (the git mv), not a follow-up. An earlier draft of this context claimed it was 'sequenced before CHK-003', which contradicted its own array position and was standalone-visible in checklist.json; that claim is withdrawn. The real ordering is enforced two ways: (1) PLAN must record CHK-003 DependsOn CHK-008 in plan.md, and (2) CHK-003 must not be started until this rehearsal is done and its evidence recorded. ID order is not execution order in this story.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "a rehearsal transcript showing the state-dir move applied then reverted on a scratch clone, with story_get on an archived story succeeding both before and after the revert",
       "status": "pending",
       "startTime": null,
       "endTime": null

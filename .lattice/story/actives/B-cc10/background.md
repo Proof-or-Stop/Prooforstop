@@ -16,10 +16,18 @@ standalone string constants in core/finding-verify.ts and friends, independent o
 directory or filename, and .lattice/learning/ is explicitly materialHash-EXCLUDED. So the
 salts can stay frozen as literals while the paths move.
 
-The real weight is live state, not text: 7571 git-tracked files under .lattice/ covering 326
-story archives. brand-rename-mapping.md:124 already classified the .lattice VALUE as frozen
-precisely because "renaming in code orphans existing state" — this story overrides that
-classification deliberately, with a migration, rather than by pretending the reason was wrong.
+The real weight is live state, not text: ~7574 git-tracked files under .lattice/ covering 326
+story archives.
+
+CORRECTION (INIT-001, found by the INIT reviewer): an earlier draft of this background claimed
+this story "overrides a FROZEN classification". That was wrong, and I had inverted the row.
+brand-rename-mapping.md:124 gives the .lattice/ state-directory NAME a verdict of RENAMED
+(additive); only the literal string value `.lattice` is called frozen, in a parenthetical. The
+row's own reason — "renaming it in docs only makes docs wrong; renaming in code orphans
+existing state" — is an argument for doing the rename WITH a state migration, which is exactly
+this story. So B-cc10 COMPLETES a path the mapping doc already prescribed; it overrides nothing.
+The practical consequence of the correction is that the migration needs no special dispensation,
+but it does still need the migration itself: the "orphans existing state" hazard is real.
 
 ## Solution Tradeoffs
 
@@ -37,7 +45,20 @@ Slower and more steps, but every intermediate state is a working repo. Chosen.
 The operator explicitly said not to consider the impact on other in-flight stories, which
 removes the usual coordination constraint but not the evidence-preservation one — orphaning
 archived stories would still destroy audit history that other work depends on. B-cdf6 also
-supplied hard-won lessons worth carrying: a rename can break the CANONICAL name when a
-hardcoded deprecated literal sits inside a comparison (four such regressions, all found by
-reviewers, none by me), and one AST fingerprint had two coupled pinned copies where updating
-only one failed closed.
+supplied hard-won lessons worth carrying. First, a rename can break the CANONICAL name when a
+hardcoded deprecated literal sits inside a comparison rather than inside output: B-cdf6:F-065
+(core/lattice-dispatch.ts:1671-1677, buildRequiredCommandEnv denylist check) and F-061
+(same file 1702-1713, buildCanonicalHostRuntimeEnv allow/deny membership), F-062
+(core/done-required-timeout-budget.ts:178 regex), and F-068 (cli/activity-policy.ts:136
+entrypoint inference) were all cases where the NEW spelling silently failed while the
+deprecated one kept working. All four were found by reviewers; none by me. Second, the
+canonical AST fingerprint for cli-engine.ts had TWO coupled pinned copies
+(tasks/retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs);
+updating only one failed closed, so grep the old digest repo-wide before editing either.
+
+What B-cdf6 concretely delivered, for a standalone reader: it renamed the user-facing bin to
+proof-or-stop while keeping a deprecated `lattice` alias, added an additive read-both env
+resolver (core/brand-env.ts) so both LATTICE_* and PROOF_OR_STOP_* spellings resolve, renamed
+user-visible docs/help/diagnostics, and added a three-check brand residue gate. It closed with
+16/16 DONE closure checks and 71 findings resolved. It deliberately left the six identities
+this story now retires.

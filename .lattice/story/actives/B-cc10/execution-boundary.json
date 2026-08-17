@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cc10",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git ls-files",
+    "git mv",
+    "git revert",
+    "git status",
+    "node bin/proof-or-stop.js checklist_update",
+    "node bin/proof-or-stop.js codex verify",
+    "node bin/proof-or-stop.js done_prepare",
+    "node bin/proof-or-stop.js finding_add",
+    "node bin/proof-or-stop.js finding_resolve",
+    "node bin/proof-or-stop.js session_brief",
+    "node bin/proof-or-stop.js story_advance",
+    "node bin/proof-or-stop.js story_get",
+    "node bin/proof-or-stop.js validate",
+    "node bin/proof-or-stop.js verification_evidence_add",
+    "node scripts/verify-entrypoints.mjs",
+    "node scripts/verify-lattice-residue.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm test",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm",
+    "npx tsc",
+    "ripgrep"
+  ],
+  "allowedPaths": [],
+  "excludedCommands": [
+    "git clean -fdx",
+    "git filter-branch",
+    "git push",
+    "git rebase -i",
+    "git reset --hard",
+    "npm publish",
+    "proof-or-stop release_approve_push",
+    "rm -rf .lattice",
+    "rm -rf .proof-or-stop"
+  ],
+  "excludedTools": [
+    "npm registry publish",
+    "remote publish tooling"
+  ],
+  "excludedPaths": [],
+  "confirmedBy": "qipan",
+  "createdAt": "2026-08-17T09:56:23.016Z",
+  "updatedAt": "2026-08-17T09:56:23.016Z",
+  "_hash": "556b28c3495301b3e6b9ec5102f8a61be14d5c2a07c0646c6f297a30feb079f2"
+}
