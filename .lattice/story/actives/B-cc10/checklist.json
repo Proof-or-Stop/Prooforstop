@@ -223,10 +223,45 @@
         "CLAUDE.md",
         "docs/CLI.md"
       ],
-      "userSees": "node bin/lattice.js fails with command-not-found while proof-or-stop --version and proof-or-stop codex verify both succeed; AND the removal is announced rather than discovered: a CHANGELOG entry names both removed aliases and the replacement commands",
+      "userSees": "`node bin/lattice.js` errors with \"Cannot find module\", `node bin/proof-or-stop.js --version` prints \"Proof-or-Stop 0.3.x\", and CHANGELOG.md contains both \"bin/lattice.js\" and \"bin/lattice-codex.js\"",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "bin/lattice.js",
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node bin/proof-or-stop.js --version prints the version and proof-or-stop codex verify passes after the aliases are gone",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/lattice.js exits non-zero with a command-not-found style error rather than a silent no-op",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "CHANGELOG.md names BOTH removed aliases and their replacements, so the break is announced rather than discovered",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
