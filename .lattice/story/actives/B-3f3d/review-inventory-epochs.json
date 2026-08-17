@@ -4529,7 +4529,7 @@
       "reviewRound": "2026-08-16T10:48:07.896Z",
       "state": "OPEN",
       "begunAt": "2026-08-17T08:23:30.332Z",
-      "updatedAt": "2026-08-17T08:23:30.332Z",
+      "updatedAt": "2026-08-17T09:31:07.618Z",
       "cutoff": {
         "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
         "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
@@ -4547,9 +4547,81 @@
       ],
       "initialRunSequenceBoundary": 463,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-17T08:23:30.332Z",
+          "completedAt": "2026-08-17T09:31:07.618Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-465",
+              "terminal": "pass",
+              "hostIdentity": "f7e2d71751fa11194b0faa7c873b2cd6da4f75384bd612959a79b4cb682145d3",
+              "promptIdentity": "0cd3884ea1a4986d658f4240a1f216f57a2ce38d844b96899c707709b0753993",
+              "evidenceIds": [
+                "B-3f3d:RP-328"
+              ],
+              "coverageDigest": "95e57e2d55c6480d4d812827acd8d610101abac39d27db5a8b24276f00d2e5da"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-471",
+              "terminal": "pass",
+              "hostIdentity": "7b7da09af3816bf3237944080cf4f3775cf4c0f4d2c4144ca056626c1a191bde",
+              "promptIdentity": "6de55e37769c0ddbcf27864dd02021ba9548cde20c3f129136884f69096caef7",
+              "evidenceIds": [
+                "B-3f3d:RP-329"
+              ],
+              "coverageDigest": "1e7465c4e1957431a68de16b6730768f7ebd48f30532548ea39452c57a3881a5"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-472",
+              "terminal": "finding",
+              "hostIdentity": "815d8e0f7dc68426929e0e85fe86796a4c4da372a7522a10565cbac8494011e9",
+              "promptIdentity": "18ef8368a56f93621ef07ef20db5c254bb7f99ac108161d5870d7d7bfe241dc9",
+              "evidenceIds": [
+                "B-3f3d:F-115"
+              ],
+              "coverageDigest": "d330aa05fe711c136d4e4825f14c8f550722f225f89bb3a5e0279d789642d148"
+            },
+            {
+              "lane": "lattice-review-behavior",
+              "reviewRunId": "B-3f3d:RR-467",
+              "terminal": "finding",
+              "hostIdentity": "f7e2d71751fa11194b0faa7c873b2cd6da4f75384bd612959a79b4cb682145d3",
+              "promptIdentity": "faf902ca6627e1a95dfc7783a3125d89e1f7d4bc8b934e750ca2138cdabe32b0",
+              "evidenceIds": [
+                "B-3f3d:F-114"
+              ],
+              "coverageDigest": "0de482c847b93c6212459d6a97a32f9b8497455d0b4e69c1037a9856018d8cef"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-475",
+              "terminal": "finding",
+              "hostIdentity": "a937f7c0993020ada4a5968292142fe2e0dcca1be35d248ba19beaced080f079",
+              "promptIdentity": "0c977422f429048a24f069dcbefc21414bf2668ada3fd5c63a5c2b61f4dbe5d4",
+              "evidenceIds": [
+                "B-3f3d:F-116"
+              ],
+              "coverageDigest": "a8353fba990d82e273495579b8dadf7b83ed6a14e814b94f0949bfa23cbb22f6"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-review-widening-comment-overclaim",
+            "lifecycle-readiness-doc-drift-test-phase-row"
+          ],
+          "verifiedFindingSetDigest": "29ce4f7d26ec4543a9ff52b53b7674480d2474db8895d4b45647e5417d92178b",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "153d49773a471426ede9dea8188982264f6648fe0ac084e4ad2d3605a68182f9",
+          "saturated": false,
+          "nextRunSequenceBoundary": 478
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "4649e7b6901bbd2af5d60491bca8aa5e5ce3393a5915da82342bf629638c5d32"
+      "_hash": "a353720b5c5d6032d5391e00bcece22ecbe0c3a6923319e93a60a85266209751"
     }
   ],
   "receipts": [
@@ -6690,6 +6762,49 @@
       ],
       "createdAt": "2026-08-17T04:09:31.235Z",
       "_hash": "e2d9f5d1c1f07a1fc9e5ae9fb44b18cc8765bc185522891cf8f08805e13973c7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-048:CRIT-01",
+      "epochId": "B-3f3d:RI-048",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
+        "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
+        "storyFilesHash": "7e57d2d76a483ea71cb42654325626a9115efab13cd585b9bd9c764251258c6b"
+      },
+      "aggregateFindingSetDigest": "29ce4f7d26ec4543a9ff52b53b7674480d2474db8895d4b45647e5417d92178b",
+      "requiredLaneCoverageDigest": "d86f75ba8e57853c31a8509ff6bd8d0bde2243b72320c9892da5098b31cff97c",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-478",
+      "terminalEvidenceIds": [
+        "B-3f3d:F-117"
+      ],
+      "readEvidenceDigest": "7e783e0314db738ade4d01964b8c2d62f42abe1d05ce02a75e3ddd51979bb4c1",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-114",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-review-widening-comment-overclaim",
+          "reason": "Independently reproduced live on current HEAD: acceptance_basis_generate widening to REVIEW writes phaseBasis=plan, but currentTopologyReceiptStateForContext prefers pre_review_check.json when present. topology_critic_receipt_check still returns REJECTED AT_TOPOLOGY_CRITIC_CONTEXT_INVALID after a fresh acceptance_basis_generate run at commit 783dc6105e; acceptance_basis reports headHash=783dc6105e verified complete while the actual gate consumer still fails with identical diagnostics on current HEAD."
+        },
+        {
+          "findingId": "B-3f3d:F-115",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-review-widening-comment-overclaim",
+          "reason": "Same root defect as F-114, commit 783dc6105e command-policy.ts and config.ts REVIEW widening: zero verificationIntent and zero regression test exercise mid-REVIEW basis regeneration. Independently corroborated by validate reporting current-verification-coverage-incomplete and untrusted-lineage-path for command-policy.ts, config.ts, review-inventory-epoch.ts, review-inventory.ts."
+        },
+        {
+          "findingId": "B-3f3d:F-116",
+          "disposition": "verified_family",
+          "familyKey": "lifecycle-readiness-doc-drift-test-phase-row",
+          "reason": "Independently confirmed by reading lifecycle-readiness.ts buildReviewTargetRows and buildReviewGateRows: no TEST-phase-specific branch emits a bare story_advance DEV command; reviewRemediationCommand is used uniformly across REVIEW, TEST, DONE targets, and canPassReviewGuard structurally prevents reaching TEST with an open blocking finding, making the documented smoke row both inaccurate and likely unreachable as specified."
+        }
+      ],
+      "createdAt": "2026-08-17T09:30:03.057Z",
+      "_hash": "0f46212d86b049e5c4a35728af18c1dbd7addf5078d78ea92f6d396d99b673dc"
     }
   ]
 }
