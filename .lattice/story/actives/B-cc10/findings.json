@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-cc10:F-001",
+      "desc": "CHK-002 correctly single-sourced production code (bare '.lattice' now only at brand-paths.ts:72/:78, verified), but 52 files under packages/main/src/tasks still hardcode '.lattice' when BUILDING test fixtures — roughly 180 occurrences, e.g. deprecated-gc-smoke.ts:39 mkdirSync(join(tmp,'.lattice')) then resolveAuditConfig(tmp). These are not cosmetic: the fixture WRITES the deprecated dir while production code READS via the resolver, so the moment CHK-003 flips PROOF_OR_STOP_STATE_DIR to '.proof-or-stop' the fixture and the reader disagree and these smokes fail. I verified the hazard fix works by simulating the rename (flipping the constant made isStoryMetadataPath return true for BOTH dirs, so archives stay excluded from storyFilesHash) — that part is sound. This finding is about the fixture-side gap the simulation did not exercise, since I reverted before running the suite. CHK-003 must either route fixture construction through STATE_DIR_NAMES/the resolver, or explicitly accept that these smokes get updated in the same commit as the move. Raising as high because discovering it mid-move on 7580 files is exactly the interruption CHK-008's abort path exists for.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-17T11:20:30.125Z",
+      "reviewRound": "",
+      "_hash": "93a51fccedf99cbfaead60a7e2cd69c98d34e04d675d6a8c3e2bcb1de3d050a9",
+      "files": [
+        "packages/main/src/tasks/deprecated-gc-smoke.ts",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|correctly-single-sourced",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
