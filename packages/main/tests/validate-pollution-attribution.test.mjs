@@ -133,32 +133,75 @@ function syncDir(name) {
 }
 
 /**
- * A command whose overlap with its peers is established by a HANDSHAKE, not by
- * sleeping: it announces its start, waits for every peer to announce theirs,
- * and only then writes (or, for a bystander, waits for the write to land before
- * exiting). Both observation windows therefore provably contain the write on
- * any machine at any load — a timing-based fixture would be the wrong thing to
- * hang a gate regression on. A bounded deadline turns a scheduling failure into
- * a loud non-zero exit instead of a hang.
+ * Per-command ceiling for every handshake probe. The in-script give-up budget
+ * below is deliberately LARGER than this: see {@link handshakeCommand}.
  */
-function handshakeCommand({ syncDir: dir, self, peers, writes = null, awaitWrite = false }) {
+const HANDSHAKE_COMMAND_TIMEOUT_MS = 60_000;
+/**
+ * The in-script give-up budget. Strictly greater than the per-command ceiling
+ * the framework itself enforces, so on a host that cannot schedule the two
+ * probes together the FRAMEWORK's kill (exit 124, `timedOut: true`) always
+ * fires first. That matters: an in-script budget that expires FIRST ends one
+ * probe early, which silently turns the ambiguous-attribution shape this file
+ * exists to prove into an exclusive one — a false negative dressed up as a
+ * regression. This budget therefore only guards against a script that somehow
+ * outlives its parent, and can never decide the attribution shape.
+ */
+const HANDSHAKE_BUDGET_MS = 90_000;
+
+/**
+ * A command whose overlap with its peers is established by a HANDSHAKE, not by
+ * sleeping. What has to be ordered is not the two child processes but the FOUR
+ * git-status samples the parent takes around them (`readGitStatus` before the
+ * spawn, and again on 'close', in core/validation-executor.ts). The handshake
+ * pins all four to observed facts rather than to timing:
+ *
+ *   before-samples < the write — each probe's before-sample is taken by the
+ *     parent BEFORE that probe is spawned, and the writer does not write until
+ *     every peer has announced its start, which only a spawned peer can do. So
+ *     no before-sample can contain the row.
+ *   the write < both after-samples — the bystander does not exit until it has
+ *     stat'd the writer's REAL file (not a proxy marker) in the very directory
+ *     git scans, and then publishes a `<self>.observed` receipt; the writer does
+ *     not exit until it sees that receipt. Both 'close' events, and therefore
+ *     both after-samples, are gated on one confirmed on-disk observation.
+ *
+ * Nothing here is timing-based, and no branch of it can end a probe early
+ * enough to shrink a window: the only way out of a wait is the awaited fact or
+ * a loud non-zero exit.
+ *
+ * `writes` makes this the writer; `observes` (an absolute path) makes it the
+ * bystander that must witness that file; `awaitObservedBy` is the peer whose
+ * `.observed` receipt the writer waits for before exiting.
+ */
+function handshakeCommand({ syncDir: dir, self, peers, writes = null, observes = null, awaitObservedBy = null }) {
   const script = [
     "const fs=require('fs');const path=require('path');",
     `const sync=${JSON.stringify(dir)};`,
+    // Monotonic, so a wall-clock jump (NTP step, suspend/resume) cannot expire
+    // the budget out from under a probe that is waiting correctly.
+    'const startNs=process.hrtime.bigint();',
+    'const elapsedMs=()=>Number((process.hrtime.bigint()-startNs)/1000000n);',
     'const idle=(ms)=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);',
-    `fs.writeFileSync(path.join(sync,${JSON.stringify(`${self}.start`)}),'1');`,
-    'const deadline=Date.now()+30000;',
-    'const waitFor=(name)=>{while(!fs.existsSync(path.join(sync,name))){if(Date.now()>deadline){console.error("handshake timeout waiting for "+name);process.exit(3);}idle(5);}};',
-    `for (const peer of ${JSON.stringify(peers)}) waitFor(peer + '.start');`,
-    writes ? `fs.writeFileSync(${JSON.stringify(writes)},'oops\\n');fs.writeFileSync(path.join(sync,'wrote'),'1');` : '',
-    awaitWrite ? "waitFor('wrote');" : '',
+    `const budgetMs=${HANDSHAKE_BUDGET_MS};`,
+    'const awaitFact=(label,holds)=>{while(!holds()){if(elapsedMs()>budgetMs){console.error("handshake timeout waiting for "+label);process.exit(3);}idle(5);}};',
+    'const marker=(name)=>path.join(sync,name);',
+    `fs.writeFileSync(marker(${JSON.stringify(`${self}.start`)}),'1');`,
+    `for (const peer of ${JSON.stringify(peers)}) awaitFact(peer+'.start',()=>fs.existsSync(marker(peer+'.start')));`,
+    writes ? `fs.writeFileSync(${JSON.stringify(writes)},'oops\\n');` : '',
+    observes
+      ? `awaitFact(${JSON.stringify(`${observes} on disk`)},()=>fs.existsSync(${JSON.stringify(observes)}));fs.writeFileSync(marker(${JSON.stringify(`${self}.observed`)}),'1');`
+      : '',
+    awaitObservedBy
+      ? `awaitFact(${JSON.stringify(`${awaitObservedBy}.observed`)},()=>fs.existsSync(marker(${JSON.stringify(`${awaitObservedBy}.observed`)})));`
+      : '',
     'process.exit(0);',
   ].join('');
   return {
     label: self,
     command: process.execPath,
     args: ['-e', script],
-    timeoutMs: 60_000,
+    timeoutMs: HANDSHAKE_COMMAND_TIMEOUT_MS,
     resources: [REPO_SHARED],
   };
 }
@@ -173,14 +216,20 @@ function runStoryValidateFixture(name, { dirty }) {
   const root = gitFixture(name);
   const sync = syncDir(name);
   const storyId = 'B-f006';
+  const accidental = join(root, 'accidental.txt');
   const commands = [
     handshakeCommand({
       syncDir: sync,
       self: 'writer',
       peers: ['bystander'],
-      ...(dirty ? { writes: join(root, 'accidental.txt') } : {}),
+      ...(dirty ? { writes: accidental, awaitObservedBy: 'bystander' } : {}),
     }),
-    handshakeCommand({ syncDir: sync, self: 'bystander', peers: ['writer'], awaitWrite: dirty }),
+    handshakeCommand({
+      syncDir: sync,
+      self: 'bystander',
+      peers: ['writer'],
+      ...(dirty ? { observes: accidental } : {}),
+    }),
   ];
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
   writeFileSync(join(root, '.gitignore'), '.lattice/activity.jsonl\n.lattice/locks/\n');
@@ -244,7 +293,7 @@ function runStoryValidateFixture(name, { dirty }) {
     `evidence persistence failed, so this fixture proves nothing about the wrap:\n${transcript}`);
   const evidencePath = join(root, `.lattice/story/actives/${storyId}/test-evidence.json`);
   assert.ok(existsSync(evidencePath), `handler persisted no test-evidence.json:\n${transcript}`);
-  return { root, handler, evidence: JSON.parse(readFileSync(evidencePath, 'utf8')), transcript };
+  return { root, sync, handler, evidence: JSON.parse(readFileSync(evidencePath, 'utf8')), transcript };
 }
 
 try {
@@ -452,6 +501,20 @@ try {
     const dirty = runStoryValidateFixture('f006-dirty', { dirty: true });
     const evidence = dirty.evidence;
 
+    // FIXTURE PRECONDITION, checked BEFORE the attribution shape. The assertion
+    // below only means "the handler dropped the field" if the two observation
+    // windows really did both contain the row; a fixture whose overlap silently
+    // failed to happen would otherwise report a false regression against
+    // verifier.ts. The bystander publishes `bystander.observed` only after it
+    // has stat'd the writer's file itself, and the writer does not exit until it
+    // sees that receipt, so this pair of checks IS the overlap.
+    ok('the bystander witnessed the writer\'s file on disk before either command exited',
+      existsSync(join(dirty.sync, 'bystander.observed')));
+    ok('and both handshake commands completed on their own terms, so neither window was cut short',
+      Array.isArray(dirty.handler?.commands)
+      && dirty.handler.commands.length === 2
+      && dirty.handler.commands.every((command) => command.code === 0 && !command.timedOut));
+
     ok('the plan-level record survives the handler wrap and reaches the caller',
       Boolean(dirty.handler?.concurrentWorktreePollution));
     assert.deepEqual(dirty.handler.concurrentWorktreePollution.paths, ['accidental.txt']);
@@ -493,11 +556,12 @@ try {
     // ValidationResult field, not just `concurrentWorktreePollution`.
     const probeRoot = gitFixture('f006-plan-keys');
     const sync = syncDir('f006-plan-keys');
+    const probeAccidental = join(probeRoot, 'accidental.txt');
     const planResult = await executeValidationPlan({
       provider: 'b7dff-f006-plan-keys',
       commands: [
-        handshakeCommand({ syncDir: sync, self: 'writer', peers: ['bystander'], writes: join(probeRoot, 'accidental.txt') }),
-        handshakeCommand({ syncDir: sync, self: 'bystander', peers: ['writer'], awaitWrite: true }),
+        handshakeCommand({ syncDir: sync, self: 'writer', peers: ['bystander'], writes: probeAccidental, awaitObservedBy: 'bystander' }),
+        handshakeCommand({ syncDir: sync, self: 'bystander', peers: ['writer'], observes: probeAccidental }),
       ],
       // A headSha is supplied so the OPTIONAL keys of ValidationResult are in the
       // compared set too; a key the plan never emits cannot be proven carried.
