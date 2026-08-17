@@ -74,6 +74,42 @@
         "scanEscalationReason": null
       },
       "_hash": "e1941f70116d5f592fd2b4525f987c36173fe7ae7c710ea3383699e3033dc492"
+    },
+    {
+      "id": "B-7dff:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-review. Verified round-1 F-004 and F-005 are REAL fixes, not cosmetic: F-004 replaced the soft-skip git-diff-vs-main check with a direct source-text read that matches the updated docstring exactly and passes (46/46 assertions); F-005 collapsed the duplicated exclusiveByDefault derivation into one resolver, consumed correctly, old wrapper kept as a genuinely still-used back-compat shim. Reviewed new-since-round-1 material end to end: F-003 concurrency fix is fully wired (verifier.ts -> validation-evidence-reuse.ts -> validation-executor.ts) with no dead exports; validate-pollution-attribution.test.mjs (46/46 assertions, real git fixtures, 3 negative controls) verified by direct run; validate-parallel-benchmark.ts is honestly on-demand/not gate-enforced as documented; lattice.config.json/full-suite-runner.ts timeout raises match measured-duration rationale and the printed classification (107/97/10) matches an independent node count. No dead code, no as any, no empty catch blocks in the diff. I/O-shell-isolation and proof/receipt-metadata checks are N/A (no shells/ui.ts or job/run.metadata touched). No blocking or non-blocking finding this round.",
+      "createdAt": "2026-08-17T20:07:05.215Z",
+      "reviewRound": "2026-08-17T20:00:14.533Z",
+      "reviewRunId": "B-7dff:RR-007",
+      "envelopeId": "e016b0cb25b21ab0041976294e70372d6fb61336a3986725cfc51c1c29929edf",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9172546417f71fb28c6133c47d4f6f953c79db03a61cf42153d50977b872dd1b"
     }
   ]
 }
