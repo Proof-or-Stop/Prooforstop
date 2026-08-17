@@ -127,9 +127,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "userSees": "npm run test:legacy completes with the same pass count as before the change, and no test sets LATTICE_SESSION_ID to establish a signing identity.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T16:53:58.006Z",
       "verificationIntent": {
         "happy": [
           {
@@ -217,7 +217,14 @@
           "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
           "timestamp": "2026-08-17T16:53:49.916Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "8cd7578f893c3e51445541adf389b9af45fec55edacb2630b9266c6d74136e96",
+        "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
+        "headHash": "3a151e115b4ff2bd5a10bcfd9bfce3fbaa3e56ff",
+        "attestedAt": "2026-08-17T16:53:58.199Z",
+        "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22"
+      }
     },
     {
       "id": "CHK-003",
