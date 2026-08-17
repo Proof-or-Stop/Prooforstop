@@ -71,18 +71,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "0432bde03aac772d0e4b96564f6630dcd5a6e55aabc680a6e8c29db8ec95090a",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Vzc7vu/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "a77ca941c999832b22267eac56a701d956ba8e60b62dcc719e1b076ce6b0b13d",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Vx3Tx0/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:40:48.822Z"
+            "executedAt": "2026-08-17T13:51:30.106Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -90,18 +90,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "00fcd632c77ecc5c4f5ac9b36382edbb59ad905c0aafdefc7a817048a74ed418",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-nfOyQo/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "42c9bc82b6f1c6b6a377d050b6fa0b99730bf37ff0dffd64af891b64454798ea",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-7163sf/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:40:52.150Z"
+            "executedAt": "2026-08-17T13:51:33.934Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -109,18 +109,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "bec090c2d31f7af1a312638b70dd663ac153f1746cf00d993bf99fad77aa5871",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-z9x3eo/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "81da3eeeeee562fd218857ccf8df57973e1e0c11f36c2e8a09cbf19ed0549748",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-CQFQ65/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:40:55.707Z"
+            "executedAt": "2026-08-17T13:51:38.327Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -128,18 +128,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "7bb9b369c4113b3ce5688ba11ab20ec1f5130f7dfbd1e48e137ad3cf05e997eb",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-uSkvUw/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "e1b595d52130ba10c2e37b1a935acbf2a71db824eeb0f020955b750d589f8ffa",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-OBgsqi/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:40:59.580Z"
+            "executedAt": "2026-08-17T13:51:42.129Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         }
       ]
     },
@@ -222,18 +222,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "7b82d30739a2f2c0e895e7892ad4e97d7a9a13870dc57b1266da2c6450f37401",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-vRmOla/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "578384a86480d5ac687e531d6ef2202e45b5ae020a23bfca553d8a8528c748f8",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-IehMYJ/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:03.299Z"
+            "executedAt": "2026-08-17T13:51:46.423Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -241,18 +241,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "3e4b1a7c7831d2e3597e5d4497ca1767af1433eac06f3a56f1cfaf96a41aa72a",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-m8ZGAo/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "354957806e0f370a2c90d518ecc32f2ea0099780fabf8c48e047b9860c2705ce",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-1Sc1Ft/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:06.750Z"
+            "executedAt": "2026-08-17T13:51:53.630Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -260,18 +260,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "9b41c8a2ca95aafa9886023a8dd82ee85d20dbed5354acc7b1639a5a130d6003",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-tY6486/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "0acd2b9e20a6e4b394c76748c1580121ab913c594ea7658bcf66ab69db3eff14",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Dj81mD/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:10.214Z"
+            "executedAt": "2026-08-17T13:51:59.270Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -279,18 +279,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "3cde6e65c792922d1af75be85e96090b794e839b01bf481858b49de490a96863",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Ekdsqi/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "6bcef572592c551ce46b9c3bf48c5a4596de0f58e61397c2c30c905494e98c48",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Ba4F3f/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:13.616Z"
+            "executedAt": "2026-08-17T13:52:04.860Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -298,18 +298,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "425bdef9b51d68ebe1f09250aed67efa7c277b2ae3c020ea3e5eeefa8b5a2a97",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-Fd3Tj5/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "d01725bc31369f508dcedf20fa793e522d9b9bc0ba81d57ad755078d22bfe41b",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-8LXUeC/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:17.016Z"
+            "executedAt": "2026-08-17T13:52:10.307Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         }
       ]
     },
@@ -384,18 +384,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "a0401dda12b3ad918b55aa9908c8abe01d340419f572e993cd58b25361e4b4f3",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-UOrriK/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "d139eb4f65c87b115aec75b1466bf3d02676494f2355145cdf91dc2e6e1cc192",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-TFs6o1/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:20.561Z"
+            "executedAt": "2026-08-17T13:52:14.166Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -403,18 +403,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "5be32cf24e6ebe925a4a5a8df982abfe9e3198deda1beb25777440e266d7cb7b",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-IRwOUg/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "6d836220eb7968e5de86721d7fe7c01747b140391033051e5cb3d0bb1a7f31fd",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-wzQ2GY/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:24.174Z"
+            "executedAt": "2026-08-17T13:52:18.086Z"
           },
-          "timestamp": "2026-08-17T13:44:37.911Z"
+          "timestamp": "2026-08-17T13:55:58.661Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -422,18 +422,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "ada823bc1196102dbb6d3ac5170c5d326b79b664e85888b75babb48e5f85da45",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-PD5r5s/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "c72ffb1d671ca5e5abeb18e1ba13592395810a4df15b6f2c834ddc46382685de",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-TU2t4F/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:27.509Z"
+            "executedAt": "2026-08-17T13:52:21.943Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -441,18 +441,18 @@
           "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "566a82b066e55d4db831fdf78539a7e3694eac19e15a72c71ba87af5eb701506",
-            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-in48mN/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "outputDigest": "a04fe9d20255de9ce321d720a02f8fec8d4820261696a2eda8bc58acead0b3ee",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33562624 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/b3434-silent-hook-RZvSOF/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:30.940Z"
+            "executedAt": "2026-08-17T13:52:25.707Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         }
       ]
     },
@@ -537,18 +537,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:41:50.206Z"
+            "executedAt": "2026-08-17T13:52:51.886Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -556,18 +556,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:42:08.812Z"
+            "executedAt": "2026-08-17T13:53:15.280Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -575,18 +575,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:42:27.586Z"
+            "executedAt": "2026-08-17T13:53:35.565Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -594,18 +594,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:42:46.744Z"
+            "executedAt": "2026-08-17T13:53:54.301Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -613,18 +613,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:43:06.140Z"
+            "executedAt": "2026-08-17T13:54:12.902Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         }
       ]
     },
@@ -722,18 +722,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:43:25.329Z"
+            "executedAt": "2026-08-17T13:54:31.725Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -752,18 +752,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:43:44.346Z"
+            "executedAt": "2026-08-17T13:54:53.581Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -771,18 +771,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:44:02.197Z"
+            "executedAt": "2026-08-17T13:55:15.245Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -790,18 +790,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:44:20.057Z"
+            "executedAt": "2026-08-17T13:55:36.657Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -809,18 +809,18 @@
           "command": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
           "result": "pass",
           "note": "Bound to the committed regression and smoke landed by this story; the selector is a stable assertion sentence with no count in it, because a pinned selector is immutable once bound and a count-bearing one is stranded by the next fixture change.",
-          "headHash": "7c29cf02bd3561eca677e6b1e0d57a2df7b62db0",
-          "materialHash": "6caab4e4de02c38bc3dd418191e6008bf9433d3ec0e5e60c9305256d51e07a38",
-          "storyFilesHash": "169fb72e99918b9a495e4856e2a45db4758a224303830335e814dd11444024d2",
+          "headHash": "3206ba5f6360704929f0ce7751ed165aa0092415",
+          "materialHash": "4f4162639c59517ae8b3cc502a35fd9cf8f5f3951818476e46f0b81b37f8aa66",
+          "storyFilesHash": "703c50aea0f73682661b36eaa5e77aa3d99d81f21bea408b4506ff90b7ed39d2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "47bbcf3e6a409ccbb4fe6a3768385a2cabf36fd8269e28f5354688d61dc35703",
             "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520038 state=within_budget\n✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands\n    innerBytes=19549963 unboundedFile=38878838 boundedFile=19617036\n✓ oversized realistic artifact is bounded with visible markers and JSON contract intact\n    fileBytes=148987 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325598\n    unknown field: fileBytes=939 disposition=verdict_only\n    key name: fileBytes=939 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1109 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457735 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029894 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500452 fileBytes=31500452 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489880 disposition=refused\n✓ the size gate sees the final record, hash fields included, and one computation both gates and writes\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from\n    fileBytes=1107 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676838 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T13:44:37.900Z"
+            "executedAt": "2026-08-17T13:55:58.645Z"
           },
-          "timestamp": "2026-08-17T13:44:37.912Z"
+          "timestamp": "2026-08-17T13:55:58.662Z"
         }
       ]
     }
