@@ -938,7 +938,11 @@
           {
             "desc": "The move is a single commit: git revert <sha> alone restores the pre-move layout with no manual fixup",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-migration-contract.mjs",
+              "selector": "moveIsPureRenameCommit=true"
+            }
           }
         ]
       },
@@ -976,6 +980,27 @@
           "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb",
           "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
           "timestamp": "2026-08-17T17:31:50.444Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-migration-contract.mjs",
+          "command": "node scripts/verify-migration-contract.mjs",
+          "result": "pass",
+          "note": "The state-dir move is a single commit (ec7f315e) of 7611 files with 0 insertions and 0 deletions, i.e. pure renames, so one git revert restores the pre-move layout with no manual fixup. Looked up by commit subject rather than path filter, because a path filter on the canonical dir misses it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f2073c36cb613695a51b3370106dabb029ffa6f2ca9e2461cf641855c30df6fd",
+            "outputTail": "storyFilesHashMentions=2\nok contract doc answers the storyFilesHash question\nidentitiesWithoutRow=0\nok all 6 migrated identities carry a verdict row\nsupersessionsDocumented=true\nok both FROZEN supersessions documented with citations, not silently ignored\narchivesReadableAfterMove=true\nok archives readable at canonical path after the move\ndeprecatedDirTrackedFiles=0\nok no tracked files remain under the deprecated state dir (move is complete)\nmoveIsPureRenameCommit=true\nok move commit ec7f315e is pure rename (0 insertions, 0 deletions) — one revert undoes it\nmigration contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:31:53.387Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0f9df95b27bba45d3d2729ed09ca7d5f3a930875",
+          "materialHash": "82c1cbd5e44a1d3524489860c25ff7f174c4bb28b906960b4d9f78b05f3a24fb",
+          "storyFilesHash": "fb92efcaa1c0b6766df77168bf4251dd33071e3601e75d404dc7a5bff688be7e",
+          "timestamp": "2026-08-17T17:31:53.650Z"
         }
       ],
       "userSeesSnapshot": {
