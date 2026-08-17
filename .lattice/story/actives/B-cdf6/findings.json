@@ -1341,6 +1341,29 @@
       ],
       "signatureTag": "missing|ts|cosmetic-sweep-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-064",
+      "desc": "Low-severity remainder of the same LATTICE_AGENT sibling class, not user-visible but same file/function pattern as the fixed sites: (a) stale code comments still naming LATTICE_AGENT instead of the canonical form -- handlers/finding.ts:497 (\\\"Record caller identity (env var LATTICE_AGENT is set by subagent)\\\", same function whose warning strings were fixed at :649/:634), handlers/checklist.ts:1361 (\\\"Only an explicit actor/agent or LATTICE_AGENT participates...\\\"), handlers/init-check.ts:75 (\\\"A registered LATTICE_AGENT is the authoritative dispatched identity\\\"). (b) three internal child-process spawn env overlays that set the deprecated name directly instead of the canonical one (functionally harmless today because readBrandEnv dual-reads, but inconsistent with the teach-the-new-name rule and in files this story already actively touches): core/acceptance-rollout.ts:250-251 (LATTICE_SESSION_ID/LATTICE_AGENT in an execFileSync env, also spawns via bin/lattice.js not the new bin), core/codex-adapter-checks.ts:669 (LATTICE_AGENT:\\\"main\\\" in an execFileSync env, in the same function already carrying a B-cdf6/F-013 comment two lines above), handlers/proofstory.ts:108 (LATTICE_AGENT:\\\"acceptance-rollout-verifier\\\" in an execFileSync env). None of these are user-visible output and none change behavior, so this is advisory/cleanup rather than blocking, but flagging because the coordinator has now missed this sibling class twice and asked for an exhaustive re-check.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T02:30:27.082Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-095",
+      "_hash": "8201ec4c13ea1f9b2f8e9ae23ff4a56f7abc3edb39698aaf9bebde4ab2c4605d",
+      "files": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/handlers/init-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|severity-remainder-same",
+      "signatureTagSource": "auto"
     }
   ]
 }
