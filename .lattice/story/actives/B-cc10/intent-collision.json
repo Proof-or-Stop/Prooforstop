@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-cc10",
+  "id": "IC-20260817102255",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The user's six-item request is interpreted as: (1) remove bin/lattice.js and bin/lattice-codex.js entirely, (2) migrate .lattice to .proof-or-stop, (3) migrate .lattice-codex to .proof-or-stop-codex, (4) rename lattice.config.json to proof-or-stop.config.json, (5) rename lattice.json to proof-or-stop.json, (6) rename only the packages/main workspace package from @lattice/core to @proof-or-stop/core — NOT the root package.json name 'lattice', which is out of scope per brand-rename-mapping.md:131 and was not among the six enumerated identities. The normalizedOutcome's added condition that archived story directories remain readable and signatures verify is a faithful operationalization of what '改为使用' (switch to using) implies — continuity of existing state, not data destruction. The bin alias removal (item 1) directly supersedes brand-rename-mapping.md:72's multi-developer retention guarantee because the user explicitly said '移除'; the plan correctly sequences this last with a CHANGELOG announcement.",
+  "acceptedInterpretationHash": "sha256:9bfbc107b6f20e0cfbf5dba4dc9d6bb3b7aeb010d836824d5376d5bdeeef8a7b",
+  "notes": "Independent reviewer findings: (A) normalizedOutcome adds archive-preservation condition not literally stated by user — judged faithful because '改为使用' implies continuity, and .lattice contains 7580 tracked files including 344 story archives that are the project's audit history; (B) @lattice/core narrow reading confirmed — user named it precisely, root 'lattice' is a different identifier, frozen at brand-rename-mapping.md:131, not private; (C) bin alias removal conflicts with brand-rename-mapping.md:72 multi-developer guarantee — user's explicit '移除' supersedes, with mitigation via CHANGELOG and last-sequencing in CHK-006. Scope-check drift item (bin/ entries 'never remove' per brand-rename-mapping) is the same conflict and is resolved by the user's direct instruction. Pre-push hook at line 156 already accepts both @lattice/core and @proof-or-stop/core, independently verified.",
+  "createdAt": "2026-08-17T10:22:55.441Z",
+  "updatedAt": "2026-08-17T10:22:55.441Z"
+}
