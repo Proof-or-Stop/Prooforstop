@@ -1076,6 +1076,34 @@
       ],
       "signatureTag": "doc-code-drift|ts|b16df-bytepin-replacement",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-044",
+      "desc": "Commit efe682df11 removed section 12's byte-pin (git diff main -- validation-executor.ts verifier.ts must be empty) and its justification is that sections 15/16 (tokenizer parity, strict-prefix mismatch) plus 6-11 (end-to-end resolvePinnedCommandTimeoutMs behaviour) already catch a semantic break in either file, better than a byte comparison could. Falsified: VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST (validation-executor.ts:1215-1223), the set of executables a pinned verification-evidence command is permitted to run under parseAllowlistedCommand (line 1269), has ZERO test coverage anywhere in the repository -- not in this smoke, not in any other registered validate.commands entry, not in any packages/main/tests/red harness (verified by grep across packages/main/src/tasks and packages/main/tests/red for VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST / verification_command_not_allowlisted / parseAllowlistedCommand: only the 3 definition/call sites match, no assertion). Every section that exercises parseAllowlistedCommand or resolvePinnedCommandTimeoutMs in this smoke (sections 6-11, 15, 16) uses the executable 'node' exclusively; none constructs a pinned command with a non-allowlisted leading token (e.g. 'bash', 'sh', 'python') to prove parseAllowlistedCommand rejects it, and none asserts the allowlist's membership. A plausible, security-relevant edit -- adding 'bash' or 'sh' to VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST, which would let a pinned verification-evidence command (used by verification_evidence_add/_batch_add/verification_run) execute an arbitrary shell command instead of a fixed test/runtime launcher -- would have been caught deterministically by the removed byte-pin (any diff against main fails) and is caught by nothing else in the suite: confirmed live that parseAllowlistedCommand currently throws 'not allowlisted' for bash (node -e requiring dist/core/validation-executor.js, calling parseAllowlistedCommand(\"bash -c ...\")), and confirmed by exhaustive grep that no test exercises that rejection boundary. This is a genuine, if narrow, loss of defense-in-depth in a shell-execution-adjacent security boundary that the coverage-elsewhere claim does not address; the claim holds for the timeout-resolution/parsing-parity surface the smoke actually targets but not for this allowlist. Suggested durable fix (does not reintroduce the per-story-scope problem the byte-pin had): add a dedicated assertion -- either in this smoke or a new one -- that (a) VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST equals its expected member set, and (b) parseAllowlistedCommand throws verification_command_not_allowlisted for a representative non-member executable such as bash or sh.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T13:16:24.727Z",
+      "reviewRound": "2026-08-17T13:04:19.128Z",
+      "reviewRunId": "B-3434:RR-066",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d09c5f843ecbc7ea74db762045b64bf7dfdcb9ac12aa025de972c12221ba60c3",
+      "files": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|commit-efe682df11-removed",
+      "signatureTagSource": "auto"
     }
   ]
 }
