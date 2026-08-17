@@ -292,7 +292,11 @@
           {
             "desc": "An abortSignal or exceeded deadlineAt during concurrent execution still raises the deadline error and does not report a partial run as a pass",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+              "selector": "B7DFF-CHK003-DEADLINE-THROWS"
+            }
           }
         ]
       },
@@ -345,6 +349,26 @@
           "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5",
           "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
           "timestamp": "2026-08-17T13:38:34.192Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "command": "node packages/main/tests/validate-plan-scheduling.test.mjs",
+          "result": "pass",
+          "note": "Marker B7DFF-CHK003-DEADLINE-THROWS drives a concurrent two-command plan with deadlineAt already in the past and a sentinel deadlineError, and asserts executeValidationPlan raises that exact sentinel rather than returning any result; the assertion message carries the returned status and allPass when it does not, so a partial run reported as a pass cannot pass silently. The neighbouring marker B7DFF-CHK003-ABORT-NOT-PASS covers the abortSignal half in the same run: an already-aborted signal reaches both concurrently scheduled commands, both come back timedOut with code 124, and the result is allPass=false status=fail failureKind=infra_failure.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f829d0ab4683f5b55d279760284e21663c36d47b985acfe6d76bb17fe876bf7",
+            "outputTail": "VI-OK B7DFF-CHK003-PLAN-ORDER commands[] and details[] are emitted in plan order while completion order is reversed\nVI-OK B7DFF-CHK003-RUN-ALL-COMPLETE a failing command cancels nothing: every plan command ran and commands[].length equals the plan length\nVI-OK B7DFF-CHK003-DEADLINE-THROWS an exceeded deadlineAt raises the caller deadline error instead of returning a partial run\nVI-OK B7DFF-CHK003-ABORT-NOT-PASS an aborted abortSignal reaches every concurrently scheduled command and cannot report a pass\nVI-OK B7DFF-CHK003-JOBS-CONFIGURABLE worker count comes from the jobs option or LATTICE_VALIDATE_JOBS, defaults to 4, and refuses an unusable value\nVI-OK B7DFF-CHK003-WORKER-COUNT-REPORTED details reports the worker count, the declared count and the fail-closed exclusive count\nvalidate-plan-scheduling: PASS (43 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T13:38:45.098Z"
+          },
+          "headHash": "4f6a65677e353e29de847c2680b9da4a07ee623f",
+          "materialHash": "b4d871dfc903f043fad471faaf3f6de9324f56372c570bbc7129aedc8aa95ea5",
+          "storyFilesHash": "18cbee59fa5eac828562f36fbcdc273b54e7ffbbe5b05dc9651836b5fae957c3",
+          "timestamp": "2026-08-17T13:38:45.236Z"
         }
       ]
     },
