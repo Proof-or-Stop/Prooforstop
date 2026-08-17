@@ -1233,6 +1233,24 @@
       ],
       "signatureTag": "missing|ts|review-incremental-context",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3434:F-050",
+      "desc": "Tested the item-1 accounting by construction: reviewIncrementalContext's fullStoryDiffContext (review-incremental-context.ts:518-519, both the pre-existing FULL_MISSING_TRUSTED_PRIOR_PASS branch and the new FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS branch) diffs against the LITERAL git ref 'main', not a headHash pinned at review_run_start time. I confirmed by direct measurement in this worktree, live during this review round, that this is not a stable invariant: 'git rev-list --count HEAD..main' read 0 at merge commit 0c146bf7f5 (its second parent, 3729f3feef, is main's tip at merge time and is an ancestor of HEAD), but reads 2 then 3 partway through this review (main advanced via an unrelated concurrent story, B-6ab9, landing ec207fc6e3/44226cfd3e/860b7b45cf on the shared local main branch) - i.e. HEAD..main is NOT reliably 0 the way scope-ack:4 states ('after the merge behind-main is 0') and the way the pre-existing branch's own comment implies ('we never compute an incremental diff from an unknown base'). Consequence assessed: with materialOnly() filtering, this drift is currently harmless (git diff --name-only main HEAD stayed at 10 material paths across the drift because the added raw churn is confined to .lattice/story/actives/B-6ab9/* story metadata, which isMaterialExcludedPath strips) - so no story content is added or dropped by this specific drift, and no reviewer can miss story content this way. But the mechanism is real and the exposure widens with this commit: previously the literal-main diff only ran for genuine first-pass reviews; now it also runs whenever a resolvable prior's diff exceeds 512 entries, which is precisely the moment right after a large main merge, i.e. exactly when main is busiest. Downstream, review-run.ts's verifyReviewRun (~line 757) recomputes reviewIncrementalContext fresh and rejects on any digest mismatch (changedFilesDigest, eligibilityDigest, etc.), so a main-ref drift between review_run_start and verifyReviewRun fails CLOSED (spurious reject, not a granted pass) - this is not a soundness hole, but it is an unstated residual: the fix's comment block (lines 560-565) states the cap is unchanged and no incremental basis is emitted, but does not mention that the full-diff basis itself is only reproducible while the literal main ref stays put, which this session demonstrates it does not.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-17T15:58:09.953Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-080",
+      "_hash": "b1a0aff6c19dd90a49757b3872a93983fd59dfd4e5a6f0ba1b3f833cd2504774",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|tested-item-accounting",
+      "signatureTagSource": "auto"
     }
   ]
 }
