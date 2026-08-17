@@ -18436,6 +18436,43 @@
         "scanEscalationReason": null
       },
       "_hash": "39498fba3747c288216f409f01ba793859b4b3a12e5fb391484b8eceaac1ddbe"
+    },
+    {
+      "id": "B-3f3d:RP-329",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane review of git diff main...HEAD. Confirmed zero source commits (packages/main/src, templates, scripts) since original binding head; only concurrent reviewer-lane story-metadata commits occurred. New review-inventory-epoch files have no unused imports, pass strict tsc --noEmit cleanly, no new empty catches or unnecessary as-any in production diff. Verified acceptance_basis_generate REVIEW-phase widening (command-policy.ts, config.ts): issued receipt binds only structural facts (scopeCheckDigest, scopeContractDigest, headHash, materialHash, storyFilesHash, closureFilesHash, sealDigest, topologyDigest, basisDigest), never findings/passes/runs; write target acceptance-basis.json is story-metadata-prefixed so prewrite-guard.ts excludes it from OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION and isMaterialExcludedPath excludes it from storyFilesHash/materialHash; a regenerated basis digest forces topology-critic re-verification to fail (basisDigest mismatch) rather than laundering a stale pass. I independently confirmed peer finding B-3f3d:F-114 (lattice-review-behavior, high, verified) that review_inventory_finalize actually consumes a separate ReviewInventoryCriticReceipt via review_inventory_critic_set, never topology_critic_receipt_set -- so the widenings stated deadlock rationale misdescribes the real gate wiring, though the widening itself is not exploitable for gate bypass. That is a behavior/correctness defect already tracked by F-114; deferring rather than duplicating. No blocking quality findings in scope.",
+      "createdAt": "2026-08-17T08:43:58.304Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-471",
+      "envelopeId": "6de55e37769c0ddbcf27864dd02021ba9548cde20c3f129136884f69096caef7",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "eb8dccb6e62bea8f668b2981a89e67ce83bb52e2233feab663bb8da07d027793"
     }
   ]
 }
