@@ -1429,6 +1429,25 @@
       "resolvedAt": "2026-08-17T02:48:38.753Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-067",
+      "desc": "F-066-class dead predicate, but PRE-EXISTING (not introduced by this rename): core/managed-assets.ts:941, the shared ownedWhen for every .claude/hooks/*.cjs file, is `actual => actual.includes(\\\"lattice\\\") || actual.includes(\\\"LATTICE\\\")`. Verified against the actual checked-in hook files: .claude/hooks/log-tools.cjs contains ZERO case-insensitive occurrences of \\\"lattice\\\" (grep -ic lattice log-tools.cjs -> 0), so this predicate is dead for that specific file -- confirmed via git log --follow that both the predicate (present since initial import) and log-tools.cjs itself (also since initial import) predate B-cdf6, so the rename did not cause this, it is an adjacent latent gap the exhaustive hunt surfaced. Consequence, same shape as F-066: managed-assets.ts:1080-1084s general whole-file diagnose path falls back to unchangedSinceManifest when ownedWhen is false, so log-tools.cjs is only protected from misclassification as STALE_LOCAL_EDIT (check --apply refusing to auto-repair its own generated file) when a manifest entry with a matching contentHash exists; absent that (fresh project, reset manifest, etc.) it is misclassified. Flagging per the standing exhaustive-hunt instruction even though it predates this story -- coordinator should decide whether to fix in B-cdf6 (adjacent infra bug, CLAUDE.md multi-揽 principle) or route to a separate story/B-META finding, since log-tools.cjs was never brand-specific to begin with and a shared predicate across heterogeneous files was the design mistake, not the rename.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T02:55:09.938Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-097",
+      "_hash": "16089ff2156a6b44eb78e89a2bf55500f69837e139dc9234ddc6a9238e7ac04d",
+      "files": [
+        "packages/main/src/core/managed-assets.ts",
+        ".claude/hooks/log-tools.cjs"
+      ],
+      "signatureTag": "missing|ts|class-dead-predicate",
+      "signatureTagSource": "auto"
     }
   ]
 }
