@@ -34,7 +34,11 @@
           {
             "desc": "An entry whose resource claim was never canonicalized is rejected before any process is spawned rather than scheduled with an undefined key",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:full-suite-runner-smoke",
+              "selector": "uncanonicalized resource claim is rejected before any member executes"
+            }
           }
         ]
       },
@@ -69,6 +73,26 @@
           "materialHash": "bb381d457d3db0446b616fc097a840f626dd8beaddc2ae8bcb5457b6887fbaed",
           "storyFilesHash": "a8e76d5d0ab010843ad6bfd8aad8f499a492665221220a48aa59abb17b381b47",
           "timestamp": "2026-08-17T12:09:30.611Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "npm run test:full-suite-runner-smoke",
+          "result": "pass",
+          "note": "An entry whose fixed-path claim has no canonicalKey makes runScheduled throw with zero execute() calls, so no process is ever spawned for it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "386a006fd1ba1407004679e973ec0e8df80edc0d3bf34c6b775a34dd3ba1e238",
+            "outputTail": "on before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omission\",\"resource-key-collision\",\"fixed-path-collision\",\"timeout-grandchild\",\"ordinary-failure\",\"tracked-output-overwrite\",\"identity-drift\"]}\nfull-suite-runner-smoke: PASS (148 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T12:10:09.293Z"
+          },
+          "headHash": "db107dee6523aa5884d03544eaec62121fbec6df",
+          "materialHash": "bb381d457d3db0446b616fc097a840f626dd8beaddc2ae8bcb5457b6887fbaed",
+          "storyFilesHash": "a8e76d5d0ab010843ad6bfd8aad8f499a492665221220a48aa59abb17b381b47",
+          "timestamp": "2026-08-17T12:10:09.406Z"
         }
       ]
     },
