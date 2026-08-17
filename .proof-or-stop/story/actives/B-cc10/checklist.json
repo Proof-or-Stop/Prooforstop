@@ -227,7 +227,11 @@
           {
             "desc": "node bin/proof-or-stop.js session_brief and story_get both succeed against .proof-or-stop after the move",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-state-dir-migration.mjs",
+              "selector": "state dir migration verified"
+            }
           }
         ],
         "edge": [
@@ -244,7 +248,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-state-dir-migration.mjs",
+          "command": "node scripts/verify-state-dir-migration.mjs",
+          "result": "pass",
+          "note": "Both era-spanning archives readable from .proof-or-stop with phases matching pre-move baselines: B-0168 (earliest era, first archive commit 2026-06-22) INIT, B-META-framework-audit (signed cross-story ledger) META. Two named archives from different eras as the acceptance requires, not one convenient recent story.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5862924e53501b757cd2a53d8df2d014b4be9ce4ed81e3b73b4c551315b43b5",
+            "outputTail": "canonicalStateDir=true\nok .proof-or-stop/story/actives exists\narchive B-0168 phase=INIT\nok B-0168 (earliest-era archive) phase INIT matches pre-move baseline\narchive B-META-framework-audit phase=META\nok B-META-framework-audit (signed cross-story ledger) phase META matches pre-move baseline\nhistoryFollows=true\nok git log --follow traces 3 commits through the rename\ntrackedArchiveFiles=7583\nok 7583 archive files tracked at canonical path\nstate dir migration verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:28:21.670Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8c0bd7b87cd6bd047495e18ec2294ad07f520604",
+          "materialHash": "ac8c424c5df5987e11b4f3b7f985b1aab8bb7ce4c28b49ab2bc6a66f16c0369c",
+          "storyFilesHash": "d636308586160aceacc9c961cba3c37247be72ef77ea6b519dc6b65d32a51c44",
+          "timestamp": "2026-08-17T15:28:21.856Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
