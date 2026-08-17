@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-7dff:F-001",
+      "desc": ".lattice/story/actives/B-7dff/checklist.json CHK-001/CHK-002/CHK-003/CHK-005 verificationEvidence (12 of 15 must-intent evidence entries): lattice evidence_inspect --storyId=B-7dff reports overall freshness.status=stale, staleRefs listing all 3 CHK-001, all 3 CHK-002, all 3 CHK-003, and all 3 CHK-005 intent refs (reason: evidence storyFilesHash does not match current story-owned file state, currentStoryFilesHash=9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85). Only CHK-004 evidence is fresh. CHK-004s two DEV commits (7a05d565f1, 827758a4a8) modified lattice.config.json and package.json, which are also in CHK-002/CHK-005 files.modify, expanding the story-owned file set after CHK-001/002/003/005 evidence was captured. Per CLAUDE.md storyFilesHash-drift doctrine this is the strong-signal case (storyFilesHash itself moved, not just an unrelated materialHash-only drift), so the intentToEvidence coverage this reviewer certifies is not currently provably bound to HEAD for 80% of the storys must intents. Recommend running verification_evidence_refresh_stale (or the equivalent tests) before TEST/DONE so the recorded pass evidence is rebound to the current commit.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-17T15:18:33.741Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-003",
+      "_hash": "a8f1d799a97fdcede1fce12436edccc0ea895a7557c8ceb9215e830b0c125bca",
+      "files": [
+        ".lattice/story/actives/B-7dff/checklist.json"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
