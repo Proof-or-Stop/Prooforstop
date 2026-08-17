@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-1734",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:2a400311bed01feb36c4692c2c5f3d32a48fe026ff2cbb02dec9d986952af77f",
+  "acceptanceBindings": [
+    {
+      "id": "AB-1734-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-001:adversarial:3",
+        "CHK-001:adversarial:4",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:happy:2",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:edge:3",
+        "CHK-002:edge:4",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2",
+        "CHK-002:adversarial:3",
+        "CHK-002:adversarial:4",
+        "CHK-002:adversarial:5"
+      ],
+      "milestoneIds": []
+    }
+  ],
+  "diagnosticGaps": [],
+  "createdAt": "2026-08-15T11:44:55.481Z",
+  "updatedAt": "2026-08-15T11:44:55.481Z"
+}

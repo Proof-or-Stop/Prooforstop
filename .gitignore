@@ -1,5 +1,11 @@
 node_modules
 dist
+# B-1734 atomic build-swap siblings: staging dir tsc emits into, and the old dist
+# moved aside during the single rename-swap. Both are transient (staging is renamed
+# into dist and trash is removed on success); ignored so an interrupted build cannot
+# dirty the tree. `dist` above does not cover these differently-named siblings.
+dist.staging
+dist.trash-*
 
 # Lattice worktree + runtime
 .worktrees/

@@ -1,0 +1,136 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify the only mechanically safe non-code-phase automatic idle handoff",
+      "context": "Distinguish lease state as absent, valid, or malformed. Auto-eligibility is restricted to ownershipClass=storyScopedMutating and phase PLAN, REVIEW, or TEST, plus stale heartbeat, canonical same-worktree realpath, same hostname, stable supported owner/contender session identities, and authoritative ESRCH for the last mutating lattice CLI PID. DEV, dangerousMutating, agent_prompt direct acquisition, EPERM, live/reused PID, derived identity, remote host, malformed lease, and unknown liveness are never auto-eligible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "In PLAN, REVIEW, or TEST a stale same-worktree storyScopedMutating command reports automatic idle handoff only when no owner Lattice command is in flight; DEV and dangerous commands still require explicit takeover.",
+      "excludes": [
+        "Host-session death detection",
+        "Automatic handoff in DEV or terminal phases",
+        "Automatic handoff for dangerousMutating or agent_prompt",
+        "Remote, malformed, derived-identity, PID-live, EPERM, or unknown states",
+        "Age-only or cwd-only handoff"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/cli/ownership-gate.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make every owner-lease mutation a recoverable atomic single-winner transaction",
+      "context": "Put acquire, refresh, release, explicit takeover, and automatic handoff behind one per-story mkdir transaction lock. Re-read and classify under the lock; publish with unique same-directory temp plus atomic rename. Every transfer has a unique transferId and the lease remains pending until idempotent takeover-counter reconciliation succeeds. acquire/refresh/release reconcile pending state or fail closed. The unified gate may auto-handoff only its narrow eligible branch; story-aware agent_prompt uses the transactional acquire/refresh API but remains manual-only and never invokes auto eligibility.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+      ],
+      "userSees": "A real two-session race produces exactly one owner; no command proceeds with a pending counter, and agent_prompt never silently transfers a foreign lease.",
+      "excludes": [
+        "Changing agent_prompt role or envelope semantics",
+        "Changing main-write-lock behavior",
+        "A global machine-wide lock"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Persist handoff authorization before transfer and keep one convergence counter",
+      "context": "Before lease publication, the unified gate appends a required Story process-event with unique transferId, automatic-stale-same-worktree-idle reason, phase, command class, former owner, and new owner. If persistence fails, no transfer occurs. The existing convergence-breaker takeover-count.json is the sole operational counter, upgraded to atomic idempotent transfer-id accounting; the pending lease marker makes crash recovery mechanical. Durable process-events survive lease release and terminal archival; activity-log output is a secondary mirror. session_brief and docs explain the bounded auto case and manual fallbacks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "userSees": "session_brief names the automatic-stale-same-worktree-idle transfer and count, or explains DEV, dangerousMutating, active, malformed, or identity uncertainty as an explicit-takeover requirement.",
+      "excludes": [
+        "Treating best-effort activity logging as gate evidence",
+        "A second takeover counter",
+        "Deleting durable Story process-event history",
+        "Claiming the former host session is dead"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove bounded auto handoff, crash reconciliation, and fail-closed refusal with real processes",
+      "context": "Use real child processes to prove TEST storyScopedMutating stale idle success, DEV refusal, dangerousMutating refusal, live long-running owner-command refusal, old session blocked after transfer, two simultaneous auto-takers exactly one winner, malformed/invalid lease refusal, remote/different-worktree/derived identity refusal, explicit takeover regression, process-event persistence failure before transfer, crash after lease publish with pending counter then idempotent recovery, and agent_prompt manual-only behavior. Mutation controls must show the tests fail if phase/class fences, transaction lock, durable authorization, or pending reconciliation are removed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+      ],
+      "userSees": "The focused smoke prints PASS only when TEST auto-handoff is single-winner and crash-recoverable while DEV, dangerous, malformed, active, ambiguous, and agent_prompt paths remain protected.",
+      "excludes": [
+        "Mock-only liveness proof",
+        "Weak wall-clock-only concurrency assertions",
+        "Host-session death claims"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

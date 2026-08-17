@@ -1,0 +1,30 @@
+{
+  "task": "A main-merge makes the merge-lineage classifier flag the story's own content-unchanged files as untrusted, forcing a redundant DONE-validation re-run and hard-throwing autopilot_review_submit --deriveBindings; replace the per-commit -m union with a hardened net endpoint diff in one shared classifier used by both copies.",
+  "outcome": "During a DONE convergence whose story branch has merged main, `lattice done_prepare`/`done_required_validate` reports existingEvidenceBasis: fresh and reuses the prior PASS instead of re-running the ~17 min build+npm test, and `autopilot_review_submit --deriveBindings` succeeds instead of throwing 'requires canonical current PASS validation evidence: ... untrusted-lineage-path:*' — because the merge no longer lists the story's own content-unchanged files as untrusted lineage. A genuinely content-changed file still refuses reuse.",
+  "facts": [
+    "classifyTrustedValidationLineage (validation-evidence-reuse.ts:251) and validationHeadLineage (validation-evidence-admissibility.ts:42) are byte-equivalent copies that UNION per-commit git diff-tree -m outputs; -m lists the story files against the merge main parent.",
+    "The reuse copy gates done_prepare/verifier reuse; the admissibility copy gates phase-gates.ts:614 and hard-throws in autopilot_review_submit --deriveBindings (verdict.ts:139-141).",
+    "Observed in B-3783: refusalReasons=untrusted-lineage-path:lattice.config.json,... with priorIdentityDigest===currentIdentityDigest.",
+    "Both import isStoryMetadataPath from evidence-freshness.ts and share the lineage type exact-head|trusted-story-metadata-descendant|rejected.",
+    "evidence-freshness.ts:134 already uses maxBuffer 1024*1024*1024 for git output (ENOBUFS precedent B-f492)."
+  ],
+  "constraints": [
+    "Do not relax the other reuse factors (isReusableCommandPass genuine receipt, material/storyFiles/identity hashes), refresh_stale (B-3b88 domain), or the review assurance floor.",
+    "verdict.ts and phase-gates.ts must NOT change; they only consume the corrected classifier.",
+    "Preserve the security property: a genuinely content-changed non-metadata file still refuses reuse; an empty net diff (identical trees) means trusted.",
+    "Harden the git call: -z NUL split + explicit large maxBuffer + split the ancestry-vs-diff catch.",
+    "All artifacts and code comments in English."
+  ],
+  "unknowns": [
+    "Shared-helper placement: a neutral new core/validation-lineage.ts (avoids import cycle) vs exporting from validation-evidence-reuse.ts (admissibility importing reuse is acceptable). Confirm no cycle.",
+    "Whether validationHeadLineage lineage_empty / empty-descendant-lineage rejection has any consumer expecting rejection-on-empty; grep before switching empty to trusted."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/phase-gates.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-26T03:12:18.461Z"
+}

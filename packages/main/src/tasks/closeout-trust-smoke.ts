@@ -53,6 +53,7 @@ import { createSummaryHandlers } from '../handlers/summary.js';
 import { createDeliveryContextPackHandlers } from '../handlers/delivery-context-pack.js';
 import { createLiveSmokeTranscriptHandlers } from '../handlers/live-smoke-transcript.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
@@ -429,6 +430,15 @@ try {
   store.writeMilestoneLedger(runtimeStoryId, runtimeLedger);
   store.writeProofStorySlicePlan(runtimeStoryId, runtimePlan);
   store.writeChecklist(runtimeStoryId, { items: [] });
+  // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
+  // record. This fixture deliberately configures an INCOMPLETE review-lane set
+  // to exercise the review_lane_missing DONE-gate diagnostic further below --
+  // without a satisfying record here, that assertion would instead observe
+  // missing_dev_memory_finish_decision (checked earlier in getGuardFailureReason's
+  // DONE branch), masking the review_lane_missing diagnostic this fixture exists
+  // to test.
+  createPlaybookRuntimeMemoryHandlers({ store, root: repo, scanRoot: join(repo, 'src') })
+    .dev_memory_finish_decision({ storyId: runtimeStoryId, decision: 'no-reusable-lesson', reason: 'closeout-trust-smoke fixture; no lesson to capture' });
   mkdirSync(join(repo, 'tests/fixtures'), { recursive: true });
   git(repo, ['add', '.']);
   git(repo, ['commit', '-m', 'baseline']);

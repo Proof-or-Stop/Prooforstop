@@ -36,7 +36,22 @@ Explicit non-goals: concurrent multi-host mutual exclusion; guarding
 `autopilot_review_submit` / `story_advance` / `verification_evidence_add`; any
 PreToolUse hook; any general "quorum-evidence idempotency" claim.
 
-## 2. The fix
+## 2. The fix (design proposal — see note on what actually shipped)
+
+> **Delivered differently (B-3144, merged):** the shipped
+> `assertNoStandingQuorum` in `handlers/quorum-submit.ts` does NOT call
+> `eventsWithStoryFilesHashDowngrade` directly as proposed below. It
+> reimplements the same drift-accept predicate inline, hand-synced
+> ("LOCKSTEP", per the guard's own comment) with the floor helper, because the
+> guard needs a pre-commit boolean collision check while the floor helper
+> rewrites already-committed events post-hoc — the two don't share a call
+> signature that fits both use sites. The refusal is a thrown `Error` with a
+> caller-facing explanation, matching this doc's intent, but the "single
+> source of truth" framing below (§ "Single source of truth") is aspirational,
+> not literally what was built; a future change to the floor's drift-accept
+> predicate must update the guard's mirror in the same story or the two
+> silently diverge. The rest of this section is preserved as the original
+> design rationale.
 
 In `handlers/quorum-submit.ts`, the duplicate guard (currently ~lines 474–490)
 reads committed `host_verdict` events and refuses if one exists for a planned

@@ -167,11 +167,22 @@ async function run(): Promise<void> {
     const prepare = createDonePrepareHandlers(ctx);
 
     check('command metadata: runtime-memory commands are registered and non-gate', () => {
-      for (const name of ['memory_playbook_baseline_generate', 'memory_playbook_baseline_verify', 'playbook_runtime_health', 'dev_memory_finish_decision', 'final_response_check']) {
+      // B-a7c5 CHK-003: dev_memory_finish_decision is now a DELIBERATE exception —
+      // canFinishGuard (the DONE gate) requires its presence, so it is checked
+      // separately below instead of in this non-gate loop.
+      for (const name of ['memory_playbook_baseline_generate', 'memory_playbook_baseline_verify', 'playbook_runtime_health', 'final_response_check']) {
         assert.ok(MAIN_TOOLS.some((tool) => tool.name === name), `MAIN_TOOLS includes ${name}`);
         assert.notEqual((COMMAND_POLICIES as any)[name]?.gateEvidence, true, `${name} is not gate evidence`);
         assert.ok(PROCESS_FACT_LEVELS.some((entry) => entry.name === name), `process fact includes ${name}`);
       }
+      // B-a7c5 CHK-003: dev_memory_finish_decision IS gate evidence (a deliberate,
+      // documented escalation of M8's originally advisory-only scope) — the DONE
+      // gate requires its EXISTENCE only, never lesson content.
+      assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'dev_memory_finish_decision'), 'MAIN_TOOLS includes dev_memory_finish_decision');
+      assert.equal((COMMAND_POLICIES as any).dev_memory_finish_decision?.gateEvidence, true, 'dev_memory_finish_decision is gate evidence (B-a7c5 CHK-003)');
+      assert.ok(PROCESS_FACT_LEVELS.some((entry) => entry.name === 'dev_memory_finish_decision'), 'process fact includes dev_memory_finish_decision');
+      const finishDecisionFact = PROCESS_FACT_LEVELS.find((entry) => entry.name === 'dev_memory_finish_decision');
+      assert.equal(finishDecisionFact?.level, 'L4', 'dev_memory_finish_decision is now a lifecycle-gate-consumed fact');
       assert.equal(COMMAND_POLICIES.memory_playbook_baseline_generate.ownershipClass, 'dangerousMutating');
       assert.equal(COMMAND_POLICIES.memory_playbook_baseline_generate.destructiveRisk, 'workspace-destructive');
       const baselineGenerateFact = PROCESS_FACT_LEVELS.find((entry) => entry.name === 'memory_playbook_baseline_generate');

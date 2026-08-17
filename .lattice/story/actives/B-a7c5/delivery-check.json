@@ -1,0 +1,99 @@
+{
+  "storyId": "B-a7c5",
+  "checkedAt": "2026-08-15T15:47:57.052Z",
+  "headHash": "d3baf12167e876327d165a8c05dcbba2a70d46e6",
+  "materialHash": "21cbf9ef24f6791d88043d406099f94e13034ddc8a1339549486534044f2185e",
+  "storyFilesHash": "97d092502d03af089e861706f56db246eb78167555cd24b5a17b43464430468d",
+  "reviewRound": "2026-08-15T14:53:25.129Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#Non-Goals",
+      "promise": "Add a 'Delivered differently (B-a7c5)' annotation to the Non-Goals bullet 'Dev-memory entries are NOT surfaced in lattice validate output or gate checks', clarifying that dev-memory-preflight-ack.json and the dev_memory_finish_decision record are structurally separate artifact types from DevMemoryEntry rows, and that no gate ever reads an entry's gateEvidence/authority fields or lesson content.",
+      "verifiedBy": "diff/grep + independent re-verification at current HEAD d3baf121",
+      "evidence": "grep on docs/requirements/decisions/dev-memory.md:165 shows the annotation present verbatim. Independently cross-checked against packages/main/src/core/types.ts (DevMemoryPreflightAckData has no gateEvidence/authority fields) and core/machine.ts's evaluateDevMemoryPreflightGate / readDevMemoryFinishDecision (both check only record existence/shape, never lesson text). Unchanged since the diff introducing it; not touched by the sole delta since the prior review round (command-catalog.ts)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#RuntimeConsumer-union",
+      "promise": "Add 'finding_resolve' as the 9th documented RuntimeConsumer member (matching the code union order) plus a 'Delivered differently (B-a7c5)' annotation noting it is non-blocking/non-escalatable and absent from both REGISTERED_CRITICAL_RUNTIME_CONSUMERS and ADVISORY_ONLY_RUNTIME_CONSUMERS.",
+      "verifiedBy": "diff/grep + independent re-verification at current HEAD d3baf121",
+      "evidence": "grep on the doc (line 141) shows the annotation. Independently re-grepped packages/main/src/core/playbook-runtime-memory.ts: 'finding_resolve' is the 9th RuntimeConsumer union member (line 57, comment ties it to B-a7c5 CHK-002); confirmed absent from REGISTERED_CRITICAL_RUNTIME_CONSUMERS/ADVISORY_ONLY_RUNTIME_CONSUMERS by direct grep."
+    },
+    {
+      "docPath": "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md#M8-Capture-Or-Noop-Decision",
+      "promise": "Add a 'Delivered differently (B-a7c5)' annotation to M8 describing the deliberate escalation of dev_memory_finish_decision's DONE-gate consumer from purely advisory to a required, blocking check (canFinishGuard), preserving the original advisory-only test list as historical rationale.",
+      "verifiedBy": "diff/grep + independent re-verification at current HEAD d3baf121",
+      "evidence": "grep on the doc (line 491) shows the annotation. Independently re-read core/machine.ts canFinishGuard (current HEAD): it imports readDevMemoryFinishDecision from core/playbook-runtime-memory.ts (a core->core import, not core->handlers) and returns false when no finish-decision record exists, matching the doc's claim exactly."
+    },
+    {
+      "docPath": "plan.md#CHK-001 (INIT_CHECK-phase dev-memory preflight requirement before DEV)",
+      "promise": "New DevMemoryPreflightAckData type in core/types.ts; new StoryStore.readDevMemoryPreflightAck/writeDevMemoryPreflightAck methods; new dev_memory_preflight_ack handler (builds the existing preflight pack, writes the ack, supports an optional >=5-char --reason reasoned-downgrade path when the pack build throws); new evaluateDevMemoryPreflightGate existence-check function in core/machine.ts wired into all four DEV-entry doors; a getGuardFailureReason DEV-branch message twin tagged [missing_dev_memory_preflight_ack].",
+      "verifiedBy": "diff/grep + fresh npm run build + independent rerun of dev-memory-lifecycle-gates-smoke.js at current HEAD d3baf121",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/core/machine.ts directly: evaluateDevMemoryPreflightGate is defined (existence + shape check, SyntaxError->false, other throws propagate) and called at canStartDevGuard, canSkipPlanGuard, and canReenterDevGuard, plus the getGuardFailureReason DEV branch with the [missing_dev_memory_preflight_ack] tag and run-command hint. Ran `npm --prefix packages/main run build` fresh from current HEAD (exit 0) then `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` directly: all CHK-001 door1-4 refusal-then-pass, round-trip, corrupt fail-closed, EISDIR fail-open/fail-closed-split, and --reason downgrade assertions pass (part of the 79/79 total)."
+    },
+    {
+      "docPath": "plan.md#CHK-002 (non-blocking advisory reminder on finding_resolve)",
+      "promise": "finding_resolve appends a try/catch-safe, non-blocking dev_memory_capture nudge (built via buildMemoryFreshnessPack/renderMemoryFreshnessPackSummary with consumer:'finding_resolve') after the existing commitHint suffix; 'finding_resolve' added to the RuntimeConsumer union but never to REGISTERED_CRITICAL_RUNTIME_CONSUMERS/ADVISORY_ONLY_RUNTIME_CONSUMERS.",
+      "verifiedBy": "diff/grep + fresh npm run build + independent rerun of dev-memory-lifecycle-gates-smoke.js at current HEAD d3baf121",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/handlers/finding.ts directly: memoryHint is computed inside a try/catch returning '' on any failure, spliced after commitHint in the return template literal, using buildMemoryFreshnessPack(consumer:'finding_resolve'). dev-memory-lifecycle-gates-smoke.js CHK-002 happy/scope/fail-safe assertions independently rerun on rebuilt current HEAD and pass (all 8, part of the 79/79 total)."
+    },
+    {
+      "docPath": "plan.md#CHK-003 (DONE-gate dev_memory_finish_decision requirement)",
+      "promise": "Move finishDecisionPath + a new readDevMemoryFinishDecision reader into core/playbook-runtime-memory.ts (exported, fail-closed on missing/corrupt/cross-story records); handlers/playbook-runtime-memory.ts's dev_memory_finish_decision write-handler imports finishDecisionPath from core instead of a local duplicate; canFinishGuard refuses DONE when no finish-decision record exists; getGuardFailureReason DONE-branch message twin tagged [missing_dev_memory_finish_decision]; runtime-artifact-registry entry so writing/committing the record never perturbs materialHash.",
+      "verifiedBy": "diff/grep + fresh npm run build + independent rerun of dev-memory-lifecycle-gates-smoke.js at current HEAD d3baf121",
+      "evidence": "Read git diff main...HEAD -- packages/main/src/core/machine.ts directly: canFinishGuard calls readDevMemoryFinishDecision (imported from core/playbook-runtime-memory.js) and returns false when null, with a code comment explicitly recording the deliberate authority-field override. getGuardFailureReason DONE branch carries the [missing_dev_memory_finish_decision] tag. Independently grepped core/runtime-artifact-registry.ts for a 'dev-memory-finish-decision' materialHash-excluded entry (present). Reran dev-memory-lifecycle-gates-smoke.js on rebuilt current HEAD: all CHK-003 refusal-then-pass (3 decision values), F-005/F-006 materialHash-exclusion-across-write-and-commit checks, and corrupt/invented-value/cross-story fail-closed assertions pass (part of 79/79)."
+    },
+    {
+      "docPath": "plan.md#CHK-004 (new smoke test registered in validate.commands)",
+      "promise": "New file packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts covering all three gates against a fresh temp-git fixture, registered in lattice.config.json validate.commands.",
+      "verifiedBy": "direct execution at current HEAD d3baf121",
+      "evidence": "File exists at packages/main/src/tasks/dev-memory-lifecycle-gates-smoke.ts and is registered as the last entry of lattice.config.json's validate.commands. This reviewer independently ran `npm --prefix packages/main run build` fresh from current HEAD (exit 0) then `node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js` directly: exits 0, prints 'dev-memory-lifecycle-gates smoke passed: 79 assertions'. A full `npm test`/`lattice validate` re-run was judged unnecessary for this round: the only code delta since the prior thoroughly-verified delivery round (git diff feb76f89a3..HEAD, confirmed via direct git diff by this reviewer) is a single-line description-string edit in packages/main/src/cli/command-catalog.ts with zero behavioral surface, and the isolated smoke test that exercises the actual gate logic under test was independently rerun green."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts (dev_memory_finish_decision --help description, fixed in commit d3baf121, the sole delta since the prior delivery review round)",
+      "promise": "Fix the stale --help description text for dev_memory_finish_decision (previously '... not gate evidence', inconsistent with command-policy.ts's gateEvidence:true and the CHK-003 DONE-gate requirement) to accurately state that record existence IS required by the DONE gate while lesson content is never gate evidence.",
+      "verifiedBy": "diff/grep + cross-check against command-policy.ts at current HEAD d3baf121",
+      "evidence": "git diff feb76f89a3..HEAD confirms this is the ONLY source-code change since the prior delivery review (plus lattice metadata files). git diff HEAD~1..HEAD -- packages/main/src/cli/command-catalog.ts shows the description changed from 'no automatic promotion; not gate evidence' to 'no automatic promotion; existence required by the DONE gate, but lesson content is never gate evidence'. Cross-checked against packages/main/src/core/command-policy.ts line 515: dev_memory_finish_decision policy already declares gateEvidence:true with reason text 'required by canFinishGuard (the DONE gate) as an existence-only reflection attestation... lesson content never satisfies any gate' -- the new --help text is now consistent with this pre-existing policy entry and with the actual canFinishGuard code (core/machine.ts). No test or gate reads this description string; the fix is textual-accuracy only, correctly scoped, and does not touch any gate-consumed field."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass across all 4 DEV-entry doors plus getGuardFailureReason message-tag checks; round-trip/existence-only edge case; adversarial fail-closed on malformed records; adversarial EISDIR fail-open/fail-closed door split; --reason reasoned-downgrade bypass path. Independently rebuilt (npm run build, exit 0) and rerun by this reviewer at current HEAD d3baf121: all pass, part of 79/79."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: happy path confirms advisory suffix presence/ordering; scope check confirms finding_add/finding_list never carry it; adversarial fail-safe forces an EISDIR throw and confirms finding_resolve does not throw and the finding mutation still completes; invalid findingId still surfaces its real error. Independently rerun by this reviewer at current HEAD: all pass, part of 79/79."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "dev-memory-lifecycle-gates-smoke.js: refusal-then-pass for canFinishGuard across all 3 decision values; F-005/F-006 materialHash-exclusion-across-write-and-commit regression checks; adversarial fail-closed checks for corrupt JSON, invented enum value, cross-story record. Independently rerun by this reviewer at current HEAD: all pass, part of 79/79."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The smoke test file itself is the feature under test. This reviewer independently rebuilt dist from current HEAD d3baf121 (npm run build, exit 0) and ran node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js directly: exit 0, 79/79 assertions, confirming the registration is real and the test genuinely runs end to end. A full npm test / lattice validate re-run was not repeated this round because the only code delta since the prior full-suite-verified round is the single-line, non-executable-surface command-catalog.ts description fix confirmed via git diff feb76f89a3..HEAD by this reviewer; the isolated smoke test covering the actual gated behavior was rerun green regardless."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Pure documentation reconciliation (M8 'Delivered differently' annotation). Not independently executable; verified by direct diff/grep read plus cross-reference against the canFinishGuard/readDevMemoryFinishDecision code it describes.",
+      "waiverReason": "CHK-005 is a documentation-only spec-doc reconciliation with no executable behavior of its own; verified by direct textual inspection cross-checked against the CHK-003 code it describes, which is the correct and only meaningful verification method for a prose annotation."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Pure documentation reconciliation (Non-Goals 'Delivered differently' annotation in dev-memory.md). Not independently executable; verified by direct diff/grep read plus cross-reference against DevMemoryPreflightAckData/FinishDecisionRecord field shapes.",
+      "waiverReason": "CHK-006 is a documentation-only spec-doc reconciliation with no executable behavior of its own; verified by direct textual inspection cross-checked against the CHK-001/CHK-003 code and types it describes, which is the correct and only meaningful verification method for this kind of doc-sync change."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Pure documentation reconciliation (RuntimeConsumer union sync + doc-wide staleness sweep). Not independently executable; verified by direct diff/grep read confirming 'finding_resolve' matches the real code union, plus a manual grep sweep by this reviewer for other stale references (none found).",
+      "waiverReason": "CHK-007 is a documentation-only spec-doc reconciliation (a type-union sync plus a staleness sweep) with no executable behavior of its own; verified by direct textual inspection cross-checked against the real RuntimeConsumer union in core/playbook-runtime-memory.ts, which is the correct and only meaningful verification method for this kind of doc-sync change."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-verified at current HEAD d3baf121 (not merely trusting the dispatch prompt's claim of a prior review): git diff feb76f89a3..HEAD confirms the ONLY source-code delta since the last thoroughly-verified delivery round is a single-line --help description fix in command-catalog.ts, which this reviewer read directly and cross-checked as accurate against command-policy.ts's pre-existing gateEvidence:true declaration and the real canFinishGuard code -- no functional surface changed. All three gates (evaluateDevMemoryPreflightGate at 4 DEV doors, the finding_resolve advisory splice, canFinishGuard's finish-decision check) were independently re-read in the current source and re-verified via a fresh `npm run build` + a direct rerun of dev-memory-lifecycle-gates-smoke.js (79/79 assertions, matching the checklist's own permanently-waived CHK-004:happy:0 count-selector item, whose waiver rationale explicitly anticipated this exact growth from 72->74->79). No TODO/FIXME/HACK found in the diff's production code. A full npm test/lattice validate re-run was judged unnecessary given the isolated, non-executable-surface nature of the one delta, but every gate-relevant smoke assertion was independently reconfirmed green rather than assumed."
+  },
+  "_hash": "e9fc7e1317049fd6e66ac42a7929d05f79284703ac09f2218657ac1d190af8e9"
+}

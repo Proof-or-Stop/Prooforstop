@@ -1883,7 +1883,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    'ead33ddd7eae65fe2c2baf1411b7f0cf26b74ab16d28d9e5132fe777aef71663',
+    'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -1897,7 +1897,10 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d',
+    'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79',
+    // B-6693 (merged in) also moved this canonical AST, only to separate
+    // direct-validate watchdog cancellation from DONE-result classification.
+    // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
     '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
     '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -1991,9 +1994,10 @@ function assertCloseoutTrustBoundary() {
     '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a',
     "'packages/main/src/handlers/fixture-executors.ts'",
     'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
-    'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
+    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'b6f153f43aadcfd8e1720298765b1c491c638be47bc13e1bbdac0d6f72e8ceaf',
+    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
     'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
@@ -5077,8 +5081,15 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
   }
   const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+  for (const token of ['untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
+  }
+  // B-f00c: the merge-lineage git-command logic was extracted into the shared
+  // validation-lineage.ts classifier (used by both the reuse and admissibility copies).
+  // The net-endpoint diff replaces the per-commit union, so rev-list is no longer used.
+  const lineageText = read('packages/main/src/core/validation-lineage.ts');
+  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath']) {
+    assert(lineageText.includes(token), `shared merge-lineage classifier contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
   const expectedValidationTransportKeys = [

@@ -1212,7 +1212,7 @@ Behavior:
     bumpVersion: z.never().optional().describe('Unsupported: done_prepare never bumps versions before DONE.'),
     postDoneVersionBump: z.never().optional().describe('Unsupported: done_prepare only reports post-DONE version bump need.'),
   }},
-  { name: 'done_required_validate', description: 'Run opt-in DONE-required validation commands and write done-required-evidence.json', schema: {
+  { name: 'done_required_validate', description: 'Run opt-in DONE-required validation under shared workspace capacity and write done-required-evidence.json; bare npm test is outside this lease', schema: {
     storyId: z.string().describe('Story ID'),
     story: z.string().optional().describe('Alias for storyId.'),
     json: z.boolean().optional().describe('Return done-required-evidence.json content as JSON.'),
@@ -2021,7 +2021,7 @@ Behavior:
   }},
 
   // Verifier (Proof-or-Stop built-in code verification).
-  { name: 'validate', description: 'Run project verification (static, logic, and integration tests)', longHelp: VALIDATE_LONG, schema: {
+  { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
@@ -3078,6 +3078,15 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default) and, with apply:true or the equivalent dryRun:false, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Executing writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses, holding the shared process-events append lock and installing the rewritten log by atomic rename. Recovery is restricted to the canonical collision shape: every member of a pruned group must be a complete decision=pass host_verdict, so a group containing a non-pass or malformed row is refused, reported, and left intact rather than having a failing verdict deleted. Contradictory pairs (apply:true with dryRun:true, or apply:false with dryRun:false) are refused.', schema: {
+    storyId: z.string().describe('Canonical Story id'),
+    runIds: z.array(z.string()).optional().describe('Optional runId filter; only duplicates on these runIds are pruned, others are left untouched'),
+    dryRun: z.boolean().optional().describe('Default dry-run: list the duplicate host_verdict events that would be removed without writing a backup, rewriting, or committing. Default true; an explicit dryRun:false executes exactly like apply:true rather than being a silent no-op. Contradictory pairs are refused: dryRun:true with apply:true, and dryRun:false with apply:false.'),
+    apply: z.boolean().optional().describe('Actually back up, rewrite, and commit; omitted defaults to the dry-run that only lists what would be removed. apply:true and dryRun:false are equivalent executors. Contradictory pairs are refused: apply:true with dryRun:true, and apply:false with dryRun:false.'),
+    keep: z.enum(['newest-material', 'oldest-material']).optional().describe('Which duplicate survives per group; default newest-material keeps the later (newer-material) event, oldest-material keeps the earlier'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
   { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
     storyId: z.string().describe('Canonical Story id'),
     policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),
@@ -3179,13 +3188,21 @@ Behavior:
     maxLines: z.number().optional().describe('Line budget (default: 60).'),
     json: z.boolean().optional().describe('JSON output format.'),
   }},
+  { name: 'dev_memory_preflight_ack', description: 'Build the dev-memory preflight pack and write a per-story acknowledgement required by the DEV-entry gate (or, if the build fails, record a reasoned downgrade with --reason)', schema: {
+    storyId: z.string().describe('Story id whose DEV-entry gate this acknowledgement satisfies.'),
+    query: z.string().optional().describe('Preflight relevance query.'),
+    maxEntries: z.number().optional().describe('Maximum number of entries to include (default: 5).'),
+    maxLines: z.number().optional().describe('Line budget (default: 60).'),
+    reason: z.string().optional().describe('Reasoned-downgrade explanation (>=5 chars), required only when the preflight pack build itself throws.'),
+    actor: z.string().optional().describe('Acknowledging actor (default: LATTICE_AGENT/USER env or "main-agent").'),
+  }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proof-or-Stop sessions.'),
     storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},
-  { name: 'dev_memory_finish_decision', description: 'Record end-of-work memory decision: captured, no reusable lesson, or defer with reason (no automatic promotion; not gate evidence)', schema: {
+  { name: 'dev_memory_finish_decision', description: 'Record end-of-work memory decision: captured, no reusable lesson, or defer with reason (no automatic promotion; existence required by the DONE gate, but lesson content is never gate evidence)', schema: {
     storyId: z.string().optional().describe('Optional story id for the finish decision.'),
     decision: z.enum(['captured', 'no-reusable-lesson', 'defer-with-reason']).describe('End-of-work memory decision.'),
     reason: z.string().optional().describe('Required for no-reusable-lesson and defer-with-reason.'),

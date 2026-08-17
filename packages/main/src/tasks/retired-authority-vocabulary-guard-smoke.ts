@@ -358,7 +358,12 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-235e: repinned after closeout fixtures began hashing the frozen legacy
   // role body instead of an empty prompt. Approved compatibility calls and
   // occurrence counts remain mechanically checked by the manifest above.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'ead33ddd7eae65fe2c2baf1411b7f0cf26b74ab16d28d9e5132fe777aef71663'],
+  // B-a7c5 F-010: repinned again after adding a satisfying dev_memory_finish_decision
+  // write to the 'B-receipt' fixture (CHK-003's new DONE-gate check runs before
+  // the review_lane_missing diagnostic this file exists to test). No approved
+  // call shape or occurrence count changed; the whole-file structural
+  // fingerprint just moves with any source edit to this file.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -390,7 +395,22 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // with its initPath producer) is byte-identical to main — only its line number moved
   // (807 -> 812). The loader behaviour being approved is therefore unchanged; the digest
   // moved solely because this algorithm fingerprints the whole enclosing file.
-  ['packages/main/src/cli-engine.ts', 'a4330bff3e0e420b56c4352ca5b449ae3438f2dae883e1fc59db2201bcade37d'],
+  // B-6693 (merged in): repinned again after direct validate joined the structured
+  // watchdog while DONE-result classification remained separate. The approved
+  // non-literal loader still has the same runCli anchor, cli-init initPath producer,
+  // and import(`file://${initPath}`) call site. The relocation, producer mutation,
+  // nested-anchor, and loader-replacement controls below still make this pin bite.
+  //
+  // Repinned once more when main was merged into the B-cdf6 rename branch: the merged
+  // file carries both sides, so its digest matched neither parent's pin. Re-approval
+  // basis, checked before repinning rather than after: the complete dynamic-load surface
+  // is byte-identical across ours, theirs, and the merge — exactly two calls,
+  // `await import('./dashboard.js')` and `await import(`file://${initPath}`)`, with the
+  // same initPath producer and the same runCli anchor. No import()/require() call,
+  // argument, or path producer was added, removed, or rewritten; only the approved call
+  // site's line number moved (809/814 -> 814). As always, BOTH coupled copies of this
+  // digest (here and in scripts/verify-process-fact-contract.mjs) were updated together.
+  ['packages/main/src/cli-engine.ts', 'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -401,6 +421,19 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
   ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
   ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
+  // B-1734: bin/bootstrap-runner.js gained a build-aware importDistModules() wait loop
+  // (F-003/C4). Its runCli(...) and register(...) calls now resolve their callee through
+  // `await importDistModules()` (an opaque any-returning local function) instead of the
+  // previous inline `await Promise.all([import(),import()])` tuple, so the callee
+  // provenance is classified 'unresolved-index-source'. These are the SAME benign
+  // dynamically-imported dist entry points bootstrap-runner has always invoked; the
+  // refactor added NO eval/Function/new dynamic import(). Whole-source exemption pinned to
+  // the exact post-refactor fingerprint — any drift re-triggers the full dynamic-code scan.
+  // Repinned when main was merged into the B-cdf6 rename branch: the merged file is that
+  // same post-refactor source plus exactly three brand-text lines (two console.error
+  // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
+  // eval/Function/require/import() was added, so this exemption's basis is unchanged.
+  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1437,8 +1470,10 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   }],
   ['bin/bootstrap-runner.js', {
     calls: [
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(MAIN_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(UTILS_DIST).href' },
+      // B-1734: the MAIN_DIST/UTILS_DIST dist imports moved out of runLocalBootstrap into the
+      // new build-aware importDistModules() wait loop; the argument expressions are unchanged.
+      { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
+      { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
@@ -1462,7 +1497,23 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
   // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
-  ['bin/bootstrap-runner.js', 'b6f153f43aadcfd8e1720298765b1c491c638be47bc13e1bbdac0d6f72e8ceaf'],
+  // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
+  // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
+  // loader call sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into
+  // importDistModules, LAB_DIST/zod still in runLocalBootstrap); this whole-file structural
+  // fingerprint gates that call-site allowlist, so it moves with any edit to this
+  // security-sensitive entry.
+  //
+  // Repinned when main was merged into the B-cdf6 rename branch: the merged file carries
+  // BOTH sides (theirs' importDistModules() wait loop + our three brand strings), so its
+  // digest matched neither parent's pin. Re-approval basis, checked before repinning:
+  // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
+  // them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice
+  // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
+  // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
+  // runLocalBootstrap) are byte-identical to that copy, including their path producers —
+  // no import()/require() call, argument, or producer was added, moved, or rewritten.
+  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
   ['bin/proof-or-stop-codex.js', 'd03acdc43d743f67f80bb5194205c48dbeb44676580a6b3cbcc1d3e411ed65ec'],
 ]);
 
@@ -4098,8 +4149,8 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    6,
-    'the fixture executor is the sixth exact whole-source executable exemption; no broad pattern exemptions are allowed',
+    7,
+    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],

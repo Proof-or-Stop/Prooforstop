@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED repro proves runSingleAllowlistedCommand ignores validate.commands[].timeoutMs",
+      "context": "Extend packages/main/src/tasks/validate-command-timeout-smoke.ts (already covers resolveCommandTimeoutMs and the lattice validate path in depth, per its own docstring, but never touches runSingleAllowlistedCommand) with a case that writes a temp lattice.config.json to a tmpdir project root with a validate.commands[] entry pinning a Node command plus a small timeoutMs override, then calls runSingleAllowlistedCommand with that exact command string and NO options.timeoutMs. Assert the configured override is honored (timedOut=true at the small budget) instead of the hardcoded 270s default. Must fail on current main because validation-executor.ts:595 ignores the config.",
+      "userSees": "validate-command-timeout-smoke fails on current main, demonstrating runSingleAllowlistedCommand never consults the per-command config override.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Thread validate.commands[].timeoutMs into runSingleAllowlistedCommand via configuredValidationCommands",
+      "context": "In runSingleAllowlistedCommand (validation-executor.ts:584-596) or its callers in checklist.ts, match the pinned command's parsed {executable,args} against configuredValidationCommands(projectRoot) (handlers/verifier.ts:224) entries by exact {command,args} equality, and pass the matched entry's .timeoutMs into options.timeoutMs before constructing the ValidationCommand, falling back to DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS when no entry matches or the caller already supplied an explicit options.timeoutMs. Do not modify resolveCommandTimeoutMs or the lattice validate path (executeValidationPlan/runValidationCommand), which already work correctly.",
+      "userSees": "verification_evidence_add / _batch_add / verification_run against a pinned command with a configured timeoutMs override now respect that budget instead of always capping at 270s; commands with no configured override keep today's 270s default unchanged; the CHK-001 smoke passes.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression coverage: unmatched commands keep the 270s default, and matching does not cross-match by executable alone",
+      "context": "Add coverage that (a) a pinned command with NO matching entry in validate.commands[] still gets the 270s default (no behavior change for the common case), and (b) two distinct configured commands that share an executable but differ in args do not cross-match each other's timeoutMs (matching must compare the full parsed args array, not just the executable).",
+      "userSees": "validate-command-timeout-smoke demonstrates both the unmatched-default case and the args-based disambiguation case pass after the fix.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

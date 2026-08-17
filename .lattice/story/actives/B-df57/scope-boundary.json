@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-df57",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Canonical equivalence between authored verificationIntent IDs and valid CHK-item lane index references for the same unique row",
+    "Focused positive, fail-closed, mutation, and REVIEW contract-write refusal regressions",
+    "Process-fact registry/verifier projection for the shared resolver contract",
+    "ProofStory REVIEW and DONE completeness, acceptance topology, acceptance coverage-basis, and milestone-status consumers"
+  ],
+  "excluded": [
+    "Allowing proofstory contract mutation after PLAN",
+    "Broad ProofStory topology redesign",
+    "Changing verification evidence command or selector pinning",
+    "Editing active Story JSON directly",
+    "Evidence artifact store, owner lease, or validation capacity behavior",
+    "Weakening stale failing waived or non-mechanical evidence checks"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested autonomous completion until DONE; this prerequisite is the minimum gate-correctness fix needed to continue B-8de3 without bypass or waiver.",
+  "createdAt": "2026-08-16T12:48:47.345Z",
+  "updatedAt": "2026-08-16T12:48:47.345Z",
+  "_hash": "df90b6ff30a6683483c2323393bcc7680cbb4e202e74dd91c9202bf28a707b62"
+}

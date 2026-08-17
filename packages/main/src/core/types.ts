@@ -3441,6 +3441,31 @@ export interface ReviewLoopPolicy {
   stopOnScopeViolation: boolean;
 }
 
+// ── Dev-Memory Lifecycle Gates (B-a7c5) ──
+
+/**
+ * Per-story acknowledgement that `dev_memory_preflight`'s pack builder ran
+ * (or, if the build threw, that a reasoned downgrade was recorded) before
+ * this story entered DEV. This is a structurally SEPARATE artifact from a
+ * `DevMemoryEntry` JSONL row: it carries no `gateEvidence`/`authority`
+ * fields because it never claimed non-authoritative status over lesson
+ * CONTENT in the first place — it only records that the read-side ritual
+ * happened. See `evaluateDevMemoryPreflightGate` in core/machine.ts and
+ * docs/requirements/decisions/dev-memory.md's Non-Goals annotation.
+ */
+export interface DevMemoryPreflightAckData {
+  schemaVersion: 'lattice.dev_memory_preflight_ack.v1';
+  storyId: string;
+  /** Digest of the preflight pack actually seen, or null on a reasoned downgrade. */
+  packDigest: string | null;
+  /** Ids of the entries actually seen in the preflight pack (empty on a reasoned downgrade). */
+  topHitIds: string[];
+  acknowledgedAt: string;
+  acknowledgedBy: string;
+  /** Present only when the preflight pack build threw and a bypass reason was recorded instead. */
+  downgradeReason?: string;
+}
+
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
   light: {
     profile: 'light',

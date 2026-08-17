@@ -597,6 +597,9 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId: runs[0].reviewRunId,
       note: 'stale run should be rejected after material change.',
+      // B-74b9 CHK-002: readManifest is a required argument (command-catalog.ts); without it the
+      // call fails argument validation before ever reaching the staleness check this test exercises.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(stalePass.code, 0);
     assert.match(stalePass.stderr, /already stale|stale/i);
@@ -667,6 +670,8 @@ async function assertReviewRunStoryFilesHashAcceptsUnrelatedMainDrift(): Promise
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'quality review pass remains valid after unrelated main drift because storyFilesHash matches.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.equal(pass.code, 0, pass.stderr);
     assert.match(pass.stderr, /whole-tree materialHash drift|storyFilesHash matches|re-attestation/i);
@@ -869,6 +874,8 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'split-root review pass should validate against configured gitRoot.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.equal(pass.code, 0, pass.stderr);
 
@@ -895,6 +902,9 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'old split-root review pass must be rejected after gitRoot changes.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts); a valid manifest here lets
+      // this reach the real workspace-binding staleness check, not fail earlier on argument validation.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(driftRejected.code, 0);
     assert.match(driftRejected.stderr, /workspace binding|signed workspace resolution|stale/i);
@@ -917,6 +927,9 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
       agent: 'lattice-review-quality',
       reviewRunId,
       note: 'tampered workspace binding should be rejected before pass evidence.',
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts); a valid manifest here lets
+      // this reach the real tampered-binding check, not fail earlier on argument validation.
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.notEqual(rejected.code, 0);
     assert.match(rejected.stderr, /workspace binding|workspaceBinding|invalid signature|tampered/i);
@@ -1193,14 +1206,13 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     const output = await runProofOrStop(root, 'reviewer_list', {
       storyId,
       json: true,
-      forceReviewer: 'lattice-review-docs, behavior, channel',
+      forceReviewer: 'lattice-review-docs, behavior',
     });
     type ReviewerListEntry = { name: string; forced?: boolean };
     const parsed = JSON.parse(output) as { reviewers: ReviewerListEntry[] };
     const reviewers = new Map<string, ReviewerListEntry>(parsed.reviewers.map((entry) => [entry.name, entry]));
     assert.equal(reviewers.get('docs')?.forced, true, 'full built-in lane should normalize to a forced short reviewer name');
     assert.equal(reviewers.get('behavior')?.forced, true, 'built-in short reviewer name should remain supported');
-    assert.equal(reviewers.get('channel')?.forced, true, 'retired compatibility lane should remain forceable while review_run_start supports it');
     assert.equal(reviewers.has('lattice-review-docs'), false, 'forced reviewer output should not mix full lane names into opt-in names');
 
     const invalid = await runProofOrStopRaw(root, 'reviewer_list', {
@@ -1211,6 +1223,19 @@ async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
     assert.notEqual(invalid.code, 0);
     assert.match(invalid.stderr, /not supported by review_run_start/);
     assert.match(invalid.stderr, /lattice-review-quality/);
+
+    // "channel" (lattice-review-channel) is deliberately, structurally retired
+    // (core/prompt-role-contract-registry.ts: status 'retired', defaultDispatch
+    // false) -- review_run_start no longer supports it in any capacity, and
+    // reviewer_list must reject it the same way it rejects any other retired /
+    // unsupported lane, not treat it as a still-forceable compatibility name.
+    const invalidChannel = await runProofOrStopRaw(root, 'reviewer_list', {
+      storyId,
+      json: true,
+      forceReviewer: 'channel',
+    });
+    assert.notEqual(invalidChannel.code, 0, 'the retired channel lane must not be forceable');
+    assert.match(invalidChannel.stderr, /not supported by review_run_start/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1230,6 +1255,8 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
       agent,
       reviewRunId: starts.get(agent)?.reviewRunId,
       note: `${agent} checked current round and found no blocking findings.`,
+      // B-74b9 CHK-002: readManifest is required (command-catalog.ts).
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     })));
     const ids = outputs.map(out => out.match(/B-rpcli:RP-\d+/)?.[0]).filter(Boolean);
     assert.equal(ids.length, agents.length);
@@ -1257,7 +1284,10 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     writeReviewStory(store, storyId);
     const docsRunId = await startReviewRun(root, storyId, 'lattice-review-docs');
     const conceptRunId = await startReviewRun(root, storyId, 'lattice-review-concept');
-    const channelRunId = await startReviewRun(root, storyId, 'lattice-review-channel');
+    // lattice-review-channel is deliberately retired (core/prompt-role-contract-registry.ts);
+    // lattice-review-test-coverage is a currently-supported lane not otherwise exercised in
+    // this function, so it takes over the "fifth distinct reviewer lane" slot.
+    const testCoverageRunId = await startReviewRun(root, storyId, 'lattice-review-test-coverage');
     const qualityRunId = await startReviewRun(root, storyId, 'lattice-review-quality');
     const behaviorRunId = await startReviewRun(root, storyId, 'lattice-review-behavior');
 
@@ -1268,6 +1298,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(passOutput, /Review pass B-passonly:RP-001 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'pass-only finding_add should not write findings.json');
@@ -1286,6 +1317,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
@@ -1297,20 +1329,22 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-concept',
       reviewRunId: conceptRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by lattice-review-concept/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'concept pass-only finding_add should not write findings.json');
 
-    const channelPassOutput = await runProofOrStop(root, 'finding_add', {
+    const testCoveragePassOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
-      desc: 'Express channel (≤2 items, no riskSignals), main agent self-write compliant',
+      desc: 'Test coverage review passed: no findings.',
       severity: 'low',
       category: 'happy',
-      agent: 'lattice-review-channel',
-      reviewRunId: channelRunId,
+      agent: 'lattice-review-test-coverage',
+      reviewRunId: testCoverageRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
-    assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by lattice-review-channel/);
-    assert.equal(store.readFindings(storyId).findings.length, 0, 'channel pass-only finding_add should not write findings.json');
+    assert.match(testCoveragePassOutput, /Review pass B-passonly:RP-004 recorded by lattice-review-test-coverage/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'test-coverage pass-only finding_add should not write findings.json');
 
     const noFindingsOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
@@ -1319,6 +1353,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-quality',
       reviewRunId: qualityRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by lattice-review-quality/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'no findings wording should convert to review pass');
@@ -1330,6 +1365,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-behavior',
       reviewRunId: behaviorRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by lattice-review-behavior/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'generic check-pass wording should convert to review pass');
@@ -1341,6 +1377,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
@@ -1352,6 +1389,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       category: 'happy',
       agent: 'lattice-review-docs',
       reviewRunId: docsRunId,
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     });
     assert.match(localizedPassOutput, /Review pass B-passonly:RP-008 recorded by lattice-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'localized pass-only finding_add should convert to review pass');
@@ -1699,19 +1737,24 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
   }
 }
 
-function writeDoneReadyStory(worktree: string, storyId: string): void {
+function writeDoneReadyStory(worktree: string, storyId: string): { timestamp: string } {
   const store = new StoryStore(worktree);
   const timestamp = now();
   const materialHash = currentMaterialHash(worktree);
   assert.ok(materialHash);
   const head = git(worktree, ['rev-parse', 'HEAD']);
+  // Phase starts at REVIEW (not TEST) so the caller can bind a REAL review_run_start +
+  // review_pass_set pass -- those commands are REVIEW-phase-only. The caller flips phase
+  // to TEST directly once a properly-bound, properly-signed pass exists; validateEvidenceRunBinding
+  // now unconditionally requires reviewRunId on every pass (missing_review_run_id), and a
+  // hand-crafted _hash alone (no real review_run_start) is not enough.
   store.writeStory(storyId, {
     storyId,
     name: 'done-stray-review-passes',
     title: 'DONE stray review-passes',
     description: 'Synthetic DONE story for untracked review-passes cleanup.',
     type: 'chore',
-    phase: 'TEST',
+    phase: 'REVIEW',
     priority: 'medium',
     createdAt: timestamp,
     startedAt: timestamp,
@@ -1722,7 +1765,7 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
       branch: `story/${storyId}`,
       createdAt: timestamp,
     },
-    events: [{ phase: 'TEST', action: 'advance', timestamp }],
+    events: [{ phase: 'REVIEW', action: 'advance', timestamp }],
   });
   store.writeChecklist(storyId, {
     items: [{
@@ -1750,14 +1793,22 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
     },
   };
   store.writeTestEvidence(storyId, evidence);
-  store.writeReviewPasses(storyId, {
-    passes: [{
-      id: `${storyId}:RP-001`,
-      agent: 'lattice-review-quality',
-      note: 'Synthetic review pass tracked on story branch.',
-      createdAt: timestamp,
-      reviewRound: timestamp,
-    }],
+  return { timestamp };
+}
+
+function finishDoneReadyStory(worktree: string, storyId: string, timestamp: string): void {
+  const store = new StoryStore(worktree);
+  const materialHash = currentMaterialHash(worktree);
+  assert.ok(materialHash);
+  const head = git(worktree, ['rev-parse', 'HEAD']);
+  // The real review_run_start + review_pass_set pass is already bound and signed by
+  // this point; flip phase to TEST directly (this test exercises DONE's untracked-file
+  // cleanup, not the REVIEW->TEST gate machinery).
+  const story = store.readStory(storyId);
+  store.writeStory(storyId, {
+    ...story,
+    phase: 'TEST',
+    events: [...(story.events ?? []), { phase: 'TEST', action: 'advance', timestamp }],
   });
   const summary: StorySummaryData = {
     storyId,
@@ -1814,10 +1865,30 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
     git(root, ['branch', `story/${storyId}`]);
     const worktree = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktree, `story/${storyId}`]);
-    writeDoneReadyStory(worktree, storyId);
+    const { timestamp } = writeDoneReadyStory(worktree, storyId);
     commit(worktree, 'prepare done story', 'lattice-implementer');
 
+    // Real review_run_start + review_pass_set so each pass carries a genuine
+    // reviewRunId binding (validateEvidenceRunBinding now requires one on every
+    // pass, missing_review_run_id) alongside a correctly-signed _hash. DONE also
+    // now requires the full opt-in 3-lane quorum (concept, quality, test-coverage),
+    // not just one lane (review_lane_missing).
+    for (const laneAgent of ['lattice-review-quality', 'lattice-review-concept', 'lattice-review-test-coverage']) {
+      const doneReviewRunId = await startReviewRun(worktree, storyId, laneAgent);
+      await runProofOrStop(worktree, 'review_pass_set', {
+        storyId,
+        agent: laneAgent,
+        reviewRunId: doneReviewRunId,
+        note: 'Synthetic review pass tracked on story branch.',
+        readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+      });
+    }
+    finishDoneReadyStory(worktree, storyId, timestamp);
+    commit(worktree, 'finish done-ready story metadata', 'lattice-implementer');
+
     write(root, `.lattice/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
+    // B-a7c5 CHK-003: the DONE gate now requires a recorded dev_memory_finish_decision.
+    await runProofOrStop(worktree, 'dev_memory_finish_decision', { storyId, decision: 'captured' });
     const output = await runProofOrStop(worktree, 'story_advance', { storyId, phase: 'DONE' });
 
     assert.match(output, /Cleaned untracked copy in main repo: .*review-passes\.json/);

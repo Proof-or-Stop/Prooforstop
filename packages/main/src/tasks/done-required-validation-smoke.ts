@@ -696,7 +696,10 @@ function assertDoneRequiredBlocked(
 }
 
 // Direct handler defaults progress to ctx.log, keeps JSON singular, and contains a throwing sink.
-// Every intervening commit is inspected, so modify-then-revert material history is still untrusted.
+// A modify-then-revert (and rename-into-metadata-and-back) that leaves material BYTE-IDENTICAL at
+// the endpoint is trusted: the net endpoint diff shows no material change, so the validation still
+// applies (B-f00c). A genuine, non-reverted content change is still untrusted — covered by
+// validation-evidence-reuse-smoke.ts (source.ts case).
 {
   const { root, store } = fixture([{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
   try {
@@ -715,8 +718,10 @@ function assertDoneRequiredBlocked(
     git(root, ['mv', `.lattice/story/actives/${STORY_ID}/renamed-from-material.md`, 'README.md']);
     git(root, ['commit', '-m', 'restore renamed material path']);
     const reuse = evaluateDoneRequiredPreRunReuse({ root, gitCwd: root, storyId: STORY_ID, store });
-    assert.equal(reuse.reusable, false);
-    assert.match(reuse.refusalReasons.join('\n'), /untrusted-lineage-path:README\.md/);
+    // Net endpoint diff: README.md is byte-identical at the endpoint, so it is not listed
+    // as changed and the validation stays trusted for reuse (B-f00c corrected semantic).
+    assert.equal(reuse.reusable, true);
+    assert.equal(reuse.refusalReasons.join('\n'), '');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

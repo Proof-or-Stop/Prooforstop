@@ -413,6 +413,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'dispatch_policy_create', 'dispatch_policy_get', 'dispatch_policy_check', 'dispatch_auto', 'dispatch_watch', // B-a5c2: policy-authorized dispatch controls + read-only watch
     'autopilot_*', // Proof-or-Stop unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
     'quorum_submit', // local voluntary 3x2 floor helper; handler refuses without current reviewer pass evidence
+    'quorum_prune', // B-3144: official B-bf52 recovery for poisoned host-verdict rounds; dry-run default, apply:true or the equivalent dryRun:false backs up + rewrites + commits; declared allowedPhases:all storyScopedMutating in command-policy; phaseTools must match
     'cross_host_review', // B-f57a: owner-driven local cross-host verdict writer; command-policy/handler keep owner lease, review-only dispatch policy, and dirty/head guards fail-closed
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Proof-or-Stop Parallel Wave planning surfaces; no authority mutation

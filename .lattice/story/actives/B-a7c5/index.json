@@ -1,0 +1,239 @@
+{
+  "storyId": "B-a7c5",
+  "name": "dev-memory-lifecycle-gates",
+  "title": "Make dev-memory preflight mandatory before DEV and finish-decision mandatory before DONE, plus an advisory capture reminder on finding_resolve",
+  "description": "Proofbound's own dev-memory system (.lattice/dev-memory/experience.jsonl, git-tracked, shared across all agents/sessions on this repo) is entirely voluntary today: dev_memory_preflight/dev_memory_start/dev_memory_capture/dev_memory_finish/dev_memory_finish_decision are never called automatically by any lifecycle handler, and canFinishGuard (the DONE gate) never checks for dev-memory activity. A story can reach DONE having captured zero lessons and nothing notices. This story closes that gap at three points: (1) an INIT_CHECK-phase gate requiring a recorded dev_memory_preflight acknowledgement before a story may enter DEV, so every session starts having actually consulted prior lessons; (2) a non-blocking advisory reminder appended to finding_resolve's own output, prompting in-the-moment capture rather than end-of-story recall; (3) a DONE-gate requirement that dev_memory_finish_decision has been recorded (captured | no-reusable-lesson | defer-with-reason -- an honest 'nothing to capture' is an acceptable, non-blocking answer, but silent skip is not).",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "dev-memory",
+    "dev_memory_preflight",
+    "dev_memory_capture",
+    "dev_memory_finish_decision",
+    "INIT_CHECK",
+    "finding_resolve",
+    "DONE gate",
+    "canFinishGuard"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-14T10:12:43.140Z",
+  "startedAt": "2026-08-14T10:12:43.140Z",
+  "endedAt": "2026-08-15T16:14:15.992Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-14T10:12:43.857Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T10:17:51.039Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-14T10:18:47.057Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-14T11:06:41.938Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-14T13:41:16.096Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T10:44:00.040Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T10:45:44.244Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-15T11:07:17.882Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T11:16:19.292Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T11:17:03.901Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T11:50:28.516Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T11:51:21.761Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T12:29:00.787Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T12:29:13.708Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T13:11:18.037Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T13:11:28.330Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T14:52:42.132Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T14:53:25.129Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-15T15:24:41.837Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-15T15:48:40.675Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-15T15:48:49.148Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-15T16:05:31.680Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-15T16:14:15.992Z",
+      "branch": "story/B-a7c5",
+      "user": "Harmonygo",
+      "sessionId": "sess-811d105c99cb7771c59a07e52f523909",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-15T15:48:49.148Z"
+}

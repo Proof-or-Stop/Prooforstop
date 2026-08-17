@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Fix the false positive without weakening any true positive: byte-identical endpoint content means the validation verdict still applies.",
+    "One shared classifier used by both copies so they cannot diverge again (audit finding H1).",
+    "Fail-closed on any git error, and never silently mislabel a diff/ENOBUFS failure as an ancestry failure.",
+    "Touch only the merge-lineage factor; leave the other eight reuse factors, refresh_stale, and the review floor untouched."
+  ],
+  "drivers": [
+    "A byte-equivalent second copy (validationHeadLineage in validation-evidence-admissibility.ts) also hard-throws autopilot_review_submit --deriveBindings via verdict.ts:139, so fixing only the reuse copy is insufficient.",
+    "Large main-syncs can exceed Node's 1MiB execFileSync default causing ENOBUFS that the catch swallows and mislabels as not-ancestor (B-f492 precedent in evidence-freshness.ts:134).",
+    "Pathnames with spaces or non-ASCII are git-quoted unless -z is used, breaking isStoryMetadataPath matching."
+  ],
+  "options": [
+    {
+      "name": "Fix only validation-evidence-reuse.ts (rev-1 scope)",
+      "pros": [
+        "Smallest diff"
+      ],
+      "cons": [
+        "Audit H1: leaves the byte-equivalent admissibility copy, so autopilot_review_submit --deriveBindings still hard-throws the same false positive in hot-main closeout",
+        "Two copies keep diverging"
+      ]
+    },
+    {
+      "name": "Keep per-commit union, filter each path by git diff --quiet endpoint check",
+      "pros": [
+        "Preserves per-path provenance in the reason strings"
+      ],
+      "cons": [
+        "O(number-of-paths) extra git subprocess calls for provenance no consumer reads",
+        "Still two divergent copies unless also unified"
+      ]
+    },
+    {
+      "name": "One shared net-diff merge-lineage classifier used by both copies",
+      "pros": [
+        "Fixes both the reuse and the admissibility/autopilot paths at once",
+        "Net endpoint diff naturally excludes merge-re-touched unchanged files while still catching genuine content changes",
+        "Single source of truth prevents future divergence",
+        "Folds the audit robustness fixes (-z, maxBuffer, empty-means-trusted, split catch) into one place"
+      ],
+      "cons": [
+        "Adds one new module and refactors two call sites (slightly larger diff)",
+        "Loses intra-range change-then-revert visibility (semantically correct: identical endpoints mean identical validated content)"
+      ]
+    }
+  ],
+  "chosen": "One shared net-diff merge-lineage classifier used by both copies",
+  "rationale": "The cross-host audit (Claude CLI + Agy CLI, both SOUND-WITH-CHANGES) proved fixing only the reuse copy is insufficient because the admissibility copy independently hard-throws autopilot. A shared net-diff classifier fixes both paths, prevents future divergence, and centralizes the three audit-required robustness fixes. Content identity between endpoints guarantees the reused verdict is still correct; genuine content changes still refuse reuse, so no security property is relaxed.",
+  "preMortem": [
+    {
+      "scenario": "The empty-net-diff-means-trusted change lets a stale validation be reused",
+      "trigger": "An implementer reads empty as always-safe and drops other guards",
+      "consequence": "A false PASS reaches DONE",
+      "mitigation": "Empty net diff means the endpoint trees are byte-identical (strictly safer than metadata-only change); the other eight reuse factors (genuine receipt + material/storyFiles/identity hashes) still gate independently. Negative smoke asserts a genuine content change still refuses."
+    },
+    {
+      "scenario": "The two copies drift again after this fix",
+      "trigger": "A future edit touches one classifier not the other",
+      "consequence": "The merge false positive re-appears on one path",
+      "mitigation": "Both call sites delegate to one shared exported classifier; the smoke exercises both paths so a divergence fails the suite."
+    },
+    {
+      "scenario": "netDiffChangedPaths throws ENOBUFS on a large main-sync and is swallowed",
+      "trigger": "A big main merge produces >1MiB of diff output",
+      "consequence": "Silent fall-back to a spurious re-run (the exact bug, reintroduced)",
+      "mitigation": "Explicit maxBuffer 1GiB mirroring evidence-freshness.ts:134; split the catch so a diff failure surfaces a distinct lineage-diff-failed reason instead of mislabeling as not-ancestor."
+    }
+  ],
+  "timestamp": "2026-07-26T03:13:24.708Z"
+}

@@ -16,7 +16,7 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
-import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -128,13 +128,13 @@ async function submitWithDerivedBindings(ctx: HandlerContext, args: SubmitArgs) 
   const identity = validateDerivedBindingRequest(args);
   const workspace = resolveStoryCommandWorkspace(ctx.store, identity.storyId, ctx.root);
   const projectRoot = workspace.signedWorkspaceRoot;
-  return withValidationExecutionLock({
-    // Validation writers key this lock from ctx.root (metadata/runtime authority),
-    // while workspaceRoot is diagnostic only. Keep the same authority in wrapper layouts.
+  return withOfficialValidationExecution({
     root: ctx.root,
     storyId: identity.storyId,
     workspaceRoot: projectRoot,
+    requireGitIdentity: true,
     command: 'autopilot_review_submit --deriveBindings',
+    onWaitProgress: (message) => ctx.log?.(message),
   }, () => {
     const admissibility = assessStoredValidationPassAdmissibility(ctx, identity.storyId);
     if (!admissibility.ok || !admissibility.evidence || !admissibility.headHash || !admissibility.materialHash || !admissibility.storyFilesHash) {

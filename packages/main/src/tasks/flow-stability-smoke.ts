@@ -4128,6 +4128,14 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   //     validate failure (allPass=false) → first throw "did not pass".
   const failRoot = mkdtempSync(join(tmpdir(), 'lattice-phase-gates-validate-fail-'));
   try {
+    // Official validation now requires the configured workspace to resolve one
+    // Git identity before it enters the capacity queue. Seed only that identity
+    // so this fixture still reaches, and is classified by, configured exit 5.
+    git(failRoot, ['init']);
+    git(failRoot, ['config', 'user.email', 'lattice@example.test']);
+    git(failRoot, ['config', 'user.name', 'Proofbound Smoke']);
+    git(failRoot, ['checkout', '-B', 'main']);
+    git(failRoot, ['commit', '--allow-empty', '-m', 'base']);
     const store = new StoryStore(failRoot);
     write(failRoot, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',

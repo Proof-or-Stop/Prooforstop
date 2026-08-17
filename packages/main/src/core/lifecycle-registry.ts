@@ -678,6 +678,11 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   // (core/review-loop.ts) through join(storyDir, ...) sites in store.ts;
   // B-5e4a F-001.
   'review-loops.jsonl',
+  // B-a7c5 CHK-001: per-story dev-memory preflight acknowledgement written by
+  // StoryStore (readDevMemoryPreflightAck/writeDevMemoryPreflightAck) and by
+  // dev_memory_preflight_ack. Consumed by the DEV-entry gate
+  // (evaluateDevMemoryPreflightGate in core/machine.ts).
+  'dev-memory-preflight-ack.json',
 ]);
 
 /**

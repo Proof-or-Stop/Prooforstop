@@ -30,6 +30,11 @@ export const verificationPlannedPathDeclarationSchema = z.object({
   if (duplicate) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consumers'], message: `duplicate planned endpoint id: ${duplicate}` });
 });
 
+const verificationIntentPinSchema = z.object({
+  command: z.string().trim().min(1),
+  selector: z.string().trim().min(1),
+}).strict();
+
 /**
  * @task B-ef9c
  * @checklist CHK-003
@@ -51,6 +56,7 @@ export const verificationIntentItemSchema = z.object({
   requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('Minimum workflow profile that requires this.'),
   priority: z.enum(['must', 'should', 'nice']).optional().describe('must enters the evidence gate.'),
   plannedPathDeclarations: z.array(verificationPlannedPathDeclarationSchema).optional(),
+  verification: verificationIntentPinSchema.optional().describe('Immutable executable proof pin: exact command plus required output selector.'),
 }).strict().superRefine((item, ctx) => {
   const ids = (item.plannedPathDeclarations ?? []).map(declaration => declaration.id);
   const duplicate = ids.find((id, index) => ids.indexOf(id) !== index);

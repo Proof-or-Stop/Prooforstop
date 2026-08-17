@@ -161,4 +161,29 @@ These fields are a reminder baked into every entry. A consumer that tries to int
 - Dev-memory does NOT replace `docs/requirements/decisions/` for architectural decisions.
 - Dev-memory does NOT generate signed artifacts of any kind.
 - Dev-memory entries are NOT surfaced in `proof-or-stop validate` output or gate checks.
+
+  > **Delivered differently (B-a7c5):** this bullet is still true, verbatim,
+  > for `DevMemoryEntry` JSONL rows (the entries this doc otherwise
+  > describes) — no entry's `gateEvidence`/`authority` fields are ever read
+  > by a gate, and no lesson CONTENT is ever surfaced as gate evidence.
+  > B-a7c5 introduces two structurally SEPARATE artifact types that ARE
+  > gate-checked: `dev-memory-preflight-ack.json` (one per story, written by
+  > `dev_memory_preflight_ack`, checked by `evaluateDevMemoryPreflightGate`
+  > at every DEV-entry door) and the `dev_memory_finish_decision` record
+  > under `.lattice/dev-memory/finish-decisions/` (checked by
+  > `canFinishGuard`, the DONE gate). Neither is a `DevMemoryEntry`. The
+  > preflight-ack record carries no `gateEvidence`/`authority` fields at all
+  > (it never claimed non-authoritative status over lesson content in the
+  > first place); the finish-decision record still carries its pre-existing
+  > `gateEvidence:false`/`authority:non_authoritative` fields describing
+  > LESSON CONTENT's status (unchanged by B-a7c5), but neither gate reads
+  > those fields — both gates check only whether a reflection record
+  > EXISTS at all ("did the ritual of consulting/reflecting happen"),
+  > structurally identical in kind to `summary_set` (also a required
+  > attestation, not itself code-correctness evidence) — never the lesson
+  > text inside it, and never the record's own self-declared authority
+  > fields. This bullet's guarantee about entry CONTENT is unweakened: no
+  > gate anywhere reads a `DevMemoryEntry`'s `lesson`/`summary`/`trigger`
+  > fields, and no gate is satisfied by what a captured lesson says.
+
 - Dev-memory is NOT a replacement for proper test coverage or REVIEW reviewer findings.

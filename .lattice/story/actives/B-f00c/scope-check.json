@@ -1,0 +1,146 @@
+{
+  "storyId": "B-f00c",
+  "checkedAt": "2026-07-26T03:30:45.180Z",
+  "features": [
+    {
+      "feature": "Extract one shared net-endpoint-diff helper (netDiffChangedPaths + a shared lineage classifier) and route BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) through it, replacing each copy's independent per-commit `diff-tree -m` union",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/done-validation-reuse-merge-lineage-fix-proposal.md sec 3-4; checklist.json CHK-001"
+    },
+    {
+      "feature": "-z NUL split for the diff-tree git call so spaced/non-ASCII paths are not git-quoted and isStoryMetadataPath still matches",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 4 (audit A2); checklist.json CHK-001"
+    },
+    {
+      "feature": "Explicit large maxBuffer (mirroring evidence-freshness.ts:134 B-f492 precedent) so a large main-sync diff does not ENOBUFS",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 4 (audit M3); checklist.json CHK-001"
+    },
+    {
+      "feature": "Empty net diff between evidenceHead and currentHead means TRUSTED, not rejected (remove the changed.length===0 -> rejected/empty-descendant-lineage/lineage_empty push in BOTH copies)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 4 (audit M2); checklist.json CHK-001"
+    },
+    {
+      "feature": "Split the try/catch so only merge-base --is-ancestor stays in the ancestry-failure catch; a netDiffChangedPaths failure surfaces a distinct reason instead of being mislabeled as evidence-head-is-not-current-ancestor",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 4 (audit M3); checklist.json CHK-001"
+    },
+    {
+      "feature": "Keep the exact-head fast-path, the merge-base ancestor gate, and the isStoryMetadataPath untrusted filter unchanged; do not touch the other 8 reuse factors in evaluateRoutineValidationReuse",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-001; decision.json principles"
+    },
+    {
+      "feature": "A genuinely content-changed non-metadata file at the endpoint still refuses reuse on both paths (security property preserved, no true-positive relaxed)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 5-6, sec 8 steps 5-6; checklist.json CHK-002(c)"
+    },
+    {
+      "feature": "RED-first smoke reproduces the merge false-positive on both classifyTrustedValidationLineage and validationHeadLineage before the fix, GREEN after",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 8; checklist.json CHK-002(a)(b)"
+    },
+    {
+      "feature": "Large-diff case exercising maxBuffer does not throw ENOBUFS; empty-net-diff between distinct heads means trusted",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 4/6; checklist.json CHK-002(d)"
+    },
+    {
+      "feature": "Smoke wired into lattice.config.json validate.commands normal tier",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json CHK-002; scope-contract.json allowedModify lattice.config.json"
+    },
+    {
+      "feature": "verdict.ts (autopilot_review_submit --deriveBindings hard-throw) and phase-gates.ts must NOT change; they only consume the corrected classifier",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list + scope-contract.json protectedFiles; decision.json constraint",
+      "source": "scope-boundary.json; scope-contract.json"
+    },
+    {
+      "feature": "Do not relax isReusableCommandPass, the material/storyFilesHash/identity hash factors, or refresh_stale laundering behavior (B-3b88 domain)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; decision.json constraint",
+      "source": "scope-boundary.json; understanding.json constraints"
+    },
+    {
+      "feature": "Do not reduce review-assurance-floor round/host counts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded list; proposal sec 7",
+      "source": "scope-boundary.json"
+    },
+    {
+      "feature": "done-prepare-validation-reuse.ts:123 and handlers/verifier.ts:606 (callers of the classifier) automatically pick up the corrected behavior without call-site changes, since the exported function signatures are unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "proposal sec 3, sec 9 Q5; grep confirms both call the exported function directly"
+    },
+    {
+      "feature": "RESOLVED (was blocking gap in round 1): the pre-existing done-required-validation-smoke.ts:698-723 modify-then-revert assertion encoded the OLD per-commit-union semantics contradicted by this story's own decision.json risk table (row 1: net diff is the correct semantic for change-then-revert). scope-contract.json has now been amended (verified via scope_contract_show) to add this file to allowedModify AND allowedTest, with an explicit scopeChangeReason directing the block to be updated to assert reusable=true/trusted for the byte-identical modify-then-revert-and-rename-round-trip case, while a genuine non-metadata content change still refuses reuse -- that negative-case protection is independently and adequately covered by validation-evidence-reuse-smoke.ts:1463 (classifyTrustedValidationLineage on baseHead->codeHead with a genuinely new/changed source.ts asserts lineage 'rejected' + untrusted-lineage-path:source.ts), confirmed present and unaffected by this amendment. Verified: no other pre-existing test file encodes the old modify-then-revert-must-stay-untrusted semantic (grepped done-required-validation-smoke.ts, validation-evidence-reuse-smoke.ts, review-escalation-smoke.ts, evidence-refresh-smoke.ts for revert/round-trip patterns -- only the one block at 698-723 matches, and the adjacent single-mutation-no-revert block at 600-622 already uses a lineage-agnostic regex and needs no change). Proposal sec 6 row 1 independently corroborates the intended semantic.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope-contract.json scopeChangeReason (verified via scope_contract_show); packages/main/src/tasks/done-required-validation-smoke.ts:698-723; packages/main/src/tasks/validation-evidence-reuse-smoke.ts:1461-1463; docs/done-validation-reuse-merge-lineage-fix-proposal.md sec 6 row 1; decision.json preMortem"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-f00c/background.md",
+      ".lattice/story/actives/B-f00c/checklist.json",
+      ".lattice/story/actives/B-f00c/decision.json",
+      ".lattice/story/actives/B-f00c/index.json",
+      ".lattice/story/actives/B-f00c/process-events.jsonl",
+      ".lattice/story/actives/B-f00c/review.json",
+      ".lattice/story/actives/B-f00c/scope-boundary.json",
+      ".lattice/story/actives/B-f00c/scope-contract.json",
+      ".lattice/story/actives/B-f00c/scope-freeze-check.json",
+      ".lattice/story/actives/B-f00c/understanding.json"
+    ],
+    "filesTriagedByName": [
+      "lattice.config.json",
+      "packages/main/src/core/done-prepare-validation-reuse.ts",
+      "packages/main/src/core/validation-evidence-admissibility.ts",
+      "packages/main/src/core/validation-evidence-reuse.ts",
+      "packages/main/src/handlers/phase-gates.ts",
+      "packages/main/src/handlers/verdict.ts",
+      "packages/main/src/handlers/verifier.ts"
+    ],
+    "scanEscalationReason": "Re-review after scope amendment: confirmed via `scope_contract_show` (not just file read) that done-required-validation-smoke.ts is now in allowedModify+allowedTest with an explicit scopeChangeReason. Targeted-read done-required-validation-smoke.ts:595-745 (the flagged 698-723 block plus its neighbors 600-622 and 726-745) to confirm it is the ONLY block encoding the old per-commit-union semantic; grepped the whole packages/main/src tree for untrusted-lineage-path/lineage_untrusted/lineage_empty/classifyTrustedValidationLineage/validationHeadLineage consumers and grepped for revert/round-trip patterns in done-required-validation-smoke.ts, validation-evidence-reuse-smoke.ts, review-escalation-smoke.ts, evidence-refresh-smoke.ts to confirm no other pre-existing test encodes the contradicted semantic. Targeted-read validation-evidence-reuse-smoke.ts:1420-1490 to independently confirm the retained genuine-content-change negative case at line 1463 is unaffected. Targeted-read docs/done-validation-reuse-merge-lineage-fix-proposal.md sec 5-9 (risk table row 1, test plan) to corroborate the intended net-diff semantic against the amended scope."
+  },
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "717a0967bb8f30ea3c74906d42dff72aa94d7200d06196c1e8faa438673df049",
+  "openQuestions": []
+}

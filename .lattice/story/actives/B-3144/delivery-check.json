@@ -1,0 +1,67 @@
+{
+  "storyId": "B-3144",
+  "checkedAt": "2026-08-14T07:35:15.076Z",
+  "headHash": "388aa94a6f3a22154f7fcd220ecba3fb1103b331",
+  "materialHash": "dcb49e1aa44972d1a2aa633e0497ad3c7000d477dd25b3fedcc3e351bf0eaafb",
+  "storyFilesHash": "4bcfedc796e68ff064ae15a731327b15c210364c9982490aa9959f0876e7426b",
+  "reviewRound": "2026-08-14T07:21:41.870Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/evidence-integrity-program-spec.md#step-4",
+      "promise": "Delivered: quorum_submit's assertNoStandingQuorum refuses a redundant re-submit (same-material duplicate, or stale-material drift-accept collision under matching storyFilesHash) with an informative Error instead of silently absorbing it as an idempotent no-op, and is downgrade-aware like eventsWithStoryFilesHashDowngrade.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + code read + independent smoke re-run",
+      "evidence": "packages/main/src/handlers/quorum-submit.ts assertNoStandingQuorum (guard body ~lines 486-580) implements both branches; mirrors core/review-escalation.ts eventsWithStoryFilesHashDowngrade (line 965) including its EMPTY_STORY_FILES_HASH top-level exclusion (line 975); independently re-ran node packages/main/dist/tasks/quorum-submit-smoke.js -> 71/71 checks pass, including checks 27-29 and 31-35 which exercise same-material refusal, drift-accept refusal, the F-035 EMPTY_STORY_FILES_HASH exclusion, and normalized-digest comparison (F-029)."
+    },
+    {
+      "docPath": "docs/evidence-integrity-program-spec.md#step-4 (known-gap disclosure)",
+      "promise": "Explicitly disclosed as NOT delivered: autopilot_review_submit (verdict.ts:187-251) remains unguarded; this story scoped only quorum_submit.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only shows no changes to any verdict.ts / autopilot_review_submit handler file, confirming the doc's disclosed non-delivery is accurate and not overclaimed."
+    },
+    {
+      "docPath": "docs/evidence-write-guard-spec.md#2-the-fix",
+      "promise": "Documents that the shipped guard is a hand-synced LOCKSTEP inline reimplementation of the drift-accept predicate (not a direct call-through to eventsWithStoryFilesHashDowngrade), and that a future change to the floor's predicate must update this mirror in the same story or the two silently diverge.",
+      "status": "verified",
+      "verifiedBy": "code read",
+      "evidence": "quorum-submit.ts assertNoStandingQuorum is a hand-written inline predicate that does not import or call eventsWithStoryFilesHashDowngrade; the LOCKSTEP maintenance-hazard comment is present directly above it in the source, matching the doc's corrected framing."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#quorum_prune (CLI-facing doc surface)",
+      "promise": "New lattice quorum_prune command: dry-run by default; apply:true or the equivalent dryRun:false executes; writes a timestamped byte-identical backup before rewriting; commits through the same lifecycle-metadata transaction machinery as quorum_submit; refuses to prune any duplicate group containing a non-pass or malformed host_verdict.",
+      "status": "verified",
+      "verifiedBy": "CLI --help + diff/grep + handler read + independent smoke re-run",
+      "evidence": "node bin/lattice.js quorum_prune --help output matches the catalog description exactly; packages/main/src/handlers/quorum-prune.ts implements dry-run default, timestamped backup, atomic rename, shared append-lock holding, and canonical-collision-shape restriction (decision=pass only); independently re-run smoke checks 49-69 (dry-run listing, apply+backup+recovery, triple-duplicate, runIds filter, interleaved-line preservation, keep:oldest-material, dirty-tree refusal, F-024 non-pass refusal, F-025 verdict-cache path containment, F-026 lock holding, F-027 atomic rename) all pass."
+    },
+    {
+      "docPath": "packages/main/src/core/config.ts + command-policy.ts + process-fact-levels.ts (wiring promise implied by the quorum_prune doc/help text)",
+      "promise": "quorum_prune is declared in DEFAULT_PHASE_TOOLS (allowedPhases: all), classified storyScopedMutating/gateEvidence:false in command-policy.ts (owner-lease gated recovery, not reviewer evidence), assigned process-fact level L2, and excluded from cli-engine.ts's generic process-event append path with the same rationale as quorum_submit.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke re-run",
+      "evidence": "core/config.ts DEFAULT_PHASE_TOOLS quorum_prune entry; core/command-policy.ts COMMAND_POLICIES.quorum_prune (storyScopedMutating, gateEvidence: false); core/process-fact-levels.ts quorum_prune L2 entry; cli-engine.ts adds an explicit entry.command === 'quorum_prune' return alongside the existing quorum_submit exclusion; independently re-run smoke check 'quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)' passes."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-ran node packages/main/dist/tasks/quorum-submit-smoke.js (71/71 pass). CHK-001 (RED repro locks the poisoning scenario) is exercised by the fixture-construction and poisoning-precondition assertions (baseline quorum emits 6 verdicts; injected duplicate host_verdict events; collapsed floor has zero valid rounds with duplicate host/session/key identity reasons) that precede and underlie every quorum_prune recovery check (checks 49-50), matching checklist verificationEvidence 6/6 passing (happy:2 edge:2 adversarial:2)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-ran node packages/main/dist/tasks/quorum-submit-smoke.js (71/71 pass). CHK-002 (align the quorum_submit duplicate guard with the floor's drift-accept predicate) is directly exercised by checks 27-29 and 31-35: same-material re-submit refusal, refusal surviving verdict-cache deletion, fresh quorum allowed after material change, drift-accept refusal when storyFilesHash is unchanged, legacy blank-storyFilesHash no-signal handling, F-035 EMPTY_STORY_FILES_HASH exclusion, second-drift non-circumvention, and genuine re-quorum once storyFilesHash moves; plus F-028 (check 70, HEAD-recapture re-check) and F-029 (check 71, normalized-digest comparison). Matches checklist verificationEvidence 8/8 passing (happy:2 edge:3 adversarial:3)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently re-ran node packages/main/dist/tasks/quorum-submit-smoke.js (71/71 pass). CHK-003 (official quorum_prune recovery command) is directly exercised by checks 49-69: dry-run listing, apply+backup+commit+floor-recovery, CLI end-to-end dispatch through catalog+policy+phase-gate, refuse-when-nothing-to-prune, refuse-on-dirty-tree, triple-duplicate group handling, runIds filter, interleaved-line preservation, keep:oldest-material inversion, refuse-on-uncommitted-events-file, no-backup-collision, clean-worktree-after-apply, cross-host (codex) no-dirt check, --dryRun/--apply flag semantics and contradictory-pair refusal, dryRun:false real-executor behavior, and the four independently-found defect regressions F-024 (refuse non-pass duplicate group), F-025 (verdict-cache path containment), F-026 (shared append-lock holding), F-027 (atomic rename). Matches checklist verificationEvidence 11/11 passing (happy:3 edge:4 adversarial:4)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently verified via git diff main...HEAD, code reads of the guard/handler/wiring files, and a from-scratch re-run of packages/main/dist/tasks/quorum-submit-smoke.js (71/71 checks pass, matching the claimed count). All 5 extracted docs promises are backed by real code and CLI --help output; both spec docs were corrected in this diff to honestly describe the delivered LOCKSTEP-mirror design (not the original call-through proposal) and to disclose the unaddressed autopilot_review_submit gap rather than overclaiming full coverage. All 3 checklist items have dedicated, independently-reproduced regression checks including edge and adversarial cases; no unresolved TODO/FIXME/HACK markers in the non-test diff. Note: a separate full run-all-smokes.js pass shows widespread pre-existing 'smoke file missing' entries (authority-*, worktree-*, validation-* etc.) that are confirmed present on main HEAD too (unmodified smoke-manifest.json, source files absent from main as well) -- a pre-existing repo/manifest-drift condition unrelated to this story's diff, not a delivery gap introduced here."
+  },
+  "_hash": "a399c962cb732c3c0c000f0684615b34cdd03a88b4a7fa063c1b3fab021dfd9a"
+}

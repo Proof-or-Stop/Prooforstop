@@ -1,0 +1,47 @@
+{
+  "storyId": "B-3e5d",
+  "checkedAt": "2026-08-16T15:53:06.639Z",
+  "headHash": "104a18994487a5f51b05eaceec0193dbe4443c4b",
+  "materialHash": "bf671b94f6d0239b93d69cb554fc1eb5352357b50bad963be7a5f3eae0b451f3",
+  "storyFilesHash": "672946573a6f9ba334cccc4f7bf3c524e7bdff3ce129aca852631d2f913196f1",
+  "reviewRound": "2026-08-16T13:30:53.847Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran `node packages/main/dist/tasks/worktree-authority-smoke.js` directly on this machine: exit 0, stdout `✓ worktree authority smoke passed`. Source-read of packages/main/src/handlers/transition-orchestrator.ts:897 confirms `acquireStoryTransitionLock(ctx.root, args.storyId)` is called exactly as before this story (no transitionLockRoot reroute) — matching the corrected DoneWhen in plan.md that CHK-001's reroute was a no-op reverted after F-001, since acquireStoryTransitionLock already anchors at the shared git-common-dir root via resolveSharedLockRoot regardless of the argument passed in."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same worktree-authority-smoke.js run as CHK-001 (exit 0, ✓ passed), which exercises assertConcurrentDoneSerializesWithoutPartialDone. Source-read of transition-orchestrator.ts:942-947 confirms the narrow catch `e?.name === 'StoryArtifactMissingError' && !existsSync(ctx.root)` throwing the clean \"a concurrent DONE transition ... already completed and removed it\" message, matching the DoneWhen; any other StoryArtifactMissingError rethrows unchanged."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran `node packages/main/dist/tasks/field-regression-cli-smoke.js` directly: exit 0, stdout `✓ field regression CLI smoke passed`. Source-read of field-regression-cli-smoke.ts:1227-1237 confirms reviewer_list --forceReviewer=channel is asserted rejected (assert.notEqual(invalidChannel.code, 0, 'the retired channel lane must not be forceable')), matching CHK-003's DoneWhen."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Same field-regression-cli-smoke.js passing run as CHK-003. Source-read of lines 1287-1346 confirms RP-004 now starts a real review_run_start for lattice-review-test-coverage (not the retired channel lane) and asserts `Review pass B-passonly:RP-004 recorded by lattice-review-test-coverage`, matching CHK-004's DoneWhen."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran both new RED scripts directly against the current (post-fix) dist build: `node packages/main/tests/red/red-B-new-concurrent-done-race.mjs` exited 1 with `AssertionError: RED: worktree-authority-smoke.js is expected to fail (still exhibits the pre-fix concurrent-DONE-race defect)`; `node packages/main/tests/red/red-B-new-retired-channel-lane.mjs` exited 1 with `AssertionError: RED: field-regression-cli-smoke.js is expected to fail (still references the retired channel lane)`. Both are the correct inverted GREEN signal (their own defect-still-present assertion now fails because the underlying smoke test now passes) — confirmed non-crashing, well-formed scripts. Also ran `node packages/main/tests/red/red-b49d4-harness-registration.mjs` directly: exit 0, confirming both new RED scripts are registered in REGISTRATION_EXCLUSIONS (44/44 disk entries accounted for)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Same field-regression-cli-smoke.js passing run as CHK-003/004. Source-read confirms readManifest is supplied on every pass-only finding_add call (lines 602, 674, 878, 907, 932, 1259, 1301, 1320, 1332, 1344, 1356, 1380, 1392) and that writeDoneReadyStory (line 1740, writes phase=REVIEW only) is split from finishDoneReadyStory (line 1799, writes phase=TEST after real review evidence lands), matching CHK-006's DoneWhen."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Same field-regression-cli-smoke.js passing run. Source-read of lines 1876-1891 confirms assertDoneMergeCleansMainUntrackedReviewPasses loops over all three opt-in lanes (lattice-review-quality, lattice-review-concept, lattice-review-test-coverage) each with a real review_run_start-bound review_pass_set, and calls dev_memory_finish_decision before story_advance --phase=DONE, matching CHK-007's DoneWhen."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review for B-3e5d: personally re-ran worktree-authority-smoke.js, field-regression-cli-smoke.js, red-b49d4-harness-registration.mjs, and both new RED scripts directly on this machine (all match expected post-fix behavior), cross-checked each checklist item's DoneWhen claim against the actual source in transition-orchestrator.ts and field-regression-cli-smoke.ts, and confirmed both findings (F-001, F-002) are resolved with strong evidence. No non-.lattice .md file is touched by this story's diff, so no documentation promise exists to verify; docsPromises is empty. No unresolved TODOs remain in the checklist or findings."
+  },
+  "_hash": "131d655ca611a7f67696c82c2787e4963a29681c0b46b961850c0f06ad3cecaa"
+}

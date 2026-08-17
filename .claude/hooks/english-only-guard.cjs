@@ -57,8 +57,8 @@ process.stdin.on('end', () => {
 
     if (containsCjk(command)) {
       process.stderr.write(
-        'warn english-only: CJK detected in this git commit / lattice metadata command; '
-        + 'Lattice artifacts must be English. This is a warning only; the validate '
+        'warn english-only: CJK detected in this git commit / proof-or-stop metadata command; '
+        + 'Proof-or-Stop artifacts must be English. This is a warning only; the validate '
         + 'REVIEW->TEST gate is the hard stop.\n',
       );
     }
@@ -74,13 +74,16 @@ function parseHookInput(raw) {
 }
 
 /**
- * True only for `git commit ...` or `lattice <story-metadata-cmd> ...`.
+ * True only for `git commit ...` or `<bin> <story-metadata-cmd> ...`, where `<bin>` is
+ * the canonical `proof-or-stop` or the retained deprecated `lattice` alias. Both are
+ * matched because B-cdf6 renamed the bin additively: the old name still runs, so a CJK
+ * metadata command invoked either way must still warn.
  * Narrow and high-signal: other Bash commands are ignored.
  */
 function isGuardedCommand(command) {
   if (/(^|[;&|]|\s)git\s+commit(\s|$)/.test(command)) return true;
-  const lattice = command.match(/(?:^|[;&|]|\s)lattice\s+([a-z_]+)/);
-  if (lattice && STORY_METADATA_COMMANDS.has(lattice[1])) return true;
+  const cli = command.match(/(?:^|[;&|]|\s)(?:proof-or-stop|lattice)\s+([a-z_]+)/);
+  if (cli && STORY_METADATA_COMMANDS.has(cli[1])) return true;
   return false;
 }
 
