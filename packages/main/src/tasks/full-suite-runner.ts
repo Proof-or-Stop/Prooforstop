@@ -3,25 +3,35 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve, win32 } from 'node:path';
+import { dirname, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
+import {
+  canonicalFilesystemPath, canonicalizeEntries, parsePositiveInteger, pathIsContained, runScheduled, validateResourceClaims,
+  type KeyedSchedulerOptions, type ResourceClaim, type SchedulableEntry, type SchedulableResult, type ScheduledStatus,
+} from '../core/keyed-scheduler.js';
 
-export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
-export type ResourceAccess = 'shared' | 'exclusive';
-export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string; ownership?: 'runner-cleanable' }
-export interface FullSuiteEntry { name: string; resources: ResourceClaim[]; timeoutMs?: number; priority?: number; tempOwnership?: 'runner-owned-unique' }
+// The keyed scheduler, its resource-claim vocabulary and its canonicalization
+// helpers are owned by core/keyed-scheduler.ts so routine validate and this
+// runner share one admission-control implementation.
+export {
+  canonicalFilesystemPath, canonicalizeEntries, claimsConflict, parsePositiveInteger, pathIsContained, runScheduled, validateResourceClaims,
+  type CancellationPolicy, type KeyedSchedulerOptions, type ResourceAccess, type ResourceClaim, type ResourceClass,
+  type SchedulableEntry, type SchedulableResult, type ScheduledStatus,
+} from '../core/keyed-scheduler.js';
+
+export interface FullSuiteEntry extends SchedulableEntry { name: string; resources: ResourceClaim[]; timeoutMs?: number; priority?: number; tempOwnership?: 'runner-owned-unique' }
 export interface OwnedTargetPreflight {
   path: string;
   existedBefore: boolean;
   type: 'absent' | 'file' | 'directory' | 'symlink' | 'other';
   ownerMarker: string | null;
 }
-export interface FullSuiteResult {
+export interface FullSuiteResult extends SchedulableResult {
   name: string;
-  status: 'PASS' | 'FAIL' | 'TIMEOUT' | 'INTERRUPTED';
+  status: ScheduledStatus;
   durationMs: number;
   output: string;
   reason?: string;
@@ -66,17 +76,25 @@ export function observedOutputSignatures(output: string): string[] {
   const observed = semantic.length ? semantic : normalized.slice(-1);
   return [...new Set(observed)].map(line => `output-sha256:${createHash('sha256').update(line).digest('hex')}`).sort();
 }
-export interface RunScheduledOptions { onSpawn?: () => void }
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 64 * 1024;
-const MAX_JOBS = 64;
 export const OWNERSHIP_MARKER_FILENAME = 'owner';
-const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
-const activeChildren = new Set<ReturnType<typeof spawn>>();
-let interruptSignal: NodeJS.Signals | undefined;
-let interruptError: Error | undefined;
-let schedulerCancellationReason: string | undefined;
+
+/**
+ * Live child registry and cancellation flags for one runner invocation. `main`
+ * creates its own instance, so a second concurrent run never inherits another
+ * run's cancellation. The module default exists only so the exported test seams
+ * and the default `runEntry` argument keep addressing one runner.
+ */
+export interface FullSuiteRunState {
+  activeChildren: Set<ReturnType<typeof spawn>>;
+  interruptSignal?: NodeJS.Signals;
+  interruptError?: Error;
+  cancellationReason?: string;
+}
+export function createFullSuiteRunState(): FullSuiteRunState { return { activeChildren: new Set() }; }
+const defaultRunState = createFullSuiteRunState();
 
 const isolated = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
   ({ name, resources: [], tempOwnership: 'runner-owned-unique', ...options });
@@ -163,16 +181,6 @@ export function validateInventory(entries: FullSuiteEntry[], serialReference: st
   }
 }
 
-function validateResourceClaims(claims: ResourceClaim[], owner: string): void {
-  for (const claim of claims) {
-    if (!RESOURCE_CLASSES.includes(claim.class)) throw new Error(`unknown resource class for ${owner}: ${claim.class}`);
-    if (!['shared', 'exclusive'].includes(claim.access)) throw new Error(`unknown resource access for ${owner}: ${claim.access}`);
-    if (!claim.key.trim()) throw new Error(`empty resource key for ${owner}`);
-    if (claim.ownership && claim.ownership !== 'runner-cleanable') throw new Error(`unknown resource ownership for ${owner}: ${claim.ownership}`);
-    if (claim.ownership && (claim.access !== 'exclusive' || !['fixed-path', 'runtime-lock', 'main-write-lock'].includes(claim.class))) throw new Error(`runner-cleanable resource must be an exclusive owned path for ${owner}`);
-  }
-}
-
 function observeOwnedTarget(path: string): OwnedTargetPreflight {
   if (!existsSync(path)) return { path, existedBefore: false, type: 'absent', ownerMarker: null };
   const stat = lstatSync(path);
@@ -216,69 +224,6 @@ export function cleanupOwnedTargets(manifest: OwnedTargetPreflight[], ownershipT
       rmdirSync(path); return { path, outcome: 'removed' as const };
     } catch (error) { return { path, outcome: 'residue' as const, detail: (error as Error).message }; }
   });
-}
-
-export function pathIsContained(ownershipRoot: string, candidate: string, pathApi: Pick<typeof import('node:path'), 'relative' | 'isAbsolute'> = { relative, isAbsolute }): boolean {
-  const rel = pathApi.relative(ownershipRoot, candidate);
-  return rel === '' || (!rel.startsWith('..') && !pathApi.isAbsolute(rel));
-}
-
-function canonicalFilesystemPath(cwd: string, key: string, allowOutsideOwnershipRoot = false): string {
-  const absolute = resolve(cwd, key);
-  let canonical: string;
-  if (existsSync(absolute)) canonical = realpathSync(absolute);
-  else {
-  let ancestor = dirname(absolute);
-  while (!existsSync(ancestor)) {
-    const parent = dirname(ancestor);
-    if (parent === ancestor) throw new Error(`resource path has no resolvable ancestor: ${key}`);
-    ancestor = parent;
-  }
-    canonical = join(realpathSync(ancestor), relative(ancestor, absolute));
-  }
-  const ownershipRoot = realpathSync(cwd);
-  if (!allowOutsideOwnershipRoot && !pathIsContained(ownershipRoot, canonical)) {
-    throw new Error(`resource path escapes ownership root: ${key}`);
-  }
-  return canonical;
-}
-
-function assertOwnedPathHasNoSymlink(cwd: string, key: string): void {
-  const root = realpathSync(cwd);
-  const absolute = resolve(root, relative(resolve(cwd), resolve(cwd, key)));
-  if (!pathIsContained(root, absolute)) throw new Error(`runner-cleanable target escapes project root: ${key}`);
-  let cursor = root;
-  for (const segment of relative(root, absolute).split(/[\\/]/).filter(Boolean)) {
-    cursor = join(cursor, segment);
-    if (existsSync(cursor) && lstatSync(cursor).isSymbolicLink()) throw new Error(`runner-cleanable target traverses a symlink: ${key}`);
-  }
-}
-
-export function canonicalizeEntries(entries: FullSuiteEntry[], cwd: string): FullSuiteEntry[] {
-  return entries.map((entry) => {
-    validateResourceClaims(entry.resources, entry.name);
-    const resources = entry.resources.map((claim) => {
-      if (claim.ownership === 'runner-cleanable') assertOwnedPathHasNoSymlink(cwd, claim.key);
-      let value: string;
-      if (claim.class === 'fixed-port') {
-        const port = parsePositiveInteger(claim.key, `${entry.name} fixed port`, 65_535);
-        value = String(port);
-      } else if (claim.class === 'git-common-dir') {
-        const repository = canonicalFilesystemPath(cwd, claim.key);
-        const common = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repository, encoding: 'utf8' }).trim();
-        value = canonicalFilesystemPath(repository, common, true);
-      } else value = canonicalFilesystemPath(cwd, claim.key);
-      return { ...claim, canonicalKey: `${claim.class}:${value}` };
-    });
-    return { ...entry, resources };
-  });
-}
-
-export function parsePositiveInteger(value: string | undefined, label: string, maximum = MAX_JOBS): number {
-  if (value === undefined || !/^[1-9]\d*$/.test(value)) throw new Error(`${label} must be a finite positive integer <= ${maximum}`);
-  const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed > maximum) throw new Error(`${label} must be a finite positive integer <= ${maximum}`);
-  return parsed;
 }
 
 export function parseRunnerArgs(argv: string[]): { jobs?: number; jsonOutput?: string } {
@@ -353,16 +298,20 @@ export function killProcessTree(pid: number | undefined, kill: Kill = process.ki
   }
 }
 
-function requestInterrupt(signal: NodeJS.Signals): void {
-  interruptSignal = signal;
-  for (const child of activeChildren) {
-    try { killProcessTree(child.pid); } catch (error) { interruptError = error as Error; }
+function killRunStateChildren(state: FullSuiteRunState): void {
+  for (const child of state.activeChildren) {
+    try { killProcessTree(child.pid); } catch (error) { state.interruptError = error as Error; }
   }
 }
-export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal); }
-export function resetInterruptForTest(): void { interruptSignal = undefined; interruptError = undefined; }
 
-export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void): Promise<FullSuiteResult> {
+function requestInterrupt(signal: NodeJS.Signals, state: FullSuiteRunState): void {
+  state.interruptSignal = signal;
+  killRunStateChildren(state);
+}
+export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal, defaultRunState); }
+export function resetInterruptForTest(): void { defaultRunState.interruptSignal = undefined; defaultRunState.interruptError = undefined; defaultRunState.cancellationReason = undefined; }
+
+export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
@@ -381,13 +330,13 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
-    onSpawn?.(); activeChildren.add(child);
+    onSpawn?.(); state.activeChildren.add(child);
     let output = '';
     const append = (chunk: unknown) => { output = (output + String(chunk)).slice(-MAX_OUTPUT_BYTES); };
     child.stdout?.on('data', append); child.stderr?.on('data', append);
     let settled = false;
     const done = (result: FullSuiteResult) => {
-      if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child);
+      if (settled) return; settled = true; clearTimeout(timer); state.activeChildren.delete(child);
       result = {
         cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
         assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'runner-terminal',
@@ -410,7 +359,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
     child.on('exit', (code, signal) => {
       let completionCleanupError: Error | undefined;
-      if (!interruptSignal && !schedulerCancellationReason) {
+      if (!state.interruptSignal && !state.cancellationReason) {
         try { killProcessTree(child.pid); }
         catch (error) { completionCleanupError = error as Error; }
       }
@@ -419,10 +368,10 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
       let marker: { assertions?: string[]; mutations?: string[] } | undefined;
       try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
-      const status = interruptError || completionCleanupError ? 'FAIL' : interruptSignal || schedulerCancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
-      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}`
+      const status = state.interruptError || completionCleanupError ? 'FAIL' : state.interruptSignal || state.cancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
+      const reason = state.interruptError ? `interrupt cleanup failed: ${state.interruptError.message}`
         : completionCleanupError ? `completion cleanup failed: ${completionCleanupError.message}`
-        : interruptSignal ? `runner received ${interruptSignal}` : schedulerCancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
+        : state.interruptSignal ? `runner received ${state.interruptSignal}` : state.cancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
       const outputSignatures = observedOutputSignatures(output);
       const markerAssertions = marker?.assertions ?? [];
       done({
@@ -443,59 +392,31 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
   });
 }
 
-function claimsConflict(left: FullSuiteEntry, right: FullSuiteEntry): boolean {
-  for (const a of left.resources) for (const b of right.resources) {
-    if (!a.canonicalKey || !b.canonicalKey) throw new Error('resource claims must be canonicalized before scheduling');
-    if (a.canonicalKey === b.canonicalKey && (a.access === 'exclusive' || b.access === 'exclusive')) return true;
-  }
-  return false;
+// Full-suite adapters for the shared scheduler. The scheduler decides *when* an
+// entry may run; these decide what a cancelled full-suite member looks like.
+export function cancelledFullSuiteResult(entry: FullSuiteEntry, reason: string): FullSuiteResult {
+  return {
+    name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason,
+    declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0,
+    cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
+    assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason },
+  };
 }
 
-export async function runScheduled(entries: FullSuiteEntry[], jobs: number, execute: (entry: FullSuiteEntry) => Promise<FullSuiteResult>): Promise<FullSuiteResult[]> {
-  if (!Number.isInteger(jobs) || jobs < 1 || jobs > MAX_JOBS) throw new Error(`jobs must be an integer between 1 and ${MAX_JOBS}`);
-  for (const entry of entries) for (const claim of entry.resources) if (!claim.canonicalKey) throw new Error(`uncanonicalized resource for ${entry.name}`);
-  const pending = entries.map((entry, index) => ({ entry, index })).sort((a, b) => (b.entry.priority ?? 0) - (a.entry.priority ?? 0) || a.index - b.index).map(({ entry }) => entry);
-  const running = new Map<Promise<void>, FullSuiteEntry>();
-  const resourceBlockedAt = new Map<string, number>();
-  const results: FullSuiteResult[] = [];
-  let terminalFailureName: string | undefined;
-  schedulerCancellationReason = undefined;
-  const compatible = (entry: FullSuiteEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
-  const launch = (entry: FullSuiteEntry) => {
-    const blockedAt = resourceBlockedAt.get(entry.name);
-    const lockWaitMs = blockedAt === undefined ? 0 : performance.now() - blockedAt;
-    let task!: Promise<void>;
-    task = execute(entry).then((result) => {
-      if (!result || result.name !== entry.name || !['PASS', 'FAIL', 'TIMEOUT', 'INTERRUPTED'].includes(result.status)) throw new Error(`missing or invalid terminal result for ${entry.name}`);
-      const effective = terminalFailureName && result.status === 'PASS'
-        ? { ...result, status: 'INTERRUPTED' as const, reason: `cancelled after terminal failure ${terminalFailureName}`, failureOutcome: { status: 'INTERRUPTED' as const, reason: `cancelled after terminal failure ${terminalFailureName}` } }
-        : result;
-      results.push({ ...effective, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs });
-      if (!terminalFailureName && (result.status === 'FAIL' || result.status === 'TIMEOUT')) {
-        terminalFailureName = result.name;
-        schedulerCancellationReason = `cancelled after terminal failure ${result.name}`;
-        for (const child of activeChildren) {
-          try { killProcessTree(child.pid); } catch (error) { interruptError = error as Error; }
-        }
-      }
-    }).finally(() => { running.delete(task); });
-    running.set(task, entry);
+export function cancelCompletedFullSuiteResult(result: FullSuiteResult, reason: string): FullSuiteResult {
+  return { ...result, status: 'INTERRUPTED', reason, failureOutcome: { status: 'INTERRUPTED', reason } };
+}
+
+export function fullSuiteSchedulerOptions(state: FullSuiteRunState): KeyedSchedulerOptions<FullSuiteEntry, FullSuiteResult> {
+  return {
+    cancellation: 'cancel-on-first-failure',
+    cancelledResult: cancelledFullSuiteResult,
+    cancelCompletedResult: cancelCompletedFullSuiteResult,
+    // A terminal failure stops the run: record it for runEntry's exit classifier
+    // before killing the live children whose exits it must classify.
+    onCancellation: (reason) => { state.cancellationReason = reason; killRunStateChildren(state); },
+    externalCancellation: () => state.interruptSignal ? `runner received ${state.interruptSignal}` : undefined,
   };
-  while (pending.length || running.size) {
-    if (terminalFailureName && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `cancelled after terminal failure ${terminalFailureName}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0, cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null }, assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason: `cancelled after terminal failure ${terminalFailureName}` } });
-    if (interruptSignal && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `runner received ${interruptSignal}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0, cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null }, assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason: `runner received ${interruptSignal}` } });
-    let launched = false;
-    while (!terminalFailureName && running.size < jobs) {
-      for (const candidate of pending) if (!compatible(candidate) && !resourceBlockedAt.has(candidate.name)) resourceBlockedAt.set(candidate.name, performance.now());
-      const index = pending.findIndex(compatible); if (index < 0) break;
-      launch(pending.splice(index, 1)[0]!); launched = true;
-    }
-    if (running.size) await Promise.race(running.keys());
-    else if (!launched && pending.length) throw new Error(`resource scheduler deadlock at ${pending[0]!.name}`);
-  }
-  const byName = new Map(results.map((result) => [result.name, result]));
-  schedulerCancellationReason = undefined;
-  return entries.map((entry) => byName.get(entry.name)!).filter(Boolean);
 }
 
 function readIdentity(cwd: string): { headHash: string; materialHash: string } {
@@ -525,13 +446,16 @@ async function main(): Promise<void> {
   const wallStartedAt = new Date().toISOString();
   const started = performance.now();
   let processLaunchCount = 0;
-  process.once('SIGINT', () => requestInterrupt('SIGINT'));
-  process.once('SIGTERM', () => requestInterrupt('SIGTERM'));
+  // One run state per invocation: the scheduler never reads runner globals.
+  const runState = createFullSuiteRunState();
+  process.once('SIGINT', () => requestInterrupt('SIGINT', runState));
+  process.once('SIGTERM', () => requestInterrupt('SIGTERM', runState));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
-    const result = await runEntry(entry, cwd, 'npm', () => { processLaunchCount++; });
+    const result = await runEntry(entry, cwd, 'npm', () => { processLaunchCount++; }, runState);
     process.stdout.write(`${result.status} ${result.name} ${(result.durationMs / 1000).toFixed(1)}s${result.reason ? ` (${result.reason})` : ''}\n`);
     return result;
-  });
+  }, fullSuiteSchedulerOptions(runState));
+  runState.cancellationReason = undefined;
   const endIdentity = readIdentity(cwd);
   const identityDrift = identityChanged(startIdentity, endIdentity);
   const failures = results.filter((result) => result.status !== 'PASS');
@@ -549,9 +473,9 @@ async function main(): Promise<void> {
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
     maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs),
     processLaunchCount, retries: 0, passed: results.length - failures.length, total: results.length,
-    overallStatus: failures.length || identityDrift || budgetBreached || interruptError ? 'FAIL' : 'PASS',
+    overallStatus: failures.length || identityDrift || budgetBreached || runState.interruptError ? 'FAIL' : 'PASS',
     criticalPath: critical ? { name: critical.name, durationMs: critical.durationMs } : null,
-    interruptedBy: interruptSignal ?? null,
+    interruptedBy: runState.interruptSignal ?? null,
     coverageInventory: {
       canonicalMembers: FULL_SUITE_ENTRIES.map((entry) => entry.name),
       mutationClasses: ['inventory-omission', 'resource-key-collision', 'descendant-cleanup', 'identity-drift', 'incremental-guard-class'],
@@ -580,8 +504,8 @@ async function main(): Promise<void> {
     process.stderr.write('\nfull-suite identity drift: output write changed HEAD/material\n');
     process.exitCode = 1;
   }
-  if (interruptSignal) process.exitCode = interruptSignal === 'SIGINT' ? 130 : 143;
-  else if (failures.length || interruptError || identityDrift || budgetBreached) process.exitCode = 1;
+  if (runState.interruptSignal) process.exitCode = runState.interruptSignal === 'SIGINT' ? 130 : 143;
+  else if (failures.length || runState.interruptError || identityDrift || budgetBreached) process.exitCode = 1;
 }
 
 const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
