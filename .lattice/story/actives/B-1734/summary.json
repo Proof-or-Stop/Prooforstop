@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1734",
+  "changes": "Concurrent-build safety hardening. New scripts/build-lock.mjs (cross-platform proper-lockfile mutex, exponential-backoff retry ~10min) plus scripts/build-lock-target.mjs (dependency-free lock-target and stale constant, so bin/bootstrap-runner.js inspects the build lock without pulling in proper-lockfile). scripts/build-main-with-binding.mjs and build-utils-with-binding.mjs build into a staging dir and promote by atomic rename (scripts/promote-dist.mjs), running tsc as an awaited async child so the proper-lockfile heartbeat keeps the lock fresh through the compile; content-bound verifyBuildBinding skip via scripts/full-suite-build-binding.mjs. bin/bootstrap-runner.js waits while a live build lock is held then imports the complete dist. The bootstrap-runner guard fingerprint was re-pinned in retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs. Five red-1734 tests registered in lattice.config.json.",
+  "usage": "Run npm test or node scripts/ensure-dist.mjs in a worktree: two concurrent invocations both complete with no MODULE_NOT_FOUND or ENOTEMPTY build crash. node bin/lattice.js <cmd> bootstraps against a complete dist even during a concurrent rebuild.",
+  "expectedOutcome": "Concurrent npm test invocations both complete without a dist-corruption build crash; the build lock is never age-stolen from a live holder; a stale, orphaned, or tampered dist triggers a content-bound rebuild.",
+  "actualTranscript": "red-1734-lock-liveness (12 cases incl. a live async-heartbeat proof and a SIGTERM child reclaim), red-1734-content-binding (18 cases incl. 4 real-rebuild cases), red-1734-reader-race (45 concurrent bin/lattice.js readers vs a real rebuild, zero MODULE_NOT_FOUND), red-1734-bootstrap-depfree, red-1734-desktop-asset-manifest all pass; the full validate suite is green; 5 rounds of genuine Codex cross-host review each confirmed the reported findings fixed.",
+  "outcomeDiff": "No difference: the delivered proper-lockfile mutex plus content-bound skip plus atomic-swap rebuild match the expected concurrent-build safety.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Known limitations, all documented in CHANGELOG.md and anchored at their source sites for a tracked build-concurrency infrastructure follow-up story: a residual reader-lease TOCTOU (bootstrap-runner checks the lock then imports without holding a read lease); writeBuildBinding can pair a fresh source digest with output from a source file edited mid-compile; scripts/package-desktop.mjs buildPackages runs tsc directly rather than through the mutex; and a process crash in the single-syscall window between the two promotion renames leaves dist absent until the next build rebuilds it. The atomic rename shrinks the reader window from the seconds-long tsc emit to one syscall; full closure for every direct dist consumer needs a cross-platform versioned-pointer architecture, which is the follow-up.",
+  "pitfalls": "Very long, multi-round. 5 rounds of genuine Codex cross-host review each surfaced real bugs (age-steal via synchronous tsc blocking the heartbeat; fresh-checkout crash from a transitive proper-lockfile import; a 60s reader ceiling shorter than the 290s build timeout; an orphan-recovery that itself introduced a lock-free delete race, which was reverted). The maintainer converged after round 5, keeping the sound core and recording the deep residuals as an infra follow-up (assurance floor = degraded-single-host, explicit human approval). Next-person gotchas: (1) editing bin/bootstrap-runner.js requires re-pinning its retired-authority-vocabulary-guard fingerprint in BOTH the guard and verify-process-fact-contract.mjs; (2) build-concurrency red tests must resolve repo root by fixed relative depth, never via a lattice.config.json substring, or red-b49d4-registration-derivation mis-derives them as guards; (3) record the 3 reviewer-lane passes back-to-back at a frozen tree (each auto-commit stales the prior pass incremental envelope); (4) the suite runs ~15min, so plain validate and story_advance hit a 15min cap while done_prepare gets the ~8.6h derived budget; raise LATTICE_MAX_TIMEOUT_MS only on story_advance, never on done_prepare.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 338955
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 65818
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1830077
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 11917878
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 39024968
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 692512
+    }
+  },
+  "totalDurationMs": 53870744,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-16T02:28:25.732Z",
+  "updatedAt": "2026-08-16T02:28:25.732Z"
+}

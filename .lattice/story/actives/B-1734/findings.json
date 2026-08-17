@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "id": "B-1734:F-001",
+      "desc": "scripts/build-lock.mjs:19-23 BUILD_LOCK_OPTIONS retries={retries:120,minTimeout:200,maxTimeout:1000,factor:1} — with factor:1 the node `retry` package computes timeout=minTimeout*factor^attempt=minTimeout for EVERY attempt (verified via retry.timeouts(): 120 entries of exactly 200ms, sum=24000ms), so the real max wait for a contending builder is ~24s, NOT the ~120s implied by the code comment (\"retries make a concurrent builder wait (up to ~120 * 1s)\") and NOT scaled by maxTimeout (never reached). Neither withBuildLock (build-lock.mjs:44-53) nor either call site (scripts/build-main-with-binding.mjs:23, scripts/build-utils-with-binding.mjs:22) wraps `await withBuildLock(...)` in try/catch, so when lockfile.lock() exhausts retries it rejects with an uncaught ELOCKED error that crashes the waiter process (exit 1). Empirically reproduced: held the lock 26s (2s past the real 24s budget) in one process while a second called withBuildLock on the same key — the second process crashed with an unhandled `Error: Lock file is already being held { code: ELOCKED }` traceback, exit code 1. This repo's own clean two-package build already measures ~12.4s locally with no contention (timed via `time node scripts/ensure-dist.mjs`), leaving only ~2x margin against the true 24s budget (not the ~10x margin the ~120s comment implies) — a slower CI runner, larger future source tree, or genuine lock contention (main+utils share ONE lock by design) can plausibly exceed it, crashing a legitimate concurrent `npm test` instead of it waiting-then-succeeding. This is exactly the outcome CHK-001:adversarial:0 forbids (\"both must complete successfully\"). No test asserts the retry TIME budget — packages/main/tests/red/red-1734-lock-liveness.mjs:64-67 only checks retryCount >= 10, not the derived wait window given minTimeout/factor, so this gap is untested.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:58:30.222Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-003",
+      "_hash": "4de67f26fa0f46de96dab02b824d81c07e8cf958e152bfe15faa9bcd10a90dc4",
+      "signatureTag": "adversarial|unknown|scripts-build-lock",
+      "signatureTagSource": "auto",
+      "resolvedReason": "build-lock.mjs BUILD_LOCK_OPTIONS now factor:2 retries:600 (exponential 200ms->1s cap, ~598s budget); the prior factor:1 collapsed every retry to minTimeout=200ms->only 24s. red-1734-lock-liveness adversarial:1 now derives the actual node-retry budget and asserts >=300000ms.",
+      "resolvedAt": "2026-08-15T14:15:50.088Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1734:F-002",
+      "desc": "scripts/build-lock.mjs:46-50 — the catch around `closeSync(openSync(target, (quote)a(quote)))` is empty and swallows ALL errors (permission denied on os.tmpdir(), ENOSPC, path issues, etc.), not just the benign (quote)already exists(quote) case. proper-lockfile's realpath resolution (default `realpath:true`, unmodified here) requires `target` to already exist before `lockfile.lock(target, ...)` can succeed, so if this best-effort create silently fails for a real reason (e.g. a read-only /tmp in a locked-down CI sandbox), the operator only sees a much more confusing downstream ENOENT/realpath failure from proper-lockfile with no diagnostic connecting it back to the swallowed root cause. Low severity (does not change build correctness — the build still fails safely either way) but matches the review checklist's explicit empty-catch/error-handling check; at minimum the swallowed error should be logged (e.g. console.error) so a genuinely broken environment is diagnosable.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-15T12:58:39.169Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-003",
+      "_hash": "c8166e771a63158ad32675d09efa1d1c7ee4f25abf3b799c444142a7adbc3166",
+      "signatureTag": "missing|unknown|scripts-build-lock",
+      "signatureTagSource": "auto",
+      "resolvedReason": "withBuildLock no longer wraps closeSync(openSync(target,'a')) in a bare catch; a genuine EACCES/ENOSPC now surfaces instead of being masked into a downstream proper-lockfile realpath error. 'a' mode is create-or-open and concurrent-safe, so there was no benign error to swallow.",
+      "resolvedAt": "2026-08-15T14:15:50.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1734:F-003",
+      "desc": "Coverage gap, live-reproduced: CHK-001:adversarial:0 and CHK-002:edge:3 only prove mutual exclusion among the 3 designated build call sites and a read-only re-verify at a static HEAD (packages/main/tests/red/red-1734-lock-liveness.mjs:120-145 tests two withBuildLock holders on a synthetic key; packages/main/tests/red/red-1734-content-binding.mjs:151-161 CHK-002:edge:3 only calls verifyBuildBinding 3x sequentially with no source change, so no rmSync ever fires). Neither intent nor evidence covers non-participating readers of packages/main/dist -- e.g. bin/bootstrap-runner.js:56-62 (used by every bin/lattice.js invocation) does a naive existsSync(MAIN_DIST) check then import(MAIN_DIST) with NO withBuildLock/verifyBuildBinding call, and packages/main/tests/milestone-status.test.mjs:16-31 imports dist/*.js directly the same way. I live-reproduced this in the B-1734 worktree: touching packages/main/src/claude-md-sync.ts to force a real rebuild, then racing 100+ real child-process imports of packages/main/dist/cli-engine.js (same pattern as bootstrap-runner.js) against `npm --prefix packages/main run build` (which does rmSync(dist) at scripts/build-main-with-binding.mjs:29 inside the lock, per source order already covered by adversarial:3) produced a 100% MODULE_NOT_FOUND failure rate for the whole rm-to-tsc-completion window (0 OK / 20+ FAIL logs, e.g. Cannot find module .../packages/main/dist/cli-engine.js). This exactly matches a MODULE_NOT_FOUND I independently observed mid-review in a live `lattice validate` run in this same worktree (validate.commands[1]: milestone-status.test.mjs failed with ERR_MODULE_NOT_FOUND for dist/registry.js imported from dist/cli-engine.js, immediately after validate.commands[0] npm run build had already reported success). This directly contradicts the CHK-001 userSees claim (\"no build is aborted mid-run by another process\") and the CHK-002 userSees claim (\"never a TS2307 / MODULE_NOT_FOUND from a stale, partial, or orphaned dist\") for the realistic usage pattern of this exact codebase, where bin/lattice.js and ~90+ in-repo test/task scripts read dist without participating in the lock/binding protocol. No verificationIntent (happy/edge/adversarial) on either checklist item asks for or is evidenced against this non-participating-reader-vs-real-rebuild race, so the 24/24 intent-to-evidence mapping is complete but the intent set itself has an undisclosed scope gap relative to the userSees acceptance text. Worktree was fully restored (git checkout of the mutation, clean rebuild, both bindings re-verified, both RED suites re-passed) before filing this finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-15T13:07:26.556Z",
+      "reviewRound": "2026-08-15T12:47:18.679Z",
+      "reviewRunId": "B-1734:RR-002",
+      "_hash": "25f559b8e099d712d4a2108d1c3cbb9f8359241ffa5ed04b50ad753177f5cbae",
+      "files": [
+        "bin/bootstrap-runner.js",
+        "packages/main/tests/milestone-status.test.mjs",
+        "packages/main/tests/red/red-1734-lock-liveness.mjs",
+        "packages/main/tests/red/red-1734-content-binding.mjs",
+        "scripts/build-main-with-binding.mjs"
+      ],
+      "signatureTag": "missing|js|coverage-live-reproduced",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: B-1734's rmSync(dist)-in-place exposed an absent/partial dist to the ~90 non-lock-holding readers. Fix: build-main/build-utils now build into dist.staging and promote by atomic rename (readers see old-complete or new-complete dist, never torn); bin/bootstrap-runner.js (universal reader) waits while a LIVE build lock is held then imports the complete tree, gating on lock mtime-freshness so a Ctrl-C-orphaned lock cannot brick the CLI. Coverage: red-1734-reader-race.mjs races 40 concurrent real bin/lattice.js readers against a real rebuild with 0 MODULE_NOT_FOUND, and asserts a stale orphaned lock does not brick a reader; registered in validate.commands.",
+      "resolvedAt": "2026-08-15T14:15:51.734Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

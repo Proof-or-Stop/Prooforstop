@@ -1,30 +1,23 @@
 #!/usr/bin/env node
-// Minimal pretest bootstrap for `npm test` (B-fb7b): ensure packages/main then packages/utils
-// `dist` EXIST before the full suite runs, so a worktree without packages/utils/dist does not die
-// in bootstrap-runner.js ("Missing build artifacts: .../packages/utils/dist/index.js").
+// Pretest bootstrap for `npm test` (B-fb7b + B-1734): ensure packages/main then packages/utils
+// `dist` exist AND are content-current before the full suite runs, so a worktree without a built
+// dist does not die in bootstrap-runner.js ("Missing build artifacts: .../packages/utils/dist/index.js").
 //
-// Deliberately EXISTENCE-BASED: it builds a package only when its dist is absent, and NEVER
-// rm+rebuilds a present dist. That means a repeated `npm test` cannot destroy a dist that a
-// concurrent invocation's full suite is still reading. Freshness (rebuild on a source change) is
-// owned by the `packages-main-build` validate proof, which rm+rebuilds from source; within a
-// worktree the build output is at a fixed HEAD, so an already-present dist is the correct one to
-// reuse for the bootstrap.
-//
-// Crash-safe concurrent-build mutual exclusion and content-bound freshness for the shared-worktree
-// review pipeline are intentionally OUT of scope here (an independent Codex review showed a
-// hand-rolled mkdir mutex + mtime heuristic is a real infrastructure problem, not a reactive
-// patch); they are tracked in a dedicated follow-up story.
+// CONTENT-BOUND + CROSS-PLATFORM MUTEX (no longer existence-based): this delegates to
+// scripts/build-main-with-binding.mjs then scripts/build-utils-with-binding.mjs. Each script:
+//   - SKIPS instantly when its verifyBuildBinding passes (sha256 over all src+config and all dist),
+//     so a repeated `npm test` does no rm+rebuild and cannot destroy a dist a concurrent suite reads;
+//   - rebuilds only on a genuine content change, and does so under a proper-lockfile mutex that wraps
+//     the whole rm+tsc+write section — a live long-running build is never age-stolen, a dead holder is
+//     reclaimed race-safely, and the two builds share one lock (utils reads the main/dist that a main
+//     build rewrites, so they must be mutually exclusive).
+// Main is built before utils because packages/utils tsc links against packages/main/dist.
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const run = script => execFileSync(process.execPath, [join(root, 'scripts', script)], { cwd: root, stdio: 'inherit' });
 
-function ensure(pkg) {
-  if (existsSync(join(root, 'packages', pkg, 'dist', 'index.js'))) return; // already bootstrapped
-  execFileSync('npm', ['--prefix', join('packages', pkg), 'run', 'build'], { cwd: root, stdio: 'inherit' });
-}
-
-ensure('main');  // packages/utils tsc links against packages/main/dist, so main must exist first
-ensure('utils');
+run('build-main-with-binding.mjs');   // packages/utils tsc links against packages/main/dist, so main first
+run('build-utils-with-binding.mjs');

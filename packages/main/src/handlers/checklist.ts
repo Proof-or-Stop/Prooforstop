@@ -9,7 +9,8 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
-import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
@@ -32,6 +33,24 @@ const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
 type ChecklistGetArgs = { storyId: string; slim?: boolean; fields?: string[] };
+
+/**
+ * B-16df: resolve the configured `validate.commands[].timeoutMs` override for a pinned
+ * verification command, so `runSingleAllowlistedCommand` call sites in this file stop
+ * silently falling back to the hardcoded 270s default for commands with a deliberately
+ * higher configured budget. Matches by exact {executable,args} equality against
+ * `configuredValidationCommands(root)` (the same normalizer `lattice validate` uses via
+ * `resolveCommandTimeoutMs`). Returns `undefined` when there is no match, preserving
+ * today's default-fallback behavior in `runSingleAllowlistedCommand`.
+ */
+export function resolvePinnedCommandTimeoutMs(root: string, command: string): number | undefined {
+  const { executable, args } = parseAllowlistedCommand(command);
+  const configured = configuredValidationCommands(root);
+  const match = configured.find(
+    (c) => c.command === executable && c.args.length === args.length && c.args.every((a, i) => a === args[i]),
+  );
+  return match?.timeoutMs;
+}
 
 function pickTopLevelFields<T extends Record<string, unknown>>(value: T, fields?: string[]): Partial<T> {
   const requested = (fields || []).map(field => field.trim()).filter(Boolean);
@@ -1554,7 +1573,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const stamp = await enforceAndStampEvidence(
         preItem,
         { intentRef: args.intentRef, kind, command: args.command, selector: args.selector, result: args.result, nonMechanicalReason: args.nonMechanicalReason },
-        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: gitCwd },
+        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd, timeoutMs: resolvePinnedCommandTimeoutMs(root, command) }), cwd: gitCwd },
       );
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -1645,7 +1664,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // refusal throws before the all-or-nothing write below, so the batch path is never
       // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
-      const runCommand: SingleCommandRunner = (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd });
+      const runCommand: SingleCommandRunner = (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd, timeoutMs: resolvePinnedCommandTimeoutMs(root, command) });
       const preCl = store.readChecklist(args.storyId);
       const stamps: EnforceAndStampResult[] = [];
       for (let i = 0; i < args.evidences.length; i++) {
@@ -1776,7 +1795,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const stamp = await enforceAndStampEvidence(
         preItem,
         { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
-        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: runCwd },
+        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd, timeoutMs: resolvePinnedCommandTimeoutMs(root, command) }), cwd: runCwd },
       );
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -1855,7 +1874,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             const stamp = await enforceAndStampEvidence(
               item,
               { intentRef: entry.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
-              { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: computed.refreshGitCwd },
+              { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd, timeoutMs: resolvePinnedCommandTimeoutMs(root, command) }), cwd: computed.refreshGitCwd },
             );
             if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
               reexecByKey.set(`${entry.itemId}::${entry.intentRef}`, {

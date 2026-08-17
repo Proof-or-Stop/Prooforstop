@@ -1,24 +1,27 @@
 #!/usr/bin/env node
 /**
- * B-fb7b guard-bite verifier — proves the pretest guard family actually BITES on each
- * failure mode, and confirms the two positive invariants. Parallel-safe: every
- * destructive case runs against an ISOLATED temp fixture, never the live worktree
- * (avoids the shared-dist / shared-config race). The only live action is an idempotent
- * `npm run pretest` rebuild (dist is gitignored, so it cannot dirty the tree).
+ * B-fb7b + B-1734 guard-bite verifier — proves the structural smoke
+ * (test-suite-utils-autobuild-smoke) actually BITES on each broken variant of the CONTENT-BOUND +
+ * LOCKED build wiring, and confirms the positive invariants. Parallel-safe: every destructive case
+ * runs against an ISOLATED temp fixture (the smoke walks up to lattice.config.json and reads the
+ * fixture's files), never the live worktree.
  *
- * Prints one selector per case so each can be pinned as tool-executed verification
- * evidence:
- *   GB-EDGE1-CLEAN      edge:1      real `npm run pretest` leaves a clean tree
- *   GB-EDGE3-REGISTERED edge:3      validate.commands contains the smoke entry
- *   GB-ADV0-BIT         adversarial:0  echo-ok pretest -> structural smoke FAILS
- *   GB-ADV1-BIT         adversarial:1  main-only pretest -> structural smoke FAILS
- *   GB-ADVLAB-BIT       adversarial:1  `npm run build:lab` namespaced-sibling loophole -> structural smoke FAILS
- *   GB-ADVFAST-BIT      adversarial:1  `--prefix ... run build:fast` (--prefix + namespaced sibling) -> structural smoke FAILS
- *   GB-ADV4-BIT         adversarial:4  no pretest -> structural smoke FAILS (independent of the RED)
- *   GB-ADVNOGUARD-BIT   adversarial:1  ensure-dist WITHOUT an existsSync guard (unconditional rebuild) -> structural smoke FAILS
- *   GB-ADV2-BIT     adversarial:2  no pretest -> the repro-first RED (a distinct artifact) FAILS at its first assertion
- *   GB-ADV3-ABSENT      adversarial:3  removing the validate.commands entry -> not dispatched
- *   GB-LIFECYCLE-FIRES  happy:2     bare `npm test` auto-fires the pretest via the npm lifecycle hook
+ * One selector per case (pin as tool-executed verification evidence):
+ *   GB-EDGE3-REGISTERED   validate.commands contains the smoke entry
+ *   GB-ADV3-ABSENT        removing that entry drops it from validate dispatch
+ *   GB-NOPRETEST-BIT      no "pretest" -> smoke FAILS
+ *   GB-NOENSURE-BIT       pretest not running ensure-dist -> smoke FAILS
+ *   GB-ENSURE-EXISTENCE-BIT   existence-based ensure-dist (existsSync, no build-*-with-binding) -> smoke FAILS
+ *   GB-ENSURE-ORDER-BIT   ensure-dist builds utils BEFORE main -> smoke FAILS
+ *   GB-MAIN-NOVERIFY-BIT  build-main skips on existsSync (not verifyBuildBinding) -> smoke FAILS
+ *   GB-MAIN-NOLOCK-BIT    build-main rebuilds WITHOUT withBuildLock -> smoke FAILS
+ *   GB-UTILS-NOVERIFY-BIT build-utils omits verifyUtilsBuildBinding -> smoke FAILS
+ *   GB-LOCK-RATIO-BIT     build-lock update >= stale/2 (age-steals a live holder) -> smoke FAILS
+ *   GB-LOCK-NOLIB-BIT     build-lock does not use proper-lockfile -> smoke FAILS
+ *   GB-UTILSPKG-TSC-BIT   packages/utils build script is a bare `tsc` -> smoke FAILS
+ *   GB-RED-NOPRETEST      no pretest -> the repro-first RED FAILS at its first assertion
+ *   GB-EDGE1-CLEAN        both dist trees are gitignored (rebuild cannot dirty the tree)
+ *   GB-LIFECYCLE-FIRES    bare `npm test` auto-fires the pretest via the npm lifecycle hook
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -40,15 +43,24 @@ const RED_REL = 'packages/main/tests/red/red-fb7b-pretest-builds-utils.mjs';
 const RED_ABS = join(repoRoot, RED_REL);
 assert.ok(existsSync(RED_ABS), `repro-first RED missing: ${RED_REL}`);
 
-const realPkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const realConfig = JSON.parse(readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8'));
+const real = rel => readFileSync(join(repoRoot, rel), 'utf8');
 
-const REAL_ENSURE_DIST = readFileSync(join(repoRoot, 'scripts', 'ensure-dist.mjs'), 'utf8');
+// Files the smoke reads from repoRoot; a fixture copies the real ones unless a case overrides them.
+const SCRIPT_FILES = [
+  'scripts/ensure-dist.mjs',
+  'scripts/build-main-with-binding.mjs',
+  'scripts/build-utils-with-binding.mjs',
+  'scripts/build-lock.mjs',
+  // build-lock-target.mjs holds the dep-free BUILD_LOCK_STALE_MS the smoke now reads for `stale`.
+  'scripts/build-lock-target.mjs',
+];
 
-// Build an isolated fixture root that the smoke can resolve (it walks up to lattice.config.json).
-// opts.ensureDistContent overrides the copied scripts/ensure-dist.mjs (to bite the existence-based
-// requirement); default copies the real one so the control fixture passes the smoke's on-disk checks.
-function makeFixture(pkgScripts, opts = {}) {
+const GOOD_SCRIPTS = { pretest: 'node scripts/ensure-dist.mjs', test: 'node packages/main/dist/tasks/full-suite-runner.js', build: 'node scripts/ensure-dist.mjs' };
+
+// Build an isolated fixture root the smoke can resolve. `overrides` maps a repo-relative path to
+// replacement content (to bite a specific assertion); everything else is the real file.
+function makeFixture(pkgScripts, overrides = {}) {
   const root = mkdtempSync(join(tmpdir(), 'fb7b-guard-bite-'));
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: '.' }));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'fixture', scripts: pkgScripts }));
@@ -58,17 +70,24 @@ function makeFixture(pkgScripts, opts = {}) {
   cpSync(SMOKE_ABS, join(root, 'packages', 'main', 'dist', 'tasks', 'test-suite-utils-autobuild-smoke.js'));
   mkdirSync(join(root, 'packages', 'main', 'tests', 'red'), { recursive: true });
   cpSync(RED_ABS, join(root, 'packages', 'main', 'tests', 'red', 'red-fb7b-pretest-builds-utils.mjs'));
-  // The smoke asserts the pretest references scripts/ensure-dist.mjs, that it exists, and that it is
-  // existence-based (guards each build behind existsSync). Copy the real one (the smoke only reads it,
-  // never executes it) unless the case overrides it to bite the existence-based requirement.
-  mkdirSync(join(root, 'scripts'), { recursive: true });
-  writeFileSync(join(root, 'scripts', 'ensure-dist.mjs'), opts.ensureDistContent ?? REAL_ENSURE_DIST);
+  const put = (rel, content) => {
+    const abs = join(root, rel);
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, content);
+  };
+  for (const rel of SCRIPT_FILES) put(rel, rel in overrides ? overrides[rel] : real(rel));
+  put('packages/utils/package.json', 'packages/utils/package.json' in overrides ? overrides['packages/utils/package.json'] : real('packages/utils/package.json'));
   return root;
 }
 
-// Run the copied repro-first RED inside a fixture; return {code}. The RED resolves the fixture root
-// from its own module location, so it reads the fixture's package.json. Only used for the no-pretest
-// case, where the RED fails at its first (structural) assertion before reaching any real build.
+function runSmokeIn(root) {
+  try {
+    execFileSync('node', [join(root, 'packages', 'main', 'dist', 'tasks', 'test-suite-utils-autobuild-smoke.js')], { stdio: 'pipe' });
+    return 0;
+  } catch (e) {
+    return typeof e.status === 'number' ? e.status : 1;
+  }
+}
 function runRedIn(root) {
   try {
     execFileSync('node', [join(root, 'packages', 'main', 'tests', 'red', 'red-fb7b-pretest-builds-utils.mjs')], { stdio: 'pipe' });
@@ -78,34 +97,20 @@ function runRedIn(root) {
   }
 }
 
-// Run the copied smoke inside a fixture; return {code}. The smoke resolves the fixture root
-// from its own module location, so it reads the fixture's package.json — not the live one.
-function runSmokeIn(root) {
+function biteCase(label, pkgScripts, overrides, selector) {
+  const root = makeFixture(pkgScripts, overrides);
   try {
-    execFileSync('node', [join(root, 'packages', 'main', 'dist', 'tasks', 'test-suite-utils-autobuild-smoke.js')], { stdio: 'pipe' });
-    return 0;
-  } catch (e) {
-    return typeof e.status === 'number' ? e.status : 1;
-  }
-}
-
-function biteCase(label, pkgScripts, selector) {
-  const root = makeFixture(pkgScripts);
-  try {
-    const code = runSmokeIn(root);
-    assert.notEqual(code, 0, `${label}: structural smoke should FAIL but it passed`);
+    assert.notEqual(runSmokeIn(root), 0, `${label}: structural smoke should FAIL but it passed`);
     console.log(selector);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-const goodPretest = 'node scripts/ensure-dist.mjs';
-
-// --- Positive: control fixture with the real (good) pretest must PASS, else the bite tests are meaningless.
+// --- Positive control: real scripts + good pretest must PASS, else the bite tests are meaningless.
 {
-  const root = makeFixture({ pretest: goodPretest, test: 'node packages/main/dist/tasks/full-suite-runner.js', build: goodPretest });
-  try { assert.equal(runSmokeIn(root), 0, 'control: good pretest must PASS the smoke'); }
+  const root = makeFixture(GOOD_SCRIPTS);
+  try { assert.equal(runSmokeIn(root), 0, 'control: real content-bound + locked wiring must PASS the smoke'); }
   finally { rmSync(root, { recursive: true, force: true }); }
 }
 
@@ -117,7 +122,7 @@ const goodPretest = 'node scripts/ensure-dist.mjs';
   console.log('GB-EDGE3-REGISTERED');
 }
 
-// --- adversarial:3 / GB-ADV3-ABSENT: removing the entry means a grep no longer finds it, so lattice validate would not dispatch it.
+// --- adversarial:3 / GB-ADV3-ABSENT: removing the entry drops it from validate dispatch.
 {
   const cmds = ((realConfig.validate && realConfig.validate.commands) || []).filter(
     (c) => !(typeof c === 'string' ? c : JSON.stringify(c)).includes('test-suite-utils-autobuild-smoke'),
@@ -127,49 +132,97 @@ const goodPretest = 'node scripts/ensure-dist.mjs';
   console.log('GB-ADV3-ABSENT');
 }
 
-// --- adversarial:0/1/4: the structural smoke bites on each broken pretest (isolated fixtures).
-biteCase('adversarial:0 (echo-ok pretest)', { pretest: 'echo ok', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV0-BIT');
-biteCase('adversarial:1 (main-only pretest, omits utils)', { pretest: 'npm --prefix packages/main run build', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV1-BIT');
-biteCase('adversarial:1 (build:lab loophole — a namespaced sibling build that touches neither main nor utils)', { pretest: 'npm run build:lab', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVLAB-BIT');
-biteCase('adversarial:1 (--prefix + namespaced sibling — `--prefix packages/... run build:fast` is not the real build script)', { pretest: 'npm --prefix packages/main run build:fast && npm --prefix packages/utils run build:fast', test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADVFAST-BIT');
-biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED)', { test: 'node packages/main/dist/tasks/full-suite-runner.js' }, 'GB-ADV4-BIT');
+// --- The structural smoke bites on each broken variant of the content-bound + locked wiring.
+biteCase('no pretest', { test: GOOD_SCRIPTS.test }, {}, 'GB-NOPRETEST-BIT');
+biteCase('pretest not running ensure-dist', { pretest: 'echo ok', test: GOOD_SCRIPTS.test }, {}, 'GB-NOENSURE-BIT');
+biteCase(
+  'existence-based ensure-dist (existsSync, no build-*-with-binding)',
+  GOOD_SCRIPTS,
+  {
+    'scripts/ensure-dist.mjs':
+      "import { existsSync } from 'node:fs';\nimport { execFileSync } from 'node:child_process';\n"
+      + "function ensure(pkg){ if (existsSync('packages/'+pkg+'/dist/index.js')) return; execFileSync('npm',['--prefix','packages/'+pkg,'run','build']); }\n"
+      + "ensure('main'); ensure('utils');\n",
+  },
+  'GB-ENSURE-EXISTENCE-BIT',
+);
+biteCase(
+  'ensure-dist builds utils before main',
+  GOOD_SCRIPTS,
+  {
+    'scripts/ensure-dist.mjs':
+      "import { execFileSync } from 'node:child_process';\n"
+      + "execFileSync(process.execPath, ['scripts/build-utils-with-binding.mjs']);\n"
+      + "execFileSync(process.execPath, ['scripts/build-main-with-binding.mjs']);\n",
+  },
+  'GB-ENSURE-ORDER-BIT',
+);
+biteCase(
+  'build-main skips on existsSync, not verifyBuildBinding',
+  GOOD_SCRIPTS,
+  {
+    'scripts/build-main-with-binding.mjs':
+      "import { existsSync } from 'node:fs';\nif (existsSync('packages/main/dist/index.js')) process.exit(0);\n// no verifyBuildBinding, no lock — the exact B-fb7b existence-only reuse\n",
+  },
+  'GB-MAIN-NOVERIFY-BIT',
+);
+biteCase(
+  'build-main rebuilds without withBuildLock',
+  GOOD_SCRIPTS,
+  {
+    'scripts/build-main-with-binding.mjs':
+      "import { verifyBuildBinding, writeBuildBinding } from './full-suite-build-binding.mjs';\n"
+      + "try { verifyBuildBinding(process.cwd()); process.exit(0); } catch {}\nwriteBuildBinding(process.cwd()); // rebuild WITHOUT a mutex\n",
+  },
+  'GB-MAIN-NOLOCK-BIT',
+);
+biteCase(
+  'build-utils omits verifyUtilsBuildBinding',
+  GOOD_SCRIPTS,
+  {
+    'scripts/build-utils-with-binding.mjs':
+      "import { withBuildLock } from './build-lock.mjs';\nawait withBuildLock('utils', () => {});\n// no verifyUtilsBuildBinding — always rebuilds or never skips content-bound\n",
+  },
+  'GB-UTILS-NOVERIFY-BIT',
+);
+biteCase(
+  'build-lock update >= stale/2 (age-steals a live holder)',
+  GOOD_SCRIPTS,
+  {
+    'scripts/build-lock.mjs':
+      "import lockfile from 'proper-lockfile';\nexport const BUILD_LOCK_OPTIONS = { stale: 30000, update: 20000 };\n// update >= stale/2 -> a live holder is age-stolen mid-build (B-fb7b finding #1)\n",
+  },
+  'GB-LOCK-RATIO-BIT',
+);
+biteCase(
+  'build-lock does not use proper-lockfile',
+  GOOD_SCRIPTS,
+  {
+    'scripts/build-lock.mjs':
+      "export const BUILD_LOCK_OPTIONS = { stale: 30000, update: 10000 };\n// hand-rolled mkdir lock, not cross-platform / not race-safe\n",
+  },
+  'GB-LOCK-NOLIB-BIT',
+);
+biteCase(
+  'packages/utils build is a bare tsc',
+  GOOD_SCRIPTS,
+  { 'packages/utils/package.json': JSON.stringify({ name: '@lattice/utils', scripts: { build: 'tsc' } }) },
+  'GB-UTILSPKG-TSC-BIT',
+);
 
-// --- adversarial:1 / GB-ADVNOGUARD-BIT: the pretest DOES run ensure-dist, but a non-existence-based
-// ensure-dist (unconditional rm+rebuild — no existsSync guard) is the reader-writer hazard the
-// existence-based bootstrap avoids, so the guard must FAIL on it.
+// --- GB-RED-NOPRETEST: the repro-first RED (a distinct artifact) fails at its first assertion when
+// the pretest key is absent.
 {
-  const nonGuardedEnsure = "import { execFileSync } from 'node:child_process';\n"
-    + "// unconditional rebuild — no existsSync guard (the reader-writer loophole)\n"
-    + "execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { stdio: 'inherit' });\n"
-    + "execFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build'], { stdio: 'inherit' });\n";
-  const root = makeFixture(
-    { pretest: 'node scripts/ensure-dist.mjs', test: 'node packages/main/dist/tasks/full-suite-runner.js' },
-    { ensureDistContent: nonGuardedEnsure },
-  );
+  const root = makeFixture({ test: GOOD_SCRIPTS.test });
   try {
-    assert.notEqual(runSmokeIn(root), 0, 'adversarial:1: a non-existence-based ensure-dist (no existsSync) must FAIL the guard');
-    console.log('GB-ADVNOGUARD-BIT');
+    assert.notEqual(runRedIn(root), 0, 'the RED must FAIL at its first assertion when the pretest key is absent');
+    console.log('GB-RED-NOPRETEST');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-// --- adversarial:2 / GB-ADV2-BIT: the REPRO-FIRST RED (a distinct artifact from the smoke) fails at
-// its first structural assertion when the pretest key is absent (F-001: no longer a duplicate of adversarial:4).
-{
-  const root = makeFixture({ test: 'node packages/main/dist/tasks/full-suite-runner.js' });
-  try {
-    assert.notEqual(runRedIn(root), 0, 'adversarial:2: the RED test must FAIL at its first assertion when the pretest key is absent');
-    console.log('GB-ADV2-BIT');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
-// --- edge:1 / GB-EDGE1-CLEAN: the pretest is idempotent w.r.t. the git tree because its only
-// output — the dist trees — is gitignored, so no rebuild can ever dirty a tracked file. Prove the
-// root cause structurally (fast, deterministic) rather than timing a build: git check-ignore must
-// report BOTH dist trees as ignored.
+// --- GB-EDGE1-CLEAN: both dist trees are gitignored, so a rebuild can never dirty a tracked file.
 {
   const ignored = (rel) => {
     try {
@@ -184,9 +237,7 @@ biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED
   console.log('GB-EDGE1-CLEAN');
 }
 
-// --- happy:2 lifecycle / GB-LIFECYCLE-FIRES: a bare `npm test` auto-fires the pretest via the npm
-// lifecycle hook (proven directly, not via an explicit `npm run pretest`). Isolated fixture: the pretest
-// writes a marker, the test refuses (exit 7) unless the marker is present — so exit 0 proves the ordering.
+// --- GB-LIFECYCLE-FIRES: a bare `npm test` auto-fires the pretest via the npm lifecycle hook.
 {
   const root = mkdtempSync(join(tmpdir(), 'fb7b-lifecycle-'));
   try {
@@ -205,4 +256,4 @@ biteCase('adversarial:4 (no pretest, structural smoke — independent of the RED
   }
 }
 
-console.log('GB-ALL-PASS red-fb7b-guard-bite: pretest guard family bites on every broken variant and the invariants hold');
+console.log('GB-ALL-PASS red-fb7b-guard-bite: the content-bound + locked build guard bites on every broken variant and the invariants hold');

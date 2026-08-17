@@ -1,0 +1,216 @@
+{
+  "passes": [
+    {
+      "id": "B-3e5d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. transition-orchestrator.ts reuses the existing detectDoneStoryWorktreeContext helper (already used by acquireDoneMainMergeLock) for the lock-root fix; no new concept. field-regression-cli-smoke.ts swaps two stale test-fixture usages of the already-retired lattice-review-channel lane for lattice-review-test-coverage / an explicit-rejection assertion, aligning tests with prompt-role-contract-registry.ts (status:retired, out of story scope, confirmed unchanged) and reviewer-list.ts/review-run.ts which already reject that lane. grep -rln lattice-review-channel packages/main confirms zero leftover channelRunId/channelPassOutput identifiers in the touched file; tsc --noEmit clean.",
+      "createdAt": "2026-08-16T12:44:17.297Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-003",
+      "envelopeId": "c4a36bf4eb5433a134e97c0c7e7e590b4bbb91da6eeb6580736e283ba97c3d9b",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba5eacf6ce399f68e4d84e48b9f9c8640d8bcd8a9e3a768c08f28c3eb61fe04e"
+    },
+    {
+      "id": "B-3e5d:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 7 checklist items (CHK-001..CHK-007) carry happy/edge/adversarial verificationIntent at priority=must, each with concrete, non-generic verificationEvidence notes. Independently re-verified beyond the recorded receipts: (1) diffed transition-orchestrator.ts against main and confirmed the transitionLockRoot fix (detectDoneStoryWorktreeContext()?.mainRepoRoot ?? ctx.root, reusing the pre-existing helper already used by acquireDoneMainMergeLock) and the narrow StoryArtifactMissingError translation (only fires when root is missing; rethrows unchanged otherwise) exactly match CHK-001/CHK-002; (2) ran node packages/main/dist/tasks/worktree-authority-smoke.js directly -> exit 0, printed the expected pass line, exercising assertConcurrentDoneSerializesWithoutPartialDone (two real concurrent story_advance DONE child processes); (3) diffed field-regression-cli-smoke.ts and confirmed the invalidChannel reviewer_list rejection case, the RP-004 lattice-review-test-coverage swap with matching pass-only wording, readManifest added to every RP-001..RP-008 pass-only finding_add call, the writeDoneReadyStory/finishDoneReadyStory REVIEW->TEST split, and the 3-lane (quality/concept/test-coverage) quorum loop plus dev_memory_finish_decision call, all matching CHK-003/004/006/007; ran node packages/main/dist/tasks/field-regression-cli-smoke.js directly -> exit 0, printed the expected pass line; (4) ran both new RED scripts (red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs) directly against the current fixed dist -> each threw the expected AssertionError (their own defect-still-present assertion now correctly fails, exit 1), matching the CHK-005 waiver notes verbatim; ran red-b49d4-harness-registration.mjs -> OK, confirming both RED scripts are registered in REGISTRATION_EXCLUSIONS; (5) empirically ran `story_advance` against a genuinely nonexistent story ID from a root that exists and confirmed the raw StoryArtifactMissingError (\"File not found: .../index.json\") still propagates unchanged, matching CHK-002 adversarial intent (no misclassification as a concurrent-DONE explanation). No missing-evidence, no fabricated/generic-only receipts, no fail results found. Minor non-blocking observation (not filed as a finding): CHK-001 adversarial verificationIntent text describes the loser as \"deliberately given a slow poll interval,\" but the actual pre-existing smoke assertion just races two real processes under Promise.all with no artificial poll skew — the described race window is still genuinely produced because the transition lock is held across the winner's full DONE critical section (including worktree teardown), so the loser can only wake after teardown by construction; this is a wording imprecision in the checklist's own intent text, not a coverage gap.",
+      "createdAt": "2026-08-16T12:54:47.296Z",
+      "reviewRound": "2026-08-16T12:41:32.748Z",
+      "reviewRunId": "B-3e5d:RR-002",
+      "envelopeId": "973914628cb1c3b3afdcbbb8ae75d286ef667808bea391f518a327870f687da6",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3e5d/review-passes.json",
+          ".lattice/story/actives/B-3e5d/review-runs.json",
+          ".lattice/story/actives/B-3e5d/review.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3959322b4cfc76742dc872691119edccd23329a575e62ac3053684b9518fc22e"
+    },
+    {
+      "id": "B-3e5d:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-confirmation of the F-001 revert (commit 023a09f932): grepped transition-orchestrator.ts for transitionLockRoot post-revert (zero code residue, only historical mentions remain in checklist.json context / plan.md CORRECTED note, which is expected documentation not code residue). Confirmed acquireStoryTransitionLock(ctx.root, args.storyId) call matches pre-story behavior exactly (diff vs main shows only comment additions + the CHK-002 StoryArtifactMissingError translation as net behavioral change). Confirmed detectDoneStoryWorktreeContext, resolveSharedLockRoot, sanitizeLockSegment, existsSync remain genuinely used elsewhere in the file (not orphaned imports). Empirically re-verified storyTransitionLockPath(worktreePath, id) === storyTransitionLockPath(mainRepoRoot, id) via node -e against the built dist, confirming the no-op premise. Ran tsc --noEmit -p packages/main/tsconfig.json (clean), worktree-authority-smoke.js (pass), field-regression-cli-smoke.js (pass), red-B-new-concurrent-done-race.mjs (exits 1 as expected post-fix, confirming CHK-002 alone resolves the race). No duplicate/orphaned concept introduced by the revert.",
+      "createdAt": "2026-08-16T13:18:56.540Z",
+      "reviewRound": "2026-08-16T13:05:43.588Z",
+      "reviewRunId": "B-3e5d:RR-006",
+      "envelopeId": "a9d5ad35832d9017432d84a76836e6a026679aefa7c265a2a62433cf079fb66c",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58d69b322dcb5389d4b20a1a4bfd14742c37d5c88f11506eb8807ba9db619506"
+    },
+    {
+      "id": "B-3e5d:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-confirmation of F-001 revert. Diffed transition-orchestrator.ts against main: acquireStoryTransitionLock(ctx.root, args.storyId) is called exactly as pre-story (plain ctx.root, no reroute), with a clear inline comment (B-3e5d F-001) explaining why the earlier reroute was a no-op and pointing to CHK-002 (StoryArtifactMissingError translation) as the real fix. No leftover no-op code: grepped for detectDoneStoryWorktreeContext/resolveSharedLockRoot/mainRepoRoot -- the only remaining usages (line 1082 DONE-preflight branch check, line 1379 transition-CAS lock path) are pre-existing on main (confirmed via git show main:...), unrelated to the reverted reroute. No orphaned imports (existsSync already used pre-story at line 766; new CHK-002 use at line 941 is well-typed, catch(e:any) matches 3 pre-existing catch blocks in the same file, no swallowed errors -- non-matching StoryArtifactMissingError cases rethrow unchanged). Rebuilt from source (npm run build, full-suite-build-binding PASS) and re-ran all four story-relevant gates fresh against the built dist: worktree-authority-smoke.js (pass), field-regression-cli-smoke.js (pass), red-B-new-concurrent-done-race.mjs (GREEN-signal: its own defect-still-present assertion now throws, confirming the fix holds), red-B-new-retired-channel-lane.mjs (GREEN-signal, same), red-b49d4-harness-registration.mjs (OK, both new RED scripts correctly exempted with stated reasons). Diffed field-regression-cli-smoke.ts (CHK-003/004/006/007) and the two new RED scripts against main -- all match checklist claims, no dead code, no unused imports, no `as any` beyond pre-existing file conventions. Noted (non-blocking): CHK-001 checklist title/context still literally describes the reverted reroute mechanism; this is historical/pre-revert planning intent, the resolved finding F-001 and the in-code comment both fully document the actual current mechanism, and the checklist edge-case OUTCOME claim (lock rooted at stable main repo root) remains true via the pre-existing resolveSharedLockRoot inside acquireStoryTransitionLock -- not a functional or documentation-accuracy gap worth blocking on.",
+      "createdAt": "2026-08-16T13:19:04.018Z",
+      "reviewRound": "2026-08-16T13:05:43.588Z",
+      "reviewRunId": "B-3e5d:RR-004",
+      "envelopeId": "88b5f72e3ea2520f40e61328425f6d234533a5e29d6c85dee943e6cbc114b1bb",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/findings.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/story-transition-lock.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "247b7ee1031c5211fd45f88bb3b8714cfec33915c2a662839ae76627cce41179"
+    },
+    {
+      "id": "B-3e5d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmation round after F-002 fix (aa9a5a877b): verified the fix is a comment-only rewrite in red-B-new-concurrent-done-race.mjs (no assertion/logic change) via git show. Re-ran full concept-residue check: this story does not delete/replace a concept globally, it only aligns 2 stale test usages of the already-retired lattice-review-channel lane (registry status=retired, defaultDispatch=false, set by a prior story) in field-regression-cli-smoke.ts with that pre-existing retirement -- confirmed explicitExcludes correctly kept prompt-role-contract-registry.ts and flow-fact-policy.ts untouched (empty diff). No lingering treatment of channel as forceable/active anywhere in the diff; the one remaining channel reference (red-B-new-retired-channel-lane.mjs) is the RED script naming the retired lane by design, not residue. No blocker.",
+      "createdAt": "2026-08-16T13:32:49.264Z",
+      "reviewRound": "2026-08-16T13:30:53.847Z",
+      "reviewRunId": "B-3e5d:RR-008",
+      "envelopeId": "4ea59cdf7ef15619f3d4f40659de4afcaaf23017cce405875885a6cc62777791",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "106e0fd98ef9451a9f7ac9dbf61e82b0e2aad9d3c86a3d47af9b059a206a58a4"
+    },
+    {
+      "id": "B-3e5d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Final re-confirmation round. Both F-001 and F-002 are resolved. Verified: (1) findings.json shows both status=resolved with strong evidence; (2) commit aa9a5a877b (docs-only) corrects red-B-new-concurrent-done-race.mjs header comment to accurately narrate the actual fix mechanism (shared-rooted lock via resolveSharedLockRoot inside acquireStoryTransitionLock, real crash was ctx.store bound to worktree path at CLI bootstrap, fixed by the narrow StoryArtifactMissingError translation at CHK-002) -- cross-checked against packages/main/src/handlers/transition-orchestrator.ts:877-947, comment now matches code exactly; (3) re-ran packages/main/tests/red/red-B-new-concurrent-done-race.mjs directly: exits 1 with its own expected AssertionError (defect-still-present assertion correctly fails since worktree-authority-smoke.js now passes), the correct GREEN signal, confirming the doc-only edit did not alter script behavior; (4) git diff main...HEAD --name-only confirms scope is exactly the 5 checklist files (transition-orchestrator.ts, field-regression-cli-smoke.ts, red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs, red-b49d4-harness-registration.mjs) plus story lifecycle bookkeeping under .lattice/story/actives/B-3e5d/ -- no unexpected files changed since the prior review pass; (5) git log confirms the only non-bookkeeping commit since the last review round is aa9a5a877b (docs-only F-002 fix); dist build (packages/main/dist/handlers/transition-orchestrator.js) is newer than src, confirming a fresh build. No new quality issues (dead code, type-safety, I/O isolation) found across the 5 changed source/test files, consistent with prior REVIEW rounds RR-001..RR-008 on this same diff. No blockers.",
+      "createdAt": "2026-08-16T13:35:31.810Z",
+      "reviewRound": "2026-08-16T13:30:53.847Z",
+      "reviewRunId": "B-3e5d:RR-009",
+      "envelopeId": "4b8083f8062b9b4d0073a9e9bafa032c8bf54bcd0fa9a1c968be856dc3d62382",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-3e5d/findings.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": "field-regression-cli-smoke.ts, red-B-new-retired-channel-lane.mjs, and red-b49d4-harness-registration.mjs were fully reviewed in prior rounds (RR-001..RR-008) on this same diff and are unchanged since; this round is a focused re-confirmation of only the F-002 doc-only fix (aa9a5a877b) touching red-B-new-concurrent-done-race.mjs, which was read fully and cross-checked against the current source of transition-orchestrator.ts."
+      },
+      "_hash": "57d8c1097089095a44d9bd63a86a901380811b9e5d61e202936d8533b7733607"
+    },
+    {
+      "id": "B-3e5d:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final focused re-confirmation of F-002 (this reviewer role own prior finding). Verified commit aa9a5a877b is a documentation-only rewrite of red-B-new-concurrent-done-race.mjs header comment: diffed f36579a656..aa9a5a877b and confirmed only comment lines (the Root cause and After the fix paragraphs) changed, zero changes to the scripts spawnSync/assert logic (lines 44-75 byte-identical). Cross-checked the corrected comment against the live production code in transition-orchestrator.ts:876-950: the comment now correctly states (a) acquireStoryTransitionLock/storyTransitionLockPath already resolves root through resolveSharedLockRoot before touching disk so the lock directory is always shared-rooted regardless of which root string is passed -- matches the in-code comment at lines 885-896 verbatim in substance; (b) the real crash is ctx.store being bound to ctx.root at CLI bootstrap, and the actual fix is the narrow StoryArtifactMissingError-plus-!existsSync(ctx.root) catch at lines 938-950 (CHK-002) -- matches exactly, including that the translated message contains DONE so it satisfies assertConcurrentDoneSerializesWithoutPartialDones accepted-pattern list. Re-ran the script directly: exits 1 with its own expected AssertionError (RED: worktree-authority-smoke.js is expected to fail), the correct GREEN signal for a RED harness post-fix, confirming the doc-only edit left assertions/behavior unaffected. Also re-ran red-b49d4-harness-registration.mjs (OK, both RED scripts still correctly exempted) to confirm CHK-005 evidence remains valid. All 7 checklist items (CHK-001..CHK-007) remain status=done with concrete, non-generic must-priority verificationEvidence and no fail results; both findings (F-001, F-002) are status=resolved with strong evidence. Non-blocking observation only (not filed, mirrors this same roles RP-002 and lattice-review-quality/concepts RP-004/RP-006 pattern of noting non-blockers): background.md Key Insights paragraph still frames the transition-lock rooting as necessary-but-not-sufficient, i.e. not updated with the same F-001 no-op correction that plan.md line 16 explicitly carries (CORRECTED post-REVIEW (F-001, lattice-review-quality): ... reroute was a no-op ... CHK-001 is now a no-op/non-issue confirmation ... the entire real fix ... is CHK-002 alone) -- outside this roles verificationIntent/Evidence coverage charter, has zero effect on checklist evidence or code correctness, and multiple prior reviewer rounds (RP-003, RP-004, RP-006) fully read background.md post-revert without flagging it. No new coverage gap found this round. Test coverage review passed.",
+      "createdAt": "2026-08-16T13:43:48.692Z",
+      "reviewRound": "2026-08-16T13:30:53.847Z",
+      "reviewRunId": "B-3e5d:RR-007",
+      "envelopeId": "248e71b1770c7e1d24d969ff2d957a0b385ebe58a84921f065606cc638186f6d",
+      "writerSessionId": "sess-2c2ae49f4cfff6a0f38ad1cac5e2a876",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3e5d/background.md",
+          ".lattice/story/actives/B-3e5d/checklist.json",
+          ".lattice/story/actives/B-3e5d/findings.json",
+          ".lattice/story/actives/B-3e5d/plan.md",
+          ".lattice/story/actives/B-3e5d/review-passes.json",
+          ".lattice/story/actives/B-3e5d/review-runs.json",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/red/red-B-new-concurrent-done-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/tests/red/red-B-new-retired-channel-lane.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "scanEscalationReason": "field-regression-cli-smoke.ts and red-B-new-retired-channel-lane.mjs are unchanged since this roles own RR-002 full pass (RP-002) and lattice-review-quality/concepts RR-004/RR-006/RR-008/RR-009 passes on this same diff; this round is a focused re-confirmation of only the F-002 doc-only fix (aa9a5a877b) touching red-B-new-concurrent-done-race.mjs, which was read fully, cross-checked against live transition-orchestrator.ts source, and independently re-executed. red-b49d4-harness-registration.mjs was re-executed directly (OK) rather than re-read line by line since its meta-guard behavior is unaffected by a comment-only change."
+      },
+      "_hash": "f13858d473d33ed0636e0fcafd252faf6c6a4fd7e00ab2a5b4ef94dded93f1f7"
+    }
+  ]
+}

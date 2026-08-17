@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1734",
+  "sourceText": "Do B-e165 now. Is a mature lockfile library the better approach, and does it work cross-platform (Mac and Windows)? — maintainer, then approved the unified design: cross-platform proper-lockfile + content-bound verifyBuildBinding skip + a packages/utils binding across the three build call sites, and accepted adding the proper-lockfile dependency.",
+  "normalizedOutcome": "Concurrent builds in one shared worktree no longer corrupt dist (no ENOTEMPTY / TS2307 / MODULE_NOT_FOUND under concurrent npm test): a live long-running build is never age-stolen from its lock, a dead holder is reclaimed race-free, and a build skips only when a content-hash binding proves dist matches source (never by mtime or by mere existence).",
+  "acceptanceClaim": "The build critical section holds a cross-platform proper-lockfile mutex, and every build skip is gated by verifyBuildBinding (sha256 over all packages/main src+config and all dist, plus an analogous packages/utils binding), applied to the three build call sites (scripts/ensure-dist.mjs, scripts/build-main-with-binding.mjs which is the packages-main-build validate command, and the packages/utils build) — so concurrent npm tests never race into dist corruption and a stale/partial/orphaned dist is never reused.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:2a400311bed01feb36c4692c2c5f3d32a48fe026ff2cbb02dec9d986952af77f",
+  "createdAt": "2026-08-15T11:38:39.332Z",
+  "updatedAt": "2026-08-15T11:38:39.332Z"
+}

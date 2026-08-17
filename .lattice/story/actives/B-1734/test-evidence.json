@@ -1,0 +1,2276 @@
+{
+  "command": "lattice validate --story=B-1734 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=61695b2494f17f70433351f9f622286eb248253b5a97b88e798552d88dff0a87\",\"commandExecutions=0\",\"Verification intent coverage: 24/24 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test — Single npm test acquires the proper-lockfile mutex, builds both packages/main and packages/utils to completion, then releases the lock — verify the lock directory exists during build (ps + ls) and is absent after exit; WHY: baseline proof the lock lifecycle works end-to-end\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via logic_test — Two sequential npm test runs in the same worktree — second run completes without ENOTEMPTY or lock-contention error because the first fully released; WHY: proves the lock is not leaked on normal completion\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — Inject a tsc compilation error (e.g. syntax error in a .ts file) so the build fails mid-critical-section — verify the lock is released despite the error (ls shows lock directory absent after the failed run); WHY: a missing finally/onCompromised cleanup would leak the lock and deadlock every subsequent build\",\"  ✓ CHK-001:edge:1 [edge/should/cli] covered via logic_test — Send SIGTERM to a building process mid-compilation — verify the lock is either cleaned up by a signal handler or its stale mtime allows the next builder to reclaim it within proper-lockfile's stale window; WHY: CI runners and user Ctrl-C both send SIGTERM; a leaked unkillable lock blocks the pipeline\",\"  ✓ CHK-001:edge:2 [edge/must/logic] covered via logic_test — Verify in code that the lock uses proper-lockfile's mkdir strategy (the default) and does NOT require flock, fcntl, or any native module — grep the lock call for the absence of fs:lockFile options overriding the strategy; WHY: cross-platform guarantee (Windows has no flock); a native-module dep would break npx/CI on some platforms\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test — Launch two concurrent npm test invocations in the same worktree (background the first, immediately start the second) — both must complete successfully with no dist corruption (no TS2307/MODULE_NOT_FOUND/ENOTEMPTY in either stdout/stderr) and build timestamps in the log must show sequential (non-overlapping) compilation phases; WHY: this is the core mutex guarantee — a missing lock lets both rm+build simultaneously causing ENOTEMPTY and TS2307; a broken implementation MUST fail this because concurrent rm+tsc is not idempotent\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via logic_test — Verify in code that proper-lockfile is configured with stale >= 30000ms AND update (heartbeat) interval < stale/2 (so a live holder refreshes before stale expiry) — a broken implementation using a low stale (e.g. 5s) with no heartbeat update would let a waiter age-steal a live holder's lock mid-build, which is exactly B-fb7b finding #1; WHY: the mtime heartbeat is the specific mechanism that prevents live-holder age-steal, and the stale/update ratio is its correctness invariant\",\"  ✓ CHK-001:adversarial:2 [adversarial/must/cli] covered via logic_test — Simulate a dead holder: manually create the lock directory with an mtime older than the configured stale threshold (touch -t), then run npm test — the builder must reclaim the stale lock and complete successfully; WHY: a crashed process leaves a lock with no heartbeat; proper-lockfile's stale detection reclaims it, but only if the implementation configures stale correctly; a broken implementation with stale=Infinity would deadlock forever\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/logic] covered via logic_test — Verify in code that the build lock wraps the ENTIRE critical section — tsc-into-staging, the atomic rename promote (staging→dist, with the prior dist evicted), and writeBuildBinding — at each call site, so there is no unlocked window where a crash or concurrent invocation could leave a torn or missing dist; note that reader-safety against a torn dist during the promote is now delivered by the atomic rename swap itself (adversarial:3 verifies the lock still wraps the whole section; the actual reader-race is proven by readerrace:0). WHY: if tsc, promote, or writeBuildBinding runs outside the lock, a concurrent builder can interleave and corrupt dist or the binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency\",\"  ✓ CHK-001:adversarial:4 [adversarial/must/logic] covered via logic_test — Verify that ALL three build call sites (ensure-dist.mjs, build-main-with-binding.mjs, and the packages/utils build) acquire the same lock before entering their build critical sections — grep/inspect each call site for proper-lockfile lock acquisition; WHY: a single unprotected call site is a concurrency hole; the four Codex findings were triggered through ensure-dist.mjs but the race exists in any call site that does rm+build\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — Clean build from absent dist: run the build on a fresh checkout (no packages/main/dist) — dist is created, binding manifest written at packages/main/dist/full-suite-build-binding.json, and verifyBuildBinding(projectRoot) returns without throwing; WHY: baseline proof the build+binding write works end-to-end\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via logic_test — Subsequent run with no source change: invoke ensure-dist.mjs (or npm test pretest) after a successful build — verifyBuildBinding passes and the build is skipped (no tsc invocation in output, measurably faster than a full build); WHY: the content-bound skip is the primary efficiency guarantee; a broken implementation that always rebuilds fails this by taking full build time\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via logic_test — packages/utils binding: build utils, verify a utils binding manifest exists covering utils/src plus packages/main/dist; subsequent utils build with no change skips (no tsc invocation); WHY: the utils binding is new work in this story and must follow the same content-bound pattern as packages/main\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test — Deleted-source orphan: after a successful build, delete a non-index .ts source file from packages/main/src (leaving dist intact with its old .js output) then run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding must fail, rebuild must run, and the rebuilt dist must NOT contain the deleted file's .js output; WHY: B-fb7b finding #3 — mtime/existence checks missed orphaned dist files from deleted sources; the sha256 sourceDigest catches this because the file set changed\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via logic_test — Partial/interrupted build: after a successful build, delete one non-index .js file from packages/main/dist (simulating a crash mid-build) then run ensure-dist.mjs — distDigest changes, verifyBuildBinding must fail, rebuild must run and restore the missing file; WHY: B-fb7b finding #3 — existence-only (index.js present) missed partial dist directories; the sha256 distDigest catches this because a file is missing from the hash input\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via logic_test — packages/utils binding covers main/dist: rebuild packages/main (changing main/dist content), then run the utils build — the utils binding must detect that the packages/main/dist it links against has changed (its sourceDigest includes main/dist) and trigger a utils rebuild; WHY: utils tsc resolves types from main/dist; stale main/dist means stale utils .d.ts references and potential runtime MODULE_NOT_FOUND\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via logic_test — Concurrent npm test at the same HEAD: launch two npm test invocations simultaneously at the same commit — both invoke ensure-dist.mjs, both verifyBuildBinding, both skip (or at most one builds and the other waits+skips), and both complete successfully with no MODULE_NOT_FOUND or TS2307; WHY: content-bound skip means skip = no rm, so concurrent reads of dist are safe; the rm-during-read window is closed because rebuild only happens on content mismatch (which means something actually changed)\",\"  ✓ CHK-002:edge:4 [edge/must/cli] covered via logic_test — Source change triggers rebuild: edit a .ts file in packages/main/src (add a comment or whitespace), run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding fails, rebuild runs; WHY: proves the skip gate is sensitive to any source change, not just structural changes; a broken implementation using a coarse hash (e.g. file count only) would miss content-only changes\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test — Tampered non-index dist file: after a successful build, modify the content of a dist .js file that is NOT index.js and NOT the binding manifest (e.g. append a comment to any other .js) then run ensure-dist.mjs — distDigest must mismatch, verifyBuildBinding must fail, rebuild must run and overwrite the tampered file; WHY: B-fb7b finding #3 root cause was single-file mtime checking only index.js; the sha256-over-all-dist-files catches tampering of ANY dist file; a broken implementation checking only index.js existence/mtime/hash would pass the tampered file through\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/logic] covered via logic_test — Stale binding manifest: copy the binding manifest from a different HEAD (with a different sourceDigest) into the current dist directory, preserving the dist files from the current build — verifyBuildBinding must recompute sourceDigest from the actual source files on disk and detect the mismatch with the manifest's recorded sourceDigest, triggering a rebuild; WHY: the binding is a CLAIM; the verify function must recompute from source, not trust the manifest; a broken implementation that reads and trusts the manifest's sourceDigest without recomputation would accept stale dist\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via logic_test — Existence-only bypass: ensure packages/main/dist/index.js exists (e.g. from a prior checkout at a different source version) but source has changed since that dist was built — the skip decision must be based on verifyBuildBinding (sha256 content hash comparison), NOT on existsSync(dist/index.js); verify: build runs despite dist/index.js existing; WHY: B-fb7b finding #4 — the shipped ensure-dist.mjs uses existence-only reuse; the fix must replace that with content-bound verification; a broken implementation preserving the existsSync check would skip on stale dist\",\"  ✓ CHK-002:adversarial:3 [adversarial/must/cli] covered via logic_test — Binding manifest absent: after a successful build, delete ONLY the binding manifest (packages/main/dist/full-suite-build-binding.json) leaving all other dist files intact — verifyBuildBinding must throw (ENOENT on JSON.parse(readFileSync(...))), and the caller must treat this as 'not verified' and trigger a rebuild (not skip); WHY: a broken implementation that catches the ENOENT and treats 'no manifest' as 'assume fresh' would silently skip on an unverifiable dist\",\"  ✓ CHK-002:adversarial:4 [adversarial/must/logic] covered via logic_test — Verify in code that ensure-dist.mjs uses verifyBuildBinding (or an equivalent sha256 content check) for BOTH packages/main AND packages/utils skip decisions, replacing the current existsSync(join(root,'packages',pkg,'dist','index.js')) check — grep/inspect the file for the absence of the old existence-only guard and presence of verifyBuildBinding calls; WHY: ensure-dist.mjs is one of the three call sites listed in the acceptance claim; if it still uses existence-only for either package, the freshness guarantee has a gap that concurrent test runs at different HEADs would exploit\",\"  ✓ CHK-002:adversarial:5 [adversarial/must/logic] covered via logic_test — Verify that build-main-with-binding.mjs (the packages-main-build validate proof command) also uses verifyBuildBinding as its skip gate — when the binding already verifies, it skips the rm+tsc+write cycle; WHY: if this call site always rm+rebuilds regardless of content match, it defeats the concurrent-safety guarantee (rm during a concurrent reader's verify) and wastes CI time; the acceptance claim requires content-bound skip at ALL three call sites\"],\"warnings\":[],\"timestamp\":\"2026-08-16T17:04:39.264Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":24,\"reason\":\"verificationIntent entries present (24)\"},\"verificationCoverage\":{\"total\":24,\"required\":23,\"covered\":24,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Single npm test acquires the proper-lockfile mutex, builds both packages/main and packages/utils to completion, then releases the lock — verify the lock directory exists during build (ps + ls) and is absent after exit; WHY: baseline proof the lock lifecycle works end-to-end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:29:00.424Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Two sequential npm test runs in the same worktree — second run completes without ENOTEMPTY or lock-contention error because the first fully released; WHY: proves the lock is not leaked on normal completion\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:29:13.445Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Inject a tsc compilation error (e.g. syntax error in a .ts file) so the build fails mid-critical-section — verify the lock is released despite the error (ls shows lock directory absent after the failed run); WHY: a missing finally/onCompromised cleanup would leak the lock and deadlock every subsequent build\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:29:27.269Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Send SIGTERM to a building process mid-compilation — verify the lock is either cleaned up by a signal handler or its stale mtime allows the next builder to reclaim it within proper-lockfile's stale window; WHY: CI runners and user Ctrl-C both send SIGTERM; a leaked unkillable lock blocks the pipeline\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:29:40.281Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Verify in code that the lock uses proper-lockfile's mkdir strategy (the default) and does NOT require flock, fcntl, or any native module — grep the lock call for the absence of fs:lockFile options overriding the strategy; WHY: cross-platform guarantee (Windows has no flock); a native-module dep would break npx/CI on some platforms\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:2 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:29:53.307Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Launch two concurrent npm test invocations in the same worktree (background the first, immediately start the second) — both must complete successfully with no dist corruption (no TS2307/MODULE_NOT_FOUND/ENOTEMPTY in either stdout/stderr) and build timestamps in the log must show sequential (non-overlapping) compilation phases; WHY: this is the core mutex guarantee — a missing lock lets both rm+build simultaneously causing ENOTEMPTY and TS2307; a broken implementation MUST fail this because concurrent rm+tsc is not idempotent\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:30:06.316Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Verify in code that proper-lockfile is configured with stale >= 30000ms AND update (heartbeat) interval < stale/2 (so a live holder refreshes before stale expiry) — a broken implementation using a low stale (e.g. 5s) with no heartbeat update would let a waiter age-steal a live holder's lock mid-build, which is exactly B-fb7b finding #1; WHY: the mtime heartbeat is the specific mechanism that prevents live-holder age-steal, and the stale/update ratio is its correctness invariant\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:30:20.141Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Simulate a dead holder: manually create the lock directory with an mtime older than the configured stale threshold (touch -t), then run npm test — the builder must reclaim the stale lock and complete successfully; WHY: a crashed process leaves a lock with no heartbeat; proper-lockfile's stale detection reclaims it, but only if the implementation configures stale correctly; a broken implementation with stale=Infinity would deadlock forever\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:2 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:30:33.160Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Verify in code that the build lock wraps the ENTIRE critical section — tsc-into-staging, the atomic rename promote (staging→dist, with the prior dist evicted), and writeBuildBinding — at each call site, so there is no unlocked window where a crash or concurrent invocation could leave a torn or missing dist; note that reader-safety against a torn dist during the promote is now delivered by the atomic rename swap itself (adversarial:3 verifies the lock still wraps the whole section; the actual reader-race is proven by readerrace:0). WHY: if tsc, promote, or writeBuildBinding runs outside the lock, a concurrent builder can interleave and corrupt dist or the binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:3 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:30:46.172Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-001:adversarial:4\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Verify that ALL three build call sites (ensure-dist.mjs, build-main-with-binding.mjs, and the packages/utils build) acquire the same lock before entering their build critical sections — grep/inspect each call site for proper-lockfile lock acquisition; WHY: a single unprotected call site is a concurrency hole; the four Codex findings were triggered through ensure-dist.mjs but the race exists in any call site that does rm+build\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:4\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-lock-liveness.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:4 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3\",\"outputTail\":\"VI-OK CHK-001:adversarial:1\\nVI-OK CHK-001:edge:2\\nVI-OK CHK-001:happy:0\\nVI-OK CHK-001:happy:1\\nVI-OK CHK-001:adversarial:0\\nVI-OK CHK-001:edge:0\\nVI-OK CHK-001:adversarial:2\\nVI-OK CHK-001:edge:1\\nVI-OK CHK-001:adversarial:3\\nVI-OK CHK-001:adversarial:4\\nVI-OK CHK-001:adversarial:5\\nVI-OK CHK-001:adversarial:6\\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:30:59.196Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Clean build from absent dist: run the build on a fresh checkout (no packages/main/dist) — dist is created, binding manifest written at packages/main/dist/full-suite-build-binding.json, and verifyBuildBinding(projectRoot) returns without throwing; WHY: baseline proof the build+binding write works end-to-end\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:31:41.305Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Subsequent run with no source change: invoke ensure-dist.mjs (or npm test pretest) after a successful build — verifyBuildBinding passes and the build is skipped (no tsc invocation in output, measurably faster than a full build); WHY: the content-bound skip is the primary efficiency guarantee; a broken implementation that always rebuilds fails this by taking full build time\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:32:14.877Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"packages/utils binding: build utils, verify a utils binding manifest exists covering utils/src plus packages/main/dist; subsequent utils build with no change skips (no tsc invocation); WHY: the utils binding is new work in this story and must follow the same content-bound pattern as packages/main\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:2 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:32:48.505Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Deleted-source orphan: after a successful build, delete a non-index .ts source file from packages/main/src (leaving dist intact with its old .js output) then run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding must fail, rebuild must run, and the rebuilt dist must NOT contain the deleted file's .js output; WHY: B-fb7b finding #3 — mtime/existence checks missed orphaned dist files from deleted sources; the sha256 sourceDigest catches this because the file set changed\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:33:21.836Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Partial/interrupted build: after a successful build, delete one non-index .js file from packages/main/dist (simulating a crash mid-build) then run ensure-dist.mjs — distDigest changes, verifyBuildBinding must fail, rebuild must run and restore the missing file; WHY: B-fb7b finding #3 — existence-only (index.js present) missed partial dist directories; the sha256 distDigest catches this because a file is missing from the hash input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:33:55.308Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"packages/utils binding covers main/dist: rebuild packages/main (changing main/dist content), then run the utils build — the utils binding must detect that the packages/main/dist it links against has changed (its sourceDigest includes main/dist) and trigger a utils rebuild; WHY: utils tsc resolves types from main/dist; stale main/dist means stale utils .d.ts references and potential runtime MODULE_NOT_FOUND\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:2 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:34:28.503Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Concurrent npm test at the same HEAD: launch two npm test invocations simultaneously at the same commit — both invoke ensure-dist.mjs, both verifyBuildBinding, both skip (or at most one builds and the other waits+skips), and both complete successfully with no MODULE_NOT_FOUND or TS2307; WHY: content-bound skip means skip = no rm, so concurrent reads of dist are safe; the rm-during-read window is closed because rebuild only happens on content mismatch (which means something actually changed)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:3 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:35:01.476Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Source change triggers rebuild: edit a .ts file in packages/main/src (add a comment or whitespace), run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding fails, rebuild runs; WHY: proves the skip gate is sensitive to any source change, not just structural changes; a broken implementation using a coarse hash (e.g. file count only) would miss content-only changes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:4\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:4 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:35:34.671Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Tampered non-index dist file: after a successful build, modify the content of a dist .js file that is NOT index.js and NOT the binding manifest (e.g. append a comment to any other .js) then run ensure-dist.mjs — distDigest must mismatch, verifyBuildBinding must fail, rebuild must run and overwrite the tampered file; WHY: B-fb7b finding #3 root cause was single-file mtime checking only index.js; the sha256-over-all-dist-files catches tampering of ANY dist file; a broken implementation checking only index.js existence/mtime/hash would pass the tampered file through\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:0 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:36:08.010Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Stale binding manifest: copy the binding manifest from a different HEAD (with a different sourceDigest) into the current dist directory, preserving the dist files from the current build — verifyBuildBinding must recompute sourceDigest from the actual source files on disk and detect the mismatch with the manifest's recorded sourceDigest, triggering a rebuild; WHY: the binding is a CLAIM; the verify function must recompute from source, not trust the manifest; a broken implementation that reads and trusts the manifest's sourceDigest without recomputation would accept stale dist\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:1 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:36:41.343Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Existence-only bypass: ensure packages/main/dist/index.js exists (e.g. from a prior checkout at a different source version) but source has changed since that dist was built — the skip decision must be based on verifyBuildBinding (sha256 content hash comparison), NOT on existsSync(dist/index.js); verify: build runs despite dist/index.js existing; WHY: B-fb7b finding #4 — the shipped ensure-dist.mjs uses existence-only reuse; the fix must replace that with content-bound verification; a broken implementation preserving the existsSync check would skip on stale dist\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:2 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:37:14.746Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Binding manifest absent: after a successful build, delete ONLY the binding manifest (packages/main/dist/full-suite-build-binding.json) leaving all other dist files intact — verifyBuildBinding must throw (ENOENT on JSON.parse(readFileSync(...))), and the caller must treat this as 'not verified' and trigger a rebuild (not skip); WHY: a broken implementation that catches the ENOENT and treats 'no manifest' as 'assume fresh' would silently skip on an unverifiable dist\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:3 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:37:48.552Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:4\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify in code that ensure-dist.mjs uses verifyBuildBinding (or an equivalent sha256 content check) for BOTH packages/main AND packages/utils skip decisions, replacing the current existsSync(join(root,'packages',pkg,'dist','index.js')) check — grep/inspect the file for the absence of the old existence-only guard and presence of verifyBuildBinding calls; WHY: ensure-dist.mjs is one of the three call sites listed in the acceptance claim; if it still uses existence-only for either package, the freshness guarantee has a gap that concurrent test runs at different HEADs would exploit\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:4\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:4 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:38:21.845Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}},{\"intentRef\":\"CHK-002:adversarial:5\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Verify that build-main-with-binding.mjs (the packages-main-build validate proof command) also uses verifyBuildBinding as its skip gate — when the binding already verifies, it skips the rm+tsc+write cycle; WHY: if this call site always rm+rebuilds regardless of content match, it defeats the concurrent-safety guarantee (rm during a concurrent reader's verify) and wastes CI time; the acceptance claim requires content-bound skip at ALL three call sites\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:5\",\"kind\":\"logic_test\",\"command\":\"node packages/main/tests/red/red-1734-content-binding.mjs\",\"result\":\"pass\",\"note\":\"Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:5 only when its real assertion holds.\",\"headHash\":\"e50f12ac04b4cbef42fc586d0ffde390fa384030\",\"materialHash\":\"37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d\",\"storyFilesHash\":\"c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca\",\"outputTail\":\"VI-OK CHK-002:happy:0\\nVI-OK CHK-002:happy:1\\nVI-OK CHK-002:happy:2\\nVI-OK CHK-002:edge:0\\nVI-OK CHK-002:edge:1\\nVI-OK CHK-002:edge:2\\nVI-OK CHK-002:edge:3\\nVI-OK CHK-002:edge:4\\nVI-OK CHK-002:adversarial:0\\nVI-OK CHK-002:adversarial:1\\nVI-OK CHK-002:adversarial:2\\nVI-OK CHK-002:adversarial:3\\nVI-OK CHK-002:adversarial:4\\nVI-OK CHK-002:adversarial:5\\nVI-OK CHK-002:rebuild:0\\nVI-OK CHK-002:rebuild:1\\nVI-OK CHK-002:rebuild:2\\nVI-OK CHK-002:rebuild:3\\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-16T16:38:55.308Z\"},\"timestamp\":\"2026-08-16T16:38:55.319Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"61695b2494f17f70433351f9f622286eb248253b5a97b88e798552d88dff0a87\"}}",
+  "result": "PASS",
+  "timestamp": "2026-08-16T17:04:39.480Z",
+  "headHash": "822d6e3c0f287e066f2e781b4fe1b7d59207214b",
+  "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+  "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+  "verificationCoverage": {
+    "total": 24,
+    "required": 23,
+    "covered": 24,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Single npm test acquires the proper-lockfile mutex, builds both packages/main and packages/utils to completion, then releases the lock — verify the lock directory exists during build (ps + ls) and is absent after exit; WHY: baseline proof the lock lifecycle works end-to-end",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:29:00.424Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Two sequential npm test runs in the same worktree — second run completes without ENOTEMPTY or lock-contention error because the first fully released; WHY: proves the lock is not leaked on normal completion",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:happy:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:29:13.445Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Inject a tsc compilation error (e.g. syntax error in a .ts file) so the build fails mid-critical-section — verify the lock is released despite the error (ls shows lock directory absent after the failed run); WHY: a missing finally/onCompromised cleanup would leak the lock and deadlock every subsequent build",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:29:27.269Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Send SIGTERM to a building process mid-compilation — verify the lock is either cleaned up by a signal handler or its stale mtime allows the next builder to reclaim it within proper-lockfile's stale window; WHY: CI runners and user Ctrl-C both send SIGTERM; a leaked unkillable lock blocks the pipeline",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:29:40.281Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Verify in code that the lock uses proper-lockfile's mkdir strategy (the default) and does NOT require flock, fcntl, or any native module — grep the lock call for the absence of fs:lockFile options overriding the strategy; WHY: cross-platform guarantee (Windows has no flock); a native-module dep would break npx/CI on some platforms",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:edge:2 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:29:53.307Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Launch two concurrent npm test invocations in the same worktree (background the first, immediately start the second) — both must complete successfully with no dist corruption (no TS2307/MODULE_NOT_FOUND/ENOTEMPTY in either stdout/stderr) and build timestamps in the log must show sequential (non-overlapping) compilation phases; WHY: this is the core mutex guarantee — a missing lock lets both rm+build simultaneously causing ENOTEMPTY and TS2307; a broken implementation MUST fail this because concurrent rm+tsc is not idempotent",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:30:06.316Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Verify in code that proper-lockfile is configured with stale >= 30000ms AND update (heartbeat) interval < stale/2 (so a live holder refreshes before stale expiry) — a broken implementation using a low stale (e.g. 5s) with no heartbeat update would let a waiter age-steal a live holder's lock mid-build, which is exactly B-fb7b finding #1; WHY: the mtime heartbeat is the specific mechanism that prevents live-holder age-steal, and the stale/update ratio is its correctness invariant",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:30:20.141Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Simulate a dead holder: manually create the lock directory with an mtime older than the configured stale threshold (touch -t), then run npm test — the builder must reclaim the stale lock and complete successfully; WHY: a crashed process leaves a lock with no heartbeat; proper-lockfile's stale detection reclaims it, but only if the implementation configures stale correctly; a broken implementation with stale=Infinity would deadlock forever",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:2 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:30:33.160Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Verify in code that the build lock wraps the ENTIRE critical section — tsc-into-staging, the atomic rename promote (staging→dist, with the prior dist evicted), and writeBuildBinding — at each call site, so there is no unlocked window where a crash or concurrent invocation could leave a torn or missing dist; note that reader-safety against a torn dist during the promote is now delivered by the atomic rename swap itself (adversarial:3 verifies the lock still wraps the whole section; the actual reader-race is proven by readerrace:0). WHY: if tsc, promote, or writeBuildBinding runs outside the lock, a concurrent builder can interleave and corrupt dist or the binding; a broken implementation locking only the tsc step would pass happy-path but fail under concurrency",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:3 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:30:46.172Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:4",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Verify that ALL three build call sites (ensure-dist.mjs, build-main-with-binding.mjs, and the packages/utils build) acquire the same lock before entering their build critical sections — grep/inspect each call site for proper-lockfile lock acquisition; WHY: a single unprotected call site is a concurrency hole; the four Codex findings were triggered through ensure-dist.mjs but the race exists in any call site that does rm+build",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-lock-liveness.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-001:adversarial:4 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ae8b3e096865dc61ff7d5f573377578e2c1a7ba3444aadfe6067f789bd0a28a3",
+            "outputTail": "VI-OK CHK-001:adversarial:1\nVI-OK CHK-001:edge:2\nVI-OK CHK-001:happy:0\nVI-OK CHK-001:happy:1\nVI-OK CHK-001:adversarial:0\nVI-OK CHK-001:edge:0\nVI-OK CHK-001:adversarial:2\nVI-OK CHK-001:edge:1\nVI-OK CHK-001:adversarial:3\nVI-OK CHK-001:adversarial:4\nVI-OK CHK-001:adversarial:5\nVI-OK CHK-001:adversarial:6\nPASS red-1734-lock-liveness: mutex serializes live holders, reclaims dead/SIGTERM'd ones, releases on error, wraps rm+tsc+write at every call site, and its heartbeat fires during an async (event-loop-free) critical section — tsc is an awaited async child, never a blocking execFileSync\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:30:59.196Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Clean build from absent dist: run the build on a fresh checkout (no packages/main/dist) — dist is created, binding manifest written at packages/main/dist/full-suite-build-binding.json, and verifyBuildBinding(projectRoot) returns without throwing; WHY: baseline proof the build+binding write works end-to-end",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:31:41.305Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Subsequent run with no source change: invoke ensure-dist.mjs (or npm test pretest) after a successful build — verifyBuildBinding passes and the build is skipped (no tsc invocation in output, measurably faster than a full build); WHY: the content-bound skip is the primary efficiency guarantee; a broken implementation that always rebuilds fails this by taking full build time",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:32:14.877Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "packages/utils binding: build utils, verify a utils binding manifest exists covering utils/src plus packages/main/dist; subsequent utils build with no change skips (no tsc invocation); WHY: the utils binding is new work in this story and must follow the same content-bound pattern as packages/main",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:happy:2 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:32:48.505Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Deleted-source orphan: after a successful build, delete a non-index .ts source file from packages/main/src (leaving dist intact with its old .js output) then run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding must fail, rebuild must run, and the rebuilt dist must NOT contain the deleted file's .js output; WHY: B-fb7b finding #3 — mtime/existence checks missed orphaned dist files from deleted sources; the sha256 sourceDigest catches this because the file set changed",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:33:21.836Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Partial/interrupted build: after a successful build, delete one non-index .js file from packages/main/dist (simulating a crash mid-build) then run ensure-dist.mjs — distDigest changes, verifyBuildBinding must fail, rebuild must run and restore the missing file; WHY: B-fb7b finding #3 — existence-only (index.js present) missed partial dist directories; the sha256 distDigest catches this because a file is missing from the hash input",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:33:55.308Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "packages/utils binding covers main/dist: rebuild packages/main (changing main/dist content), then run the utils build — the utils binding must detect that the packages/main/dist it links against has changed (its sourceDigest includes main/dist) and trigger a utils rebuild; WHY: utils tsc resolves types from main/dist; stale main/dist means stale utils .d.ts references and potential runtime MODULE_NOT_FOUND",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:2 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:34:28.503Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Concurrent npm test at the same HEAD: launch two npm test invocations simultaneously at the same commit — both invoke ensure-dist.mjs, both verifyBuildBinding, both skip (or at most one builds and the other waits+skips), and both complete successfully with no MODULE_NOT_FOUND or TS2307; WHY: content-bound skip means skip = no rm, so concurrent reads of dist are safe; the rm-during-read window is closed because rebuild only happens on content mismatch (which means something actually changed)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:3 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:35:01.476Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:4",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Source change triggers rebuild: edit a .ts file in packages/main/src (add a comment or whitespace), run ensure-dist.mjs — sourceDigest changes, verifyBuildBinding fails, rebuild runs; WHY: proves the skip gate is sensitive to any source change, not just structural changes; a broken implementation using a coarse hash (e.g. file count only) would miss content-only changes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:edge:4 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:35:34.671Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Tampered non-index dist file: after a successful build, modify the content of a dist .js file that is NOT index.js and NOT the binding manifest (e.g. append a comment to any other .js) then run ensure-dist.mjs — distDigest must mismatch, verifyBuildBinding must fail, rebuild must run and overwrite the tampered file; WHY: B-fb7b finding #3 root cause was single-file mtime checking only index.js; the sha256-over-all-dist-files catches tampering of ANY dist file; a broken implementation checking only index.js existence/mtime/hash would pass the tampered file through",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:0 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:36:08.010Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Stale binding manifest: copy the binding manifest from a different HEAD (with a different sourceDigest) into the current dist directory, preserving the dist files from the current build — verifyBuildBinding must recompute sourceDigest from the actual source files on disk and detect the mismatch with the manifest's recorded sourceDigest, triggering a rebuild; WHY: the binding is a CLAIM; the verify function must recompute from source, not trust the manifest; a broken implementation that reads and trusts the manifest's sourceDigest without recomputation would accept stale dist",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:1 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:36:41.343Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Existence-only bypass: ensure packages/main/dist/index.js exists (e.g. from a prior checkout at a different source version) but source has changed since that dist was built — the skip decision must be based on verifyBuildBinding (sha256 content hash comparison), NOT on existsSync(dist/index.js); verify: build runs despite dist/index.js existing; WHY: B-fb7b finding #4 — the shipped ensure-dist.mjs uses existence-only reuse; the fix must replace that with content-bound verification; a broken implementation preserving the existsSync check would skip on stale dist",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:2 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:37:14.746Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Binding manifest absent: after a successful build, delete ONLY the binding manifest (packages/main/dist/full-suite-build-binding.json) leaving all other dist files intact — verifyBuildBinding must throw (ENOENT on JSON.parse(readFileSync(...))), and the caller must treat this as 'not verified' and trigger a rebuild (not skip); WHY: a broken implementation that catches the ENOENT and treats 'no manifest' as 'assume fresh' would silently skip on an unverifiable dist",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:3 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:37:48.552Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:4",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify in code that ensure-dist.mjs uses verifyBuildBinding (or an equivalent sha256 content check) for BOTH packages/main AND packages/utils skip decisions, replacing the current existsSync(join(root,'packages',pkg,'dist','index.js')) check — grep/inspect the file for the absence of the old existence-only guard and presence of verifyBuildBinding calls; WHY: ensure-dist.mjs is one of the three call sites listed in the acceptance claim; if it still uses existence-only for either package, the freshness guarantee has a gap that concurrent test runs at different HEADs would exploit",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:4 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:38:21.845Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:5",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Verify that build-main-with-binding.mjs (the packages-main-build validate proof command) also uses verifyBuildBinding as its skip gate — when the binding already verifies, it skips the rm+tsc+write cycle; WHY: if this call site always rm+rebuilds regardless of content match, it defeats the concurrent-safety guarantee (rm during a concurrent reader's verify) and wastes CI time; the acceptance claim requires content-bound skip at ALL three call sites",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:5",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-1734-content-binding.mjs",
+          "result": "pass",
+          "note": "Tool-executed: red-1734 prints selector VI-OK CHK-002:adversarial:5 only when its real assertion holds.",
+          "headHash": "e50f12ac04b4cbef42fc586d0ffde390fa384030",
+          "materialHash": "37bdc9a7708f0f56caafe0b7fb7f907ef6a3c9c7ca1168250a124e200482429d",
+          "storyFilesHash": "c8bae80886e6cebc96efc918fe34ceb72baea996f2fa9ebc0f937ab07730a477",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5393d5a415d160fe025d8e5273cac37507a887f5203414a6efae468ad6205dca",
+            "outputTail": "VI-OK CHK-002:happy:0\nVI-OK CHK-002:happy:1\nVI-OK CHK-002:happy:2\nVI-OK CHK-002:edge:0\nVI-OK CHK-002:edge:1\nVI-OK CHK-002:edge:2\nVI-OK CHK-002:edge:3\nVI-OK CHK-002:edge:4\nVI-OK CHK-002:adversarial:0\nVI-OK CHK-002:adversarial:1\nVI-OK CHK-002:adversarial:2\nVI-OK CHK-002:adversarial:3\nVI-OK CHK-002:adversarial:4\nVI-OK CHK-002:adversarial:5\nVI-OK CHK-002:rebuild:0\nVI-OK CHK-002:rebuild:1\nVI-OK CHK-002:rebuild:2\nVI-OK CHK-002:rebuild:3\nPASS red-1734-content-binding: verifyBuildBinding/verifyUtilsBuildBinding skip on match and reject source-change, orphan, partial, tamper, absent-manifest, forged-manifest, and main/dist drift; and the REAL build rebuilds a verifying dist after an orphan/partial/tamper/absent-manifest hazard\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-16T16:38:55.308Z"
+          },
+          "timestamp": "2026-08-16T16:38:55.319Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 102,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "9d6a203c0c3ba189bbb87048c4b7d187da2f18c37a1d6100e57297fc0ab27b92",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-lock-liveness.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-content-binding.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-reader-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[94]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[95]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[96]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[97]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[98]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[99]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[100]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[101]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1734",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "bb8f1131c92ac66d650a6a68585238094a4a7e2554cd5a3c9f176e0d02d6d66f",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "balanced"
+    },
+    "verificationPolicyDigest": "1ab0dcccf3be47fde22913c6e33579b8677622c9309961f17a56228fd001c703",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "61695b2494f17f70433351f9f622286eb248253b5a97b88e798552d88dff0a87"
+  }
+}
