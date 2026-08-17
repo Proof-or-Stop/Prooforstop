@@ -4529,7 +4529,7 @@
       "reviewRound": "2026-08-16T10:48:07.896Z",
       "state": "OPEN",
       "begunAt": "2026-08-17T08:23:30.332Z",
-      "updatedAt": "2026-08-17T09:31:07.618Z",
+      "updatedAt": "2026-08-17T10:33:57.001Z",
       "cutoff": {
         "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
         "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
@@ -4618,10 +4618,84 @@
           "criticDigest": "153d49773a471426ede9dea8188982264f6648fe0ac084e4ad2d3605a68182f9",
           "saturated": false,
           "nextRunSequenceBoundary": 478
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-17T09:31:07.618Z",
+          "completedAt": "2026-08-17T10:33:57.001Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3f3d:RR-493",
+              "terminal": "pass",
+              "hostIdentity": "78b8d86ab95e5e27026d1eab06f4069f990698adf8d79b324d20ae5d7967d33a",
+              "promptIdentity": "b30074ab17484f8d0454d6de7492eb84791d93951b2b9c82887dc8878e9b2dfb",
+              "evidenceIds": [
+                "B-3f3d:RP-332"
+              ],
+              "coverageDigest": "ecb7fb51575f2712115fa1c1ebbc0d115e9f7c91a436d733f14bbe8bcaa8e0dd"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3f3d:RR-480",
+              "terminal": "pass",
+              "hostIdentity": "3da3dbc03737d622a81e5175159da1af4c06276142f883f264081e6ecd117b8f",
+              "promptIdentity": "438d32b2614c915ce3f839f6ad5a5e80bd501d64949206a7065dfdc5f16812a2",
+              "evidenceIds": [
+                "B-3f3d:RP-330"
+              ],
+              "coverageDigest": "606471693a9a3ce502116112c8e972d096fda8ff50ac1764958413b3dd770af9"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3f3d:RR-481",
+              "terminal": "pass",
+              "hostIdentity": "3da3dbc03737d622a81e5175159da1af4c06276142f883f264081e6ecd117b8f",
+              "promptIdentity": "3418d517f99e96acadab078dd218ec297dafc9f99cb03ca7114418d990259a33",
+              "evidenceIds": [
+                "B-3f3d:RP-331"
+              ],
+              "coverageDigest": "abb24668ce50a9f47661881d6cd93e55380229d0e1bcfb3bbf25a5ecefe6dd47"
+            },
+            {
+              "lane": "lattice-review-behavior",
+              "reviewRunId": "B-3f3d:RR-483",
+              "terminal": "finding",
+              "hostIdentity": "3da3dbc03737d622a81e5175159da1af4c06276142f883f264081e6ecd117b8f",
+              "promptIdentity": "00bc8aa70ad2af30cc24942603444c7aae05c63a7a3e6c828e2d2a9f7dabb5ea",
+              "evidenceIds": [
+                "B-3f3d:F-118",
+                "B-3f3d:F-119"
+              ],
+              "coverageDigest": "91bae49719a1945a17b5b8d0b991dafcb0f9e55147c09a577303952c3a3f8ab7"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3f3d:RR-534",
+              "terminal": "pass",
+              "hostIdentity": "7af31047851e4e3d3133fa2b89afd113102fa1d48405278ab8ef7f754c635faf",
+              "promptIdentity": "5915301dc033ac162903bbfebc29091c4c561832956f9dcb52cd36c0a13486cf",
+              "evidenceIds": [
+                "B-3f3d:RP-333"
+              ],
+              "coverageDigest": "292902a74adced50e6892762bbdd388db23780d7833ad5ff3c7005355f3c0e66"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-review-widening-comment-overclaim",
+            "chk004-usersees-literal-strings-not-emitted",
+            "chk005-usersees-literal-strings-not-emitted",
+            "lifecycle-readiness-doc-drift-test-phase-row"
+          ],
+          "verifiedFindingSetDigest": "551d7964fd125e4fb0e3f7a929651d720a236da6fd413000b1767ef796f682ce",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "ab6bafac034c99f5c11d5838e1e355130aa734e38c771c8cec38e28f95fc168c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 536
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "a353720b5c5d6032d5391e00bcece22ecbe0c3a6923319e93a60a85266209751"
+      "_hash": "2e9c234eb015e19fb6c581c62f82db64c49e0fbea0ff00f7f4f49246bf8e3198"
     }
   ],
   "receipts": [
@@ -6805,6 +6879,43 @@
       ],
       "createdAt": "2026-08-17T09:30:03.057Z",
       "_hash": "0f46212d86b049e5c4a35728af18c1dbd7addf5078d78ea92f6d396d99b673dc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3f3d:RI-048:CRIT-02",
+      "epochId": "B-3f3d:RI-048",
+      "storyId": "B-3f3d",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "15ea94a9467ac3945e699f6d34cd41fe1dc8c69f",
+        "materialHash": "18b021cc70e6c702e55f28ec4f7bbe10ec93d6520fec87a1ac5a4d6c4d4694bf",
+        "storyFilesHash": "7e57d2d76a483ea71cb42654325626a9115efab13cd585b9bd9c764251258c6b"
+      },
+      "aggregateFindingSetDigest": "551d7964fd125e4fb0e3f7a929651d720a236da6fd413000b1767ef796f682ce",
+      "requiredLaneCoverageDigest": "2b5d3b8c11385587ae0a35db00e5c6141ff3a1b3c20df2616f2b20f744ca0f51",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3f3d:RR-536",
+      "terminalEvidenceIds": [
+        "B-3f3d:RP-335"
+      ],
+      "readEvidenceDigest": "b0bf842fc961b09f039fe9f087cd0ddd904417263e8d6dcff0b649606de2c8c9",
+      "findingDispositions": [
+        {
+          "findingId": "B-3f3d:F-118",
+          "disposition": "verified_family",
+          "familyKey": "chk005-usersees-literal-strings-not-emitted",
+          "reason": "Independently confirmed via repo-wide grep: zero hits for the five literal labeled lines and FAIL anywhere in packages/main/src. review-inventory-epoch-smoke.ts:782 emits console.log(JSON.stringify({result:PASS,replay:replayA})) with camelCase JSON fields, not the promised labeled text; on failure it throws an uncaught assert.AssertionError rather than printing FAIL. CHK-005 userSees is unmet by any code path."
+        },
+        {
+          "findingId": "B-3f3d:F-119",
+          "disposition": "verified_family",
+          "familyKey": "chk004-usersees-literal-strings-not-emitted",
+          "reason": "Independently confirmed via repo-wide grep: zero hits for the three CHK-004 literal strings in packages/main/src. consumeReviewInventoryReceipt (review-inventory-epoch.ts:627-671) returns only a bare receiptId or throws a generic Error; renderTransitionResult (transition-orchestrator.ts:218-226) builds a generic success string with no epoch id, finding count, digest, or TEST disclaimer. The only related literal, Final-review lanes:, comes from CHK-006 renderFinalReviewRoster (reviewer-list.ts:237), a differently worded string not gated on final-review rejection. CHK-004 userSees is unmet by any code path."
+        }
+      ],
+      "createdAt": "2026-08-17T10:30:21.437Z",
+      "_hash": "9c3da4151f2c09c0e1a8dd033bfb7e845adf81c499d7cdf819abf178a2affebf"
     }
   ]
 }
