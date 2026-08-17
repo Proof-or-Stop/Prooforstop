@@ -1155,6 +1155,51 @@
         "scanEscalationReason": null
       },
       "_hash": "e9632a09418fe9f4da0148ba2f24e34ee3b63bd7dc964c80277567e4b1012d5d"
+    },
+    {
+      "id": "B-cdf6:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for the 14 symbols flagged by validate --concept (detectLatticeBrand, formatLatticeProductLine, formatLatticeVersionLine, isAnyLatticeStoryMetadataPath, isLatticeLifecycleArtifactPath, main, renderLatticeBootstrapScript, renderLatticeCodexAdapterManifest, renderLatticeCodexWrapperScript, resolveLatticeCommandPath, runLattice, runLatticeExpectFail, runLatticeRaw, writeLatticeConfig). Verified each individually against git diff main...HEAD and the gate JSON output: 8 are properly @deprecated pure re-export aliases with live test coverage; 3 (resolveLatticeCommandPath/runLatticeRaw/writeLatticeConfig) show 0 residuals -- fully clean renames; runLattice/runLatticeExpectFail exact-name sites were fully renamed in touched files, remaining hits are untouched out-of-scope scripts or unrelated substring matches; main is a gate false positive (99.3% of all residuals, matching the bare word main/package-path/branch-name, not a deleted symbol -- the one real main() deletion moved intact into bin/proof-or-stop-codex.js with zero external importers). No blocking concept-cleanup defect found. Filed low-severity non-blocking finding B-cdf6:F-070 recommending the gate heuristic use exact-identifier matching instead of substring/generic-word matching.",
+      "createdAt": "2026-08-17T03:29:05.960Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-099",
+      "envelopeId": "c3545575be503e54fa10924edc50596dec90475508de29338d74dd0457658889",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-dev-memory.mjs",
+          "scripts/verify-done-merge-preflight.mjs",
+          "scripts/verify-worktree-baseline-risk.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/product-capability-release-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd329943c6b0ead9a1bef2c7a8de1a1b21656e2757cc125fc97f162dbc06e1a5"
     }
   ]
 }
