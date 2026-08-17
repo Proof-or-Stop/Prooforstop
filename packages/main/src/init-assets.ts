@@ -306,6 +306,9 @@ async function main() {
   const projectRoot = dirname(binDir);
   const coreCliEngineCandidates = [
     join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
+    join(projectRoot, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli-engine.js'),
+    // Deprecated scope kept as a READ fallback: a project installed before the
+    // '@lattice/core' -> '@proof-or-stop/core' rename must keep booting.
     join(projectRoot, 'node_modules', '@lattice', 'core', 'dist', 'cli-engine.js'),
     join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
   ];
@@ -352,13 +355,13 @@ async function main() {
     globalBin = firstProbe.bin;
   }
   if (!probeOk) {
-    console.error('bin/proof-or-stop.js could not find a local @lattice/core CLI engine or a capable global proof-or-stop.');
+    console.error('bin/proof-or-stop.js could not find a local @proof-or-stop/core CLI engine or a capable global proof-or-stop.');
     console.error('');
     console.error('Checked local candidates:');
     for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
     console.error('');
     console.error('Recovery:');
-    console.error('  - Install or update @lattice/core, then rerun: proof-or-stop init --verify-codex');
+    console.error('  - Install or update @proof-or-stop/core, then rerun: proof-or-stop init --verify-codex');
     console.error('  - In the Proof-or-Stop repository, run: npm run build');
     process.exit(1);
   }

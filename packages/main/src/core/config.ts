@@ -618,6 +618,39 @@ const DEFAULT_CONFIG: ProofOrStopConfig = {
 const _cache = new Map<string, ProofOrStopConfig>();
 
 /**
+ * Roots that have already been told their config filename is deprecated.
+ *
+ * B-cc10 CHK-004: the notice is emitted at most once per project root per
+ * process. `loadConfig` is called from dozens of call sites per command, so an
+ * uncached notice would repeat itself dozens of times in one invocation.
+ */
+const _deprecatedConfigNoticeShown = new Set<string>();
+
+/**
+ * B-cc10 CHK-004: one-line notice when a project still uses the DEPRECATED
+ * config filename.
+ *
+ * STDERR, NEVER STDOUT. This is a hard constraint inherited from B-cdf6: stdout
+ * is a machine-readable channel (`proof-or-stop validate --json` must parse as
+ * exactly one JSON payload), so any human-facing advisory written to stdout
+ * corrupts every piped consumer. `core/config.ts` is imported by effectively the
+ * whole CLI, so a stray `console.log` here would contaminate the JSON output of
+ * every command at once.
+ *
+ * The text names BOTH filenames — the deprecated one that resolved and the
+ * canonical one to rename it to — so the notice is actionable without needing
+ * the docs.
+ */
+function warnDeprecatedConfigFilename(root: string, filename: string): void {
+  if (_deprecatedConfigNoticeShown.has(root)) return;
+  _deprecatedConfigNoticeShown.add(root);
+  process.stderr.write(
+    `⚠ ${filename} is deprecated; rename it to ${PROOF_OR_STOP_CONFIG_FILENAME} `
+    + `(the deprecated name is still read, but only the canonical name is written).\n`,
+  );
+}
+
+/**
  * Canonical project config filename — sourced from the read-both resolver
  * (B-cc10 CHK-002). Only this name is ever WRITTEN.
  */
@@ -653,7 +686,12 @@ export function hasProjectConfigFile(dir: string): boolean {
  */
 const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS: readonly string[] = [
   ...MANIFEST_FILENAMES.flatMap((file) => stateDirCandidates(file)),
-  join('.Lattice', 'lattice.json'),
+  // B-cc10 CHK-004: the case variant must accept BOTH manifest filenames too.
+  // Pinning it to the deprecated filename would mean a `.Lattice` root whose
+  // manifest HAD been migrated stopped being recognized as global-thin — the
+  // rename would break the newer layout while the older one kept working, which
+  // is the backwards B-cdf6 failure direction.
+  ...MANIFEST_FILENAMES.map((file) => join('.Lattice', file)),
 ].filter((value, index, all) => all.indexOf(value) === index);
 
 function isJsonRecord(value: unknown): value is Record<string, unknown> {
@@ -721,6 +759,20 @@ function resolveProjectRoot(): string {
 }
 
 /**
+ * Prefix shared by the duplicate-key error MESSAGE and the `startsWith` filter
+ * that decides whether to rethrow it.
+ *
+ * B-cc10 CHK-004: these two were previously two independent hardcoded
+ * `lattice.config.json` literals — precisely the B-cdf6 F-065/F-061 regression
+ * shape, where a brand literal inside a COMPARISON drifts away from the literal
+ * used to build the value it compares against. Renaming only the message would
+ * have made the filter silently stop matching, downgrading a hard duplicate-key
+ * rejection into the permissive malformed-config fallback: the config would load
+ * with a silently-chosen prompt body. One constant makes that drift impossible.
+ */
+const DUPLICATE_PROMPT_ENVELOPE_ERROR_PREFIX = `${PROOF_OR_STOP_CONFIG_FILENAME} duplicate `;
+
+/**
  * JSON.parse silently keeps the last duplicate object key. That is unsafe for
  * per-role rollout flags because two visually contradictory entries could
  * select a different prompt body than the reviewer approved.
@@ -765,7 +817,7 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
         );
         if (duplicatePromptEnvelopeKey) {
           const qualifiedKey = [...path, key].join('.');
-          throw new Error(`lattice.config.json duplicate ${qualifiedKey} key`);
+          throw new Error(`${DUPLICATE_PROMPT_ENVELOPE_ERROR_PREFIX}${qualifiedKey} key`);
         }
         keys.add(key);
         parseValue([...path, key]);
@@ -809,7 +861,10 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
   try {
     parseValue([]);
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith('lattice.config.json duplicate promptEnvelope')) {
+    if (
+      error instanceof Error
+      && error.message.startsWith(`${DUPLICATE_PROMPT_ENVELOPE_ERROR_PREFIX}promptEnvelope`)
+    ) {
       throw error;
     }
     // Preserve the existing malformed-config fallback. JSON.parse below owns
@@ -829,6 +884,12 @@ export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   const picked = pickProjectConfigPath(root);
   const latticePath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
   const latticeExists = picked !== null;
+
+  // B-cc10 CHK-004: notice ONLY when the deprecated spelling is what actually
+  // resolved. A project holding only the canonical filename must stay silent,
+  // and a project holding BOTH resolves canonical-first (iteration order in
+  // pickProjectConfigPath), so `legacy` is false and it also stays silent.
+  if (picked?.legacy) warnDeprecatedConfigFilename(root, picked.filename);
 
   let userConfig: Partial<ProofOrStopConfig> = {};
   let chosenPath: string | null = null;

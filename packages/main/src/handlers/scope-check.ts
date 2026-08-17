@@ -17,6 +17,7 @@ import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { loadConfig } from '../core/config.js';
+import { CONFIG_FILENAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 
 export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
@@ -52,14 +53,20 @@ function v2ScopeCheckHash(
 }
 
 function configuredStoryDirs(root: string): string[] {
-  const dirs = ['.lattice/story/actives', 'docs/story/actives'];
-  try {
-    const parsed = JSON.parse(readFileSync(join(root, 'lattice.config.json'), 'utf8')) as { storyDir?: unknown };
-    if (typeof parsed.storyDir === 'string' && parsed.storyDir.trim()) {
-      dirs.unshift(parsed.storyDir.trim());
+  // B-cc10 CHK-004: derive the default story dirs from the resolver so both
+  // state-dir spellings are accepted, and read the config under BOTH filenames.
+  const dirs = [...stateDirCandidates('story', 'actives'), 'docs/story/actives'];
+  for (const filename of CONFIG_FILENAMES) {
+    try {
+      const parsed = JSON.parse(readFileSync(join(root, filename), 'utf8')) as { storyDir?: unknown };
+      if (typeof parsed.storyDir === 'string' && parsed.storyDir.trim()) {
+        dirs.unshift(parsed.storyDir.trim());
+      }
+      break;
+    } catch {
+      // Best-effort compatibility shim for legacy signScopeCheck callers; try the
+      // next accepted spelling before giving up.
     }
-  } catch {
-    // Best-effort compatibility shim for legacy signScopeCheck callers.
   }
   return [...new Set(dirs)];
 }
@@ -67,7 +74,11 @@ function configuredStoryDirs(root: string): string[] {
 function findProjectRoot(start: string): string {
   let dir = start;
   while (true) {
-    if (existsSync(join(dir, 'lattice.config.json'))) return dir;
+    // B-cc10 CHK-004: a project-root marker test must accept BOTH config
+    // filenames. Recognizing only one spelling is the B-cdf6 F-065 shape: an
+    // already-migrated project would stop being found and root discovery would
+    // silently fall back to `start`.
+    if (CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)))) return dir;
     const parent = dirname(dir);
     if (parent === dir) return start;
     dir = parent;

@@ -91,8 +91,14 @@ export const DEPRECATED_ADAPTER_DIR = '.lattice-codex';
  * Project config filename (`lattice.config.json` -> `proof-or-stop.config.json`)
  * ------------------------------------------------------------------ */
 
-/** Canonical project config filename. Only this name is written. */
-export const PROOF_OR_STOP_CONFIG_FILENAME = 'lattice.config.json';
+/**
+ * Canonical project config filename. Only this name is written.
+ *
+ * B-cc10 CHK-004 flipped this from `lattice.config.json`. The deprecated
+ * spelling below still RESOLVES for reads, so an unmigrated checkout keeps
+ * loading — it just gets a one-line stderr deprecation notice.
+ */
+export const PROOF_OR_STOP_CONFIG_FILENAME = 'proof-or-stop.config.json';
 
 /** Deprecated project config filename, still READ. Never written. */
 export const DEPRECATED_CONFIG_FILENAME = 'lattice.config.json';
@@ -101,8 +107,15 @@ export const DEPRECATED_CONFIG_FILENAME = 'lattice.config.json';
  * Adapter manifest filename (`lattice.json` -> `proof-or-stop.json`)
  * ------------------------------------------------------------------ */
 
-/** Canonical adapter manifest filename. Only this name is written. */
-export const PROOF_OR_STOP_MANIFEST_FILENAME = 'lattice.json';
+/**
+ * Canonical adapter manifest filename. Only this name is written.
+ *
+ * B-cc10 CHK-004 flipped this from `lattice.json`. The adapter DIRECTORY is a
+ * separate identity that CHK-003 moves; this constant governs only the filename,
+ * and `adapterManifestCandidates()` probes the dir x filename cross product so a
+ * half-migrated checkout resolves either way.
+ */
+export const PROOF_OR_STOP_MANIFEST_FILENAME = 'proof-or-stop.json';
 
 /** Deprecated adapter manifest filename, still READ. Never written. */
 export const DEPRECATED_MANIFEST_FILENAME = 'lattice.json';

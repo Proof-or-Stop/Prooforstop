@@ -974,7 +974,10 @@ function checkGlobalFallback(
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 2_000,
     }).trim();
+    // B-cc10 CHK-005: probe the canonical scope first, then the deprecated one, so an
+    // existing global install still satisfies the heartbeat instead of silently skipping.
     const globalCoreCandidates = [
+      { path: join(globalRoot, '@proof-or-stop', 'core'), label: '@proof-or-stop/core' },
       { path: join(globalRoot, '@lattice', 'core'), label: '@lattice/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));

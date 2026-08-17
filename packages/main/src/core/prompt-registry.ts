@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
-export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
+export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
 export const MODULAR_REVIEWER_ROLE_IDS = [

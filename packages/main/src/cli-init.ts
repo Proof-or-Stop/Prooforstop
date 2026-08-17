@@ -59,11 +59,14 @@ import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths
 import {
   PROOF_OR_STOP_ADAPTER_DIR,
   PROOF_OR_STOP_MANIFEST_FILENAME,
+  PROOF_OR_STOP_CONFIG_FILENAME,
+  CONFIG_FILENAMES,
+  adapterManifestCandidates,
 } from './core/brand-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @lattice/core package root
+const packageRoot = join(__dirname, '..'); // @proof-or-stop/core package root
 const agentTemplateDir = [
   resolveAgentTemplateDir(),
   join(packageRoot, 'templates', 'agents'),
@@ -491,10 +494,18 @@ function removeCodexWrapperIfManaged() {
 }
 
 function removeCodexManifestIfManaged() {
-  removeWholeFileIfGenerated('.lattice-codex/lattice.json', '.lattice-codex/lattice.json', [
-    renderProofOrStopCodexAdapterManifest(),
-    renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
-  ]);
+  // B-cc10 CHK-004: profile cleanup must consider BOTH manifest filenames, same
+  // reasoning as removeCodexWrapperIfManaged above. A cleanup pinned to one
+  // spelling would strand a managed manifest written under the other name, which
+  // `verify_codex` would then keep discovering after the profile said to remove it.
+  // adapterManifestCandidates() is the dir x filename cross product, so cleanup
+  // also covers a half-migrated checkout (canonical dir, deprecated filename).
+  for (const rel of adapterManifestCandidates()) {
+    removeWholeFileIfGenerated(rel, rel, [
+      renderProofOrStopCodexAdapterManifest(),
+      renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
+    ]);
+  }
 }
 
 function removeCodexNativeHooksIfManaged() {
@@ -813,7 +824,7 @@ if (withStarter && !existsSync(debugPath)) {
   writeFileSync(debugPath, `// debug.ts — 调试入口
 // 框架的 devHost() 负责：WS server + .lattice-serve.json + cleanup
 
-import { devHost } from '@lattice/core/dev-host';
+import { devHost } from '@proof-or-stop/core/dev-host';
 import { createApp } from './app.js';
 import { readBrandEnv } from './core/brand-env.js';
 // import { GameMachine } from './machines/game/machine.js';
@@ -828,8 +839,8 @@ import { readBrandEnv } from './core/brand-env.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. lattice.config.json (canonical)
-console.log('\n[2/5] 生成 lattice.config.json...');
+// 2. project config (canonical filename only)
+console.log(`\n[2/5] 生成 ${PROOF_OR_STOP_CONFIG_FILENAME}...`);
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
@@ -857,10 +868,16 @@ if (existsSync(pkgPath)) {
     }
   } catch { /* ignore */ }
 }
-if (existsSync(join(targetDir, 'lattice.config.json'))) {
-  console.log('  - lattice.config.json (exists, skip)');
+// B-cc10 CHK-004: the SKIP test is read-both, the WRITE is canonical-only. If the
+// existence test only looked for the canonical name, `init` on an unmigrated
+// project would write a SECOND config file next to the deprecated one — two
+// on-disk copies of the same state, with the canonical one silently winning and
+// the user's real settings ignored.
+const existingConfigFilename = CONFIG_FILENAMES.find((name) => existsSync(join(targetDir, name)));
+if (existingConfigFilename) {
+  console.log(`  - ${existingConfigFilename} (exists, skip)`);
 } else {
-  write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
+  write(PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify(latticeConfig, null, 2) + '\n');
 }
 
 // 3. 文档入口
@@ -868,11 +885,14 @@ console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
   const latticeConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
+  // B-cc10 CHK-004: report the path actually written rather than a hardcoded
+  // spelling, so the console never claims a filename that is not on disk.
+  const latticeConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
   if (!existsSync(latticeConfigPath)) {
     writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
-    console.log('  ✓ .lattice/lattice.json');
+    console.log(`  ✓ ${latticeConfigLabel}`);
   } else {
-    console.log('  - .lattice/lattice.json (exists, skip)');
+    console.log(`  - ${latticeConfigLabel} (exists, skip)`);
   }
   console.log('  - LATTICE.md (global-thin mode; canonical guide is .lattice/Lattice.md)');
 } else {
@@ -946,15 +966,19 @@ if (!isGlobalThin && wantsCodex) {
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
   console.log('  ✓ .lattice-codex/README.md');
 
-  const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
+  // B-cc10 CHK-004: the manifest FILENAME comes from the resolver (canonical
+  // only — `init` is a writer). The adapter DIRECTORY is a separate identity
+  // owned by CHK-003; it already flows from PROOF_OR_STOP_ADAPTER_DIR.
+  const codexManifestLabel = `${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+  const codexManifestPath = join(targetDir, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   writeFileSync(codexManifestPath, renderProofOrStopCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
-  console.log('  ✓ .lattice-codex/lattice.json');
+  console.log(`  ✓ ${codexManifestLabel}`);
 } else if (isGlobalThin) {
   console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
-  console.log('  - .lattice-codex/lattice.json (global-thin mode; use proof-or-stop codex verify)');
+  console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (global-thin mode; use proof-or-stop codex verify)`);
 } else {
   console.log('  - .lattice-codex/README.md (profile skip)');
-  console.log('  - .lattice-codex/lattice.json (profile skip)');
+  console.log(`  - ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} (profile skip)`);
 }
 
 if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {

@@ -113,8 +113,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
+// B-cc10 CHK-005: the ROOT package name stays `lattice` (deliberately out of scope, see
+// proof-or-stop-identity-migration.md); only the core package was renamed.
 const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
+const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+// Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
+// self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
+const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  CANONICAL_CORE_PACKAGE_NAME,
+  DEPRECATED_CORE_PACKAGE_NAME,
+]);
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
@@ -123,7 +132,7 @@ const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-o
 
 interface CorePackageCandidate {
   path: string;
-  packageName: typeof CANONICAL_CORE_PACKAGE_NAME;
+  packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
   exists: boolean;
 }
 
@@ -1030,7 +1039,8 @@ function detectSelfProject(projectRoot: string): boolean {
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
   return rootName === CANONICAL_ROOT_PACKAGE_NAME
-    && coreName === CANONICAL_CORE_PACKAGE_NAME;
+    && typeof coreName === 'string'
+    && SELF_CORE_PACKAGE_NAMES.has(coreName);
 }
 
 function packagePathFromName(root: string, packageName: string): string {
@@ -1043,6 +1053,12 @@ function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
   if (existsSync(canonicalPath)) {
     return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
+  }
+  // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
+  // @lattice/core is still FOUND (and reported) instead of looking absent.
+  const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
+  if (existsSync(deprecatedPath)) {
+    return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };
   }
   return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: false };
 }
