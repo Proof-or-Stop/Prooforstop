@@ -18274,6 +18274,44 @@
       },
       "readDiagnostics": [],
       "_hash": "7f42066b113349cf109e15390e2b887a1e564752ef03a88f4337612aa2fbb912"
+    },
+    {
+      "id": "B-3f3d:RP-325",
+      "agent": "lattice-review-behavior",
+      "note": "Wave-2 behavioral-lens re-review of the review-inventory epoch/saturation mechanism itself (the subject exposed by BUG-STATUS-STALE-LANE/F-113). Live-verified via review_inventory_status plus direct inspection of review-runs.json/findings.json/review-inventory-epochs.json that evaluateReviewInventoryWave/buildWave/finalizedLiveAggregateError never credit a lane with a terminal it did not receive: at inspection time RR-459 (test-coverage) and RR-460/461 (behavior) were wave-2-eligible ReviewRuns with zero terminal attached, so evidenceForRun correctly returned terminal:null and evaluation.missingLanes correctly still listed those lanes, correctly blocking finalize/wave_advance/critic_set -- confirming BUG-STATUS-STALE-LANE is display-only (renderReviewInventoryStatus laneRows fallback line 204, never fed back into any gate input). Verified authorizesTest:false and reviewInventoryRemediationGate are correctly scoped to canReenterDevGuard (REVIEW->DEV/TEST->DEV rollback door only, machine.ts:737 and :1220), never the forward REVIEW->TEST transition. Verified F-107 disposition rewrite is internally coherent: resolvedReason (not desc/status) carries the SUPERSEDED text and correctly cross-references BUG-F107-INCOMPLETE (present, open, in bug.json) and story B-8af0, no dangling reference. Verified the uncommitted uninvolved git stash@{0} (WIP F-107/F-108 fixture) does not affect committed materialHash or git diff main...HEAD. Verified wave-1 baselineFindingIds is empty so F-111/F-112 resolution during wave 2 does not spuriously register as new families (matches observed newVerifiedFindingCount 0 for the live wave-2 evaluation). No new mechanical defect found in the epoch state machine, wave/saturation boundary logic, or material-mutation barrier this wave; F-089 and F-113 left open/untouched per scope.",
+      "createdAt": "2026-08-17T04:58:56.100Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-461",
+      "envelopeId": "0af63c5cfcc602f55500edefd26d56dbea40a326062d413817e99ec05c60ecf0",
+      "writerSessionId": "sess-60b0d01cf32ddaf04d1ef8467d5fcef8",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d23b8c6ced3b2fd5591defe664a498524c20bf8ab2ac5a395530bc61e20a575"
     }
   ]
 }
