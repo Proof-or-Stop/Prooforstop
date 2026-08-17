@@ -66,6 +66,21 @@
       "_hash": "4d5df442d9dfe5788ddca788a0377163a1ddd15ebda78163076c6076610b02f2",
       "signatureTag": "missing|unknown|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-005",
+      "desc": "maintainability: packages/main/src/core/validation-executor.ts:733 (inside resolveValidationCommandResources) and :754 (inside resolveValidationPlanEntries) independently re-derive the same 'this command declared nothing so it gets the fail-closed exclusive default' condition (claims.length === 0 after mapping vs. !(Array.isArray(command.resources) && command.resources.length > 0)). The two expressions are equivalent today only by inspection; resolveValidationCommandResources never returns whether it applied the default, so resolveValidationPlanEntries has to recompute the same rule from the raw field. If the declaredness rule ever changes (e.g. to also treat an all-invalid-but-nonempty resources array as undeclared), the two call sites can silently diverge and exclusiveByDefault/the printed declared= count would stop matching what the scheduler actually enforced.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-17T15:19:45.370Z",
+      "reviewRound": "2026-08-17T15:11:33.078Z",
+      "reviewRunId": "B-7dff:RR-002",
+      "_hash": "cbcdd4c9487e5f60b67a451e0c03f490cae2dc4abb00c609349eb5417ff02e9c",
+      "signatureTag": "missing|unknown|maintainability-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
