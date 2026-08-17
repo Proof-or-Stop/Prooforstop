@@ -234,6 +234,57 @@ export function adapterDirCandidates(...segments: readonly string[]): readonly s
 }
 
 /**
+ * True when `text` mentions a project config filename under EITHER spelling.
+ *
+ * For callers that must classify a free-form diagnostic string (a blind-spot
+ * message, a read failure) as being ABOUT the config file. Same F-065/F-061
+ * defence as the other decision helpers: the accepted set derives from the
+ * constants, so a caller cannot recognize only one spelling.
+ */
+export function isConfigFilenameMentioned(text: string): boolean {
+  return CONFIG_FILENAMES.some((name) => text.includes(name));
+}
+
+/**
+ * Pick which config-filename spelling to actually USE against a tree, by asking
+ * a caller-supplied probe which one is present. Canonical wins; the deprecated
+ * spelling is the fallback; when neither is present the CANONICAL name is
+ * returned so error messages and digest keys name the spelling a project should
+ * have.
+ *
+ * WHY A PROBE CALLBACK INSTEAD OF `existsSync`
+ * -------------------------------------------
+ * The B-cc10 CHK-004 caller that needs this most
+ * (`core/acceptance-discovery-adapters.ts`) may not use `existsSync` at all: it
+ * reads through a hardened no-follow snapshot reader that REJECTS a path whose
+ * spelling differs from the canonical physical path on disk. So "which spelling
+ * exists" has to be answered by the same reader that will do the real read, or
+ * the answer does not bind to the read that follows. Taking a probe keeps this
+ * module free of I/O (it stays a pure resolver) while still letting every caller
+ * derive its accepted set from the same two constants.
+ *
+ * This is the F-065/F-061 shape done right: a caller cannot end up recognizing
+ * only one spelling, because it never writes either literal itself.
+ */
+export function resolveConfigFilename(exists: (name: string) => boolean): string {
+  for (const name of CONFIG_FILENAMES) {
+    if (exists(name)) return name;
+  }
+  return PROOF_OR_STOP_CONFIG_FILENAME;
+}
+
+/**
+ * Same read-both resolution for the adapter manifest filename. Canonical wins;
+ * canonical is the both-absent fallback.
+ */
+export function resolveManifestFilename(exists: (name: string) => boolean): string {
+  for (const name of MANIFEST_FILENAMES) {
+    if (exists(name)) return name;
+  }
+  return PROOF_OR_STOP_MANIFEST_FILENAME;
+}
+
+/**
  * Accepted spellings of the adapter manifest inside the adapter directory,
  * canonical-dir + canonical-filename first.
  *

@@ -176,6 +176,14 @@ const EXECUTABLE_SCAN_ROOTS = [
   'bin',
   '.codex',
   'package.json',
+  // B-cc10 CHK-004: BOTH config spellings are scan roots. Non-existent roots are
+  // skipped, so listing both keeps this gate covering whichever name a checkout
+  // actually has. Naming only the deprecated one meant that after the rename this
+  // root silently scanned NOTHING — the executable-surface check would have gone
+  // quietly blind rather than failing, which is the B-cdf6 regression shape.
+  // Deliberately literal, not imported from `core/brand-paths.ts`: this verifier
+  // must run standalone without a built `dist`.
+  'proof-or-stop.config.json',
   'lattice.config.json',
   'CITATION.cff',
   // B-cdf6 CHK-006 Pass B: promoted from "counted" to GATED once its detector count

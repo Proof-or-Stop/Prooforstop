@@ -19,6 +19,7 @@ import { PROOF_OR_STOP_BIN_NAMES } from './lattice-brand.js';
 import {
   ADAPTER_DIR_NAMES,
   MANIFEST_FILENAMES,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
   adapterDirCandidates,
   adapterManifestCandidates,
   stateDirCandidates,
@@ -554,7 +555,10 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   // identity the resolver owns.
   const globalThinConfig = [
     ...MANIFEST_FILENAMES.flatMap(file => stateDirCandidates(file)),
-    '.Lattice/lattice.json',
+    // B-cc10 CHK-004: the `.Lattice` case variant accepts BOTH manifest
+    // filenames; pinning the deprecated one made a migrated `.Lattice` root stop
+    // being detected as global-thin.
+    ...MANIFEST_FILENAMES.map(file => `.Lattice/${file}`),
   ].find(relPath => existsSync(join(root, relPath)));
   if (globalThinConfig) {
     const text = readText(root, globalThinConfig);
@@ -707,8 +711,11 @@ export function listManagedAssetDefinitions(
           || actual.includes('lattice codex verify'),
       ),
       wholeFile(
-        '.lattice:lattice.json',
-        '.lattice/lattice.json',
+        // B-cc10 CHK-004: the FILENAME component comes from the resolver so init
+        // writes only the canonical manifest name. The state-dir component stays
+        // a literal here — that identity is CHK-003's to move.
+        `.lattice:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
+        `.lattice/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         renderLatticeProjectConfig(),
         actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
         false,
@@ -869,8 +876,10 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(
-        '.lattice-codex:lattice.json',
-        '.lattice-codex/lattice.json',
+        // B-cc10 CHK-004: canonical manifest FILENAME from the resolver; the
+        // adapter-dir component stays literal for CHK-003.
+        `.lattice-codex:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
+        `.lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         renderProofOrStopCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),

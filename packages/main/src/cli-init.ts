@@ -264,16 +264,16 @@ proof-or-stop init — 初始化 Proof-or-Stop 开发框架
 
 默认初始化（global-thin mode）:
   .lattice/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
-  .lattice/lattice.json         项目 Proof-or-Stop 配置（global-thin）
+  .lattice/${PROOF_OR_STOP_MANIFEST_FILENAME}   项目 Proof-or-Stop 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
-  lattice.config.json           项目配置（canonical）
+  ${PROOF_OR_STOP_CONFIG_FILENAME}      项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
   bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
-  .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
+  .lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}   Codex adapter manifest（仅 full/thin + codex profile）
   .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
 可选 starter 内容（仅 --starter / --with-template）:
@@ -287,7 +287,7 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
 初始化后（global-thin）:
   1. 阅读 .lattice/Lattice.md
   2. 使用全局 lattice CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
-  3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
+  3. 可选: 编辑 ${PROOF_OR_STOP_CONFIG_FILENAME} 调整 scanRoot 等路径
   4. 可选: proof-or-stop validate 跑项目验证
 `);
   process.exit(0);
@@ -1171,7 +1171,7 @@ ${isGlobalThin ? `  1. Read .lattice/Lattice.md
   2. Use the global lattice CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit lattice.config.json to adjust scanRoot
+  2. Optional: edit ${PROOF_OR_STOP_CONFIG_FILENAME} to adjust scanRoot
   3. Optional: proof-or-stop validate to verify project`}
 `);
 

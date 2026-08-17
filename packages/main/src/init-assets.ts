@@ -7,6 +7,7 @@ import {
 import {
   ADAPTER_DIR_NAMES,
   CONFIG_FILENAMES,
+  PROOF_OR_STOP_MANIFEST_FILENAME,
   STATE_DIR_NAMES,
 } from './core/brand-paths.js';
 
@@ -78,7 +79,8 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 // --- Global-thin asset templates ---
 // These are used when fresh init defaults to the global-thin asset mode.
-// The .lattice/ directory holds project context (Lattice.md) and config (lattice.json).
+// The .lattice/ directory holds project context (Lattice.md) and config
+// (proof-or-stop.json; the deprecated lattice.json is still read — B-cc10 CHK-004).
 // Executable Codex adapter behavior lives in the global lattice CLI; no local bin shims are created.
 
 export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
@@ -186,7 +188,10 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     'Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .lattice-codex directory entry.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
     'Run node bin/proof-or-stop-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
-    'Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/lattice.json and bin/proof-or-stop-codex.js (the bin/lattice-codex.js alias is deprecated but retained).',
+    // B-cc10 CHK-004: the manifest FILENAME comes from the resolver so this
+    // generated note names the file `init` actually writes. The deprecated
+    // `bin/lattice-codex.js` alias mention is intentional and stays.
+    `Legacy project documents may remain archived, but active Codex adapter assets use .lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME} and bin/proof-or-stop-codex.js (the bin/lattice-codex.js alias is deprecated but retained).`,
   ],
 } as const;
 
@@ -244,7 +249,7 @@ fallback 说明：
 - 全局 \`lattice\` 可能是 core-only，\`aux_*\` 命令不一定可用
 - 全局 \`lattice\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.lattice-codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
-- \`.lattice-codex/lattice.json\` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
+- \`.lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}\` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
 建议：
 
@@ -261,7 +266,7 @@ fallback 说明：
 
 - 不创建 \`.lattice-codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
 - Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 \`.lattice-codex/hooks\` alias
-- 需要观测 Codex 活动时，使用 \`.lattice-codex/lattice.json\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
+- 需要观测 Codex 活动时，使用 \`.lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
 const CODEX_README_THIN_APPENDIX = `
@@ -269,7 +274,7 @@ const CODEX_README_THIN_APPENDIX = `
 
 This repository uses registry-backed Codex prompts:
 
-- \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
+- \`.lattice-codex/${PROOF_OR_STOP_MANIFEST_FILENAME}\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
 - \`.lattice-codex/agents\` prompt copies are not required for Proof-or-Stop adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`.lattice-codex/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.

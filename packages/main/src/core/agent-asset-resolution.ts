@@ -95,7 +95,11 @@ function localAssetModeHint(projectRoot: string): LocalAssetModeHint {
   const candidates = [
     ...MANIFEST_FILENAMES.flatMap(file =>
       stateDirCandidates(file).map(rel => join(projectRoot, rel))),
-    join(projectRoot, '.Lattice', 'lattice.json'),
+    // B-cc10 CHK-004: the `.Lattice` case variant must accept BOTH manifest
+    // filenames. Pinning the deprecated one meant a `.Lattice` root whose
+    // manifest HAD been migrated stopped resolving — the rename breaking the
+    // newer layout while the older kept working (backwards B-cdf6 direction).
+    ...MANIFEST_FILENAMES.map(file => join(projectRoot, '.Lattice', file)),
     ...adapterManifestCandidates().map(rel => join(projectRoot, rel)),
   ].filter((value, index, all) => all.indexOf(value) === index);
   for (const candidate of candidates) {

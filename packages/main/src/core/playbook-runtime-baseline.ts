@@ -28,6 +28,7 @@ import {
   type RuntimeMemoryIndex,
 } from './playbook-runtime-memory-index.js';
 import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 
 export type PlaybookRuntimeBaselineProfile = 'small' | 'full';
 
@@ -1235,7 +1236,10 @@ function writeRuntimeCorpusMemoryLine(fd: number, record: BaselineRecord, buffer
 
 function materializeRuntimeCorpus(recordsRaw: string): RuntimeCorpusMaterialization {
   const root = mkdtempSync(join(tmpdir(), 'proofbound-memory-baseline-runtime-corpus-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  // B-cc10 CHK-004: writes use the CANONICAL name only. Writing the deprecated
+  // spelling here would make this synthetic corpus exercise the migration
+  // fallback instead of the shape a real project now has.
+  writeFileSync(join(root, PROOF_OR_STOP_CONFIG_FILENAME), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.lattice/story/actives',
