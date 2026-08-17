@@ -120,10 +120,26 @@
       "phase": "REVIEW",
       "headHash": "de48c641440dfd835000f298ee271598ac80e5d3",
       "materialHash": "11b340da8025970e08d9cf5cc278c8ca420fe7e14aefce186623f673b2e22eca"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Explicit expansion of an EXPLICITLY EXCLUDED path, raised rather than taken quietly, which is what this story's own scopeChangeReason instructed: the process-fact files were excluded per OQ-B3434-1 on the ground that bounding the serialised artifact introduces no new process fact, and that reason ends with the words 'if an implementer finds otherwise that is a real expansion to raise explicitly'. This is that expansion, and it is not about process facts at all. THE DEFECT: line 591 of that script implements the drop-acceptance-basis-prompt mutation as text.replace of a regex pinned to the OLD brand - 'Acceptance-basis boundary: only backtick lattice acceptance_basis_generate'. The prompt file .lattice-codex/agents/lattice-implementer.md now reads 'proof-or-stop acceptance_basis_generate' after the brand rename, so the regex matches nothing, the mutation deletes nothing, the contract still validates, the script exits 0, and packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts's catch block never runs - leaving contractMutationOutput empty and failing its assertion. Measured directly rather than inferred: with the old regex, drop-acceptance-basis-prompt exits 0 while its three sibling mutations (handler, registry, contract) all exit 1; with the regex made brand-agnostic, all four exit 1 and the unmutated run still exits 0. THE CHANGE IS ONE REGEX, from lattice to a non-capturing (?:lattice|proof-or-stop) alternation. No process fact, no contract rule, no registry entry, no vocabulary list is touched - the file's actual subject matter is untouched, which is why the OQ-B3434-1 rationale for excluding it does not apply to this edit. WHY IT COULD NOT BE DEFERRED: this is one of three suite failures blocking lattice validate, and validate is the gate B-3434 must pass to reach TEST. None of the three belongs to this story, but they block every story in the repository, so deferring them would move the same wall in front of the next one. The user was shown that reasoning and the alternatives and chose to have them fixed. THIS IS THE FIFTH CASUALTY of the same brand rename found tonight, after BUG-B16DF-BYTEPIN's sibling issues: validate-execution-lock-smoke.ts:1272's stale command string, the absence of any test guarding that string, red-1734-bootstrap-depfree.mjs:183's assertion pinned to 'lattice local bootstrap is not ready' while the program now prints 'proof-or-stop local bootstrap is not ready', and now this mutation regex. Every one is the same shape: a guard whose own trigger was written with a literal that the rename moved, so the guard stopped biting and the suite went quiet about it.",
+      "timestamp": "2026-08-17T23:19:53.678Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "789fed28b482dea8e7f98852e60d50817f9421a4",
+      "materialHash": "670b65c8927f49ea446103780618a1ac6f0f716d7171b869c8efb023bf79ad45"
     }
   ],
   "createdAt": "2026-08-15T10:29:19.650Z",
-  "updatedAt": "2026-08-17T16:17:35.926Z",
+  "updatedAt": "2026-08-17T23:19:53.678Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
