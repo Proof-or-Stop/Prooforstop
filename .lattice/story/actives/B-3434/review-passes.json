@@ -847,6 +847,41 @@
         "scanEscalationReason": null
       },
       "_hash": "442c22c2284d8f102e8a44d3d2dfd6a9a6aa31f25501d8749adba6fb979f22e6"
+    },
+    {
+      "id": "B-3434:RP-033",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge re-anchor at 336dfdd978 (main +345 commits, hand-resolved union in lattice.config.json + experience.jsonl), test-coverage scope. (1) Registration surface: git diff main HEAD -- lattice.config.json shows exactly two added lines vs main -- packages/main/dist/tasks/validation-evidence-buffer-smoke.js in the smoke block and packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs appended after main's five red-1734-* entries in the red-evidence block; node -e required-parse confirms the file parses as valid JSON with validate.commands.length===104, all 5 red-1734-* present, and both this story's own entries present; a full-array uniqueness check found 104/104 unique entries (0 duplicates from the union). Ran both registration guards fresh: red-b49d4-harness-registration.mjs -> OK, 50 packages/main/tests/red/*.mjs on disk, 40 registered + 10 excluded with a stated reason, 0 undecided. red-b49d4-registration-derivation.mjs -> 0 RED / 26 GREEN (26/26), including NEWCOMER_TARGET_SET_IS_COMPLETE and EVERY_RED_HARNESS_IS_REGISTERED_OR_DECIDED rows confirming the same 40/10/0 split by independent derivation from disk, not by trusting the first guard's self-report. No red-1734-* registration was lost. (2) 24 pinned selectors: ran verification_evidence_refresh_stale --storyId=B-3434 directly (owner-gated, ran as the owning session) -- it refreshed 23/23 stale items (all bound to headHash c09862835e, the post-merge REVIEW-metadata commit), leaving CHK-005:edge:0 untouched as the sole permanent waiver (kind=waiver, waiverType=permanent, reason recorded in checklist.json: the pin embedded a runtime-computed byte count stranded by F-001's fixture correction). I did not stop at the tool's own report -- independently re-extracted all 24 verificationEvidence entries from checklist.json and containment-tested them against fresh, real output of both bound commands captured just now: the 13 selectors bound to red-b3434-blob-buffer-ceiling.mjs match byte-for-byte modulo the randomized silent-hook temp-dir suffix (the exact tolerance the pin design states -- 'no count in it'); the 10 non-waived selectors bound to validation-evidence-buffer-smoke.js match the stored outputTail byte-for-byte (deterministic command, diff clean). Total containment 23/24 matched + 1 permanent waiver = 24/24 accounted for, confirming the story's figure independently rather than assuming it. (3) Main's new harnesses, derived from the guards' own enumeration rather than the dispatch's list: git diff --diff-filter=A at the merge commit shows main actually added SEVEN new packages/main/tests/red/*.mjs files, not five -- the five red-1734-*.mjs (all registered, confirmed above) plus red-B-new-concurrent-done-race.mjs and red-B-new-retired-channel-lane.mjs, which are new PRE-FIX historical-attestation harnesses for an unrelated story (B-3e5d) that main itself added to red-b49d4-harness-registration.mjs's own EXCLUDED_WITH_REASON map in the same 345 commits (that file's diff at the merge is +11/-0, adding exactly those two named entries with a stated reason each: they throw once their fix lands, so registering them would fail validate permanently on a fixed bug). Both are inside the guard's audited exclusion record, not undecided, and the union conflict this story's config resolution had to make never touched them -- they were main's own self-contained addition to a file this story did not conflict on. So: nothing landed in the undecided bucket, and no red-1734-* or other main harness needed-but-missed registration. (4) Real output, both commands run directly just now at current HEAD: node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> exit 0, all 12 assertion lines PASS (fixture-blob survival, 1,400,000/1,048,577-byte commits, maxBuffer on all three helpers, absent-vs-unreadable distinction, over-ceiling ENOBUFS diagnostic with captured-byte count, pre-fix-helper differential, silent-hook and talking-hook cases), trailing 'red-b3434-blob-buffer-ceiling: PASS'. node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> exit 0, all 20 assertion lines PASS (within_budget/advisory/bounded tiers, quote-heavy FILE-level bounding, oversized-artifact bounding with markers, non-output-bulk elision, cyclic/BigInt/throwing-getter/throwing-proxy admissible fallback, oversized non-object refusal, heterogeneous-density reduction, oversized-array refusal, unmeetable-bound refusal, hash-inclusive size gate, snapshot-not-live-object persistence, throwing-builder honest refusal, advisory log-only non-mutation), including the CHK-004 outcome-B disposition line naming the rationale doc (18205 bytes) and all six finding ids (F-001, F-033..F-037), trailing 'validation-evidence-buffer-smoke: PASS'. Independently corroborated two prior claims not re-derived above: no commit on main since the merge-base touches any of this story's five owned files (done-prepare-generated-metadata.ts, validation-executor.ts, verifier.ts, the decision doc, or the harness -- git log <merge-base>..main -- <file> empty for all five); npx tsc --noEmit -p packages/main exit 0; verify-process-fact-contract.mjs -> verified. Did not run npm run build, npm test, the full lattice validate suite, or create a disposable worktree, per dispatch. No blocking finding.",
+      "createdAt": "2026-08-17T08:56:42.713Z",
+      "reviewRound": "2026-08-17T08:44:55.845Z",
+      "reviewRunId": "B-3434:RR-062",
+      "envelopeId": "671cec48b8ca7a5ece08f6bbfce5a7262eebd5129bb27293254bf2182c4ad25e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/findings.json",
+          ".lattice/story/actives/B-3434/red-evidence.json",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json",
+          ".lattice/story/actives/B-3434/test-evidence.json",
+          "lattice.config.json",
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a2036a7e8806a408d40eeb3e67b8a0af90e842c2197e72ce1f5c5f7aef952883"
     }
   ]
 }
