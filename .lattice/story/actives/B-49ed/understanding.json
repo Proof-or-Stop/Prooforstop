@@ -1,0 +1,37 @@
+{
+  "task": "Stop an implementer who also dispatches from supplying the session identity that a topology critic signs its receipt under.",
+  "outcome": "topology_critic_receipt_set refuses any session whose identity did not come from a host adapter, so a critic receipt is evidence of an independent actor rather than of a string the implementer chose.",
+  "facts": [
+    "independenceMatrix (packages/main/src/core/topology-critic-receipt.ts:181-188) establishes independence with four textual !== comparisons between actor and implementation provenance.",
+    "Neither deriveRoleProvenance nor deriveImplementationProvenance checks who originated an identity; both read sessionId off the most recent matching ProcessEvent on disk.",
+    "deriveRoleProvenance requires a dispatch event whose sessionId equals the signer's own session id, and dispatch is not in the critic's allowedCommandIds (prompt-role-contract-registry.ts:300), so a correctly sandboxed critic cannot satisfy it unaided.",
+    "resolveSessionIdentity classifies every session by sessionSource: host-adapter, explicit-env, generated-token, or derived-ppid.",
+    "host-adapter session ids are hash-derived by deriveAdapterOwnerSessionId from projectRoot, provider, task identity and agent identity, so they cannot be freely chosen; explicit-env is whatever was placed in LATTICE_SESSION_ID.",
+    "The bypass was demonstrated live during B-3f3d: a dispatch event was recorded under an implementer-chosen session id and passed every mechanical check. An independent critic refused to adopt the session; that refusal is currently the only thing preventing a self-signed receipt.",
+    "LATTICE_SESSION_ID appears on 167 lines (170 occurrences; 3 lines carry it twice) across 29 files under packages/main/src/tasks.",
+    "Commit 9f9f53a514 (B-3f3d) moved the acceptance-basis requirement off an unconditional throw onto the pass branch only, so request_changes tolerates a stale basis while pass still requires a verified one.",
+    "A prototype of the guard was written during B-3f3d, confirmed to refuse explicit-env correctly, then reverted because the test migration is too large to carry inline.",
+    "Investigated: the 29 test files use LATTICE_SESSION_ID uniformly (67 direct process.env assignments plus save/restore pairs and a few env-object literals). No bespoke identity construction was found, so one shared adapter-session helper is viable.",
+    "Investigated: generated-token sessions pass through the SAME provider + task + agent gate as host-adapter (owner-session-adapters.ts:160-173) and additionally require a boundary token, so they are equally host-derived and equally unmintable by an implementer. The prototype refusing them was over-strict.",
+    "Investigated: deriveRoleProvenance has exactly two non-test callers, both in packages/main/src/handlers/proofstory.ts. Line 550 binds TOPOLOGY_EXCLUSION_APPROVER_ROLE (scope-plan approver) and line 565 binds TOPOLOGY_CRITIC_ROLE."
+  ],
+  "constraints": [
+    "The guard must not block legitimate dispatched critics. Blocking everything would satisfy the negative tests while making BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE worse.",
+    "PASS must not become reachable on a stale basis; the 9f9f53a514 asymmetry must survive unchanged.",
+    "No CLI amends a created story's title or description, and editing .lattice/story metadata directly is forbidden (CLAUDE.md rule 8).",
+    "Normal channel: the main agent does not write business code; lattice-implementer subagents do.",
+    "Security/Credentials riskSignal is active and deliberately not dismissed, so decision_set requires at least 3 preMortem entries."
+  ],
+  "unknowns": [
+    "Whether to accept generated-token alongside host-adapter. Evidence favours accepting both since both are host-derived; the decision belongs in decision_set rather than being assumed here."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/core/owner-session.ts",
+    "packages/main/src/core/owner-session-adapters.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "packages/main/src/tasks/"
+  ],
+  "timestamp": "2026-08-17T15:42:18.596Z"
+}

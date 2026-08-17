@@ -47,6 +47,31 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Accept generated-token alongside host-adapter as a host-derived signing source",
+      "context": "PLAN investigation found that generated-token passes the SAME provider plus task plus agent gate as host-adapter (owner-session-adapters.ts:160-173) and additionally requires a boundary token, so it is equally host-derived and equally unmintable by an implementer. decision_set option A therefore accepts both. CHK-003 context, frozen at INIT_CHECK, still lists generated-token among the sources to refuse; that wording was carried over from the over-strict B-3f3d prototype and is superseded by this item. The accepted set is host-adapter plus generated-token; the refused set is explicit-env plus derived-ppid. CHK-003 title, Prove the guard bites under mutation, remains accurate and is unaffected.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "A critic signing from a generated-token session records a receipt successfully, while the same attempt from an explicit-env session fails with: must sign from a host-adapter session.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-17T15:44:15.511Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN investigation contradicted a frozen CHK-003 context sentence; recording the correction as a new item rather than editing the frozen requirement or letting plan.md silently contradict it",
+      "addedTitle": "Accept generated-token alongside host-adapter as a host-derived signing source",
+      "addedContext": "PLAN investigation found that generated-token passes the SAME provider plus task plus agent gate as host-adapter (owner-session-adapters.ts:160-173) and additionally requires a boundary token, so it is equally host-derived and equally unmintable by an implementer. decision_set option A therefore accepts both. CHK-003 context, frozen at INIT_CHECK, still lists generated-token among the sources to refuse; that wording was carried over from the over-strict B-3f3d prototype and is superseded by this item. The accepted set is host-adapter plus generated-token; the refused set is explicit-env plus derived-ppid. CHK-003 title, Prove the guard bites under mutation, remains accurate and is unaffected."
     }
   ]
 }
