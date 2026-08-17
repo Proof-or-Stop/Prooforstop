@@ -1386,7 +1386,7 @@
       "desc": "Fourth sibling of the F-061 comparison/parser class, SAME FILE, same function family, not yet fixed: core/lattice-dispatch.ts:1659 buildRequiredCommandEnv still has `if (!denied.has(\\\"LATTICE_SESSION_ID\\\")) { setBrandEnv(env, \\\"SESSION_ID\\\", getSessionId()); }` -- a literal-only denylist membership test, structurally identical to the buildCanonicalHostRuntimeEnv bug fixed in 9526d2125b at line ~1685 two lines below in the same file, except this one is UNFIXED. Verified by direct call-graph trace (not just static reading): buildRequiredCommandEnv is called from THREE sites -- (1) line 1682 inside buildCanonicalHostRuntimeEnv, where its output IS safe because buildCanonicalHostRuntimeEnv unconditionally overwrites SESSION_ID afterward via the now-fixed sessionIdEnvNames logic (lines 1696-1700), masking this bug for that one call site; (2) line 1735 runRequiredCommands default param (used by dispatch_auto policy execution), which does NOT go through that override and uses buildRequiredCommandEnv output directly; (3) line 2162 in the fake-dispatch-runtime preparation path, same direct-use pattern. For call sites (2) and (3), a dispatch_auto policy configured with envDenylist:[\\\"PROOF_OR_STOP_SESSION_ID\\\"] (the canonical, documented name -- envDenylist is a real user-facing CLI arg per command-catalog.ts:1752) fails to suppress SESSION_ID injection: denied.has(\\\"LATTICE_SESSION_ID\\\") is false, so the guard is true, and setBrandEnv dual-writes BOTH spellings into the required-command execution environment despite the explicit deny. Fix: reuse the same sessionIdEnvNames-style either-spelling check already added to buildCanonicalHostRuntimeEnv, inside buildRequiredCommandEnv itself so all three call sites get the fix, not just the one that happens to be masked downstream.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-17T02:42:16.494Z",
@@ -1397,7 +1397,11 @@
         "packages/main/src/core/lattice-dispatch.ts"
       ],
       "signatureTag": "missing|ts|fourth-sibling-comparison",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a0116f75f3. F-065 fixed structurally rather than locally: added shared SESSION_ID_ENV_NAMES and routed both this site and the F-061 site through it, because two independent hardcoded comparisons in one file (the second two lines from the first's fix) means a third would otherwise follow; verified deny-canonical and deny-deprecated both DENIED. F-066 predicate required a literal the generator never emits (env names are built by concatenation); verified against the real generator that the old predicate is false, the new one true, and it does not over-match unrelated text.",
+      "resolvedAt": "2026-08-17T02:48:37.715Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-066",
