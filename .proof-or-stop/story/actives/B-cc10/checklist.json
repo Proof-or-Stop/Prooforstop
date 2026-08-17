@@ -640,7 +640,11 @@
           {
             "desc": "CHANGELOG.md names BOTH removed aliases and their replacements, so the break is announced rather than discovered",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+              "selector": "CHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named"
+            }
           }
         ]
       },
@@ -685,6 +689,27 @@
           "materialHash": "2bed4623bfb79225a4a3e989a76dedf9cd35069bffdcbcbfa0f8570ac84b6b84",
           "storyFilesHash": "b212cb4908704935090175323cdb33e098558d2d317695ffe8669154421c9039",
           "timestamp": "2026-08-17T16:13:36.365Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+          "command": "node packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+          "result": "pass",
+          "note": "CHANGELOG.md v0.3.261 Removed section names BOTH removed aliases (bin/lattice.js, bin/lattice-codex.js) AND both replacements (bin/proof-or-stop.js, bin/proof-or-stop-codex.js), so the break is announced rather than discovered. The guard asserts all four strings are present, which is plan.md's acceptance floor for immediate removal.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "750dea3d9dac27d23cd451a647f8f1d6df426a05bf9083c97dba5bb7859896d4",
+            "outputTail": "REMOVED_ALIAS_FAILS_LOUDLY bin/lattice.js exit=1\nREMOVED_ALIAS_FAILS_LOUDLY bin/lattice-codex.js exit=1\nCANONICAL_REPLACEMENT_WORKS Proof-or-Stop 0.3.261\nCHANGELOG_ANNOUNCES_REMOVAL both aliases and both replacements named\nPASS red-cc10-chk006-removed-bin-aliases\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:13:45.813Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2ffa1eddf57f82be5a30f6b68e6dd3343db96beb",
+          "materialHash": "2bed4623bfb79225a4a3e989a76dedf9cd35069bffdcbcbfa0f8570ac84b6b84",
+          "storyFilesHash": "b212cb4908704935090175323cdb33e098558d2d317695ffe8669154421c9039",
+          "timestamp": "2026-08-17T16:13:46.007Z"
         }
       ]
     },
