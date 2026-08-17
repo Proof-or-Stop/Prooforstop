@@ -120,6 +120,13 @@
       "status": "open",
       "foundAt": "2026-08-17T09:45:29.057Z",
       "fixedAt": null
+    },
+    {
+      "id": "BUG-EPOCH-LOCK-SERIALIZES-PARALLEL-LANES",
+      "title": "review_inventory epoch writes serialize on a single per-story lock (.lattice/locks/review-inventory/<story>-epochs.lock), so parallel reviewer lanes contend for it on every review_run_start and review_pass_set. Observed on B-3f3d RI-048: quality waited ~7min, test-coverage ~6min, and in wave 2 the docs lane was starved through 45+ consecutive failed attempts (RR-482..RR-533) until the competing writer stopped, nearly losing ~40min of completed review work. Each failed attempt also burns a ReviewRun id. Wait time grows with dispatch parallelism, so the documented parallel-lane workflow degrades exactly as it scales. Contention is worsened by any concurrent status polling, which takes the same lock. Consider finer-grained locking (per-lane rows), a queue with fair ordering, or making review_pass_set retry internally rather than surfacing lock timeout to the caller.",
+      "status": "open",
+      "foundAt": "2026-08-17T10:49:11.636Z",
+      "fixedAt": null
     }
   ]
 }
