@@ -398,7 +398,11 @@
           {
             "desc": "A single regression run executes the same plan serially and in parallel and prints serial, parallel and speedup numbers measured on the same host",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:validate-parallel-equivalence",
+              "selector": "B7DFF-CHK004-MEASURED-MAKESPAN"
+            }
           }
         ],
         "edge": [
@@ -427,7 +431,29 @@
         "test": [
           "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "command": "npm run test:validate-parallel-equivalence",
+          "result": "pass",
+          "note": "One process, one host: the smoke runs the same fixture plan through the real executeValidationPlan at jobs=1 and at jobs=4 and prints the line it measured, e.g. serial=4.56s parallel=2.31s speedup=1.97x (6 commands, jobs 1 vs 4, 700ms per probe). The only threshold in the assertion is the serial makespan measured moments earlier on the same host; no speedup constant is encoded. The marker also covers commands[] having the same length and plan order in both modes and both runs reporting the same plan classification derived from the fixture (commands=6 declared=5 exclusiveByDefault=1). The REAL 104/106-command plan is deliberately not run here (10-18 min per mode, and this smoke is itself in validate.commands, so it would make validate recursive); the real-plan numbers come from two full node bin/lattice.js validate --json runs on this host after registration, both status pass with 106 commands and validate scheduler: jobs=4 commands=106 declared=96 exclusiveByDefault=10, at 2026-08-17T14:38:11.706Z-14:51:13.005Z = 781.3s and 2026-08-17T14:52:44.906Z-15:02:56.537Z = 611.6s.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "30a92e1b0c1e940ed3954b051b39ad8d067bf34649e2e26bec936ae2a27aa324",
+            "outputTail": "\n> lattice@0.3.261 test:validate-parallel-equivalence\n> node packages/main/dist/tasks/validate-parallel-equivalence-smoke.js\n\nvalidate-parallel-equivalence: serial=4.74s parallel=2.38s speedup=1.99x (6 commands, jobs 1 vs 4, 700ms per probe)\n  serial   validate scheduler: jobs=1 commands=6 declared=5 exclusiveByDefault=1\n  parallel validate scheduler: jobs=4 commands=6 declared=5 exclusiveByDefault=1\nVI-OK B7DFF-CHK004-MEASURED-MAKESPAN one run measured the same plan serially and in parallel and reported the speedup it observed\nVI-OK B7DFF-CHK004-OUTCOMES-IDENTICAL every command produced the same pass/fail verdict and exit code in both modes\nVI-OK B7DFF-CHK004-OUTCOME-DIFF-BITES a single differing per-command outcome is reported by the comparator rather than passing silently\nVI-OK B7DFF-CHK004-NO-COLLISION conflicting claims never overlapped while 6 compatible pair(s) did\nVI-OK B7DFF-CHK004-COLLISION-PROBE-BITES the same probe reports an overlap when the two commands are allowed to overlap\nvalidate-parallel-equivalence: PASS (18 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T15:03:57.762Z"
+          },
+          "headHash": "827758a4a839de78d8b03ee33c037a08cef7291a",
+          "materialHash": "4e056e782c08f431ed7b7c2c06b5c775834ff9c638fda381ce0037a327272411",
+          "storyFilesHash": "9bad67b3681435a42c3ee64760c61425e491cdee911921a5625df0a5a81e5b85",
+          "timestamp": "2026-08-17T15:03:57.903Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
