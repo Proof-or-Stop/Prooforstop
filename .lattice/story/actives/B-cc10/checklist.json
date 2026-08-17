@@ -387,7 +387,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-cc10/plan.md",
+          "result": "pass",
+          "note": "CHK-008 apply-then-revert rehearsal COMPLETE on a scratch clone (344 archives). Measured: (1) git mv .lattice -> .proof-or-stop plus .lattice-codex -> .proof-or-stop-codex in ONE commit = 7610 files changed, 0 insertions, 0 deletions, and git show --name-status reports 7610/7610 status R (pure renames) — mechanical proof no archive CONTENT is rewritten. (2) A SINGLE git revert HEAD restores all 344 archives and both directories with a clean tree, so the abort path is one command. (3) git log --follow on .lattice/story/actives/B-0168/background.md still traces 3 commits after move+revert, proving history follows the rename. (4) HALF-DONE DETECTION: exactly one of .lattice / .proof-or-stop present = consistent state; BOTH present simultaneously = half-done move, abort. ABORT COMMAND for CHK-003: git revert --no-edit <move-sha>.",
+          "mechanical": false,
+          "nonMechanicalReason": "Rehearsal was performed on a throwaway git clone outside this worktree, so it cannot be re-executed as a pinned in-repo command without re-cloning 7610 files. Full transcript recorded here and in the contract doc; the assertions it establishes are re-checkable at CHK-003 execution time against the real move.",
+          "headHash": "451280fa4d1f6ec84b32335e1c50199466b804c8",
+          "materialHash": "ac70741d393e5b05dc1b1bdd77acf23a7d5d0ee8576a7fca54d1cdc4d3ad880b",
+          "storyFilesHash": "b8f4fc6430ff8d6a3ce10d3189d91e91bead4fb8ce95b9ab5d22399dd1bfbd1e",
+          "timestamp": "2026-08-17T10:37:34.041Z"
+        }
+      ]
     }
   ]
 }
