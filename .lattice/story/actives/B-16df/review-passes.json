@@ -620,6 +620,39 @@
         "scanEscalationReason": null
       },
       "_hash": "5e91919ea0933ace02989ab4baba3e7de068e837a51c0520b307a1ba4c99f1a2"
+    },
+    {
+      "id": "B-16df:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh REVIEW round after main-drift staleness. Independently confirmed all 34 verificationIntent items across CHK-001..CHK-004 have valid mechanical verificationEvidence at current material: scripted audit found 0 missing, 0 non-pass, 0 stale materialHash/storyFilesHash (all pinned to 3acc328f.../2dc7b6bb...). Evidence headHash ce86cb03 confirmed genuine ancestor of current HEAD de78ef6a with zero diff in story-relevant files across 9 intervening commits. Independently rebuilt (npm run build) and re-ran validate-command-timeout-smoke.js myself: 45/45 assertions pass, exit 0, output matches recorded receipts exactly. Confirmed resolvePinnedCommandTimeoutMs exported in checklist.ts and wired into all 4 runSingleAllowlistedCommand call sites; confirmed validation-executor.ts and verifier.ts untouched by any B-16df commit (diff-tree name-only check across all story commits). No blocker.",
+      "createdAt": "2026-08-17T00:52:15.483Z",
+      "reviewRound": "2026-08-17T00:48:08.623Z",
+      "reviewRunId": "B-16df:RR-027",
+      "envelopeId": "fbfa87091a7c3112c96ea15f4804d4df632818a1750b56c937be00f0dca26da8",
+      "writerSessionId": "sess-c9750d86fa0ba339c153ae54b3bb06f6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-16df/background.md",
+          ".lattice/story/actives/B-16df/checklist.json",
+          ".lattice/story/actives/B-16df/plan.md",
+          ".lattice/story/actives/B-16df/red-evidence.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-16df/acceptance-basis.json",
+          ".lattice/story/actives/B-16df/done-required-evidence.json",
+          ".lattice/story/actives/B-16df/review-passes.json",
+          ".lattice/story/actives/B-16df/review-runs.json",
+          ".lattice/story/actives/B-16df/test-evidence.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73da79bb203b2604974f8b46930c73778f5860bedb76d3a00b3e8380ca44a326"
     }
   ]
 }
