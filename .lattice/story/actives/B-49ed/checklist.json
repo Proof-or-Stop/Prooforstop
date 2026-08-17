@@ -242,7 +242,11 @@
           {
             "desc": "The smoke test passes with the guard in place",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+              "selector": "Topology signing source guard: PASS"
+            }
           }
         ],
         "edge": [
@@ -259,7 +263,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
+          "result": "pass",
+          "note": "The guard smoke passes with the guard in place; the selector pins the PASS banner so the framework executes and matches it rather than trusting a caller-authored result.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T17:08:42.169Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1fc91b502ec4c0b883c58e256893128ae8227944",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:08:42.510Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
