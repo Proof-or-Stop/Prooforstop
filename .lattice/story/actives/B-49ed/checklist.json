@@ -307,6 +307,18 @@
           "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
           "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
           "timestamp": "2026-08-17T17:07:29.363Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "env LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=claude-code LATTICE_OWNER_SESSION_ADAPTER_AGENT=lattice-review-topology-critic node packages/main/dist/cli.js topology_critic_receipt_set --verdict=pass",
+          "result": "pass",
+          "note": "pass was REFUSED with: critic cannot override partial discovery. The refusing condition was basisStatus partial, and the critic verified the basis is fresh (receipt headHash and storyFilesHash match current HEAD), so this is a completeness refusal rather than a staleness refusal. That is a distinct but analogous asymmetry to the one commit 9f9f53a514 introduced: request_changes tolerates an incomplete or stale basis while pass requires a complete and current one. The asymmetry is intact and still biting after the CHK-001 session-source guard landed. Note the stale-basis variant specifically was NOT exercised in this run; only the partial-basis variant was.",
+          "mechanical": false,
+          "headHash": "07b2b7503fab72376b94b455bede443c23855a5a",
+          "materialHash": "85c0be5ad0c38e74669a3c1b64ac7a6c4c7fd82ce2715853ac9a5bf4802b1396",
+          "storyFilesHash": "acfb27a08d9cc5cfdb1c852c065344c65922109d02c168d6d3436ccc4127a888",
+          "timestamp": "2026-08-17T17:07:45.762Z"
         }
       ]
     },
