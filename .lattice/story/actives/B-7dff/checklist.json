@@ -470,7 +470,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "A real validate run prints \"validate scheduler: jobs=4 commands=104 declared=<N> exclusiveByDefault=<N>\" with declared materially above 36, and the run finishes in less wall time than the 1006s recorded at 36 declarations on the same host."
     }
   ]
 }
