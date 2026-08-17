@@ -35,6 +35,24 @@
       ],
       "signatureTag": "missing|ts|thin-init-assets",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-003",
+      "desc": "CHK-003 first attempt FAILED and was aborted; recording the exact failure mode so the retry is designed, not improvised. What I did: git mv .lattice -> .proof-or-stop plus .lattice-codex -> .proof-or-stop-codex (7611 files, all status R), updated .gitignore, pointed proof-or-stop.config.json storyDir at the new path, and flipped PROOF_OR_STOP_STATE_DIR/ADAPTER_DIR to canonical. Paths then resolved correctly (verified: STATE_DIR=.proof-or-stop, STORY_DIR=.proof-or-stop/story/actives, config.storyDir matching) but story_get returned {story: null} for BOTH era archives. ROOT CAUSE: the CLI writes .proof-or-stop/activity.jsonl on every invocation, and because I ran diagnostic commands while the rename was staged-but-uncommitted, BOTH directories existed simultaneously — CHK-008's documented half-done abort condition. I then made it worse: rm -rf .lattice deleted working-tree files whose renamed counterparts existed only in the index, not yet on disk, so the archives vanished from the working tree while remaining correct in the index (7583 staged paths under story/actives). git checkout-index -a -f did NOT restore them. RECOVERY: content was intact in the HEAD commit (verified via git cat-file -e and git show), and CHK-008's abort (git reset HEAD + git checkout -- .) restored all 344 archives with the tree clean and B-0168 readable at its pre-move phase INIT. Zero data loss. LESSONS FOR THE RETRY: (1) commit the rename atomically BEFORE running any CLI command, since every invocation writes activity.jsonl and recreates the old dir; (2) never rm -rf the old dir while renames are merely staged; (3) the half-done detector fires on runtime write-back, not only on interrupted moves, so it needs a 'is the old dir merely a gitignored runtime leftover' discriminator; (4) do the config/constant flip in the SAME commit as the mv, because a resolver pointing at the new path while files are staged-only is unreadable.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-17T15:22:30.505Z",
+      "reviewRound": "",
+      "_hash": "a83e032f6c9b56c58fe66b75412891ef45f771100fdf01c4e464e61e75d73ca0",
+      "files": [
+        "packages/main/src/core/brand-paths.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "adversarial|ts|first-attempt-failed",
+      "signatureTagSource": "auto"
     }
   ]
 }
