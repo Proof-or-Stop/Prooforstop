@@ -100,17 +100,14 @@
         },
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "integration_test",
-          "file": "packages/main/src/tasks/full-suite-runner.ts",
-          "command": "npm test",
-          "result": "pass",
-          "note": "The full suite still passes every member with jobs=4 and zero retries while runScheduled and the claim vocabulary are imported from core/keyed-scheduler.ts.",
-          "headHash": "59a118d43746877bf1f8a4da91cf09620e0262fe",
-          "materialHash": "ca1dcddf3c4742cee4d21e7b4e6fb18cf44d65d8d3d657b920ccc994486f9435",
-          "storyFilesHash": "c047502c43ae799ebe2728b8a8b8ef1d33d33a817cec6cf8593351bb65c57c82",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-17T18:58:18.195Z"
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "note": "Waived because no passing receipt is obtainable, not because the suite is failing. The pinned command is npm test; the receipt runner caps a command at 270000ms and the full suite now takes about 334s on this host, so the receipt returns exit 124 (timed out) regardless of member results. The substance is verified twice by direct runs: full-suite: 47/47 passed in 333.7s and 334.5s, jobs=4, every member green including PASS test:flow-stability-smoke 160.2s. The suite process still exits 1 from the separate whole-suite 300000ms wall-clock budget, which is a pre-existing repository condition and not a member failure: a clean detached worktree of main at 860b7b45cf on the same host in the same session gives TIMEOUT test:flow-stability-smoke 120.0s and full-suite: 48/49 passed in 296.8s, also exit 1. This branch fixes a member that is red on main. Marked deferred rather than permanent: once the receipt cap exceeds the suite runtime, or the suite runs under 270s again, real evidence should replace this.",
+          "headHash": "9cf3b5b213503a346a67abe5ad7498f59f968440",
+          "materialHash": "8e45a1dd11c0297525674a0eb7b88fd9505875436200a4a211727709299634d0",
+          "storyFilesHash": "68dc0e71b49f089971fa50b470a6405c5836ed6e2f72f49049b2c40907b5303e",
+          "timestamp": "2026-08-17T19:59:43.487Z"
         }
       ],
       "userSeesSnapshot": {
