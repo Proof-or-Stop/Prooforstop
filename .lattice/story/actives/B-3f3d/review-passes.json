@@ -18500,6 +18500,37 @@
         "scanEscalationReason": null
       },
       "_hash": "52e5141083139945a30ccf9c74432c3d93d7faecc877f27f834a00279f6aad4f"
+    },
+    {
+      "id": "B-3f3d:RP-331",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 2 saturation pass on unchanged cutoff. Re-verified all 54 must-priority verificationIntent/verificationEvidence mappings across CHK-001..CHK-006, diffed the evidence-pin commit to current HEAD, spot-checked pinned test content, and checked the Wave-4 coverage-boundary verifier tests. No new coverage gap found beyond already-open dispositioned F-115. Zero new findings this wave.",
+      "createdAt": "2026-08-17T09:44:40.788Z",
+      "reviewRound": "2026-08-16T10:48:07.896Z",
+      "reviewRunId": "B-3f3d:RR-481",
+      "envelopeId": "3418d517f99e96acadab078dd218ec297dafc9f99cb03ca7114418d990259a33",
+      "writerSessionId": "sess-f89e9fa52c6a0ebafc1e4b96d9a6e8c2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "2edc3d5396dafa413c92487d8ce3709821258244fdca18e731ff76949fb21e90",
+        "corpusDigest": "28ceba69fc56099bf458b8116c146198800b2668dedbaf61b402b7d07056c6ce"
+      },
+      "_hash": "84cd2ecddbe5b073195d97d4709138ed07e6b96c763b54f87242ab9cc4022895"
     }
   ]
 }
