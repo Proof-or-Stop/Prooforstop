@@ -16,7 +16,11 @@
           {
             "desc": "A host-adapter session reaches deriveRoleProvenance and signing proceeds to the verdict branch",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -33,7 +37,30 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke drives topology_critic_receipt_set through the real production CLI using an adapter-derived critic session; it reaches deriveRoleProvenance, clears the new host-adapter source gate, and completes signing to the verdict.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1a6c58d099c5629ad2533f9a36f02cc231a590cc83ee700fd608048e073a32e3",
+            "outputTail": "ProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T16:36:36.612Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "930539c28e540a2c753e39fb82a7af576fa6013a",
+          "materialHash": "064268f7aab7760527c5e281126f9a209c07e3350efacaece81b7e6fdad4ad78",
+          "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
+          "timestamp": "2026-08-17T16:36:36.768Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
