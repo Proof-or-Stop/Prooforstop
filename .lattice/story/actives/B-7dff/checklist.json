@@ -169,6 +169,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "package.json",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts"
+        ]
       }
     }
   ]
