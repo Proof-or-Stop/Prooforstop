@@ -290,11 +290,14 @@ try {
   console.log(`  serial   ${serial.schedulerLine}`);
   console.log(`  parallel ${parallel.schedulerLine}`);
 
+  // Derived from PROBES, not written out: adding a probe must not silently
+  // change what "the same plan" means in the comparison below.
+  const declaredCount = PROBES.filter((spec) => spec.key !== null).length;
+  const classification = `commands=${PROBES.length} declared=${declaredCount} exclusiveByDefault=${PROBES.length - declaredCount}`;
   check('the serial run reported jobs=1', serial.schedulerLine.includes('jobs=1'));
   check(`the parallel run reported jobs=${PARALLEL_JOBS}`, parallel.schedulerLine.includes(`jobs=${PARALLEL_JOBS}`));
-  check('both runs classified the same plan (1 fail-closed barrier, the rest declared)',
-    serial.schedulerLine.includes('declared=5 exclusiveByDefault=1')
-    && parallel.schedulerLine.includes('declared=5 exclusiveByDefault=1'));
+  check(`both runs classified the same plan (${classification})`,
+    serial.schedulerLine.includes(classification) && parallel.schedulerLine.includes(classification));
   // The only threshold is the serial makespan measured moments ago on this same
   // host. Nothing here encodes an expected speedup.
   check(`the parallel makespan (${parallel.wallMs}ms) is below the serial one (${serial.wallMs}ms)`,
