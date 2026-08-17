@@ -8,9 +8,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "userSees": "topology_critic_receipt_set from a session whose id came from LATTICE_SESSION_ID fails with: role eligibility failed: lattice-review-topology-critic must sign from a host-adapter session, received \"explicit-env\".",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T16:53:56.862Z",
       "verificationIntent": {
         "happy": [
           {
@@ -110,7 +110,14 @@
           "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
           "timestamp": "2026-08-17T16:38:58.467Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d0b484bacd148e696a9f185636dbc2eec00db1420ebfe07f302857c43bfdc597",
+        "storyFilesHash": "c9631adb725714fcbe853350b034d67cb84b800b9e650e1a2c57888ac4d394e4",
+        "headHash": "5bccc7ff28f67a2f323bb7bc6b87e425b0c6a1d4",
+        "attestedAt": "2026-08-17T16:53:57.058Z",
+        "materialHash": "3348a8157eb8b98c7c3c78fe5baefb42f4ecac47c862ba99385591d770c94a22"
+      }
     },
     {
       "id": "CHK-002",
