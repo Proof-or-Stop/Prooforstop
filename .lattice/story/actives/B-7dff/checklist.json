@@ -16,7 +16,11 @@
           {
             "desc": "npm test still passes all 47 full-suite members with the scheduler imported from core instead of defined in the task file",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm test",
+              "selector": "full-suite: 47/47 passed"
+            }
           }
         ],
         "edge": [
@@ -93,6 +97,26 @@
           "materialHash": "bb381d457d3db0446b616fc097a840f626dd8beaddc2ae8bcb5457b6887fbaed",
           "storyFilesHash": "a8e76d5d0ab010843ad6bfd8aad8f499a492665221220a48aa59abb17b381b47",
           "timestamp": "2026-08-17T12:10:09.406Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/full-suite-runner.ts",
+          "command": "npm test",
+          "result": "pass",
+          "note": "The full suite still passes every member with jobs=4 and zero retries while runScheduled and the claim vocabulary are imported from core/keyed-scheduler.ts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "055b2e721cb50713e3f7c60f23cba038c208a0801716437797fca5ac0f82a2c8",
+            "outputTail": "\n> lattice@0.3.261 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.261 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:milestone-status 46.0s\nPASS test:brief-output 41.9s\nPASS test:review-incremental-context-smoke 99.9s\nPASS test:experiments 17.9s\nPASS test:main-write-lock-coverage 0.3s\nPASS test:production-test-seam-guard 1.5s\nPASS test:lattice-residue 0.3s\nPASS test:proof-or-stop-prompt-baseline 11.4s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 1.0s\nPASS test:delivery-context-pack-smoke 7.6s\nPASS test:full-suite-runner-smoke 34.2s\nPASS test:full-suite-resource-sentinel 0.2s\nPASS test:review-assurance-floor-smoke 8.8s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 0.9s\nPASS test:withdrawn-disposition-smoke 1.6s\nPASS test:global-core-realpath 0.6s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.4s\nPASS test:docs-drift-smoke 0.2s\nPASS test:docs-drift-wrapper-root 0.8s\nPASS test:gitroot-cwd-contract 0.2s\nPASS test:proofstory-intent-hardening-smoke 148.8s\nPASS test:process-fact-contract 2.9s\nPASS test:runtime-fact-contract 1.3s\nPASS test:evidence-quality 0.1s\nPASS test:anti-stall 0.1s\nPASS test:storydir-inside-gitroot-smoke 0.6s\nPASS test:gitroot-cwd-routing 1.5s\nPASS test:bare-gate-gitroot-cwd 0.4s\nPASS test:project-gitroot-cwd 0.4s\nPASS test:done-oracle-wrapper-root 1.6s\nPASS test:done-premerge-mainsha-recheck 7.5s\nPASS test:done-escalation-drift-advisory 1.2s\nPASS test:review-escalation-freshness-root 3.5s\nPASS test:dispatch-checklist-doctor-wrapper-root 0.9s\nPASS test:graceful-sites-gitroot-cwd 0.6s\nPASS test:experience-hint-worktree-cache 1.0s\nPASS test:proofstory-acceptance-rollout 173.1s\nPASS test:done-merge-experience-refresh 2.2s\nPASS test:experience-coverage-gap 1.0s\nPASS test:e2e 2.6s\nPASS test:experience-arm-gate 0.2s\nPASS test:closeout-trust 29.3s\nPASS test:convergence-breaker 0.4s\nPASS test:experience-arm-isolation-e2e 9.8s\nPASS test:nested-worktree-bootstrap 15.1s\nPASS test:flow-stability-smoke 98.9s\nfull-suite: 47/47 passed in 227.2s; retries=0; jobs=4\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-17T12:14:02.660Z"
+          },
+          "headHash": "3ccb17eb140b8789062577ba70cd306825f84d8a",
+          "materialHash": "bb381d457d3db0446b616fc097a840f626dd8beaddc2ae8bcb5457b6887fbaed",
+          "storyFilesHash": "a8e76d5d0ab010843ad6bfd8aad8f499a492665221220a48aa59abb17b381b47",
+          "timestamp": "2026-08-17T12:14:02.794Z"
         }
       ]
     },
