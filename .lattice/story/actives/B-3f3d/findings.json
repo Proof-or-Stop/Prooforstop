@@ -7315,7 +7315,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md lines 199-213 self-contradicts on whether queryFiltering is bound into candidateSpecSetDigest. Line 202 lists the bound-field set as \"schemaVersion, mode, each selected candidate reduced to its path and content hash, queryFiltering, and scanEscalationReason\" (claims queryFiltering IS bound), while line 207 in the same paragraph says \"deliberately NOT queryFiltering, storyInputDigest, or any candidates score/reasons\" (claims queryFiltering is NOT bound). Verified against packages/main/src/handlers/review-inventory.ts:108-121 captureReviewInventoryScope: the actual reviewInventoryDigest call only includes schemaVersion, mode, candidates[].{path,contentHash}, and scanEscalationReason -- queryFiltering is genuinely excluded, matching the F-107 fix and the code comment at line 116 (F-107: queryFiltering is NOT bound). So line 207 (and the Known-incomplete callout below it) is correct; line 202 is stale leftover from the pre-F-107 wording (commit 2b71831058, written while queryFiltering was still bound per F-104 state) that commit a9a59eb674 fixed in the second sentence but missed updating in the first sentence of the same paragraph. This is a factual inconsistency in an active, gate-referenced decision doc: line 202 makes a stronger, over-cautious claim (queryFiltering still invalidates) rather than reviving the weaker false-safety overclaim BUG-F107-INCOMPLETE tracks, but the paragraph should read as one coherent, code-accurate statement.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-17T02:47:29.469Z",
@@ -7492,7 +7492,9 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed and fixed; this was my own error. When I corrected the overclaiming passage in commit a9a59eb674 I updated the second sentence of the paragraph to say queryFiltering is deliberately NOT bound, but missed the first sentence of the SAME paragraph which still listed it among the bound fields. Verified the contradiction directly at lines 199-207 before fixing, and verified against handlers/review-inventory.ts captureReviewInventoryScope that the real binding is only schemaVersion, mode, candidates[].{path,contentHash} and scanEscalationReason. Removed the stale mention; the file now contains exactly one queryFiltering reference, the deliberately-NOT-bound one. Confirmed node scripts/verify-process-fact-contract.mjs still passes. The lane was also right that this was an over-cautious inconsistency rather than a revival of the false-safety overclaim: it wrongly implied MORE was bound, not that the leak was closed, so it did not undermine the Known incomplete callout that tracks BUG-F107-INCOMPLETE and points at B-8af0.",
+      "resolvedAt": "2026-08-17T02:48:56.822Z"
     }
   ]
 }
