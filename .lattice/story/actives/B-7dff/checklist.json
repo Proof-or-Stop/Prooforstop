@@ -135,9 +135,9 @@
         "CLAUDE.md#cli-gate-review-test-preflight"
       ],
       "userSees": "A validate command with no declared resource claim is scheduled exclusively and reported as such in the validate output, instead of being run concurrently by default.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-17T12:42:50.226Z",
       "verificationIntent": {
         "happy": [
           {
@@ -245,7 +245,14 @@
           "storyFilesHash": "11d5aec7db2b1730b9f2edb53d083ff179aee84b38a5bfa99d2feacb9c8e951c",
           "timestamp": "2026-08-17T12:42:43.529Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d6d2c88b6ee0e36beb7d9f580766204271c42f7dd60335a9f77ed5e52613a65f",
+        "storyFilesHash": "11d5aec7db2b1730b9f2edb53d083ff179aee84b38a5bfa99d2feacb9c8e951c",
+        "headHash": "b650d3dc17b117684db12062e01ad09c0856a68d",
+        "attestedAt": "2026-08-17T12:42:50.374Z",
+        "materialHash": "c4dc50f4ca9c3617477ac4e7cf575b1d62d4693672c9f24997d02bfce6c9dc48"
+      }
     },
     {
       "id": "CHK-003",
