@@ -1,0 +1,314 @@
+{
+  "storyId": "B-cc10",
+  "checkedAt": "2026-08-17T10:11:37.841Z",
+  "features": [
+    {
+      "feature": "Remove bin/lattice.js and bin/lattice-codex.js deprecated aliases",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Migrate .lattice state directory to .proof-or-stop with git history preserved",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Migrate .lattice-codex directory to .proof-or-stop-codex",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename lattice.config.json to proof-or-stop.config.json with read-both fallback",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename lattice.json (.lattice-codex adapter manifest) to proof-or-stop.json",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename npm package @lattice/core to @proof-or-stop/core",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "8 lattice-*-integrity-v1 signature salts stay frozen (not renamed)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope: 'The 8 lattice-*-integrity-v1 signature salts — FROZEN; renaming would invalidate all historical signatures'",
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "13 lattice-* agent role IDs (subagent_type values) stay frozen (not renamed)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope: 'FROZEN by proof-or-stop-agent-prompt-consolidation-execution-plan.md; renaming breaks spawning'",
+      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    },
+    {
+      "feature": "LATTICE_* env var names as stored keys stay frozen (already read-both via brand-env.ts)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope: 'already read-both via core/brand-env.ts in B-cdf6; not re-litigated here'",
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "__LATTICE_WS_PORT and LATTICE_SHELL protocol identifiers stay frozen",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope: 'disclosed B-cdf6 follow-up, separate protocol change'",
+      "source": "description"
+    },
+    {
+      "feature": "Frozen story archive content under the state directory is never rewritten, only moved",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope + CHK-003 DoneWhen: 'Zero archive file content modified'",
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "5 open B-META framework gaps F-031..F-035 are out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excludedScope: 'other subsystems, escalated not fixed'",
+      "source": "description"
+    },
+    {
+      "feature": "Root npm package name literal string lattice is FROZEN per brand-rename-mapping.md line 131 (publish-level change outside additive-at-CLI-boundary scope)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "bin/ entries retained: bin/lattice.js keeps working as deprecated alias per brand-rename-mapping.md line 72 multi-developer constraint (never remove per that doc verdict)",
+      "covered_by": null,
+      "status": "drift",
+      "excluded_by": null,
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "Managed-block markers <!-- lattice:start --> / <!-- lattice:end --> stay frozen",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "scripts/verify-lattice-residue.mjs filename itself stays FROZEN (only content is reconciled)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "lattice.remote-push-approval.v1 schema literal stays frozen",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:brand-rename-mapping.md"
+    },
+    {
+      "feature": "Extend lattice-residue gate to flip .lattice / lattice.config.json / @lattice/core rows from exempt to forbidden in product runtime source",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Announce bin alias removal via CHANGELOG entry naming both removed aliases and replacements",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "344 archived story directories remain readable and signatures verify after migration",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": "Global identity rename (six lattice->proof-or-stop identities including state dir and npm package) plus candidate ambiguity: an initial broad keyword grep for .lattice/lattice.json/@lattice/core style tokens matched 70+ decisions/ files because those substrings appear inside unrelated frozen role-ID and salt literals (e.g. lattice-review-*, lattice-*-integrity-v1) across the corpus. Narrowed to exact-identity-token grep plus targeted reads of the two files the operator named plus lifecycle-artifact-scope.md (directly enumerates .lattice/lattice.json/bin/lattice.js/.lattice-codex/lattice.json as project-local required assets) and story-files-hash-material-drift.md (resolves the CHK-001 storyFilesHash unknown: confirms it hashes path+blob-id pairs, i.e. PATHS ARE HASHED, so the state-dir rename does shift storyFilesHash for all archives)."
+  },
+  "summary": {
+    "total": 19,
+    "covered": 9,
+    "excluded": 6,
+    "gaps": 1,
+    "orphanSuspect": 2,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a136aa66569262dbf2572731292613db2abcf93fbc9e1623d0fc3946e8e87440",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "brand-rename-mapping.md explicitly rules the npm package name @lattice/core as FROZEN (not renamed), with the stated reason that .githooks/pre-push:148 arms on the exact string and silently self-disarms on mismatch — yet B-cc10's CHK-005 explicitly renames the package to @proof-or-stop/core and plan.md's CHK-006 Files list includes modifying .githooks/pre-push in the same story. Which verdict governs: is @lattice/core actually in scope for this story (superseding brand-rename-mapping.md's FROZEN row), or does the freeze still hold and CHK-005 is out of scope?",
+      "evidence": "brand-rename-mapping.md:130 'packages/main npm package name @lattice/core | FROZEN | (dash) | .githooks/pre-push:148 gates the entire recursive-tsc pre-push defence on PKG_NAME = @lattice/core and exit 0s on mismatch (verified). Renaming the package therefore silently self-disarms the hook rather than failing loudly the worst possible failure mode.' vs checklist.json CHK-005 title 'Rename the npm package to @proof-or-stop/core' and plan.md CHK-005 Files listing packages/main/package.json etc, plus CHK-006 Files listing .githooks/pre-push as a file to modify in the same story.",
+      "sourcePointers": [
+        "docs/requirements/decisions/brand-rename-mapping.md:130",
+        "docs/story/actives/B-cc10/checklist.json#CHK-005",
+        "docs/story/actives/B-cc10/plan.md#CHK-005",
+        "docs/story/actives/B-cc10/plan.md#CHK-006"
+      ]
+    },
+    {
+      "id": "OQ-2",
+      "q": "brand-rename-mapping.md:131 rules the root npm package name literal string lattice as FROZEN (a publish-level change outside additive-at-CLI-boundary scope), separate from @lattice/core. Neither the checklist nor plan.md mentions the root package.json name field. Is the root package name in scope, or is it correctly excluded and simply missing from scope-boundary.json excluded list?",
+      "evidence": "brand-rename-mapping.md:131 'Root npm package name lattice | FROZEN | (dash) | Package identity / lockfile key; renaming is a publish-level change outside this story's additive-at-the-CLI-boundary scope. | No.' Story description item 6 says only '@lattice/core -> @proof-or-stop/core'; scope-boundary.json excluded[] does not list the root package name as an exclusion.",
+      "sourcePointers": [
+        "docs/requirements/decisions/brand-rename-mapping.md:131",
+        "docs/story/actives/B-cc10/scope-boundary.json"
+      ]
+    }
+  ]
+}

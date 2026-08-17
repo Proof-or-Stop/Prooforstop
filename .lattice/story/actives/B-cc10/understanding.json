@@ -1,0 +1,49 @@
+{
+  "task": "Retire six remaining lattice identities (two bin aliases, two state directories, two config filenames, one npm package name) that B-cdf6 deliberately left in place, migrating live on-disk state without orphaning or rewriting it.",
+  "outcome": "proof-or-stop resolves all state, config and package identities under proof-or-stop names; the 344 archived story directories remain readable and their historical signatures still verify; no bare .lattice / lattice.config.json / @lattice/core literal remains in product runtime source.",
+  "facts": [
+    "Measured in this worktree at PLAN time: git ls-files .lattice | wc -l = 7580 tracked files; ls .lattice/story/actives | wc -l = 344 story directories. Earlier counts of 7571/7574 and 326 were taken on main days apart; the numbers drift with ongoing story activity, so any acceptance check must re-measure rather than assert a literal.",
+    "The 8 lattice-*-integrity-v1 signature salts are standalone string constants (core/finding-verify.ts declares FINDING_SALT and REVIEW_PASS_SALT as literals; 6 siblings elsewhere). They are NOT derived from any directory or filename, so renaming paths does not invalidate historical signatures. Independently re-verified by the INIT reviewer.",
+    "docs/requirements/decisions/brand-rename-mapping.md:124 gives the .lattice/ state-directory NAME a verdict of RENAMED (additive); only the literal VALUE is frozen in a parenthetical. This story completes that prescribed path. An earlier draft of the background wrongly called it a FROZEN override; corrected after INIT-001.",
+    ".lattice/learning/ is explicitly materialHash-EXCLUDED (core/learning-store.ts, core/command-policy.ts), so cache churn there cannot make evidence stale.",
+    "B-cdf6 established the additive read-both pattern in core/brand-env.ts: canonical name wins, deprecated name still resolves. This story reuses that pattern for paths and filenames rather than inventing a new mechanism.",
+    "B-cdf6 lesson with direct bearing here: four regressions (F-061/F-065 at core/lattice-dispatch.ts:1671-1677 and 1702-1713, F-062 at core/done-required-timeout-budget.ts:178, F-068 at cli/activity-policy.ts:136) were hardcoded DEPRECATED literals inside comparisons and parsers, so the CANONICAL spelling silently failed while the old one worked. All four were found by reviewers, none by the implementer.",
+    "The canonical AST fingerprint for cli-engine.ts has TWO coupled pinned copies (tasks/retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs); updating only one fails closed.",
+    "A fresh worktree needs THREE setup steps, not one: npm install at root, npm --prefix packages/main install + build, and npm --prefix packages/utils install + build. The packages/main build exits 0 while producing no dist when its own deps are missing, so exit code alone is not a build-success signal."
+  ],
+  "constraints": [
+    "Never rewrite content inside archived story files. History MOVES (git mv preserves content and follows history); it is never edited.",
+    "The 8 signature salts and the 13 lattice-* agent role IDs are out of scope and must remain byte-identical (scope-boundary excludedScope).",
+    "Read-both must hold for every renamed identity: the deprecated path/filename stays READABLE while only the canonical name is WRITTEN. A teammate branch or unmigrated project must still load.",
+    "Deprecation notices go to STDERR, never stdout: B-cdf6 established that stdout contamination breaks --json for piped consumers.",
+    "CHK-003 (the git mv) must not start until CHK-008 (the apply-then-revert rehearsal) is done and its evidence recorded. ID order is not execution order in this story.",
+    "Removing the bin aliases (CHK-006) is the one irreversible break of B-cdf6 multi-developer compatibility guarantee, so it goes LAST and must be ANNOUNCED via CHANGELOG, not merely performed.",
+    "git push, npm publish, rm -rf on either state directory, and history-rewriting commands are blocked by execution-boundary."
+  ],
+  "unknowns": [
+    "Whether storyFilesHash includes file PATHS or only content: if it hashes relative paths, the state-dir rename shifts it for every story and CHK-001 must decide whether that is acceptable drift or requires a rebind step. Must be resolved in CHK-001 before CHK-003 runs.",
+    "Whether any external consumer resolves @lattice/core from a registry; determines whether CHK-005 needs a deprecated alias package or is a clean break.",
+    "Whether .lattice-serve.json (runtime discovery, gitignored) has readers outside this repo that would break on rename."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/brand-env.ts",
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/package.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "bin/lattice.js",
+    "bin/lattice-codex.js",
+    "bin/proof-or-stop-codex.js",
+    "scripts/verify-lattice-residue.mjs",
+    "scripts/verify-entrypoints.mjs",
+    ".githooks/pre-push",
+    "CLAUDE.md",
+    "docs/CLI.md",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-08-17T10:05:39.506Z"
+}
