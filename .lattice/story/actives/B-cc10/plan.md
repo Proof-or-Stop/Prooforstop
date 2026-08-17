@@ -41,6 +41,22 @@ because it forbids the very literals the earlier items are still removing.
   out of scope, citing `brand-rename-mapping.md`.
 - Doc states the acceptance criterion that all 344 archives stay readable and their signatures
   still verify.
+- **Doc must record TWO deliberate supersessions of prior FROZEN verdicts** (scope-plan OQ-1):
+  (a) `@lattice/core` — `brand-rename-mapping.md:130` froze it because renaming would silently
+  self-disarm `.githooks/pre-push`; that premise is now STALE, because B-cdf6 pre-widened the
+  hook to `'@lattice/core'|'@proof-or-stop/core'`. Cite both the doc line and the widened hook.
+  (b) the bin aliases — removed by CHK-006 against the mapping doc's never-remove framing.
+  Both are overridden on evidence, not ignored.
+- **Doc must list the 7th exclusion** (scope-plan OQ-2): the ROOT npm package name `lattice`
+  (workspace `package.json`) is deliberately OUT of scope. It was not among the six identities
+  the operator enumerated, `brand-rename-mapping.md:131` freezes it as a publish-level change,
+  and it is verifiably publishable (no `private: true`), so renaming it is a registry-identity
+  action for its own story. `scope-boundary.json` was written in INIT and is correctly immutable
+  in PLAN, so this exclusion is recorded here and in the OQ-2 resolution.
+- **Doc must cite `story-files-hash-material-drift.md:30-31` for the storyFilesHash answer**: it
+  hashes `path + blob-object-id` pairs sorted BY PATH, so PATHS ARE HASHED and the state-dir
+  rename genuinely shifts `storyFilesHash` for all 344 archives. Confirmed by the scope-plan
+  reviewer reading the doc directly. Record the chosen handling before CHK-003 runs.
 
 ## CHK-002: Add a read-both path resolver before moving any file
 
@@ -122,8 +138,12 @@ because it forbids the very literals the earlier items are still removing.
 **Owner**: lattice-implementer
 **DependsOn**: CHK-002
 **Files**:
-- Modify: `packages/main/package.json`, `packages/utils/package.json`, `packages/lab/package.json`,
-  root `package.json`, lockfiles, ~19 source import sites
+- Modify: `packages/main/package.json` (the `name` field itself), `packages/utils/package.json`,
+  `packages/lab/package.json`, lockfiles, ~19 source import sites
+- **Root `package.json`: DEPENDENCY REFERENCES ONLY.** Its own `name` field stays `lattice` —
+  that is the OQ-2 exclusion. Touch only lines that reference `@lattice/core` as a dependency,
+  never the root `name`. An earlier draft of this Files list said "root package.json" without
+  that qualifier, which contradicted the exclusion; corrected.
 
 **Verify**:
 - Both package builds exit 0 **and** produce dist

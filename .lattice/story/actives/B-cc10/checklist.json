@@ -8,10 +8,40 @@
         "docs/requirements/decisions/brand-rename-mapping.md",
         "CLAUDE.md"
       ],
-      "userSees": "docs/requirements/decisions/proof-or-stop-identity-migration.md exists and states, per identity, RENAMED-with-migration or FROZEN plus the reason",
+      "userSees": "docs/requirements/decisions/proof-or-stop-identity-migration.md exists and `grep -c \"storyFilesHash\"` prints a count >= 1, with a line reading \"PATHS ARE HASHED\" citing story-files-hash-material-drift.md:30-31",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -c storyFilesHash on the new decision doc prints \"1\" or higher",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The doc names an identity with NO verdict recorded and the CHK-001 self-check catches it before DEV proceeds",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reader cannot conclude a FROZEN row was silently ignored: both supersessions (@lattice/core, bin aliases) appear with citations",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
