@@ -7973,7 +7973,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md:521 (smoke matrix row 'open verified finding while phase is TEST | blocked row plus direct TEST-to-DEV rollback command') is a follow-on regression from the F-020 fix. F-020's resolution (commit 3404a42, cluster CL-013) correctly split the smoke matrix by phase, but the TEST-phase row it introduced makes an unimplemented claim: packages/main/src/core/lifecycle-readiness.ts has no branch keyed on target=='TEST' or story.phase=='TEST' that emits a bare story_advance DEV command for a blocking review finding. buildStoryReadinessReport calls buildReviewTargetRows/buildReviewGateRows for target in {REVIEW,TEST,DONE} alike (lines 849-853), and every finding/quorum/loop row inside those (review.findings:526, review.quorum:483, review.loops:379) unconditionally uses reviewRemediationCommand (line 123-131), which always returns review_inventory_status/review_inventory_begin/story_advance-DEV-only-after-FINALIZED-receipt -- never a bare direct-rollback command gated on TEST phase specifically. Separately, this row may also describe an unreachable state: canPassReviewGuard (core/machine.ts:891) gates REVIEW->TEST on no open blocking finding, so a story with a genuinely open verified blocking finding cannot mechanically reach TEST phase in the first place, making the smoke scenario itself untestable as literally specified.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-17T09:03:57.818Z",
@@ -8070,7 +8070,11 @@
         "packages/main/src/core/lifecycle-readiness.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct. The matrix row promised a 'direct TEST-to-DEV rollback command' that does not exist. I verified rather than assumed: lifecycle-readiness.ts references reviewRemediationCommand in five places and a grep for any TEST-phase rollback or story_advance DEV branch returns nothing, so review-finding rows take the same inventory path in TEST as in REVIEW.\n\nYour diagnosis of the cause is right too: F-020's fix correctly split the matrix by phase, but wrote the new TEST row from intent rather than from the code.\n\nCorrected the row to state the real behaviour and to say explicitly that no direct rollback branch exists, so the next reader does not have to rediscover this.\n\nApplied the fan-out rule rather than fixing only the line you named: grepped docs/, CLAUDE.md and AGENTS.md for the same claim. The only other occurrence is docs/story/actives/B-3f3d/activity.jsonl, which is an append-only audit log recording what was said at the time, so it is correctly left untouched.",
+      "resolvedAt": "2026-08-18T06:28:16.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-117",
