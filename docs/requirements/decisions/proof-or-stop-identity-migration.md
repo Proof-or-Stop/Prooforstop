@@ -236,13 +236,26 @@ Recorded here so it is a known, bounded residual with a stated reason, not an om
 
 ## Validate suite state at close (B-cc10)
 
-The rename broke 25 of 104 validate commands. 23 were fixed; 2 remain, both established as
-NOT this story's defects by running them on the `main` checkout rather than assuming.
+The rename broke **25 of 104** validate commands. **All 25 are fixed.** Final state:
+`status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
+3 audited permanent waivers).
 
-| Remaining | Verdict |
+Precise reading of the final run: it reports `commandExecutions=0` because it REUSED a
+trusted prior PASS (`trusted-story-metadata-descendant`) instead of re-executing. The
+104/104-commands figure therefore comes from the last full execution, not from that run.
+Stated explicitly so nobody reads a reused PASS as 104 fresh executions.
+
+An earlier revision of this section said "23 were fixed; 2 remain" and declared both
+remaining tests NOT this story's defects. **That was wrong on both counts and is retracted**
+(reported as F-039 by the docs reviewer — the same overclaim pattern it caught as F-035):
+
+| Then claimed | What was actually true |
 |---|---|
-| `validation-reuse-merge-lineage-smoke` | **Not a defect.** PASSES standalone; fails only inside the full suite with `ENOTEMPTY` on a temp dir — concurrent-run interference. Do not "fix" it. |
-| `proofstory-acceptance-basis-smoke` | **Pre-existing on main.** On `main` it fails at an earlier assertion (`drop-acceptance-basis-prompt bites the real contract verifier`); here it reaches the later symlink case because this story's config-cleanup fix moved it forward. Independent of the rename. |
+| `validation-reuse-merge-lineage-smoke` — "not a defect, suite interference only" | Right about the CAUSE (7 teardowns used `rmSync` recursive+force with no retries and lost a race in-suite), wrong to leave it. The TEST gate consumes validate's pass/fail, not the author's rationale. Fixed with `maxRetries`/`retryDelay`. |
+| `proofstory-acceptance-basis-smoke` — "pre-existing on main, independent of the rename" | It DID fail on main, but only because main carries the same rename-induced cause. Two stacked defects, both this story's: a readability-probe that made a symlinked config look ABSENT, and a mutation regex pinned to the OLD brand string so the negative control silently stopped controlling. |
+
+The lesson: "it also fails on main" is not evidence that a defect is unrelated to your change,
+and "it only fails in the suite" is not a reason to leave a gate red.
 
 ### The dominant defect class, and why it matters
 
@@ -276,3 +289,32 @@ either brand so it survives the next rename.
   `?? .proof-or-stop/` and broke every clean-tree assertion. Mirrored additively; verified
   the `!` negations still hold (7592 archives still tracked, ledgers and story indexes not
   ignored).
+
+## Verification selectors must assert invariants, not snapshots (B-cc10 F-032/F-040)
+
+Four verification receipts could not be re-earned after this story's own commits, because
+their pinned proof selectors asserted **snapshot values** rather than invariants. All three
+failure modes occurred in one story:
+
+| Pinned selector | Why it became unmatchable |
+|---|---|
+| `trackedArchiveFiles=7583` | an exact COUNT; this story's own metadata commits grew it to 7593 |
+| `deprecatedDirTrackedFiles=0` | became 9 when teammate story B-49ed merged in at the deprecated path — and that story must NOT be moved, so matching the pin would mean damaging someone else's work |
+| `moveIsPureRenameCommit=true` | the output KEY was renamed by this story's own F-007 fix, though the property never changed |
+| `**Phase**: DEV` | the story's own transient lifecycle phase, now REVIEW |
+
+Resolution was case-by-case, not uniform:
+- The renamed-key one was **re-earned mechanically**: `verify-migration-contract.mjs` now emits
+  the legacy key name alongside the new one, so a receipt pinned to a cosmetic detail is not
+  stranded. The property itself is re-executed and proven, not asserted.
+- The other three are **audited permanent waivers** with the specific reason recorded on each,
+  because their pins assert things that are now genuinely false. Matching them would require
+  either lying or damaging a teammate's story.
+
+Two witnesses gained stable invariant lines for future pins to use — `archiveFloorHeld=true`
+(state-dir-migration) and `noDuplicateStateDirSpelling=true` (migration-contract) — with the
+raw counts kept for diagnostics.
+
+**Rule for future stories: a proof selector must name an invariant.** Never an exact count, a
+lifecycle phase, a timestamp, or an output key that may be refactored. A selector pinned to a
+snapshot converts a passing witness into an unearnable receipt.
