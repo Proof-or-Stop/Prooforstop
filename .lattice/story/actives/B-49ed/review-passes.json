@@ -29,6 +29,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f505f6e7f456dcd1856c6d280b605b028eae317f42bdb9bdb0043ca51a4baf17"
+    },
+    {
+      "id": "B-49ed:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 delta (F-005 fix, single file changed: topology-signing-source-guard-smoke.ts new section 3). No concept deletion/replacement. Inline dispatch-event literal and raw execFileSync git rev-parse are not competing idioms vs adapter-session-env.ts: ProcessEvent has no canonical constructor anywhere in the repo, the one production event-builder is a stateful store-writer unusable here, and field names match deriveRoleProvenance exactly. Mutation-verified: bogus headHash in the synthesized event makes the smoke fail as expected (not vacuous). Source restored to committed state after the mutation probe.",
+      "createdAt": "2026-08-18T03:56:15.080Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-005",
+      "envelopeId": "c1eced7fa304109ec978e9d7528cbfd9295019f44d08d0bf5c0837b0686e36bd",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6ad810ef8868242fa6af1ec500e5a7e579152faa942c797a2c9f0cfe183ac27"
     }
   ]
 }
