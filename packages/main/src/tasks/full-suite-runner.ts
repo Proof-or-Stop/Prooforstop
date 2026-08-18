@@ -112,6 +112,10 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:closeout-trust', { priority: 650 }),
   repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: '.lattice/runtime', access: 'shared' }]),
   repoRead('test:evidence-quality'), repoRead('test:anti-stall'), isolated('test:storydir-inside-gitroot-smoke'),
+  // B-3f3d F-115: REVIEW-phase policy coverage for acceptance_basis_generate. RESOURCE_POLICY
+  // is a membership authority separate from root test:serial-reference and fails CLOSED, so a
+  // serial-reference member with no entry here aborts the entire suite rather than being skipped.
+  repoRead('test:acceptance-basis-review-phase'),
   isolated('test:gitroot-cwd-routing'), isolated('test:bare-gate-gitroot-cwd'), isolated('test:project-gitroot-cwd'),
   isolated('test:done-oracle-wrapper-root'), isolated('test:done-premerge-mainsha-recheck'),
   isolated('test:done-escalation-drift-advisory'), isolated('test:review-escalation-freshness-root'),
