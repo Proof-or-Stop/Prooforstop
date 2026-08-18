@@ -256,6 +256,21 @@
       "_hash": "0763be12dbafeb77aaffe9bc5c9ba6f7d8f662ecac44e700a7539ff333bc5d5d",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-014",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts is not wired into packages/main/package.json test:* scripts (confirmed: grep of signing-guard-mutation-proof across package.json and validate.ts finds zero references), and is not the file plan.md CHK-003 names as the Verify artifact -- plan.md:71/78 names packages/main/src/tasks/proofstory-topology-critic-smoke.ts, a different file using a different (config-mutation-env) technique. So this smoke test, despite genuinely proving the guard bites when run directly (verified by hand: node dist/tasks/signing-guard-mutation-proof-smoke.js exits 0 baseline, and widening SIGNABLE_SESSION_SOURCES on the real compiled artifact makes its own control assertion fail), never actually executes as part of lattice validate, npm test, or CI -- it is dead/orphaned from any automated run path. Either wire it into package.json (and validate.ts's smoke catalog if one exists) so CHK-003's DoneWhen (the assertion demonstrably fails without the guard, mutation-proven) is mechanically enforced going forward, or fold its logic into proofstory-topology-critic-smoke.ts which plan.md actually names.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T04:26:58.078Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-016",
+      "_hash": "1298e5fdd40cd033f19e5a6a6f6b9d2d1524aac77070e142a7d738ca1b0ab082",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }

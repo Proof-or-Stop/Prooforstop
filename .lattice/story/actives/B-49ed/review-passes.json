@@ -124,6 +124,25 @@
         "scanEscalationReason": null
       },
       "_hash": "dffc7ffe544719d1c85b332b284a20ee1340e03aaae46b3d67f7828e7c20d54d"
+    },
+    {
+      "id": "B-49ed:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "F-010 delta verified: (1) divergence assertion is genuine — traced topology-critic-receipt.ts:166-172 directly confirming source-gate throw precedes dispatch-lookup throw; ran the compiled proof in an isolated scratch copy (PASS) and adversarially rewrote the real guards error message to an unrelated string, confirming the proof correctly fails rather than passing vacuously. (2) F-005 section 3 (exclusion-approver full-path completion, topology-signing-source-guard-smoke.ts) is a separate file untouched since commit f3bf7456a0, zero diff across the F-010 window; ran it read-only and confirmed accepted sources complete provenance for: critic + exclusion approver still holds. (3) 9f9f53a514 asymmetry (issueTopologyCriticReceipt L424, verdict pass vs request_changes gating on basisStatus) lives entirely downstream of and independent from deriveRoleProvenance; git diff main...HEAD on proofstory.ts shows only the two sessionSource argument additions, nothing near the verdict branch; F-010s commit (534964831f) touched only the smoke file. (4) CHK-004 evidence is manual_transcript, unrelated to the rewritten file; CHK-003s already-resolved F-004 stale-userSees reference concerns a different pre-existing smoke file, unaffected. No new findings.",
+      "createdAt": "2026-08-18T04:26:58.234Z",
+      "reviewRound": "2026-08-18T04:18:52.650Z",
+      "reviewRunId": "B-49ed:RR-017",
+      "envelopeId": "8dc66e8ad3f6501c91909f15786b552299276f7080a19c63c1e1d8ef1f4fb1ea",
+      "writerSessionId": "sess-bae2d0b55e16227d4e935d24703eb0b6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "397b1abba903bfe15d4cc8c55acae92ce1831a833afb1c8d4f33a7de09645895"
     }
   ]
 }
