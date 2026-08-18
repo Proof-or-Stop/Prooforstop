@@ -1358,6 +1358,37 @@
       ],
       "signatureTag": "missing|json|findings-json-resolvedreason",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-062",
+      "desc": "findings.json F-058.resolvedReason severity-mitigating claim: NOT A SOUNDNESS BREAK, stated precisely so the severity is not inflated: an admitted matcher must still literally appear in the RED output and be absent at GREEN, so test failed passing does not make a fabricated RED satisfiable. This is stated as an unconditional guarantee of the GREEN predicate, but section 1.1.1 (spec:190-192) and section 1.5 pattern-absent (spec:456-458) both define an explicit, spec-legal, IMPLEMENTED exception: a present-in-red matcher may carry greenExempt:true, and pattern-absent is defined as NO matcher with effective green-absence polarity (every absent-in-green matcher, plus every present-in-red matcher NOT marked greenExempt) matched -- so a greenExempt:true matcher is explicitly excluded from the absent-at-GREEN requirement. Nothing in section 1.3 rule 3 (the sole present-in-red literal-line requirement) forbids that same matcher from also carrying greenExempt:true. Confirmed implemented, not merely textual: packages/main/src/core/red-evidence/envelope.ts:412-418 validates greenExempt is legal ONLY on polarity present-in-red, and red-w2d-rejection-matrix.mjs (run this round, 142 fixtures, exit 0) exercises ACCEPT for greenExempt:true on a present-in-red matcher (CHK-003). So an admitted matcher marked greenExempt is verified appear in RED (R1-4) but is NOT required to be absent at GREEN -- the resolutions must ... be absent at GREEN is an overgeneralization of what section 1.5 actually guarantees, unverified against this documented exception. I did not find that this alone lets a FABRICATED RED become satisfiable end-to-end (GREEN-BIND material-diff, R1-5 non-derived-command, and target-exists/adapter-linkage are independent constraints greenExempt does not touch), so the ultimate not a soundness break conclusion is plausibly still correct in substance -- but the resolutions own framing (stated precisely so the severity is not inflated) asserts a precision it did not actually verify against section 1.1.1s own carve-out, which is the same pattern (an unverified precision claim inside a severity-justifying argument) this round was specifically asked to check for.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:17:20.870Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/envelope.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "097ed05c14c6ce991b040e03541f9f28fcb7b75060ac2864facfa8ca395f8d2b",
+      "files": [
+        "packages/main/src/core/red-evidence/envelope.ts",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "edge|ts|findings-json-resolvedreason",
+      "signatureTagSource": "auto"
     }
   ]
 }
