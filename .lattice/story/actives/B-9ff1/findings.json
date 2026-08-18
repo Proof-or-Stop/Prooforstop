@@ -1136,6 +1136,25 @@
       "resolvedAt": "2026-08-18T17:18:01.704Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-054",
+      "desc": "F-051's resolvedReason claims the §1.2 policy table's Meaning column is 'the' imprecise restatement of the literal-line-scoped maxMatcherLen/trim rule ('The §1.2 table is a policy-key summary whose one-line Meaning column dropped the qualification present in the field definition'), implying the §1.1 field definition at spec:183-184 is the sole qualified text and the §1.2 table the sole unqualified one. But spec.md:499-503 (R1-3, a NORMATIVE rejection rule, not a descriptive summary table) restates the identical rule with the identical missing qualification: 'any matcher value longer than policy.maxMatcherLen or carrying leading/trailing whitespace ... is REJECTED', with no kind restriction -- verified by direct read, not inference. Taken literally, R1-3 would require rejecting an over-length or untrimmed CLASS value too, which contradicts both the code (envelope.ts:70-85, which scopes the bound to literal-line only) and Host B's own probe cited in the same finding (a 513-byte untrimmed class value admitted, ok=true). The resolvedReason's phrase 'verified independently' checked spec:183-184 against the §1.2 table but not against R1-3, so it understates which spec passages need the follow-up correction: a fix to §1.2's table alone would leave R1-3's normative text still contradicting the code. Recommend the follow-up spec-fix scope recorded for this finding be broadened to cover both spec.md:293 and spec.md:499-503, not §1.2 alone.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T17:27:44.125Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-050",
+      "_hash": "b39fcc65882ff27ec3790e650ca6a9a6205db76e9596ad1d0f9dfa1f0d8ed2df",
+      "files": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "missing|md|resolvedreason-claims-policy",
+      "signatureTagSource": "auto"
     }
   ]
 }
