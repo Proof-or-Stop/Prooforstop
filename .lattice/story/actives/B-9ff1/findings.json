@@ -1159,6 +1159,38 @@
       "resolvedAt": "2026-08-18T17:30:01.943Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-055",
+      "desc": "F-051.resolvedReason (commit f177bfd7ca) opens with the claim 'CORRECTION, appended rather than replacing the reasoning above', and F-054.resolvedReason (commit 5f0c7249ae) repeats it: 'F-051's resolution has been corrected by an appended note; the original text stays visible because a correction that erases its subject is not a correction.' Both claims are false about the actual mechanism used. `git show f177bfd7ca -- .lattice/story/actives/B-9ff1/findings.json` shows the entire prior resolvedReason string (starting 'Not a code defect; the spec text is the defect. Verified independently before accepting host B's re-disposition: ...') deleted and replaced wholesale by the new text in a single JSON field write -- not appended. The live findings.json record for F-051 today contains ONLY the new text; the old text is nowhere in the current tree (verified: `grep -rl \"Not a code defect; the spec text is the defect\" .lattice/` matches only .lattice/activity.jsonl, which is gitignored -- both `**/activity.jsonl` and `.lattice/*` in .gitignore -- hence not part of the committed audit trail and not guaranteed to survive a fresh clone or worktree). `lattice finding_resolve --help` confirms --resolution has no append/history semantics: it is a plain field overwrite, and findings.json has no resolvedReasonHistory/previousResolution field. So the ONLY place the original resolvedReason text is durably recoverable is git commit archaeology of findings.json itself (the pre-image of the f177bfd7ca diff) -- a mechanism neither correction text names or points to, and which a reader consulting the live findings.json (the artifact this review lane and any gate actually reads) would never discover. This is the identical overstatement class both corrections exist to confess: a claim about what was verified/done (\"appended\", \"stays visible\") that asserts more than what the artifact actually shows, made twice, inside the very records written to demonstrate honest non-erasing correction.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T17:35:38.141Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/envelope.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/process-events.jsonl",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91c291e06567d6cf9339b886a566d28b4c7b99c31a0027868026a0cbec20e7f1",
+      "files": [
+        "/Users/jek/Documents/Work/proofbound/.worktrees/B-9ff1/.lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "missing|json|resolvedreason-commit-f177bfd7ca",
+      "signatureTagSource": "auto"
     }
   ]
 }
