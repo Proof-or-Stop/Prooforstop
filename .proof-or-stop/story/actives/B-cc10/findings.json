@@ -77,7 +77,7 @@
       "desc": "packages/main/src/core/acceptance-rollout.ts:362 hardcodes storyPath = `.lattice/story/actives/${storyId}/process-events.jsonl` (deprecated-only spelling, no read-both fallback, no brand-paths import) and passes it to `git show <metadataCommitSha>:<storyPath>` at line 363. This is the exact CHK-002 regression class the story documents (a comparison/read path hardcoding only the deprecated spelling): once a repo has fully migrated to .proof-or-stop/ and a NEW quorum commit is made post-migration, this git-show will always fail to find the path at that commit (process-events.jsonl now lives under .proof-or-stop/story/actives/...), throwing acceptance rollout observation errors for any post-migration commit. Should derive the path via brand-paths.ts (e.g. stateDirCandidates or PROOF_OR_STOP_STATE_DIR) and probe both candidate spellings against that specific historical commit (a plain existsSync canonical-first probe on the working tree is insufficient here because the path must be resolved AS OF that git commit, not the current working tree state).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T03:41:53.916Z",
@@ -85,7 +85,8 @@
       "reviewRunId": "B-cc10:RR-015",
       "_hash": "91ac7a10dab83461f12c64671745af120b28b1ad2d4f22d045f0b5c7943cec74",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:00:08.856Z"
     },
     {
       "id": "B-cc10:F-006",
