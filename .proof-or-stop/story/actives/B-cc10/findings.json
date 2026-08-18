@@ -667,7 +667,7 @@
       "desc": "test",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T10:28:34.874Z",
@@ -675,6 +675,27 @@
       "reviewRunId": "B-cc10:RR-050",
       "_hash": "d8630c2873b560c77d198675c45011f34db6de220e1e244bee65fedc96339b73",
       "signatureTag": "missing|unknown|test",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental placeholder created while probing the correct reviewRunId CLI parameter format (bare RR-050 vs prefixed B-cc10:RR-050); not a real review finding.",
+      "dismissedAt": "2026-08-18T10:29:14.747Z",
+      "dismissReasonType": "false_positive"
+    },
+    {
+      "id": "B-cc10:F-037",
+      "desc": "packages/main/tests/red/red-fb7b-guard-bite.mjs:46 readFileSync(join(repoRoot, \"lattice.config.json\")) crashes with ENOENT in this worktree (reproduced: `node packages/main/tests/red/red-fb7b-guard-bite.mjs` throws `Error: ENOENT: no such file or directory, open .../lattice.config.json`). Introduced/left-behind by commit 6865c2b835 (F-033/F-035), which fixed this SAME file line 35/38 to try the canonical proof-or-stop.config.json first with lattice.config.json fallback, but left line 46 reading the resolved repoRoot with the OLD literal name only -- so findRepoRoot correctly resolves to this worktree (which has no lattice.config.json, only proof-or-stop.config.json) yet the very next read fails. Not one of the ~52 documented excluded fixture cases: those construct an isolated temp dir and write+read lattice.config.json self-consistently; this file instead reads the REAL repoRoot (its own canonical-first walk-up) to build realConfig.validate.commands, used as an assertion baseline in makeFixture/GOOD_SCRIPTS -- i.e. it reads the live repo config, not a self-authored fixture. Fix: mirror the same canonical-first-then-fallback read already used two lines above in the same file.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T10:29:31.952Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-050",
+      "_hash": "9e9fbca14e99e67bd62c0196c2936fddad22c8d469143235a10e858b187f20e7",
+      "files": [
+        "packages/main/tests/red/red-fb7b-guard-bite.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto"
     }
   ]
