@@ -1151,7 +1151,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:244-250 states the honest defect total is 28 (25 counted by the validate suite + F-054/F-055/F-056 vacuous zero-scan). That count is now stale by the SAME pattern the doc itself retracted for the earlier '23 were fixed' claim (lines 257-267): three more rename-adjacent defects landed AFTER commit 04e3316cbc wrote '28' (21:44 local) and are not reflected anywhere in the doc's tally or defect-class taxonomy — (1) commit 0d50b0aef2 (21:53, F-061 CRITICAL): a fault-injection stub (isStateDirPath returning false unconditionally) committed into packages/main/src/core/brand-paths.ts production source via a git add -A in the shared worktree; (2) commit 10c5b13bff (22:16): CLAUDE.md/AGENTS.md gutted a SECOND time (1118->12, 598->12) by the very commit that wrote the '28' figure, discovered afterward; (3) commit 24ca129df8 (22:49): **/*.lock/ dropped from .gitignore a second time, by the same index-based-merge habit as the first loss. None of these three are rename-induced defects in the sense the doc's 4-class taxonomy (Loud/Quiet/Dangerous-sabotage-that-misses/Invisible-runtime-generated-text) covers, and F-061 in particular is a genuinely NEW, undocumented defect class: an uncleaned test/fault-injection artifact accidentally committed into production source via git add -A in a shared worktree — this has no entry anywhere in the doc (not in the defect-class list, not in the two-defects-in-this-storys-own-product-code section, not in the 28 total). Recommend: update the 28 total (or explicitly scope it as 'as of 04e3316cbc' with a follow-up note) and add F-061's class to the taxonomy, mirroring how the doc already retracted its own earlier undercount.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T15:58:37.497Z",
@@ -1162,7 +1162,8 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T16:00:35.571Z"
     }
   ]
 }
