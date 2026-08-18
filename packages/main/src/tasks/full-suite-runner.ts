@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, execFileSync } from 'node:child_process';
-import { tmpdir } from 'node:os';
+import { availableParallelism, tmpdir } from 'node:os';
 import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -308,8 +308,12 @@ export function parseRunnerArgs(argv: string[]): { jobs?: number; jsonOutput?: s
  * no change to the suite can fix. That is exactly the state this constant was
  * in at 300_000 while two entries were each allowed 300_000.
  * fullSuiteBudgetIsSatisfiable() states the invariant; the runner smoke asserts it.
+ *
+ * 1_200_000 is measured, not picked: a green 49/49 run at the derived default
+ * concurrency took 832.8s on the reference machine. This is a runaway-growth
+ * guard with ~1.4x headroom over a passing run, not a tight performance target.
  */
-export const FULL_SUITE_BUDGET_MS = 600_000;
+export const FULL_SUITE_BUDGET_MS = 1_200_000;
 
 /**
  * Entry timeoutMs values are STANDALONE budgets -- what the entry costs with the
@@ -355,6 +359,29 @@ export function fullSuiteBudgetIsSatisfiable(entries: FullSuiteEntry[] = FULL_SU
 
 export function isUnderFullSuiteBudget(durationMs: number): boolean {
   return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < FULL_SUITE_BUDGET_MS;
+}
+
+/**
+ * Default concurrency, derived from the machine rather than fixed at 4.
+ *
+ * A suite entry is not one process: the heavier smokes spawn their own
+ * concurrent CLI children (review-incremental-context-smoke alone drives eight
+ * concurrent built-CLI calls and five-way mixed writer runs). So `jobs` is
+ * nominal concurrency, and the real figure is jobs x per-entry fan-out. At a
+ * hardcoded 4 on a 10-core machine (4 performance cores) that reached a load
+ * average of 26 -- 2.6x oversubscription -- and entries began failing on
+ * timeouts INTERNAL to the tests, which no runner-level cap can reach:
+ * milestone-status failed its own assertion with actual 'ETIMEDOUT' at 98.3s,
+ * well inside its cap, and review-incremental-context-smoke inflated from
+ * 161-164s standalone to 321.5s.
+ *
+ * Measured on the same machine at jobs=2: 49/49 passed, every entry inside its
+ * cap, 832.8s wall clock. Budgeting one job per four logical CPUs reproduces
+ * that (10 -> 2) and still scales up on a larger CI host, capped at the former
+ * default of 4 so this can only reduce oversubscription, never introduce it.
+ */
+export function defaultJobs(cpuCount: number = availableParallelism()): number {
+  return Math.max(1, Math.min(4, Math.floor(cpuCount / 4)));
 }
 
 export function shouldEnforceFullSuiteBudget(jobs: number): boolean {
@@ -577,7 +604,7 @@ async function main(): Promise<void> {
   if (!serialReference) throw new Error('missing test:serial-reference membership authority');
   FULL_SUITE_ENTRIES = canonicalizeEntries(entriesFromSerialReference(serialReference, pkg.scripts), cwd);
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
-  const jobs = args.jobs ?? 4;
+  const jobs = args.jobs ?? defaultJobs();
   const startIdentity = readIdentity(cwd);
   const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();
