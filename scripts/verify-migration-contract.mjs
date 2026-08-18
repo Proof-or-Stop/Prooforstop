@@ -125,6 +125,11 @@ const mvIsPure = /0 insertions/.test(stat) && /0 deletions/.test(stat);
 console.log(`moveCommit=${moveSha.slice(0, 8) || 'unresolved'}`);
 console.log(`followupFixCommit=${fixSha.slice(0, 8) || 'none'}`);
 console.log(`moveCommitIsPureRename=${mvIsPure}`);
+// B-cc10 F-032: ALSO emit the original key name. A verification receipt was pinned to
+// `moveIsPureRenameCommit=true` before my F-007 fix renamed this key; the underlying
+// property is unchanged and still true, so dropping the old key would strand a valid
+// receipt over pure cosmetics. Both names print; the pin stays matchable.
+console.log(`moveIsPureRenameCommit=${mvIsPure}`);
 console.log(`revertUnitIsCommitSequence=${Boolean(moveSha && fixSha)}`);
 if (!moveSha) {
   fail('could not resolve the state-dir move commit; the migration contract is unverifiable');
