@@ -1627,6 +1627,35 @@
         "scanEscalationReason": null
       },
       "_hash": "766d37887f8f732e756a6e1fb1c24f3cf9a59118e699989f9adf68063a8af81b"
+    },
+    {
+      "id": "B-9ff1:RP-052",
+      "agent": "lattice-review-behavior",
+      "note": "Narrow re-verification round per dispatcher scope, no module re-audit (only .lattice metadata changed since RP-049: a superseding dev-memory entry, F-066's resolution, a tenth evidence re-bind). (1) red_evidence_envelope_check with no policy configured still names WHERE (redEvidence block in lattice.config.json) and emits red_evidence_policy_missing: pinnedPath -- F-059 fix intact. (2) red-w2d-specificity-conjunction.mjs exit 0, five characterization rows unchanged: SIGSEGV 15.65/ENOMEM 11.51/HTTP 404 20.00/Error 500 21.77 reject, test failed 34.05 admit. (3) Judged dev-memory entry 8d1d2bb (superseding a67bb17, produced by concept-lane F-066): its corrected claim -- that the nine findings filed in the 2026-08-18 closing-review round were all against the story owner's prose and zero code findings were filed in that round -- still mis-describes this lane's own findings. F-057/F-058/F-059 (createdAt 17:59:12-17:59:56Z, RR-057) were filed inside the same 2026-08-18 window, interleaved between the concept lane's own F-056 (17:40:29Z) and F-061 (18:17:04Z); F-058 is a live-reproduced code/behavior defect and F-059 produced a source commit (77a5ffab9e), so zero code findings were filed in that round is false. Filed B-9ff1:F-069 (medium, verified) to correct the record; only this lane could settle what its own findings were about. (4) Ran the remaining four red harnesses (rejection-matrix, command-readonly, assertion-digest-scope, entropy-differential) plus the dist envelope smoke: all exit 0. findings.json 69 total, 66 resolved-or-dismissed, 3 open (this round's new filings including F-069). git rev-list --count HEAD..main = 0. git status --porcelain empty.",
+      "createdAt": "2026-08-18T20:50:14.094Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-082",
+      "envelopeId": "21ed914a4ff15e093ef282c2c47b537b64ced516376136d0b3ad11b2ab1a1d51",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "20fa603411b569fffb320d0a141bf0a5cbd227d9c43970053d69b05c35230563"
     }
   ]
 }
