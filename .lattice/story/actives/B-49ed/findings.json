@@ -389,6 +389,25 @@
       "_hash": "a717c9eaa8f24ebb220076c25ab30434167a04a6924ac5b58fde61dd6457d8de",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-021",
+      "desc": "F-016 fix is incomplete: full-suite-runner.ts RESOURCE_POLICY has no entry for test:topology-signing-source-guard or test:signing-guard-mutation-proof, so the root npm test preflight (entriesFromSerialReference in full-suite-runner.ts main()) now throws canonical inventory mismatch unknownPolicy=[test:topology-signing-source-guard,test:signing-guard-mutation-proof] before executing ANY of the 51 suite members. Reproduced live: npm --prefix packages/main run build then node packages/main/dist/tasks/full-suite-runner.js exits 1 immediately with exactly that message and zero tests run. F-016s claim both scripts are now genuinely inside the DONE-blocking suite is false -- they broke the DONE-blocking suite entirely. Fix requires adding matching RESOURCE_POLICY entries (e.g. repoRead(\"test:topology-signing-source-guard\"), repoRead(\"test:signing-guard-mutation-proof\")) in packages/main/src/tasks/full-suite-runner.ts alongside the test:serial-reference addition.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T04:58:17.330Z",
+      "reviewRound": "2026-08-18T04:50:11.775Z",
+      "reviewRunId": "B-49ed:RR-023",
+      "_hash": "2e0f99e031f1fda4cf2384a9d84bf313544f19ce1b211bd887b52083085ec1fb",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "package.json"
+      ],
+      "signatureTag": "missing|ts|incomplete-full-suite",
+      "signatureTagSource": "auto"
     }
   ]
 }
