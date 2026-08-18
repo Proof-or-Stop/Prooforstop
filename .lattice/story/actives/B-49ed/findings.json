@@ -200,6 +200,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-011",
+      "desc": "CHK-002:happy:0 verificationIntent literally reads: the migrated suite passes with the same pass count as before the change (checklist.json CHK-002.verificationIntent.happy[0].desc). The registered evidence for happy:0, edge:0, AND adversarial:0 all point to the SAME command (node .../topology-signing-source-guard-smoke.js) and the SAME selector string (migrated fixture env resolves to: host-adapter / Topology signing source guard: PASS). None of the three executes npm run test:legacy, and none derives or compares any pass count before vs after the change -- the evidence measures a single narrow smokes selector match, not suite-wide pass-count parity. This is a quiet redefinition of what happy:0 commits to: the intent as worded requires a suite-level regression check (would the migration from LATTICE_SESSION_ID to the adapter env silently break/skip tests elsewhere in packages/main/src/tasks, changing the pass count), and the registered mechanical evidence cannot detect that -- a broken or newly-skipped test in an unrelated file would not move this selector at all. Separately: I independently ran npm run test:legacy on this branch (~24min via test:coverage-style full run) and it does NOT cleanly reproduce a same-pass-count claim either way -- pass 1 alone produced far more non-timeout FAILs than 2 (candidate-spec-routing, evidence-plan, evidence-refresh, evidence-state-gate, lattice-evidence, lattice-cli-migration, lattice-parallel-wave, material-hash-large-tree, plan-skeleton, prompt-contract-measurement, prompt-registry, prompt-token-cost, proofstory-acceptance-topology(-gate), repair-retry-integration, review-run-metadataroot-wrapper-root, reviewer-batch, scope-anti-expansion, runtime-entrypoint-authority, session-brief-prompt-sync, story-metadata-protection, and more), so nobody -- including me -- has actually established suite-wide pass-count parity as the intent literally demands; it is unclear how many of those are pre-existing on main vs introduced by this branch, and that comparison has not been done or recorded anywhere in this story. Fix: either (a) narrow CHK-002:happy:0 intent wording to what is actually measured (this ones smoke selector, not suite parity) and file a follow-up to actually diff main vs branch pass/fail sets for packages/main/src/tasks, or (b) do that main-vs-branch diff now and record it as the evidence this intent already claims to have.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T04:08:35.413Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-013",
+      "_hash": "5254f2d9b9ebe8be11a4015555dd954729f403618b4debda66e41d86321c93fa",
+      "files": [
+        ".lattice/story/actives/B-49ed/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-verificationintent-literally",
+      "signatureTagSource": "auto"
     }
   ]
 }
