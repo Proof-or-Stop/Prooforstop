@@ -590,7 +590,10 @@ checks.push(() => {
     assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
     assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'lattice check --apply should report applied managed manifest');
     assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
-    assertPathExists(tempDir, '.lattice/managed-assets.json', 'lattice check --apply manifest');
+    // B-cc10 F-044: MANIFEST_REL_PATH now writes only the canonical path, so asserting the
+    // deprecated one could never pass — the assertion was checking for a file init stopped
+    // creating.
+    assertPathExists(tempDir, '.proof-or-stop/managed-assets.json', 'proof-or-stop check --apply manifest');
 
     run('git', ['init'], { cwd: tempDir });
     writeFileSync(join(tempDir, 'lattice-user-note.txt'), 'uncommitted local work\n');

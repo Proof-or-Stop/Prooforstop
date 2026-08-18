@@ -63,7 +63,14 @@ check_release_push_approval() {
 const fs = require("fs");
 const path = require("path");
 const [root, remoteName, localSha, remoteRef] = process.argv.slice(1);
-const approvalPath = path.join(root, ".lattice", "tmp", "remote-push-approval.json");
+// B-cc10 F-046: read BOTH state-dir spellings, canonical first. The writer moved to
+// .proof-or-stop/tmp/, and a hook pinned to only one spelling would either reject a valid
+// approval or keep requiring the deprecated path forever.
+const approvalCandidates = [
+  path.join(root, ".proof-or-stop", "tmp", "remote-push-approval.json"),
+  path.join(root, ".lattice", "tmp", "remote-push-approval.json"),
+];
+const approvalPath = approvalCandidates.find((candidate) => fs.existsSync(candidate)) || approvalCandidates[0];
 function reject(message) {
   console.error(`[pre-push] REJECTED: ${message}`);
   console.error("[pre-push] Remote writes are default-denied. Run `lattice release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
