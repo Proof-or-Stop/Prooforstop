@@ -408,6 +408,25 @@
       ],
       "signatureTag": "missing|ts|incomplete-full-suite",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-022",
+      "desc": "CHK-003:adversarial:0 verificationEvidence is stale relative to the current artifact. Its receipt (outputDigest 4d8ec0c2..., materialHash 85c0be5a...) was captured from signing-guard-mutation-proof-smoke.ts BEFORE the CHK-005:edge:0 assertion block (generated-token/host-adapter resolveSessionIdentity checks) was appended to the same file. Running the current binary now (node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js) prints 6 lines including generated-token requires:/host-adapter requires:, matching CHK-005:edge:0s recorded outputDigest e7161fde... exactly, but NOT CHK-003:adversarial:0s recorded digest. Current materialHash (40d432c9..., via currentMaterialHash) also differs from the recorded 85c0be5a.... The selector still matches so the gate would still accept it, but the receipt no longer describes what the file currently does end-to-end; per B-cdf6 evidence-freshness discipline this should be refreshed via verification_run the same way F-008 handled an analogous drift.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T04:58:29.046Z",
+      "reviewRound": "2026-08-18T04:50:11.775Z",
+      "reviewRunId": "B-49ed:RR-023",
+      "_hash": "789bb70983b52393ed0cba2c520f33c59969fcfa03c4d37ae42889c663d32047",
+      "files": [
+        ".lattice/story/actives/B-49ed/checklist.json",
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
+      ],
+      "signatureTag": "missing|json|adversarial-verificationevidence-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
