@@ -324,6 +324,35 @@
         "scanEscalationReason": null
       },
       "_hash": "751711ff0c37005449a66457da7790987c0be771a9b45df5b556fc47aa590121"
+    },
+    {
+      "id": "B-49ed:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 15 must intents across CHK-001..CHK-005 have exactly 15 evidence rows (1:1), all storyFilesHash=0d4cdbba... matching current task-context storyFilesHash (F-030 refresh confirmed sound). Independently re-ran topology-signing-source-guard-smoke.js, proofstory-pre-review-check-smoke.js, and signing-guard-mutation-proof-smoke.js myself: output byte-matches stored receipts exactly, no content-vs-hash drift (F-022 failure mode did not recur). CHK-004 evidence is mechanical:false with nonMechanicalReason=refresh-stale-not-rerun, but its intents are type:manual (attestation-only, not in EXECUTABLE_INTENT_TYPES), so coverageStatusForCoveredEvidence short-circuits to covered regardless of mechanical flag by design -- not a coverage gap. headHash drift (bb0de5f6 -> 6a30a272) is 6 metadata-only commits (.lattice/ bookkeeping), storyFilesHash unchanged, matching headHash-only-drift-is-not-a-rerun-signal rule. On the F-030 scope question: reviewed the actual diff of validation-reuse-merge-lineage-smoke.ts -- a small self-contained test-only rmSync-retry helper applied across 7 cleanup call sites in one pre-existing smoke file, independently passing when re-run. Given its size, isolation from this story runtime scope, and explicit admission already in F-030 resolution text, I do not judge a DONE-blocking split is warranted.",
+      "createdAt": "2026-08-18T13:20:35.886Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-037",
+      "envelopeId": "b909c27e1f75a70833af61091d28d5bd79bb9ef891d548e9b62dded1209a8d90",
+      "writerSessionId": "sess-755723cd1df32caddafb382982d9ec79",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/findings.json",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/background.md",
+          ".lattice/story/actives/B-49ed/plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45fa75b9a4659ef96180207857a6756cd9c5220b06c6f1cedb66d3a4d3e777b0"
     }
   ]
 }
