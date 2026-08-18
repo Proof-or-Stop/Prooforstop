@@ -821,7 +821,7 @@
       "desc": "scripts/verify-entrypoints.mjs:593 asserts assertPathExists(tempDir, \".lattice/managed-assets.json\", ...) but core/managed-assets.ts MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json` writes ONLY the canonical path (.proof-or-stop/managed-assets.json). Reproduced directly with the exact sequence this test uses (cli-init.js --profile=all --asset-mode=full, then check --json / edit manifest / check --apply --json against packages/main/dist/cli.js): .proof-or-stop/managed-assets.json exists afterward and .lattice never exists at all. Same defect class the story itself documents as fixed in managed-assets.ts (B-cc10 comment: the old hardcoded .lattice/managed-assets.json literal caused the runtime to keep recreating the deprecated dir) and the same walk-up-fixed-but-second-read-missed shape already caught as F-037/F-038 in this same story -- this specific witness line was left pinned to the pre-migration path and will throw once earlier unrelated environment blockers in the same test file are satisfied.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T10:44:42.717Z",
@@ -829,7 +829,8 @@
       "reviewRunId": "B-cc10:RR-053",
       "_hash": "48ac3c0d9843d7b62199eaa77ab9f34f5b4b26605cd3d0d0c96df9170a3ea42c",
       "signatureTag": "missing|unknown|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T10:51:07.860Z"
     },
     {
       "id": "B-cc10:F-045",
