@@ -5,7 +5,8 @@
  *
  * Covers status surface, process-fact registration, tamper fail-closed,
  * inventory-is-not-PRE_CERT, and PRE_CERT admit from inventory/merge/clean/coverage.
- * Missing B-3f3d APIs stay fail-closed; never stub-always-admit.
+ * Production inventory APIs are present; begin without a FINALIZED receipt
+ * stays fail-closed; never stub-always-admit.
  */
 
 import assert from 'node:assert/strict';
@@ -19,6 +20,7 @@ import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
+import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
@@ -125,13 +127,16 @@ try {
   beginFailed = true;
   beginOutput = error instanceof Error ? error.message : String(error);
 }
-assert.equal(beginFailed, true, 'begin must fail-closed when inventory APIs are absent');
+assert.equal(beginFailed, true, 'begin must fail-closed when no finalized inventory receipt exists');
 assertStatusSurface(beginOutput, 'BLOCKED');
 assert.match(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
-assert.match(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
+assert.doesNotMatch(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
 assert.match(beginOutput, /^Next: proof-or-stop review_inventory_finalize /m);
 assert.doesNotMatch(beginOutput, /^State: ADMITTED$/m);
-assert.equal(loadReviewInventoryAdmitApis(), null, 'this worktree must not stub inventory admit APIs');
+const productionApis = loadReviewInventoryAdmitApis();
+assert.ok(productionApis, 'production loader must return the real inventory admit APIs');
+assert.equal(typeof productionApis.finalizedUnconsumedReviewInventory, 'function');
+assert.equal(typeof productionApis.consumeReviewInventoryReceipt, 'function');
 
 const blockedStatus = handlers.certification_window_status({ storyId });
 assertStatusSurface(blockedStatus, 'BLOCKED');
@@ -774,7 +779,41 @@ assert.doesNotMatch(
 );
 
 setReviewInventoryAdmitApisForTest(undefined);
-assert.equal(loadReviewInventoryAdmitApis(), null, 'production loader must stay fail-closed after test override reset');
+const restoredApis = loadReviewInventoryAdmitApis();
+assert.ok(restoredApis, 'production loader is non-null after test override reset');
+assert.equal(typeof restoredApis.finalizedUnconsumedReviewInventory, 'function');
+assert.equal(typeof restoredApis.consumeReviewInventoryReceipt, 'function');
+
+const realInventoryRoot = makeGitRoot();
+const realInventoryStoryId = 'B-cw-real';
+const realInventoryStore = makeStore(realInventoryRoot, realInventoryStoryId);
+realInventoryStore.writeChecklist(realInventoryStoryId, { items: [] });
+const realInventoryHandlers = createReviewInventoryHandlers({
+  store: realInventoryStore,
+  root: realInventoryRoot,
+  scanRoot: join(realInventoryRoot, 'packages', 'main'),
+});
+const finalizedInventory = realInventoryHandlers.review_inventory_finalize({ storyId: realInventoryStoryId });
+assert.match(finalizedInventory, /^State: FINALIZED$/m);
+assert.match(finalizedInventory, /^headHash: /m);
+assert.match(finalizedInventory, /^materialHash: /m);
+assert.match(finalizedInventory, /^storyFilesHash: /m);
+assert.match(finalizedInventory, /authorizesTest: false/);
+const idempotentFinalize = realInventoryHandlers.review_inventory_finalize({ storyId: realInventoryStoryId });
+assert.match(idempotentFinalize, /^State: FINALIZED$/m);
+assert.equal(
+  realInventoryStore.readReviewInventoryEpochs(realInventoryStoryId).epochs.length,
+  1,
+  'finalize must be idempotent on the same cutoff',
+);
+const realAdmitHandlers = createCertificationWindowHandlers({
+  store: realInventoryStore,
+  root: realInventoryRoot,
+  scanRoot: join(realInventoryRoot, 'packages', 'main'),
+});
+const realAdmittedBegin = realAdmitHandlers.certification_window_begin({ storyId: realInventoryStoryId });
+assertStatusSurface(realAdmittedBegin, 'ADMITTED');
+assert.ok(realInventoryStore.readReviewInventoryEpochs(realInventoryStoryId).receipts[0]?.consumedAt);
 
 console.log('PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0');
 console.log(prematureDone);

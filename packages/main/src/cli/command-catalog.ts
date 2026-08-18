@@ -645,6 +645,9 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID'),
     reason: z.string().min(5).describe('Why the window is cancelled (at least 5 characters).'),
   }},
+  { name: 'review_inventory_finalize', description: 'Write a FINALIZED unconsumed inventory-completeness receipt bound to current head/material/storyFiles hashes; does not authorize PRE_CERT', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+  }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),

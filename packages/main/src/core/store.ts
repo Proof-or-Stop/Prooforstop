@@ -40,6 +40,11 @@ import {
   emptyCertificationWindowData,
   type CertificationWindowData,
 } from './certification-window.js';
+import {
+  REVIEW_INVENTORY_EPOCHS_FILE,
+  emptyReviewInventoryEpochData,
+  type ReviewInventoryEpochData,
+} from './review-inventory-epoch.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -874,6 +879,25 @@ export class StoryStore {
 
   writeCertificationWindows(storyId: string, data: CertificationWindowData): void {
     this.writeJson(storyId, CERTIFICATION_WINDOW_FILE, data);
+  }
+
+  readReviewInventoryEpochs(storyId: string): ReviewInventoryEpochData {
+    try {
+      const data = this.readJson<ReviewInventoryEpochData>(storyId, REVIEW_INVENTORY_EPOCHS_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyReviewInventoryEpochData().schemaVersion,
+        epochs: Array.isArray(data.epochs) ? data.epochs : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+        criticReceipts: Array.isArray(data.criticReceipts) ? data.criticReceipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyReviewInventoryEpochData();
+      throw e;
+    }
+  }
+
+  writeReviewInventoryEpochs(storyId: string, data: ReviewInventoryEpochData): void {
+    this.writeJson(storyId, REVIEW_INVENTORY_EPOCHS_FILE, data);
   }
 
   readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {
