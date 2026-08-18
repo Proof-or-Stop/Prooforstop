@@ -9,6 +9,7 @@
  */
 
 import assert from 'node:assert/strict';
+import { stateDirCandidates } from '../core/brand-paths.js';
 import childProcess, { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -219,10 +220,14 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     },
   };
   write(root, 'lattice.config.json', JSON.stringify(config, null, 2) + '\n');
+  // B-cc10 F-074: these ignore rules covered ONLY the deprecated state dir, but the runtime
+  // now writes activity / learning cache / locks under the CANONICAL one. The uncovered
+  // canonical cache file then read as untracked and blocked cleanTree ('DONE prepare:
+  // BLOCKED'). Both spellings are covered, derived from the resolver.
   write(root, '.gitignore', [
-    '.lattice/activity.jsonl',
-    '.lattice/learning/runtime-memory-pack-cache/',
-    '.lattice/locks/',
+    ...stateDirCandidates('activity.jsonl'),
+    ...stateDirCandidates('learning/runtime-memory-pack-cache').map((rel) => `${rel}/`),
+    ...stateDirCandidates('locks').map((rel) => `${rel}/`),
     '',
   ].join('\n'));
   write(root, 'README.md', '# done_prepare auto-closeout fixture\n');
