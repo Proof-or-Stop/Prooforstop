@@ -426,7 +426,7 @@
       "desc": "CHK-003:adversarial:0 verificationEvidence is stale relative to the current artifact. Its receipt (outputDigest 4d8ec0c2..., materialHash 85c0be5a...) was captured from signing-guard-mutation-proof-smoke.ts BEFORE the CHK-005:edge:0 assertion block (generated-token/host-adapter resolveSessionIdentity checks) was appended to the same file. Running the current binary now (node packages/main/dist/tasks/signing-guard-mutation-proof-smoke.js) prints 6 lines including generated-token requires:/host-adapter requires:, matching CHK-005:edge:0s recorded outputDigest e7161fde... exactly, but NOT CHK-003:adversarial:0s recorded digest. Current materialHash (40d432c9..., via currentMaterialHash) also differs from the recorded 85c0be5a.... The selector still matches so the gate would still accept it, but the receipt no longer describes what the file currently does end-to-end; per B-cdf6 evidence-freshness discipline this should be refreshed via verification_run the same way F-008 handled an analogous drift.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:58:29.046Z",
@@ -438,7 +438,11 @@
         "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts"
       ],
       "signatureTag": "missing|json|adversarial-verificationevidence-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct. CHK-003:adversarial:0's receipt was captured before the CHK-005:edge:0 assertions were appended to the same file, so the recorded outputDigest and materialHash no longer described the artifact. The selector still matched, so the gate accepted it mechanically while the receipt had drifted from what the test actually does -- exactly the F-008 pattern earlier in this story.\n\nRefreshed via verification_run against the current artifact, the same remedy used for F-008 and correctly not a re-pin.\n\nOn the reviewer's caveat about F-004: agreed that F-004's rationale leaned on the evidence chain being sound, and one link in that chain was stale. With F-022 refreshed the caveat is addressed, and I am leaving F-004 at accepted_risk rather than reversing it, since its substance -- a frozen userSees naming a smoke that fails on a pre-existing defect -- is unchanged and still unfixable by the executor.",
+      "resolvedAt": "2026-08-18T05:03:20.553Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
