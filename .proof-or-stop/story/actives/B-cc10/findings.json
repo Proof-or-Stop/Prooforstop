@@ -1306,7 +1306,7 @@
       "desc": "concept-cleanup: validation-protocol-smoke.ts is a LIVE smoke (discovered by run-all-smokes.ts filesystem scan, not skipped in smoke-manifest.json, not dead) that FAILS with an AssertionError on a clean HEAD 5433ef44bd build: node packages/main/dist/tasks/validation-protocol-smoke.js exits 1 with actual=undefined expected=INCOMPATIBLE. Root cause: this migration correctly moved managed-assets.ts core/managed-assets.ts line 937 from the pre-migration relPath .lattice-codex/settings.json (confirmed via git show main:packages/main/src/core/managed-assets.ts) to the resolver-derived PROOF_OR_STOP_ADAPTER_DIR/settings.json (i.e. .proof-or-stop-codex/settings.json), but the test fixture at validation-protocol-smoke.ts lines 1237-1250 was never updated: it still creates a directory at .lattice-codex/settings.json and looks up an item by relPath .lattice-codex/settings.json, which no longer matches any definition so item is undefined and the INCOMPATIBLE status assertion fails. This is a stale test left behind by CHK-007 otherwise-correct production migration, not a vacuous pass -- the test executes and genuinely fails -- but it is exactly the class of defect the migration seam review is meant to catch: production relPath moved to canonical, fixture assertion left pointing at the deprecated relPath.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T18:30:47.795Z",
@@ -1318,7 +1318,8 @@
         "packages/main/src/core/managed-assets.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-validation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T18:43:50.108Z"
     }
   ]
 }
