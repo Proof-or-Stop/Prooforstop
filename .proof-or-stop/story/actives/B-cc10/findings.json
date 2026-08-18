@@ -986,7 +986,7 @@
       "desc": "scripts/verify-lattice-residue.mjs:288 DOC_SCAN_ROOTS still lists the deleted `.lattice-codex/agents` directory instead of the canonical `.proof-or-stop-codex/agents`. CHK-003/CHK-006 moved this directory (confirmed: `.lattice-codex` no longer exists on disk; `.proof-or-stop-codex/agents` holds the live 17 role-prompt mirrors). `listScopeFiles()` runs `git ls-files -- .lattice-codex/agents`, which returns an EMPTY list for a nonexistent path, so `scanRoots()` silently scans ZERO files from that root and the [brand-prose] check reports PASS with no signal at all from host-adapter mirrors — the exact sabotage-that-misses class this scan root was added to prevent (per the comment at line ~266-268: these mirrors were previously missed for the same reason, sitting outside every scan root). If a stale `lattice <cmd>` line is regenerated into `.proof-or-stop-codex/agents/*.md` today, this gate will report PASS while a spawned Codex agent is fed the dead bin name verbatim.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T11:01:09.110Z",
@@ -997,7 +997,8 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|mjs|scripts-verify-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:11:09.069Z"
     },
     {
       "id": "B-cc10:F-055",
