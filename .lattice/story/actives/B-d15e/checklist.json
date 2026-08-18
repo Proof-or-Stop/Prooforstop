@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-18T17:25:55.430Z",
-      "endTime": null,
+      "endTime": "2026-08-18T17:26:43.580Z",
       "userSees": "The full-suite JSON result contains `\"performanceBudgetMs\": 1200000`, and `npm run test:full-suite-runner-smoke` prints `full-suite-runner-smoke: PASS`.",
       "excludes": [
         "Changing FULL_SUITE_BUDGET_MS or runtime budget enforcement",
@@ -34,6 +34,13 @@
         ],
         "edge": [],
         "adversarial": []
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0011005762281cbffb16c9f0731feec1249dd312a904c9ec973ddaec5440fdcf",
+        "storyFilesHash": "fd230e6f2bebee4399c30b32172ca24bc5615d46840ff15e53aec1e890e1a6e3",
+        "headHash": "92534bc237a6131311dc449afcfb6e43078b1671",
+        "attestedAt": "2026-08-18T17:26:43.794Z",
+        "materialHash": "0fb55e3fed351391267243f244998c000ae8e53738f7e7eb0e0d8f4457e0bfb9"
       }
     },
     {
@@ -86,6 +93,15 @@
       "reason": "PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title.",
       "addedTitle": "Add regression coverage for canonical full-suite budget telemetry",
       "addedContext": "The writer fix is one line and could silently regress to another numeric shadow copy. Extend full-suite-runner-smoke.ts with a focused assertion that requires performanceBudgetMs to reference FULL_SUITE_BUDGET_MS and rejects a numeric initializer."
+    },
+    {
+      "timestamp": "2026-08-18T17:26:43.580Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Production writer now uses the canonical budget constant and packages/main builds successfully."
     }
   ]
 }
