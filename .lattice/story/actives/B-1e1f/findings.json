@@ -173,7 +173,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts:623-631 CHK-003:no-child-on-retry-storm is a must adversarial intent (tight-loop retries of done_required_validate/validate --full without an admitted window still spawn zero heavy children across the storm). The smoke invokes each heavy entrypoint once and asserts the marker file is absent. Evidence note claims 'repeat refuse; zero heavy children' but there is no loop, no process-table sample across retries, and no assertion that a later retry cannot leak a child after the first refusal. medium",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:26:15.763Z",
@@ -185,7 +185,9 @@
         "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:23.442Z"
     }
   ]
 }
