@@ -241,11 +241,23 @@ Recorded here so it is a known, bounded residual with a stated reason, not an om
 
 ## Validate suite state at close (B-cc10)
 
-The rename broke **25 of 104** validate commands, and review then found **three more
-defects that the suite could not have counted** — guards that were passing VACUOUSLY
-(F-054, F-055, F-056: scan roots naming the renamed adapter dir, so they scanned zero files
-and reported PASS). Honest total: **28 rename-induced defects fixed**, of which 3 were
-invisible to the very suite used to measure the other 25. **All 28 are fixed.** Final state:
+The rename broke **25 of 104** validate commands. Review then found more, in two waves, and
+the count has been corrected twice because each wave arrived after the previous total was
+written — so treat any single number here as a floor, not a ceiling:
+
+| Wave | Count | Why the suite could not have counted them |
+|---|---|---|
+| Measured by validate | 25 | ordinary failures |
+| Vacuously-passing guards (F-054/F-055/F-056) | +3 | scan roots named the renamed adapter dir, so they scanned zero files and reported PASS |
+| Found after the "28" was written (F-057, F-061, the second CLAUDE.md/AGENTS.md destruction, the second `**/*.lock/` loss, F-062) | +5 | four were self-inflicted during repair, not rename fallout; one was a fix that was not durable |
+
+**Honest total: 33 validate-suite defects fixed**, of which 8 were invisible to the suite used
+to measure the first 25. **All 33 are fixed.**
+
+Do not confuse that 33 with the **63 reviewer findings** in this story's finding ledger (61
+resolved, 1 dismissed as a probe artifact, 3 of them critical). The two count different things:
+33 is defects that broke the validate suite; 63 is everything six reviewer rounds raised,
+including docs drift, dead code, and overclaims in this very file. Final state:
 `status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
 3 audited permanent waivers).
 
@@ -318,6 +330,34 @@ runtime had stopped reading.** Three sub-kinds, in ascending order of danger:
    **Write paths are the higher-impact subclass (F-046, F-051, and the `.gitignore` gap).** A
    stale READ fails loudly; a stale WRITE silently recreates the directory the migration
    removed. Three separate instances appeared in this story.
+
+5. **Self-inflicted during repair — an uncleaned test artifact committed via shared-worktree
+   `git add -A` (B-cc10 F-061, plus two doc destructions and two `**/*.lock/` losses).** Not
+   rename fallout at all; this class is what the *repair work itself* produced, and it did more
+   damage than any single rename defect.
+
+   A reviewer left `return false; // FAULT INJECTION` in `core/brand-paths.ts`'s
+   `isStateDirPath()` while fault-injecting that function to test a witness. A `git add -A` in
+   the shared worktree committed it to production source AND dist. Every consumer
+   (`artifact-release.ts`, `semantic-scope-gate.ts`, `handlers/done-prepare.ts`) silently lost
+   its state-dir branch: a gate that classifies nothing as a state-dir path stops protecting
+   story metadata. The same commit also gutted `CLAUDE.md` 1118→12 and `AGENTS.md` 598→12
+   (1,709 deletions in a commit whose message claimed `.gitignore` and one doc).
+
+   Three properties make this class worse than the rename classes above:
+   - **The blast radius is invisible in the commit message.** The stated scope and the staged
+     set diverged completely, and nothing checked them against each other.
+   - **HEAD-bound evidence cannot catch it.** `CHK-002`'s receipt was bound to an ANCESTOR of
+     the fault commit, so it certified a function that later regressed and nothing re-ran it.
+     A receipt proves only what was true at its binding.
+   - **Repairs can be non-durable.** `**/*.lock/` was "restored" twice by hand INSIDE a
+     generator-owned block, so `mergeLatticeRuntimeIgnores()` would have deleted it a third
+     time (F-062). The durable fix was to make the registry own the pattern.
+
+   Mitigations now applied: stage explicit paths and check the staged set against the commit's
+   claimed scope; after any structural edit to a generated file, verify the WHOLE rule set
+   rather than the lines you meant to touch; and prefer registry/generator ownership over
+   hand-edits inside generated regions.
 
 One case ran the other way: `red-1734-bootstrap-depfree` pinned the OLD brand string while
 production correctly printed the new one — **code right, test stale.** Its regex now accepts
