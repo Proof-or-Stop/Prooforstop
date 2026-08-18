@@ -35,7 +35,11 @@
           {
             "desc": "Positive control: a fully covered item still passes, so 'refuses everything' is ruled out",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+              "selector": "B45A5-ROW-A1=CONTROL-OK"
+            }
           }
         ],
         "adversarial": [
@@ -66,6 +70,26 @@
           "materialHash": "0c2490c923f274fd2558627b6df2550148ea7642463510a288c9d4fa3a5fae0c",
           "storyFilesHash": "93da6b994c90ad81e25229377dd5f64253fc9566161db3b7fbe50fbf478ceaac",
           "timestamp": "2026-08-18T22:41:51.884Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+          "command": "node packages/main/tests/red/red-b45a5-withdrawal-gates.mjs --attest",
+          "result": "pass",
+          "note": "Row A1 is the positive control: a fully covered, non-withdrawn fixture is demanded by neither gate (completeness reports no missing-evidence gap, channel reports ok). It rules out refuses-everything, without which the RED rows would be uninterpretable. A BROKEN A1 forces exit 2 and suppresses every B row to NOT-MEASURED, so the artifact cannot report a convenient conclusion over an unsound control.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c632b00adb50c61d628a4e44a236933361e3ae66a5a3bad08452281be35c4b83",
+            "outputTail": "=== B-45a5 CHK-001 — do the two REVIEW-path gates read an item-level withdrawal? ===\nmode=attest: exit 0 certifies the measurement RAN with sound controls, NOT that the tree is fixed.\n             the verdict is carried by the row markers below.\n\nB45A5-ROW-A1=CONTROL-OK\n  positive control: a fully covered, non-withdrawn fixture is accepted by both gates (rules out \"refuses everything\")\n    observed: completeness status=pass demanded=[] gapCodes=[]\n    observed: channel ok=true offenders=[]\nB45A5-ROW-A2=CONTROL-OK\n  negative control: a non-withdrawn item with genuinely missing evidence is still refused by both gates (rules out \"skips everything\")\n    observed: subject item=CHK-002 owns refs=[CHK-002:happy:0 INT-EXTRA-ALIAS]\n    observed: completeness status=fail demanded=[CHK-002:happy:0 INT-EXTRA-ALIAS]\n    observed: channel ok=false offenders=[CHK-002]\nB45A5-ROW-C1=CONTROL-OK\n  premise: the exported helper resolves the withdrawal from the DECISION RECORD, and the applier stamped the item with that same decision id\n    observed: helper resolved=[CHK-002] decision=confirmed/true itemStatus=withdrawn itemDecisionRef=SD-b1ff348a decisionId=SD-b1ff348a\nB45A5-ROW-C2=CONTROL-OK\n  premise: the withdrawn item shares a still-in-force acceptance binding with a delivered item, so no binding-level exclusion can account for the outcome\n    observed: sharedBinding=AB-002 refs=[CHK-001 CHK-002] inForce=[AB-001 AB-002] deliveredStatus=done\nB45A5-ROW-C3=CONTROL-OK\n  premise: the subject fixture and the negative control are identical once the authorized withdrawal is normalized away, so any verdict difference between them can only come from the withdrawal\n    observed: shapesEqual=true normalizedFields=[status decisionRef endTime] everything else compared byte-for-byte\nB45A5-ROW-C4=CONTROL-OK\n  guard: the withdrawn item is reported neither as covered nor as an owner exemption by the channel gate\n    observed: covered=[CHK-001] exempted=[] withdrawn=CHK-002\nB45A5-ROW-B1=RED\n  does the completeness gate still report review_completeness_missing_evidence for intents whose owning item a confirmed decision withdrew? RED = yes\n    observed: withdrawn item owns refs=[CHK-002:happy:0 INT-EXTRA-ALIAS] still demanded=[CHK-002:happy:0 INT-EXTRA-ALIAS]\n    observed: completeness status=fail blocking=true\n    observed: gap: review_completeness_missing_evidence: Verification intent CHK-002:happy:0 is bound to ProofStory acceptance or milestone coverage but lacks passing verification evidence.\n    observed: gap: review_completeness_missing_evidence: Verification intent INT-EXTRA-ALIAS is bound to ProofStory acceptance or milestone coverage but lacks passing verification evidence.\nB45A5-ROW-B2=RED\n  does the channel gate still report \"has no dispatch/subagent_result evidence\" for an item a confirmed decision withdrew? RED = yes\n    observed: channel ok=false offenders=[CHK-002]\n    observed: detail: Covered: CHK-001\n    observed: detail: channel gate fail: CHK-002 has no dispatch/subagent_result evidence\nB45A5-ROW-B3=RED\n  joint: do BOTH REVIEW-path gates ignore an item-level withdrawal authorized by a confirmed decision? RED = yes, GREEN = neither does, MIXED = only one learned about it\n    observed: derived from the two rows above; MIXED would mean only one gate learned about the withdrawal\n\nB45A5-VERDICT=RED\n  both gates demand delivery evidence for work a confirmed decision withdrew.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T22:42:00.216Z"
+          },
+          "headHash": "d4b1daaab561a117275b8f6ca8361102c9d1fa7c",
+          "materialHash": "0c2490c923f274fd2558627b6df2550148ea7642463510a288c9d4fa3a5fae0c",
+          "storyFilesHash": "93da6b994c90ad81e25229377dd5f64253fc9566161db3b7fbe50fbf478ceaac",
+          "timestamp": "2026-08-18T22:42:00.432Z"
         }
       ]
     },
