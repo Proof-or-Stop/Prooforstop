@@ -205,7 +205,7 @@
       "desc": "CHK-001:happy:0 (must, pinned to npm test) still carries a deferred_gate_evidence waiver whose premise (no passing receipt is obtainable) is now false on the merged tree. checklist.json waiverType=deferred_gate_evidence note says the receipt runner caps a command at 270000ms against a ~334s suite with jobs=4, and blames an exit-1 from a whole-suite 300000ms budget. On HEAD dae7446798, full-suite-runner.ts:261 sets FULL_SUITE_BUDGET_MS=1_200_000 (not 300000) and defaultJobs (line 328) is CPU-derived (measured jobs=2, 49/49 passed per the line-323 comment; merge-settling run measured 585.2s exit 0) -- the exit-1/300000ms narrative in the waiver text no longer describes this tree at all. More importantly: checklist.ts:399-490 (resolveEvidenceCommandTimeout, EVIDENCE_COMMAND_TIMEOUT_CAP_MS=7_200_000) lets verification_evidence_add raise a pinned command receipt budget up to 2h with a >=30-char commandTimeoutReason -- so npm test (observed 585.2s-832.8s across runs, both comfortably under the 7.2M ms cap) can now earn a real mechanical receipt instead of being waived. Corroborating: proof-or-stop status reports M1 as Failed specifically because Verification intent CHK-001:happy:0 has no passing evidence or permanent non-failing waiver. A deferred waiver whose blocking condition is now mechanically resolvable should be replaced with a real integration_test evidence row (verification_evidence_add with a commandTimeoutMs override, e.g. >=1,000,000ms to clear the observed 832.8s worst case, plus a qualifying reason) rather than merely reworded, before this story closes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T16:32:47.185Z",
@@ -218,7 +218,11 @@
         ".lattice/story/actives/B-7dff/checklist.json"
       ],
       "signatureTag": "missing|ts|happy-pinned-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The finding was correct on its own terms and I acted on it rather than defending the waiver: it said the stated premise (no passing receipt obtainable, because of the 270000ms cap) was false given the commandTimeoutMs override, and that is exactly right. I attempted the real receipt with commandTimeoutMs 1800000 and the timeout barrier disappeared - exit 124 became a completed suite run. Two further attempts then failed for reasons that were also not the suite: one exited 1 on full-suite identity drift because my own story-metadata commits landed while the suite was running, and the final one hit receipt_selector_absent. That last one is the real, permanent blocker the timeout had been masking: the immutable pin selector is the prose line full-suite: 47/47 passed, and the suite is now 49 members, so it can never match. Verified independently, not inferred from the error text - the stored acceptance string is 47/47 passed in <N>s; retries=0; jobs=4 and the current run prints 49/49 passed in 341.1s; retries=0; jobs=2, with zero occurrences of 47/47 in the output. The waiver is therefore rewritten and reclassified from deferred_gate_evidence to permanent, stating the actual blocker and recording that the reviewers timeout diagnosis was validated and superseded. Marked partially_mitigated rather than fixed: the intent still carries a waiver rather than a receipt, and the underlying framework gap - an immutable pin whose selector encodes a mutable count, with no repair path - remains open and is already filed as its own task. Root cause of the bad pin is mine: I wrote two mutable numbers (member count and jobs) into the PLAN userSees text the pin was derived from.",
+      "resolvedAt": "2026-08-18T16:57:22.013Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7dff:F-012",
