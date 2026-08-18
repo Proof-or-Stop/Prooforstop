@@ -265,6 +265,60 @@
         "scanEscalationReason": null
       },
       "_hash": "c1464c5e35eccc63cea052d4dcd7525e61e2bf1e3faa80d7a9ddc92f5513d77c"
+    },
+    {
+      "id": "B-1e1f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: high-risk B-1e1f has 31 must intents (5 items x happy/edge/adversarial) and 31 mechanical result=pass receipts, 0 waivers, 0 fail. CHK-001 status/BLOCKED/ADMITTED/tamper/inventory-not-PRE_CERT/registry covered by certification-window-smoke.ts plus process-fact-contract; CHK-002 admit/consume/inventory/main/findings/API-absent/whole-tree-drift covered by the same smoke; CHK-003 heavy bind/routine-outside/premature done_required+validate --full/retry-storm/handler-bypass covered by certification-window-heavy-choke-smoke.ts (imports smoke); CHK-004 source+test invalidate, metadata-only keep RUNNING, receipt hash freeze, no silent rebind, no main-write-lock/peer lock covered by certification-window-invalidation-smoke.ts; CHK-005 replay line premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0, second-admit-after-drift, and no quorum/lane weakening covered by certification-window-replay-smoke.ts. F-010..F-013 remediations still present (tests/app.test.ts + verifier/test identity drift, refuseHeavyCertificationUnlessAdmitted, no acquireMainWriteLock, main...HEAD excludes review-escalation/quorum-submit). This REVIEW round only retargeted relatedDocs CJK anchors to English; stale evidence materialHash with unchanged storyFilesHash is whole-tree drift, not a missing-coverage blocker.",
+      "createdAt": "2026-08-18T10:25:12.324Z",
+      "reviewRound": "2026-08-18T10:16:19.045Z",
+      "reviewRunId": "B-1e1f:RR-008",
+      "envelopeId": "dd29fbd9bac162314ac99c2d54d4eeb173ac51b51f40683856ff5e97d6258ac5",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "510e28147aeebe9e32adfc7a27e21288a9b615e90ce2aa7055d9866ec6287ce5",
+        "corpusDigest": "2be1059c625f4f40c6a2bcff2a34452cf19a4b1c73a3febf053437c6a45fd421"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7639ac7e56195a8842a66abcc38693af8594c26193266ed29e249c9f999c3371"
+      },
+      "readDiagnostics": [],
+      "_hash": "92fed87edb8dd483b473afa3e3018c1e03d46c4627a308afd62006c337de4c8d"
     }
   ]
 }
