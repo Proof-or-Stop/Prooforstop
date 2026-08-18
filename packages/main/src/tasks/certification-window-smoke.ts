@@ -701,9 +701,11 @@ const metadataStatus = replayWindowHandlers.certification_window_status({ storyI
 assertStatusSurface(metadataStatus, 'RUNNING');
 
 mkdirSync(join(replayRoot, 'src'), { recursive: true });
+mkdirSync(join(replayRoot, 'tests'), { recursive: true });
 writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
-git(replayRoot, ['add', 'src/app.ts']);
-git(replayRoot, ['commit', '-m', 'source change']);
+writeFileSync(join(replayRoot, 'tests', 'app.test.ts'), 'export const t = 1;\n');
+git(replayRoot, ['add', 'src/app.ts', 'tests/app.test.ts']);
+git(replayRoot, ['commit', '-m', 'source and test change']);
 const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(invalidatedStatus, 'INVALIDATED');
 assert.match(invalidatedStatus, /^Next: proof-or-stop story_advance .* --phase=REVIEW$/m);
@@ -744,6 +746,31 @@ const reviewerNames = computeActiveReviewers(
 assert.ok(
   ['concept', 'quality', 'test-coverage'].every(name => reviewerNames.includes(name)),
   `baseline reviewer lanes must remain present, got ${JSON.stringify(reviewerNames)}`,
+);
+
+const testIdentityDrift = detectCertificationWindowMaterialDrift(runningWindow!, {
+  materialHash: runningWindow!.frozen?.materialHash,
+  storyFilesHash: runningWindow!.frozen?.storyFilesHash,
+  verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+  testIdentity: 'mutated-test-suite',
+});
+assert.equal(testIdentityDrift.drifted, true, 'official test identity change must drift');
+
+const shippedRoot = process.cwd();
+const windowSource = readFileSync(join(shippedRoot, 'packages/main/src/core/certification-window.ts'), 'utf8');
+const handlerSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
+const verifierSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+assert.doesNotMatch(windowSource, /main-write-lock|acquireMainWriteLock/, 'CertificationWindow must not take the main write lock');
+assert.match(handlerSource, /refuseHeavyCertificationUnlessAdmitted/, 'done_required_validate must call the shared choke');
+assert.match(verifierSource, /refuseHeavyCertificationUnlessAdmitted/, 'validate --full must call the shared choke');
+const branchFiles = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
+  cwd: shippedRoot,
+  encoding: 'utf8',
+});
+assert.doesNotMatch(
+  branchFiles,
+  /review-escalation|three-round-two-host|quorum-submit\.ts|host-quorum/,
+  'this story must not weaken host-quorum or reviewer-lane policy files',
 );
 
 setReviewInventoryAdmitApisForTest(undefined);
