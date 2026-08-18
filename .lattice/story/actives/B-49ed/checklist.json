@@ -71,23 +71,22 @@
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/topology-signing-source-guard-smoke.ts",
           "command": "node packages/main/dist/tasks/topology-signing-source-guard-smoke.js",
           "result": "pass",
-          "note": "Assertion 3 counts deriveRoleProvenance call sites in handlers/proofstory.ts and requires every one to pass the real session source, so the scope-plan exclusion approver is bound alongside the critic; 2/2 confirms neither is left unbound.",
+          "note": "verification_run executed the pinned verifier for CHK-001:edge:0",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "fe818ee7113805e6930881de1c87ab61e5fec63eac4e0a00a7f77f7db98638c2",
-            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n",
+            "outputDigest": "88b4f50d8fb285081317d0a79b2e6d8ec7b4bfe58d5d666d0a62e3e530c26a2f",
+            "outputTail": "Topology signing source guard: PASS\n  refused (forgeable): explicit-env, derived-ppid\n  accepted (host-derived): host-adapter, generated-token\n  bound production call sites: 2/2\n  migrated fixture env resolves to: host-adapter\n  accepted sources complete provenance for: critic + exclusion approver\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-17T16:38:50.729Z",
+            "executedAt": "2026-08-18T04:06:36.327Z",
             "timeoutMs": 270000
           },
-          "headHash": "e2da15312c194bc4a094dd0da727a1128bd891e2",
-          "materialHash": "064268f7aab7760527c5e281126f9a209c07e3350efacaece81b7e6fdad4ad78",
-          "storyFilesHash": "f36b54e08ae9391b44a0bec1f652250fc2a63be0e3a4838dc8b9f514e64b9f87",
-          "timestamp": "2026-08-17T16:38:50.885Z"
+          "headHash": "79c9d2294fba019d08f8c0c485b9accbd9162cd1",
+          "materialHash": "e2331f8eb9b18efd707f83c465ba3bbcd41c5dedbbd62f99d1d9feb3739cf99a",
+          "storyFilesHash": "8565c7a0a75ca4fa287908d5777b5d56a5c712360e0575c2565c3783f1812076",
+          "timestamp": "2026-08-18T04:06:36.474Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
