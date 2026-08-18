@@ -267,6 +267,43 @@
         "scanEscalationReason": null
       },
       "_hash": "f2bd7707f384914f2f041c4e02c7b645560e4415b4204e24dcfd6b35b4703618"
+    },
+    {
+      "id": "B-7dff:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check after 787-commit merge from main (fed447f784). Verified no residue of dropped member budgets, no orphaned byte-identity-pin helpers, no dangling lattice.config.json claims, no orphaned symbols this story introduced, and parsed command identity preserved across the string-to-object conversion (110/97/13, 0 mismatches on 105 shared entries). tsc clean, live test run confirms exact figures. No blocker.",
+      "createdAt": "2026-08-18T16:32:02.174Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-023",
+      "envelopeId": "2042cad0d4209b84b659b8acf5fe3cb8b76e5783ecc58d174eb6a500e285a110",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validate-parallel-benchmark.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58dac97e1e0fae71a48170ff19ed58dd0c87018e09edf288d57210e059140170"
     }
   ]
 }
