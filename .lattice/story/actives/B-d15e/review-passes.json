@@ -35,6 +35,41 @@
       },
       "readDiagnostics": [],
       "_hash": "c3d78e0ce7c5145d748165c879d6bc87b6d037c7eebc906a4534bdd568b32ed2"
+    },
+    {
+      "id": "B-d15e:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed both checklist items and the integrated diff. The result artifact now derives performanceBudgetMs from FULL_SUITE_BUDGET_MS; the focused source mutation rejects the former numeric shadow copy. Full build and the 153-assertion full-suite-runner smoke pass. No dead code, unsafe casts, swallowed errors, I/O isolation defect, applicable dual-surface proof-metadata gap, or new doc promise drift was found. The required plan.md file is absent, so no plan content was claimed as read.",
+      "createdAt": "2026-08-18T17:40:39.016Z",
+      "reviewRound": "2026-08-18T17:36:43.661Z",
+      "reviewRunId": "B-d15e:RR-001",
+      "envelopeId": "137a720371640eff8cdb808d02d65d57814d21cfda8f954695a93329abc09e58",
+      "writerSessionId": "sess-e422c31af2cdbe08e6fb7af447f6b693",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d15e/background.md",
+          ".lattice/story/actives/B-d15e/checklist.json",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5bb7b9cc04b62f1660998eb61247ec23cdcf4a03e4e7da8ab153283220be83d6"
+      },
+      "readDiagnostics": [],
+      "_hash": "55044d2076be82ddd3307f5e6894c6989dae69404ee0167eeac7a002f95fd4ed"
     }
   ]
 }
