@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1e1f",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "node bin/proof-or-stop.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test",
+    "npx tsc --noEmit"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/templates",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "U-01b CertificationWindow implementation: CLI/core/handlers/registry/docs only. Do not mutate other stories or push remotes.",
+  "createdAt": "2026-08-18T06:42:10.095Z",
+  "updatedAt": "2026-08-18T06:42:10.095Z",
+  "_hash": "318d3f3ee515107b7c1aecc02c811512009594ab004033dc3a2a6c02c85c5ca3"
+}
