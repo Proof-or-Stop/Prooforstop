@@ -170,6 +170,25 @@
       "_hash": "3b407bc0645357d0abb5728bb2b7f9c45baa8e14ef6127e94ffeb9db0cdef244",
       "signatureTag": "missing|unknown|concept-cleanup-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-011",
+      "desc": "doc-code-drift: CLAUDE.md managed block (committed at ad5dc15253) hardcodes the literal `.lattice-codex/` path (\"Codex assets live separately under `.lattice-codex/`\") even though its own generation template packages/main/src/init-assets.ts:76 (CLAUDE_MD_TEMPLATE) correctly interpolates `${PROOF_OR_STOP_ADAPTER_DIR}` = `.proof-or-stop-codex` (brand-paths.ts:85). The materialized file was not regenerated from the current template after this story renamed the adapter dir. Mechanically confirmed: `node bin/proof-or-stop.js check` reports `STALE_SAFE CLAUDE.md: Proof-or-Stop managed section differs from template` right now on this worktree. Fix: run `proof-or-stop check --apply` (or hand-sync) so the committed CLAUDE.md matches the current template output.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T03:46:15.437Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-017",
+      "_hash": "ced40ed30cb04ce61c88234f0815910afc8006ceed8fe9e8e2faae095d92e694",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
