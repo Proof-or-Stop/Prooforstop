@@ -32,7 +32,7 @@ import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { loadConfig } from './config.js';
-import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
+import { LEGACY_DOCS_STORY_DIR, PROOF_OR_STOP_STORY_DIR_NAMES, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 import type { PromptEnvelopeData } from './prompt-contracts.js';
 
@@ -61,8 +61,16 @@ export class StoryStore {
     this.projectRootValue = projectRoot;
     this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = join(projectRoot, config.storyDir);
+    // B-cc10 F-006 (critical): the read-both fallback must include EVERY accepted
+    // state-dir spelling, not just the older docs/ migration. PROOF_OR_STOP_STORY_DIR_NAMES
+    // is the canonical read-side list (it already gates hash exclusion in
+    // evidence-freshness.ts) but was never wired into discovery here, so a story
+    // directory merged in under the deprecated `.lattice/` spelling was invisible:
+    // story_get returned {"story": null} at exit 0 while the files sat on disk.
+    // Writes are unaffected — they still go only to the configured canonical dir.
     this.legacyBaseDirs = uniqueRelPaths([
       LEGACY_DOCS_STORY_DIR,
+      ...PROOF_OR_STOP_STORY_DIR_NAMES,
     ])
       .filter((rel) => rel !== this.storyDirRelValue)
       .map((rel) => join(projectRoot, rel));

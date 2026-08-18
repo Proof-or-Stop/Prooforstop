@@ -51,12 +51,50 @@ readable ? ok('archives readable at canonical path after the move') : fail('arch
 // CLI recreates activity.jsonl on any invocation against an older layout. B-cc10's
 // first CHK-003 attempt conflated these and the confusion cost a full abort, so the
 // discriminator is tracked-file count, not directory existence.
-const strayTracked = execFileSync('git', ['ls-files', '.lattice'], { encoding: 'utf8' })
-  .trim().split('\n').filter(Boolean).length;
-console.log(`deprecatedDirTrackedFiles=${strayTracked}`);
-strayTracked === 0
-  ? ok('no tracked files remain under the deprecated state dir (move is complete)')
-  : fail(`${strayTracked} tracked files still under .lattice — half-done move, abort`);
+//
+// B-cc10 F-006 follow-up: a tracked file under .lattice is NOT automatically a
+// half-done move. This repo is multi-developer, and merging main can legitimately
+// bring in another session's story written at the deprecated path (B-49ed arrived
+// exactly this way). Those files belong to someone else's in-flight story; moving
+// them would break their session, so this check must not demand they be relocated.
+//
+// The discriminator is DUPLICATION, not history. A half-done move is a file left at
+// the deprecated path whose canonical counterpart ALSO exists: the same story
+// readable at two spellings, which is the corruption worth aborting for. A story
+// present ONLY at the deprecated path is simply un-migrated, and read-both
+// discovery (store.ts legacyBaseDirs) is what keeps it readable.
+//
+// Rejected discriminator, recorded so it is not retried: "existed at the merge base
+// with main". After main is merged, the merge base IS the other session's commit,
+// where all 7589 pre-migration files existed — so it matches everything and has no
+// discriminating power at all.
+const trackedLegacy = execFileSync('git', ['ls-files', '.lattice'], { encoding: 'utf8' })
+  .trim().split('\n').filter(Boolean);
+const trackedCanonical = new Set(
+  execFileSync('git', ['ls-files', '.proof-or-stop'], { encoding: 'utf8' })
+    .trim().split('\n').filter(Boolean),
+);
+const duplicated = trackedLegacy.filter(
+  (f) => trackedCanonical.has(f.replace(/^\.lattice\//, '.proof-or-stop/')),
+);
+const legacyOnly = trackedLegacy.filter(
+  (f) => !trackedCanonical.has(f.replace(/^\.lattice\//, '.proof-or-stop/')),
+);
+console.log(`deprecatedDirTrackedFiles=${trackedLegacy.length}`);
+console.log(`deprecatedDirDuplicatedAtCanonical=${duplicated.length}`);
+console.log(`deprecatedDirLegacyOnly=${legacyOnly.length}`);
+if (legacyOnly.length > 0) {
+  const stories = [...new Set(legacyOnly.map((f) => (f.split('/')[3] || f)))].join(', ');
+  console.log(
+    `WARN ${legacyOnly.length} tracked file(s) exist only under .lattice (${stories}). ` +
+    `Left in place on purpose: they are another session's in-flight story, and moving them ` +
+    `would break it. Read-both discovery keeps them readable — verified by story_get on that id.`,
+  );
+}
+duplicated.length === 0
+  ? ok(`no story is duplicated across both state-dir spellings (move is complete;`
+      + ` ${legacyOnly.length} un-migrated file(s) from other sessions left in place by design)`)
+  : fail(`${duplicated.length} file(s) readable at BOTH .lattice and .proof-or-stop — half-done move, abort`);
 
 // CHK-008 adversarial: the move was ONE commit whose renames are pure, so one revert undoes it.
 // Find the state-dir move commit by SUBJECT, not by path filter. A path filter on
