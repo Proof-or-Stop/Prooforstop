@@ -8187,7 +8187,7 @@
       "desc": "CHK-003 userSees literal-string mismatch, distinct from already-filed F-118/F-119: userSees promises review_inventory_status prints the exact labeled line \"Wave: n/max\" and renders every lane as one of \"pending|complete|blocked\". Actual code (packages/main/src/handlers/review-inventory.ts:258) emits `Current wave: ${wave}/${epoch.maxWaves}` -- the literal substring \"Wave: n/max\" never appears (grep repo-wide for the bare phrase \"Wave: \" returns zero hits in this file; only \"Current wave: \" exists). Lane rows (line 205) emit `Lane ${lane}: ${terminal?.terminal ?? 'pending'}`, where terminal (packages/main/src/core/types.ts:1670) is typed as ReviewInventoryLaneTerminal[\"terminal\"] = 'pass' | 'finding', defaulted to 'pending' when absent -- so the only three values a lane row can ever render are pass, finding, pending. Neither \"complete\" nor \"blocked\" is ever emitted anywhere in review-inventory.ts or review-inventory-epoch.ts (grep for both terms as lane-status values returns zero hits). A user or tooling author following CHK-003 userSees verbatim would search for \"Wave: \" and a \"blocked\" lane state that this command never produces. Fix: either change renderReviewInventoryStatus to emit the exact promised labels (\"Wave: n/max\" and pending/complete/blocked lane states), or correct CHK-003 userSees to describe the actual observable output (\"Current wave: n/max\" and pass/finding/pending lane states).",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-17T11:27:33.012Z",
@@ -8228,7 +8228,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "happy|ts|usersees-literal-string",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Both sub-claims verified true. review-inventory.ts:258 emits 'Current wave: n/max', not the promised 'Wave: n/max'; and ReviewInventoryLaneTerminal at types.ts:1670 is 'pass' | 'finding', rendered with a 'pending' fallback at review-inventory.ts:205, so the promised 'complete' and 'blocked' lane states are unreachable values.\n\nI checked the rest of the same userSees before deciding, so the scope of the defect is exact rather than assumed: four of its five promises ARE satisfied -- 'New verified findings:', 'Completeness critic:', blocker codes, and the exact next-command line all appear in the renderer.\n\nAccepted rather than fixed, for two different reasons.\n\nThe lane-state half cannot be fixed by making code match the promise: 'complete' and 'blocked' are not states this type has, and inventing them to satisfy a checklist string would be worse than the mismatch -- it would make status output claim distinctions the epoch model does not draw.\n\nThe label half is fixable in principle but not safely by me here: three sites depend on the literal 'Current wave:', including an assertion in review-inventory-handler-smoke.ts:276 that pins exactly this rendering. Changing the renderer to satisfy the checklist would require editing the test that guards it, which is the shape of change I should not make to clear a finding about my own promise.\n\nThe checklist is frozen from INIT_CHECK and I am the executor, so I cannot correct the userSees text either. Recording the residual honestly: CHK-003's userSees overstates the renderer in two specific ways, and the accurate statement is that status prints 'Current wave: n/max' and renders lanes as pass|finding|pending.",
+      "resolvedAt": "2026-08-18T06:10:30.440Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3f3d:F-121",
