@@ -1806,6 +1806,36 @@
         "scanEscalationReason": null
       },
       "_hash": "4d824e40ee731f9ea12fc1f7769a49da158f20cd9a6d47114c28f9c57450d964"
+    },
+    {
+      "id": "B-9ff1:RP-058",
+      "agent": "lattice-review-behavior",
+      "note": "Re-review after RP-055 (B-9ff1:RP-055, committed 548908b753): only .lattice metadata changed since then (F-070/F-071/F-072 filed+resolved, a dev-memory entry, a 13th evidence re-bind); no source diff. (1) red_evidence_envelope_check against {acceptanceTargetRef:AB-001,matchers:[]} still names the fix location and emits red_evidence_policy_missing: pinnedPath verbatim. (2) red-w2d-specificity-conjunction.mjs exit 0, F-058/F-060 characterization rows unchanged: SIGSEGV len=7 bits=15.65 REJECT, ENOMEM len=6 bits=11.51 REJECT, HTTP 404 len=8 bits=20.00 REJECT, Error 500 len=9 bits=21.77 REJECT, test failed len=11 bits=34.05 ADMIT. (3) THE JUDGEMENT: diffed committed summary.json at commit 548908b753 (the commit that recorded RP-055) against current HEAD summary.json -- byte-identical (diff empty). limitations field still carries the inversion framing, all four measured REJECT pairs plus test-failed ADMIT, the ENOMEM non-tunable 12-bit hard-floor sentence, and This is NOT a soundness break ... but it is a real usability limit / ships-unfixed framing. No erosion across the intervening correction rounds. (4) red-w2d-rejection-matrix.mjs, red-w2d-command-readonly.mjs, red-w2d-assertion-digest-scope.mjs, red-w2d-entropy-differential.mjs and dist/tasks/red-evidence-envelope-smoke.js all exit 0. findings.json: 72 total, 71 resolved + 1 dismissed, zero open. git rev-list --count HEAD..main == 0. git status --porcelain empty (post metadata-commit by concurrent lane). (5) review-runs.json had no lattice-review-behavior run bound to current head 4372adb84f2261f12023d61dd6787b1141f2f08a before this round (latest prior behavior run RR-087 was bound to an older head 43963a2646...); started fresh run RR-092 bound to 4372adb, which remains the code head through HEAD (only .lattice metadata commits follow it).",
+      "createdAt": "2026-08-18T21:19:29.512Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-092",
+      "envelopeId": "3c913284575c4ff90bc1520df796b757bd7118d780a4518fd032adb49103d76c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48b1a39e2f0eea9cd4598109255cf1c68ec2e64f3aebb3dd808f106ffb4da6e0"
     }
   ]
 }
