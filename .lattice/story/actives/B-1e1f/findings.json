@@ -25,7 +25,7 @@
       "desc": "quality-fail-closed: packages/main/src/core/certification-window.ts:266 windowAuthorizesHeavyCertification(window, null) returns Boolean(window.receiptId). loadVerifiedCertificationWindow:653-654 only verifies a receipt when one is found, so deleting receipts[] from certification-window.json while leaving a signed ADMITTED window+receiptId still authorizes done_required_validate / validate --full. A missing PRE_CERT receipt must fail closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T09:22:58.024Z",
@@ -36,7 +36,9 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|quality-fail-closed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
+      "resolvedAt": "2026-08-18T09:33:13.319Z"
     },
     {
       "id": "B-1e1f:F-003",
