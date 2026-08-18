@@ -282,7 +282,7 @@
       "desc": "CHK-002:missing-b3f3d-api-fail-closed lacks a mechanical receipt after refresh. packages/main/src/tasks/certification-window-smoke.ts:133 now asserts the default begin does NOT emit [pre_cert_inventory_api_absent]; the remaining inventoryApisPresent=false check at :334-337 is never printed; console.log at :818-826 therefore cannot satisfy the pinned selector. verification_evidence_refresh_stale demoted this must intent to a non-mechanical attestation on ae72c4c. WHY: after the production loader became non-null, the executable pin no longer proves the absent-API fail-closed path. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T12:17:27.920Z",
@@ -315,7 +315,11 @@
         "packages/main/src/core/review-inventory-epoch.ts"
       ],
       "signatureTag": "missing|ts|missing-b3f3d-fail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "certification-window-smoke now has a dedicated setReviewInventoryAdmitApisForTest(null) begin path that prints [pre_cert_inventory_api_absent] and refuses ADMITTED. Default begin with APIs present and no finalized receipt still fail-closes as [pre_cert_inventory_not_finalized]. Refresh rematerialized CHK-002:missing-b3f3d-api-fail-closed.",
+      "resolvedAt": "2026-08-18T12:26:48.195Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
