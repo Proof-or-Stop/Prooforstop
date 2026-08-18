@@ -44,7 +44,7 @@ import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
 import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
-import { STATE_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
+import { STATE_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -1724,7 +1724,7 @@ try {
       fixture.registry.get('quorum_submit')!(quorumArgs());
       const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
       const beforeEvents = hostVerdictEventCount(fixture.store);
-      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      rmSync(join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
       assert.throws(
         () => fixture.registry.get('quorum_submit')!(quorumArgs()),
         /quorum_submit refuses: verdicts already exist for runId/,
@@ -2164,7 +2164,7 @@ try {
       const handler = createQuorumSubmitHandlers(fixture.ctx, {
         afterVerdictWrite: ({ verdictId, emittedCount }) => {
           if (emittedCount !== 6) return;
-          changedPath = join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID, `${verdictId}.json`);
+          changedPath = join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID, `${verdictId}.json`);
           const value = JSON.parse(readFileSync(changedPath, 'utf8')) as Record<string, unknown>;
           value.note = 'foreign concurrent replacement with same verdictId';
           changedBytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
@@ -3095,7 +3095,7 @@ try {
       git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'a tracked file the traversal would destroy']);
       const target = join(fixture.root, 'evidence-target.json');
       const targetBytes = readFileSync(target);
-      const verdictDir = join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID);
+      const verdictDir = join(fixture.root, PROOF_OR_STOP_STATE_DIR, 'autopilot-verdicts', STORY_ID);
       // The crafted id resolves to <root>/evidence-target.json from inside the verdict cache dir.
       const craftedVerdictId = '../../../evidence-target';
       const targetRunId = `${STORY_ID}-q-r1`;

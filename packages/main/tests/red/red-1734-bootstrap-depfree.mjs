@@ -180,7 +180,10 @@ async function main() {
         `fresh-checkout bootstrap must NOT crash on proper-lockfile at module-init:\n${res.out.slice(0, 600)}`,
       );
       assert.ok(
-        /lattice local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
+        // B-cc10: bin/bootstrap-runner.js now prints 'proof-or-stop local bootstrap is not
+        // ready'. Accept either brand so this assertion holds on pre- and post-rename trees
+        // rather than pinning one spelling and silently failing after a rename.
+        /(?:proof-or-stop|lattice) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
         `fresh-checkout bootstrap must print the recovery hint:\n${res.out.slice(0, 600)}`,
       );
       console.log('VI-OK C3:depfree:2');
