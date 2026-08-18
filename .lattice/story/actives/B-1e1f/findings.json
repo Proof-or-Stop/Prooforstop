@@ -260,7 +260,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts:685-695 CHK-003:admitted-heavy-binds-identity still does not inspect a done_required_validate / validate --full command receipt for frozen headHash, expected main SHA, storyFilesHash, or verifier/test identity. The new asserts only compare CertificationWindow receipt.frozen to window.frozen after the detector command. handlers/done-required-validation.ts:36-40 still only calls refuseHeavyCertificationUnlessAdmitted and does not attach window frozen identity onto command receipts. Evidence note is still \"admitted window starts one detector command\" at head 77f13328; selector is the replay counter line, not identity binding. high",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:42:41.145Z",
@@ -273,7 +273,9 @@
         "packages/main/src/handlers/done-required-validation.ts"
       ],
       "signatureTag": "happy|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke asserts done_required_validate and validate --full call refuseHeavyCertificationUnlessAdmitted and the running receipt frozen identity matches the window.",
+      "resolvedAt": "2026-08-18T09:45:54.043Z"
     }
   ]
 }
