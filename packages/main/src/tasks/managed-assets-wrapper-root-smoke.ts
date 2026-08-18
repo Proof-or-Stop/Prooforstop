@@ -31,6 +31,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { renderManagedAssetCheck } from '../core/managed-assets.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cliPath = join(packageRoot, 'dist', 'cli.js');
@@ -93,14 +94,16 @@ try {
   assert.equal(noGitRootJson.pathsRelativeTo, 'assetRoot', 'no-gitRoot JSON pathsRelativeTo');
   assert.equal(noGitRootJson.assetRootGitRootSplit, false, 'no-gitRoot JSON split flag');
 
-  const configPath = join(metadataRoot, 'lattice.config.json');
-  const config = readJson(metadataRoot, 'lattice.config.json');
+  // B-cc10: this fixture invokes the REAL built `init`, which now writes only the canonical
+  // config filename and state dir. Reading the deprecated names made it crash with ENOENT.
+  const configPath = join(metadataRoot, PROOF_OR_STOP_CONFIG_FILENAME);
+  const config = readJson(metadataRoot, PROOF_OR_STOP_CONFIG_FILENAME);
   writeFileSync(configPath, `${JSON.stringify({ ...config, gitRoot: 'repo' }, null, 2)}\n`);
 
-  rmSync(join(metadataRoot, '.lattice', 'Lattice.md'), { force: true });
-  mkdirSync(join(gitRoot, '.lattice'), { recursive: true });
+  rmSync(join(metadataRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), { force: true });
+  mkdirSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR), { recursive: true });
   const gitRootSentinel = 'git-root sentinel: managed assets must not write here\n';
-  writeFileSync(join(gitRoot, '.lattice', 'Lattice.md'), gitRootSentinel);
+  writeFileSync(join(gitRoot, PROOF_OR_STOP_STATE_DIR, 'Lattice.md'), gitRootSentinel);
 
   const canonicalGitRoot = realpathSync(gitRoot);
   const checkJson = JSON.parse(runCli(metadataRoot, ['check', '--json']));
@@ -111,7 +114,9 @@ try {
   assert.equal(checkJson.gitRoot, canonicalGitRoot, 'JSON gitRoot');
   assert.equal(checkJson.pathsRelativeTo, 'assetRoot', 'JSON pathsRelativeTo');
   assert.equal(checkJson.assetRootGitRootSplit, true, 'JSON assetRoot/gitRoot split flag');
-  assert.equal(checkJson.manifestPath, '.lattice/managed-assets.json', 'manifestPath remains assetRoot-relative');
+  // B-cc10: MANIFEST_REL_PATH now derives from PROOF_OR_STOP_STATE_DIR (fixed earlier in this
+  // story); assert the canonical path rather than the pre-rename literal.
+  assert.equal(checkJson.manifestPath, PROOF_OR_STOP_STATE_DIR + '/managed-assets.json', 'manifestPath remains assetRoot-relative');
   assert.ok(
     checkJson.items.some((item: any) => item.relPath === '.lattice/Lattice.md' && item.status === 'MISSING'),
     'check should evaluate relPath under metadataRoot/assetRoot, not gitRoot',

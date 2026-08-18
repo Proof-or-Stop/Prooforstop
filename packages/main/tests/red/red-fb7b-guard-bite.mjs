@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start) {
   let dir = start;
-  while (!existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
   return dir;
 }
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
