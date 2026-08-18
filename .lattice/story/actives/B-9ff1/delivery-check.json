@@ -1,0 +1,80 @@
+{
+  "storyId": "B-9ff1",
+  "checkedAt": "2026-08-18T20:18:19.990Z",
+  "headHash": "e1e9b2d9955fad43db3030a210cfc630f912e853",
+  "materialHash": "2bf646f2e766f93b41de037c6fbdc733aac338c9b8c2031352cd1ad0f5f82b42",
+  "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+  "reviewRound": "2026-08-14T03:33:29.693Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "B-9ff1:summary.actualTranscript / packages/main/src/handlers/red-evidence.ts",
+      "promise": "red_evidence_envelope_check is genuinely read-only, proven mechanically (not asserted) via a positive git-only spawn allowlist and a .lattice content-hash manifest byte-identical before and after a batch of direct handler invocations",
+      "verifiedBy": "execution: node packages/main/tests/red/red-w2d-command-readonly.mjs",
+      "evidence": "Exit 0. The test installs a child_process recorder before dist import, snapshots .lattice/ via per-file SHA-256 before/after 8 direct handler invocations (assert.equal(snapshotLattice(), before)), and asserts the observed spawn shapes deepEqual exactly [execFileSync git rev-parse, execFileSync git worktree, execSync git rev-parse, spawnSync git rev-parse, spawnSync git show] with an explicit negative control (spawns.length>0) and an explicit non-runner/harness/shell blocklist assertion. Also confirms MAIN_TOOLS/command-policy(readOnly,none)/PROCESS_FACT_LEVELS(L0)/READ_ONLY_COMMANDS registration and runs the validate-pipeline entry through the real configuredValidationCommands+runValidationCommand path. Verdict is honestly scoped in its own header comment (does not claim CLI-wrapper or activity-log coverage)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md section 1.3 (pre-existing spec, not modified by this diff)",
+      "promise": "The section 1.3 rule-2 specificity rule is a length AND entropy CONJUNCTION (not a disjunction), with a characterization block pinning SIGSEGV/ENOMEM/HTTP 404/Error 500 as REJECTED and the vaguer \"test failed\" as ADMITTED",
+      "verifiedBy": "execution: node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+      "evidence": "Exit 0. Differential table asserts impl.rule2 === row.and (never row.or) on 14 rows built to satisfy exactly one floor, 10+ of which differ AND-vs-OR. Characterization block printed: SIGSEGV len=7 bits=15.65 REJECT; ENOMEM len=6 bits=11.51 REJECT; HTTP 404 len=8 bits=20.00 REJECT; Error 500 len=9 bits=21.77 REJECT; test failed len=11 bits=34.05 ADMIT -- matches the summary claim verbatim, with measured (not hand-typed) bits."
+    },
+    {
+      "docPath": "lattice.config.json validate.commands",
+      "promise": "All five red-w2d-*.mjs RED harnesses plus the red-evidence-envelope-smoke task are registered in the standing validate.commands suite, each exactly once, and all pass",
+      "verifiedBy": "JSON.parse of lattice.config.json + direct execution of all six",
+      "evidence": "Each of red-w2d-rejection-matrix.mjs, red-w2d-specificity-conjunction.mjs, red-w2d-command-readonly.mjs, red-w2d-assertion-digest-scope.mjs, red-w2d-entropy-differential.mjs, and packages/main/dist/tasks/red-evidence-envelope-smoke.js appears exactly once in validate.commands (count=1 for all six, confirmed by grep of the parsed JSON). All six exit 0 when run directly."
+    },
+    {
+      "docPath": "B-9ff1:summary.limitations",
+      "promise": "The specificity metric is inverted on short real-world constants and ships that way; ENOMEM can never be pinned under any policy because the 12-bit entropy floor is non-tunable; the spec and code disagree in three places about matcher-value bounds (section 1.1.1 scopes to literal-line, section 1.6 R1-3 bounds any matcher value, section 1.2 restates it unqualified) and this is NOT claimed resolved",
+      "verifiedBy": "code + spec inspection",
+      "evidence": "packages/main/src/core/red-evidence/registries.ts HARD_FLOORS.minMatcherEntropyBitsMin=12 (non-tunable per comment: hard spec-level floors/caps, policy may not cross them), and ENOMEM measures 11.51 bits which is below 12, so no policy can raise it above the hard floor. docs/requirements/decisions/red-evidence-subsystem-spec.md line 184 scopes the byte-length bound to literal-line values; line 293 (section 1.2 table) restates max bytes per matcher value unqualified; lines 499-501 (section 1.6 R1-3) bound any matcher value. packages/main/src/core/red-evidence/envelope.ts lines 70-78 document that the code implements the section 1.1.1 (literal-line-only) reading and flag the disagreement as open, matching the summary admission verbatim. No resolved/complete language found anywhere in the summary for these three items; each is explicitly deferred to B-595c."
+    },
+    {
+      "docPath": "B-9ff1:summary.outcomeDiff",
+      "promise": "Five proven defects are deferred to real owner stories rather than fixed in place: B-595c (four spec defects, F-050/F-051/F-052/F-054/F-058) and B-3654 (a read-only command that writes an activity-log row, F-014), both created only after F-064 established that five prior resolution records had falsely claimed filed as follow-up",
+      "verifiedBy": "node bin/lattice.js story_list and story_get --storyId=... --detail from /Users/jek/Documents/Work/proofbound",
+      "evidence": "Both B-595c and B-3654 exist (phase INIT) and depend on B-9ff1. B-595c index.source = B-9ff1 closing review: F-050, F-051, F-052, F-054, F-058 deferred; F-064 established no follow-up artifact existed. B-3654 index.source = B-9ff1:F-014 (empirical, post-merge); homed after B-9ff1:F-064 found no follow-up artifact existed. Checklist contexts in both stories independently corroborate the specific defect content (three-way bounds contradiction, candidate-envelope schema gap, specificity inversion citing the same SIGSEGV/ENOMEM/HTTP 404/Error 500 vs test failed example, exit-class canonical form, and the activity-log write via cli-engine.ts writeLog/shouldWriteActivityLog)."
+    },
+    {
+      "docPath": "B-9ff1:summary.outcomeDiff / packages/main/src/core/proofstory.ts",
+      "promise": "This story does NOT retire the v1 surface: red_evidence_create and redEvidenceRecordSatisfied are untouched, packages/main/src/core/proofstory.ts has zero diff from the merge base, and command-catalog still lists red_evidence_create with no superseded language",
+      "verifiedBy": "git diff main...HEAD -- packages/main/src/core/proofstory.ts; grep of command-catalog.ts",
+      "evidence": "git diff line count for proofstory.ts is 0 (no changes). command-catalog.ts line 2766 still declares red_evidence_create unchanged with description Record ProofStory red evidence for a triggered pre-fix failure, and carries no superseded/retired/deprecated marker; the new red_evidence_envelope_check entry at line 3314 is additive."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-012",
+      "transcript": "red-w2d-command-readonly.mjs, exit 0: covers registration (MAIN_TOOLS/command-policy/process-fact L0/READ_ONLY_COMMANDS/registered handler), the ADMISSIBLE success-output contract, the INADMISSIBLE tagged-rejection path with success output absent, fail-closed inputs (nonexistent storyId, malformed JSON, missing file, missing arg), the owner-lease bypass for read-only, the .lattice content-hash manifest net-identical-across-batch proof, and a positively-asserted read-only git spawn allowlist with a negative control."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "red-w2d-command-readonly.mjs section 8, exit 0: resolves the red-evidence-envelope-smoke.js entry via the real configuredValidationCommands() and runs it via the real runValidationCommand() executor (not a hand-rolled node invocation), asserting code=0, timedOut=false, and the smoke own success transcript is captured. Independently, all five red-w2d-*.mjs plus the dist smoke were confirmed present exactly once in lattice.config.json validate.commands and all six exit 0 run directly."
+    },
+    {
+      "featureId": "CHK-014",
+      "transcript": "red-w2d-command-readonly.mjs sections 3-4, exit 0: admissible envelope string and JSON output both carry the computed assertionDigest, the resolved policyDigest, and all three binding fields; a one-matcher-value change moves the digest; inadmissible envelope output omits the success verdict line and the digest entirely and instead carries the exact section 1.6 tag."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 1, exit 0: all 8 DEFAULT_FORBIDDEN_CATCH_ALLS entries reject tagged R1-2; membership is exact (a value merely containing a blocklist entry is admissible); an untrimmed blocklist-adjacent value is tagged R1-3 alone, never R1-2, proving no silent trim/collapse."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 2, exit 0: 14-row differential table with 12 rows where AND and OR necessarily disagree (both single-floor directions covered, the entropy-only direction proven under a raised-minMatcherLen policy), boundary inclusivity at exactly both floors, and the F-060 characterization block (SIGSEGV/ENOMEM/HTTP 404/Error 500 REJECT, test failed ADMIT) pinning the documented inversion mechanically."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "red-w2d-specificity-conjunction.mjs section 3, exit 0: a class-only present-in-red matcher, multiple class matchers, an inadmissible sole literal alongside a class matcher, and no present-in-red matcher at all all reject tagged R1-2; a class matcher is exempt from rule 2 on value (kind, not value, decides) while accepting a literal + class combination and a pure-literal set."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All six independently-verified claims held: the read-only proof is mechanical (spawn allowlist + manifest, both with negative controls) not asserted; the specificity rule is a genuine AND conjunction with the exact SIGSEGV/ENOMEM/HTTP 404/Error 500-vs-test-failed characterization printed with measured bits; all five RED harnesses plus the dist smoke are registered exactly once in validate.commands and all six exit 0; the limitations section admits the inversion, the non-tunable ENOMEM floor, and the three-way spec/code bounds disagreement without softening or claiming resolution; B-595c and B-3654 exist, depend on B-9ff1, and their index.source fields explicitly name F-050/F-051/F-052/F-054/F-058/F-014/F-064; proofstory.ts has a literal zero-line diff from main and red_evidence_create carries no retirement language. No unresolved TODO/FIXME/HACK found in the touched non-test source files, and no CLAUDE.md/docs files were modified by this diff (the spec doc is pre-existing and unmodified, correctly so since this story implements section 1 rather than authoring the spec)."
+  },
+  "_hash": "1a06228790868c02ebfb38e81c25196019ed1e8ef08c7ba19527beaa50be1bcc"
+}
