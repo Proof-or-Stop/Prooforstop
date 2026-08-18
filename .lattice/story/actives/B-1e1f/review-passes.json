@@ -319,6 +319,49 @@
       },
       "readDiagnostics": [],
       "_hash": "92fed87edb8dd483b473afa3e3018c1e03d46c4627a308afd62006c337de4c8d"
+    },
+    {
+      "id": "B-1e1f:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review of 09d765e2ce and 100e3b9cff. persistSyntheticAdmittedWindowForTest does not patch or wrap refuseHeavyCertificationUnlessAdmitted; the choke still requires a signed ADMITTED/RUNNING window plus matching PrecertReceipt and still fail-closes otherwise. The helper only mints a test fixture window (authorizesTest forced false; inventory completeness never authorizes) and is imported only by official smokes. loadReviewInventoryAdmitApis now createRequire()s the literal ./review-inventory-epoch.js specifier, satisfying the vocab guard. drop-acceptance-basis-prompt now deletes the proof-or-stop acceptance_basis_generate implementer line so the mutation can fail the contract verifier. No dead code, unused imports, as-any, empty-catch regression, shell/fn isolation break, or promised-but-undelivered surface in this increment.",
+      "createdAt": "2026-08-18T11:25:35.659Z",
+      "reviewRound": "2026-08-18T11:20:11.059Z",
+      "reviewRunId": "B-1e1f:RR-010",
+      "envelopeId": "ebfdfb06d46979ce30ad5b8eb90d5f9fb4a1ed467b4355c63b2a874a31d1bf2e",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3418f7f84d7f416913c18beaed8a17113b7c3f2b699b26330d732d6434d43968"
     }
   ]
 }
