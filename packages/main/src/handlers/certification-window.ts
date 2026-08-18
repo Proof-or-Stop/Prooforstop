@@ -27,11 +27,13 @@ import {
   persistBlockedCertificationWindow,
   persistCancelledCertificationWindow,
   projectCertificationWindowStatus,
+  refreshCertificationWindowLineage,
   renderCertificationWindowStatus,
   PRECERT_TEST_IDENTITY,
   PRECERT_VERIFIER_IDENTITY,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
   type CertificationWindowAdmitFacts,
+  type CertificationWindowCurrentIdentity,
   type CertificationWindowInventoryBinding,
   type CertificationWindowStatusProjection,
   type ReviewInventoryAdmitPair,
@@ -126,6 +128,25 @@ function collectAdmitFacts(
   };
 }
 
+export function currentCertificationIdentity(
+  ctx: HandlerContext,
+  storyId: string,
+): CertificationWindowCurrentIdentity {
+  const gitCwd = resolveGitCwd({
+    store: ctx.store,
+    storyId,
+    metadataRoot: ctx.root,
+    projectRoot: ctx.root,
+  });
+  return {
+    headHash: currentGitHead(gitCwd),
+    materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
+    storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: PRECERT_TEST_IDENTITY,
+  };
+}
+
 function inventoryBinding(pair: ReviewInventoryAdmitPair | null, consumedReceiptId?: string): CertificationWindowInventoryBinding {
   return {
     epochId: pair?.epoch?.epochId,
@@ -141,7 +162,11 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_begin: storyId is required');
 
-      const existing = loadVerifiedCertificationWindow(ctx.store, storyId);
+      const existing = refreshCertificationWindowLineage({
+        store: ctx.store,
+        storyId,
+        current: currentCertificationIdentity(ctx, storyId),
+      });
       if (existing.window && (existing.window.state === 'ADMITTED' || existing.window.state === 'RUNNING')) {
         return render(projectCertificationWindowStatus(storyId, existing.window, existing.receipt));
       }
@@ -219,8 +244,12 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
     certification_window_status(args: { storyId: string }): string {
       const storyId = args.storyId.trim();
       if (!storyId) throw new Error('certification_window_status: storyId is required');
-      const { window, receipt } = loadVerifiedCertificationWindow(ctx.store, storyId);
-      return render(projectCertificationWindowStatus(storyId, window, receipt));
+      const refreshed = refreshCertificationWindowLineage({
+        store: ctx.store,
+        storyId,
+        current: currentCertificationIdentity(ctx, storyId),
+      });
+      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt));
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * B-1e1f CHK-001/CHK-002: CertificationWindow signed process-fact + admit smoke.
+ * B-1e1f CHK-001..CHK-005: CertificationWindow signed process-fact, admit,
+ * heavy choke, invalidation, and PRE_CERT replay smoke.
  *
  * Covers status surface, process-fact registration, tamper fail-closed,
  * inventory-is-not-PRE_CERT, and PRE_CERT admit from inventory/merge/clean/coverage.
@@ -9,7 +10,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
@@ -18,6 +19,8 @@ import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
+import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { createVerifierHandlers } from '../handlers/verifier.js';
 import {
   CERTIFICATION_WINDOW_FILE,
   CERTIFICATION_WINDOW_STATES,
@@ -28,7 +31,9 @@ import {
   PRE_CERT_INVENTORY_API_ABSENT,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
   PRE_CERT_MAIN_NOT_MERGED,
+  PRE_CERT_WINDOW_REQUIRED,
   PRE_CERT_WINDOW_TAMPERED,
+  isOfficialHeavyValidateInvocation,
   emptyCertificationWindowData,
   evaluateCertificationWindowAdmit,
   inventoryReceiptAuthorizesPrecert,
@@ -572,9 +577,129 @@ assert.match(driftOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`
 assert.match(driftOutput, /Whole-tree materialHash drift/);
 assert.equal(driftMock.consumed.length, 0);
 
+assert.equal(isOfficialHeavyValidateInvocation({ channel: true }), false);
+assert.equal(isOfficialHeavyValidateInvocation({ concept: true }), false);
+assert.equal(isOfficialHeavyValidateInvocation({ lint: true }), false);
+assert.equal(isOfficialHeavyValidateInvocation({}), false);
+assert.equal(isOfficialHeavyValidateInvocation({ full: true }), true);
+assert.equal(isOfficialHeavyValidateInvocation({ full: 'filter' }), true);
+
+const heavyMarker = 'HEAVY_RAN';
+function writeHeavyConfig(dir: string, commit = false): void {
+  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+    storyDir: '.lattice/story/actives',
+    storyPrefix: 'B',
+    doneRequiredCommands: [{
+      label: 'spawn-detector',
+      command: 'node',
+      args: ['-e', `require('fs').writeFileSync(${JSON.stringify(join(dir, heavyMarker))}, '1')`],
+      timeoutMs: 15000,
+    }],
+  }));
+  if (commit) {
+    git(dir, ['add', 'lattice.config.json']);
+    git(dir, ['commit', '-m', 'heavy detector config']);
+  }
+}
+
+const chokeRoot = makeGitRoot();
+writeHeavyConfig(chokeRoot);
+const chokeStoryId = 'B-cw20';
+const chokeStore = makeStore(chokeRoot, chokeStoryId);
+chokeStore.writeChecklist(chokeStoryId, { items: [] });
+const chokeCtx = { store: chokeStore, root: chokeRoot, scanRoot: join(chokeRoot, 'packages', 'main'), log: () => {} };
+const chokeDone = createDoneRequiredValidationHandlers(chokeCtx);
+const chokeValidate = createVerifierHandlers(chokeCtx);
+
+async function caught(fn: () => Promise<unknown> | unknown): Promise<string> {
+  try {
+    await fn();
+    return '';
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
+const prematureDone = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
+assert.match(prematureDone, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+assert.match(prematureDone, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'done_required_validate must not spawn heavy children without an admitted window');
+
+const prematureFull = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
+assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+assert.match(prematureFull, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'validate --full must not spawn heavy children without an admitted window');
+
+const cheapChannel = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, channel: true }));
+assert.doesNotMatch(cheapChannel, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+const cheapConcept = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, concept: true }));
+assert.doesNotMatch(cheapConcept, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+const cheapLint = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, lint: true }));
+assert.doesNotMatch(cheapLint, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+const routineValidate = await caught(() => chokeValidate.validate({ storyId: chokeStoryId }));
+assert.doesNotMatch(routineValidate, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+
+const replayRoot = makeGitRoot();
+writeHeavyConfig(replayRoot, true);
+const replayStoryId = 'B-cw21';
+const replayStore = makeStore(replayRoot, replayStoryId);
+replayStore.writeChecklist(replayStoryId, { items: [] });
+const replayHead = currentGitHead(replayRoot)!;
+const replayMaterial = currentMaterialHash(replayRoot, 'HEAD', replayRoot)!;
+const replayStoryFiles = currentStoryFilesHash(replayRoot, 'HEAD', replayRoot)!;
+const replayMock = mockInventoryApis({
+  storyId: replayStoryId,
+  materialHash: replayMaterial,
+  storyFilesHash: replayStoryFiles,
+});
+setReviewInventoryAdmitApisForTest(replayMock.apis);
+const replayWindowHandlers = createCertificationWindowHandlers({
+  store: replayStore,
+  root: replayRoot,
+  scanRoot: join(replayRoot, 'packages', 'main'),
+});
+const replayAdmit = replayWindowHandlers.certification_window_begin({ storyId: replayStoryId });
+assertStatusSurface(replayAdmit, 'ADMITTED');
+const admittedReceiptHash = replayStore.readCertificationWindows(replayStoryId).receipts.at(-1)?._hash;
+const admittedFrozen = structuredClone(replayStore.readCertificationWindows(replayStoryId).receipts.at(-1)?.frozen);
+const replayDone = createDoneRequiredValidationHandlers({
+  store: replayStore,
+  root: replayRoot,
+  scanRoot: join(replayRoot, 'packages', 'main'),
+  log: () => {},
+});
+const admittedHeavy = await caught(() => replayDone.done_required_validate({ storyId: replayStoryId }));
+assert.doesNotMatch(admittedHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+assert.equal(existsSync(join(replayRoot, heavyMarker)), true, 'admitted window may start the official heavy command');
+const runningStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+assertStatusSurface(runningStatus, 'RUNNING');
+
+writeFileSync(join(replayRoot, '.lattice', 'story', 'actives', replayStoryId, 'note.md'), 'metadata-only\n');
+git(replayRoot, ['add', `.lattice/story/actives/${replayStoryId}/note.md`]);
+git(replayRoot, ['commit', '-m', 'metadata-only']);
+const metadataStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+assertStatusSurface(metadataStatus, 'RUNNING');
+
+mkdirSync(join(replayRoot, 'src'), { recursive: true });
+writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
+git(replayRoot, ['add', 'src/app.ts']);
+git(replayRoot, ['commit', '-m', 'source change']);
+const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
+assertStatusSurface(invalidatedStatus, 'INVALIDATED');
+assert.match(invalidatedStatus, /^Next: proof-or-stop story_advance .* --phase=REVIEW$/m);
+const afterReceipt = replayStore.readCertificationWindows(replayStoryId).receipts.at(-1);
+assert.equal(afterReceipt?._hash, admittedReceiptHash, 'stored receipt hash must not be rewritten');
+assert.deepEqual(afterReceipt?.frozen, admittedFrozen, 'stored receipt frozen identity must keep original hashes');
+
+const postCertHeavy = await caught(() => replayDone.done_required_validate({ storyId: replayStoryId }));
+assert.match(postCertHeavy, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
+
 setReviewInventoryAdmitApisForTest(undefined);
 assert.equal(loadReviewInventoryAdmitApis(), null, 'production loader must stay fail-closed after test override reset');
 
+console.log('PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0');
+console.log(prematureDone);
+console.log(invalidatedStatus);
 console.log('certification-window-smoke: PASS');
 console.log(blockedStatus);
 console.log(admittedBegin);

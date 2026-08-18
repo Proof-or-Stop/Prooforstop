@@ -37,6 +37,8 @@ export const PRE_CERT_WINDOW_MISSING = 'pre_cert_window_missing';
 export const PRE_CERT_WINDOW_TAMPERED = 'pre_cert_window_tampered';
 export const PRE_CERT_RECEIPT_TAMPERED = 'pre_cert_receipt_tampered';
 export const PRE_CERT_INVENTORY_NOT_AUTHORITY = 'pre_cert_inventory_not_certification_authority';
+export const PRE_CERT_WINDOW_REQUIRED = 'pre_cert_window_required';
+export const PRE_CERT_WINDOW_INVALIDATED = 'pre_cert_window_invalidated';
 
 export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
 export const PRECERT_TEST_IDENTITY = 'npm test';
@@ -654,4 +656,158 @@ export function loadVerifiedCertificationWindow(
     throw new Error(`[${PRE_CERT_INVENTORY_NOT_AUTHORITY}] inventory receipt cannot authorize PRE_CERT`);
   }
   return { data, window, receipt };
+}
+
+export interface CertificationWindowCurrentIdentity {
+  materialHash?: string;
+  storyFilesHash?: string;
+  verifierIdentity?: string;
+  testIdentity?: string;
+  headHash?: string;
+}
+
+export function detectCertificationWindowMaterialDrift(
+  window: CertificationWindow,
+  current: CertificationWindowCurrentIdentity,
+): { drifted: boolean; reason?: string } {
+  const frozen = window.frozen;
+  if (!frozen) return { drifted: false };
+  if (current.storyFilesHash && frozen.storyFilesHash && current.storyFilesHash !== frozen.storyFilesHash) {
+    return { drifted: true, reason: 'storyFilesHash changed' };
+  }
+  if (current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
+    return { drifted: true, reason: 'materialHash changed' };
+  }
+  if (
+    frozen.verifierIdentity === PRECERT_VERIFIER_IDENTITY
+    && current.verifierIdentity
+    && current.verifierIdentity !== frozen.verifierIdentity
+  ) {
+    return { drifted: true, reason: 'verifier identity changed' };
+  }
+  if (
+    frozen.testIdentity === PRECERT_TEST_IDENTITY
+    && current.testIdentity
+    && current.testIdentity !== frozen.testIdentity
+  ) {
+    return { drifted: true, reason: 'test identity changed' };
+  }
+  return { drifted: false };
+}
+
+export function persistInvalidatedCertificationWindow(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  current: CertificationWindowCurrentIdentity;
+  reason: string;
+}): { window: CertificationWindow; receipt: PrecertReceipt | null } {
+  return withCertificationWindowLock(args.store, args.storyId, () => {
+    const data = args.store.readCertificationWindows(args.storyId);
+    const latest = latestCertificationWindow(data);
+    if (!latest) return { window: latest as never, receipt: null };
+    assertVerifiedCertificationWindow(latest);
+    if (latest.state === 'INVALIDATED' || latest.state === 'CANCELLED') {
+      return { window: latest, receipt: receiptForWindow(data, latest) };
+    }
+    const now = new Date().toISOString();
+    const invalidated = withSignedCertificationWindow({
+      ...latest,
+      state: 'INVALIDATED',
+      updatedAt: now,
+      blockerCode: PRE_CERT_WINDOW_INVALIDATED,
+      blockerDetail: args.reason,
+      invalidation: {
+        detectedAt: now,
+        oldHeadHash: latest.frozen?.headHash,
+        currentHeadHash: args.current.headHash,
+        oldMaterialHash: latest.frozen?.materialHash,
+        currentMaterialHash: args.current.materialHash,
+        oldStoryFilesHash: latest.frozen?.storyFilesHash,
+        currentStoryFilesHash: args.current.storyFilesHash,
+        blockerCode: PRE_CERT_WINDOW_INVALIDATED,
+      },
+    });
+    data.windows = data.windows.map(row => row.windowId === latest.windowId ? invalidated : row);
+    args.store.writeCertificationWindows(args.storyId, data);
+    return { window: invalidated, receipt: receiptForWindow(data, invalidated) };
+  });
+}
+
+export function persistRunningCertificationWindow(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+}): { window: CertificationWindow; receipt: PrecertReceipt | null } {
+  return withCertificationWindowLock(args.store, args.storyId, () => {
+    const data = args.store.readCertificationWindows(args.storyId);
+    const latest = latestCertificationWindow(data);
+    if (!latest) throw new Error(`[${PRE_CERT_WINDOW_REQUIRED}] no CertificationWindow`);
+    assertVerifiedCertificationWindow(latest);
+    const receipt = receiptForWindow(data, latest);
+    if (receipt) assertVerifiedPrecertReceipt(receipt);
+    if (latest.state === 'RUNNING') return { window: latest, receipt };
+    if (latest.state !== 'ADMITTED') {
+      throw new Error(`[${PRE_CERT_WINDOW_REQUIRED}] window ${latest.windowId} is ${latest.state}`);
+    }
+    const running = withSignedCertificationWindow({
+      ...latest,
+      state: 'RUNNING',
+      updatedAt: new Date().toISOString(),
+    });
+    data.windows = data.windows.map(row => row.windowId === latest.windowId ? running : row);
+    args.store.writeCertificationWindows(args.storyId, data);
+    return { window: running, receipt: receiptForWindow(data, running) };
+  });
+}
+
+export function refreshCertificationWindowLineage(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  current: CertificationWindowCurrentIdentity;
+}): { window: CertificationWindow | null; receipt: PrecertReceipt | null } {
+  const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
+  if (!loaded.window) return { window: null, receipt: null };
+  if (loaded.window.state !== 'ADMITTED' && loaded.window.state !== 'RUNNING') {
+    return { window: loaded.window, receipt: loaded.receipt };
+  }
+  const drift = detectCertificationWindowMaterialDrift(loaded.window, args.current);
+  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt };
+  return persistInvalidatedCertificationWindow({
+    store: args.store,
+    storyId: args.storyId,
+    current: args.current,
+    reason: drift.reason ?? 'certification subject changed',
+  });
+}
+
+export function heavyCertificationStatusNext(storyId: string): string {
+  return `proof-or-stop certification_window_status --storyId=${storyId}`;
+}
+
+export function refuseHeavyCertificationUnlessAdmitted(args: {
+  store: CertificationWindowStorePort;
+  storyId: string;
+  current: CertificationWindowCurrentIdentity;
+}): { window: CertificationWindow; receipt: PrecertReceipt | null } {
+  const refreshed = refreshCertificationWindowLineage(args);
+  if (!windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
+    const projection = projectCertificationWindowStatus(args.storyId, refreshed.window, refreshed.receipt);
+    const rendered = renderCertificationWindowStatus({
+      ...projection,
+      nextCommand: heavyCertificationStatusNext(args.storyId),
+    });
+    throw new Error(
+      `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,
+    );
+  }
+  return persistRunningCertificationWindow({ store: args.store, storyId: args.storyId });
+}
+
+export function isOfficialHeavyValidateInvocation(args: {
+  full?: string | boolean;
+  channel?: boolean;
+  concept?: boolean;
+  lint?: boolean;
+}): boolean {
+  if (args.channel || args.concept || args.lint) return false;
+  return args.full === true || (typeof args.full === 'string' && args.full.length > 0);
 }
