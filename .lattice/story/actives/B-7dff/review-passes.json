@@ -368,6 +368,39 @@
         "scanEscalationReason": null
       },
       "_hash": "b50d959d329459245f6d508b180fa16beeca637d0a7c61d30f9e13ca0c31b393"
+    },
+    {
+      "id": "B-7dff:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Adversarial re-verification of F-011 and F-012 resolutions, plus a full staleness/overstatement sweep of all 15 verificationEvidence rows. No findings.\n\nF-012 (CHK-005:happy:0 waiver numbers): independently re-derived, not trusted from the note. Ran node packages/main/tests/validate-resource-claims.test.mjs directly -> reproduced \"configured plan: 110 commands, 97 declared, 13 exclusive by fail-closed default\" verbatim. Separately computed resolveValidationCommandResourceClaims(cmd) over all 110 lattice.config.json entries by hand (not via the test file) -> got the identical 13-command exclusive set. Cross-referenced that 13-set against CHK-005:edge:0's audited-10 list (dist rebuild, 2 real-CLI commands, quorum-submit-smoke, 2 red-b49d4 guards, 3 red-1734 guards, proofstory-acceptance-rollout --issuer-mutations = 10) and the remainder is EXACTLY the 3 the waiver names as unaudited-but-safe-default: validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs. No 4th unaccounted command exists. git log confirms all three landed via merge fed447f7847 (main into story/B-7dff, 2026-08-18 16:52 BST), which is AFTER CHK-005's own audit finished (endTime 2026-08-17T14:28:24Z) -- so \"never examined by this audit\" is literally true, not rhetorical. Verdict: F-012 resolution is exact and complete.\n\nF-011 (CHK-001:happy:0 waiver reclassification deferred_gate_evidence -> permanent): checked both the facts and whether the category choice is honest rather than convenient.\n  - Facts: built dist and ran the REAL full-suite-runner.js myself (no story-CLI evidence-writing commands used, review-only). Independently got FULL_SUITE_ENTRIES.length === 49 (not 47) straight from the built module, and defaultJobs()=2 on this host (10 cpus, floor(10/4)=2) -- both match the waiver's claims. My own run finished \"full-suite: 49/49 passed in 509.2s; retries=0; jobs=2\" -- same template, same member count, same jobs value as the waiver's \"49/49 passed in 341.1s; retries=0; jobs=2\"; the pin string \"47/47\" cannot appear against this tree, confirmed directly rather than inferred. My run also independently ran past the 270000ms default cap (509.2s) without commandTimeoutMs, and separately hit the exact same \"full-suite identity drift: HEAD/material changed during execution\" failure mode the note describes for its own middle attempt -- caused by this framework's own auto-commit-on-CLI-call behavior touching story metadata mid-run, which is a real, reproducible hazard here, not an invented excuse. [receipt_selector_absent] vs the newer [receipt_command_timeout] is a real, distinct, documented pair of refusals in handlers/checklist.ts (CLAUDE.md B-cdf6/B-META F-012), not a fabricated error code.\n  - Category choice: read packages/main/src/tasks/deferred-gate-evidence-smoke.ts, the contract test that DEFINES the two waiverTypes. deferred_gate_evidence's own fixture is narrowly \"The gate can only be verified after entering REVIEW\" (a self-referential bootstrapping case) and is explicitly required to be replaced by the time validate/TEST gate runs (missingRequired=1 if still deferred then). CHK-001:happy:0's blocker was never that narrow case; it's a structurally immutable pin (evidence-pin-guard.ts, B-ec67 design: no repair command exists BY DESIGN, to stop authors loosening pins mid-flight) whose text encodes a count the codebase has already outgrown. That is definitionally closer to \"permanent non-automatable\" than to a temporary self-test placeholder. CHK-005:happy:0 already carries \"permanent\" for the identical defect class across two earlier rounds (F-008, F-012) without the classification itself ever being challenged -- internal precedent, not a one-off.\n  - Stakes acknowledged, not hidden: confirmed lattice.config.json sets proofStory.doneGateMode=\"enforce\", and rowCoversIntent() in core/proofstory.ts really does treat waiverType=permanent as covering (result!=='fail') while deferred_gate_evidence never covers. milestone_status confirms CHK-001:happy:0 is one of M1's mapped verificationIntentRefs and its waiver is what currently satisfies M1's base evidence=covered (M1 is separately still Blocked on a stricter, non-gating \"requires literal integration_test kind\" diagnostic -- an honestly-disclosed, unresolved gap, not hidden). So the reclassification is genuinely load-bearing for the enforce-mode DONE gate, exactly as suspected -- but that is because it is now an accurate category for a real, independently-verified structural fact, not because the label was picked to make the gate pass.\n  Verdict: reclassification is justified by the new facts, not convenience.\n\nStaleness sweep: programmatically compared materialHash/storyFilesHash on all 15 verificationEvidence rows (CHK-001..CHK-005, happy/edge/adversarial) against the current story context (materialHash aa8059f..., storyFilesHash 1e18326...). All 15 match; zero stale rows. headHash differs across rows (expected metadata-only drift from intervening finding-resolution commits), never materialHash/storyFilesHash.\n\nKind-overstatement sweep: verified every mechanical (non-waiver) row's receipt has exitCode=0 and selectorMatched=true consistent with its own result=pass (12/12 consistent, 0 contradictions). Spot-checked the two integration_test claims against their source: CHK-003:happy:0 (validate-plan-scheduling.test.mjs) does import packages/main/dist/core/validation-executor.js and drive real child processes via process.execPath; CHK-004:happy:0 (validate-parallel-equivalence-smoke.ts) does import and call the real executeValidationPlan with process.execPath-spawned probes. Spot-checked logic_test claims for CHK-001/002/003/005 edge+adversarial rows against their source: in-process function calls (runScheduled, resolveValidationCommandResourceClaims) with no subprocess spawn on the asserted paths. No row claims a stronger evidence kind than what its command actually does; the two waiver rows (CHK-001:happy:0, CHK-005:happy:0) carry no result field and do not misrepresent themselves as receipts.\n\nNo new findings. Story-level review pass for this round.",
+      "createdAt": "2026-08-18T22:04:50.399Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-025",
+      "envelopeId": "63ca94b7fad527a30bf3671d04ca24bf53b4ef698937e6ab1ab2ab779edca0d2",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/deferred-gate-evidence-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validate-parallel-equivalence-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "51e0ba98fcf03ce6de7507ceeebd7ec764ae8f754f4894eadec0e6d337fca1c9"
     }
   ]
 }
