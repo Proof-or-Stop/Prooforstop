@@ -223,7 +223,55 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:source-commit-invalidates",
+            "desc": "After a source commit inside an ADMITTED or RUNNING window, certification_window_status --storyId=<id> → prints State: INVALIDATED and Next: proof-or-stop story_advance --storyId=<id> --phase=REVIEW. WHY: plan Verify; source mutation returns the operator to REVIEW.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "State: INVALIDATED"
+            }
+          },
+          {
+            "id": "CHK-004:metadata-and-evidence-writes-allowed",
+            "desc": "Story metadata writes and certification evidence writes inside ADMITTED/RUNNING → remain allowed and do not persist INVALIDATED. WHY: window freezes source/test/verifier, not metadata/evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:test-or-verifier-mutation-invalidates",
+            "desc": "Material write to test or verifier inputs while ADMITTED/RUNNING → next status/heavy/DONE consumer persists State: INVALIDATED with the changed lineage (same Next: REVIEW). WHY: freeze source/test/verifier, not source only.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:receipts-keep-original-hashes",
+            "desc": "After invalidation, stored heavy/DONE-required receipts still carry the original frozen headHash/materialHash/storyFilesHash → they are not rewritten to the new lineage and cannot be consumed as PASS for the mutated candidate. WHY: no silent rebind.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:no-silent-receipt-rebind",
+            "desc": "After source mutation, attempt the B-914f-style reuse path that copies old PASS receipts onto the new hash → heavy reuse and DONE consumers fail closed; receipts keep original hashes. WHY: decision preMortem 4.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:no-cross-story-dev-lock",
+            "desc": "While this story's window is ADMITTED/RUNNING/INVALIDATED, another story's DEV write/commit in its own worktree succeeds; this window does not take a long-lived repo-wide write lock. Heavy/DONE consumers persist INVALIDATED even if status was never called after the mutation. WHY: do not block other stories' DEV; invalidation is fail-closed at every consumer.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
