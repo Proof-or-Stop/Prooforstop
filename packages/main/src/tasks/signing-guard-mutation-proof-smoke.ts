@@ -44,7 +44,12 @@ const scratch = mkdtempSync(join(tmpdir(), 'b49ed-mutant-'));
 const mutantPath = join(scratch, 'mutant.mjs');
 const guardDirUrl = pathToFileURL(dirname(guardFile) + '/').href;
 const relocated = weakened.replace(/from '\.\/([^']+)'/g, (_m, rel) => `from '${guardDirUrl}${rel}'`);
-assert.doesNotMatch(relocated, /from '\.\//, 'every relative import was rewritten for the relocated mutant');
+// The rewrite above only handles `from './x'`. Assert that no OTHER relative specifier form
+// survives either, so if the guard ever gains `export * from './y'`, a parent-relative `../z`,
+// or a dynamic import('./w'), this fails loudly instead of silently loading a different module
+// and quietly making the whole proof vacuous again.
+assert.doesNotMatch(relocated, /from '\.\.?\//, 'no relative static import or re-export survives relocation');
+assert.doesNotMatch(relocated, /import\(\s*['"]\.\.?\//, 'no relative dynamic import survives relocation');
 writeFileSync(mutantPath, relocated, 'utf8');
 
 try {
@@ -85,7 +90,6 @@ try {
   rmSync(scratch, { recursive: true, force: true });
 }
 
-assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is untouched by the probe');
 
 assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is byte-identical after the proof');
 console.log('Signing guard mutation proof: PASS');
