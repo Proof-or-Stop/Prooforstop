@@ -275,6 +275,32 @@
         "scanEscalationReason": null
       },
       "_hash": "f7ab495d0a233731555e4da7cf68909f4d62d755138fb743228ff52b0249a213"
+    },
+    {
+      "id": "B-49ed:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review: review_incremental_context + independent git diff 1848c0a6..HEAD confirm zero tracked source files changed since RP-011 pass; only .lattice/story/actives/B-49ed/* process metadata changed (F-030 resolution + verification evidence refresh). No new concept deletion/replacement. No blocker.",
+      "createdAt": "2026-08-18T13:14:11.775Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-036",
+      "envelopeId": "1d8d894bcd8d4a0a927abfb7f6dbdaf1ef7fa7fe138091b3d8d5c707c00e58cc",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49ed/checklist.json",
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/index.json",
+          ".lattice/story/actives/B-49ed/process-events.jsonl",
+          ".lattice/story/actives/B-49ed/process-metrics.json",
+          ".lattice/story/actives/B-49ed/prompt-envelopes.json",
+          ".lattice/story/actives/B-49ed/review-passes.json",
+          ".lattice/story/actives/B-49ed/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1a9e4a4bb741860fcb8c4ef930521788127fb790485d7c64d2c4b1b1b67cb95b"
     }
   ]
 }
