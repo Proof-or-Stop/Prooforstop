@@ -13,6 +13,9 @@ import {
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   stateDirKey,
+} from './full-suite-runner.js';
+import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import {
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
 } from './full-suite-runner.js';
 
@@ -79,6 +82,25 @@ async function main(): Promise<void> {
     assert((canonicalClassCounts.get(resourceClass) ?? 0) > 0, `canonical manifest exercises protected class ${resourceClass}`);
   }
   assert(FULL_SUITE_ENTRIES.some(item => item.resources.some(resource => resource.access === 'exclusive')), 'canonical manifest contains truthful exclusive protected claims');
+
+  // B-cc10 F-068: EVERY state-dir resource key in the SHIPPED policy must carry the
+  // canonical spelling. Without this, a policy key reverted to the deprecated literal
+  // regresses SILENTLY: claimsConflict() compares canonicalKey by string equality, so
+  // `.lattice/runtime` and `.proof-or-stop/runtime` read as two DIFFERENT resources and
+  // two entries that must be mutually exclusive get scheduled concurrently. Nothing
+  // throws; only serialization degrades. The other four F-064 sites were covered by the
+  // approvedRoots witness (which does throw); this one had no witness at all.
+  //
+  // Asserted over ALL entries rather than the one line F-068 named, so a NEW policy key
+  // with the deprecated spelling is caught too instead of aging into the same blind spot.
+  const deprecatedStateDirKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${DEPRECATED_STATE_DIR}/`) || resource.key === DEPRECATED_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(deprecatedStateDirKeys.length === 0, `RESOURCE_POLICY state-dir keys must use the canonical spelling, not ${DEPRECATED_STATE_DIR}: ${deprecatedStateDirKeys.join(', ')}`);
+  const stateDirPolicyKeys = FULL_SUITE_ENTRIES.flatMap(item => item.resources
+    .filter(resource => resource.key.startsWith(`${PROOF_OR_STOP_STATE_DIR}/`) || resource.key === PROOF_OR_STOP_STATE_DIR)
+    .map(resource => `${item.name}:${resource.key}`));
+  assert(stateDirPolicyKeys.length > 0, 'the state-dir policy-key witness must observe at least one real claim (guards against a vacuous pass if the policy stops declaring state-dir resources)');
   const runnerSmokeFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-path');
   const sentinelFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-path');
   assert(runnerSmokeFixedPath?.access === 'exclusive' && runnerSmokeFixedPath.canonicalKey === sentinelFixedPath?.canonicalKey, 'canonical runner smoke declares the real fixed-path collision it creates');
