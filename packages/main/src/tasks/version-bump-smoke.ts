@@ -66,16 +66,16 @@ function makeFixture(version: string, over?: VersionOverrides): string {
     lockfileVersion: 3,
     packages: {
       '': { name: 'lattice', version: over?.rootLockPackage ?? over?.rootLock ?? version },
-      'packages/main': { name: '@lattice/core', version: over?.rootLockMainPackage ?? over?.rootLock ?? version },
+      'packages/main': { name: '@proof-or-stop/core', version: over?.rootLockMainPackage ?? over?.rootLock ?? version },
     },
   }, null, 2) + '\n');
-  writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@proof-or-stop/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
   writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version: over?.mainLock ?? version,
     lockfileVersion: 3,
     packages: {
-      '': { name: '@lattice/core', version: over?.mainLockPackage ?? over?.mainLock ?? version },
+      '': { name: '@proof-or-stop/core', version: over?.mainLockPackage ?? over?.mainLock ?? version },
     },
   }, null, 2) + '\n');
   writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;\nvoid basename;\n`);
@@ -318,10 +318,10 @@ void (async () => {
     const fverThrow = fixture('0.9.9');
     throws('verify-throw (post-write drift) -> applyPatchBump throws', () => applyPatchBump(fverThrow, {
       afterWriteForTest: () => writeFileSync(join(fverThrow, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
-        name: '@lattice/core',
+        name: '@proof-or-stop/core',
         version: '5.5.5',
         lockfileVersion: 3,
-        packages: { '': { name: '@lattice/core', version: '5.5.5' } },
+        packages: { '': { name: '@proof-or-stop/core', version: '5.5.5' } },
       }, null, 2) + '\n'),
     }));
     check('verify-throw rolled back: all sync points restored to 0.9.9', readSyncedVersion(fverThrow) === '0.9.9');
@@ -337,15 +337,15 @@ void (async () => {
           lockfileVersion: 3,
           packages: {
             '': { name: 'lattice', version: '7.7.7' },
-            'packages/main': { name: '@lattice/core', version: '7.7.7' },
+            'packages/main': { name: '@proof-or-stop/core', version: '7.7.7' },
           },
         }, null, 2) + '\n');
-        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@proof-or-stop/core",\n  "version": "7.7.7"\n}\n`);
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.mainPackageLock), JSON.stringify({
-          name: '@lattice/core',
+          name: '@proof-or-stop/core',
           version: '7.7.7',
           lockfileVersion: 3,
-          packages: { '': { name: '@lattice/core', version: '7.7.7' } },
+          packages: { '': { name: '@proof-or-stop/core', version: '7.7.7' } },
         }, null, 2) + '\n');
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.brand), `export const LATTICE_CLI_VERSION = '7.7.7' as const;\n`);
       },

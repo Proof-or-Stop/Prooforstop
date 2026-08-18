@@ -189,7 +189,7 @@ export async function createApp() {
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@lattice/core/dev-host';
+import { devHost } from '@proof-or-stop/core/dev-host';
 import { createApp } from './app.js';
 import { GameMachine } from './machines/game/machine.js';
 

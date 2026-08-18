@@ -24,6 +24,7 @@
  * Read-only: asserts, never writes.
  */
 import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -94,6 +95,50 @@ if (failures.length > 0) {
   console.error(`\ncore package rename verification FAILED (${failures.length}):`);
   for (const f of failures) console.error(`  - ${f}`);
   process.exit(1);
+}
+
+// B-cc10 F-009: the CHK-005 adversarial intent asks for a repo-wide check that
+// @lattice/core no longer appears outside node_modules / dist / the state dirs. The
+// checks above only covered dependency declarations plus the root name.
+//
+// IMPORTANT scoping, learned by getting it wrong first: a naive "any mention" grep
+// reports 25 files, nearly all of them CORRECT. The deprecated name legitimately
+// appears in (a) read-both compatibility probes that accept EITHER spelling
+// (.githooks/pre-push, runtime-environment-checks, worktree, codex-adapter-checks,
+// rollout-check, test-auto, init-assets), (b) guard scripts that pin the literal on
+// purpose, and (c) docs/decision records that quote the old name to explain the
+// rename. Banning those would delete the compatibility this story promised.
+//
+// So the real invariant is: the deprecated name must never appear WITHOUT the
+// canonical name alongside it in the same file. A file that mentions only the old
+// spelling has not been migrated; a file that mentions both is read-both by design.
+{
+  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
+    .trim().split('\n').filter(Boolean);
+  const skip = (f) =>
+    f.includes('node_modules/') || f.includes('/dist/') || f.startsWith('dist/')
+    || f.startsWith('.proof-or-stop/') || f.startsWith('.lattice/')
+    || f === 'CHANGELOG.md'             // historical release record (FROZEN)
+    // brand-rename-mapping.md is the FROZEN decision record that quotes the OLD name to
+    // explain why each identity was or was not renamed; rewriting it would destroy the
+    // very history it exists to preserve. Exempt with a reason, not silently skipped.
+    || f === 'docs/requirements/decisions/brand-rename-mapping.md';
+  const deprecatedOnly = [];
+  for (const f of tracked) {
+    if (skip(f)) continue;
+    let body = '';
+    try { body = readFileSync(f, 'utf8'); } catch { continue; }
+    if (!body.includes('@lattice/core')) continue;
+    if (!body.includes('@proof-or-stop/core')) deprecatedOnly.push(f);
+  }
+  console.log(`deprecatedCoreNameWithoutCanonical=${deprecatedOnly.length}`);
+  if (deprecatedOnly.length > 0) {
+    console.log(`  stranded: ${deprecatedOnly.join(', ')}`);
+  }
+  check(
+    'every @lattice/core mention sits beside the canonical name (read-both), none stranded',
+    deprecatedOnly.length === 0,
+  );
 }
 
 console.log('\ncore package rename verified');

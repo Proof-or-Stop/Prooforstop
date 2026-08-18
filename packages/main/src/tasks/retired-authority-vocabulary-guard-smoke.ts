@@ -4058,7 +4058,7 @@ function assertShippedExecutableRootPositiveControls(): void {
   const hermeticRecords: PackageAliasManifestRecord[] = [{
     path: 'packages/main/package.json',
     manifest: {
-      name: '@lattice/core',
+      name: '@proof-or-stop/core',
       imports: {
         '#compat': { node: './src/core/legacy-delivery-claims-compat.ts', default: './src/core/legacy-delivery-claims-compat.ts' },
         '#compat/*': './src/core/*.ts',

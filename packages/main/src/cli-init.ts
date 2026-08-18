@@ -56,13 +56,7 @@ import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths
 // B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
 // read-both contract resolves deprecated spellings for reads but never writes
 // them, otherwise two on-disk copies of the same state would diverge.
-import {
-  PROOF_OR_STOP_ADAPTER_DIR,
-  PROOF_OR_STOP_MANIFEST_FILENAME,
-  PROOF_OR_STOP_CONFIG_FILENAME,
-  CONFIG_FILENAMES,
-  adapterManifestCandidates,
-} from './core/brand-paths.js';
+import { PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, PROOF_OR_STOP_CONFIG_FILENAME, CONFIG_FILENAMES, adapterManifestCandidates, ADAPTER_DIR_NAMES } from './core/brand-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -214,7 +208,10 @@ function parseTargetDir(args: string[]): string | null {
 }
 
 function detectInitProfile(root: string): { profile: InitProfile; reason: string; compatibilityNote?: string } {
-  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex'));
+  // B-cc10 F-004: probe BOTH adapter-dir spellings so a canonical-only project is
+  // still detected as Codex-enabled (read-both; ADAPTER_DIR_NAMES is canonical-first).
+  const hasCodexMarkers = existsSync(join(root, 'AGENTS.md'))
+    || ADAPTER_DIR_NAMES.some((dir) => existsSync(join(root, dir)));
   const hasClaudeMarkers = existsSync(join(root, 'CLAUDE.md')) || existsSync(join(root, '.claude'));
   if (hasCodexMarkers && hasClaudeMarkers) {
     return {

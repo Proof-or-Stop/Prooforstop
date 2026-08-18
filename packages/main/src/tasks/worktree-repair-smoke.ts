@@ -171,7 +171,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 }
 
 // B-097f made agent prompt assets host-neutral single-source: the global
-// link-repair now manages ONLY the canonical @lattice/core package and no
+// link-repair now manages ONLY the canonical @proof-or-stop/core package and no
 // longer resolves or rewrites a legacy @legacy-agent/core symlink. So when the
 // canonical install is a real directory (not a stale worktree symlink) and the
 // only worktree-pointing symlink is the legacy package, repair correctly returns

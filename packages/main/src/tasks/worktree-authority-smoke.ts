@@ -60,16 +60,16 @@ function writeVersionSyncFiles(root: string, version: string): void {
     lockfileVersion: 3,
     packages: {
       '': { name: 'lattice', version },
-      'packages/main': { name: '@lattice/core', version },
+      'packages/main': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
   write(root, VERSION_SYNC_FILES.mainPackageJson, `{\n  "name": "@lattice/core",\n  "version": "${version}",\n  "type": "module"\n}\n`);
   write(root, VERSION_SYNC_FILES.mainPackageLock, JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: '@lattice/core', version },
+      '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
   write(root, VERSION_SYNC_FILES.brand, `export const LATTICE_CLI_VERSION = '${version}' as const;\n`);

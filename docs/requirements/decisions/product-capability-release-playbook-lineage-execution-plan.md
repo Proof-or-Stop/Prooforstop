@@ -127,7 +127,7 @@ The V1 story MUST NOT be run as an ambiguous 9-milestone story. The blockers bel
 
 ## Non-Goals
 
-- Do not bump `@lattice/core` package semver for docs/experiment-only capability releases unless watched runtime or capability-contract inputs changed.
+- Do not bump `@proof-or-stop/core` package semver for docs/experiment-only capability releases unless watched runtime or capability-contract inputs changed.
 - Do not make `artifact_release_*` commands mutate capability state.
 - Do not treat DONE success as a positive playbook outcome.
 - Do not auto-activate `PBP-882` or any existing candidate during V1.
@@ -340,7 +340,7 @@ outcome rows: still 0 until future structured outcome
 - DONE records a product capability release (in the git-tracked ledger) for non-runtime product capabilities, from **both** completion sites, deduped merge-stably.
 - `capabilityDigest`, `idempotencyKey`, and `id` are deterministic and merge-stable (fixed input → fixed value test); a different `mainCommit` does not create a duplicate.
 - The reader fails closed on `authority`/`gateEvidence` violations, and no gate path imports it (guard test).
-- B-785e-like stories do not force `@lattice/core` semver bumps unless runtime inputs changed.
+- B-785e-like stories do not force `@proof-or-stop/core` semver bumps unless runtime inputs changed.
 - Capability release and artifact release are both visible through read-only CLI commands with `readOnly/none/all` policy.
 - DONE candidate ingest binds playbook lineage to a capability release when available; pre-existing 3-field lineage still parses; re-apply is a no-op.
 - Candidate playbooks remain inert (M6 smoke) and DONE success never counts as `helped` (M7 smoke).

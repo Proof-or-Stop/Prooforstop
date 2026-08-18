@@ -120,16 +120,16 @@ function writeVersionSyncFiles(root: string, version: string): void {
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/package.json', JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version,
     type: 'module',
   }, null, 2) + '\n');
   write(root, 'packages/main/package-lock.json', JSON.stringify({
-    name: '@lattice/core',
+    name: '@proof-or-stop/core',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: '@lattice/core', version },
+      '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/src/core/lattice-brand.ts', [

@@ -46,7 +46,30 @@ log.length >= 2
 const n = execFileSync('git', ['ls-files', '.proof-or-stop/story/actives'], { encoding: 'utf8' })
   .trim().split('\n').filter(Boolean).length;
 console.log(`trackedArchiveFiles=${n}`);
-n > 7000 ? ok(`${n} archive files tracked at canonical path`) : fail(`only ${n} tracked`);
+// B-cc10 F-008: 'n > 7000' was too loose — it would have accepted losing ~580 archive
+// files during the move. Derive the floor from the commit BEFORE the move instead of
+// hardcoding it, so the check tracks reality rather than a number that rots.
+// A floor (not equality) is correct because this story keeps writing its own metadata
+// under the canonical dir, so the count legitimately grows after the move.
+let preMoveCount = null;
+try {
+  const moveSha = execFileSync('git', ['log', '--format=%H', '--grep=CHK-003: move state dirs', '-1'],
+    { encoding: 'utf8' }).trim();
+  if (moveSha) {
+    preMoveCount = execFileSync('git', ['ls-tree', '-r', '--name-only', `${moveSha}^`, '.lattice/story/actives'],
+      { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+  }
+} catch { preMoveCount = null; }
+console.log(`preMoveArchiveFiles=${preMoveCount ?? 'unresolved'}`);
+if (preMoveCount === null) {
+  // Fail closed: without a derivable baseline this check has no discriminating power,
+  // so it must not silently pass on the old loose threshold.
+  fail('could not derive the pre-move archive count; refusing to pass on a loose threshold');
+} else if (n < preMoveCount) {
+  fail(`archive files LOST in the move: ${n} tracked now vs ${preMoveCount} before (delta ${n - preMoveCount})`);
+} else {
+  ok(`${n} archive files tracked at canonical path (>= ${preMoveCount} pre-move; no loss)`);
+}
 
 console.log(bad === 0 ? 'state dir migration verified' : `state dir migration FAILED (${bad})`);
 process.exit(bad === 0 ? 0 : 1);
