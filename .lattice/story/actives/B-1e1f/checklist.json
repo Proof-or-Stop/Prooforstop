@@ -111,20 +111,20 @@
           "kind": "manual_transcript",
           "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
           "result": "pass",
-          "note": "Live status is State: BLOCKED with no admitted frozen head/main/storyFiles identity and exactly one Next:",
+          "note": "Live status remains State: BLOCKED with no admitted frozen identity and exactly one Next:",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "7345e7c5271f2befd0f2acde9308fb3e3128c1b6b5e4f3d3d04c4b9e35544205",
             "outputTail": "[0.0s] running certification_window_status...\n[0.2s] certification_window_status done\nCertification window: B-1e1f:CW-004\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-1e1f\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T14:47:51.230Z",
+            "executedAt": "2026-08-18T15:16:09.760Z",
             "timeoutMs": 270000
           },
-          "headHash": "dff360f54611d71909557161a365e75fb9de30f7",
-          "materialHash": "2faea8ad641cd02e85426cf117fbf11ea464a44e6869d88539d3f19943404894",
-          "storyFilesHash": "e0f242d94ac7ebf81d746dabcc45f747fa710ca89ab45e919b89614de05846b8",
-          "timestamp": "2026-08-18T14:47:51.368Z"
+          "headHash": "8af9bf8b9507f109afa646cf0a9af9ea3571c9d7",
+          "materialHash": "d8f4ad184ad1d79e48db9ae0f0a40b44e48d2860ceb3f18ff11d505fad3ac6e0",
+          "storyFilesHash": "d38a1e184c642c871a997dc94f4e471ed61f64f2e4d5bb31627966966956e53b",
+          "timestamp": "2026-08-18T15:16:09.911Z"
         },
         {
           "intentRef": "CHK-001:admitted-frozen-identity",
