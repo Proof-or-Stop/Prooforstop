@@ -1269,7 +1269,15 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
       ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
       ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
-    ]).concat(graph.closureFiles.map(file => `source-file:closure:${file}`), ['source-file:config:lattice.config.json'])),
+    ]).concat(
+      graph.closureFiles.map(file => `source-file:closure:${file}`),
+      // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
+      // hardcoded 'lattice.config.json' sitting beside dynamically-derived siblings, so a
+      // canonical-only project inventoried a file it does not contain — producing a spurious
+      // "lacks immutable bounded snapshot" blind spot that degraded the acceptance basis from
+      // complete to partial. Masked in tests because every fixture used the deprecated name.
+      [`source-file:config:${resolveSnapshotConfigFilename(graph.readContext)}`],
+    )),
     sourceFileRefs: graph.closureFiles,
     blindSpots: graph.blindSpots,
     entries: reached,
