@@ -131,6 +131,32 @@
         "scanEscalationReason": null
       },
       "_hash": "993332ca51097d32b98c2e008d0b5963517064a6a3102e6fec23fdf0520cc850"
+    },
+    {
+      "id": "B-cc10:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified F-062 gitignore fix durability and audited newest full-suite-runner.ts stateDirKey/stateDirCandidates change; no blocking findings, both regression tests and residue gate pass.",
+      "createdAt": "2026-08-18T18:10:22.567Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-088",
+      "envelopeId": "00a33fb20af01589010895fac1f36b1b6b5ac6fcc4f5c0da4c9354253a44be18",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "277317fbd948b47458916830f1a6c0db718fd2ab796c0ad9abd247acfeef71d2"
     }
   ]
 }
