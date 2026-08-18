@@ -425,8 +425,20 @@ function resolveSnapshotConfigFilename(context: SourceReadContext): string {
   // probe failures so a migrated project does not report a permanent
   // `snapshot_missing` / unreadable-config issue for the deprecated name it
   // correctly no longer has. Mirrors the existing profileCandidates cleanup.
+  //
+  // B-cc10 follow-up: only drop failures for names that are genuinely ABSENT. The
+  // previous form deleted the cached failure for EVERY non-resolved spelling, which
+  // also erased real blind spots — an existing-but-unreadable config (e.g. over
+  // MAX_LATTICE_CONFIG_BYTES) had its oversize failure silently discarded, so the
+  // bounded-read blind spot never surfaced. Absence is expected; unreadable is not.
   for (const name of CONFIG_FILENAMES) {
-    if (name !== resolved) context.failures.delete(name);
+    if (name === resolved) continue;
+    // lstat, NOT existsSync: this reader is deliberately no-follow, and existsSync
+    // resolves symlinks — a dangling/foreign symlink would look ABSENT and have its
+    // real safe-read failure discarded, which is the same blind spot in another guise.
+    let present = false;
+    try { lstatSync(join(context.physicalRoot, name)); present = true; } catch { present = false; }
+    if (!present) context.failures.delete(name);
   }
   return resolved;
 }
