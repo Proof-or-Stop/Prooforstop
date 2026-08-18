@@ -90,7 +90,40 @@
       "context": "handlers/validate-channel.ts checkDispatchEvidence, which today has zero status or withdrawal awareness. A withdrawn item must not require dispatch/subagent_result evidence because no work was dispatched by design. Same structural backing as the previous item. Do not weaken the dispatch requirement for any item that is not withdrawn - the normal-channel discipline is correct and must stay strict.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The channel gate prints the withdrawn item as skipped with its decision id rather than 'has no dispatch/subagent_result evidence'.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checkDispatchEvidence does not require dispatch evidence for a decision-backed withdrawn item",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dispatch evidence is still required for every item that is not withdrawn",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Same structural backing as CHK-002: decision-record routed, never a bare status comparison",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
