@@ -1447,6 +1447,41 @@
         "scanEscalationReason": null
       },
       "_hash": "105333d57a16ed08a612f5903bbbc639ffb179989568316b95b32922dc6e7ddb"
+    },
+    {
+      "id": "B-9ff1:RP-046",
+      "agent": "lattice-review-test-coverage",
+      "note": "SEVENTH re-bind after 41 more commits merged to main (head now 2860a24, no drift since -- rev-list HEAD..main=0). Same established method as RP-041 (sixth): checklist.json verificationEvidence totals 108 (106 non-waiver + 2 permanent waivers, unchanged from RP-041), all 106 non-waiver mechanical:true/selectorMatched:true/exitCode:0/result:pass (0 non-conforming). headHash now spans 22 distinct real git commit objects (all verified via git cat-file -t and git merge-base --is-ancestor HEAD) in a 21x5 + 1x3 = 108 pattern. All 108 share one materialHash (2bf646f2...) and one storyFilesHash (e19dc251...), matching this run's binding. Attributing the 8 manual_transcript entries by their command field (as before), per-command distribution is exactly 66/15/8/6/6/4/1: red-w2d-rejection-matrix.mjs/red-w2d-specificity-conjunction.mjs/red-w2d-command-readonly.mjs/red-w2d-assertion-digest-scope.mjs/red-w2d-entropy-differential.mjs/dist/tasks/red-evidence-envelope-smoke.js/red-w2c-validate-registration.mjs, plus the 2 waivers -- matching dispatch claim exactly. MERGE RISK CHECK: story B-d15e (among the 41 merged commits) modified packages/main/src/tasks/full-suite-runner.ts and full-suite-runner-smoke.ts, files this story does not own. Confirmed both files still exist post-merge. JSON-parsed lattice.config.json: validate.commands now has 111 entries (up from prior round); each of the five red-w2d-*.mjs (entropy-differential, specificity-conjunction, assertion-digest-scope, rejection-matrix, command-readonly) plus dist/tasks/red-evidence-envelope-smoke.js appears exactly once -- no silent drop or duplicate from the merge. F-060 characterization fixture survived intact: ran node packages/main/tests/red/red-w2d-specificity-conjunction.mjs, confirmed the same five pinned rows (SIGSEGV 15.65 REJECT, ENOMEM 11.51 REJECT, HTTP 404 20.00 REJECT, Error 500 21.77 REJECT, test failed 34.05 ADMIT) and exit 0. Ran the other four red-w2d harnesses and the envelope smoke directly: all five exit 0. findings.json: 65 total, 64 resolved + 1 dismissed, 0 open. git status --porcelain shows only this review's own story-metadata writes (prompt-envelopes.json, review-runs.json), no code drift. Did not run full lattice validate or root npm test per scope. Reused review_run_start output B-9ff1:RR-072 (freshly started this round at current head 2860a24; prior test-coverage runs RR-066/RR-067 in this same reviewRound were bound to a now-stale head f24b5dcb).",
+      "createdAt": "2026-08-18T18:54:30.895Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-072",
+      "envelopeId": "3939f9688aa7b9ab572da0ac3985e410521bf2382db1004880ef71bb0b4ce175",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "lattice.config.json",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/test-evidence.json",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a7fcec98a84fbfc6d6cc639a7ebd71a47406b51a0720224889c3903c6fa7b3ec"
     }
   ]
 }
