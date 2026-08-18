@@ -443,6 +443,21 @@
       "resolvedAt": "2026-08-18T05:03:20.553Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-49ed:F-023",
+      "desc": "12 of 15 verificationEvidence receipts (all of CHK-001, CHK-003, CHK-004, CHK-005; only CHK-002s 3 intents were refreshed) are STALE per the frameworks own findStaleEvidence/checkEvidenceFreshnessForGit: reason=\"evidence storyFilesHash does not match current story-owned file state\". This is storyFilesHash drift (not mere whole-tree materialHash noise) because packages/main/src/tasks/full-suite-runner.ts, a story-owned file in this branchs main...HEAD diff, was modified by the F-021 fix commit 9f5dc1357d AFTER those 12 receipts were captured. Per CLAUDE.md DONE-convergence rules, storyFilesHash drift is the strong signal requiring re-attestation, unlike materialHash-only drift which downgrades to advisory. Practically this means 12 must-priority intents currently carry pass receipts whose command-backed proof no longer binds to the current tree; per renderEvidenceStaleHint they are demoted to non-mechanical attestations until refreshed. Recovery: run verification_evidence_refresh_stale --storyId=B-49ed (or done_prepare --refreshStale) before DONE to re-execute and re-bind all 12, not just re-verify CHK-002.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T05:20:38.141Z",
+      "reviewRound": "2026-08-18T05:10:42.248Z",
+      "reviewRunId": "B-49ed:RR-024",
+      "_hash": "3c0725bdab4adadc7a49e9fd916a484d3d5349ef2f69481b6fb528fcd4384032",
+      "signatureTag": "missing|unknown|verificationevidence-receipts-002s",
+      "signatureTagSource": "auto"
     }
   ]
 }
