@@ -320,6 +320,25 @@
       "resolvedAt": "2026-08-18T12:26:48.195Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1e1f:F-015",
+      "desc": "quality-cleanup: scripts/verify-process-fact-contract.mjs:1890 still requires retired-authority-vocabulary-guard-smoke.ts to contain closeout-trust-smoke digest adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932, but 8af9bf8b950 only repinned packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 to 49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37. The contract asserts retiredVocabularyGuardText.includes(token) at line 2604; B-cdf6:F-057 already documented that these two copies must move together or test:process-fact-contract fail-closes. Canonical AST hash of closeout-trust-smoke.ts matches the new pin; approved createLegacyLocalOnlyDeliveryClaims shape/occurrence count (2) is unchanged.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T15:20:27.583Z",
+      "reviewRound": "2026-08-18T15:16:16.947Z",
+      "reviewRunId": "B-1e1f:RR-019",
+      "_hash": "31c8e0c83772327973a34ea132960e158bace1662ab48caea9b658524d38b615",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
