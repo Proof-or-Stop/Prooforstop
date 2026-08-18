@@ -161,7 +161,7 @@ function assertDoorRefusalThenPass(
     check(`CHK-001 ${doorLabel}: getGuardFailureReason tags missing_dev_memory_preflight_ack`,
       /\[missing_dev_memory_preflight_ack\]/.test(reasonBefore ?? ''));
     check(`CHK-001 ${doorLabel}: refusal message names the run-command hint`,
-      /lattice dev_memory_preflight_ack --storyId=/.test(reasonBefore ?? ''));
+      /(?:proof-or-stop|lattice) dev_memory_preflight_ack --storyId=/.test(reasonBefore ?? ''));
 
     const out = ackHandler(root)({ storyId });
     check(`CHK-001 ${doorLabel}: dev_memory_preflight_ack writes the ack artifact`, /acknowledged/.test(out));
@@ -496,7 +496,7 @@ function assertDoneGateFinishDecision(): void {
     check('CHK-003 refusal: message tags missing_dev_memory_finish_decision',
       /\[missing_dev_memory_finish_decision\]/.test(reasonBefore ?? ''));
     check('CHK-003 refusal: message names the run-command hint',
-      /lattice dev_memory_finish_decision --storyId=/.test(reasonBefore ?? ''));
+      /(?:proof-or-stop|lattice) dev_memory_finish_decision --storyId=/.test(reasonBefore ?? ''));
 
     const runtimeHandlers = createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') });
     const decisions: Array<{ decision: 'captured' | 'no-reusable-lesson' | 'defer-with-reason'; reason?: string }> = [
