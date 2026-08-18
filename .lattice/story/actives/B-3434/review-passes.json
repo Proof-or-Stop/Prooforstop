@@ -1422,6 +1422,31 @@
         "scanEscalationReason": null
       },
       "_hash": "09be69e7dfe0dda41088ee99fa128d7934db0fb1da18505e2ba90d1399531e7b"
+    },
+    {
+      "id": "B-3434:RP-055",
+      "agent": "lattice-review-concept",
+      "note": "Re-binds RP-051 in the current round after scripts/verify-process-fact-contract.mjs moved to main as commit a127f91457. The scope gate agreed with my judgement about acknowledgement 7 and overruled the coordinator: it rejected this path with scope.excluded explicitExclude blocking=true, not clearable by acknowledgement, so the fix correctly landed on main outside this story. Verified: git diff main HEAD -- scripts/verify-process-fact-contract.mjs is empty (story matches main). git show --stat a127f91457 shows exactly 1 file changed, 1 insertion, 1 deletion: the drop-acceptance-basis-prompt mutation regex changed from a literal lattice acceptance_basis_generate match to an alternation matching lattice or proof-or-stop acceptance_basis_generate. Confirmed .lattice-codex/agents/lattice-implementer.md line 107 currently reads proof-or-stop acceptance_basis_generate exactly as the commit message states. Verdict on a127f91457 message-vs-diff: the rewrite is true and nothing outruns the one-line change. It explicitly self-limits to reversion-to-old-brand plus continuation-of-current-brand and states a third brand name would reproduce the failure -- this matches the two-branch alternation exactly, which is the correction the prior round required. The surrounding paragraphs (why the smoke surfaced it, why it landed on main, session tally) are background/process narrative, not claims about the diffs own scope, so they do not overclaim either. Ran node scripts/verify-process-fact-contract.mjs: exit 0. Ran with LATTICE_PROCESS_FACT_CONTRACT_MUTATION=drop-acceptance-basis-prompt: exit 1 as expected. Ran node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs: all 12 sections green, exit 0. Did not run the full validate suite, npm test, or a residual scan of the story, per instruction. No correctness, security, or data-integrity blocker found; verdict is a clean re-record, no finding filed.",
+      "createdAt": "2026-08-18T09:13:57.342Z",
+      "reviewRound": "2026-08-18T08:14:30.177Z",
+      "reviewRunId": "B-3434:RR-105",
+      "envelopeId": "fe0ad83c2380f365d2f12f3128b235380c251bf541bcaad138872dcb506cb3bd",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-implementer.md",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "927fc90fbca6b3faef608f8d51a7bf4f29e1aa8e88f03daec4b465e4f925e4c2"
     }
   ]
 }
