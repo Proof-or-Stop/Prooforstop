@@ -596,7 +596,7 @@
       "desc": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:27-34 findRepoRoot() walks up from dirname(import.meta.url) looking for the literal lattice.config.json to anchor repoRoot. CHK-004 of this very story renamed the canonical root config to proof-or-stop.config.json (verified: this worktree root has proof-or-stop.config.json, NOT lattice.config.json). Run from inside a git worktree (the project standard layout per CLAUDE.md Worktree 生命周期), the walk-up escapes the worktree entirely and resolves repoRoot to the PARENT checkout (/Users/qipan/work/repo/Prooforstop, i.e. main) which still has the old lattice.config.json. Verified empirically: findRepoRoot(dirname(import.meta.url)) from this worktree returns the main checkout path, not the worktree. The smoke then reads package.json / scripts/ensure-dist.mjs / scripts/build-main-with-binding.mjs / scripts/build-utils-with-binding.mjs / scripts/build-lock.mjs / scripts/build-lock-target.mjs / packages/utils/package.json from that WRONG tree and asserts against them -- it currently PASSES but is silently validating main's build-bootstrap wiring, not the worktree's. This is the mutation-that-mutates-nothing / assertion-silently-stopped-meaning-anything class named in this story's brief: the described comment even calls it \"the permanent regression guard wired into validate.commands\", so this is a live coverage hole in the 104/104 green claim, not a dormant one. Same repoRoot-via-lattice.config.json anchor pattern also affects >=13 tests/red/*.mjs repro scripts (grep: existsSync(join(repoRoot|dir, 'lattice.config.json'))), e.g. red-1734-bootstrap-depfree.mjs, red-fb7b-pretest-builds-utils.mjs, red-1734-lock-liveness.mjs, red-B-74b9-chk00{1,2,3}-*.mjs, red-B-new-*.mjs -- lower immediate blast radius since red-*.mjs are only invoked via pinned verificationEvidence commands (not glob-discovered by run-all-smokes), but any future verification_evidence_refresh_stale re-execution of those pinned commands from a worktree will silently mis-anchor to the wrong repo the same way. Fix: anchor via a marker that read-both covers (e.g. accept either lattice.config.json or proof-or-stop.config.json, or better, anchor off a git-derived root via `git rev-parse --show-toplevel`).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:23:19.081Z",
@@ -619,7 +619,8 @@
         "packages/main/src/tasks/gap-coverage-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T09:51:24.399Z"
     },
     {
       "id": "B-cc10:F-034",
