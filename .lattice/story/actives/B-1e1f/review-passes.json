@@ -645,6 +645,45 @@
         "scanEscalationReason": null
       },
       "_hash": "684df9a3908a48c83d0d00c37d8c3605edef42ebe72471b430ef1e1624d3fb70"
+    },
+    {
+      "id": "B-1e1f:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review after F-015. 82a9a7a lockstepped scripts/verify-process-fact-contract.mjs closeout-trust digest to 49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37, matching PINNED_EXECUTABLE_SOURCE_FINGERPRINTS in retired-authority-vocabulary-guard-smoke.ts. Recomputed typescript-printer-remove-comments-sha256-v1 on packages/main/src/tasks/closeout-trust-smoke.ts equals that pin; leftover adb4b265 is gone. Incremental files add only the digest + coupling comments, no dead code, as-any, empty swallow, or new doc promises. persistHint still reports PERSIST failures; persistSyntheticAdmittedWindowForTest still forces authorizesTest=false. Prior quality findings remain resolved. No quality blocker.",
+      "createdAt": "2026-08-18T15:27:23.848Z",
+      "reviewRound": "2026-08-18T15:23:16.533Z",
+      "reviewRunId": "B-1e1f:RR-020",
+      "envelopeId": "61fde6a47a8ed0b520e3af7af0e91fb3efe2eae8fea0a5540ec614ff02f3ca26",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "013c5ad38e2076e8300c31a34155e0dd47b36819f67df8438747297e46c03886"
     }
   ]
 }
