@@ -1898,6 +1898,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5387d820e0decd2b643e6d7dccd6764b104a6b664502fe39b6c9c3d9a846dd32"
+    },
+    {
+      "id": "B-9ff1:RP-061",
+      "agent": "lattice-review-behavior",
+      "note": "Re-audit per no-source-change dispatch: (1) red_evidence_envelope_check still names redEvidence block in lattice.config.json and emits red_evidence_policy_missing: pinnedPath; (2) red-w2d-specificity-conjunction.mjs exit 0, five pinned rows unchanged (SIGSEGV 15.65 REJECT / ENOMEM 11.51 REJECT / HTTP 404 20.00 REJECT / Error 500 21.77 REJECT / test failed 34.05 ADMIT); (3) diffed summary.json at commit 4449ba8d06 (which recorded B-9ff1:RP-058) against HEAD -- entire file byte-identical (not just limitations), still carries the specificity inversion, all four measured pairs, the ENOMEM non-tunable 12-bit hard-floor point, and the ships-unfixed framing; (4) other four red harnesses (assertion-digest-scope, command-readonly, entropy-differential, rejection-matrix) and red-evidence-envelope-smoke.js all exit 0; findings.json = 75 total, 0 open (74 resolved, 1 dismissed); git rev-list HEAD..main = 0. Working tree carries only concurrent review-lane bookkeeping (RR-095..RR-099 prompt-envelopes/review-runs entries from parallel lanes in this same round, not yet committed) -- no source, docs, or summary.json drift. No blocker found.",
+      "createdAt": "2026-08-18T21:46:47.017Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-099",
+      "envelopeId": "78a693c552f92a01fbe262e194a9e82fba7ee31e281498a76a2cef2e66788004",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b84ac6e9d74983957bcb6e8d46daadcd14dc9536130cb6d03d5655e0448c9c4d"
     }
   ]
 }
