@@ -6,6 +6,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+
+// B-cc10: these fixtures cleaned up with recursive+force but NO retries, so when the full
+// validate suite runs them alongside other temp-dir work the teardown lost a race and threw
+// ENOTEMPTY — the smoke passes standalone and failed only in-suite. maxRetries is Node's
+// supported answer for exactly this; it does not weaken any assertion.
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { classifyMergeLineage, netDiffChangedPaths } from '../core/validation-lineage.js';
@@ -95,7 +100,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     assert.equal(admissibilityLineage(root, H1), 'trusted-story-metadata-descendant', 'admissibility copy trusts merge of unchanged file');
     // Mutation resistance / RED: the OLD per-commit -m union DID list foo.ts as changed.
     assert.equal(perCommitUnionChanged(root, H1, H2).includes('foo.ts'), true, 'the reverted per-commit -m union would (wrongly) flag foo.ts — proves the fix changed behavior');
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 2) NEGATIVE: a genuine non-metadata content change lands on main -> BOTH copies refuse.
@@ -108,7 +113,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     assert.equal(c.kind === 'untrusted' && c.untrustedPaths.includes('shared.ts'), true, 'untrusted lists the genuinely-changed path');
     assert.equal(classifyTrustedValidationLineage({ root, gitCwd: root, evidenceHead: H1, currentHead: H2 }).lineage, 'rejected', 'reuse copy refuses genuine change');
     assert.equal(admissibilityLineage(root, H1), 'rejected', 'admissibility copy refuses genuine change');
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 3) exact-head fast path.
@@ -116,7 +121,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
   const { root, H2 } = buildMergeRepo({ genuineChange: false });
   try {
     assert.deepEqual(classifyMergeLineage({ evidenceHead: H2, currentHead: H2, gitCwd: root, metadataRoot: root }), { kind: 'exact-head' });
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 4) Empty net diff between two DISTINCT commits (a no-op merge commit) -> trusted.
@@ -136,7 +141,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     assert.notEqual(H1, H2, 'distinct heads');
     assert.deepEqual(netDiffChangedPaths(H1, H2, root), [], 'net diff empty for byte-identical endpoints');
     assert.deepEqual(classifyMergeLineage({ evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root }), { kind: 'trusted-descendant' }, 'empty net diff is trusted, not rejected');
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 5) Large diff output actually EXCEEDS Node's default 1 MiB child_process maxBuffer, and
@@ -185,7 +190,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
       { kind: 'trusted-descendant' },
       'large metadata-only diff (>1 MiB raw output) is trusted, not ENOBUFS',
     );
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 6) not-ancestor fails closed.
@@ -199,7 +204,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     writeFileSync(join(root, 'b'), '2\n'); git(root, ['add', '.']); git(root, ['commit', '-qm', 'c2']);
     const B = git(root, ['rev-parse', 'HEAD']);
     assert.equal(classifyMergeLineage({ evidenceHead: A, currentHead: B, gitCwd: root, metadataRoot: root }).kind, 'not-ancestor', 'unrelated history is not-ancestor (fail-closed)');
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 // 7) diff-failed is DISTINCT from not-ancestor: with ancestry OK, a throwing diff
@@ -213,7 +218,7 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     );
     assert.equal(classified.kind, 'diff-failed', 'ancestry-OK diff throw is diff-failed, not not-ancestor');
     assert.equal(classified.kind === 'diff-failed' && classified.error.includes('simulated diff failure'), true, 'diff-failed carries the underlying error');
-  } finally { rmSync(root, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 }
 
 process.stdout.write('validation reuse merge-lineage smoke passed\n');
