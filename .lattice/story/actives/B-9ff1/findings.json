@@ -1389,6 +1389,36 @@
       ],
       "signatureTag": "edge|ts|findings-json-resolvedreason",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-063",
+      "desc": "findings.json F-057.resolvedReason argues WHY NOT FIXED NOW: Writing 16 honest userSees strings is authoring work, not a formatting pass ... a hurried userSees set would be worse than none because a wrong userSees is a promise the story then appears to keep. Judged against the fix actually on the table, this argument does not hold: F-057s own Fix suggestion asked only to add userSees to CHK-012/CHK-014 quoting the literal report header lines from packages/main/src/handlers/red-evidence.ts:518-528 and 531-540 -- i.e. two items, not sixteen, and a mechanical copy of two FIXED literal strings. Read directly at red-evidence.ts:518 and :531: the ADMISSIBLE and NOT ADMISSIBLE report headers are exactly Red-evidence envelope: ADMISSIBLE and Red-evidence envelope: NOT ADMISSIBLE -- unambiguous, stable, one-line strings, not open-ended authoring prone to being hurried or wrong. The wrong promise is worse than none risk the resolution invokes describes a DIFFERENT, larger task (16 freely-authored descriptions) than the one it was actually declining (2 literal quotes), so it is not a real argument against the concrete fix on the table -- it is a comfortable one. The resolutions SECOND reason (Authoring them also rewrites checklist.json, which moves storyFilesHash and stales all 108 verification evidence records and all four lane passes -- a full re-bind and re-review cycle) is the legitimate, verifiable operational cost (confirmed: this stories own findings.json repeatedly cites the identical 108-evidence-record re-bind cost for other deferred edits, e.g. F-050, F-052), and is presented second, after the weaker philosophical framing carries the paragraphs opening rhetorical weight. Recommend treating the re-bind cost as the stated reason (it is real and sufcient on its own) rather than resting on the hurried-is-worse-than-none framing, which does not survive contact with the fixs actual scope.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:17:37.611Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e3f3c545194c1ff55946011284d00879969f96701c661caf9ef461067b07881",
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts",
+        ".lattice/story/actives/B-9ff1/findings.json",
+        ".lattice/story/actives/B-9ff1/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|findings-json-resolvedreason",
+      "signatureTagSource": "auto"
     }
   ]
 }
