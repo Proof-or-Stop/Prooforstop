@@ -105,6 +105,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // so the policy entry is mandatory, not optional. Both only read the repo and hold no
   // exclusive path, port or runtime lock, so the plain repoRead policy is correct.
   repoRead('test:codex-heartbeat-timeout'), repoRead('test:audit-scan-bin-token'),
+  // B-49ed: the two signing-guard proofs. RESOURCE_POLICY is a THIRD membership authority
+  // beyond root package.json's test:serial-reference -- entriesFromSerialReference fails
+  // closed on any serial-reference member with no policy entry, so omitting these here
+  // aborts the entire suite rather than just skipping them. Both only read the repo and
+  // spawn no CLI, so repoRead is correct.
+  repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
   isolated('test:flow-stability-smoke'), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
