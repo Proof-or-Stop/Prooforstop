@@ -326,7 +326,7 @@
       "desc": "concept-cleanup: packages/main/src/core/codex-adapter-checks.ts:401-404 and :420 hardcode the deprecated adapter-manifest path spelling in live, user-facing verify_codex/doctor check messages instead of deriving from the read-both resolver already used elsewhere in the same function. Line 404 (the global-thin branch, which is the one that actually fires in this repo -- confirmed live via `node bin/proof-or-stop.js verify_codex`) emits 'global-thin project: Codex adapter behavior runs from global lattice CLI (.lattice/lattice.json present)'; line 420's fail path emits 'missing .lattice-codex/lattice.json'. Both should read .proof-or-stop/proof-or-stop.json and .proof-or-stop-codex/proof-or-stop.json (the canonical names per CANONICAL_CODEX_MANIFEST_REL at line 373 = PROOF_OR_STOP_ADAPTER_DIR/PROOF_OR_STOP_MANIFEST_FILENAME, already correctly used by resolveCodexManifest() a few lines above in the same file). The comment directly above at line 401-402 ('Resolver priority: canonical .lattice/lattice.json first') is also stale for the same reason. This is exactly the regression class core/brand-paths.ts's own module header warns about: a hardcoded deprecated literal sitting inside an output/comparison string rather than flowing from the single resolver, so the canonical spelling never appears in output even after the rename ships.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T03:48:48.981Z",
@@ -334,7 +334,8 @@
       "reviewRunId": "B-cc10:RR-014",
       "_hash": "61bc5bed8756a3d39b1e967303223d35a02b73301f400645a7a6f9ce75e4f210",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:00:19.748Z"
     }
   ]
 }
