@@ -549,6 +549,36 @@
       },
       "readDiagnostics": [],
       "_hash": "4543e885087b69482a5ba57056600647a18aec3e7f0275caf512f5ff17013566"
+    },
+    {
+      "id": "B-1e1f:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review of 427e963bc068. Only packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts changed since RP-011: local rmForce wraps rmSync with maxRetries:8 retryDelay:25 and replaces all 7 finally cleanups. Node fs.rm retries ENOTEMPTY/EBUSY then rethrows; no silent catch, unused import, as-any, dead helper, or shell/fn isolation issue. rmSync import remains used. No product gate, proof-metadata, or CLAUDE.md/README promise change. No quality blocker.",
+      "createdAt": "2026-08-18T12:58:14.691Z",
+      "reviewRound": "2026-08-18T12:55:42.938Z",
+      "reviewRunId": "B-1e1f:RR-016",
+      "envelopeId": "4b93851b6274a362771bb39e38fc0c490cacaaccadbd05260031d4e80f981595",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e4e2a15c6ceaa15ae368faac99d98f040b2b595537457e01d10da3784b84bdbc"
     }
   ]
 }
