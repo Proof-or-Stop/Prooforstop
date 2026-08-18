@@ -1282,6 +1282,47 @@
       "resolvedAt": "2026-08-18T18:02:54.392Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-060",
+      "desc": "packages/main/tests/red/red-w2d-specificity-conjunction.mjs DEFAULT_ROWS (lines 148-166) and RAISED_ROWS (line 168), plus packages/main/tests/red/red-w2d-entropy-differential.mjs realistic-line table (lines ~13-25 of its DIFFER set) -- neither carries a fixture for the exact real-world constants F-058 verified live: SIGSEGV (7 bytes, 15.65 bits -> REJECT both floors), ENOMEM (6 bytes, 11.51 bits -> REJECT, and below the non-tunable HARD_FLOORS minMatcherEntropyBitsMin=12 so no policy can ever admit it), HTTP 404 (8 bytes, 20.00 bits -> REJECT on entropy alone), Error 500 (9 bytes, 21.77 bits -> REJECT on entropy alone), vs test failed (11 bytes, 34.05 bits -> ADMIT). I independently recomputed all five against dist/core/red-evidence/specificity.js and reproduced F-058s numbers exactly; grepped all 5 registered red-w2d-*.mjs harnesses plus the smoke script and confirmed none of the five literal strings appears anywhere in committed test/source. This is distinct from F-058 itself: F-058 is the spec-design question (should the formula/default change), correctly deferred as follow-up spec work with no owning story yet. This finding is narrower and does not require resolving that question -- it is that the CURRENT, spec-conformant, already-shipped admissibility verdict on these five inputs is asserted nowhere, so a future change to entropyBits()/perByteShannonEntropy() (whether to fix F-058, to fix an unrelated bug, or an incidental refactor) can silently flip which short real-world failure signatures are pinnable with zero test signal -- exactly the class of drift this story exists to catch (see specificity.ts header: \"this detects drifted or incorrect admissibility through the registered surfaces\"). The existing DEFAULT_ROWS/RAISED_ROWS table is a differential proof engineered to separate AND from OR (synthetic repeated-character strings like aaaaaaaa/xxxxxxxx/========, plus Err/ab/Cannot find/no such file) and the entropy-differential table uses realistic but comfortably-admissible long error lines (Error: Cannot find module..., AssertionError: expected 1 to equal 2, etc, all 24+ bytes with plenty of margin) -- neither table exercises a short (6-9 byte), low-character-diversity, single well-known token. A five-row characterization fixture (or extending DEFAULT_ROWS) pinning the current [REJECT,REJECT,REJECT,REJECT,ADMIT] verdict on [SIGSEGV,ENOMEM,HTTP 404,Error 500,test failed] under the frozen default policy would close this without taking any position on whether that verdict is desirable.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T18:12:41.478Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "035178fe03408575f2528717ea7f320d6fa275bb150e2a32951a4730e08e4df4",
+      "files": [
+        "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+        "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+        "packages/main/src/core/red-evidence/specificity.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
