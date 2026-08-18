@@ -1231,7 +1231,7 @@
       "desc": ".lattice/story/actives/B-9ff1/checklist.json:4-3427 — every checklist item (CHK-001 through CHK-016, first id at line 4, last at line 3241) has no userSees/userSeesSnapshot field at all (confirmed via checklist_get output: item keys are only id/title/context/relatedDocs/status/startTime/endTime/verificationIntent/verificationEvidence). WHY: my role instructions require raising a medium finding when userSees is empty so the operator-visible-output promise gets recorded; for this story's single delivered command (red_evidence_envelope_check) the two most operator-facing items, CHK-012 (land the command) and CHK-014 (define the ADMISSIBLE success transcript), are exactly the ones where a userSees string describing the actual printed report (e.g. \"Red-evidence envelope: ADMISSIBLE\" / \"NOT ADMISSIBLE\" plus the assertionDigest/binding/policyDigest lines) would have let a reviewer check the promise against the real CLI text without re-deriving it from source, as I had to do by running the command directly. Fix suggestion: add userSees to CHK-012/CHK-014 quoting the literal report header lines from packages/main/src/handlers/red-evidence.ts:518-528 and 531-540.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-08-18T17:59:12.594Z",
@@ -1239,7 +1239,11 @@
       "reviewRunId": "B-9ff1:RR-057",
       "_hash": "ff8464baf86b98554b1051043780c1251a7c7bb76f034cba5bcf78dd4e04afac",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as a real, unremediated PLAN-phase gap; not fixed here, and the reason is scope rather than disagreement. The lane is right on the facts, verified: all 16 checklist items carry no userSees or userSeesSnapshot field, and review.json recorded a missing_user_sees advisory for EVERY CHK item during PLAN which was never acted on. The lane's own role prompt mandates a medium finding for empty userSees, so filing it was correct rather than pedantic, and its two named examples are the right ones: CHK-012 (lands the command) and CHK-014 (defines the success transcript) are exactly the items where a quoted userSees string would let a reviewer check the promise without re-deriving it from source - which is what the behavior lane had to do this round. WHY NOT FIXED NOW. Writing 16 honest userSees strings is authoring work, not a formatting pass: each has to state what an operator actually observes, and a hurried set would be worse than none because a wrong userSees is a promise the story then appears to keep. Authoring them also rewrites checklist.json, which moves storyFilesHash and stales all 108 verification evidence records and all four lane passes - a full re-bind and re-review cycle. That cost is justified for a defect, and this is a documentation gap in metadata authored during PLAN, whose absence the behavior lane worked around successfully by exercising the command directly. WHAT IS HONESTLY LOST BY DEFERRING: a future reviewer of this story gets no stated operator-visible promise to check against, and must re-derive expected behaviour from the source as this lane did. That is a real cost and it is recorded rather than argued away. The systemic half - that a PLAN-phase missing_user_sees advisory can be carried all the way to DONE without ever becoming blocking - is the part worth fixing, and it belongs to the gate rather than to this leaf.",
+      "resolvedAt": "2026-08-18T18:02:51.832Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-058",
