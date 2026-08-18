@@ -1575,6 +1575,24 @@
       "resolvedAt": "2026-08-18T20:52:18.429Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-070",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. dev-memory entry e367ec1 was written to correct two earlier entries whose fault was restating counts in prose, and its own stated rule is to ship the query rather than the number - yet it restates 'TWENTY', a lane-by-lane split, 'FOUR', and re-enumerates the done_required_validate / done_prepare / live_smoke_transcript exclusion list it was correcting. It is therefore not count-free, and the F-067 and F-069 resolutions that describe it as making 'NO count claim at all' are false in turn. Reproduced by rg and by dev_memory_search.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T21:13:19.936Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "_hash": "7e851a99f844cdd381bded5c9aae74cf8a8d223ccb4e1b652bf099f70a5242da",
+      "files": [
+        ".lattice/dev-memory/experience.jsonl",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "doc-code-drift|jsonl|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
