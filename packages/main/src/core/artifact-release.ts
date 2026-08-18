@@ -3,10 +3,13 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
-import { isStateDirPath } from './brand-paths.js';
+import { isStateDirPath, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
-export const ARTIFACT_RELEASE_LEDGER_REL_PATH = '.lattice/artifact-releases.jsonl';
+// B-cc10: was hardcoded '.lattice/artifact-releases.jsonl'. The ledger file itself moved with
+// CHK-003, so the constant pointed at a path that no longer holds it — the same
+// defect class as managed-assets.json and the gap-log paths.
+export const ARTIFACT_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/artifact-releases.jsonl`;
 export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proofbound.artifact-release.v1';
 
 export interface ArtifactReleaseRecordV1 {

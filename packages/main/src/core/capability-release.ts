@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
@@ -13,7 +14,10 @@ import { digestCanonicalJson } from './digest.js';
 import { readPlaybooks, writePlaybooks, withLearningStoreLock } from './learning-store.js';
 import type { Playbook, PlaybookLineage } from './experience-layer-types.js';
 
-export const CAPABILITY_RELEASE_LEDGER_REL_PATH = '.lattice/capability-releases.jsonl';
+// B-cc10: was hardcoded '.lattice/capability-releases.jsonl'. The ledger file itself moved with
+// CHK-003, so the constant pointed at a path that no longer holds it — the same
+// defect class as managed-assets.json and the gap-log paths.
+export const CAPABILITY_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
 export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
 
 export type CapabilityKind =
