@@ -2859,10 +2859,13 @@ try {
     // left the suite fully green. The codebase's own isAcknowledged() (core/scope-contract.ts)
     // treats acknowledged paths as in-scope, so the sweep must union them too: "in this story's
     // scope" has one meaning, and this guard now uses the same one the scope checker does.
-    const scopeContract = JSON.parse(readFileSync(
-      join(IMPLEMENTATION_REPO_ROOT, '.lattice/story/actives/B-3144/scope-contract.json'),
-      'utf8',
-    )) as {
+    // B-cc10: this reads the REAL repo's own story artifact, so it must resolve whichever
+    // state-dir spelling exists on disk rather than pinning the deprecated one.
+    const scopeContractPath = STATE_DIR_NAMES
+      .map((dir) => join(IMPLEMENTATION_REPO_ROOT, `${dir}/story/actives/B-3144/scope-contract.json`))
+      .find((candidate) => existsSync(candidate))
+      ?? join(IMPLEMENTATION_REPO_ROOT, `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-3144/scope-contract.json`);
+    const scopeContract = JSON.parse(readFileSync(scopeContractPath, 'utf8')) as {
       allowedModify?: string[];
       allowedCreate?: string[];
       allowedTest?: string[];
