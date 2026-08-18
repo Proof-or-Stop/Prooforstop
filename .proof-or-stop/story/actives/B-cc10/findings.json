@@ -933,7 +933,7 @@
       "desc": "quality-cleanup: packages/main/src/core/lattice-dispatch.ts:1295,2170,2818 hardcode the deprecated .lattice/dispatches/<id>/worker/fake-result.txt literal as the fallback allowedPaths/marker-write path when pack.allowedPaths is empty (ensurePreparedPackForFake and childDispatchArgs). Line 2172-2174 actually resolves this literal against worktreeAbs and does mkdirSync+writeFileSync -- a real WRITE decision anchored to the deprecated spelling, the same higher-impact subclass F-046 fixed for release-push-approval.ts. The file already imports PROOF_OR_STOP_DIR from core/lattice-paths.js (= .proof-or-stop), so the canonical resolver is one line away; it should replace the three .lattice/dispatches/... literals. No smoke test currently exercises the empty-allowedPaths fallback, so this drifted unflagged.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T10:58:15.953Z",
@@ -941,7 +941,8 @@
       "reviewRunId": "B-cc10:RR-060",
       "_hash": "0f481ec27b89ce9116692f1e75a76667be3cb043ddcbd7b9bff2d8fb4c6a6543",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:09:31.131Z"
     },
     {
       "id": "B-cc10:F-052",
