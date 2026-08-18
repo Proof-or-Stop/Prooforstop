@@ -167,7 +167,7 @@
       "desc": "concept-cleanup: stale comment in packages/main/src/cli.ts:6 still tells the reader to use the generated bin/lattice.js bootstrap script for @lattice/utils helper tools. bin/lattice.js was deleted by this story (CHK-006); the generated bootstrap entrypoint is now bin/proof-or-stop.js (see bin/bootstrap-runner.js header, bin/proof-or-stop.js). This is misleading, live prose in a source comment that a developer reading cli.ts would follow to a Cannot-find-module dead end.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T03:45:44.519Z",
@@ -175,7 +175,8 @@
       "reviewRunId": "B-cc10:RR-014",
       "_hash": "3b407bc0645357d0abb5728bb2b7f9c45baa8e14ef6127e94ffeb9db0cdef244",
       "signatureTag": "missing|unknown|concept-cleanup-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:09:06.770Z"
     },
     {
       "id": "B-cc10:F-011",
