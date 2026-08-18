@@ -107,7 +107,11 @@
         "adversarial": [
           {
             "desc": "Save the exact original full-suite-runner.ts, replace only the unique result initializer performanceBudgetMs: FULL_SUITE_BUDGET_MS with performanceBudgetMs: 300_000, then run npm run test:full-suite-runner-smoke from the repository root → exits nonzero because the smoke rejects the numeric shadow copy; restore the saved source byte-for-byte, rerun → prints full-suite-runner-smoke: PASS, and git diff --exit-code -- packages/main/src/tasks/full-suite-runner.ts succeeds.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "npm run test:full-suite-runner-smoke",
+              "selector": "numeric performance budget shadow-copy mutation is rejected"
+            }
           }
         ]
       },
@@ -132,6 +136,27 @@
           "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
           "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
           "timestamp": "2026-08-18T17:35:06.125Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "npm run test:full-suite-runner-smoke",
+          "result": "pass",
+          "note": "The smoke mechanically mutates the real writer source in memory to the old 300_000 initializer and proves the shared predicate rejects it; a separate real-file mutation run also failed at the same assertion before exact restoration.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "63f888b87fa54d152303b947e29d73cea83b3b1a2bb1694667cf35acd2d55b26",
+            "outputTail": "on before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omission\",\"resource-key-collision\",\"fixed-path-collision\",\"timeout-grandchild\",\"ordinary-failure\",\"tracked-output-overwrite\",\"identity-drift\"]}\nfull-suite-runner-smoke: PASS (153 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T17:35:36.298Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "eb84bb5cea1b5f09c37055d6f8c965d33dfadf9b",
+          "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+          "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+          "timestamp": "2026-08-18T17:35:36.448Z"
         }
       ]
     }
