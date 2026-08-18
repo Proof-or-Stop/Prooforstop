@@ -763,7 +763,7 @@
       "desc": "packages/main/src/core/machine.ts:1262 and :1423 (Cannot-enter-DEV / Cannot-enter-DONE guard failure messages) and packages/main/src/handlers/session.ts:590-593 (normalizeSessionCommandHints, feeding session_brief REVIEW/TEST anti-stall hints) hardcode the literal bin-invocation prefix lattice (e.g. Run `lattice dev_memory_preflight_ack ...`, lattice finding_list ..., lattice story_advance ...). CHK-006 deleted bin/lattice.js in this same story, so these are now live, currently-reachable instructions telling the operator to run a command that fails with Cannot find module. Live-verified: node bin/lattice.js now errors MODULE_NOT_FOUND, and node bin/proof-or-stop.js session_brief in REVIEW phase still prints 2. [fix] lattice story_advance ... None of the four lattice-residue gate checks (koala/brand-prose/brand-exec/brand-decision) catch this because it is runtime-generated advisory text in packages/main/src, not a static grep-able path literal or doc prose -- a sabotage-that-misses/mutation-that-mutates-nothing style gap left uncovered by this story's own extensive self-audit (session.ts and machine.ts were never touched by any of this story's 200+ commits per git log). This undercuts CHK-006's own acceptance bar of proving nothing depends on the removed aliases.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T10:43:07.435Z",
@@ -775,7 +775,8 @@
         "packages/main/src/handlers/session.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T10:47:02.621Z"
     },
     {
       "id": "B-cc10:F-042",
