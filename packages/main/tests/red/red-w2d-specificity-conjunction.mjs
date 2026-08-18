@@ -295,6 +295,56 @@ assert.equal(validate([literal('L1', ADMISSIBLE)]).ok, true,
     'the SAME string as a registered class NAME is exempt from rule 2 — kind, not value, decides');
 }
 
+// ── CHARACTERIZATION: short real-world failure constants (B-9ff1 F-060) ──────
+// Pins the CURRENT verdicts of §1.3 rule 2 on short, well-known failure
+// signatures. NOT an endorsement of those verdicts: B-9ff1:F-058 records that
+// the rule INVERTS on exactly this class, because character-level Shannon
+// entropy measures alphabet diversity rather than semantic specificity, so
+// signal names, errno codes and HTTP status lines fall below the floors while
+// the vaguer phrase "test failed" clears them on character variety alone.
+// Whether the metric should change is a §1.2/§1.3/§1.12 spec decision deferred
+// to the spec owner. Until it lands, these rows make any future change to the
+// entropy formula fail HERE mechanically, instead of needing another reviewer
+// hand-probe as F-058 did. Measured values are DERIVED from the same functions
+// under test, never restated as literals - a hand-typed 15.65 would drift the
+// moment the formula moves, which is the defect this story has recorded twice.
+{
+  const CHARACTERIZATION = [
+    { value: 'SIGSEGV', admitted: false, why: 'both floors fail' },
+    { value: 'ENOMEM', admitted: false, why: 'both floors fail; also below the NON-TUNABLE hard entropy floor, so no policy can ever admit it' },
+    { value: 'HTTP 404', admitted: false, why: 'length clears, entropy alone rejects' },
+    { value: 'Error 500', admitted: false, why: 'length clears, entropy alone rejects' },
+    { value: 'test failed', admitted: true, why: 'THE INVERSION: vaguer than every row above, yet admitted on character variety alone' },
+  ];
+  let admittedCount = 0;
+  const rows = [];
+  for (const row of CHARACTERIZATION) {
+    const len = valueByteLength(row.value);
+    const bits = entropyBits(row.value);
+    const result = validate([literal('L1', row.value)]);
+    assert.equal(
+      result.ok, row.admitted,
+      `characterization drift on ${JSON.stringify(row.value)} (len=${len}, bits=${bits.toFixed(2)}, ${row.why}): `
+      + `expected admitted=${row.admitted}, got ${result.ok}. The specificity metric changed, so the set of `
+      + 'pinnable real-world failure signatures moved with it. Re-derive these expectations from the new rule '
+      + '(see B-9ff1:F-058) rather than editing them to pass.',
+    );
+    if (result.ok) admittedCount += 1;
+    rows.push(`    ${JSON.stringify(row.value).padEnd(15)} len=${String(len).padStart(2)} bits=${bits.toFixed(2).padStart(6)} -> ${result.ok ? 'ADMIT' : 'REJECT'}`);
+  }
+  assert.equal(
+    admittedCount, 1,
+    'exactly one characterization row is admitted today and it is the VAGUEST one; if that stops holding, the F-058 inversion has changed shape',
+  );
+  const vaguest = CHARACTERIZATION.find((r) => r.admitted);
+  assert.ok(
+    entropyBits(vaguest.value) > Math.max(...CHARACTERIZATION.filter((r) => !r.admitted).map((r) => entropyBits(r.value))),
+    'the inversion is that the admitted row scores HIGHER than every rejected one; if that ordering breaks the metric changed',
+  );
+  console.log(`  characterization (F-060): ${CHARACTERIZATION.length} short real-world constants pinned; ${admittedCount} admitted (the vaguest) - documents the F-058 inversion`);
+  for (const line of rows) console.log(line);
+}
+
 console.log('red-w2d-specificity-conjunction: PASS');
 console.log(`  rule 1: all ${DEFAULT_FORBIDDEN_CATCH_ALLS.length} blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)`);
 console.log(`  rule 2 differential rows: ${differentialRows} (length-only ${lengthOnlyRows}, entropy-only ${entropyOnlyRows}, floor ${MIN_DIFFERENTIAL_ROWS})`);
