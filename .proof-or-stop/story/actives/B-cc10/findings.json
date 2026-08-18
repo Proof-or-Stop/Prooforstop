@@ -1170,7 +1170,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:91,96-98,117,195 hardcodes deprecated '.lattice/runtime/...' and '.lattice/locks/...' as resource-scheduling keys (RESOURCE_POLICY fixed-path/runtime-lock/main-write-lock claims) and as cleanupManifestForEntry's approvedRoots containment allowlist, instead of routing through core/brand-paths.ts's STATE_DIR_NAMES/resolver like lattice-paths.ts does. This is a real production consumer (wired into test:full-suite-runner-smoke / test:full-suite-resource-sentinel / test:runtime-fact-contract), not a fixture. Currently self-consistent (its sentinel fixture full-suite-resource-sentinel.ts agrees on the same literal), so nothing is silently broken today, but it perpetuates the retired directory name as a decision-relevant literal in product runtime source that the CHK-007 [brand-decision] gate's regex (only flags .startsWith/.includes/===/!== against the literal) does not catch, because the literal here is fed into RESOURCE_POLICY as a data value and compared one level removed via pathIsContained()/target===approved, not as a direct comparison expression against the literal.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T16:02:37.645Z",
@@ -1181,7 +1181,8 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T18:04:38.521Z"
     },
     {
       "id": "B-cc10:F-065",
