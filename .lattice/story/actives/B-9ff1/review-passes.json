@@ -1532,6 +1532,36 @@
         "scanEscalationReason": null
       },
       "_hash": "aa82fb82afa75ccd2bdd549474850b21aaae693c8b6f4c6d5da5bbcdcb00624b"
+    },
+    {
+      "id": "B-9ff1:RP-049",
+      "agent": "lattice-review-behavior",
+      "note": "Closeout re-anchor confirmation, not a re-audit. Re-ran red_evidence_envelope_check with no policy configured: still names WHERE to set redEvidence.pinnedPath and emits red_evidence_policy_missing: pinnedPath (F-059 fix intact). Re-ran red-w2d-specificity-conjunction.mjs: exit 0, five characterization rows unchanged (SIGSEGV 15.65/ENOMEM 11.51/HTTP 404 20.00/Error 500 21.77 reject, test failed 34.05 admit). Read summary_get limitations field against my own F-058 record: the paragraph matches the CORRECTED (post F-062/F-065) soundness claim verbatim in substance, not the original overclaim; numbers, hard-floor-non-tunable claim (verified minMatcherEntropyBitsMin=12 in registries.ts, 11.51<12), and usability framing are faithful, not softened. Ran the remaining four red harnesses plus the envelope smoke: all exit 0. findings.json: 65 total, 0 open (64 resolved + 1 dismissed). git rev-list --count HEAD..main = 0. git status --porcelain empty.",
+      "createdAt": "2026-08-18T20:37:23.095Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-078",
+      "envelopeId": "07d3aa2e4a08ab469a911355cc066c18c4ed98b8be562f53febcfd1ca1af6233",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e8be515c5073f0899f049d52da82d7ba268ab20f505918b927d8b6a14755d57"
     }
   ]
 }
