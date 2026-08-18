@@ -1708,6 +1708,34 @@
       "resolvedAt": "2026-08-18T21:25:31.347Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-076",
+      "desc": "F-073 resolvedReason claims 5e945ca \"makes NO self-property claim at all\" and that its two \"carries no count\" occurrences are only quotations. That check was too narrow: 5e945ca opens with \"THE LESSON, with nothing in it that can go stale: a reviewer lane whose job was auditing the story owner's STATEMENTS about the code found defects there repeatedly...\" - a self-referential claim that a clause of its OWN text is free of a property (staleness-inducing content), the exact \"carries no X\" shape as e918048's falsified \"carries no count\", recursed one level. Confirmed via `dev_memory_search --query=a67bb17 --limit=1 --json` (top hit id=5e945ca) and reading the full lesson field: \"with nothing in it that can go stale\" and \"carries no count\" are structurally the same self-property-claim pattern; only the latter phrase was checked (as a quotation-vs-assertion distinction), the former was not checked at all. F-073's own verification (\"I verified that by reading the sentence contexts\") was narrower than the property it asserted (\"NO self-property claim AT ALL\") - which is exactly the rule 5e945ca states must not happen (\"do not claim a property of your own text wider than the check you ran\"). This is a sixth occurrence of the pattern the human anticipated when priming this exact check.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T21:51:22.285Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-095",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl (via dev_memory_search CLI, id=5e945ca)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d2a9d7b5dedb645245999ba1def698834680daa569b4b80b1dad0fbb2af36806",
+      "files": [
+        ".lattice/dev-memory/experience.jsonl",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|jsonl|resolvedreason-claims-5e945ca",
+      "signatureTagSource": "auto"
     }
   ]
 }
