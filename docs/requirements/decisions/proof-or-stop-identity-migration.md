@@ -289,10 +289,25 @@ another pattern to the gate.
 **Honest total: 37 validate-suite defects fixed**, of which 8 were invisible to the suite used
 to measure the first 25. **All 37 are fixed.**
 
-Do not confuse that 37 with the **69 reviewer findings** in this story's finding ledger (68
-resolved, 1 dismissed as a probe artifact, 3 of them critical). The two count different things:
-37 is defects that broke the validate suite; 69 is everything eight reviewer rounds raised,
-including docs drift, dead code, and overclaims in this very file. Final state:
+Do not confuse that 37 with the reviewer-finding ledger, which counts something different: 37
+is defects that broke the validate suite (a CLOSED set, so the number is stable); the ledger is
+everything the reviewer rounds raised — docs drift, dead code, vacuously-passing fixtures, and
+overclaims in this very file — and it kept growing until the last round closed.
+
+**The ledger total is deliberately NOT quoted here.** Read it from the source:
+
+```bash
+node -e "const j=require('./.proof-or-stop/story/actives/B-cc10/findings.json');const a=j.findings||j;const r=Array.isArray(a)?a:Object.values(a);const s={};r.forEach(x=>s[x.status]=(s[x.status]||0)+1);console.log(r.length,s)"
+```
+
+Five separate reviewer rounds (F-060, F-063, F-069, F-072, and one before them) caught a stale
+ledger count in this file, because every fix to the count is itself a resolve that changes the
+count — the number was stale again the moment it was written, including the commits that
+"fixed" it. A snapshot of a live counter cannot be kept accurate by editing it more carefully;
+the only durable fix is to stop snapshotting and point at the source. Three findings were
+critical.
+
+Final state:
 `status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
 3 audited permanent waivers).
 
