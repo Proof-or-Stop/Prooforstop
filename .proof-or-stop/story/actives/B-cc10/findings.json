@@ -433,6 +433,24 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-025",
+      "desc": "concept-cleanup: adapter directory rename (CHK-003/CHK-002: .lattice-codex -> .proof-or-stop-codex, canonical; verified .lattice-codex does not exist on disk, only .proof-or-stop-codex does) incomplete in docs/CLI.md. Four stray .lattice-codex references remain in an otherwise-migrated section (surrounding lines in the same paragraphs already correctly say .proof-or-stop-codex): line 978 (\"does not need a manual copy of `.lattice-codex`... as long as `.lattice-codex`... are committed\"), line 1009 (\"whether `.lattice-codex/README.md` contains the correct fallback entry-point notes\"), line 1024 (\"whether `.lattice-codex/README.md` retains the correct Codex fallback entry point\"), and line 1134 in the \"Codex-side notes live in\" bulleted list (`[.lattice-codex/README.md](.../lattice-codex/README.md:1)`) sitting directly next to a sibling bullet that was already correctly updated to `.proof-or-stop-codex/agents/`. An operator following any of these four instructions to inspect or copy `.lattice-codex` would find nothing, since the directory does not exist under that name in this repo.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T04:23:48.609Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-027",
+      "_hash": "6020cb23c71dab968f2c08349055be8b1a9524374e968eece229a7bc1ca773b2",
+      "files": [
+        "docs/CLI.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-adapter",
+      "signatureTagSource": "auto"
     }
   ]
 }
