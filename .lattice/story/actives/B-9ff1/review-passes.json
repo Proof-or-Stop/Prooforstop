@@ -1743,6 +1743,40 @@
         "scanEscalationReason": null
       },
       "_hash": "bb384a1b87dc8de8ab3599550e442b66fd65656d25c1eccca04fa987a2f1fce1"
+    },
+    {
+      "id": "B-9ff1:RP-056",
+      "agent": "lattice-review-test-coverage",
+      "note": "Twelfth re-bind test-coverage pass. F-067's correction (dev-memory e367ec1) verified against source: it does NOT re-enumerate the exclusion list, states the prior list was wrong, names the conditional exclusion at done-required-timeout-budget.ts:279 (live_smoke_transcript excluded only when args.capture is a string), and directs the reader to lines 279-290 rather than restate it -- confirmed against those lines directly, structurally correct this time. Re-verified checklist.json (authoritative store, not the stale test-evidence.json artifact): 108 verificationEvidence records, 106 non-waiver all mechanical:true/selectorMatched:true/exitCode:0, 22 distinct headHash values in a 5x21+3=108 pattern, all 108 sharing current materialHash bc686b2f...5b7ea and storyFilesHash 707b1c1...d4d8e (matches story_get live state). Both waivers (CHK-012:edge:1, CHK-013:adversarial:0) carry clear immutable-pin notes. Registration intact: JSON.parse of lattice.config.json shows all five red-w2d-*.mjs plus dist/tasks/red-evidence-envelope-smoke.js present exactly once each in validate.commands; ran all six directly, all exit 0. F-060's characterization fixture (red-w2d-specificity-conjunction.mjs CHARACTERIZATION block) still prints its five rows (SIGSEGV/ENOMEM/HTTP 404/Error 500/test failed with derived bits) and exits 0. git rev-list --count HEAD..main = 0; findings.json has 69 findings, 0 open (68 resolved + 1 dismissed). No blocking gaps found.",
+      "createdAt": "2026-08-18T21:04:33.013Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-088",
+      "envelopeId": "229a49e13a656bff81f1e4852bed1bd486cf96a7de79749a1786e965fe933325",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-9ff1/test-evidence.json",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "057a2a3e35dca11387bd34545c2434a8f1dd17473afed00e3fad960725666bbc"
     }
   ]
 }
