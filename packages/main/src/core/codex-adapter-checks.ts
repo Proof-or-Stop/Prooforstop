@@ -1016,7 +1016,12 @@ function checkGlobalFallback(
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_DEPRECATED_BIN,
+    // B-cc10 F-057: fall back to the CANONICAL bin. This fell back to executing 'lattice',
+    // which CHK-006 deleted, so on a machine whose global shim still points at a migrated
+    // checkout the heartbeat probe fails with 'Cannot find module .../bin/lattice.js'. Line
+    // 814 above legitimately probes BOTH names when DISCOVERING an installed CLI; this site
+    // is different — it picks the command to EXECUTE, so it must name the one that exists.
+    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_PRIMARY_BIN,
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',
