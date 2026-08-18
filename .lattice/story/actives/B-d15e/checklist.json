@@ -9,7 +9,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The full-suite JSON result contains `\"performanceBudgetMs\": 1200000`, and `npm run test:full-suite-runner-smoke` prints `full-suite-runner-smoke: PASS`.",
+      "excludes": [
+        "Changing FULL_SUITE_BUDGET_MS or runtime budget enforcement",
+        "Changing scheduler concurrency or entry timeouts",
+        "Rewriting frozen B-9812 receipts"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      }
     }
   ]
 }
