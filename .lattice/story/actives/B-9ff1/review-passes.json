@@ -1868,6 +1868,36 @@
         "scanEscalationReason": null
       },
       "_hash": "963cc316f848093a9271c6efb2657b84f065cf6bd91b8eebca7a132722212b48"
+    },
+    {
+      "id": "B-9ff1:RP-060",
+      "agent": "lattice-review-quality",
+      "note": "Narrow metadata-only re-review per dispatch scope. (1) RP-057 bound to RR-090 headHash 4372adb84f2261f12023d61dd6787b1141f2f08a; git diff --name-only 4372adb8..23fc98d (HEAD) -- packages/ docs/ scripts/ lattice.config.json is EMPTY, confirming no source changed since RP-057. (2) Verified F-074/F-075 fix is real in THIS worktree: git log -- .lattice/story/actives/B-def6/background.md shows commit c44410f6f8 beyond the INIT commit (78975820d5); read (not just exit-code) both B-def6 and B-1b2b background.md in this worktree and confirmed the appended CORRECTION (cross-vendor review host B, 2026-08-18) text is present verbatim in both files. (3) npx tsc --noEmit -p packages/main exit 0; all five red-w2d harnesses (rejection-matrix, command-readonly, specificity-conjunction, assertion-digest-scope, entropy-differential) exit 0; node packages/main/dist/tasks/red-evidence-envelope-smoke.js exit 0 (OK transcript). (4) git rev-list --count HEAD..main == 0; git status --porcelain shows only this rounds self-generated review-runs.json/prompt-envelopes.json bookkeeping (RR-095..RR-099, all headHash=23fc98d=HEAD, i.e. no stray WIP); findings.json has 75 entries = 74 resolved + 1 dismissed, 0 open. No blockers.",
+      "createdAt": "2026-08-18T21:46:27.491Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-096",
+      "envelopeId": "b15546592095fcf54f743ff2a6fad59b1c0637c03a8e5f6acf0389b19ca15711",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1b2b/background.md",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          ".lattice/story/actives/B-def6/background.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5387d820e0decd2b643e6d7dccd6764b104a6b664502fe39b6c9c3d9a846dd32"
     }
   ]
 }
