@@ -258,6 +258,21 @@
       "resolvedAt": "2026-08-18T16:42:13.240Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7dff:F-014",
+      "desc": "packages/main/src/core/validation-executor.ts:104-119 (DEFAULT_VALIDATE_PLAN_JOBS doc) + :152-159 (resolveCommandTimeoutMs) vs packages/main/src/tasks/full-suite-runner.ts:261-292 (FULL_SUITE_BUDGET_MS/CONCURRENCY_HEADROOM_FACTOR/withConcurrencyHeadroom): the merge brought two concurrency models that now share the SAME keyed-scheduler engine (core/keyed-scheduler.ts, this story CHK-001) but left their timeout-safety-margin policies unreconciled. full-suite-runner.ts explicitly treats entry.timeoutMs as a STANDALONE budget and scales it by CONCURRENCY_HEADROOM_FACTOR=1.5 whenever jobs>1 (withConcurrencyHeadroom, applied at the runEntry call site kept by this merge), with an extensive documented rationale that NOT scaling caused real ETIMEDOUT failures under concurrency (milestone-status failed its own assertion at 98.3s under old 4x oversubscription per the comment at line ~319). validation-executor.ts runs the routine-validate plan under the identical default concurrency (DEFAULT_VALIDATE_PLAN_JOBS=4, same default full-suite used before main derived it from CPU count) via the same runScheduled primitive, but resolveCommandTimeoutMs(command, defaultMs) takes NO jobs/concurrency parameter at all and applies lattice.config.json validate.commands[].timeoutMs (or DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270_000) as a flat, unscaled absolute ceiling. The only justification offered is a comment claim that per-command timeoutMs values are already \"calibrated against\" jobs=4 (validation-executor.ts:118) -- an assertion with no code path enforcing it and no cross-reference to full-suite-runners headroom rationale anywhere in either file (grep for CONCURRENCY_HEADROOM/withConcurrencyHeadroom/effectiveEntryTimeoutMs in validation-executor.ts and validation-types.ts returns zero hits). This is exactly the failure class the merges own commit message warns about avoiding (an undeclared command must fail closed rather than be silently exposed to oversubscription): today no configured routine-validate command is close enough to its ceiling for this to bite (spot-checked; quorum-submit-smoke declares 830548ms against a measured 267-271s standalone), so it is not a live regression, but a future contributor tightening a validate.commands[].timeoutMs value, or running on a slower/more-loaded host, has no mechanism analogous to withConcurrencyHeadroom to fall back on, and the docstrings actively assert (without proof) that none is needed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T16:44:52.270Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-022",
+      "_hash": "bbd1d40c3eb1442ad3dc016344d18a0eb4135dd880daf7b8c156464cce5ef8e8",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
