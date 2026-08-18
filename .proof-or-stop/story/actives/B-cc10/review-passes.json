@@ -66,6 +66,40 @@
         "scanEscalationReason": null
       },
       "_hash": "1de7ee4896aa19b44df478ca42fc901104618f0da636fc4d53ba15639e82432b"
+    },
+    {
+      "id": "B-cc10:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Re-review at HEAD 85b544bd7b: verified F-057 fix (discovery-vs-execution distinction correct), grep-audited F-047..F-056 and a2be792681 fixes, ran verify-lattice-residue.mjs (4/4 PASS), re-confirmed the two persistent criticals (story_get B-49ed returns real data; forbiddenPathGlobs includes .proof-or-stop/story/**), and swept live source for .lattice-codex/.lattice/lattice.config.json/lattice.json/@lattice/core/bin-lattice residue. All hits fall into accepted categories (canonical brand-paths.ts constants, historical comments, self-consistent tmpdir fixtures, negative-assertion tests, or already-documented FROZEN items). No blocker.",
+      "createdAt": "2026-08-18T13:41:05.317Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-071",
+      "envelopeId": "bc235367a93a3bc641d5a69ad68b2c7306aefb597fda69461e3a2969e95aa716",
+      "writerSessionId": "sess-eed55994d1ba42fe85d07fd953696373",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/deprecated-gc-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/src/core/config.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/init-assets.ts",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f904ecc61fd66d707444969d838c191cea03433d81219278c3cc12d17593993"
     }
   ]
 }
