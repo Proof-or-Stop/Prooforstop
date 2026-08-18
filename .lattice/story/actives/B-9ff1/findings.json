@@ -1089,6 +1089,24 @@
       ],
       "signatureTag": "spec-boundary|md|cross-vendor-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-052",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. §1 defines policyDigest and assertionDigest among the envelope's fields and the §1.10 normative v2 schema requires both, but red_evidence_envelope_check admits a candidate envelope carrying neither (host B probe: hasPolicyDigest=false, hasAssertionDigest=false, ok=true, no rejections or diagnostics). Host B re-dispositioned this as a SPEC-TEXT defect while keeping one part explicitly unrefuted: if candidate envelopes are intentionally allowed to omit derived fields, that distinct candidate schema needs to be NORMATIVE, and §1 grants no such exception. Host B's targeted search found no mention of red_evidence_envelope_check, or of a candidate envelope, anywhere in the 1607-line spec.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T17:17:58.102Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "_hash": "056e53a6b23c7428defabef1a2b33186d5962ca5b265c160f2c2080f6c4ac5cd",
+      "files": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "spec-boundary|md|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
