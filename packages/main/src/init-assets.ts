@@ -167,7 +167,7 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     {
       name: 'local-wrapper',
       command: 'node bin/proof-or-stop-codex.js',
-      useWhen: 'This repository includes the Proof-or-Stop bootstrap wrapper. The deprecated bin/lattice-codex.js alias is retained and still works.',
+      useWhen: 'This repository includes the Proof-or-Stop bootstrap wrapper.',
     },
     {
       name: 'global-fallback',
@@ -196,9 +196,12 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     'Claude Code hooks, settings, and skills remain under .claude only.',
     'Run node bin/proof-or-stop-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
     // B-cc10 CHK-004: the manifest FILENAME comes from the resolver so this
-    // generated note names the file `init` actually writes. The deprecated
-    // `bin/lattice-codex.js` alias mention is intentional and stays.
-    `Legacy project documents may remain archived, but active Codex adapter assets use ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} and bin/proof-or-stop-codex.js (the bin/lattice-codex.js alias is deprecated but retained).`,
+    // generated note names the file `init` actually writes.
+    // B-cc10 F-016: the bin/lattice-codex.js mention was REMOVED. An earlier comment
+    // here said keeping it was "intentional" — true while the alias existed, false
+    // once CHK-006 deleted it. This string materializes verbatim into the adapter
+    // manifest, so it was telling users a nonexistent binary still works.
+    `Legacy project documents may remain archived, but active Codex adapter assets use ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME} and bin/proof-or-stop-codex.js.`,
   ],
 } as const;
 

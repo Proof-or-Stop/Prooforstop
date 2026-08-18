@@ -26,8 +26,14 @@
   Rationale: `docs/requirements/decisions/proof-or-stop-identity-migration.md`
   ("Supersession 2").
 
-  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) and
-  the `@lattice/core` package name are separate identities and remain retained. Projects
+  **Also renamed in this release:** the workspace package `@lattice/core` is now
+  `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
+  it through relative paths into `packages/main/dist`), and no alias package is published;
+  an external project pinning `@lattice/core` in its own `package.json` must update that
+  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
+
+  **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
+  separate identity and remains retained. Projects
   initialized before the rename that carry their own local `bin/lattice.js` are also
   unaffected: `init` and `check` still recognize the old wrapper name in downstream
   projects, so no managed file is stranded.
