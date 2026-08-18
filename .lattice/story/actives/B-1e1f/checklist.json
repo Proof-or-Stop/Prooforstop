@@ -6,7 +6,7 @@
       "context": "Create one deep owner, not a thin handler wrapper around review-inventory-epoch.ts. The window has states BLOCKED/ADMITTED/RUNNING/FINALIZED/INVALIDATED/CANCELLED, binds storyId, expected main SHA, headHash, materialHash, storyFilesHash, verifier/test identity, and the inventory epoch/receipt it consumed. Register the artifact and commands in the process-fact registry and process-fact-levels with an explicit gateConsumer. Status must print State, frozen identity, blockers, and exactly one Next command.",
       "relatedDocs": [
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
-        "AGENTS.md#流程事实双层契约",
+        "AGENTS.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
       "userSees": "proof-or-stop certification_window_status --storyId=B-xxxx prints State: BLOCKED or State: ADMITTED, the frozen head/main/storyFiles hashes when admitted, and exactly one Next: line.",
@@ -14,9 +14,206 @@
         "Review inventory epoch implementation",
         "CausalEvidence execution-key cache"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-18T07:21:32.514Z",
+      "endTime": "2026-08-18T07:31:50.502Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:status-surface",
+            "desc": "Call certification_window_status --storyId=<id> on a story with a CertificationWindow artifact (or none yet) → stdout contains exactly one 'State:' line whose value is one of BLOCKED|ADMITTED|RUNNING|FINALIZED|INVALIDATED|CANCELLED and exactly one 'Next:' line naming a single recovery/next command. WHY: operator surface from plan Verify; status is the gate-consumed readout, not inventory completeness.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+              "selector": "Next:"
+            }
+          },
+          {
+            "id": "CHK-001:admitted-frozen-identity",
+            "desc": "After a successful admit, certification_window_status → prints State: ADMITTED plus the frozen headHash, expected main SHA, and storyFilesHash bound on the signed window. WHY: plan userSees/DoneWhen require frozen identity on the PRE_CERT receipt.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:blocked-no-frozen-identity",
+            "desc": "certification_window_status while State is BLOCKED (no successful admit) → does not print an admitted frozen head/main/storyFiles identity as if the candidate were certified; still prints State: BLOCKED and exactly one Next:. WHY: BLOCKED must not impersonate ADMITTED.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+              "selector": "State: BLOCKED"
+            }
+          },
+          {
+            "id": "CHK-001:registry-gate-consumer",
+            "desc": "certification_window_begin/status/cancel plus the CertificationWindow artifact are registered in process-fact-registry and process-fact-levels with an explicit gateConsumer; npm run test:process-fact-contract exits 0. Status prose never claims a Review Inventory receipt authorizes certification. WHY: process-fact dual contract; inventory completeness is not PRE_CERT.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract",
+              "selector": "process-fact"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:tampered-window-fail-closed",
+            "desc": "Mutate the on-disk signed CertificationWindow (state, hashes, or inventory receipt id) without going through begin/status/cancel → next status/begin/heavy/DONE consumer fail-closes as tampered/invalid and does not treat the window as ADMITTED. WHY: signed gate-consumed fact; prompt-only status text is not evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-001:inventory-receipt-not-precert",
+            "desc": "Present a FINALIZED Review Inventory receipt (authorizesTest=false / inventory-completeness-only) as if it were a PRE_CERT CertificationWindow → heavy entrypoints and window status still refuse certification authority; inventory hashes are not rewritten. WHY: chosen option A; B-3f3d inventory must never become PRE_CERT.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:status-surface",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+          "result": "pass",
+          "note": "stdout contains exactly one State: line and exactly one Next: line",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "de8a9a30b6f5af3e68b346a4c0e2bf96f5261928e167939b38246527ab6f7fdc",
+            "outputTail": "[0.0s] running certification_window_status...\n[0.3s] certification_window_status done\nCertification window: B-1e1f:CW-004\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-1e1f\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:48:45.867Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-001:blocked-no-frozen-identity",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+          "result": "pass",
+          "note": "Live status remains State: BLOCKED with no admitted frozen identity after fingerprint pin sync",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "de8a9a30b6f5af3e68b346a4c0e2bf96f5261928e167939b38246527ab6f7fdc",
+            "outputTail": "[0.0s] running certification_window_status...\n[0.3s] certification_window_status done\nCertification window: B-1e1f:CW-004\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-1e1f\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:23:09.353Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "82a9a7a23871815e2a8329457f83ed9e6315d1ce",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "timestamp": "2026-08-18T15:23:09.497Z"
+        },
+        {
+          "intentRef": "CHK-001:admitted-frozen-identity",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke writes a signed ADMITTED window and asserts status prints frozen headHash expectedMainSha storyFilesHash",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "65dcd7e984ae0c7c7a9c3d03434150405bd93e6a564106dcaa8d36be42bc5916",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: e87a576be2aa96c6138b6489657b9d7b6a4eeaf7\nexpectedMainSha: e87a576be2aa96c6138b6489657b9d7b6a4eeaf7\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (9d3d43a)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:48:58.404Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-001:registry-gate-consumer",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "process-fact contract verified; begin/status/cancel are L4 with PRE_CERT gateConsumer",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ef44839d630ea123657dc9a08f6742395174971a07bafb16a30a756b22235d94",
+            "outputTail": "nly; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot\n...[truncated 42462 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:49:02.657Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-001:tampered-window-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke mutates on-disk hashes without resigning and asserts status throws pre_cert_window_tampered",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "acb2d9df276c11eb0123ca37932712d0257bb5814ca9a49baa198e3acbb0181e",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 188bfaa6cefac8af7094f2731aa83993019eebcc\nexpectedMainSha: 188bfaa6cefac8af7094f2731aa83993019eebcc\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (85cc07c)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:49:15.687Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-001:inventory-receipt-not-precert",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts inventory-completeness-only receipt does not authorize PRE_CERT",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "11ebffd89a87a117dbfcb9215300f3f38f7c48ba0c5e4d790ef9d654c405bbcd",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: c9a8f50a8298524266d6246a94541c6fc299d341\nexpectedMainSha: c9a8f50a8298524266d6246a94541c6fc299d341\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (a2a428a)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:49:28.752Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "70d613d4620c73facaa87db6e9023b429b3a9a5d52f17af32b9e7538022c0a6b",
+        "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+        "headHash": "bfb2b8e0083e261ddeb1f9889b2c61bce288ebe9",
+        "attestedAt": "2026-08-18T07:31:50.670Z",
+        "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562"
+      }
     },
     {
       "id": "CHK-002",
@@ -32,9 +229,236 @@
         "Dependency-domain precise stale (U-03b)",
         "AcceptanceAmendment for missing intents"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-18T07:39:46.289Z",
+      "endTime": "2026-08-18T07:46:44.759Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:admit-all-facts",
+            "desc": "certification_window_begin --storyId=<id> when (1) current Review Inventory epoch is FINALIZED on the same storyFilesHash lineage, (2) no open verified blocking findings, (3) required verification coverage has no missing intents, (4) local main is an ancestor and expected main SHA is recorded, (5) worktree is clean of non-runtime material, and (6) Git-index plus evidence-target writability preflight passes → prints State: ADMITTED, frozen head/main/storyFiles hashes, and exactly one Next:. WHY: only full PRE_CERT fact set admits.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "State: ADMITTED"
+            }
+          },
+          {
+            "id": "CHK-002:consume-b3f3d-path",
+            "desc": "Successful admit calls B-3f3d finalizedUnconsumedReviewInventory and consumeReviewInventoryReceipt (no second freshness hash; merge/clean reuse done_prepare classifiers) → the signed window records the consumed inventory epoch/receipt id. WHY: consume existing inventory, do not reimplement epochs.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:inventory-not-finalized",
+            "desc": "certification_window_begin when no current FINALIZED Review Inventory exists on this story-files lineage → non-zero exit, stdout/stderr contains [pre_cert_inventory_not_finalized], State is not ADMITTED, and Next: names the single inventory-finalize recovery command. WHY: plan Verify line 1.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "[pre_cert_inventory_not_finalized]"
+            }
+          },
+          {
+            "id": "CHK-002:main-not-merged",
+            "desc": "certification_window_begin when local main is not an ancestor or expected main SHA is missing → non-zero [pre_cert_main_not_merged], no ADMITTED window, Next: names the single merge/done_prepare recovery command. WHY: plan Verify line 2.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "[pre_cert_main_not_merged]"
+            }
+          },
+          {
+            "id": "CHK-002:blocking-findings-open",
+            "desc": "certification_window_begin with an open verified blocking finding → non-zero [pre_cert_blocking_findings_open], no ADMITTED window, Next: names the single finding-recovery command. Dirty non-runtime tree or missing required verification intents likewise fail closed with a stable blocker code (reuse done_prepare clean/coverage classifiers). WHY: plan Verify line 3 plus remaining admit facts.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "[pre_cert_blocking_findings_open]"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:missing-b3f3d-api-fail-closed",
+            "desc": "Load the admit path when finalizedUnconsumedReviewInventory / consumeReviewInventoryReceipt are absent (this worktree branched from main without B-3f3d) → begin fail-closes with a stable blocker and never admits. A stub that always returns ADMITTED is a product defect. WHY: decision preMortem 1; no stub-always-admit.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "[pre_cert_inventory_api_absent]"
+            }
+          },
+          {
+            "id": "CHK-002:whole-tree-drift-not-fresh",
+            "desc": "Admit candidate whose materialHash drifted while storyFilesHash is unchanged (whole-tree drift) or whose inventory receipt belongs to another story / another storyFilesHash lineage → refuse; do not treat whole-tree drift as fresh and do not invent a second freshness hash. WHY: keep current strict freshness.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:admit-all-facts",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke admits when inventory merge clean-tree and coverage facts are present and prints State: ADMITTED plus frozen hashes",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "464e35aca1727368fd60e163e511296471233426c713d14b42b8fff3a46e7a79",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 054b7765b535529adf5df0720eba4f437ea1849e\nexpectedMainSha: 054b7765b535529adf5df0720eba4f437ea1849e\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (55ec8f7)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:49:44.994Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:consume-b3f3d-path",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "successful admit calls consumeReviewInventoryReceipt and records inventory epoch-1 / INV-1 on the signed window",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c53e00f9d1297253f2b8648b48d31b02d9f80acaa03f1827065e1ad06e5e50c0",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 4728dfa11403ab75ee3a3cfb3792f4b9a044a8c8\nexpectedMainSha: 4728dfa11403ab75ee3a3cfb3792f4b9a044a8c8\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (6161a88)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:49:58.845Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:inventory-not-finalized",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "begin without a FINALIZED inventory refuses [pre_cert_inventory_not_finalized] and Next names review_inventory_finalize",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cd491bf616097b8aacb83d05439b87826b5cae66acfd697ebd004ed1ea95a386",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: ef045860b1064ddbe57c425f4b10325a8a189544\nexpectedMainSha: ef045860b1064ddbe57c425f4b10325a8a189544\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (0e39b1f)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:50:12.207Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:main-not-merged",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "begin when local main is not an ancestor refuses [pre_cert_main_not_merged] and Next names done_prepare --mergeMain",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "95d4a3e4baeeebb63a0dbe22140775633608883da5a60cd3ec1177eedcc06634",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: dd476d547303de65c61b986b157a23bf765890ef\nexpectedMainSha: dd476d547303de65c61b986b157a23bf765890ef\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (a245663)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:50:25.164Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:blocking-findings-open",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "begin with an open verified critical finding refuses [pre_cert_blocking_findings_open] and Next names finding_list",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "218340e60b3b78bbe55da652ebcef06c6e1a516c7fca83961d0af1047e64533d",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: e9eb6b2b95fd991572fd35b63d01b53e59c8a4a3\nexpectedMainSha: e9eb6b2b95fd991572fd35b63d01b53e59c8a4a3\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (f23448b)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:50:37.889Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:missing-b3f3d-api-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "absent B-3f3d inventory APIs fail-close and never stub-always-admit",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "834f1f52e98801881651a163391a25f4fbb53d19416502552995ce8a5d316c82",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: f703ea63fe5f94be21225a8252d029a484a4e5c6\nexpectedMainSha: f703ea63fe5f94be21225a8252d029a484a4e5c6\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (0043cd6)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:50:52.182Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-002:whole-tree-drift-not-fresh",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "materialHash-only drift with unchanged storyFilesHash is refused inside the smoke and is not treated as an unchanged certification identity",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e5e95d0624bc05e70c918f561a5e2f07d3c5997cfbb7807e29dcaf9082b65aca",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: ed0eaf47267544c947602d0f2039cfd80f3b22d4\nexpectedMainSha: ed0eaf47267544c947602d0f2039cfd80f3b22d4\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (e20480c)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:51:08.103Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "55184ca3d05a257a2f8c12422f2014e9439d44d337e6e7c36d7738ff9cac5cce",
+        "storyFilesHash": "83e90e4921131c9067b203ab30eb3db51c75c38ab24dd2ba13572fd557b0d5b6",
+        "headHash": "9a3dc688dae5bc3b932cf7e6a28f581489245fc3",
+        "attestedAt": "2026-08-18T07:46:45.010Z",
+        "materialHash": "f28b324abb8d275ffc116206ec6d074a50eb3a26f65959f6130c25a69c0c0d7e"
+      }
     },
     {
       "id": "CHK-003",
@@ -49,9 +473,206 @@
         "Changing doneRequiredCommands membership",
         "Content-addressed command reuse"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-18T09:10:33.854Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:admitted-heavy-binds-identity",
+            "desc": "With current window ADMITTED (or already RUNNING), done_required_validate / validate --full / lattice.config.json doneRequiredCommands may start → they bind command receipts to the frozen window identity (headHash, expected main SHA, storyFilesHash, verifier/test identity) and do not spawn a second concurrent suite on the same window. WHY: after admit, one heavy path binds to the frozen candidate.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0"
+            }
+          },
+          {
+            "id": "CHK-003:routine-validate-outside-window",
+            "desc": "proof-or-stop validate without --full, and validate --channel/--concept/--lint, on a story with no ADMITTED window → those commands start and do not emit [pre_cert_window_required] or refuse for missing PRE_CERT. WHY: preMortem 2; REVIEW preflight and routine validate stay cheap.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:premature-done-required-refused",
+            "desc": "done_required_validate --storyId=<id> with no current ADMITTED or RUNNING CertificationWindow → exits non-zero with [pre_cert_window_required] BEFORE any root npm test / doneRequiredCommands child process is spawned; Next: proof-or-stop certification_window_status --storyId=<id>. WHY: plan Verify; refuse premature heavy.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          },
+          {
+            "id": "CHK-003:premature-validate-full-refused",
+            "desc": "validate --full --story=<id> (and any command list taken from lattice.config.json doneRequiredCommands) with no ADMITTED/RUNNING window → same [pre_cert_window_required] refuse and zero heavy child processes. Window states BLOCKED|INVALIDATED|CANCELLED|FINALIZED also refuse a new heavy start. WHY: choke the official heavy allowlist only; membership of doneRequiredCommands is unchanged.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:no-child-on-retry-storm",
+            "desc": "Retry done_required_validate / validate --full in a tight loop without an admitted window → every attempt exits [pre_cert_window_required] and the process table shows zero root-npm-test / full-suite child processes across the storm. WHY: a host that ignores the first refusal must not leak a 35-45 minute suite.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          },
+          {
+            "id": "CHK-003:handler-bypass-still-choked",
+            "desc": "Invoke the done-required-validation / verifier --full handler or core runner directly (not only the CLI flag parser) without an ADMITTED/RUNNING window → still refuse before spawning the suite. Mis-wrapping createVerifierHandlers.validate so --channel/--lint are treated as heavy is a defect (those slices must still start). WHY: choke points are the official heavy entrypoints, not prompt text.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:premature-done-required-refused",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "heavy choke smoke refuses done_required_validate before spawn",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4ef77282cb7e3f3fd19b83b88da558cd3f56db5f5cf57a81912d3b2699704686",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: de653efc5dfc885310c0f81c38f92c53f8d07777\nexpectedMainSha: de653efc5dfc885310c0f81c38f92c53f8d07777\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (1be55c1)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:51:45.448Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-003:admitted-heavy-binds-identity",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "admitted window starts one detector command",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "645fb02732b2a90e543eeb913fe399f3309dcb00bd87a073415ad37767349c75",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 5285a2fff1b3202477280912593d4b1c1bb2d52b\nexpectedMainSha: 5285a2fff1b3202477280912593d4b1c1bb2d52b\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (da67c59)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:51:22.345Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-003:routine-validate-outside-window",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "cheap validate flags do not emit pre_cert_window_required",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "79440020198d399e80bb6cfbc880b03b67247a210542d3333d7edec45693a2c7",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 3f56f738a8bbb65f4f9d0dbf0d046ae02f79fe20\nexpectedMainSha: 3f56f738a8bbb65f4f9d0dbf0d046ae02f79fe20\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (9bf49bf)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:51:33.461Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-003:premature-validate-full-refused",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "validate --full refused without admitted window",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f0dfe752ab98fae2294bd41e730508915e4d826e73c3882ba0f8ebed7b4a6ede",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 164f5c666b0d811a07a7e6ad80075b0ece81aad8\nexpectedMainSha: 164f5c666b0d811a07a7e6ad80075b0ece81aad8\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (8f365c8)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:51:58.557Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-003:no-child-on-retry-storm",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "repeat refuse; zero heavy children",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2f1645fe587490ac49ba4df623a76601534ba76e2b9466969015d6d08eebbd08",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 30d6867558c1817bf59ad12dab4113a99728a1b9\nexpectedMainSha: 30d6867558c1817bf59ad12dab4113a99728a1b9\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (a429c82)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:52:10.367Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-003:handler-bypass-still-choked",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-heavy-choke-smoke.js",
+          "result": "pass",
+          "note": "handlers invoked directly still choke heavy paths",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9f72ed6bc1f9e91b66ac08e29dc9f20dccd2b0d5e3c864bc3651d87f6a04729b",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 4f98c6d6912691bcf10d8fc098a2b7d82ebf8abf\nexpectedMainSha: 4f98c6d6912691bcf10d8fc098a2b7d82ebf8abf\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (6181381)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:52:22.177Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "7f696f944d4b23f2a1fceb04c7502f7c855c0a88b33e10a3dfedf70b45b9ac34",
+        "storyFilesHash": "592ef7e3d4af24d75f0efafbcbafa98b079057d8ced7a16a74cd07c967ad0b64",
+        "headHash": "089a9d6a7363613f7e2e722044169ac8a2e1cd7f",
+        "attestedAt": "2026-08-18T09:10:34.209Z",
+        "materialHash": "16062ce0120228dd2074901bedb56e6a5d97f3aa01cb373d51143594fe9c586a"
+      }
     },
     {
       "id": "CHK-004",
@@ -60,16 +681,213 @@
       "relatedDocs": [
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
-        "AGENTS.md#流程事实双层契约"
+        "AGENTS.md"
       ],
       "userSees": "After a source commit inside an ADMITTED window, proof-or-stop certification_window_status --storyId=B-xxxx prints State: INVALIDATED and Next: proof-or-stop story_advance --storyId=B-xxxx --phase=REVIEW.",
       "excludes": [
         "Long-lived repo-wide write lock during DEV",
         "ReviewRemediation ledger transaction"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-18T09:10:35.841Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:source-commit-invalidates",
+            "desc": "After a source commit inside an ADMITTED or RUNNING window, certification_window_status --storyId=<id> → prints State: INVALIDATED and Next: proof-or-stop story_advance --storyId=<id> --phase=REVIEW. WHY: plan Verify; source mutation returns the operator to REVIEW.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "State: INVALIDATED"
+            }
+          },
+          {
+            "id": "CHK-004:metadata-and-evidence-writes-allowed",
+            "desc": "Story metadata writes and certification evidence writes inside ADMITTED/RUNNING → remain allowed and do not persist INVALIDATED. WHY: window freezes source/test/verifier, not metadata/evidence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:test-or-verifier-mutation-invalidates",
+            "desc": "Material write to test or verifier inputs while ADMITTED/RUNNING → next status/heavy/DONE consumer persists State: INVALIDATED with the changed lineage (same Next: REVIEW). WHY: freeze source/test/verifier, not source only.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "State: INVALIDATED"
+            }
+          },
+          {
+            "id": "CHK-004:receipts-keep-original-hashes",
+            "desc": "After invalidation, stored heavy/DONE-required receipts still carry the original frozen headHash/materialHash/storyFilesHash → they are not rewritten to the new lineage and cannot be consumed as PASS for the mutated candidate. WHY: no silent rebind.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:no-silent-receipt-rebind",
+            "desc": "After source mutation, attempt the B-914f-style reuse path that copies old PASS receipts onto the new hash → heavy reuse and DONE consumers fail closed; receipts keep original hashes. WHY: decision preMortem 4.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          },
+          {
+            "id": "CHK-004:no-cross-story-dev-lock",
+            "desc": "While this story's window is ADMITTED/RUNNING/INVALIDATED, another story's DEV write/commit in its own worktree succeeds; this window does not take a long-lived repo-wide write lock. Heavy/DONE consumers persist INVALIDATED even if status was never called after the mutation. WHY: do not block other stories' DEV; invalidation is fail-closed at every consumer.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+              "selector": "State: INVALIDATED"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:source-commit-invalidates",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "source commit invalidates the window",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "edc069298ee7af6c88abd42dd550f1a434c7f97cd8162ac491ced4aeb94654eb",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 69f18ed70a19d8740182f16ca08a7e6d03f691c8\nexpectedMainSha: 69f18ed70a19d8740182f16ca08a7e6d03f691c8\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (7526e92)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:52:34.889Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-004:metadata-and-evidence-writes-allowed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "metadata-only commit keeps RUNNING",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9f752c282feab86196bf545d32b5362ae23583b82a4d4e7d6c84b9e8934445a6",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 848ebf2dca8dca3147c2b3055f4c538d8f869195\nexpectedMainSha: 848ebf2dca8dca3147c2b3055f4c538d8f869195\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (4cc69b9)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:52:47.035Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-004:test-or-verifier-mutation-invalidates",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "material change invalidates at next status",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e1310de909acd9330e3e4a9fe710e3f89318d81b1de4b582ded3e587df719cd2",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 9b7e54e5390411c8cc0e3be3dfb7cfc6cbbebdc9\nexpectedMainSha: 9b7e54e5390411c8cc0e3be3dfb7cfc6cbbebdc9\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (f6de486)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:52:59.629Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-004:receipts-keep-original-hashes",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "receipt hashes unchanged after invalidation",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2d653bc2fbc569e37b6f1b48f44459e93eb3cf08f2eddf4105778b4a8786d184",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: e92fe70ab7e28b1026e98919d0eadb87884c01ef\nexpectedMainSha: e92fe70ab7e28b1026e98919d0eadb87884c01ef\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (9adcb2b)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:53:12.208Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-004:no-silent-receipt-rebind",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "post-invalidation heavy start refuses",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7d891165d8dd0df0b2ef43adf3d8b1ab21be035ec6a1f7da3edfd7073aa4767e",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: ed7aea67dc4a7d1c1ed35aae93c7fe163558258f\nexpectedMainSha: ed7aea67dc4a7d1c1ed35aae93c7fe163558258f\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (ab35a02)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:53:24.920Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-004:no-cross-story-dev-lock",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-invalidation-smoke.js",
+          "result": "pass",
+          "note": "invalidation is per-story at the consumer",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1044beb5042c4647f72f63ee49f4975cdefd5bc79b023c673e5ce30ede2f9c85",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: a9d9b39a6551816947cba31cff73c27999d21603\nexpectedMainSha: a9d9b39a6551816947cba31cff73c27999d21603\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (e880e37)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:53:39.504Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c5b0968e1a70530101869e2b97503173c27a942b40c049909ee615bc98d90589",
+        "storyFilesHash": "592ef7e3d4af24d75f0efafbcbafa98b079057d8ced7a16a74cd07c967ad0b64",
+        "headHash": "d73ee513ff3826bd16ecedd2099529838c3ff2e2",
+        "attestedAt": "2026-08-18T09:10:36.166Z",
+        "materialHash": "16062ce0120228dd2074901bedb56e6a5d97f3aa01cb373d51143594fe9c586a"
+      }
     },
     {
       "id": "CHK-005",
@@ -84,9 +902,206 @@
         "Claiming the 3-8 hour wall-clock saving without a later A/B story",
         "Reducing required reviewer lanes"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-08-18T09:10:37.925Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:replay-line-and-exit",
+            "desc": "Run the focused PRE_CERT replay/smoke from an unfinalized or dirty or unmerged candidate, then fixture-admit and allow one heavy-path call → prints 'PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0' and exits 0. WHY: plan Verify / userSees; the B-9812-shaped premature run is refused and an admitted window runs at most once.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0"
+            }
+          },
+          {
+            "id": "CHK-005:zero-child-on-premature",
+            "desc": "The replay's premature heavy entrypoint (done_required_validate / validate --full) against the unfinalized/dirty/unmerged fixture → is refused and the smoke asserts zero child suite processes; premature_heavy_runs remains 0. WHY: refuse is not just a log line after the suite starts.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "[pre_cert_window_required]"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:drift-requires-second-admit",
+            "desc": "After the fixture admit, apply related story-owned drift → window INVALIDATES, a second admit is required, and a second heavy-path call without that new admit is refused. Report counters still satisfy premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0 for the canonical replay (the extra refuse is not counted as an admitted run). WHY: related drift cannot reuse the first window.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "State: INVALIDATED"
+            }
+          },
+          {
+            "id": "CHK-005:counters-are-reported",
+            "desc": "Replay output reports both heavy_certification_runs (via premature_heavy_runs and admitted_heavy_runs) and post_cert_source_commits; the canonical passing fixture has post_cert_source_commits=0. WHY: plan context requires those metrics, not wall-clock savings.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:no-quorum-or-lane-weakening",
+            "desc": "The replay/smoke passing does not reduce required reviewer-lane counts or host-quorum counts versus the pre-story baseline; asserting the metric by dropping lanes/hosts is a defect. WHY: plan DoneWhen and excludes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          },
+          {
+            "id": "CHK-005:no-stub-always-admit-to-pass-metric",
+            "desc": "A replay that stub-always-admits (including when B-3f3d inventory APIs are absent) or that increments admitted_heavy_runs without a real ADMITTED window / that counts a premature suite as admitted → must fail. Second heavy after the first admitted run without a post-invalidation re-admit must not increment admitted_heavy_runs. WHY: metrics cannot be gamed; fail closed if inventory APIs are missing.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+              "selector": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:replay-line-and-exit",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "canonical replay line",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b29aa0a9ff5bdeccdd199fb729d1d1dc63af0c29caa3d0afa0a36fc7491b044f",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: f7446af656a9e74ba587af7303474d4033d4ddd0\nexpectedMainSha: f7446af656a9e74ba587af7303474d4033d4ddd0\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (5b6cb94)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:53:56.937Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-005:zero-child-on-premature",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "premature heavy refused",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7a812527ab31f285dcfaa9c8971f104c3cc78b4a2a47da6de43c1c6668fb335d",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 38b21ea630ce342f7f2d5f559dcc35a825fbdfe6\nexpectedMainSha: 38b21ea630ce342f7f2d5f559dcc35a825fbdfe6\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (b143a71)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:54:09.406Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-005:drift-requires-second-admit",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "related drift invalidates first window",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "bff9f5416c335f190163050ec92b34b3cfbe0f0f4bc3604ab1664bc1707d1b20",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 06672e8264804ffc91c0d9663653ebf6b0f9065c\nexpectedMainSha: 06672e8264804ffc91c0d9663653ebf6b0f9065c\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (e799e97)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:54:21.784Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-005:counters-are-reported",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "both counters reported",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8fa69e8757f51af112f14e47ca11b863d1b11e1d37f09b92edf38fac055184af",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: b0f147c5c90a2588fb0eb2658f2a4b17193c3b50\nexpectedMainSha: b0f147c5c90a2588fb0eb2658f2a4b17193c3b50\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (f75661a)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:54:33.628Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-005:no-quorum-or-lane-weakening",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "no lane or quorum policy change",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "199cbefebf29dba0711adcb9cd50e69e1fa70d08045f87d7dfc0d16481bdee23",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 395e9997f4de6c62b552ff3e12f3b197d03ef53c\nexpectedMainSha: 395e9997f4de6c62b552ff3e12f3b197d03ef53c\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (06ad7da)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:54:46.511Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        },
+        {
+          "intentRef": "CHK-005:no-stub-always-admit-to-pass-metric",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-replay-smoke.js",
+          "result": "pass",
+          "note": "no stub-always-admit",
+          "headHash": "570ac97ea0e49b0f1224b5b32af63ab4662cc261",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "be86064fde2498a2a2f08a53c3f342c85d5f2263b22e1053c3166f8cb8271c44",
+            "outputTail": "PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_status --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 3df862e8adacfc2c6bf1919e2d4077d8ba64a356\nexpectedMainSha: 3df862e8adacfc2c6bf1919e2d4077d8ba64a356\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (2a10862)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T15:54:57.657Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-18T15:54:57.671Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "8f13df1609b496d50bc9ed9adf8b2e6bd9322267623bf81b5b311cfeb29232c0",
+        "storyFilesHash": "592ef7e3d4af24d75f0efafbcbafa98b079057d8ced7a16a74cd07c967ad0b64",
+        "headHash": "3e2d70ce6267e50383ed07c17bc91c31ec78c2ea",
+        "attestedAt": "2026-08-18T09:10:38.229Z",
+        "materialHash": "16062ce0120228dd2074901bedb56e6a5d97f3aa01cb373d51143594fe9c586a"
+      }
     }
   ]
 }
