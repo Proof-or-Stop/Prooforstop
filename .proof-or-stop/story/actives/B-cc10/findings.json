@@ -1086,6 +1086,24 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-060",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md close-out section (line 244) still states 'The rename broke 25 of 104 validate commands. All 25 are fixed.' This undercounts what the story actually fixed: F-054/F-055/F-056 (all severity high, all registered findings, all resolved) were vacuously-PASSING guards discovered and fixed after the 25-count was fixed, not part of the original 25. Given this doc already retracted one prior overclaim (F-039, documented two paragraphs below this exact sentence) for the same failure mode of stating a stale close-out number, the '25' sentence should either be updated to reflect the additional 3 fixed defects or explicitly scoped as '25 of the originally counted 104 commands' to avoid understating the story's actual fix count.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T13:42:21.067Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-074",
+      "_hash": "61fce2d547d2abefdef52e46202cf8e36f67686fde7f321e18c60f4754ff1006",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
