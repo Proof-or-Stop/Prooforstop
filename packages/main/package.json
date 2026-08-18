@@ -8,7 +8,7 @@
     "directory": "packages/main"
   },
   "version": "0.3.261",
-  "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
+  "description": "\u901a\u7528\u9879\u76ee\u5f00\u53d1\u6846\u67b6 \u2014 AI-driven Story \u5de5\u4f5c\u6d41 CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -110,7 +110,9 @@
     "test:proofstory-acceptance-basis-smoke": "node dist/tasks/proofstory-acceptance-basis-smoke.js",
     "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",
     "test:source-structure-convergence": "node dist/tasks/source-structure-convergence-smoke.js",
-    "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
+    "usage-ledger-report": "node dist/tasks/usage-ledger-report.js",
+    "test:topology-signing-source-guard": "node dist/tasks/topology-signing-source-guard-smoke.js",
+    "test:signing-guard-mutation-proof": "node dist/tasks/signing-guard-mutation-proof-smoke.js"
   },
   "dependencies": {
     "@lattice/lab": "0.3.65",

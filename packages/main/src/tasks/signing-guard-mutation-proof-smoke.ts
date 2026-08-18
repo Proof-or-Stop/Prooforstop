@@ -8,7 +8,8 @@
  * something else, is what refuses a forgeable session source.
  */
 import { strict as assert } from 'node:assert';
-import { readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
@@ -34,8 +35,17 @@ assert.ok(!match[1].includes('explicit-env'), 'control: explicit-env is NOT acce
 const weakened = original.replace(setLiteral, "new Set(['host-adapter', 'generated-token', 'explicit-env', 'derived-ppid'])");
 assert.notEqual(weakened, original, 'mutation actually changed the artifact');
 // The mutant must sit beside the original so its relative imports still resolve.
-const mutantPath = join(dirname(guardFile), `__b49ed-mutant-${process.pid}.js`);
-writeFileSync(mutantPath, weakened, 'utf8');
+// B-49ed F-013: the mutant must NOT live under packages/main/dist. scripts/full-suite-build-binding.mjs
+// hashes every file in that tree and runs on every `npm run build`, so a transient extra file there
+// races with any concurrent build and trips `stale full-suite dist`. Instead the mutant goes to a
+// scratch dir outside the repo, and its two relative imports are rewritten to absolute file:// URLs
+// so they still resolve from there.
+const scratch = mkdtempSync(join(tmpdir(), 'b49ed-mutant-'));
+const mutantPath = join(scratch, 'mutant.mjs');
+const guardDirUrl = pathToFileURL(dirname(guardFile) + '/').href;
+const relocated = weakened.replace(/from '\.\/([^']+)'/g, (_m, rel) => `from '${guardDirUrl}${rel}'`);
+assert.doesNotMatch(relocated, /from '\.\//, 'every relative import was rewritten for the relocated mutant');
+writeFileSync(mutantPath, relocated, 'utf8');
 
 try {
   const mutant = await import(pathToFileURL(mutantPath).href);
@@ -72,7 +82,7 @@ try {
       `mutant reaches the dispatch lookup for ${forgeable}`);
   }
 } finally {
-  rmSync(mutantPath, { force: true });
+  rmSync(scratch, { recursive: true, force: true });
 }
 
 assert.equal(readFileSync(guardFile, 'utf8'), original, 'the real guard artifact is untouched by the probe');
