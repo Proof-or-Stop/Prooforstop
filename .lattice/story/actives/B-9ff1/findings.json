@@ -1603,7 +1603,7 @@
       "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. B-def6's background states that scope_contract_acknowledge allows phases INIT, PLAN, DEV. packages/main/src/core/command-policy.ts:411 declares allowedPhases: ['DEV', 'REVIEW']. The story's central TEST-phase gap remains genuine.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-18T21:13:20.813Z",
@@ -1613,7 +1613,11 @@
         ".lattice/story/actives/B-def6/background.md"
       ],
       "signatureTag": "doc-code-drift|md|cross-vendor-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld and corrected by an appended tradeoff note on B-def6, with the cause named precisely rather than waved at: INIT/PLAN/DEV is checklist_update's phase list, quoted verbatim from the refusal seen while trying to write a userSees field in TEST, and I attributed one command's phase list to another while writing that background. Verified myself at command-policy.ts:411 rather than taking the report on trust. The central gap is unaffected - scope_contract_acknowledge is still unavailable in TEST, which is the phase where the scope gate reports the violation and prints remediation naming that very command. The appended note tells the next reader to read allowedPhases at command-policy.ts rather than trusting any phase list quoted in prose, including its own.",
+      "resolvedAt": "2026-08-18T21:13:23.623Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-072",
