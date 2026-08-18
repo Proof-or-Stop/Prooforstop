@@ -147,7 +147,16 @@
       { "command": "node", "args": ["packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"], "timeoutMs": 180000 },
-      { "command": "node", "args": ["packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"], "timeoutMs": 180000 }
+      { "command": "node", "args": ["packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"], "timeoutMs": 180000 },
+      {
+        "label": "B-45a5 CHK-001 RED (repro-first, currently FAILING BY DESIGN): both REVIEW-path gates ignore an item-level withdrawal authorized by a confirmed decision. optional=true ONLY because this is the pre-fix tree — CHK-003 must DELETE the optional flag once both gates are wired, at which point this becomes the standing regression guard",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "optional": true,
+        "timeoutMs": 180000
+      }
     ]
   },
   "doneRequiredCommands": [
