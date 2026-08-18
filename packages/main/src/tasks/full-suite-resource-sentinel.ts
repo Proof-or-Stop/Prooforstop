@@ -52,8 +52,11 @@ async function probeFixedPort(): Promise<'bound' | 'unsupported'> {
 async function main(): Promise<void> {
 try {
   execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, stdio: 'ignore' });
-  mkdirSync(join(root, '.lattice', 'runtime'), { recursive: true });
-  mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
+  // B-cc10 F-067: the parent-dir creation that used to live here hardcoded the DEPRECATED
+  // spelling, so once the targets below became resolver-derived it created a stray
+  // `.lattice/runtime` + `.lattice/locks` pair on every run while the real work happened
+  // under the canonical dir. acquireOwnedDirectory()/publishReady() each create their own
+  // parent from the resolved path, so no replacement is needed here.
   const ownershipToken = process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) acquireOwnedDirectory(path, ownershipToken);
   const markerMutation = process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
