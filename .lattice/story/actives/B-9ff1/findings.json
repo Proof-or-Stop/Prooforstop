@@ -1419,6 +1419,34 @@
       ],
       "signatureTag": "adversarial|ts|findings-json-resolvedreason",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-064",
+      "desc": "Multiple accepted_risk resolutions in findings.json claim the substance they decline to fix was filed as follow-up spec work: F-051 block [1] (Filed as follow-up spec work), F-052 (it is filed as follow-up rather than patched here), F-058 (Filed as follow-up spec work alongside F-051/F-054s three-site contradiction and F-052s missing candidate-envelope schema), and F-014 (that systemic defect is filed as separate follow-up work). I checked whether filed means an actual tracked artifact exists. It does not: grep -o B-[0-9a-f]{4} across the whole findings.json returns only B-70e9 (unrelated), B-7dfa (the existing spec-owning story, already DONE before this round), and B-9ff1 itself -- no new story id anywhere. node bin/lattice.js story_list --json enumerates 348 stories; none has a title referencing the class-value length/whitespace bounds contradiction (section 1.1.1 vs R1-3 vs section 1.2), the missing candidate-envelope schema, the entropy-metric axis mismatch (F-058), the exit:07 canonical-form gap (F-050), or the cli-engine activity-log stale-warning bypass affecting the shared READ_ONLY_COMMANDS surface (F-014). grep across .lattice/story/actives/B-9ff1/process-events.jsonl for story_create/new story/filed returns nothing. So filed is not true as literally written in four separate resolution records -- nothing was filed anywhere a future maintainer of the spec, of cli-engine.ts, or of this framework would discover it; the only place this acknowledged debt lives is prose inside this ONE leafs own findings.json. This is the identical overstatement class (claiming an action was performed that was not) this story has now confessed five times over in the F-051/054/055/056/061 chain, recurring here as a claim about FILING rather than about VERIFYING, spread across four separate findings rather than one.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:17:54.308Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/process-events.jsonl"
+        ],
+        "scanEscalationReason": "repo-wide story_list scan to verify whether follow-up spec work claimed as filed in F-050/F-051/F-052/F-058/F-014 corresponds to any actual tracked story"
+      },
+      "_hash": "c4fc1466fd084acf9efc4595a2634798103572624369ffd508adbe32cc411f24",
+      "files": [
+        ".lattice/story/actives/B-9ff1/findings.json",
+        ".lattice/story/actives/B-9ff1/process-events.jsonl"
+      ],
+      "signatureTag": "missing|json|multiple-accepted-risk",
+      "signatureTagSource": "auto"
     }
   ]
 }
