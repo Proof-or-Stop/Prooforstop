@@ -7,9 +7,196 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-08-18T17:25:55.430Z",
+      "endTime": "2026-08-18T17:26:43.580Z",
+      "userSees": "The full-suite JSON result contains `\"performanceBudgetMs\": 1200000`, and `npm run test:full-suite-runner-smoke` prints `full-suite-runner-smoke: PASS`.",
+      "excludes": [
+        "Changing FULL_SUITE_BUDGET_MS or runtime budget enforcement",
+        "Changing scheduler concurrency or entry timeouts",
+        "Rewriting frozen B-9812 receipts"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the production result writer and build packages/main: it contains exactly one performanceBudgetMs initializer, that initializer references FULL_SUITE_BUDGET_MS, no numeric performanceBudgetMs initializer remains, and the build exits 0.",
+            "type": "cli",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "build-main-with-binding.mjs"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0011005762281cbffb16c9f0731feec1249dd312a904c9ec973ddaec5440fdcf",
+        "storyFilesHash": "fd230e6f2bebee4399c30b32172ca24bc5615d46840ff15e53aec1e890e1a6e3",
+        "headHash": "92534bc237a6131311dc449afcfb6e43078b1671",
+        "attestedAt": "2026-08-18T17:26:43.794Z",
+        "materialHash": "0fb55e3fed351391267243f244998c000ae8e53738f7e7eb0e0d8f4457e0bfb9"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "The production writer has one canonical performanceBudgetMs initializer, no numeric initializer, and the current packages/main source builds successfully.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f884f679d0239a6c889aefa95f72b49422aa4c8abcf72d23a7ef6b0753e29d6d",
+            "outputTail": "\n> @lattice/core@0.3.262 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T17:34:31.183Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "a8f06f65aa7916b30e5bea8328866514f31a1976",
+          "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+          "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+          "timestamp": "2026-08-18T17:34:31.333Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for canonical full-suite budget telemetry",
+      "context": "The writer fix is one line and could silently regress to another numeric shadow copy. Extend full-suite-runner-smoke.ts with a focused assertion that requires performanceBudgetMs to reference FULL_SUITE_BUDGET_MS and rejects a numeric initializer.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "userSees": "`npm run test:full-suite-runner-smoke` prints `full-suite-runner-smoke: PASS`; changing the initializer back to `300_000` makes that smoke fail.",
+      "excludes": [
+        "Running or rewriting the historical B-9812 capture campaign",
+        "Changing the runtime budget value"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-18T17:26:45.016Z",
+      "endTime": "2026-08-18T17:35:48.811Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With full-suite-runner.ts using performanceBudgetMs: FULL_SUITE_BUDGET_MS, run npm run test:full-suite-runner-smoke from the repository root → exits 0 and prints full-suite-runner-smoke: PASS, demonstrating the smoke enforces canonical budget telemetry.",
+            "type": "cli",
+            "verification": {
+              "command": "npm run test:full-suite-runner-smoke",
+              "selector": "full-suite-runner-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Save the exact original full-suite-runner.ts, replace only the unique result initializer performanceBudgetMs: FULL_SUITE_BUDGET_MS with performanceBudgetMs: 300_000, then run npm run test:full-suite-runner-smoke from the repository root → exits nonzero because the smoke rejects the numeric shadow copy; restore the saved source byte-for-byte, rerun → prints full-suite-runner-smoke: PASS, and git diff --exit-code -- packages/main/src/tasks/full-suite-runner.ts succeeds.",
+            "type": "cli",
+            "verification": {
+              "command": "npm run test:full-suite-runner-smoke",
+              "selector": "numeric performance budget shadow-copy mutation is rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "npm run test:full-suite-runner-smoke",
+          "result": "pass",
+          "note": "The canonical root smoke executes the result-budget mapping assertion and passes the full runner smoke inventory.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b570ee38770408696b277f1caeff6b9a814b73db9799786fb45c6ef9c97476ef",
+            "outputTail": "on before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omission\",\"resource-key-collision\",\"fixed-path-collision\",\"timeout-grandchild\",\"ordinary-failure\",\"tracked-output-overwrite\",\"identity-drift\"]}\nfull-suite-runner-smoke: PASS (153 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T17:35:05.951Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "efa628f1eff012b66143fad0de6f3325ea6bf6a8",
+          "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+          "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+          "timestamp": "2026-08-18T17:35:06.125Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "npm run test:full-suite-runner-smoke",
+          "result": "pass",
+          "note": "The smoke mechanically mutates the real writer source in memory to the old 300_000 initializer and proves the shared predicate rejects it; a separate real-file mutation run also failed at the same assertion before exact restoration.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "63f888b87fa54d152303b947e29d73cea83b3b1a2bb1694667cf35acd2d55b26",
+            "outputTail": "on before emission changes mutation inventory\",\"member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"tampered dist makes direct npm test fail before argument parsing with launches0\",\"authoritative git identity probes retry a transient two-second timeout\",\"hung authoritative git identity probe reports a precise timeout\",\"hung authoritative git identity probe stops within its monotonic total budget\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"dynamic assertion marker scan recognizes forbidden runtime detail\",\"emitted assertion markers contain only stable labels\"],\"mutations\":[\"inventory-omission\",\"resource-key-collision\",\"fixed-path-collision\",\"timeout-grandchild\",\"ordinary-failure\",\"tracked-output-overwrite\",\"identity-drift\"]}\nfull-suite-runner-smoke: PASS (153 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T17:35:36.298Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "eb84bb5cea1b5f09c37055d6f8c965d33dfadf9b",
+          "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80",
+          "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+          "timestamp": "2026-08-18T17:35:36.448Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "957778cd93f9d0110aff6e9cc3688160913641ea10e084951f661d8ddf5b46ed",
+        "storyFilesHash": "7a459d75a61d67fee24be9bc690d28d0aea53e97f8f67437da20a4d9d8f401d3",
+        "headHash": "eeb997fea79d1d050b88bb2e84c5d4739bcd0cc3",
+        "attestedAt": "2026-08-18T17:35:48.993Z",
+        "materialHash": "f001d7115e3f0966cc1dc27ce7eb6cfb43ddb821cc8148b55fb85b612347ed80"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-18T17:22:07.447Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title.",
+      "addedTitle": "Add regression coverage for canonical full-suite budget telemetry",
+      "addedContext": "The writer fix is one line and could silently regress to another numeric shadow copy. Extend full-suite-runner-smoke.ts with a focused assertion that requires performanceBudgetMs to reference FULL_SUITE_BUDGET_MS and rejects a numeric initializer."
+    },
+    {
+      "timestamp": "2026-08-18T17:26:43.580Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Production writer now uses the canonical budget constant and packages/main builds successfully."
+    },
+    {
+      "timestamp": "2026-08-18T17:35:48.811Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused smoke, real-file mutation, exact restoration, and mechanical mutation-selector evidence all passed."
     }
   ]
 }
