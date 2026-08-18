@@ -301,6 +301,29 @@
         "scanEscalationReason": null
       },
       "_hash": "1a9e4a4bb741860fcb8c4ef930521788127fb790485d7c64d2c4b1b1b67cb95b"
+    },
+    {
+      "id": "B-49ed:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Re-confirmed via review_incremental_context (isFirstPass=false, scopeChanged=false, changedFiles=none) and independent git diff 933b880b3d..HEAD -- packages/main/src/ which is empty. Only commits since prior pass are proof-or-stop metadata-recording commits. RP-010 findings stand unchanged: F-029 static probe.mjs verified via TS compiler API parse; rmScratch maxRetries verified as Nodes documented ENOTEMPTY retry mechanism. No new finding this round. Standing scope caveat re validation-reuse-merge-lineage-smoke.ts is a scope/process disposition already recorded in F-030 resolution, outside this lanes quality remit to re-litigate.",
+      "createdAt": "2026-08-18T13:14:18.678Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-035",
+      "envelopeId": "8ad1b46aac09ea6ba2c1e06afdf60c3f7788ec2f5abda4d5d346f513d00aac55",
+      "writerSessionId": "sess-623213bafdae2991f875ad06d5d08040",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49ed/findings.json",
+          ".lattice/story/actives/B-49ed/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "751711ff0c37005449a66457da7790987c0be771a9b45df5b556fc47aa590121"
     }
   ]
 }
