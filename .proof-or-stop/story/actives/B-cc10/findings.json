@@ -627,7 +627,7 @@
       "desc": "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts (npm run test:managed-assets-wrapper-root, glob-discovered by run-all-smokes.js and part of npm test) is not touched by this story's diff (git log main..HEAD -- <file> is empty) but is now broken by it: the fixture calls the REAL built CLI's `init` command (runCli(packageRoot, [\"init\", metadataRoot])) then reads join(metadataRoot, \"lattice.config.json\") expecting init to have written that file. Verified empirically: `node packages/main/dist/cli.js init <fresh dir>` on this worktree (post CHK-002/003/004) now writes proof-or-stop.config.json and .proof-or-stop/, not lattice.config.json / .lattice/. Running the smoke directly reproduces a hard crash: `Error: ENOENT: no such file or directory, open '.../lattice.config.json'` at readJson (managed-assets-wrapper-root-smoke.js:39). This is a real (non-vacuous) failure -- it crashes rather than silently passing -- but it is a regression this story introduced (verified: on main, pre-story, init still writes lattice.config.json/.lattice, so the fixture was correct before this story's CHK-002-004 changed init's write behavior) and it was not caught by the story's own verificationEvidence because the smoke is outside all 24 pinned intentRefs. Fix: update the fixture's post-init file expectations to the canonical proof-or-stop.config.json / .proof-or-stop/Lattice.md names (or read-both if the intent is to also exercise the deprecated fallback).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:23:39.388Z",
@@ -638,7 +638,8 @@
         "packages/main/src/tasks/managed-assets-wrapper-root-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T09:54:17.242Z"
     },
     {
       "id": "B-cc10:F-035",
