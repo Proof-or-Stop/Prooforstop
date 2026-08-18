@@ -44,6 +44,7 @@ The scope_contract_acknowledge phase availability is a separate decision and may
 change: allowing scope acknowledgements in TEST could let a story quietly widen its contract after
 review. The alternative is to fix the remediation TEXT so it names a route that actually exists from
 TEST. Deciding which is in scope here; implementing both is not required.
+CORRECTION (cross-vendor review host B, 2026-08-18): the tradeoff text above states that scope_contract_acknowledge allows phases INIT, PLAN, DEV. That is WRONG - packages/main/src/core/command-policy.ts:411 declares allowedPhases: ['DEV', 'REVIEW']. The error was transcription, not reading: INIT/PLAN/DEV is checklist_update's phase list, quoted verbatim from the refusal seen while trying to write a userSees field in TEST, and two commands' phase lists were conflated while writing this background. The central gap is unaffected and remains genuine - scope_contract_acknowledge is still unavailable in TEST, the phase where the scope gate reports the violation and prints remediation naming that command. Whichever route is chosen, read the actual allowedPhases at command-policy.ts rather than trusting any phase list quoted in prose, including this one.
 
 ## Conversational Texture
 
