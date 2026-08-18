@@ -166,7 +166,7 @@
       "desc": "CHK-002:happy:0 is NOT the only attestation-based evidence in this story: all three CHK-004 intents (happy:0, edge:0, adversarial:0) are kind=manual_transcript, mechanical=false, with no receipt block -- narrative descriptions of a single manual CLI invocation each. This is architecturally sound (CHK-004 intents are type=manual, outside EXECUTABLE_INTENT_TYPES in core/verification.ts, so coverageStatusForCoveredEvidence correctly treats mechanical:false as covered rather than gating it -- manual host-adapter-driven verification is a deliberate escape hatch, not a bypass). Flagging only so the storys own self-assessment is corrected: CHK-002:happy:0 is the sole EXECUTABLE-intent (type=cli) evidence resting on a mechanical:true plus receipt kind=integration_test entry (confirmed present, receipt.selectorMatched=true, receipt.exitCode=0), so that specific claim is now actually true for CHK-002:happy:0 -- but the broader premise that it is the only attestation in the story undercounts by 3.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:04:52.828Z",
@@ -177,7 +177,11 @@
         ".lattice/story/actives/B-49ed/checklist.json"
       ],
       "signatureTag": "missing|json|happy-attestation-based",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct, and the correction is mine to accept. I told reviewers 'only CHK-002:happy:0 still rests on an attestation'. That was wrong by three: all three CHK-004 intents are manual_transcript with mechanical:false and no receipt.\n\nThe reviewer is also right that this is architecturally fine rather than a coverage hole -- CHK-004 is type:manual, outside EXECUTABLE_INTENT_TYPES, so the gate covers it by design, and its subject (a live dispatched critic signing a receipt) genuinely cannot be a pinned command. But my framing implied those three were mechanically executed when they are not, and I repeated that framing in four separate reviewer dispatches, which risked reviewers calibrating against a false picture of the evidence quality.\n\nAccurate statement: 9 of 15 intents are mechanically executed with pinned command plus selector; CHK-002:happy:0 rests on an audited nonMechanicalReason; the three CHK-004 intents are manual_transcript and gate-exempt by type.",
+      "resolvedAt": "2026-08-18T04:07:04.850Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
