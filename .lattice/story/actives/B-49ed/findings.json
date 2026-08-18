@@ -481,6 +481,21 @@
       "resolvedAt": "2026-08-18T05:27:43.006Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-025",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:111,143-145: the F-019/F-020 fix correctly reorders the cleanup after the resolveSessionIdentity probes and narrows the delete target from the whole .lattice tree to .lattice/runtime/owner-session-tokens, and I reproduced both invocation paths (npm run from packages/main and from repo root) without pre-clearing: no residue at either candidate, exit 0, PASS both times. But this only narrowed the blast radius; it did not close the pattern F-020 itself already named as the safer alternative and did not adopt: the smoke hardcodes inputs.root = process.cwd() at line 111 purely so its own resolveSessionIdentity probes have SOME root to write under, then deletes join(root, .lattice/runtime/owner-session-tokens) at that same process.cwd()-derived root. Nothing downstream depends on root being the real repo root -- resolveAdapterOwnerSession/readOrCreateOwnerSessionToken treat projectRoot as opaque path material only (confirmed: detectProvider reads only env, never root; the smokes own assertions check only sessionSource values, never sessionId), and this same story already has a working precedent for sandboxing exactly this kind of write: story-owner-lease-smoke.ts uses a LATTICE_OWNER_SESSION_SMOKE_ROOT-style dedicated mkdtemp scratch root instead of touching cwd. Swapping process.cwd() for a mkdtempSync(tmpdir()) root here would make every assertion in this smoke pass identically while removing the process.cwd()-scoped delete entirely, rather than merely narrowing what it can delete there. As written, if this smoke is ever invoked with cwd pointed somewhere unexpected (e.g. a differently-rooted worktree, a CI harness cwd, or a future copy-paste reuse of this pattern elsewhere), it will still rm -rf <that cwd>/.lattice/runtime/owner-session-tokens for a path it does not verify it created and does not verify is otherwise empty of concurrent writers -- exactly the shared-worktree race shape this storys own F-006/F-013 already demonstrated is live in this repo. Recommend: replace process.cwd() at line 111 with a dedicated mkdtemp scratch root (or the same LATTICE_OWNER_SESSION_SMOKE_ROOT convention), delete that root wholesale in a finally block (safe because it is exclusively owned scratch), and drop the process.cwd() candidate from the cleanup loop entirely.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T05:29:41.856Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-029",
+      "_hash": "8f9b03781e7157b2a287da0f5ab573e3edf49b686d7f66c06af51fca81caf7a2",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
