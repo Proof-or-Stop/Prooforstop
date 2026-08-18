@@ -1257,6 +1257,46 @@
         "scanEscalationReason": null
       },
       "_hash": "5ee59a711fb8a32240afec6a8f2171c0f223a4d156bbb0d4bcdea854869ecc84"
+    },
+    {
+      "id": "B-9ff1:RP-040",
+      "agent": "lattice-review-behavior",
+      "note": "Narrow follow-up round per dispatcher scope (no module re-audit): (1) confirmed F-061 attribution now accurate - F-059.resolvedReason credits my narrative hand-back, not RP-039; verified RP-039 note has zero mention of citation/spec:738-742/spec:368-369 and its readManifest lists the spec under filesTriagedByName, matching F-061s claim; independently re-verified spec:368-369 is the sole occurrence of red_evidence_policy_missing and spec:734-744 is the s1.11 rule-4 entropy formula, so the corrected citation is right. (2) Ran red-w2d-specificity-conjunction.mjs: all five characterization values match exactly (SIGSEGV 15.65, ENOMEM 11.51, HTTP 404 20.00, Error 500 21.77, test failed 34.05). Judgment: the fixtures comment block (NOT an endorsement..., THE INVERSION on the admitted row, explicit F-058 cross-ref) plus its own console output line (documents the F-058 inversion) plus assertions that structurally encode the inversion (exactly 1 admitted row = the vaguest one, admitted entropy > every rejected entropy) make this read as an actively-tracked open defect, not settled/intentional behavior, to a future maintainer reading either the source or CI output; no finding filed. (3) Confirmed F-062s corrected statement against spec text: R1-4 (spec:505-507) rejects a record whose present-in-red matchers did not all match the RED output, independent of greenExempt; greenExempt (spec:190-192, s1.5 pattern-absent spec:456-458, envelope.ts:412-418) waives only the absent-at-GREEN conjunct per-matcher - matches the corrected text exactly. (4) git rev-list HEAD..main = 0; findings.json has 64 findings, 0 open (all resolved/dismissed); git status shows only this rounds own review-bookkeeping writes (process-events.jsonl, prompt-envelopes.json, review-runs.json from my own dispatch+review_run_start calls), no source/test drift.",
+      "createdAt": "2026-08-18T18:30:48.427Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-064",
+      "envelopeId": "d544be02f7b1da91dc812b3c3d30f0c1f4b1bf1755e09f244982d4bb9229ca9a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1c56c13c46b0cedfd7dd750035280a64fc249134ddae1bf87b274c87bd8d7e72"
+      },
+      "readDiagnostics": [],
+      "_hash": "da5ab27659a39167738dc0f58d7381509c3fdb7411a87aa8c6655d2fb4deeee6"
     }
   ]
 }
