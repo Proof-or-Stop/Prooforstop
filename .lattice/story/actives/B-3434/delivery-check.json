@@ -1,71 +1,70 @@
 {
   "storyId": "B-3434",
-  "checkedAt": "2026-08-16T10:25:22.394Z",
-  "headHash": "b0ff412990d4fdd40703851681f975b584acd014",
-  "materialHash": "9663bdc713c1b2af4a31f705d649d2e457030e08d6f27b6a4586e01f5f5dff65",
-  "storyFilesHash": "086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034",
-  "reviewRound": "2026-08-16T03:58:30.355Z",
+  "checkedAt": "2026-08-18T12:48:29.697Z",
+  "headHash": "7936cd033e511702a946e84ce91a52e2320db35a",
+  "materialHash": "188e365b7d8448ab880341cef366b4c1ffbee6bbfd1e7fc67be055056ba3ea58",
+  "storyFilesHash": "33e83546c3e0678311af8c328be9dff1f7e3ba2a92e7cf09edd52da7e1ec39b5",
+  "reviewRound": "2026-08-18T12:34:40.850Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "summary.json#changes / #outcomeDiff / #limitations (rewrite under adversarial review)",
-      "promise": "The rewrite that replaced deferred-language with CHK-004-outcome-B language is a precision fix, not gate-gaming: it changes only how the same facts are characterised, and it does not drop any of the four open divergence routes, their transcripts, or the pointer to the decision document.",
-      "verifiedBy": "git diff across the exact two summary_set commits + line-by-line fact comparison + live A/B test of the actual gate code against both texts",
-      "evidence": "git diff 65edaf3be4 b0ff412990 -- .lattice/story/actives/B-3434/summary.json shows only changes/outcomeDiff/limitations text changed (plus phaseStats/updatedAt); actualTranscript, usage, expectedOutcome, acceptanceVerdict are byte-identical. Compared old vs new fact-by-fact: both cite the same four routes with the same finding ids and the same numbers (F-033: 158 expected/158 measured/168 written; cross-vendor toJSON: 67 bytes reported/31457342 on disk; F-035s two-independent-parameters gap; F-037: one line, zero new tsc errors, smoke unaffected), the same explicit non-claim (measured==bytes-on-disk is NOT established), the same structural reason (store.ts outside allowedModify), the same nine-review-rounds fact, the same F-036 9.9s-to-18.5s sizing, and the same closing pointer to the decision document as the work order. Nothing was deleted. Independently ran the real shrinkage-gate code (evaluateDoneIntentEquivalence, imported live from packages/main/dist/core/proofstory.js) against the current story data with the OLD text substituted in vs the NEW text as actually stored: OLD -> status=fail, gap=unconfirmed_single_outcome_shrinkage (identical to the reported blocker); NEW -> status=pass, gaps=[]. This confirms the regex is doing real discriminating work here (word deferred, used 3x in the old text, is what trips it) and that the new text genuinely satisfies it rather than merely looking different."
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "CHK-004 shipped as outcome B: a committed rationale naming a concrete successor change (writer-owned canonical boundary in core/store.ts), not a plan paragraph or commit message, with a deferred-findings table naming real finding IDs.",
+      "verifiedBy": "read/diff",
+      "evidence": "File is committed (git ls-files shows it tracked; added by commit a586100e89 CHK-004 and extended by 2717839123, cd7372f15c). Contains sections 'What ships' / 'What does not ship' / 'The named change that will address it' naming a concrete component (measureCanonicalBytes(data): number in core/store.ts). Deferred findings table names B-3434:F-033, F-035, F-036, F-037, all of which exist verbatim in .lattice/story/actives/B-3434/findings.json (56 findings total, F-001..F-056)."
     },
     {
-      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md (unchanged, re-checked against CHK-004s own text)",
-      "promise": "Nothing this story owed under CHK-004s own title/context is outstanding: CHK-004 requires either the bounding ships or a committed rationale that names the change that will address it, and the committed rationale does that at length (a dedicated section, a concrete component sketch, named finding ids).",
-      "verifiedBy": "read + checklist_get read of CHK-004s authored title/context/verificationIntent",
-      "evidence": "checklist_get CHK-004 title: Bound the aggregate evidence artifact or commit a rationale naming the change that will, and ship whichever the decision is. Read the full decision document (132 lines, 0 diff since before this rewrite): Disposition: outcome B is declared on line 3, What ships and What does not ship sections separate the two claims cleanly, and The named change that will address it is a dedicated section naming a concrete writer-owned boundary in core/store.ts. One caveat surfaced and disclosed rather than buried: CHK-004:edge:1s own intent text asks that the named successor is a real story ID, issue number, or tracked backlog item that can be looked up, and the document states Owner of the follow-up: unassigned with no story ID named anywhere. I judge this satisfied only under a generous reading of tracked backlog item (the committed, versioned document itself). This is pre-existing (checklist.json and the decision doc are byte-identical throughout this whole re-signing thread, confirmed via git diff), openly stated rather than hidden, and not something the summary rewrite touched or concealed."
+      "docPath": "packages/main/src/core/done-prepare-generated-metadata.ts",
+      "promise": "Every execFileSync blob/tree read site passes METADATA_BLOB_READ_MAX_BUFFER_BYTES (33554432 = 32*1024*1024) as maxBuffer, and bare catches that swallowed ENOBUFS are replaced by typed results distinguishing absent from unreadable.",
+      "verifiedBy": "grep + read",
+      "evidence": "grep -n execFileSync found exactly 10 real call sites (line 15 is a doc comment, not a call); all 10 (git/gitRaw/restoreIndexEntries x2/isolatedGit/isolatedBlobHash/treeBlobHash/runCommitHook/optionalGitConfig/updateRealIndexFromTree) carry maxBuffer: METADATA_BLOB_READ_MAX_BUFFER_BYTES, matching the story summary's 'all ten git read sites' claim exactly. isolatedBlobHash/treeBlobHash return MetadataBlobRead ({ok:true,hash} | {ok:false,kind:'absent'|'unreadable',error}) via classifyMetadataBlobReadFailure, which distinguishes a genuine git 'path does not exist' fatal from any other (ENOBUFS/EPERM/etc.) failure code."
     },
     {
-      "docPath": "original-intent-snapshot.json (acceptanceClaim / normalizedOutcome)",
-      "promise": "Nothing owed against the ORIGINAL request is outstanding: the acceptance claim and normalized outcome describe only the per-blob commit-path fix, with no aggregate byte-for-byte guarantee requirement.",
-      "verifiedBy": "read",
-      "evidence": "original-intent-snapshot.json acceptanceClaim: A committed regression stages a blob larger than one mebibyte, drives the metadata commit path, and the commit succeeds where it previously failed with verified metadata changed after manifest verification. normalizedOutcome: a story whose validation evidence artifact exceeds one mebibyte can persist that evidence and enter TEST, and any future unreadable blob reports its real cause. Neither mentions an aggregate byte-for-byte guarantee; that concern was self-imposed later, by CHK-004 at PLAN time, with its own two-outcome escape hatch."
+      "docPath": "packages/main/src/core/validation-executor.ts",
+      "promise": "boundPersistedValidationEvidence exists and bounds the persisted validation-evidence artifact by measuring the actual serialised record (not an estimate), returning {record, fileBytes, withinBound, disposition, state}.",
+      "verifiedBy": "grep + read",
+      "evidence": "boundPersistedValidationEvidence<T>(args) implemented at core/validation-executor.ts:758+, single exit finish() forces record:null to withinBound:false/disposition:'refused'; drives staged reduction (unmodified/reduced/verdict_only/refused) against measureWith(), which serialises via buildRecord and snapshots via snapshotPersistedRecord."
     },
     {
-      "docPath": "materialHash/storyFilesHash freshness at current HEAD (b0ff412990)",
-      "promise": "The delivery-check materialHash/storyFilesHash this reviewer signs against match the current tree exactly.",
-      "verifiedBy": "direct recomputation via currentMaterialHash/currentStoryFilesHash imported live from the built dist, not trusted from a cached report",
-      "evidence": "currentMaterialHash(root,HEAD,root) = 9663bdc713c1b2af4a31f705d649d2e457030e08d6f27b6a4586e01f5f5dff65; currentStoryFilesHash(root,HEAD,root,B-3434) = 086f8112b54ffdbaa25567a6582aa0223c4982ae7770e21f0e4ff9ec81f4e034 -- both computed fresh at current HEAD b0ff412990. Also confirmed via lattice review_escalation_status (read-only) that review-assurance floor is ok=true bound to the identical materialHash/storyFilesHash pair, i.e. the full-3x2 quorum recorded at commit b26148cea9 is still fresh against the current tree even though two summary_set edits landed afterward -- summary.json edits do not move either hash."
+      "docPath": "packages/main/src/handlers/verifier.ts",
+      "promise": "All three evidence write sites (reuse path, non-git FAIL fallback, executed git path) call writeTestEvidence only when withinBound is true and record is non-null; each refuses to write and returns a structured failure otherwise.",
+      "verifiedBy": "grep + read",
+      "evidence": "Exactly 3 writeTestEvidence call sites (lines 764, 965, 990), each immediately preceded by `if (!xBound.withinBound || xBound.record === null) { return persistenceFailure/externalResult(...) }` (reusedBound at 747/764, fallbackBound at 959/965, persistedBound at 981/990). No unguarded write site exists."
     },
     {
-      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md (harness reproduction)",
-      "promise": "Both committed regression harnesses still pass at current HEAD with the same sizing figures.",
-      "verifiedBy": "live execution",
-      "evidence": "Re-ran node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> PASS; node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> PASS, findingIdsNamed=F-001,F-033,F-034,F-035,F-036,F-037, same byte counts as every prior signature. Working tree stayed clean before and after (git status --short empty)."
+      "docPath": "lattice.config.json",
+      "promise": "Both regression harnesses (red-b3434-blob-buffer-ceiling.mjs and validation-evidence-buffer-smoke) are registered in validate.commands, not merely present as files, so 'the regression passes' and 'the regression is wired into the suite' are the same claim.",
+      "verifiedBy": "grep + direct execution",
+      "evidence": "Both commands present in validate.commands array (index 13 and 82 of 105 total commands, confirmed programmatically via json.load). Ran both directly: `node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs` exit 0, PASS; `node packages/main/dist/tasks/validation-evidence-buffer-smoke.js` exit 0, PASS (dist mtime Aug18 13:15 postdates src mtime Aug17 15:53, so dist is not stale)."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Re-ran the RED harness at current HEAD (b0ff412990): all CHK-001 assertions PASS, unchanged from every prior signature."
+      "transcript": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs -> exit 0. Asserts: 1,400,000-byte and 1,048,577-byte staged blobs commit successfully; isolatedBlobHash/isolatedGit/treeBlobHash each pass maxBuffer; over-ceiling read (34,554,432 bytes) reports ceiling+captured-size diagnostic, never blob content; pre-fix helper (embedded verbatim) returns null on the same fixture the shipped helper reads, proving this is a genuine regression harness against the old defect."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Same harness re-run: ENOBUFS message, absent-vs-unreadable distinction, and unreadable-during-commit behavior all PASS, unchanged."
+      "transcript": "Same red harness: 'an unreadable blob during the commit path never reports \"verified metadata changed\"' and 'an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal' both pass, confirming the typed-result classification (classifyMetadataBlobReadFailure) replaced the bare-catch-returns-null defect."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Same harness re-run: embedded pre-fix helper still returns null on the shipped-correct fixture, RED-before-GREEN proof intact. PASS."
+      "transcript": "Registration verified directly in lattice.config.json validate.commands (not just file presence); executed and PASS as above."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Re-ran the smoke harness at current HEAD: outcome-B disposition check (section 13) passes, all required substrings present in the unchanged decision document, same byte counts as every prior signature (2520038 / 38878838->19617036 / 148987+250200 / 16029894+180001 / 53489880 refused). Separately verified this rounds specific concern -- whether the rewritten summary text is an honest re-characterisation of CHK-004s outcome-B disposition -- by reading CHK-004s own title/context/intents and the (unchanged) decision document directly, and by A/B-testing the actual shrinkage-gate function against old vs new summary text. PASS."
+      "transcript": "node packages/main/dist/tasks/validation-evidence-buffer-smoke.js -> exit 0, includes explicit self-check line: 'CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale; rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18205 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037'. Cross-checked the file directly: committed, tracked, deferred table names real finding IDs present in findings.json."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Same smoke re-run: advisory/bound fractions unchanged (8388608/25165824). checklist_get confirms CHK-005 status=done. PASS.",
-      "waiverReason": "Pre-existing waiver, unaffected by this rounds review: CHK-005:edge:0s pinned byte-count selector went stale after an earlier fixture correction (F-001); unrelated to the summary rewrite under review here."
+      "transcript": "Same smoke run: 'advisory names measured size and limit and cannot be read as a failure' (fileBytes=22676844 state=advisory) and 'advisory is log-only and bounding never mutates the caller result or its verdict' both pass."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Investigated the rewrite adversarially rather than taking the coordinators account on faith. Verdict: this is a genuine precision fix, not gate-gaming. Evidence: (1) diffed the exact two summary_set commits and confirmed only changes/outcomeDiff/limitations text changed, with every fact, number and finding id from the old text present in the new text -- nothing was deleted, only reframed away from deferred (which CHK-004s own two-outcome structure does not support as a description of outcome B) toward language that tracks CHK-004s actual text. (2) Independently ran the real shrinkage-detection code (not a description of it) against old-text-in-current-context vs new-text-in-current-context: old genuinely fails with the exact reported gap, new genuinely passes -- the regex is doing real work, not being dodged by synonym-swapping. (3) Checked nothing this story owed is outstanding against BOTH the original intent snapshot (clean pass -- the byte-for-byte guarantee was never part of the original ask) and CHK-004s own authored text (clean pass at the title/context level; one sub-clause, edge:1s named successor / story ID language, is met only under a generous reading since the decision document says Owner of the follow-up: unassigned -- this is pre-existing, disclosed openly, and untouched by the rewrite, so I am surfacing it rather than treating it as a blocker). (4) Recomputed materialHash/storyFilesHash fresh at current HEAD rather than trusting a cached report: both match this signatures binding exactly, and the full-3x2 quorum recorded before the final summary edits is still fresh against the current tree. (5) Re-ran both harnesses fresh; identical PASS and identical sizing figures throughout. Separately flagged to the coordinator, outside this signature: a fresh read-only done_prepare dry-run right now reports doneClosure BLOCKED on branch-synced-main (main has advanced by one more commit since the last merge) -- NOT a delivery-check staleness issue, since materialHash/storyFilesHash both already match this signature. This is relevant because this exact story has twice already hit a hot-main mergeMain cascade that zeroed quorum and staled this signature; running story_advance --phase=DONE while main keeps moving risks the same loop again, independent of anything this signature attests to."
+    "summary": "All 5 reverse-scanned claims verified directly against code at HEAD (not against the summary's prose): 10/10 execFileSync sites carry the 33554432-byte maxBuffer with typed absent/unreadable results; boundPersistedValidationEvidence exists and all 3 verifier.ts write sites are refusal-gated; the CHK-004 rationale doc is committed with real finding IDs and a concrete named successor; both regression harnesses are registered in validate.commands (not just present) and both exit 0 when run directly; the story's own limitations section honestly discloses that the measured byte count is not proven equal to StoryStore's written bytes, without softening the claim."
   },
-  "_hash": "b5f0c42eaac358d97f7ff1d36b24cdcff5467695767c92ff5220327ebd5a4403"
+  "_hash": "83b8155669f3d93cb4e18e5feb4eea618d4cecd18619a4236f6ee5f5f4734962"
 }
