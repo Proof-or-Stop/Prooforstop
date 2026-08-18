@@ -1504,6 +1504,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0891ff9806f261ef4c910e7e89bb625c2f19e437802da54f8256d4d640d75104"
+    },
+    {
+      "id": "B-3434:RP-058",
+      "agent": "lattice-review-concept",
+      "note": "Re-anchored round after 3 main commits (377d655464, fb915112f6, 5778eab10d) moved materialHash; story-content unchanged (git diff main HEAD --stat -- . :(exclude).lattice matches prior 13-file scope exactly; git rev-list --count HEAD..main = 0; red-b3434-blob-buffer-ceiling.mjs exit 0, all 12 sections green). Audited the 3 commit messages against their diffs for claims wider than the code, since that is the exact defect class this story exists to stop: (1) 377d655464 claims fullSuiteBudgetIsSatisfiable() asserts the invariant rather than merely existing -- verified: full-suite-runner-smoke.ts:198 calls it unconditionally in main(), and full-suite-runner-smoke itself is a FULL_SUITE_ENTRIES member (full-suite-runner.ts:90), so it executes every suite run, not just exists. (2) fb915112f6 and 5778eab10d claim the 1.5x CONCURRENCY_HEADROOM_FACTOR is load-bearing not redundant at the reduced concurrency -- verified: proofstory-acceptance-rollout has timeoutMs 300_000 (full-suite-runner.ts:128) and the message states it measured 413.3s at jobs=2, which exceeds the unscaled 300s cap, so scaling remains necessary even after concurrency was reduced; arithmetic is internally consistent with the shipped code path. (3) 5778eab10d claims defaultJobs derivation can only reduce oversubscription, never introduce it -- verified: defaultJobs(cpuCount)=max(1,min(4,floor(cpuCount/4))) is bounded above by 4 (the prior hardcoded default) for every cpuCount, confirmed against the shipped assertions defaultJobs(10)===2, defaultJobs(4|2|1)===1, defaultJobs(64|128)===4. Grepped all three messages for faster, speed, quicker, improve, optimize/optimise -- only hit is fb915112f6 explicit disclaimer: Headroom is not speed. No sentence implies the suite runs faster, and each message states plainly what it does not fix (the two 250s-plus entries). Concept-residue check: grepped FULL_SUITE_BUDGET_MS, CONCURRENCY_HEADROOM_FACTOR, defaultJobs and stale 300_000/600_000 literals repo-wide; no leftover reference to the prior hardcoded jobs=4 or the superseded 300_000/600_000 budget values outside the runner files themselves. No blocker found; all three commit messages are accurate to their diffs.",
+      "createdAt": "2026-08-18T12:40:17.532Z",
+      "reviewRound": "2026-08-18T12:34:40.850Z",
+      "reviewRunId": "B-3434:RR-109",
+      "envelopeId": "a86099b05cafd11b7db835520c95a9020c58818f80db630fb025d7326d937ccb",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3434/background.md",
+          ".lattice/story/actives/B-3434/checklist.json",
+          ".lattice/story/actives/B-3434/plan.md",
+          ".lattice/story/actives/B-3434/review-passes.json",
+          ".lattice/story/actives/B-3434/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0b26869b5d606a2c9a927462ef7419eadc6e6b4d5a4fbe236918dae52c8ba185"
     }
   ]
 }
