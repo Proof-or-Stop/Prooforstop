@@ -327,7 +327,7 @@
       "desc": ".gitignore:26 pattern `.lattice/runtime/` (and sibling entries .lattice/locks/, .lattice/tmp/, .lattice/traces/) is anchored to the repo root because it contains an interior slash with no leading **/, so it does NOT match packages/main/.lattice/runtime/. Running the new signing-guard-mutation-proof-smoke.ts task (or any code that calls resolveSessionIdentity/owner-session-token-store while cwd=packages/main) creates packages/main/.lattice/runtime/owner-session-tokens via PROOF_OR_STOP_DIR=.lattice (a bare relative path, lattice-paths.ts:11) resolved against that cwd. Verified mechanically: created packages/main/.lattice/runtime/owner-session-tokens/probe, then `git check-ignore -v` exited 1 (not ignored) and `git status --short` reported it as untracked (??), not ignored -- confirmed against current HEAD 4839fa5c16. This is newly exposed by this story (signing-guard-mutation-proof-smoke.ts is new in B-49ed and is the first task in the repo to trigger a packages/main-cwd .lattice/runtime write; git log confirms no prior packages/*/.lattice tracked/ignored history). Every run of this smoke from that cwd will leave an untracked artifact that `git status` will show as dirty and that a careless `git add -A` could accidentally commit. Fix either by broadening .gitignore to `**/.lattice/runtime/` (and matching siblings) or by having the smoke clean up its own owner-session-tokens dir in a finally block.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:47:37.487Z",
@@ -335,7 +335,11 @@
       "reviewRunId": "B-49ed:RR-021",
       "_hash": "996f14edca61697cd0c4d332a710de7617a2fa08f0ecf8f58aba11baa8e3bb93",
       "signatureTag": "missing|unknown|gitignore-pattern-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct and mechanically confirmed: .gitignore's .lattice/runtime/ pattern is root-anchored (interior slash, no **/ prefix), so packages/main/.lattice/runtime/owner-session-tokens is untracked and unignored. The mutation proof creates it because it calls resolveSessionIdentity.\n\nChose cleanup over ignore-broadening: the smoke now removes the .lattice directory it created, in the same place it finishes. Broadening a repo-wide ignore to accommodate one test's side effect would hide future residue from other sources too. Verified: after rm -rf and a fresh run, the directory does not exist.",
+      "resolvedAt": "2026-08-18T04:49:49.356Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-018",
