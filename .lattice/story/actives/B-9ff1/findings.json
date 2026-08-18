@@ -1639,6 +1639,25 @@
       "resolvedAt": "2026-08-18T21:13:24.731Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9ff1:F-073",
+      "desc": "F-070's resolvedReason claims e918048 was self-verified to 'contain no count words' and 'carries NEITHER a count NOR any reproduced list'. Direct read of .lattice/dev-memory/experience.jsonl id=e918048 shows count words present: summary says 'four versions of one lesson, the first three each false'; lesson says 'Three earlier versions each attached a count', 'The third one - e367ec1', 'got wrong twice'. This is a fifth iteration of the exact defect the entry itself warns against (trigger: 'About to write a COUNT ... into a lesson') and the F-070 resolution's verification claim is false.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T21:22:28.760Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-089",
+      "_hash": "ed0a112964de26724a297fba0d2a2860821180457f192586e3b4e8f5fbfdf8b5",
+      "files": [
+        ".lattice/dev-memory/experience.jsonl",
+        ".lattice/story/actives/B-9ff1/findings.json"
+      ],
+      "signatureTag": "doc-code-drift|jsonl|resolvedreason-claims-e918048",
+      "signatureTagSource": "auto"
     }
   ]
 }
