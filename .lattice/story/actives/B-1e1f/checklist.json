@@ -1,0 +1,92 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Represent CertificationWindow and the PRE_CERT receipt as signed gate-consumed process facts",
+      "context": "Create one deep owner, not a thin handler wrapper around review-inventory-epoch.ts. The window has states BLOCKED/ADMITTED/RUNNING/FINALIZED/INVALIDATED/CANCELLED, binds storyId, expected main SHA, headHash, materialHash, storyFilesHash, verifier/test identity, and the inventory epoch/receipt it consumed. Register the artifact and commands in the process-fact registry and process-fact-levels with an explicit gateConsumer. Status must print State, frozen identity, blockers, and exactly one Next command.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "userSees": "proof-or-stop certification_window_status --storyId=B-xxxx prints State: BLOCKED or State: ADMITTED, the frozen head/main/storyFiles hashes when admitted, and exactly one Next: line.",
+      "excludes": [
+        "Review inventory epoch implementation",
+        "CausalEvidence execution-key cache"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Admit PRE_CERT only from existing inventory, merge, clean-tree, and coverage facts",
+      "context": "Begin/admit must fail closed unless: a current Review Inventory epoch is FINALIZED on the same story-files lineage; no open verified blocking findings remain; verification coverage has no missing required intents; local main is an ancestor and expected main SHA is recorded; the worktree is clean of non-runtime material; and a cheap preflight of Git index plus evidence-target writability passes. Reuse B-3f3d finalizedUnconsumedReviewInventory / consume path and done_prepare merge/clean classifiers; do not invent a second freshness hash. Any failure returns a stable blocker code plus the exact recovery command. Keep current strict freshness; do not accept whole-tree drift as fresh.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "userSees": "proof-or-stop certification_window_begin --storyId=B-xxxx refuses with [pre_cert_inventory_not_finalized] or [pre_cert_main_not_merged] or [pre_cert_blocking_findings_open] and Next: names the single recovery command.",
+      "excludes": [
+        "Dependency-domain precise stale (U-03b)",
+        "AcceptanceAmendment for missing intents"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Refuse official heavy certification unless the current window is ADMITTED or RUNNING",
+      "context": "The choke points are done_required_validate, validate --full, and any command list taken from lattice.config.json doneRequiredCommands. Routine validate without --full, review-preflight slices (--channel/--concept/--lint), and 1-3 minute focused smokes stay outside the window. A heavy start without a current admitted window must not spawn the suite. After admit, the same commands bind their receipts to the frozen window identity.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "proof-or-stop done_required_validate --storyId=B-xxxx exits non-zero with [pre_cert_window_required] before any root npm test process starts, and Next: proof-or-stop certification_window_status --storyId=B-xxxx.",
+      "excludes": [
+        "Changing doneRequiredCommands membership",
+        "Content-addressed command reuse"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Invalidate the window on source, test, or verifier mutation and keep old receipts fail-closed",
+      "context": "While ADMITTED or RUNNING, material writes to source/test/verifier fail closed or the next status/heavy/DONE consumer persists INVALIDATED with the changed lineage. Story metadata and certification evidence writes remain allowed. Invalidation returns the operator to REVIEW. Stored receipts keep their original hashes; no silent rebind. The window must not block other stories' DEV.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "userSees": "After a source commit inside an ADMITTED window, proof-or-stop certification_window_status --storyId=B-xxxx prints State: INVALIDATED and Next: proof-or-stop story_advance --storyId=B-xxxx --phase=REVIEW.",
+      "excludes": [
+        "Long-lived repo-wide write lock during DEV",
+        "ReviewRemediation ledger transaction"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Prove a B-9812-shaped premature heavy run is refused and an admitted window runs at most once",
+      "context": "Add a deterministic replay/smoke that starts from an unfinalized or dirty or unmerged candidate and asserts the heavy entrypoint is refused with zero child suite processes. After a fixture admit, one heavy-path call is allowed. A related story-owned drift after that admit invalidates and a second admit is required. Report heavy_certification_runs and post_cert_source_commits. Do not weaken reviewer-lane or host-quorum counts to make the metric pass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "userSees": "The focused smoke prints PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0 and exits 0.",
+      "excludes": [
+        "Claiming the 3-8 hour wall-clock saving without a later A/B story",
+        "Reducing required reviewer lanes"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

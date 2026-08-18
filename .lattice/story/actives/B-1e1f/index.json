@@ -1,0 +1,39 @@
+{
+  "storyId": "B-1e1f",
+  "name": "pre-cert-certification-window",
+  "title": "Admit heavy certification only through a PRE_CERT CertificationWindow",
+  "description": "U-01b. After B-3f3d freezes REVIEW inventory, expensive suites (done_required_validate, validate --full, lattice.config.json doneRequiredCommands) can still start while source or review is not closed. Add a CertificationWindow deep module and a mechanical PRE_CERT gate so heavy certification runs only on a merged, clean, inventory-finalized candidate, then freeze source/test/verifier for that short window. Do not relax freshness, reuse stale receipts, or implement CausalEvidence / ReviewRemediation / AcceptanceAmendment.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "depends": [
+    "B-3f3d"
+  ],
+  "keywords": [
+    "CertificationWindow",
+    "PRE_CERT",
+    "U-01b",
+    "heavy-suite-gate",
+    "done_required_validate"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-08-18T06:36:45.989Z",
+  "startedAt": "2026-08-18T06:36:45.989Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-18T06:36:46.591Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-175d5a26c32810c8",
+      "agent": "main"
+    }
+  ]
+}

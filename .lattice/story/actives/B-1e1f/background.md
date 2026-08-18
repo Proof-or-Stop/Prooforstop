@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-08-18 the operator asked to implement U-01b after confirming U-01a is B-3f3d (still in REVIEW) and U-03 is unowned. The source decision is docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md section 7.1.4-7.1.5 and slice 3 in section 11. B-9812 ran its 35-45 minute specialized matrix across unconverged candidates; B-3f3d's own decision doc states the inventory receipt is not PRE_CERT and does not claim the repaired material is correct.
+
+## Key Insights
+PRE_CERT is an admission gate, not another test suite. Heavy commands already exist (done_required_validate, validate --full, doneRequiredCommands including root npm test at 7200000ms). The missing object is a short CertificationWindow that records expected main SHA plus frozen headHash/storyFilesHash/test-verifier identity, then refuses source/test/verifier writes. B-3f3d already owns frozen REVIEW inventory; this story must consume a FINALIZED unconsumed-or-just-consumed inventory lineage rather than reimplement epochs. Freshness stays strict: related story-owned drift still invalidates; no cache relaxation.
+
+## Solution Tradeoffs
+Chosen: a new CertificationWindow owner with begin/status/invalidate and a single choke in official heavy-validation entrypoints, depending on B-3f3d public inventory APIs. Rejected: folding PRE_CERT into review-inventory-epoch.ts, which would mix inventory-completeness authority with certification authority. Rejected: waiting for B-3f3d DONE before creating this story, because the operator asked to start U-01b now; DEV must merge or rebase onto story/B-3f3d once its remaining REVIEW blockers are honest enough to consume. Rejected: relaxing materialHash reuse to save time, which the plan forbids in this slice.
+
+## Conversational Texture
+The user wants the hour-scale saving from not running the heavy matrix on unstable candidates, without weakening fail-closed freshness. Success looks like: a premature done_required_validate is refused with one blocker and one next command; after inventory finalize, merge main, and a clean tree, one admitted window runs the heavy suite; a source commit inside that window invalidates it and sends the operator back to REVIEW instead of silently rebinding old PASS receipts.
