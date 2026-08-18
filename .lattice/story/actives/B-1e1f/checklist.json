@@ -111,20 +111,20 @@
           "kind": "manual_transcript",
           "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
           "result": "pass",
-          "note": "Live status remains State: BLOCKED with no admitted frozen identity and exactly one Next:",
+          "note": "Live status remains State: BLOCKED with no admitted frozen identity after fingerprint pin sync",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "7345e7c5271f2befd0f2acde9308fb3e3128c1b6b5e4f3d3d04c4b9e35544205",
-            "outputTail": "[0.0s] running certification_window_status...\n[0.2s] certification_window_status done\nCertification window: B-1e1f:CW-004\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-1e1f\n",
+            "outputDigest": "de8a9a30b6f5af3e68b346a4c0e2bf96f5261928e167939b38246527ab6f7fdc",
+            "outputTail": "[0.0s] running certification_window_status...\n[0.3s] certification_window_status done\nCertification window: B-1e1f:CW-004\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-1e1f\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-18T15:16:09.760Z",
+            "executedAt": "2026-08-18T15:23:09.353Z",
             "timeoutMs": 270000
           },
-          "headHash": "8af9bf8b9507f109afa646cf0a9af9ea3571c9d7",
-          "materialHash": "d8f4ad184ad1d79e48db9ae0f0a40b44e48d2860ceb3f18ff11d505fad3ac6e0",
-          "storyFilesHash": "d38a1e184c642c871a997dc94f4e471ed61f64f2e4d5bb31627966966956e53b",
-          "timestamp": "2026-08-18T15:16:09.911Z"
+          "headHash": "82a9a7a23871815e2a8329457f83ed9e6315d1ce",
+          "materialHash": "483598fd6c663118e7ba4e47248617313a644e1cdd59b5e3f9739e3395e9029b",
+          "storyFilesHash": "a32e928f5bdf62e28c5bfb87b4b71e444a6e17bae0c56fd2d86ae80e6a212e4a",
+          "timestamp": "2026-08-18T15:23:09.497Z"
         },
         {
           "intentRef": "CHK-001:admitted-frozen-identity",
