@@ -637,6 +637,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-035",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md ~L263-265 (the \"one case ran the other way\" red-1734-bootstrap-depfree note) only verifies the message-matching regex was fixed to accept either brand (line 186), but omits that the same test still has a second, more serious drift bug at packages/main/tests/red/red-1734-bootstrap-depfree.mjs:35-36: `while (!existsSync(join(repoRoot, lattice.config.json)) ...) repoRoot = dirname(repoRoot)` walks up the filesystem for the deprecated repo-root marker filename, which no longer exists anywhere in the story worktree tree (only proof-or-stop.config.json does now). Confirmed by direct execution from this worktree: repoRoot resolves NOT to the worktree, but keeps climbing past .worktrees/B-cc10 and past the repo top, stopping only because a coincidental sibling checkout on this machine (/Users/qipan/work/repo/Prooforstop) still has a stale lattice.config.json + bin/bootstrap-runner.js. The test then silently exercises bin/bootstrap-runner.js from that OTHER tree, not the worktree under test, yet still reports PASS. On a machine without that lucky sibling directory the loop would exhaust to filesystem root and assert.ok on line 36 would fail loudly -- but on any machine WITH such a coincidental match it silently tests the wrong file. This is exactly the docs own Quiet/Dangerous-sabotage-misses defect category (a fixture reading a path the runtime stopped writing), which the doc claims to have hunted down systematically, yet this instance survived in the very test the doc cites as its fixed example. Fix: repo-root marker check should accept either lattice.config.json OR proof-or-stop.config.json (read-both), matching the resolver pattern used elsewhere in this story.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-18T09:38:50.617Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-042",
+      "_hash": "4beda7aafa179c58c58402b3e2cea079ac8e84c8b2d3a981853535569096bdc6",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
