@@ -48,6 +48,39 @@
         }
       ],
       "_hash": "3ea7ed45fc781c7b424c71ab8521bdb0a9d3159b80e7ef5ddc0c6abffcfa92e9"
+    },
+    {
+      "timestamp": "2026-08-18T17:21:37.522Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Add regression coverage proving receipt consumers observe the runtime-enforced canonical budget.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5b52e845f2c1171f7f5e1bc1538ac246a61d2da9a072b6b8b4f4befeb947d794"
     }
   ]
 }

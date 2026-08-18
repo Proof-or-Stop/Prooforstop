@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "A process fact should have one executable source of truth.",
+    "The fix should remain narrower than the policy it reports.",
+    "Frozen historical evidence must retain its original semantics."
+  ],
+  "drivers": [
+    "Current JSON telemetry contradicts runtime enforcement.",
+    "All active stories can consume the current result artifact.",
+    "A future budget change must not require remembering a second number."
+  ],
+  "options": [
+    {
+      "name": "Reference the canonical constant and pin the source mapping",
+      "pros": [
+        "One-line production fix",
+        "Focused regression catches the exact drift class",
+        "No historical evidence rewrite"
+      ],
+      "cons": [
+        "Smoke assertion inspects source structure rather than generating a full-suite artifact"
+      ]
+    },
+    {
+      "name": "Keep the numeric field and update it manually",
+      "pros": [
+        "No test change"
+      ],
+      "cons": [
+        "Preserves the duplicate fact",
+        "Will drift again",
+        "Current receipt remains false"
+      ]
+    },
+    {
+      "name": "Extract a new artifact-builder abstraction",
+      "pros": [
+        "Could unit-test the entire result object"
+      ],
+      "cons": [
+        "Unnecessary surface area for a one-field defect",
+        "Slower review and larger regression risk"
+      ]
+    }
+  ],
+  "chosen": "Reference the canonical constant and pin the source mapping",
+  "rationale": "It directly removes the duplicate process fact and adds a discriminating check at the writer without changing runtime policy or historical receipts.",
+  "preMortem": [
+    {
+      "scenario": "The production field is fixed but the smoke never examines the writer.",
+      "trigger": "A later edit restores a numeric initializer and tests remain green.",
+      "consequence": "Current receipts again disagree with runtime enforcement.",
+      "mitigation": "Assert the exact canonical initializer and reject any numeric performanceBudgetMs initializer."
+    },
+    {
+      "scenario": "The story accidentally changes the budget policy while fixing telemetry.",
+      "trigger": "FULL_SUITE_BUDGET_MS or scheduling logic appears in the diff beyond the field reference.",
+      "consequence": "A reporting fix changes suite behavior and destabilizes other stories.",
+      "mitigation": "Freeze allowed paths and review the final diff for a one-line production substitution."
+    },
+    {
+      "scenario": "Historical B-9812 proof is rewritten to current semantics.",
+      "trigger": "verify-full-suite-contract.mjs or frozen receipts enter the diff.",
+      "consequence": "Historical evidence no longer describes the run that produced it.",
+      "mitigation": "Keep those paths explicitly excluded and unchanged."
+    }
+  ],
+  "timestamp": "2026-08-18T17:22:43.886Z"
+}

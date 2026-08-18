@@ -28,18 +28,49 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Run npm --prefix packages/main run test:full-suite-runner-smoke with the result field mapped as performanceBudgetMs: FULL_SUITE_BUDGET_MS → exits 0 and prints full-suite-runner-smoke: PASS, proving the result artifact derives its budget telemetry from the canonical constant.",
+            "desc": "Inspect the production result writer and build packages/main: it contains exactly one performanceBudgetMs initializer, that initializer references FULL_SUITE_BUDGET_MS, no numeric performanceBudgetMs initializer remains, and the build exits 0.",
             "type": "cli"
           }
         ],
         "edge": [],
-        "adversarial": [
-          {
-            "desc": "Temporarily mutate only the result-field initializer from performanceBudgetMs: FULL_SUITE_BUDGET_MS to performanceBudgetMs: 300_000 and run npm --prefix packages/main run test:full-suite-runner-smoke → exits nonzero because the numeric shadow copy is rejected; restore the exact original initializer and rerun → prints full-suite-runner-smoke: PASS, with no production-file diff remaining.",
-            "type": "cli"
-          }
-        ]
+        "adversarial": []
       }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for canonical full-suite budget telemetry",
+      "context": "The writer fix is one line and could silently regress to another numeric shadow copy. Extend full-suite-runner-smoke.ts with a focused assertion that requires performanceBudgetMs to reference FULL_SUITE_BUDGET_MS and rejects a numeric initializer.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "userSees": "`npm run test:full-suite-runner-smoke` prints `full-suite-runner-smoke: PASS`; changing the initializer back to `300_000` makes that smoke fail.",
+      "excludes": [
+        "Running or rewriting the historical B-9812 capture campaign",
+        "Changing the runtime budget value"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-18T17:22:07.447Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title.",
+      "addedTitle": "Add regression coverage for canonical full-suite budget telemetry",
+      "addedContext": "The writer fix is one line and could silently regress to another numeric shadow copy. Extend full-suite-runner-smoke.ts with a focused assertion that requires performanceBudgetMs to reference FULL_SUITE_BUDGET_MS and rejects a numeric initializer."
     }
   ]
 }
