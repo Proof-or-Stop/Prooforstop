@@ -81,6 +81,40 @@
         }
       ],
       "_hash": "5b52e845f2c1171f7f5e1bc1538ac246a61d2da9a072b6b8b4f4befeb947d794"
+    },
+    {
+      "timestamp": "2026-08-18T17:24:51.266Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Add regression coverage for canonical full-suite budget telemetry\") was added in PLAN phase: PLAN scope reviewer found the regression-coverage deliverable was present in the description but not represented by its own checklist title."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Use the canonical full-suite budget in the result artifact + Add regression coverage for canonical full-suite budget telemetry are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_acceptance_binding: No ProofStory acceptance binding maps the snapshot acceptanceClaim to checklist/verificationIntent refs. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d15e is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9103ca4c6fdb4a4de81a0616948a33dc4bf3cb4a2cfadaf40f21f4ccc2d89fa2"
     }
   ]
 }
