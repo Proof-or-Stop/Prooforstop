@@ -247,6 +247,34 @@
         "scanEscalationReason": null
       },
       "_hash": "63b1c1f88e46f4845a19ccbc591a450cc3f6a13e7159335ba41ca69429c9555f"
+    },
+    {
+      "id": "B-49ed:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue re-check of the post-F-029 delta: signing-guard-mutation-proof-smoke.ts now writes a STATIC probe.mjs (argv-only, no constructed code) executed via execFileSync; verified pathToFileURL still has live call sites (relocation + probe argv, not orphaned), the two comments referencing string-comparison/regex (F-010) and node -e constructed-string (F-029) shapes are historical lineage notes only, and both mutant.mjs + probe.mjs live in the same scratch dir cleaned by one finally{rmSync(scratch,...)} -- no leak. validation-reuse-merge-lineage-smoke.ts: all 7 rmSync(root,...) sites converted to rmScratch(root); only remaining rmSync( call is the helper definition -- no missed site. Ran both compiled smokes directly (node dist/tasks/*.js): both PASS. No concept deletion/replacement residue found.",
+      "createdAt": "2026-08-18T10:19:54.719Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-033",
+      "envelopeId": "fe147fbd24d46c0d7eb078327948a2cd111d4aa8ec376ef3714477d64b1d56ac",
+      "writerSessionId": "sess-25934e96946adb5a03ddc1adead40c65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/adapter-session-env.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7ab495d0a233731555e4da7cf68909f4d62d755138fb743228ff52b0249a213"
     }
   ]
 }
