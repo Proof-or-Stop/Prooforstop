@@ -384,7 +384,7 @@
       "desc": "packages/main/src/core/agent-asset-resolution.ts:55 HOST_ASSET_DIRS hardcodes the codex host entry to the deprecated-only adapter dir spelling: { host: 'codex', relDir: '.lattice-codex/agents' }. This is consumed by resolveAgentAssetResolution -> inspectHostAssets (line 225, 161-172), which does a plain existsSync(join(projectRoot, relDir)) with NO fallback to the canonical spelling. The SAME file already imports and correctly uses the canonical-first resolver adapterManifestCandidates() (from brand-paths.js) in localAssetModeHint just above (lines 92-104), including an explicit comment at line 111-114 warning that a hardcoded deprecated path here reproduces the B-cdf6 F-068 shape. HOST_ASSET_DIRS was missed. Live impact confirmed on this repo's own worktree: only .proof-or-stop-codex exists on disk (.lattice-codex is absent), so resolveAgentAssetResolution unconditionally returns status absent for every codex project prompt asset, masking any real stale/override codex host assets that now live under .proof-or-stop-codex/agents. This directly affects proof-or-stop doctor's agentAssetMode reporting for Codex hosts documented in CLAUDE.md (B-097f section). Fix: replace relDir with the ADAPTER_DIR_NAMES list (already exported from brand-paths.ts) and have inspectHostAssets probe each candidate dir, canonical first, same pattern already used for localAssetModeHint.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:23:09.001Z",
@@ -395,7 +395,8 @@
         "packages/main/src/core/agent-asset-resolution.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:37:55.389Z"
     },
     {
       "id": "B-cc10:F-023",
