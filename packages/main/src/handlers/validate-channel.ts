@@ -29,6 +29,8 @@ import { computeChannel } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import { isStoryMetadataPath as isSharedStoryMetadataPath } from '../core/evidence-freshness.js';
 import type { StoryInfo, ChecklistData, DecisionData, ProcessEvent } from '../core/types.js';
+import type { ScopeShrinkageDecisionData } from '../core/types.js';
+import { withdrawnChecklistItemIdsFrom } from '../core/proofstory.js';
 
 export interface ChannelOffender {
   sha: string;
@@ -252,6 +254,14 @@ export interface DispatchEvidenceResult {
   exemptedItems: string[];
   /** item ids with evidence found (dispatch or success=true subagent_result) */
   evidencedItems: string[];
+  /**
+   * B-45a5 CHK-003: item ids EXCLUDED because a confirmed, user-confirmed
+   * scope-shrinkage decision withdrew them. Deliberately its own bucket: they
+   * are neither `evidencedItems` (rendered `Covered:`, which would record work
+   * never done as covered) nor `exemptedItems` (rendered
+   * `plan.md Owner=main-agent exempted:`, a false attribution).
+   */
+  withdrawnItems: string[];
   details: string[];
 }
 
@@ -259,9 +269,20 @@ export function checkDispatchEvidence(opts: {
   checklist: Pick<ChecklistData, 'items'>;
   events: ProcessEvent[];
   mainAgentOwnedItems: Set<string>;
+  /**
+   * B-45a5 CHK-003: the story's scope-shrinkage decision record. It is the ONLY
+   * thing that can excuse an item from the dispatch requirement, because no
+   * work is dispatched for an item a confirmed decision withdrew. Absent/null
+   * (legacy callers, unreadable record) excuses nothing.
+   */
+  scopeShrinkageDecision?: ScopeShrinkageDecisionData | null;
 }): DispatchEvidenceResult {
-  const { checklist, events, mainAgentOwnedItems } = opts;
+  const { checklist, events, mainAgentOwnedItems, scopeShrinkageDecision } = opts;
   const items = checklist?.items ?? [];
+  // Membership BY ITEM ID in the decision-resolved set is the sole key: the
+  // helper reads only the decision record (confirmed + userConfirmed) and never
+  // inspects a checklist item, so hand-editing item.status excuses nothing.
+  const withdrawnIds = withdrawnChecklistItemIdsFrom(scopeShrinkageDecision);
 
   // Dedup collection: evidence set per itemId
   type Evidence = { hasDispatch: boolean; successResult: boolean; failureResult: boolean };
@@ -296,11 +317,18 @@ export function checkDispatchEvidence(opts: {
   const issues: DispatchEvidenceIssue[] = [];
   const exemptedItems: string[] = [];
   const evidencedItems: string[] = [];
+  const withdrawnItems: string[] = [];
 
   for (const item of items) {
     // F-012 (B-fdcf Round 1): ChecklistItem.id is already string, no need to force-cast as any
     const id = item.id;
     if (!id) continue;
+    // Checked FIRST so an authorized withdrawal is never laundered into the
+    // owner-exemption bucket and mis-attributed to a plan.md owner.
+    if (withdrawnIds.has(id)) {
+      withdrawnItems.push(id);
+      continue;
+    }
     if (mainAgentOwnedItems.has(id)) {
       exemptedItems.push(id);
       continue;
@@ -334,6 +362,12 @@ export function checkDispatchEvidence(opts: {
   }
 
   const details: string[] = [];
+  if (withdrawnItems.length > 0) {
+    // Rendered with the authorizing decision id so a reader can trace the
+    // exclusion back to the record that granted it.
+    const decisionId = scopeShrinkageDecision?.decisionId ?? 'decision id absent';
+    details.push(`withdrawn (${decisionId}): ${withdrawnItems.join(', ')}`);
+  }
   if (exemptedItems.length > 0) {
     details.push(`plan.md Owner=main-agent exempted: ${exemptedItems.join(', ')}`);
   }
@@ -349,6 +383,7 @@ export function checkDispatchEvidence(opts: {
     issues,
     exemptedItems,
     evidencedItems,
+    withdrawnItems,
     details,
   };
 }
@@ -482,10 +517,18 @@ export function checkCommitAuthor(
   } catch { events = []; }
   const planContent = planReader(storyId, projectRoot);
   const ownedByMain = parseMainAgentOwnedItems(planContent);
+  // B-45a5 CHK-003: plumb the decision record through; without it the gate has
+  // no authorized way to know an item was withdrawn. Unreadable record -> null,
+  // which excuses nothing (fail-closed).
+  let scopeShrinkageDecision: ScopeShrinkageDecisionData | null = null;
+  try {
+    scopeShrinkageDecision = store.readScopeShrinkageDecision(storyId);
+  } catch { scopeShrinkageDecision = null; }
   const evidence = checkDispatchEvidence({
     checklist,
     events,
     mainAgentOwnedItems: ownedByMain,
+    scopeShrinkageDecision,
   });
 
   // No-commit boundary: author check passes. Evidence check still runs—normal channel with no commits should still have dispatch/subagent_result records
