@@ -33,7 +33,11 @@
             "id": "CHK-001:admitted-frozen-identity",
             "desc": "After a successful admit, certification_window_status → prints State: ADMITTED plus the frozen headHash, expected main SHA, and storyFilesHash bound on the signed window. WHY: plan userSees/DoneWhen require frozen identity on the PRE_CERT receipt.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -41,7 +45,11 @@
             "id": "CHK-001:blocked-no-frozen-identity",
             "desc": "certification_window_status while State is BLOCKED (no successful admit) → does not print an admitted frozen head/main/storyFiles identity as if the candidate were certified; still prints State: BLOCKED and exactly one Next:. WHY: BLOCKED must not impersonate ADMITTED.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+              "selector": "State: BLOCKED"
+            }
           },
           {
             "id": "CHK-001:registry-gate-consumer",
@@ -59,16 +67,146 @@
             "id": "CHK-001:tampered-window-fail-closed",
             "desc": "Mutate the on-disk signed CertificationWindow (state, hashes, or inventory receipt id) without going through begin/status/cancel → next status/begin/heavy/DONE consumer fail-closes as tampered/invalid and does not treat the window as ADMITTED. WHY: signed gate-consumed fact; prompt-only status text is not evidence.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
           },
           {
             "id": "CHK-001:inventory-receipt-not-precert",
             "desc": "Present a FINALIZED Review Inventory receipt (authorizesTest=false / inventory-completeness-only) as if it were a PRE_CERT CertificationWindow → heavy entrypoints and window status still refuse certification authority; inventory hashes are not rewritten. WHY: chosen option A; B-3f3d inventory must never become PRE_CERT.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:status-surface",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+          "result": "pass",
+          "note": "stdout contains exactly one State: line and exactly one Next: line",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "71d5e7bf71ce526d461075086631b37158535b4e477e4d6f09f46531283926ae",
+            "outputTail": "[0.0s] running certification_window_status...\n[0.0s] certification_window_status done\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_begin --storyId=B-1e1f\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:40.114Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        },
+        {
+          "intentRef": "CHK-001:blocked-no-frozen-identity",
+          "kind": "manual_transcript",
+          "command": "node bin/proof-or-stop.js certification_window_status --storyId=B-1e1f",
+          "result": "pass",
+          "note": "BLOCKED status does not print admitted frozen head/main/storyFiles identity",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "71d5e7bf71ce526d461075086631b37158535b4e477e4d6f09f46531283926ae",
+            "outputTail": "[0.0s] running certification_window_status...\n[0.0s] certification_window_status done\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop certification_window_begin --storyId=B-1e1f\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:40.733Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        },
+        {
+          "intentRef": "CHK-001:admitted-frozen-identity",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke writes a signed ADMITTED window and asserts status prints frozen headHash expectedMainSha storyFilesHash",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2ac6b25fc1e95a1dfaddd511999bfd228177f08581da6a81603e49a7f60c9d3d",
+            "outputTail": "certification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_api_absent]\nDetail: Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop certification_window_begin --storyId=B-cw01\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:40.994Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        },
+        {
+          "intentRef": "CHK-001:registry-gate-consumer",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "process-fact contract verified; begin/status/cancel are L4 with PRE_CERT gateConsumer",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a28b1a7ef6bfa0eaf57d310dd9de1eb456211ae4d2cc8c28c1a801e66a8f1067",
+            "outputTail": "nly; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] producer=handlers/lattice-autopilot\n- autopilot_policy_create [L1/command] producer=h\n...[truncated 42130 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:44.661Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        },
+        {
+          "intentRef": "CHK-001:tampered-window-fail-closed",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke mutates on-disk hashes without resigning and asserts status throws pre_cert_window_tampered",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2ac6b25fc1e95a1dfaddd511999bfd228177f08581da6a81603e49a7f60c9d3d",
+            "outputTail": "certification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_api_absent]\nDetail: Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop certification_window_begin --storyId=B-cw01\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:44.928Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        },
+        {
+          "intentRef": "CHK-001:inventory-receipt-not-precert",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts inventory-completeness-only receipt does not authorize PRE_CERT",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2ac6b25fc1e95a1dfaddd511999bfd228177f08581da6a81603e49a7f60c9d3d",
+            "outputTail": "certification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_api_absent]\nDetail: Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop certification_window_begin --storyId=B-cw01\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-18T07:31:45.209Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "410b3c913d13cd0f5b5046a8122eae6883e0a19b",
+          "materialHash": "1132311a7779ccf07453312733703fd1b605065c8b009fc6686e15c0562ca562",
+          "storyFilesHash": "decf5adc6b691df9dda3ff26df9ec4a36623318d14e421482fd48551941468af",
+          "timestamp": "2026-08-18T07:31:45.358Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
