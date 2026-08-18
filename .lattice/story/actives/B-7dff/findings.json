@@ -239,6 +239,21 @@
       ],
       "signatureTag": "missing|json|happy-carries-permanent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7dff:F-013",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:558 writes performanceBudgetMs: 300_000 as a hardcoded literal in the persisted --json-output artifact (schemaVersion lattice.full_suite_result.v2), completely disconnected from FULL_SUITE_BUDGET_MS = 1_200_000 (line 261) which is the constant that actually drives budgetBreached/performanceBudgetApplied via fullSuiteBudgetBreached/isUnderFullSuiteBudget. Confirmed on the merged tree (git show HEAD, and independently on both pre-merge parents 5daf340b5f story-side line 472 and 61b270cc54 main-side line 634) that this literal has never tracked FULL_SUITE_BUDGET_MS through its documented history of bumps (300_000 unsatisfiable state -> 600_000 introduced by commit 377d655464 which added the FULL_SUITE_BUDGET_MS constant itself -> current 1_200_000), i.e. the field was stale even at the moment the constant it should mirror was introduced. The only downstream consumer, scripts/verify-full-suite-contract.mjs:127 and :139, independently hardcodes the same wrong 300_000 and asserts artifact.performanceBudgetMs === 300_000, so the drift self-confirms silently, and that contract script is not wired into package.json, lattice.config.json validate.commands, or .githooks/pre-push, so nothing currently exercises or would catch this. Behavioural impact: pass/fail gating is NOT affected (budgetBreached is computed correctly from the real FULL_SUITE_BUDGET_MS constant), but any tool or human reading the persisted JSON artifacts (--json-output) for the actual performance budget in force gets a materially wrong number (4x off from the real 1_200_000ms budget this story and main both worked to make satisfiable). Fix: derive the field from the constant, e.g. performanceBudgetMs: FULL_SUITE_BUDGET_MS, and update scripts/verify-full-suite-contract.mjs to assert against the same constant instead of a second hand-typed copy of the number.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T16:39:04.366Z",
+      "reviewRound": "2026-08-18T16:19:02.994Z",
+      "reviewRunId": "B-7dff:RR-019",
+      "_hash": "5a9cdd761ea728ead86dd59b2ef8f8d4f63797bda4e4f5d0e3058dd5efd3ea60",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
