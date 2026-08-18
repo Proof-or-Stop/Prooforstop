@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide and record which reading of the matcher-value bounds is normative, then make spec and code agree",
+      "context": "Three statements, two normative and contradictory: spec:183-184 scopes trimmed+maxMatcherLen to literal-line; spec:499-504 (R1-3) bounds ANY matcher value; spec:293 restates unqualified. Decide FIRST whether class values should be length- and whitespace-bounded. If R1-3's reading wins, packages/main/src/core/red-evidence/envelope.ts changes and its adjudication comment at :70-85 is superseded; if §1.1.1's wins, R1-3 and the §1.2 table are corrected. Do not simply edit the spec to match the shipped code without recording the decision - that is the move B-9ff1 correctly declined.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the candidate-envelope schema normative in §1",
+      "context": "red_evidence_envelope_check validates a CANDIDATE that may omit policyDigest and assertionDigest because computing assertionDigest is its purpose; a supplied-but-wrong value is rejected with policy-digest-mismatch / assertion-digest-mismatch (envelope.ts:335-340, 717-728). §1 defines only the stored-record envelope. Add the candidate schema and the omit-or-must-match rule, and mention red_evidence_envelope_check, which currently appears nowhere in the spec.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide whether the specificity metric changes or gains an exemption path for short well-known constants",
+      "context": "Measured inversion: SIGSEGV/ENOMEM/HTTP 404/Error 500 rejected, the vaguer 'test failed' admitted. Compare at least two options rather than assuming one: replace or supplement character-level Shannon entropy with a measure tracking specificity, versus a registry of exempt short constants. ENOMEM at 11.51 bits is below the NON-TUNABLE 12-bit hard floor (registries.ts HARD_FLOORS), so an exemption path is the only route that admits it at all. B-9ff1's characterization fixture in red-w2d-specificity-conjunction.mjs pins the CURRENT verdicts and MUST be re-derived, not edited to pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the exit-class canonical-form requirement, or relax the code to the text",
+      "context": "EXIT_CLASS_EXACT at envelope.ts:278 is /^exit:(0|[1-9][0-9]*)$/ and rejects 'exit:07'; spec:195 authorises only 0 < n <= 255 with no canonical-form language. Fail-closed and tested at red-w2d-rejection-matrix.mjs:378. Relaxing it would require a normalisation path the envelope module deliberately avoids, so documenting is the likely answer - but state it as a decision rather than inheriting it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify no deferred item in this story is closed by prose alone",
+      "context": "This story exists because four resolution records claimed 'filed as follow-up' when nothing had been filed (B-9ff1:F-064). Its own closure must not repeat that: every item above ends with either a committed spec edit, a committed code change, or a further story ID that a grep of story_list actually finds.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
