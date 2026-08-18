@@ -1610,6 +1610,23 @@
       ],
       "signatureTag": "doc-code-drift|md|cross-vendor-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-072",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. B-1b2b's background claims a relevance-ranked retrieval can return superseded dev-memory entries a67bb17 or 8d1d2bb alone without replacement information. Host B ran dev_memory_search --query=<id> --limit=1 --json for both and each returned e367ec1, the correction; session preflight also reported both old ids suppressed. The missing formal supersede/withdraw writer remains substantive, but the retrieval hole as described is already mitigated and the story's scope should be narrowed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T21:13:21.633Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "_hash": "e2f1cae94d0afd0bc2a3b52cbdac559805111d14c442a74b70fe8d82dc5c09d1",
+      "files": [
+        ".lattice/story/actives/B-1b2b/background.md"
+      ],
+      "signatureTag": "doc-code-drift|md|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
