@@ -1836,6 +1836,38 @@
         "scanEscalationReason": null
       },
       "_hash": "48b1a39e2f0eea9cd4598109255cf1c68ec2e64f3aebb3dd808f106ffb4da6e0"
+    },
+    {
+      "id": "B-9ff1:RP-059",
+      "agent": "lattice-review-test-coverage",
+      "note": "14th re-bind after RP-056: git diff 4372adb..HEAD over source (excluding .lattice) is empty across two intervening sibling-lane pass commits, so no re-audit performed. Revisited item-1 call: e367ec1 (F-070, upheld by cross-vendor host) does in fact restate a findings count/lane-split and re-enumerate the three exclusion-list command names (done_required_validate/done_prepare/live_smoke_transcript) verbatim inside its own correction text -- my earlier structural reading does not survive a plain reading of the artifact. e918048 (supersedes e367ec1) avoids the problem: no findings-count/lane-split is restated, and the CLI-timeout correction names no commands, pointing only at done-required-timeout-budget.ts flat-default branch -- verified against packages/main/src/core/done-required-timeout-budget.ts lines 279-290, confirming live_smoke_transcript only takes the special branch when args.capture is a string and otherwise falls through to the flat 15-minute default like any other command. checklist.json verificationEvidence: 108 records, 106 non-waiver all mechanical:true/receipt.selectorMatched:true/receipt.exitCode:0, headHash spans 22 distinct commits in a 5x21+3 pattern, all 108 share materialHash 74ba6947b1c41083339703c4c1dbf86ec21cae9e86ccd8c60a5be79e41fc5b2b and storyFilesHash 2220f1b50fb7e4fc746a2f73bee61bb91ffaf829122ad460bc2f1d6b2ef0a9c1 (current); non-waiver command-bucket distribution 66 red-w2d-rejection-matrix / 15 red-w2d-specificity-conjunction / 8 red-w2d-command-readonly / 6 red-w2d-assertion-digest-scope / 6 red-w2d-entropy-differential / 4 red-evidence-envelope-smoke / 1 red-w2c-validate-registration + 2 waivers = 108. lattice.config.json validate.commands JSON-parsed: the five red-w2d-*.mjs plus dist/tasks/red-evidence-envelope-smoke.js each registered exactly once; ran all six directly, all exit 0. No dispatch/run bound to any of the three heads seen during this pass (4372adb, 59d760c, 4449ba8) existed for this lane before I started one each time; RR-094 is the fresh run bound to the current head. git rev-list --count HEAD..main = 0; git status --porcelain empty; findings.json 72 total, 0 open.",
+      "createdAt": "2026-08-18T21:20:15.257Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-094",
+      "envelopeId": "556f61d4421694601e819c89bd0f5f4d052bc2efff1349a32ab3477e53278ca2",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl (entries e367ec1, e918048)",
+          ".lattice/story/actives/B-9ff1/checklist.json (verificationEvidence)",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json",
+          "lattice.config.json (validate.commands)",
+          "packages/main/src/core/done-required-timeout-budget.ts (lines 250-300)"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "963cc316f848093a9271c6efb2657b84f065cf6bd91b8eebca7a132722212b48"
     }
   ]
 }
