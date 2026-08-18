@@ -188,6 +188,27 @@
       "signatureTagSource": "auto",
       "resolvedReason": "Fixed in 6a26e8cc13: fail-closed admit/authorize plus smoke coverage for verifier drift, peer write, lane baseline, receipt binding, and retry storm.",
       "resolvedAt": "2026-08-18T09:33:23.442Z"
+    },
+    {
+      "id": "B-1e1f:F-010",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:717-724 CHK-004:test-or-verifier-mutation-invalidates is still not covered by corresponding evidence. 6a26e8cc13 added a unit call to detectCertificationWindowMaterialDrift(runningWindow, {verifierIdentity:\"mutated-verifier\"}) and asserts drifted=true. That does not perform a material write to test or verifier inputs, does not drive status/heavy/DONE to persist State: INVALIDATED on that discriminator, and cannot happen on the operator path because currentCertificationIdentity still hardcodes PRECERT_VERIFIER_IDENTITY/PRECERT_TEST_IDENTITY (handlers/certification-window.ts:154-155). The only INVALIDATED path in the smoke is still a src/app.ts source commit (703-708). Recorded verificationEvidence remains head 77f13328 (before 6a26e8cc13) with note \"material change invalidates at next status\" and selector State: INVALIDATED. high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:41:53.117Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-004",
+      "_hash": "02cb0d79f44e61375bd77589dd46c790ef41750f9929dfe2c044be7e86c05c72",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
