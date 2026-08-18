@@ -56,6 +56,25 @@
         "scanEscalationReason": null
       },
       "_hash": "d6ad810ef8868242fa6af1ec500e5a7e579152faa942c797a2c9f0cfe183ac27"
+    },
+    {
+      "id": "B-49ed:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2: independently verified all three round-1 dispositions rather than trusting them. F-005 fix confirmed real: section 3 of topology-signing-source-guard-smoke.ts executes deriveRoleProvenance to completion for both roles x both accepted sources against a synthesized dispatch event carrying a real git HEAD hash; ran the test, it passes and the completion assertions (agentId, sessionId binding) are genuine, not vacuous. Traced field-by-field that the synthetic event matches exactly what production writes (story-dispatch.ts:201-213: type/storyId/agentType/sessionId/businessCommit/businessCommitAuthor/businessCommitAuthorSource/headHash/storyFilesHash all present and unstamped for timestamp, which appendProcessEventRecord auto-fills exactly as the synthetic event omits it too); authority.actor is gate-asserted equal to the role string before deriveRoleProvenance is ever called in proofstory.ts, matching the synthetic actor:role. dispatchIdentity falls back to digest(event) when promptEnvelopeId/dispatchBindingDigest are absent -- that fallback is never validated by the guard under test, so the omission does not create a false-pass risk; it faithfully represents what a caller supplies to appendProcessEvent even though the richer story-dispatch.ts wrapper usually adds those ids. F-004 accepted_risk confirmed: checked out main HEAD in place for packages/main/src/tasks/proofstory-topology-critic-smoke.ts, ran it with tsx, reproduced the identical assertion failure (actual partial, expected complete) with zero story changes present, then restored HEAD and diffed byte-identical. Pre-existing bug outside this story scope, disposition is honest. F-003 partially_mitigated confirmed: grepped all 29 files containing LATTICE_SESSION_ID under packages/main/src/tasks for topology_critic_receipt_set, topology_exclusion_approval_set, and deriveRoleProvenance itself -- zero hits outside the storys own new topology-signing-source-guard-smoke.ts. story-owner-lease-smoke.ts (74 of the hits) independently confirmed to assert explicit-env sessionSource semantics as its actual subject matter (lines around 196-206, 529-591), so migrating it would break the test it exists to run, not merely churn it. Disposition is honest, not self-serving; the userSees promise is genuinely over-broad relative to what matters (signing-guard reachability), and the residual literal count in non-signing fixtures carries no security consequence. No new findings from this round; all 5 round-1 findings (F-001..F-005) remain resolved and my independent spot-checks did not surface anything the resolutions misrepresent.",
+      "createdAt": "2026-08-18T03:57:08.084Z",
+      "reviewRound": "2026-08-18T03:52:40.426Z",
+      "reviewRunId": "B-49ed:RR-007",
+      "envelopeId": "4a480b811545754e788a3d4846671ff32921e30a0857b9b18b054c6abae2a3d3",
+      "writerSessionId": "sess-bae2d0b55e16227d4e935d24703eb0b6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f6801cbed3c01d46ffe62c25b194c5c9af6c6bcc7e22f76a130f8e9e01ea883"
     }
   ]
 }
