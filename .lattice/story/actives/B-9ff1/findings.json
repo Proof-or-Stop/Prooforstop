@@ -1403,7 +1403,7 @@
       "desc": "findings.json F-057.resolvedReason argues WHY NOT FIXED NOW: Writing 16 honest userSees strings is authoring work, not a formatting pass ... a hurried userSees set would be worse than none because a wrong userSees is a promise the story then appears to keep. Judged against the fix actually on the table, this argument does not hold: F-057s own Fix suggestion asked only to add userSees to CHK-012/CHK-014 quoting the literal report header lines from packages/main/src/handlers/red-evidence.ts:518-528 and 531-540 -- i.e. two items, not sixteen, and a mechanical copy of two FIXED literal strings. Read directly at red-evidence.ts:518 and :531: the ADMISSIBLE and NOT ADMISSIBLE report headers are exactly Red-evidence envelope: ADMISSIBLE and Red-evidence envelope: NOT ADMISSIBLE -- unambiguous, stable, one-line strings, not open-ended authoring prone to being hurried or wrong. The wrong promise is worse than none risk the resolution invokes describes a DIFFERENT, larger task (16 freely-authored descriptions) than the one it was actually declining (2 literal quotes), so it is not a real argument against the concrete fix on the table -- it is a comfortable one. The resolutions SECOND reason (Authoring them also rewrites checklist.json, which moves storyFilesHash and stales all 108 verification evidence records and all four lane passes -- a full re-bind and re-review cycle) is the legitimate, verifiable operational cost (confirmed: this stories own findings.json repeatedly cites the identical 108-evidence-record re-bind cost for other deferred edits, e.g. F-050, F-052), and is presented second, after the weaker philosophical framing carries the paragraphs opening rhetorical weight. Recommend treating the re-bind cost as the stated reason (it is real and sufcient on its own) rather than resting on the hurried-is-worse-than-none framing, which does not survive contact with the fixs actual scope.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T18:17:37.611Z",
@@ -1426,7 +1426,11 @@
         ".lattice/story/actives/B-9ff1/checklist.json"
       ],
       "signatureTag": "adversarial|ts|findings-json-resolvedreason",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld, and the real reason turned out to be neither the one I gave nor the one the lane inferred. The lane is right that my argument mis-sized the task: F-057 asked for two literal fixed header strings - 'Red-evidence envelope: ADMISSIBLE' and 'Red-evidence envelope: NOT ADMISSIBLE', confirmed at red-evidence.ts:518 and :531 - quoted onto CHK-012 and CHK-014, not sixteen freely-authored fields. My 'a hurried userSees is a promise the story then appears to keep' describes a larger task than the one being declined, and putting it first while the cascade cost came second propped a weak framing with a strong one. BUT THE FACT I SHOULD HAVE ESTABLISHED FIRST, and did not, is mechanical: userSees is FROZEN from PLAN onward. Executed just now: `checklist_update --storyId=B-9ff1 --itemId=CHK-012 --userSees=...` is refused with 'Command \"checklist_update\" is not available in REVIEW phase ... Allowed phases: INIT, PLAN, DEV'. So the field cannot be written in this story's current phase at all, and neither of my stated reasons was the operative one. I offered a philosophical justification while a mechanical answer sat one command away unchecked - the same habit F-051 through F-056 are about. WHAT IS HONESTLY LOST: the gap stands, and the systemic half is now sharper than when I first deferred it. A PLAN-phase missing_user_sees advisory fires on all 16 items, never becomes blocking, and by REVIEW the field it advises about is frozen - so the advisory is unactionable exactly when a reviewer discovers it matters. That is a gate-design defect and it belongs to the gate; the leaf could only have fixed it before PLAN.",
+      "resolvedAt": "2026-08-18T18:22:45.386Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-064",
