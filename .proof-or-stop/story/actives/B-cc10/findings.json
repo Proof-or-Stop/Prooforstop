@@ -1222,6 +1222,24 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-067",
+      "desc": "packages/main/src/tasks/full-suite-resource-sentinel.ts:55-56 still hardcode the DEPRECATED literal spelling (mkdirSync(join(root, '.lattice', 'runtime')) and mkdirSync(join(root, '.lattice', 'locks'))) even though this same diff (B-cc10 F-064) routed the actual lock/fixed-path targets (runtimeLock/mainWriteLock/fixedPath, lines 14-16) through stateDirKey(...) which now resolves to the CANONICAL .proof-or-stop dir. acquireOwnedDirectory/publishReady (same file) already create their own parent dirs via mkdirSync(dirname(path), {recursive:true}), so lines 55-56 are now dead code that additionally creates a stray .lattice/runtime + .lattice/locks directory pair (deprecated spelling) on every real invocation of this actively-run sentinel (npm script test:full-suite-resource-sentinel, invoked for real from full-suite-runner-smoke.ts:361). This is exactly the on-disk residue class this migration story exists to eliminate, and it is on one of the 6 files this incremental round is scoped to verify. Fix: replace the two literals with join(root, ...stateDirKey('runtime').split('/')) / join(root, ...stateDirKey('locks').split('/')), or delete the lines since acquireOwnedDirectory already creates the needed parents.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-18T18:10:11.871Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-087",
+      "_hash": "992421efe54bc28038d012e2b452bc86b198a9eb0e975cca441601044573d818",
+      "files": [
+        "packages/main/src/tasks/full-suite-resource-sentinel.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
