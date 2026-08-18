@@ -1,9 +1,9 @@
 {
   "storyId": "B-9ff1",
-  "checkedAt": "2026-08-18T20:18:19.990Z",
-  "headHash": "e1e9b2d9955fad43db3030a210cfc630f912e853",
-  "materialHash": "2bf646f2e766f93b41de037c6fbdc733aac338c9b8c2031352cd1ad0f5f82b42",
-  "storyFilesHash": "e19dc251097bc185bc6b4d2f8c45bcb562dcc743e103a9319e5568403f5491f5",
+  "checkedAt": "2026-08-18T20:27:00.493Z",
+  "headHash": "a96ded95174d110a9779a51c09b83ab0b3f882a1",
+  "materialHash": "43b7757370c874468e8c8623a1840ed5a0b7678bf9e5dc85dc56105ed8434cea",
+  "storyFilesHash": "22d05673170c836456cb072ee9f56d6a552229b7421708f5d24a88274fc37f01",
   "reviewRound": "2026-08-14T03:33:29.693Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
@@ -76,5 +76,5 @@
     "hasUnresolvedTodos": false,
     "summary": "All six independently-verified claims held: the read-only proof is mechanical (spawn allowlist + manifest, both with negative controls) not asserted; the specificity rule is a genuine AND conjunction with the exact SIGSEGV/ENOMEM/HTTP 404/Error 500-vs-test-failed characterization printed with measured bits; all five RED harnesses plus the dist smoke are registered exactly once in validate.commands and all six exit 0; the limitations section admits the inversion, the non-tunable ENOMEM floor, and the three-way spec/code bounds disagreement without softening or claiming resolution; B-595c and B-3654 exist, depend on B-9ff1, and their index.source fields explicitly name F-050/F-051/F-052/F-054/F-058/F-014/F-064; proofstory.ts has a literal zero-line diff from main and red_evidence_create carries no retirement language. No unresolved TODO/FIXME/HACK found in the touched non-test source files, and no CLAUDE.md/docs files were modified by this diff (the spec doc is pre-existing and unmodified, correctly so since this story implements section 1 rather than authoring the spec)."
   },
-  "_hash": "1a06228790868c02ebfb38e81c25196019ed1e8ef08c7ba19527beaa50be1bcc"
+  "_hash": "a5771c88fd0cabb3784cb2ac1f30290b77b96d7197d741de3b8c9847ab6e7c45"
 }
