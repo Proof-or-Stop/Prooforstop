@@ -1,0 +1,34 @@
+{
+  "storyId": "B-45a5",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+    ".lattice/story/actives/B-45a5/plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-18T22:14:46.790Z",
+  "updatedAt": "2026-08-18T22:14:46.790Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/validate-channel.ts": "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs": "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs",
+    ".lattice/story/actives/B-45a5/plan.md": ".lattice/story/actives/B-45a5/plan.md",
+    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+  }
+}
