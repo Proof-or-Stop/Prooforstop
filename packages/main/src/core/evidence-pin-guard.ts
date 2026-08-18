@@ -2,7 +2,7 @@
  * evidence-pin-guard.ts — PreToolUse evidence-pin seatbelt core (pure logic, no I/O).
  *
  * B-1507 CHK-003. A FAIL-OPEN seatbelt that inspects a shell command string
- * BEFORE it runs and, when it recognizes a `lattice verification_evidence_add`
+ * BEFORE it runs and, when it recognizes a `proof-or-stop verification_evidence_add`
  * (or `verification_run`) invocation whose caller-authored `--command` /
  * `--selector` would NOT match the intent's already-pinned immutable
  * verification (B-ec67 `VerificationIntentPin`), returns a `deny` verdict with a
@@ -99,7 +99,7 @@ function pickString(value: unknown): string | undefined {
 /**
  * Parse a shell command string into a recognized evidence-write invocation, or
  * null when the string is not a Lattice evidence-write command. Handles both the
- * JSON-blob arg form (`lattice verification_evidence_add '{"storyId":...}'`) and
+ * JSON-blob arg form (`proof-or-stop verification_evidence_add '{"storyId":...}'`) and
  * the `--key=value` / `--key value` flag form.
  */
 export function parseEvidenceCommand(commandString: string): ParsedEvidenceInvocation | null {
@@ -210,7 +210,7 @@ export function computeEvidencePinVerdict(
     reasons: [
       `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.`,
       ...mismatches,
-      `Fix: run \`lattice verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector. The pin is immutable once set.`,
+      `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector. The pin is immutable once set.`,
     ],
   };
 }

@@ -3,7 +3,7 @@
  *
  * Evaluates usage-sweep session rows (core/usage-sweep.ts scanners) against
  * burn thresholds and renders the advisory warning blocks shared by the two
- * push surfaces: the `lattice doctor` "Host burn scan (advisory)" section and
+ * push surfaces: the `proof-or-stop doctor` "Host burn scan (advisory)" section and
  * the `usage_sweep --alert` exit-nonzero mode.
  *
  * DESIGN CONTRACT (mirrors the usage-sweep pure-core rules):
@@ -35,6 +35,7 @@ import {
   type CodexUsageTotals,
   type SweepSessionRow,
 } from './usage-sweep.js';
+import { readBrandEnv } from './brand-env.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -57,12 +58,12 @@ export const DEFAULT_BURN_ALERT_THRESHOLDS: BurnAlertThresholds = {
 };
 
 export const BURN_ALERT_ENV = {
-  fileMb: 'LATTICE_BURN_ALERT_FILE_MB',
-  inputTokens: 'LATTICE_BURN_ALERT_INPUT_TOKENS',
-  ageDays: 'LATTICE_BURN_ALERT_AGE_DAYS',
-  recentHours: 'LATTICE_BURN_ALERT_RECENT_HOURS',
-  codexDir: 'LATTICE_BURN_ALERT_CODEX_DIR',
-  claudeDir: 'LATTICE_BURN_ALERT_CLAUDE_DIR',
+  fileMb: 'PROOF_OR_STOP_BURN_ALERT_FILE_MB',
+  inputTokens: 'PROOF_OR_STOP_BURN_ALERT_INPUT_TOKENS',
+  ageDays: 'PROOF_OR_STOP_BURN_ALERT_AGE_DAYS',
+  recentHours: 'PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS',
+  codexDir: 'PROOF_OR_STOP_BURN_ALERT_CODEX_DIR',
+  claudeDir: 'PROOF_OR_STOP_BURN_ALERT_CLAUDE_DIR',
 } as const;
 
 /**
@@ -76,7 +77,7 @@ function envNumber(
   fallback: number,
   opts: { allowZero?: boolean; max: number },
 ): number {
-  const raw = env[key];
+  const raw = readBrandEnv(key, env);
   if (raw === undefined) return fallback;
   const trimmed = raw.trim();
   if (trimmed.length === 0) return fallback;
@@ -339,7 +340,7 @@ export interface RenderHostBurnScanOptions {
   brief?: boolean;
 }
 
-/** The `lattice doctor` section. */
+/** The `proof-or-stop doctor` section. */
 export function renderHostBurnScan(
   evaluation: BurnAlertEvaluation,
   opts: RenderHostBurnScanOptions,
@@ -366,11 +367,11 @@ export function renderHostBurnScan(
       lines.push(`  ✗ BURN ALERT ${finding.host} ${finding.sessionId} (${finding.originLabel}) ${tokens} input tokens; tripped: ${finding.reasons.join(', ')}`);
     }
     if (evaluation.findings.length > 3) {
-      lines.push(`  ... and ${evaluation.findings.length - 3} more over threshold (use lattice doctor --full for every session detail)`);
+      lines.push(`  ... and ${evaluation.findings.length - 3} more over threshold (use proof-or-stop doctor --full for every session detail)`);
     }
     lines.push(
       `  → ${evaluation.findings.length} session(s) over burn thresholds out of ${evaluation.scanned} scanned. ` +
-        'Close/restart long-lived sessions; use lattice doctor --full for every session detail; advisory only, never gate evidence.',
+        'Close/restart long-lived sessions; use proof-or-stop doctor --full for every session detail; advisory only, never gate evidence.',
     );
     return lines;
   }

@@ -260,7 +260,7 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
 }
 
 function donePrepareCommand(storyId: string): string {
-  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+  return `proof-or-stop done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
 }
 
 function donePrepareRecoveryHint(storyId: string, detail?: string): string {
@@ -300,7 +300,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: 'no test evidence',
-      hint: `lattice validate --json`,
+      hint: `proof-or-stop validate --json`,
       source: 'test-evidence.json',
     }));
   } else if (evidence.result !== 'PASS') {
@@ -309,7 +309,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: `${evidence.result}: ${evidence.output.slice(0, 120)}`,
-      hint: 'rerun lattice validate after fixing failures',
+      hint: 'rerun proof-or-stop validate after fixing failures',
       source: 'test-evidence.json',
     }));
   } else {
@@ -323,7 +323,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'Test evidence',
           detail: `allPassed=${parsed.allPass ?? parsed.allPassed}`,
-          hint: 'rerun lattice validate after fixing failures',
+          hint: 'rerun proof-or-stop validate after fixing failures',
           source: 'test-evidence.json',
         }));
       }
@@ -385,7 +385,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   }
 
-  // 1c. DONE-required validation (opt-in). Ordinary lattice validate remains
+  // 1c. DONE-required validation (opt-in). Ordinary proof-or-stop validate remains
   // TEST evidence; projects that configure doneRequiredCommands get a separate
   // blocking row backed by done-required-evidence.json.
   {
@@ -418,7 +418,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Bugs fixed',
       detail: `${openBugs.length} open / ${total} total: ${openBugs.map(b => b.id).join(', ')}`,
-      hint: 'rerun lattice validate after fixing all open bugs',
+      hint: 'rerun proof-or-stop validate after fixing all open bugs',
       source: 'bugs.json',
     }));
   } else {
@@ -468,7 +468,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('If these files come from lattice validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. LATTICE_WRITE_*_REPORT=1) to explicitly enable report writing.');
+      hintLines.push('If these files come from proof-or-stop validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. LATTICE_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -501,7 +501,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'warn',
           label: 'Branch synced with main',
           detail: `${branch} does not exist (may have been manually merged and cleaned up)`,
-          hint: `if story is still stuck at TEST/DONE boundary, use lattice story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
+          hint: `if story is still stuck at TEST/DONE boundary, use proof-or-stop story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
           source: 'git worktree metadata',
           blocking: false,
         });
@@ -690,7 +690,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       detail: liveSmokeTranscript.reason,
       hint: liveSmokeTranscript.ok
         ? undefined
-        : 'Re-run lattice live_smoke_transcript with a passing command and --write',
+        : 'Re-run proof-or-stop live_smoke_transcript with a passing command and --write',
       source: 'evidence/live-smoke-transcript.json',
       blocking: !liveSmokeTranscript.ok,
     }));
@@ -902,7 +902,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: requireEval
           ? 'No evaluator score (browser projects must run the evaluator)'
           : 'No evaluator score (advisory — not required by profile)',
-        hint: `lattice evaluate '{"storyId":"${storyId}"}'`,
+        hint: `proof-or-stop evaluate '{"storyId":"${storyId}"}'`,
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -912,7 +912,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: `Did not pass: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
-        hint: 'Re-run lattice evaluate after fixing the issues found by evaluator',
+        hint: 'Re-run proof-or-stop evaluate after fixing the issues found by evaluator',
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -940,7 +940,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         detail: summaryReq === 'full'
           ? 'No summary.json'
           : 'No summary.json (advisory — profile requires minimal)',
-        hint: `lattice summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
+        hint: `proof-or-stop summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
         source: 'summary.json',
         blocking: summaryReq === 'full',
       }));
@@ -960,7 +960,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: summaryReq === 'full' ? 'fail' : 'warn',
           label: 'Story summary',
           detail: `Missing/too short fields: ${missing.join(', ')}`,
-          hint: `Re-invoke lattice summary_set to fill in ${missing.join(', ')}`,
+          hint: `Re-invoke proof-or-stop summary_set to fill in ${missing.join(', ')}`,
           source: 'summary.json',
           blocking: summaryReq === 'full',
         }));

@@ -54,12 +54,12 @@ export function createBugHandlers(ctx: HandlerContext) {
       const bug = data.bugs.find(b => b.id === args.id);
       if (!bug) throw new Error(`Bug ${args.id} not found`);
 
-      // Mark fixed (verification runs through lattice validate, not auto-triggered inside bug_update)
+      // Mark fixed (verification runs through proof-or-stop validate, not auto-triggered inside bug_update)
       let resultMsg: string;
       if (args.status === 'fixed') {
         if (!args.evidence) {
           return `⚠ Bug ${args.id}: providing evidence (symptom / rootCause / fixEvidence) is recommended when marking fixed.` +
-            ` Usage: lattice bug_update '{"storyId":"...","id":"...","status":"fixed","evidence":{"symptom":"...","reproSteps":["..."],"rootCause":"...","fixEvidence":"..."}}'`;
+            ` Usage: proof-or-stop bug_update '{"storyId":"...","id":"...","status":"fixed","evidence":{"symptom":"...","reproSteps":["..."],"rootCause":"...","fixEvidence":"..."}}'`;
         }
         bug.status = 'fixed';
         bug.fixedAt = new Date().toISOString();

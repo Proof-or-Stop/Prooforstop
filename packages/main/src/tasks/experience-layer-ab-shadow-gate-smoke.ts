@@ -118,7 +118,7 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
 }
 
 /** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
-function writeLatticeConfig(root: string): void {
+function writeProofOrStopConfig(root: string): void {
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -270,7 +270,7 @@ check('CHK-002 happy:0/1/2/3 + adversarial:4 — ON shows section, OFF hides it;
 
   // ON arm.
   const onRoot = mkTempRoot();
-  writeLatticeConfig(onRoot);
+  writeProofOrStopConfig(onRoot);
   seedStory(new StoryStore(onRoot), onId);
   seedSignals(onRoot, hintYieldingSignals());
   const onResult = runStoryReview(onRoot, onId);
@@ -284,7 +284,7 @@ check('CHK-002 happy:0/1/2/3 + adversarial:4 — ON shows section, OFF hides it;
 
   // OFF arm — same seed, same hints; section must be hidden but event still fires.
   const offRoot = mkTempRoot();
-  writeLatticeConfig(offRoot);
+  writeProofOrStopConfig(offRoot);
   seedStory(new StoryStore(offRoot), offId);
   seedSignals(offRoot, hintYieldingSignals());
   const offResult = runStoryReview(offRoot, offId);
@@ -303,13 +303,13 @@ check('CHK-002 happy:4 — issues/blocker output identical between ON and OFF ar
   const offId = findStoryIdForArm('off');
 
   const onRoot = mkTempRoot();
-  writeLatticeConfig(onRoot);
+  writeProofOrStopConfig(onRoot);
   seedStory(new StoryStore(onRoot), onId);
   seedSignals(onRoot, hintYieldingSignals());
   const on = runStoryReview(onRoot, onId);
 
   const offRoot = mkTempRoot();
-  writeLatticeConfig(offRoot);
+  writeProofOrStopConfig(offRoot);
   seedStory(new StoryStore(offRoot), offId);
   seedSignals(offRoot, hintYieldingSignals());
   const off = runStoryReview(offRoot, offId);
@@ -330,13 +330,13 @@ check('CHK-002 edge:0/1 / CHK-003 edge:0 — no hints: both arms byte-identical 
   const offId = findStoryIdForArm('off');
 
   const onRoot = mkTempRoot();
-  writeLatticeConfig(onRoot);
+  writeProofOrStopConfig(onRoot);
   seedStory(new StoryStore(onRoot), onId);
   // no signals seeded => no hints
   const on = runStoryReview(onRoot, onId);
 
   const offRoot = mkTempRoot();
-  writeLatticeConfig(offRoot);
+  writeProofOrStopConfig(offRoot);
   seedStory(new StoryStore(offRoot), offId);
   const off = runStoryReview(offRoot, offId);
 
@@ -356,12 +356,12 @@ check('CHK-002 edge:3 — OFF-arm prompt is byte-identical to the zero-hints bas
   const offId = findStoryIdForArm('off');
 
   const baselineRoot = mkTempRoot();
-  writeLatticeConfig(baselineRoot);
+  writeProofOrStopConfig(baselineRoot);
   seedStory(new StoryStore(baselineRoot), offId);
   const baseline = runStoryReview(baselineRoot, offId)._reviewPrompt;
 
   const withHintsRoot = mkTempRoot();
-  writeLatticeConfig(withHintsRoot);
+  writeProofOrStopConfig(withHintsRoot);
   seedStory(new StoryStore(withHintsRoot), offId);
   seedSignals(withHintsRoot, hintYieldingSignals());
   const withHints = runStoryReview(withHintsRoot, offId)._reviewPrompt;
@@ -372,7 +372,7 @@ check('CHK-002 edge:3 — OFF-arm prompt is byte-identical to the zero-hints bas
 check('CHK-002 edge:2 — round dedup preserved; hintMode present on each unique emission', () => {
   const onId = findStoryIdForArm('on');
   const root = mkTempRoot();
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   const store = new StoryStore(root);
   const now = PINNED_NOW;
   // REVIEW-round story so currentReviewRound is the stable per-run dedup key.

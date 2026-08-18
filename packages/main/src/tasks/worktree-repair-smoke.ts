@@ -31,7 +31,7 @@ function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -87,7 +87,7 @@ function addStoryWorktree(root: string, storyId: string): void {
   git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -106,9 +106,9 @@ async function runLattice(root: string, command: string, args: Record<string, un
   });
 }
 
-async function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStopExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   try {
-    await runLattice(root, command, args);
+    await runProofOrStop(root, command, args);
   } catch (e: any) {
     return e?.message || String(e);
   }
@@ -139,13 +139,13 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     writeFileSync(join(outsideUserDir, 'B-orphan'), 'outside worktreeDir must never be touched\n');
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
-    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(before.worktrees.needsRepair, true);
     assert.equal(before.partialDone.needsRecovery, false, 'terminal/active worktree residue is not partial-DONE');
     assert(before.worktrees.terminalRegistered.some((p: string) => p.includes('B-termreg')));
     assert(before.worktrees.orphanDirs.some((p: string) => p.includes('B-orphan')));
 
-    const repaired = JSON.parse(await runLattice(root, 'doctor', { format: 'json', repair: true }));
+    const repaired = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json', repair: true }));
     assert.equal(repaired.worktrees.needsRepair, false, 'doctor --repair should clear reported terminal/orphan targets');
     assert.deepEqual(repaired.worktrees.terminalRegistered, []);
     assert.deepEqual(repaired.worktrees.orphanDirs, []);
@@ -161,7 +161,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     assert.equal(git(root, ['branch', '--list', 'story/B-termreg']), '', 'terminal story branch should be deleted');
     assert.equal(git(root, ['branch', '--list', 'story/B-prune']), '', 'prunable terminal story branch should be deleted');
 
-    const storyList = await runLattice(root, 'story_list', {});
+    const storyList = await runProofOrStop(root, 'story_list', {});
     assert.doesNotMatch(storyList, /Terminal worktrees/, 'ignored terminal dirs should not show in story_list bug summary');
     assert.doesNotMatch(storyList, /\[terminal-worktree\]/, 'ignored terminal dirs should not label stories');
   } finally {
@@ -221,7 +221,7 @@ async function assertStoryDiscardRepairsMissingRegistry(): Promise<void> {
     addStoryWorktree(root, 'B-discard');
     rmSync(join(root, '.worktrees', 'B-discard'), { recursive: true, force: true });
 
-    const output = await runLattice(root, 'story_discard', {
+    const output = await runProofOrStop(root, 'story_discard', {
       storyId: 'B-discard',
       force: true,
       reason: 'smoke registry repair',
@@ -245,7 +245,7 @@ function buildPartialDone(root: string, storyId: string): string {
   const worktreeStore = new StoryStore(worktreePath);
   worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
   git(worktreePath, ['add', '.lattice/story/actives']);
-  git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE + clear worktree`]);
+  git(worktreePath, ['commit', '-m', `proof-or-stop: mark ${storyId} DONE + clear worktree`]);
   return worktreePath;
 }
 
@@ -255,23 +255,23 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
     const storyId = 'B-partial';
     const worktreePath = buildPartialDone(root, storyId);
 
-    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, true);
     assert.equal(before.partialDone.stories.length, 1);
     assert.equal(before.partialDone.stories[0].storyId, storyId);
     assert.equal(before.partialDone.stories[0].mergeTreeClean, true);
 
-    const text = await runLattice(root, 'doctor', {});
+    const text = await runProofOrStop(root, 'doctor', {});
     assert.match(text, /Partial-DONE scan:/);
-    assert.match(text, new RegExp(`lattice done_recover --storyId=${storyId}`));
+    assert.match(text, new RegExp(`proof-or-stop done_recover --storyId=${storyId}`));
 
-    const recovered = await runLattice(root, 'done_recover', { storyId });
+    const recovered = await runProofOrStop(root, 'done_recover', { storyId });
     assert.match(recovered, new RegExp(`partial-DONE recovered: ${storyId}`));
     assert.match(recovered, new RegExp(`story/${storyId} merged into main`));
     assert.match(recovered, new RegExp(`Worktree .*${storyId}.*removed`), 'operator transcript must report worktree removal');
     assert.match(recovered, new RegExp(`story/${storyId} deleted`), 'operator transcript must report branch deletion');
 
-    const after = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const after = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(after.partialDone.needsRecovery, false);
     assert.equal(after.worktrees.needsRepair, false);
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE');
@@ -290,10 +290,10 @@ async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
     buildPartialDone(root, storyId);
     writeFileSync(join(root, 'dirty.txt'), 'dirty main must block done_recover\n');
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /main worktree is not clean/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
-    const stillPartial = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const stillPartial = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(stillPartial.partialDone.needsRecovery, true);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -307,10 +307,10 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
     buildPartialDone(root, storyId);
     mkdirSync(join(root, '.lattice', 'locks', 'main-write.lock'), { recursive: true });
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
-    const stillPartial = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const stillPartial = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(stillPartial.partialDone.needsRecovery, true);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -324,7 +324,7 @@ async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
     const worktreePath = buildPartialDone(root, storyId);
     writeFileSync(join(worktreePath, 'local-draft.txt'), 'draft that recovery must not delete\n');
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /story worktree is not clean/);
     assert.equal(existsSync(join(worktreePath, 'local-draft.txt')), true, 'dirty worktree file must survive refused recovery');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
@@ -347,17 +347,17 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
     const worktreeStore = new StoryStore(worktreePath);
     worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['commit', '-m', `lattice: mark ${storyId} DONE with conflict`]);
+    git(worktreePath, ['commit', '-m', `proof-or-stop: mark ${storyId} DONE with conflict`]);
 
     writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
     git(root, ['add', 'conflict.txt']);
     git(root, ['commit', '-m', 'main edits conflict']);
 
-    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, true);
     assert.equal(before.partialDone.stories[0].mergeTreeClean, false);
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /cannot merge cleanly into main/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
@@ -375,7 +375,7 @@ async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): 
     commitStories(root);
     git(root, ['branch', 'story/B-unrelated']);
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /not a recoverable partial-DONE story/);
     assert.notEqual(git(root, ['branch', '--list', 'story/B-unrelated']), '', 'unrelated story branch must not be deleted');
   } finally {
@@ -399,11 +399,11 @@ async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
     git(worktreePath, ['add', '.']);
     git(worktreePath, ['commit', '-m', `story branch remains TEST`]);
 
-    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(before.partialDone.needsRecovery, false);
     assert.deepEqual(before.partialDone.stories, []);
 
-    const output = await runLatticeExpectFail(root, 'done_recover', { storyId });
+    const output = await runProofOrStopExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /not a recoverable partial-DONE story/);
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'non-DONE story branch must not be deleted');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));

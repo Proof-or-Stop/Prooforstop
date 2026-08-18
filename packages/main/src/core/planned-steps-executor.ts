@@ -849,7 +849,7 @@ function executeOneStep(
   if (step.type === 'story.advance') {
     return block('story_advance_requires_lifecycle_gate_evidence', {
       targetPhase: jobPlan.until,
-      note: 'planner execution will not bypass Proofbound lifecycle gates',
+      note: 'planner execution will not bypass Proof-or-Stop lifecycle gates',
     });
   }
 
@@ -1085,7 +1085,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
   }
   if (status === 'done' && options.jobPlan.mode === 'local') {
     if (!localDone && options.jobPlan.until === 'DONE') {
-      nextActions.add('PlannedSteps completed, but local Story lifecycle has not reached DONE; run the normal Proofbound lifecycle gates before claiming local DONE.');
+      nextActions.add('PlannedSteps completed, but local Story lifecycle has not reached DONE; run the normal Proof-or-Stop lifecycle gates before claiming local DONE.');
     }
     nextActions.add('Submit independent local host verdicts before claiming localReviewCertified when multi-host policy requires it.');
   }

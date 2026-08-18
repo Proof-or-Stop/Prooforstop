@@ -8,21 +8,21 @@ fencing safety semantics, a host-neutral baseline export, and a dedicated reliab
 This remains a multi-milestone program document for future production hardening beyond the local
 deterministic smoke surface.
 
-**North star (one sentence):** make `lattice autopilot_run` + `autopilot_resume` /
+**North star (one sentence):** make `proof-or-stop autopilot_run` + `autopilot_resume` /
 `autopilot_watch` **restart-safe** across the failure classes a multi-day unattended run
 actually hits — **HTTP 429 / 503 / 529 / overload, network outages, provider-side session
 limits, and host/session interruptions** — assuming a host, supervisor, CI job, or human
 relaunches the process after process death.
 
 Provider-health classification applies to provider-side rate-limit, overload, and network
-failures surfaced by a runtime adapter. Dispatch/runtime timeouts owned by Proofbound's local
+failures surfaced by a runtime adapter. Dispatch/runtime timeouts owned by Proof-or-Stop's local
 subprocess boundary remain the existing local `stopReason: timeout` unless a future
 provider-specific timeout signal is deliberately reclassified.
 
 **Scope boundary.** This plan makes an autopilot run **restart-safe and resume-correct**. It does
 not make the CLI process immortal. If the host process, terminal, Codex window, Claude Code
 window, Antigravity window, CI job, or OS process dies, a supervisor or human must relaunch
-`lattice autopilot_resume` / `lattice autopilot_watch`; the product guarantee is that the
+`proof-or-stop autopilot_resume` / `proof-or-stop autopilot_watch`; the product guarantee is that the
 relaunched run can prove where to resume and will not replay committed admissible `done`
 checkpoints. In other words:
 external host/session keepalive is a wrapper concern; durable checkpoint identity and
@@ -37,7 +37,7 @@ the product.
 ## 1. Why now — the trigger
 
 Running the §5/§6 ablation (9,240 live `claude -p` cells, multi-day) required building a
-three-layer guard **outside** Proofbound because the autopilot could not be trusted to run
+three-layer guard **outside** Proof-or-Stop because the autopilot could not be trusted to run
 unattended:
 
 - `session-guard.sh` (resident, detached) — health-probes the provider every 5 min; on
@@ -93,7 +93,7 @@ consumes them to resume.
 | North-star overclaim | It mixed two layers: product resume correctness and external process/session keepalive. That made it sound like M1+M2 alone could keep a dead process alive. | Product scope is restart-safe resume. Host/OS keepalive remains a wrapper/supervisor concern. M1+M2 may claim resume-correct single-run reliability, not "process immortality." |
 | Resume identity under-bound | A key like `phase + stepIndex + command + sha256(inputs)` can falsely match after plan, material, policy, executor, or provider-runtime drift. | A completed checkpoint is admissible only when its semantic identity matches the current run plan, story/material hashes, policy digest, executor/checkpoint schema, and host-runtime adapter identity. Drift downgrades it to `stale`, not `done`. |
 | Persistence model ambiguity | The old wording said both "checkpoint list in `run.json`" and "append-then-fsync" without saying which one is the source of truth. | M1 uses a per-run checkpoint ledger-backed snapshot: append-only checkpoint events are authoritative for that autopilot run; `run.json` is the latest readable projection. On mismatch or torn snapshot, replay the checkpoint ledger or fail closed. |
-| Host naming drift | The draft named `gemini` as a peer provider, but current Proofbound host baseline is `codex`, `claude-code`, and `antigravity` (`agy` alias). | The feature is host-neutral. It should normalize transient-failure semantics across current host runtime adapters. `gemini` is legacy compatibility only and must not appear as the current third-host baseline. |
+| Host naming drift | The draft named `gemini` as a peer provider, but current Proof-or-Stop host baseline is `codex`, `claude-code`, and `antigravity` (`agy` alias). | The feature is host-neutral. It should normalize transient-failure semantics across current host runtime adapters. `gemini` is legacy compatibility only and must not appear as the current third-host baseline. |
 | Evidence refs missing | The old draft said "real-tested" and "zero data loss" without direct artifact paths. | Every product claim must cite concrete artifacts. Wrapper evidence can motivate milestones; product DONE requires autopilot-level smoke/integration evidence. |
 | Exactly-once overclaim | The old M1 wording implied completed work can never run twice, but a process can crash after external output and before a `done` checkpoint is committed. | The guarantee is: once a `done` checkpoint is committed, that step is not re-dispatched. An uncommitted/interrupted step is at-least-once unless existing artifacts can be verified and promoted. |
 | Auto-resume ambiguity | M2 said auto-resume, while `autopilot_watch` was optional. That left no actor for recovery after the run process exits. | M2 must distinguish in-process waiting from external resume. `autopilot_watch`/supervisor/human resume is part of the M2 acceptance whenever the claim says "auto-resume after process exit." |
@@ -103,7 +103,7 @@ consumes them to resume.
 
 ### 2.2 Relation to existing ledgers
 
-Proofbound already has several ledgers. M1 must reuse the **ledger pattern** and shared
+Proof-or-Stop already has several ledgers. M1 must reuse the **ledger pattern** and shared
 integrity habits, but it must not overload ledgers that have a different subject or consumer.
 
 | Existing state/ledger | Current role | Why it is not the M1 resume source-of-truth |
@@ -159,11 +159,11 @@ So: resume-correctness (C2) → health pause/resume (C1) → throttle (C3) → p
   story benefits: a 429 mid-REVIEW currently fails hard and emits no evidence; a crash forces a
   full restart. M1+M2 alone deliver the **bounded** single-run product target: durable
   resume-correctness plus health-aware pause. They do not replace OS/Host/CI supervision.
-- **Phase 2 = M3 (C3) + M4 (C5): GATED on a positioning decision.** Only needed if Proofbound
+- **Phase 2 = M3 (C3) + M4 (C5): GATED on a positioning decision.** Only needed if Proof-or-Stop
   targets running **many** stories / reviewer lanes concurrently unattended. A single story has
   no fleet to ramp and one dispatch at a time.
 
-If Proofbound never targets batch/unattended-at-scale, Phase 1 is the correct permanent scope and
+If Proof-or-Stop never targets batch/unattended-at-scale, Phase 1 is the correct permanent scope and
 M3/M4 stay unbuilt.
 
 ---
@@ -278,7 +278,7 @@ by `autopilot_watch`, a host/supervisor wrapper, CI, or a human invoking `autopi
   `llm_overload` categories), append checkpoint-ledger health events, and surface a retry-after /
   pause hint in the failure reason instead of a hard stop.
 - A paused run is resumable by M1's mechanism (idempotent, from the last `done` checkpoint).
-- Extend the existing `lattice autopilot_watch` command so that, on `paused_requires_resume`, it
+- Extend the existing `proof-or-stop autopilot_watch` command so that, on `paused_requires_resume`, it
   re-probes health, appends observable health/resume events, and invokes resume when safe — the
   in-product analogue of `session-guard.sh`, while any resident daemon itself can stay a thin Host
   wrapper.
@@ -358,7 +358,7 @@ committed unit once.
 
 ## 7. Non-goals (stay out of the product)
 
-- **C4 process-crash keepalive** — use `launchd`/`systemd`/CI runner; Proofbound's crash-resilience
+- **C4 process-crash keepalive** — use `launchd`/`systemd`/CI runner; Proof-or-Stop's crash-resilience
   contribution is the durable phase/run persistence that already exists. A bespoke daemon in the
   CLI would duplicate mature init systems and blur the evidence value proposition.
 - **C6 the 9,240-cell campaign matrix + two-phase equal-spend** — this is the paper's measurement
@@ -373,11 +373,11 @@ committed unit once.
 
 1. **M1 (C2)** — idempotent resume + re-enable `autopilot_resume`. Positioning-independent. First.
 2. **M2 (C1)** — health-aware pause/resume; shared provider retry. Positioning-independent. With M1 = bounded single-run reliability, provided a host/human/supervisor relaunches resume/watch after process death.
-3. *Positioning decision: does Proofbound target unattended-at-scale?* If no → STOP here.
+3. *Positioning decision: does Proof-or-Stop target unattended-at-scale?* If no → STOP here.
 4. **M3 (C3)** — adaptive throttle. Gated.
 5. **M4 (C5)** — OS-process pool. Gated. Last (needs M1's idempotence to be safe).
 
-Each milestone is its own Lattice story (DEV via `lattice-implementer`, full 2-host review).
+Each milestone is its own Proof-or-Stop story (DEV via `lattice-implementer`, full 2-host review).
 M1-M4 now have a deterministic product-level smoke surface under
 `packages/main/src/tasks/autopilot-v2-reliability-smoke.ts`. Future stories may deepen the live
 process-pool runner, but must keep these semantics: committed admissible `done` checkpoints are
@@ -401,6 +401,6 @@ semantically load-bearing.
 | Build | PASS in B-320f DEV. | `npm --prefix packages/main run build` |
 | Reliability smoke | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` prints `autopilot-v2-reliability smoke PASS`. |
 | Regression smokes | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-resume-smoke.js`; `node packages/main/dist/tasks/autopilot-run-smoke.js`. These protect M1 replay, existing Authority-boundary behavior, full-autopilot bounded retry, budget-capped fail-closed behavior, and local dispatch guard classification. |
-| Version and CLI entrypoint | PASS in B-320f DEV. | `node packages/main/dist/tasks/lattice-cli-migration-smoke.js`; `node packages/main/dist/cli.js --version` prints `Proofbound CLI 0.3.103`. |
-| Routine validate | Required in TEST phase, not advanced by this DEV task. | `lattice validate --story=B-320f` after phase advancement to TEST. |
-| DONE | Not performed by this DEV task. | DONE requires the normal Lattice review/test/DONE flow and any configured DONE-required evidence. |
+| Version and CLI entrypoint | PASS in B-320f DEV. | `node packages/main/dist/tasks/lattice-cli-migration-smoke.js`; `node packages/main/dist/cli.js --version` prints `Proof-or-Stop CLI 0.3.103`. |
+| Routine validate | Required in TEST phase, not advanced by this DEV task. | `proof-or-stop validate --story=B-320f` after phase advancement to TEST. |
+| DONE | Not performed by this DEV task. | DONE requires the normal Proof-or-Stop review/test/DONE flow and any configured DONE-required evidence. |

@@ -33,6 +33,7 @@ import {
   renderReviewAssuranceGuidance,
 } from '../core/review-assurance-floor.js';
 import type { HostExecutionFailureKind } from '../core/host-execution-readiness.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -315,7 +316,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       const rolloutStage = normalizeString(args.rolloutStage);
       const milestoneId = normalizeString(args.milestoneId);
       const riskClass = normalizeString(args.riskClass);
-      const issuer = normalizeString(args.issuer) || normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
+      const issuer = normalizeString(args.issuer) || normalizeString(args.actor) || readBrandEnv('AGENT') || process.env.USER || 'main';
       const approver = normalizeString(args.approver);
       if (!policyVersion) throw new Error('review_escalation_policy_set: policyVersion is required');
       if (!sourcePolicyRef) throw new Error('review_escalation_policy_set: sourcePolicyRef is required');
@@ -520,7 +521,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
         : undefined;
 
       const fallbackId = `${args.storyId}:REF-${Date.now().toString(36)}`;
-      const actor = normalizeString(args.actor) || process.env.LATTICE_AGENT || process.env.USER || 'main';
+      const actor = normalizeString(args.actor) || readBrandEnv('AGENT') || process.env.USER || 'main';
       ctx.store.appendProcessEvent(args.storyId, {
         type: 'review_escalation_fallback',
         storyId: args.storyId,

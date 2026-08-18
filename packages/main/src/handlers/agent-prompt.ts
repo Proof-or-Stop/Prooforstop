@@ -1,5 +1,5 @@
 /**
- * agent-prompt.ts — `lattice agent_prompt --role=<name>` (B-097f CHK-002)
+ * agent-prompt.ts — `proof-or-stop agent_prompt --role=<name>` (B-097f CHK-002)
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
  * host render: a body-free `review_run_start` bootstrap for the five migrated
@@ -182,7 +182,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           type: 'dispatch',
           storyId,
           phase: story.phase,
-          source: 'lattice agent_prompt audit experiment',
+          source: 'proof-or-stop agent_prompt audit experiment',
           targetKind: 'story-dispatch',
           agentType: role,
         });
@@ -219,7 +219,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
             throw new Error(`agent_prompt: persisted envelope ${existing.envelopeId} failed integrity verification`);
           }
           ctx.store.appendProcessEvent(storyId, {
-            type: 'dispatch', storyId, phase: story.phase, source: 'lattice agent_prompt',
+            type: 'dispatch', storyId, phase: story.phase, source: 'proof-or-stop agent_prompt',
             targetKind: 'story-dispatch', agentType: role,
             promptEnvelopeId: existing.envelopeId, promptEnvelopeDigest: existing.contextDigest,
             assembledPromptDigest: existing.assembledPromptDigest,
@@ -238,7 +238,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
             throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
           }
           ctx.store.appendProcessEvent(storyId, {
-            type: 'dispatch', storyId, phase: story.phase, source: 'lattice agent_prompt',
+            type: 'dispatch', storyId, phase: story.phase, source: 'proof-or-stop agent_prompt',
             targetKind: 'story-dispatch', agentType: role,
             promptEnvelopeId: persisted.envelopeId, promptEnvelopeDigest: persisted.contextDigest,
             assembledPromptDigest: persisted.assembledPromptDigest,

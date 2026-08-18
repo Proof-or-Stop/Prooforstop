@@ -8,9 +8,9 @@ This document defines a two-layer execution plan after the B-b750
 `review_run_start` signed workspace work.
 
 Layer 1 is operational closure: make sure B-b750 reaches and remains at real
-Proofbound DONE, not merely REVIEW or TEST pass.
+Proof-or-Stop DONE, not merely REVIEW or TEST pass.
 
-Layer 2 is a narrow Proofbound CLI improvement: add a DONE closure
+Layer 2 is a narrow Proof-or-Stop CLI improvement: add a DONE closure
 runbook/assistant so future agents do not confuse TEST PASS with DONE.
 
 This plan is intentionally conservative:
@@ -54,7 +54,7 @@ Layer 1 therefore has two modes:
 
 ## Host-Neutral Authority Boundary
 
-This plan supports both Proofbound CLI Non-authority mode and the Proofbound
+This plan supports both Proof-or-Stop CLI Non-authority mode and the Proof-or-Stop
 Authority Server path, but it must keep them separate.
 
 Local CLI closure evidence can prove:
@@ -82,7 +82,7 @@ proof is actually verified through the explicit Authority path.
 Run from the repository root that owns the story metadata:
 
 ```bash
-lattice session_brief
+proof-or-stop session_brief
 git log --oneline -5
 git status --short
 ```
@@ -95,7 +95,7 @@ node packages/main/dist/cli.js session_brief
 ```
 
 Use the worktree-built CLI while B-b750 is not merged, because the global
-`lattice` binary can point at local main and may not include the in-flight
+`proof-or-stop` binary can point at local main and may not include the in-flight
 implementation.
 
 ### 2. If B-b750 Is In TEST, Resolve DONE Closure Gates
@@ -140,11 +140,11 @@ node packages/main/dist/cli.js summary_set '{
   "outcomeDiff":"Actual outcome matches expected: review_run_start distinguishes metadataRoot from signedWorkspaceRoot and keeps Authority claims separate.",
   "acceptanceVerdict":"accepted",
   "limitations":"No Authority Server completion is claimed; this is local Non-authority REVIEW/TEST/DONE evidence only.",
-  "pitfalls":"Use the worktree-built CLI until the story is merged because global lattice may point at local main dist."
+  "pitfalls":"Use the worktree-built CLI until the story is merged because global proof-or-stop may point at local main dist."
 }'
 ```
 
-Commit any Proofbound metadata produced by validation, delivery check, or summary.
+Commit any Proof-or-Stop metadata produced by validation, delivery check, or summary.
 
 ### 3. Advance To DONE
 
@@ -166,7 +166,7 @@ If DONE succeeds, confirm main:
 
 ```bash
 cd /Users/jek/Documents/Work/Orchestrate
-lattice session_brief
+proof-or-stop session_brief
 git log --oneline -5
 git status --short
 ```
@@ -176,7 +176,7 @@ git status --short
 Do not recreate the worktree or re-run DONE. Verify only:
 
 ```bash
-lattice session_brief
+proof-or-stop session_brief
 git log --oneline --decorate -5
 git status --short
 ```
@@ -184,7 +184,7 @@ git status --short
 Acceptance for the already-DONE state:
 
 - local main contains the B-b750 merge commit;
-- Proofbound dashboard counts B-b750 as DONE;
+- Proof-or-Stop dashboard counts B-b750 as DONE;
 - no B-b750 worktree is required;
 - the working tree is clean or any dirty files are unrelated and explicitly
   understood.
@@ -193,7 +193,7 @@ Acceptance for the already-DONE state:
 
 ### Problem
 
-The existing Proofbound CLI correctly blocks DONE when closure artifacts are
+The existing Proof-or-Stop CLI correctly blocks DONE when closure artifacts are
 missing, but agents can still misread a TEST PASS as task completion. This is a
 correctness issue in operator guidance and agent workflow interpretation, not a
 reason to weaken DONE gates.
@@ -212,8 +212,8 @@ done_closure
 Alternative if the project prefers extending existing surfaces:
 
 ```text
-lattice next --done-closure
-lattice session_brief --done-closure
+proof-or-stop next --done-closure
+proof-or-stop session_brief --done-closure
 ```
 
 The implementation should prefer extending existing `session_brief` / `next`

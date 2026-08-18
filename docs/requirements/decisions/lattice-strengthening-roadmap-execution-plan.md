@@ -1,4 +1,4 @@
-# Proofbound Strengthening Roadmap Execution Plan
+# Proof-or-Stop Strengthening Roadmap Execution Plan
 
 Date: 2026-06-19
 Origin story: B-8b07
@@ -11,7 +11,7 @@ Status: B-e781 closes B-43de M4-M12 parent roadmap rows with local machine evide
 ## Status And Purpose
 
 This document is a requirements decision and execution roadmap for strengthening
-Proofbound along three coordinated tracks:
+Proof-or-Stop along three coordinated tracks:
 
 1. **Hard scope boundaries**: make every story's allowed work, excluded work,
    lifecycle artifact allowance, and later-phase scope change path explicit and
@@ -33,14 +33,14 @@ a generic historical marker for the negative-control migration sample.
 
 B-43de is the ProofStory governance parent for the remaining roadmap. B-e781
 now closes that parent ledger for M4-M12 with command-backed local evidence. The
-closure is bounded to Proofbound CLI behavior named in each row; it does not
+closure is bounded to Proof-or-Stop CLI behavior named in each row; it does not
 assert retired Authority Server production/runtime conformance or any broader
 production unlock.
 
 The desired product outcome is:
 
 ```text
-An operator can ask "is this Proofbound story safe to proceed, review, validate,
+An operator can ask "is this Proof-or-Stop story safe to proceed, review, validate,
 merge, or claim?" and receive a mechanically grounded answer that names the
 scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
@@ -50,7 +50,7 @@ The product/material deliverable of B-b5c0 was only this document repair. The
 B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
 scope boundary behavior and keeps local-assurance Layer 4/customer key work out of
 scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
-story-scoped provenance produced by the Proofbound workflow, not proof of later
+story-scoped provenance produced by the Proof-or-Stop workflow, not proof of later
 roadmap milestones.
 
 ## Source And Context Mapping
@@ -138,7 +138,7 @@ ProofStory relationship map:
 
 | Story | Relationship to this roadmap | Runtime claim boundary |
 |---|---|---|
-| B-43de | Parent governance story for M4-M12. It records the roadmap parent rows and prevents scope shrinkage. | Closed by B-e781 evidence rows; claim is limited to the local Proofbound CLI surfaces named below. |
+| B-43de | Parent governance story for M4-M12. It records the roadmap parent rows and prevents scope shrinkage. | Closed by B-e781 evidence rows; claim is limited to the local Proof-or-Stop CLI surfaces named below. |
 | B-e781 | Closure implementation for the B-43de parent ledger. It maps M4-M12 to local smoke/verifier commands and claim boundaries. | Parent roadmap totality closure only; it is not a retired Authority Server production/runtime conformance claim. |
 | B-5082 / B-e1a8 | Completed ProofStory infrastructure/enforcement foundation. B-5082 completed the remaining ProofStory document commitments; B-e1a8 enabled ProofStory gates in enforce mode. B-43de uses those mechanisms to preserve M4-M12 parent intent. | These stories make parent-ledger governance enforceable, but they do not complete the strengthening roadmap runtime milestones themselves. |
 | B-cd3a | Separate control-plane and proof-admissibility gap-closure story. It may consume ProofStory validation and may overlap some concepts, but it is not the B-43de parent ledger and is not a substitute for M4-M12 completion. | B-cd3a can close its own scoped gaps only. Its result cannot mark the global M4-M12 roadmap complete unless a child story explicitly maps and proves the relevant parent row. |
@@ -147,7 +147,7 @@ B-e781 closure ledger:
 
 | Parent row | Roadmap surface | Status | Evidence commands | Claim boundary |
 |---|---|---|---|---|
-| M4 | Process fact registry coverage | `closed` | `node scripts/verify-process-fact-contract.mjs` | Local process-fact registry and static verifier coverage for gate-consumed Proofbound CLI facts. |
+| M4 | Process fact registry coverage | `closed` | `node scripts/verify-process-fact-contract.mjs` | Local process-fact registry and static verifier coverage for gate-consumed Proof-or-Stop CLI facts. |
 | M5 | Verification context pack and evidence envelope standardization | `closed` | `node packages/main/dist/tasks/verification-context-pack-smoke.js` | Local verification-context and evidence-envelope behavior proven by the focused smoke. |
 | M6 | Gate oracle, freshness, and negative-control matrix | `closed` | `node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js`; `node packages/main/dist/tasks/review-escalation-smoke.js` | Local lifecycle/review oracle behavior and expected-block coverage only. |
 | M7 | Baseline suite formalization | `closed` | `node packages/main/dist/tasks/baseline-suite-smoke.js`; `node packages/main/dist/tasks/baseline-suite-report-smoke.js` | Local baseline-suite/report contract evidence; no formal capability unlock is implied. |
@@ -185,7 +185,7 @@ This roadmap story does not:
 - alter `verificationIntent`, `verificationEvidence`, review-run, finding,
   delivery, validation, summary, or DONE semantics;
 - directly edit story JSON by hand, or change product/runtime metadata outside
-  the Proofbound workflow (story-scoped provenance under
+  the Proof-or-Stop workflow (story-scoped provenance under
   `.lattice/story/actives/B-b5c0/*` is allowed);
 - claim that any future baseline has passed;
 - claim `authorityDone`, `fullAuthorityDone`, `productionDone`,
@@ -194,7 +194,7 @@ This roadmap story does not:
   contracts;
 - use host transcripts, decision-doc prose, or documentation registration as
   gate evidence;
-- expand Proofbound into a generic optimization program; future stories must fix
+- expand Proof-or-Stop into a generic optimization program; future stories must fix
   real correctness issues or close named evidence gaps.
 
 ## Principles
@@ -236,7 +236,7 @@ Additional roadmap principles:
 
 ### Track A. Hard Scope Boundaries
 
-Goal: prevent Proofbound stories from drifting across unapproved code, document,
+Goal: prevent Proof-or-Stop stories from drifting across unapproved code, document,
 metadata, fixture, authority, runtime, or generated-artifact boundaries.
 
 Core product questions:
@@ -325,7 +325,7 @@ Required tests or checks:
 - Scope check: `git diff --name-only main...HEAD` shows only files allowed by
   the active story scope.
 - Spot check: `rg -n "Current Implementation Status Axis|lattice-authority-receipt-contract|lifecycle-gate-receipt-consumption|requires3x2|Milestone-To-Rollout Stage Crosswalk" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md`.
-- TEST check when the story enters TEST: `lattice validate --story=B-b5c0`.
+- TEST check when the story enters TEST: `proof-or-stop validate --story=B-b5c0`.
 - Build guard: `npm --prefix packages/main run build` is required only when
   `git diff --name-only main...HEAD` includes CLI runtime inputs such as
   `packages/main/src/**`, package manifests, or TypeScript config. A doc-only
@@ -748,8 +748,8 @@ Minimum validation commands and expected rows:
 | `git diff --name-only main...HEAD` | Material input list for the matrix run; runtime/story artifacts must be classified through registries, not blanket path exemptions. |
 | `git diff --check` | Clean documentation/source diff before matrix evidence is accepted. |
 | `npm --prefix packages/main run build` | Required for M6 implementation stories that touch CLI runtime inputs; build output is referenced by `M6.build.runtime-fresh`. |
-| `lattice validate --story=<storyId>` | Validation evidence rows `M6.validation.fresh`, `M6.validation.stale-evidence`, and `M6.validation.expected-blocks-recorded`. |
-| `lattice review_escalation_status --storyId=<storyId>` | Read-only projection row `M6.review-escalation.local-only-not-authority`; must not consume or create Authority receipt facts. |
+| `proof-or-stop validate --story=<storyId>` | Validation evidence rows `M6.validation.fresh`, `M6.validation.stale-evidence`, and `M6.validation.expected-blocks-recorded`. |
+| `proof-or-stop review_escalation_status --storyId=<storyId>` | Read-only projection row `M6.review-escalation.local-only-not-authority`; must not consume or create Authority receipt facts. |
 | `node packages/main/dist/tasks/authority-gate-receipts-smoke.js` | Receipt/ref eligibility rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.wrong-material-blocked`, `M6.receipt.stale-blocked`, `M6.receipt.future-blocked`, and `M6.receipt.tamper-blocked`. |
 | `node packages/main/dist/tasks/authority-gate-consumption-smoke.js` | Gate consumption rows `M6.receipt.eligible-consumed`, `M6.receipt.eligible-not-consumed`, `M6.receipt.local-transcript-blocked`, `M6.receipt.stale-blocked`, and `M6.receipt.wrong-material-blocked`. |
 | `node packages/main/dist/tasks/authority-completion-smoke.js` | DONE projection rows `M6.receipt.fake-blocked`, `M6.receipt.wrong-story-blocked`, `M6.receipt.stale-blocked`, `M6.receipt.future-blocked`, and `M6.receipt.tamper-blocked`; local/non-Authority completion must remain non-Authority status only. |
@@ -925,10 +925,10 @@ Minimum validation commands and expected rows:
 | `git diff --name-only main...HEAD` | Material input list used to decide whether M8 runtime build checks apply. |
 | `git diff --check` | Clean diff before host-verdict artifacts are accepted. |
 | `npm --prefix packages/main run build` | Required for M8 implementation stories that touch CLI runtime inputs; referenced by `M8.build.runtime-fresh`. |
-| `lattice validate --story=<storyId>` | Current validation digest for counted verdicts; rows `M8.validation.current` and `M8.validation.stale-verdict-ignored`. |
-| `lattice review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, `M8.quorum.blocked`, and local diagnostic `voluntaryLocalRounds` when verdicts exist but escalation is not required. |
-| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`; local all-runs/latest-runs summaries are diagnostic visibility only. |
-| `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic-only row `M8.decision-doc.diagnostic-only`; direct decision-doc edits do not set `requires3x2` unless the threshold or explicit policy predicate is true. |
+| `proof-or-stop validate --story=<storyId>` | Current validation digest for counted verdicts; rows `M8.validation.current` and `M8.validation.stale-verdict-ignored`. |
+| `proof-or-stop review_escalation_status --storyId=<storyId>` | Rows `M8.requires3x2.first-round-threshold`, `M8.requires3x2.explicit-high-risk-policy`, `M8.quorum.pass-full-3x2`, `M8.quorum.pass-degraded-3x1`, `M8.quorum.blocked`, and local diagnostic `voluntaryLocalRounds` when verdicts exist but escalation is not required. |
+| `proof-or-stop autopilot_review_status --storyId=<storyId>` | Host-verdict inventory rows `M8.verdict.counted`, `M8.verdict.ignored-stale`, `M8.verdict.ignored-duplicate-host`, `M8.verdict.ignored-same-session`, `M8.verdict.ignored-same-key`, `M8.verdict.ignored-missing-signature`, and `M8.verdict.ignored-prompt-unbound`; local all-runs/latest-runs summaries are diagnostic visibility only. |
+| `proof-or-stop decision_doc_quorum_check --storyId=<storyId>` | Diagnostic-only row `M8.decision-doc.diagnostic-only`; direct decision-doc edits do not set `requires3x2` unless the threshold or explicit policy predicate is true. |
 
 Expected evidence:
 
@@ -1122,9 +1122,9 @@ Expected evidence:
 - Migration report, dry-run output, or compatibility matrix.
 - User-facing command transcript for each runbook path.
 - Stale-material recovery transcript showing
-  `lattice validate --story=<storyId> --json`,
-  `lattice verification_evidence_refresh_stale --storyId=<storyId> --dryRun`,
-  and fresh `lattice autopilot_review_submit ... --materialDigest=<current-materialHash>`
+  `proof-or-stop validate --story=<storyId> --json`,
+  `proof-or-stop verification_evidence_refresh_stale --storyId=<storyId> --dryRun`,
+  and fresh `proof-or-stop autopilot_review_submit ... --materialDigest=<current-materialHash>`
   without suggesting a stale-material bypass.
 - Reviewer pass confirming no overclaim or authority boundary drift.
 - Policy-version binding report showing the active rollout stage and treatment
@@ -1193,10 +1193,10 @@ Minimum validation commands and expected rows:
 | `git diff --name-only main...HEAD` | Final material inventory, attached to `M12.material.final-inventory`. |
 | `git diff --check` | Final whitespace/doc hygiene row `M12.diff.clean`. |
 | `npm --prefix packages/main run build` | Required for any cross-track certification that touched CLI runtime inputs; row `M12.build.runtime-fresh`. |
-| `lattice validate --story=<storyId>` | Final validation evidence rows `M12.validation.pass`, `M12.validation.stale-block`, and `M12.validation.coverage-complete`; for B-b5c0 this pairs with `review_escalation_status` to expect `M12.receipt.not-authority-required`, not an Authority receipt. |
-| `lattice review_escalation_status --storyId=<storyId>` | Final local review assurance rows `M12.review.full-3x2`, `M12.review.degraded-3x1`, or `M12.review.not-required`; for non-Authority stories this status artifact is the source of `M12.receipt.not-authority-required`. |
-| `lattice autopilot_review_status --storyId=<storyId>` | Host-verdict inventory row `M12.host-verdicts.bound-and-fresh`; ignored reasons must match M8. |
-| `lattice decision_doc_quorum_check --storyId=<storyId>` | Diagnostic row `M12.decision-doc.diagnostic-only` when decision docs changed; it must not contradict `review_escalation_status`. |
+| `proof-or-stop validate --story=<storyId>` | Final validation evidence rows `M12.validation.pass`, `M12.validation.stale-block`, and `M12.validation.coverage-complete`; for B-b5c0 this pairs with `review_escalation_status` to expect `M12.receipt.not-authority-required`, not an Authority receipt. |
+| `proof-or-stop review_escalation_status --storyId=<storyId>` | Final local review assurance rows `M12.review.full-3x2`, `M12.review.degraded-3x1`, or `M12.review.not-required`; for non-Authority stories this status artifact is the source of `M12.receipt.not-authority-required`. |
+| `proof-or-stop autopilot_review_status --storyId=<storyId>` | Host-verdict inventory row `M12.host-verdicts.bound-and-fresh`; ignored reasons must match M8. |
+| `proof-or-stop decision_doc_quorum_check --storyId=<storyId>` | Diagnostic row `M12.decision-doc.diagnostic-only` when decision docs changed; it must not contradict `review_escalation_status`. |
 | `node packages/main/dist/tasks/authority-gate-receipts-smoke.js` | Authority-required receipt/ref verification rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.wrong-material-block`; not used to satisfy B-b5c0 because B-b5c0 is not Authority-required. |
 | `node packages/main/dist/tasks/authority-gate-consumption-smoke.js` | Authority-required gate-consumption rows `M12.receipt.consumed`, `M12.receipt.stale-block`, and `M12.receipt.not-eligible-block`; B-b5c0 instead expects `M12.receipt.not-authority-required` from `review_escalation_status`/validate. |
 
@@ -1411,7 +1411,7 @@ B-8b07 or B-b5c0; they are acceptance targets for later stories.
 | Missing PLAN scope check | Blocks PLAN review and points to reviewer-written `scope_check_save`, not self-signing. |
 | Missing `verificationIntent` | Blocks review/validation; repair hint appears only when legacy evidence exists. |
 | Malformed `intentRef` | Repair/evidence path fails closed and leaves story unchanged. |
-| Stale verification evidence | `lattice validate` reports allPass false or stale coverage; DONE blocks until refreshed after rerun. |
+| Stale verification evidence | `proof-or-stop validate` reports allPass false or stale coverage; DONE blocks until refreshed after rerun. |
 | Fake review pass | Handler normalizes only pass-only inputs or rejects ambiguous evidence; gate requires fresh signed reviewer run. |
 | Duplicate host/session/key | Does not count toward independent quorum. |
 | Missing second host | Blocks full 3x2 unless explicit degraded fallback is allowed and labeled. |
@@ -1479,7 +1479,7 @@ M11 staged runbook and repair prerequisite:
   repair exists, the expected dry-run output, and the expected audit event.
 - The stale-material local diagnostics runbook must inspect local verdict
   inventory with `autopilot_review_status`, refresh validation/evidence with
-  `lattice validate --story=<storyId> --json` and
+  `proof-or-stop validate --story=<storyId> --json` and
   `verification_evidence_refresh_stale`, and resubmit local host verdicts over
   the current material hash. It must not describe remote proof or completion
   capability.
@@ -1492,7 +1492,7 @@ M11 staged runbook and repair prerequisite:
 
 Audited emergency bypass for self-hosting over-block:
 
-- Use only when Proofbound's strengthened local gate blocks the story that is
+- Use only when Proof-or-Stop's strengthened local gate blocks the story that is
   required to fix that same gate and no normal replan/repair path can proceed.
 - Requires explicit human/operator reason, owner lease for story-scoped writes,
   main write lock for main/shared writes, current material/head hash, affected
@@ -1586,7 +1586,7 @@ Exit criteria:
 | 3x2 review blocks local progress when a host is unavailable | Stories stall indefinitely. | Explicit degraded single-host fallback with lower-assurance label and policy gate. |
 | Degraded fallback becomes normal | Lower assurance is reported as full proof. | Stable `degraded-single-host` fields and tests rejecting full-3x2 wording. |
 | Parallel work creates stacked gate holes | Independently correct stories combine into a bypass. | Shared schema owners, dependency joins, merged-state combination review. |
-| Baseline claims outrun evidence | Proofbound appears more capable than tested. | Success-rate math, false-DONE count, claim boundary templates. |
+| Baseline claims outrun evidence | Proof-or-Stop appears more capable than tested. | Success-rate math, false-DONE count, claim boundary templates. |
 | Authority terminology leaks into local evidence | Host transcripts or local statuses imply production proof. | Local host evidence remains review evidence; receipt-backed facts are separate. |
 | Migration mutates user metadata unexpectedly | Trust and auditability degrade. | Dry-run first, explicit reason, owner lease, no direct story JSON edits. |
 

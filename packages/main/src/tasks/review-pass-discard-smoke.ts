@@ -42,7 +42,7 @@ function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Proofbound Smoke']);
+  git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -124,7 +124,7 @@ function writeChecklistConcurrencyStory(root: string, storyId: string, phase: St
   });
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>, envOverrides: Record<string, string> = {}): Promise<string> {
+async function runProofOrStop(root: string, command: string, args: Record<string, unknown>, envOverrides: Record<string, string> = {}): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -150,7 +150,7 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string): Promise<string> {
-  return extractReviewRunId(await runLattice(root, 'review_run_start', { storyId, agent }));
+  return extractReviewRunId(await runProofOrStop(root, 'review_run_start', { storyId, agent }));
 }
 
 async function runLatticeFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
@@ -181,7 +181,7 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
     writeReviewStory(root, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `lattice-review-${name}`);
     const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
-    await Promise.all(agents.map(agent => runLattice(root, 'review_pass_set', {
+    await Promise.all(agents.map(agent => runProofOrStop(root, 'review_pass_set', {
       storyId,
       agent,
       reviewRunId: runIds.get(agent),
@@ -202,7 +202,7 @@ async function assertChecklistConcurrentUpdates(): Promise<void> {
   try {
     const storyId = 'B-check';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
-    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runLattice(root, 'checklist_update', {
+    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runProofOrStop(root, 'checklist_update', {
       storyId,
       itemId,
       status: 'done',
@@ -222,7 +222,7 @@ async function assertChecklistConcurrentVerificationIntentUpdates(): Promise<voi
   try {
     const storyId = 'B-intent';
     writeChecklistConcurrencyStory(root, storyId, 'PLAN');
-    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runLattice(root, 'checklist_update', {
+    await Promise.all(['CHK-001', 'CHK-002'].map(itemId => runProofOrStop(root, 'checklist_update', {
       storyId,
       itemId,
       verificationIntent: {
@@ -263,7 +263,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke cleanup' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, reason: 'smoke cleanup' });
 
     assert.doesNotMatch(output, /worktree and branch have been cleaned up/, 'discard hint must not claim blanket cleanup');
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
@@ -297,7 +297,7 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
 
     assert.match(output, /is already DISCARDED; residuals checked\/cleaned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
@@ -337,7 +337,7 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
     rmSync(join(root, '.worktrees', storyId), { recursive: true, force: true });
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
 
     assert.match(output, /stale worktree metadata pruned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
@@ -382,7 +382,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 
     let refusedWithoutForce = false;
     try {
-      await runLattice(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
+      await runProofOrStop(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
     } catch (error) {
       refusedWithoutForce = String((error as Error).message).includes('Worktree git metadata is corrupted');
     }
@@ -390,7 +390,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
     assert.equal(existsSync(worktreePath), true, 'non-forced invalid pointer cleanup should keep the residue dir');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'non-forced invalid pointer cleanup must not discard');
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
 
     assert.match(output, /invalid worktree residue cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced invalid pointer cleanup should remove the physical residue dir');
@@ -428,7 +428,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
     });
     store.writeChecklist(storyId, { items: [] });
     git(root, ['add', '.lattice/story/actives']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     git(root, ['branch', `story/${storyId}`]);
     const worktreePath = join(root, '.worktrees', storyId);
     git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
@@ -476,7 +476,7 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
 
     let failed = false;
     try {
-      await runLattice(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
+      await runProofOrStop(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
     } catch (error) {
       failed = String((error as Error).message).includes('discard stopped');
     }
@@ -498,9 +498,9 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
     const storyId = 'B-purge';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-purge']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
     assert.match(output, /main init commit safely rolled back/, 'purge should report a safe reset');
     assert.equal(git(root, ['rev-parse', 'HEAD']), before, 'safe init commit should be reset');
@@ -533,7 +533,7 @@ async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
     const storyId = 'B-buried';
     writeReviewStory(root, storyId);
     git(root, ['add', '.lattice/story/actives/B-buried']);
-    git(root, ['commit', '-m', `lattice: story ${storyId} init`]);
+    git(root, ['commit', '-m', `proof-or-stop: story ${storyId} init`]);
     const initCommit = git(root, ['rev-parse', 'HEAD']);
 
     // BURY the init commit under an unrelated later commit on main, so it is no
@@ -543,7 +543,7 @@ async function assertPurgeTombstonesBuriedSafeInitCommit(): Promise<void> {
     git(root, ['commit', '-m', 'unrelated: later commit burying the init commit']);
     const buryingCommit = git(root, ['rev-parse', 'HEAD']);
 
-    const output = await runLattice(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke buried purge' });
+    const output = await runProofOrStop(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke buried purge' });
 
     // (a) discard converges to a clean tree via the tombstone, not a safe reset.
     assert.doesNotMatch(output, /main init commit safely rolled back/, 'buried init commit must NOT be safe-reset');
@@ -566,8 +566,8 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
   const result = runDocsDriftGate([
     [
       '```bash',
-      'lattice aux_scan',
-      'lattice testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
+      'proof-or-stop aux_scan',
+      'proof-or-stop testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
       '```',
     ].join('\n'),
   ], new Set(['story_create']));
@@ -654,7 +654,7 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
       events: [],
     });
 
-    const output = await runLattice(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
+    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
     assert.match(output, /Within 5 minutes.*init_check_set.*explicit blocker/, 'init dispatch should preserve the reviewer progress duty');
@@ -680,7 +680,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     const storyId = 'B-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'DEV');
 
-    const output = await runLattice(root, 'dispatch', {
+    const output = await runProofOrStop(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
       agentType: 'lattice-implementer',
@@ -698,7 +698,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
     assert.equal(dispatchEvent?.agentType, 'lattice-implementer', 'item dispatch should write agentType');
     assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
-    assert.equal(dispatchEvent?.source, 'lattice dispatch', 'item dispatch event should name source');
+    assert.equal(dispatchEvent?.source, 'proof-or-stop dispatch', 'item dispatch event should name source');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -710,7 +710,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
 
-    const output = await runLattice(root, 'dispatch', { storyId, agentType: 'lattice-review-quality' });
+    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'lattice-review-quality' });
     assert.match(output, /As lattice-review-quality, review story/, 'story reviewer dispatch should identify reviewer role');
     assert.match(output, /Review only; do not change code/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
@@ -728,17 +728,17 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     assert.equal(dispatchEvent?.agentType, 'lattice-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
 
     await assert.rejects(
-      runLattice(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
+      runProofOrStop(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
       /story-only.*omit itemId/i,
       'story reviewer with itemId must fail closed with cardinality guidance',
     );
     await assert.rejects(
-      runLattice(root, 'dispatch', { storyId, agentType: 'unknown-reviewer' }),
+      runProofOrStop(root, 'dispatch', { storyId, agentType: 'unknown-reviewer' }),
       /Invalid parameters|accepted|Invalid option|expected one of/i,
       'unknown explicit agent type must fail before prompt generation',
     );
     await assert.rejects(
-      runLattice(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'lattice-review-quality' }),
+      runProofOrStop(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'lattice-review-quality' }),
       /agent_dispatch_mutation_denied/,
       'reviewer role must not complete checklist status',
     );
@@ -746,7 +746,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     const planStoryId = 'B-verification-dispatch';
     writeChecklistConcurrencyStory(root, planStoryId, 'PLAN');
     for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
-      const verificationPrompt = await runLattice(root, 'dispatch', {
+      const verificationPrompt = await runProofOrStop(root, 'dispatch', {
         storyId: planStoryId,
         itemId: 'CHK-001',
         agentType,
@@ -755,7 +755,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
       assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, `${agentType} must not receive implementer completion guidance`);
     }
     await assert.rejects(
-      runLattice(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'test-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'test-intent' }),
       /agent_dispatch_mutation_scope_denied/,
       'verification-intent alias must not mark checklist done',
     );
@@ -797,14 +797,14 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
     git(root, ['worktree', 'add', join(root, '.worktrees', 'B-prune'), 'story/B-prune']);
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
-    const before = JSON.parse(await runLattice(root, 'doctor', { format: 'json' }));
+    const before = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json' }));
     assert.equal(before.worktrees.needsRepair, true, 'doctor should detect terminal worktree repair targets');
     assert(
       before.worktrees.terminalRegistered.length > 0 || before.worktrees.orphanDirs.length > 0 || before.worktrees.terminalDirs.length > 0,
       'doctor should report at least one terminal/orphan target before repair',
     );
 
-    const repaired = JSON.parse(await runLattice(root, 'doctor', { format: 'json', repair: true }));
+    const repaired = JSON.parse(await runProofOrStop(root, 'doctor', { format: 'json', repair: true }));
     assert.equal(repaired.worktrees.needsRepair, false, 'doctor --repair should clear all terminal/orphan worktree targets');
     assert.equal(repaired.worktrees.terminalRegistered.length, 0, 'terminal registered worktrees should be gone after repair');
     assert.equal(repaired.worktrees.orphanDirs.length, 0, 'orphan dirs should be gone after repair');

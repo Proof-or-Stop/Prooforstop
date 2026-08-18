@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 /**
  * @task B-e3d9
@@ -498,7 +498,7 @@ export interface PlannerStoreLike {
 }
 
 export function plannerStateDir(root: string): string {
-  return join(root, LATTICE_DIR, 'planner', 'runs');
+  return join(root, PROOF_OR_STOP_DIR, 'planner', 'runs');
 }
 
 export function readPlannerRun(root: string, plannerRunId: string): PlannerRunRecord {
@@ -601,7 +601,7 @@ function verificationIntentFor(title: string): VerificationIntent {
   return {
     happy: [{ id: `${slug(title)}:happy`, desc: `Verify the requested behavior for "${title}" succeeds on the normal path.`, type: 'cli', requiredIn: 'balanced', priority: 'must' }],
     edge: [{ id: `${slug(title)}:edge`, desc: `Verify bounded failure or missing-input handling for "${title}".`, type: 'cli', requiredIn: 'strict', priority: 'should' }],
-    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proofbound evidence gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
+    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proof-or-Stop evidence gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
   };
 }
 
@@ -631,10 +631,10 @@ function buildChecklist(request: string, workflow: DevelopmentWorkflow): Planner
   const compact = request.length > 140 ? `${request.slice(0, 137)}...` : request;
   return [
     {
-      title: 'Implement the requested Proofbound change',
+      title: 'Implement the requested Proof-or-Stop change',
       context: `Implement the smallest verifiable scope for: ${compact}`,
       relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
-      verificationIntent: verificationIntentFor('Implement the requested Proofbound change'),
+      verificationIntent: verificationIntentFor('Implement the requested Proof-or-Stop change'),
     },
     {
       title: 'Verify evidence and DONE boundaries',
@@ -658,7 +658,7 @@ function interviewQuestions(): PlannerQuestion[] {
 
 function decisionQuestions(): PlannerQuestion[] {
   return [
-    { id: 'D-001', question: 'Confirm whether this run may create or mutate a Proofbound Story/job.', why: 'Story/job creation changes workflow state.' },
+    { id: 'D-001', question: 'Confirm whether this run may create or mutate a Proof-or-Stop Story/job.', why: 'Story/job creation changes workflow state.' },
   ];
 }
 
@@ -779,7 +779,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
     : `prun-${digest.slice(0, 12)}-${interactionMode}`;
   const title = developmentWorkflow === 'source_aligned_redevelopment'
     ? `Source-aligned redevelopment to ${args.targetLanguage || 'target language'}`
-    : request.split(/\n+/)[0]?.trim().slice(0, 96) || 'Proofbound planner request';
+    : request.split(/\n+/)[0]?.trim().slice(0, 96) || 'Proof-or-Stop planner request';
   // Fork the Story name on a forced run so story_create's normalized-name
   // idempotency does NOT reuse the default Story; a repeated forced run with the
   // same reason still collapses (deterministic), so forced scopes stay idempotent.
@@ -888,7 +888,7 @@ export function reviewPlannerDraft(draft: PlannerDraft, now = new Date()): Plann
 // argv carries no context that could leak — the executor digests it and never
 // surfaces it raw. `fake` needs no argv (it is deterministic and spawns nothing).
 function providerStepArgv(provider: 'codex' | 'claude', storyId: string): string[] {
-  const prompt = `Implement the smallest scoped step for Proofbound story ${storyId} per its checklist; do not over-optimize.`;
+  const prompt = `Implement the smallest scoped step for Proof-or-Stop story ${storyId} per its checklist; do not over-optimize.`;
   return provider === 'codex'
     ? ['exec', '--skip-git-repo-check', prompt]
     : ['-p', prompt, '--output-format', 'json'];

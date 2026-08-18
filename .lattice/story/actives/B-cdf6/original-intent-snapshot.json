@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-cdf6",
+  "sourceText": "Original request (2026-08-11, translated from Chinese): 'Use our proof-or-stop method to change our command tool name from lattice to proof-or-stop, replacing all lattice wording in the documentation with the appropriate proof-or-stop form.' Follow-up scope ruling from the same user when asked whether to include load-bearing identifiers (signature salts, .lattice/ state dir, agent role IDs, npm package names): 'the rename should influence current state or future works, not past works or history, so I think it's the former' - i.e. adopt the deprecated-alias scope and do not rewrite historical records.",
+  "normalizedOutcome": "A user can invoke the tool as `proof-or-stop <command>` and every forward-looking surface they encounter - active docs, help/usage text, and the session-brief header - says proof-or-stop or Proof-or-Stop, while `lattice` keeps working as a deprecated alias, historical records (the 391 story archives and CHANGELOG.md) stay byte-unchanged, and root npm test stays green.",
+  "acceptanceClaim": "Running `proof-or-stop --version` and `proof-or-stop help` succeeds with no output line containing the old bin name, `lattice --version` still prints the same version, `git diff --stat` on .lattice/story and CHANGELOG.md is empty, and root `npm test` passes.",
+  "keyRequirementIds": [
+    "REQ-001-bin-rename",
+    "REQ-002-active-docs-prose",
+    "REQ-003-freeze-past-records",
+    "REQ-004-gates-stay-green"
+  ],
+  "requestHash": "sha256:fca1148e4b7c9a37b6c7364f3f7e365d2c3fd8212376215d8572ea5a536cc68d",
+  "createdAt": "2026-08-11T03:41:28.281Z",
+  "updatedAt": "2026-08-11T03:41:28.281Z"
+}

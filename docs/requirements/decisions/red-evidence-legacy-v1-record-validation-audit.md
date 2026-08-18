@@ -302,7 +302,7 @@ See §4.2.
 removed, and caught an excluded one being re-added — and was structurally blind to what actually
 happened: a new, meaningful receipt (`red-b2aa7-f005-receipt.mjs`, added by CL-003) appearing in
 neither list. Absent from the required array, nothing was "missing"; absent from the exclusion array,
-nothing was "wrongly registered". `lattice validate` never ran it, and the guard reported complete
+nothing was "wrongly registered". `proof-or-stop validate` never ran it, and the guard reported complete
 coverage. That is precisely §4.0's error transplanted into a different artifact: **a check bound to a
 fixed enumeration instead of to the property it exists to guarantee.**
 
@@ -433,11 +433,11 @@ enforces `requireNonEmptyString` on `trigger`, `acceptanceTargetRef`, `baselineH
 
 The write path is also **atomic and self-checking**: `writeJsonFile` serializes to a
 `.tmp-<pid>-<ts>` sibling, **re-parses it**, then `renameSync`s it into place, cleaning up the temp
-file on any failure (`core/store.ts:133-146`). **[CODE]** So an interrupted `lattice` write cannot
+file on any failure (`core/store.ts:133-146`). **[CODE]** So an interrupted `proof-or-stop` write cannot
 leave a truncated or half-written artifact — rev 1 listed that as a corruption source and it is
 **wrong**.
 
-A malformed artifact therefore cannot originate from `lattice red_evidence_create` at all. It can
+A malformed artifact therefore cannot originate from `proof-or-stop red_evidence_create` at all. It can
 originate from:
 
 1. **manual edit** of `red-evidence.json` (the file is plain JSON in the story dir) — the dominant source, and the one §9's recoverability requirement is about;
@@ -825,7 +825,7 @@ D-7 is the only decision that can fail late, so it is stated as an explicit obli
 2. For each record, compute *(current verdict, verdict under full v1 validation)*.
 3. The story may merge only if that set is empty **or** every non-empty entry is individually justified in the story record.
 4. The result is reported even when empty — "scanned N artifacts, 0 affected" is the evidence; silence is not.
-5. The re-run at merge time is what `lattice validate` does, so the scan must be **registered** in
+5. The re-run at merge time is what `proof-or-stop validate` does, so the scan must be **registered** in
    `lattice.config.json` `validate.commands`; an unregistered scan is a silent D-7 failure that looks
    identical to a passing one. That registration is itself guarded by a **derived** completeness check
    rather than a hardcoded list of expected entries — see §4.0, where relying on the hardcoded version

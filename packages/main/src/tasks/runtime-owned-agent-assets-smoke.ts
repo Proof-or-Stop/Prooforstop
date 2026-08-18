@@ -26,7 +26,7 @@ import { resolveAgentAssetResolution } from '../core/agent-asset-resolution.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { buildRolloutCheck } from '../core/rollout-check.js';
 import { isModularReviewerRoleId, readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
-import { renderLatticeCodexAdapterManifest } from '../init-assets.js';
+import { renderProofOrStopCodexAdapterManifest } from '../init-assets.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -135,7 +135,7 @@ try {
 
 const explicitFullRoot = makeRoot('runtime-owned-explicit-full');
 try {
-  writeText(explicitFullRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
+  writeText(explicitFullRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
   seedMatchingPrompts(explicitFullRoot);
   const resolution = resolveAgentAssetResolution(explicitFullRoot);
   assert.equal(resolution.mode, 'full-asset');

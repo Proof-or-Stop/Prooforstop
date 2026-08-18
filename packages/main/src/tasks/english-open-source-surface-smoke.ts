@@ -58,7 +58,7 @@ const CJK_RE_G = new RegExp(CJK_RE.source, 'g');
 // ACTIVE source: every .ts under the main package src tree.
 const SRC_GLOB_ROOT = join(pkgRoot, 'src');
 // ACTIVE source: the utils package src tree (aux_/truth_/gap_ command surface
-// that appears in `lattice help` / `<cmd> --help`).
+// that appears in `proof-or-stop help` / `<cmd> --help`).
 const UTILS_SRC_GLOB_ROOT = join(repoRoot, 'packages', 'utils', 'src');
 // ACTIVE docs: the published guides + the live decision records.
 const DOC_FILES: string[] = [

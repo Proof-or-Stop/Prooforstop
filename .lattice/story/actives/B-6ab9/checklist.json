@@ -1,0 +1,104 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record a reproducible four-full-matrix Red timing baseline",
+      "context": "Execute the four legacy B-3cec matrix selectors sequentially on one clean source revision, record each exact exit, selector, row count, and wall time, and prove the combined topology exceeds the five-minute Green budget. This must measure real execution rather than infer timing from prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "userSees": "RED matrix topology: four full runs completed, fullRows=26 each, combinedMs=<measured>, targetMs=300000, result=RED",
+      "excludes": [
+        "Changing the timeout to make Red pass",
+        "Using historical timestamps without a replayable command"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-entrypoint-matrix-topology-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Separate exhaustive, scheduler, receipt-integrity, and wiring proof responsibilities",
+      "context": "Keep one exhaustive 26-row producer. Add focused scheduler-contract, receipt-integrity, and wiring-controls lanes that each execute the minimum real behavior needed for their own claim and have discriminating mutation controls.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "Matrix proof lanes: full=PASS scheduler=PASS receipt-integrity=PASS wiring=PASS",
+      "excludes": [
+        "Treating a cached receipt as a newly executed row",
+        "Weakening exact source, argv, output, reason, or digest checks"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/thin-entrypoint-red-evidence.ts",
+          "packages/main/src/tasks/thin-entrypoint-failure-exercises-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/thin-entrypoint-matrix-topology-smoke.ts"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove the optimized topology completes within five minutes without proof loss",
+      "context": "Run one full matrix plus the three focused lanes under a deterministic 300000ms Green budget. Assert 26 unique historical rows, independent clone identity for executed rows, canonical receipt ordering, all tamper mutations biting, and no static-echo or sibling-selector bypass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "GREEN matrix topology: fullRows=26 focusedLanes=3 totalMs=<measured> budgetMs=300000 result=PASS",
+      "excludes": [
+        "Raising the 300000ms target",
+        "Running four complete matrices in the Green path"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-entrypoint-matrix-topology-smoke.ts",
+          "packages/main/src/tasks/thin-entrypoint-failure-exercises-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the new proof topology and preserve legacy evidence immutability",
+      "context": "Document that B-3cec receipts remain historical and immutable while future consumers use the new proof bundle. Regenerate the bounded authority manifest only through the canonical scanner if source rows change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+      ],
+      "userSees": "Documentation states one exhaustive matrix plus three focused proofs, with B-3cec historical evidence unchanged.",
+      "excludes": [
+        "Editing B-3cec Story artifacts",
+        "Changing production authority or lifecycle policy"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/tasks/fixtures/thin-entrypoint-b3cec-authority-scan.tsv"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

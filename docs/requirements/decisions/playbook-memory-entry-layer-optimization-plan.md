@@ -5,7 +5,7 @@ Related: `playbook-runtime-memory-consumption-execution-plan.md`
 
 ## 1. Problem
 
-Proofbound now has verified runtime memory consumption: active playbooks and
+Proof-or-Stop now has verified runtime memory consumption: active playbooks and
 dev-memory lessons surface at lifecycle entrypoints, while candidates remain
 inert and memory remains `gateEvidence:false`.
 
@@ -39,7 +39,7 @@ work.
 
 ## 2. Target Outcome
 
-Make playbook memory a regular Proofbound entry layer:
+Make playbook memory a regular Proof-or-Stop entry layer:
 
 > Every controlled development entrypoint gets a fresh, bounded, relevant
 > memory pack quickly enough to be used by default.
@@ -352,7 +352,7 @@ baseline generation, or index build completes in 1-2 seconds.
 
 If this is written into the paper, use bounded language:
 
-> Memory exists is not enough; Proofbound verifies that relevant lessons are
+> Memory exists is not enough; Proof-or-Stop verifies that relevant lessons are
 > consumed at the lifecycle entrypoints where forgetting matters.
 
 Do not write:

@@ -144,7 +144,7 @@ async function run(): Promise<void> {
           reason: 'Invalid story id must fail before path use.',
           json: true,
         }),
-        /dev_memory_finish_decision: invalid storyId .*path-safe Proofbound story id/,
+        /dev_memory_finish_decision: invalid storyId .*path-safe Proof-or-Stop story id/,
       );
       for (const forbiddenPath of invalid.forbiddenPaths) {
         assert.equal(existsSync(forbiddenPath), false, `invalid storyId ${invalid.storyId} writes no outside file ${forbiddenPath}`);

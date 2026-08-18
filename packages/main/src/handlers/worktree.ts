@@ -20,6 +20,7 @@ import {
 } from '../core/story-metadata-protection.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
+import { matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
 // B-d877 CHK-001: the canonical single door for any lifecycle phase-write.
 // dev_finish / dev_merge delegate their phase advance here so the review round
 // is minted, the phase_transition process-event is appended, and every gate /
@@ -171,7 +172,7 @@ export function repairGlobalLatticeLinkBeforeWorktreeDelete(
 /**
  * B-9e4a CHK-001 (F-003): A freshly created git worktree does NOT inherit the
  * main repo's `node_modules` (git worktree only checks out tracked files, and
- * `node_modules` is gitignored). Without it, `tsc` / `lattice validate` fail with
+ * `node_modules` is gitignored). Without it, `tsc` / `proof-or-stop validate` fail with
  * unresolved-dependency errors. Detect the gap so worktree creation never reports
  * "development environment is ready" alone while dependencies are actually missing.
  *
@@ -227,7 +228,7 @@ export function detectMissingNodeModulesWarning(worktreePath: string): string | 
 
     return [
       `⚠ worktree missing node_modules: ${missing.join(', ')}`,
-      `  Missing dependencies will cause tsc / lattice validate to fail to resolve modules.`,
+      `  Missing dependencies will cause tsc / proof-or-stop validate to fail to resolve modules.`,
       `  → Remediation (recommended): cd ${worktreePath} && npm install`,
       `  → Advanced optional: manually symlink main repo node_modules to this worktree`,
     ].join('\n');
@@ -363,7 +364,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // project default so force-add never silently masks a misconfiguration.
       gitFile(['add', '-f', '--', storyRel], repoRoot, env);
       const tree = gitFile(['write-tree'], repoRoot, env);
-      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `lattice: story ${storyId} init`], repoRoot);
+      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `proof-or-stop: story ${storyId} init`], repoRoot);
       gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);
     } finally {
       try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* DEBUG: temp index cleanup best effort */ }
@@ -669,8 +670,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return '⚠ Uncleaned main init commit: cannot read HEAD';
     }
 
+    // B-cdf6:F-047 — READ-BOTH. Writers now emit the canonical `proof-or-stop:`
+    // prefix, but a repository can contain init commits written before this rename,
+    // and those are exactly the past evidence the compatibility contract protects.
+    // Recognizing only one spelling would misclassify real init commits as unclean.
     const safeSubject =
-      subject === `lattice: story ${storyId} init` ||
+      matchesRuntimeCommitSubject(subject, `story ${storyId} init`) ||
       subject.includes(storyId);
     const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
     if (!safeSubject || !safeFiles) {
@@ -688,12 +693,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       git(`add "${storyRel}"`, gitRoot);
       const staged = git(`diff --cached --name-only -- "${storyRel}"`, gitRoot);
       if (!staged) return '';
-      git(`-c commit.gpgsign=false commit -m "lattice: discard ${storyId}" --only -- "${storyRel}"`, gitRoot);
+      git(`-c commit.gpgsign=false commit -m "proof-or-stop: discard ${storyId}" --only -- "${storyRel}"`, gitRoot);
       const after = git(`status --porcelain -- "${storyRel}"`, gitRoot);
       if (after) {
         throw new Error(`story metadata still dirty:\n${after}`);
       }
-      return `✓ discard metadata committed: lattice: discard ${storyId}`;
+      return `✓ discard metadata committed: proof-or-stop: discard ${storyId}`;
     } catch (e: any) {
       throw new Error(
         `story_discard: discard metadata could not be committed, discard aborted.\n` +
@@ -1012,14 +1017,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const parallelWarning = checkParallelSafety(args.storyId);
 
       // B-9e4a CHK-001 (F-003): warn when the fresh worktree lacks node_modules,
-      // which would otherwise make tsc / lattice validate fail with unresolved deps.
+      // which would otherwise make tsc / proof-or-stop validate fail with unresolved deps.
       const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
 
       // B-854c CHK-002: after the scoped commit, probe the ACTUAL metadata leaf
       // (index.json). If the project default still leaves it ignored/untracked
       // (broad `.lattice/` ignore), force-add committed it for THIS story but the
       // next git clean on an untracked sibling can still lose data — surface a
-      // loud warning pointing at `lattice doctor --repair`. A negation allowlist
+      // loud warning pointing at `proof-or-stop doctor --repair`. A negation allowlist
       // (Orchestrate) or a tracked leaf produces no warning (no false positive).
       const metadataProtectionWarning = storyMetadataProtectionWarning(`${storyRel}/index.json`, repoRoot);
 
@@ -1077,7 +1082,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "proof-or-stop: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* no new files is fine */ }
 
@@ -1133,7 +1138,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
         if (staged) {
-          git(`commit -m "lattice: auto-add story files for ${args.storyId}"`, wtPath);
+          git(`commit -m "proof-or-stop: auto-add story files for ${args.storyId}"`, wtPath);
         }
       } catch { /* It's fine if there are no new files */ }
 
@@ -1264,7 +1269,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             throw new Error(
               `Worktree git metadata is corrupted, cannot safely check for uncommitted changes:\n` +
               `${wtPath}\n` +
-              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`,
+              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: proof-or-stop story_discard '{"storyId":"${args.storyId}","force":true}'`,
             );
           }
 
@@ -1292,7 +1297,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
               const wtStatus = git('status --porcelain', wtPath);
               if (wtStatus) {
                 throw new Error(
-                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`
+                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: proof-or-stop story_discard '{"storyId":"${args.storyId}","force":true}'`
                 );
               }
             }

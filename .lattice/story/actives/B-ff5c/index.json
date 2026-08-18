@@ -1,0 +1,50 @@
+{
+  "storyId": "B-ff5c",
+  "name": "integrate-three-agent-session-performance-postmortems",
+  "title": "Integrate three agent-session postmortems into one prioritized optimization plan",
+  "description": "Synthesize the B-137a Codex session analysis, B-9812 Codex implementation-session postmortem, and B-cdf6 Claude review-convergence analysis into one evidence-backed decision document. Preserve per-Story evidence boundaries, merge only common mechanisms, distinguish single-sample findings, and reorder optimizations by cross-sample impact, correctness risk, avoidable time, and implementation dependency.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "P0"
+    }
+  ],
+  "createdAt": "2026-08-14T11:39:45.468Z",
+  "startedAt": "2026-08-14T11:39:45.468Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-14T11:39:46.069Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-14T11:43:49.596Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-aeee1db44f9c7b91c5e5f6e143e28836",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "The token P0 appears only as a documentation priority label in the requested synthesis. This Story creates one analysis document and does not modify, deploy, or operate production systems.",
+      "at": "2026-08-14T11:40:05.256Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ff5c",
+    "branch": "story/B-ff5c",
+    "createdAt": "2026-08-14T11:43:46.795Z"
+  }
+}

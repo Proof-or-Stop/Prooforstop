@@ -435,7 +435,7 @@ export class StoryStore {
     this.writeJson(storyId, 'summary.json', data);
   }
 
-  // ── Findings (Proofbound reviewer findings) ──
+  // ── Findings (Proof-or-Stop reviewer findings) ──
   // B-9bd9 CHK-002: Finding type extended with driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
   // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
   // JSON passthrough does not affect serialization.

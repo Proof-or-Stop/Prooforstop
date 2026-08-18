@@ -20,7 +20,7 @@ You are an independent reviewer (role=reviewer). The main agent (role=author) wr
 **Always run inside the main agent's current worktree** — all reads and writes target the story's git branch.
 
 - After entering the DEV phase, the main agent automatically gets the `.worktrees/{storyId}` story worktree
-- When you (the sub agent) invoke the Lattice CLI via the `Bash` tool, the cwd defaults to the main agent's worktree, so no switching is needed
+- When you (the sub agent) invoke the Proof-or-Stop CLI via the `Bash` tool, the cwd defaults to the main agent's worktree, so no switching is needed
 - **Do not use Codex's `isolation: "worktree"` to create yet another temporary worktree for yourself**, otherwise the testintent_record/checklist_update you write will land on an independent branch that the main agent cannot see
 
 You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.
@@ -36,13 +36,13 @@ The main agent will tell you:
 ### Step 1: Get the checklist and testIntent
 
 ```bash
-lattice checklist_get '{"storyId":"<STORY_ID>"}'
+proof-or-stop checklist_get '{"storyId":"<STORY_ID>"}'
 ```
 
 ### Step 2: Get the current review state + check the round cap
 
 ```bash
-lattice testintent_check '{"storyId":"<STORY_ID>"}'
+proof-or-stop testintent_check '{"storyId":"<STORY_ID>"}'
 ```
 
 Review the historical results as context (to understand what was reviewed before and what the main agent replied).
@@ -55,7 +55,7 @@ You do not need to track the round manually — just call `testintent_record`. I
 
 Correct response:
 1. First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems
-2. If you really must continue: have a human call lattice testintent_resume to explicitly open a new segment (must be human:true + reason ≥ 5 characters)
+2. If you really must continue: have a human call proof-or-stop testintent_resume to explicitly open a new segment (must be human:true + reason ≥ 5 characters)
 
 Neither you (the reviewer) nor the main agent may call testintent_resume yourselves — the CLI will reject human:false.
 ```
@@ -89,11 +89,11 @@ How to review: **read fixture JSON files directly** and check whether the case's
 For each testIntent, call the CLI to record the review result:
 
 ```bash
-lattice testintent_record '{"storyId":"<STORY_ID>","itemId":"CHK-001","lane":"happy","index":0,"pass":true,"note":"fixture/xxx.json:5 — case covers normal path | severity:info","agent":"test-case-reviewer"}'
+proof-or-stop testintent_record '{"storyId":"<STORY_ID>","itemId":"CHK-001","lane":"happy","index":0,"pass":true,"note":"fixture/xxx.json:5 — case covers normal path | severity:info","agent":"test-case-reviewer"}'
 ```
 
 ```bash
-lattice testintent_record '{"storyId":"<STORY_ID>","itemId":"CHK-001","lane":"edge","index":0,"pass":false,"note":"no matching case found — missing edge case for empty input | severity:high","agent":"test-case-reviewer"}'
+proof-or-stop testintent_record '{"storyId":"<STORY_ID>","itemId":"CHK-001","lane":"edge","index":0,"pass":false,"note":"no matching case found — missing edge case for empty input | severity:high","agent":"test-case-reviewer"}'
 ```
 
 ## note Format Requirements
@@ -130,7 +130,7 @@ When you find a `role="author"` reply in the results:
 - **Do not modify code** (review only, do not change)
 - **Do not modify tests** (review only, do not change)
 - **Do not modify testIntent** (review only, do not change)
-- **Do not directly edit** JSON files; you must go through the Lattice CLI
+- **Do not directly edit** JSON files; you must go through the Proof-or-Stop CLI
 - **Do not prettify or omit** failure details returned by the CLI; relay them verbatim to the main agent
 - **Do not decide on your own to skip** any testIntent item
 
@@ -141,7 +141,7 @@ After the review is complete:
 ### Final step: call testintent_check to get the status and guidance
 
 ```bash
-lattice testintent_check '{"storyId":"<STORY_ID>"}'
+proof-or-stop testintent_check '{"storyId":"<STORY_ID>"}'
 ```
 
 Relay the full content returned by `testintent_check` (including the `hint` field) **verbatim** to the main agent.

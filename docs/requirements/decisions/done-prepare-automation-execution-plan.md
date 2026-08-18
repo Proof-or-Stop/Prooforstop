@@ -5,7 +5,7 @@ Created: 2026-06-19
 
 ## Purpose
 
-Add a conservative `lattice done_prepare` command that automates the mechanical
+Add a conservative `proof-or-stop done_prepare` command that automates the mechanical
 closure work between a TEST-passing story and an explicit DONE attempt.
 
 The target is time reduction without quality reduction. The command must not
@@ -27,7 +27,7 @@ implementation. The repeated closure sequence is predictable:
 - confirm the story is in the correct worktree and phase;
 - merge local `main` into the story branch;
 - refresh stale verification evidence after material hash changes;
-- rerun `lattice validate`;
+- rerun `proof-or-stop validate`;
 - run `done_closure`;
 - produce the exact next DONE command.
 
@@ -41,7 +41,7 @@ local-main finalization sequence:
 - bump the CLI patch version;
 - update package and lockfile version sources;
 - rebuild the CLI;
-- confirm the global `lattice --version`.
+- confirm the global `proof-or-stop --version`.
 
 That post-DONE work is related but must not be folded into pre-DONE readiness.
 
@@ -54,7 +54,7 @@ That post-DONE work is related but must not be folded into pre-DONE readiness.
 
 ## Scope
 
-This plan applies to Proofbound CLI lifecycle automation only.
+This plan applies to Proof-or-Stop CLI lifecycle automation only.
 
 In scope:
 
@@ -87,7 +87,7 @@ Out of scope:
 Primary command:
 
 ```bash
-lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
+proof-or-stop done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"validate":true}'
 ```
 
 Recommended defaults:
@@ -111,8 +111,8 @@ implementation. It may report:
 }
 ```
 
-The post-DONE finalization surface can be a later `lattice version_bump --patch`
-or `lattice done_finalize` command. It is intentionally not part of
+The post-DONE finalization surface can be a later `proof-or-stop version_bump --patch`
+or `proof-or-stop done_finalize` command. It is intentionally not part of
 `done_prepare`.
 
 `done_prepare` also must not accept a review-verdict rebind mode. Review
@@ -165,16 +165,16 @@ Supported `dryRun` behavior:
 Dirty-file policy:
 
 - supersedes the first implementation's blanket clean-tree rule: initial
-  preflight may proceed when the only dirty rows classify as same-story Proofbound
+  preflight may proceed when the only dirty rows classify as same-story Proof-or-Stop
   lifecycle metadata for the requested story, such as
   `.lattice/story/actives/<storyId>/done-required-evidence.json`;
 - initial preflight still blocks material/source, fixture, runtime artifact,
-  declared artifact, other-story Proofbound metadata, and unexpected dirty rows
+  declared artifact, other-story Proof-or-Stop metadata, and unexpected dirty rows
   using the shared dirty-worktree classifier;
 - rename rows are allowed only when every path in the row is same-story
   lifecycle metadata; metadata-to-source, source-to-metadata, and
   source-to-owner-lease renames block before mutation;
-- unchanged pre-existing Proofbound story lifecycle metadata remains advisory for
+- unchanged pre-existing Proof-or-Stop story lifecycle metadata remains advisory for
   `done_prepare`; it does not force a `blockedAt: cleanTree` result by itself;
 - failed DONE-required evidence is not rescued by the dirty-file allowance: it
   remains visible as same-story metadata dirt, but `doneClosure` blocks on the
@@ -186,7 +186,7 @@ Dirty-file policy:
   commit(s), and tell the operator to review them and rerun `done_prepare` from
   the new HEAD;
 - a successful `DONE prepare: PASS` requires no new or changed dirty rows beyond
-  unchanged pre-existing Proofbound story lifecycle metadata.
+  unchanged pre-existing Proof-or-Stop story lifecycle metadata.
 
 This keeps the implementation fail-closed for material drift and generated
 outputs while aligning pre-existing lifecycle metadata dirt with the DONE oracle's
@@ -213,19 +213,19 @@ The command must not auto-resolve conflicts.
 ### 3. Refresh Stale Evidence
 
 After a successful main merge, run a freshness check through the same material
-hash logic used by `lattice validate` and `done_closure`.
+hash logic used by `proof-or-stop validate` and `done_closure`.
 
 First run the stale-evidence refresh path in classification mode:
 
 ```bash
-lattice verification_evidence_refresh_stale --storyId=B-xxxx --dryRun
+proof-or-stop verification_evidence_refresh_stale --storyId=B-xxxx --dryRun
 ```
 
 If the dry run reports evidence that can be safely refreshed by existing
 evidence machinery and `refreshStale=true`, run:
 
 ```bash
-lattice verification_evidence_refresh_stale --storyId=B-xxxx
+proof-or-stop verification_evidence_refresh_stale --storyId=B-xxxx
 ```
 
 That delegated command may auto-commit story metadata through the existing
@@ -243,7 +243,7 @@ If evidence is stale and `refreshStale=false`, stop with:
 
 ```text
 blockedAt: evidenceFreshness
-next: lattice verification_evidence_refresh_stale --storyId=B-xxxx
+next: proof-or-stop verification_evidence_refresh_stale --storyId=B-xxxx
 ```
 
 The command must not mark stale evidence as fresh without rerunning or
@@ -254,7 +254,7 @@ refreshing through existing evidence machinery.
 If `validate=true`, run:
 
 ```bash
-lattice validate --story=B-xxxx --json
+proof-or-stop validate --story=B-xxxx --json
 ```
 
 If validation fails, stop and surface:
@@ -271,7 +271,7 @@ validation.
 Run:
 
 ```bash
-lattice done_closure '{"storyId":"B-xxxx"}'
+proof-or-stop done_closure '{"storyId":"B-xxxx"}'
 ```
 
 If `canAttemptDone=false`, stop and show blocking rows. The command must not
@@ -281,7 +281,7 @@ If `canAttemptDone=true`, continue to runtime-change detection and final output.
 
 ### 6. Runtime Change Detection
 
-Detect whether the story changed Proofbound CLI runtime behavior. The first
+Detect whether the story changed Proof-or-Stop CLI runtime behavior. The first
 implementation can use a conservative path-based rule.
 
 Report `postDoneRuntimeVersionBumpRequired=true` if the story diff includes any
@@ -316,7 +316,7 @@ step.
 ### 7. Optional Worktree Build Check
 
 `done_prepare` may run a worktree-local build when validation did not already do
-so, but it should not use the global `lattice` binary for pre-DONE version
+so, but it should not use the global `proof-or-stop` binary for pre-DONE version
 checks. In a story worktree, the reliable command is:
 
 ```bash
@@ -324,8 +324,8 @@ npm --prefix packages/main run build
 node packages/main/dist/cli.js --version
 ```
 
-The global `lattice --version` check belongs after DONE merge on local `main`.
-Before DONE, global `lattice` may still point at local main and not the story
+The global `proof-or-stop --version` check belongs after DONE merge on local `main`.
+Before DONE, global `proof-or-stop` may still point at local main and not the story
 worktree build.
 
 If the worktree-local CLI cannot run after build, stop with:
@@ -363,8 +363,8 @@ commits:
   - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
 commands:
   - git log --oneline <old-head>..HEAD
-  - lattice done_prepare '{"storyId":"B-xxxx"}'
-next: review the generated commit(s), then rerun lattice done_prepare from the new HEAD
+  - proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
+next: review the generated commit(s), then rerun proof-or-stop done_prepare from the new HEAD
 ```
 
 `done_prepare` must not invent a separate auto-commit path. The only
@@ -377,7 +377,7 @@ story-metadata commit from existing commands such as
 On success, print one clear next step:
 
 ```bash
-lattice story_advance '{"storyId":"B-xxxx","phase":"DONE"}'
+proof-or-stop story_advance '{"storyId":"B-xxxx","phase":"DONE"}'
 ```
 
 The command should not call DONE automatically in the first implementation.
@@ -406,7 +406,7 @@ Authority completion:
   productionDone: false
 
 Next:
-lattice story_advance '{"storyId":"B-xxxx","phase":"DONE"}'
+proof-or-stop story_advance '{"storyId":"B-xxxx","phase":"DONE"}'
 ```
 
 Blocked output:
@@ -416,7 +416,7 @@ DONE prepare: BLOCKED
 storyId: B-xxxx
 blockedAt: validate
 reason: CHK-003 verification evidence stale
-next: lattice verification_evidence_refresh_stale --storyId=B-xxxx
+next: proof-or-stop verification_evidence_refresh_stale --storyId=B-xxxx
 ```
 
 Review-assurance blocked output:
@@ -431,11 +431,11 @@ Current material binding:
   currentMaterialHash: <post-merge-materialHash>
   currentStoryFilesHash: <post-merge-storyFilesHash>
 commands:
-  - lattice review_escalation_status '{"storyId":"B-xxxx"}'
-  - lattice quorum_submit '{"storyId":"B-xxxx","hostA":"<independent-host-a>","hostB":"<independent-host-b>"}'
-  - lattice autopilot_review_submit --storyId=B-xxxx ... --materialDigest=<post-merge-materialHash> --storyFilesHash=<post-merge-storyFilesHash> ...
-  - lattice done_prepare '{"storyId":"B-xxxx"}'
-next: inspect review status, submit current-material review/quorum evidence, then rerun lattice done_prepare '{"storyId":"B-xxxx"}'
+  - proof-or-stop review_escalation_status '{"storyId":"B-xxxx"}'
+  - proof-or-stop quorum_submit '{"storyId":"B-xxxx","hostA":"<independent-host-a>","hostB":"<independent-host-b>"}'
+  - proof-or-stop autopilot_review_submit --storyId=B-xxxx ... --materialDigest=<post-merge-materialHash> --storyFilesHash=<post-merge-storyFilesHash> ...
+  - proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
+next: inspect review status, submit current-material review/quorum evidence, then rerun proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
 ```
 
 This block intentionally does not print `story_advance DONE`; that command stays
@@ -464,8 +464,8 @@ commits:
   - <sha> lattice: record B-xxxx verification_evidence_refresh_stale metadata
 commands:
   - git log --oneline <old-head>..HEAD
-  - lattice done_prepare '{"storyId":"B-xxxx"}'
-next: review the generated commit(s), then rerun lattice done_prepare from the new HEAD
+  - proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
+next: review the generated commit(s), then rerun proof-or-stop done_prepare from the new HEAD
 ```
 
 The output must explicitly distinguish:
@@ -565,7 +565,7 @@ The finalization path may:
 - bump the patch version;
 - update package and lockfile version sources;
 - run `npm --prefix packages/main run build`;
-- verify global `lattice --version`;
+- verify global `proof-or-stop --version`;
 - commit the version bump.
 
 It must remain separate from pre-DONE readiness.
@@ -645,7 +645,7 @@ Acceptance:
 Implement a separate post-DONE main command if needed:
 
 ```bash
-lattice done_finalize '{"storyId":"B-xxxx","versionBump":"patch"}'
+proof-or-stop done_finalize '{"storyId":"B-xxxx","versionBump":"patch"}'
 ```
 
 Acceptance:
@@ -654,7 +654,7 @@ Acceptance:
 - refuses to run before the story is DONE;
 - bumps exactly one patch version for runtime behavior changes;
 - updates package and lockfile version sources consistently;
-- runs build and confirms global `lattice --version`;
+- runs build and confirms global `proof-or-stop --version`;
 - commits only finalization files.
 
 ### Wave 5. Default Operator Path
@@ -662,7 +662,7 @@ Acceptance:
 Update `session_brief` and DONE blocker hints to recommend:
 
 ```bash
-lattice done_prepare '{"storyId":"B-xxxx"}'
+proof-or-stop done_prepare '{"storyId":"B-xxxx"}'
 ```
 
 Acceptance:

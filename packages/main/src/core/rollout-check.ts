@@ -6,11 +6,12 @@ import { runManagedAssetCheck, type ManagedAssetCheckResult, type ManagedAssetSt
 import { runRuntimeEnvironmentChecks, type RuntimeEnvironmentReport, type RuntimeFactStatus } from './runtime-environment-checks.js';
 import {
   LATTICE_CLI_VERSION,
-  LATTICE_PRODUCT_NAME,
-  LATTICE_PRIMARY_BIN,
-  formatLatticeProductLine,
+  PROOF_OR_STOP_PRODUCT_NAME,
+  PROOF_OR_STOP_PRIMARY_BIN,
+  PROOF_OR_STOP_DEPRECATED_BIN,
+  formatProofOrStopProductLine,
 } from './lattice-brand.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export type RolloutFormat = 'text' | 'json';
 export type RolloutStatus = 'pass' | 'warn' | 'fail' | 'skip';
@@ -60,9 +61,9 @@ export interface RolloutProjectResult {
 export interface RolloutCheckResult {
   schemaVersion: 'lattice.rollout_check.v1';
   product: {
-    name: typeof LATTICE_PRODUCT_NAME;
+    name: typeof PROOF_OR_STOP_PRODUCT_NAME;
     version: typeof LATTICE_CLI_VERSION;
-    primaryBin: typeof LATTICE_PRIMARY_BIN;
+    primaryBin: typeof PROOF_OR_STOP_PRIMARY_BIN;
   };
   readOnly: true;
   macAppRequired: false;
@@ -96,9 +97,9 @@ const SKIP_DIRS = new Set([
 const FORBIDDEN_ARGS = ['--apply', '--upgrade', '--repair', '--fix'] as const;
 
 const PRODUCT = {
-  name: LATTICE_PRODUCT_NAME,
+  name: PROOF_OR_STOP_PRODUCT_NAME,
   version: LATTICE_CLI_VERSION,
-  primaryBin: LATTICE_PRIMARY_BIN,
+  primaryBin: PROOF_OR_STOP_PRIMARY_BIN,
 } as const;
 
 function statusRank(status: RolloutStatus): number {
@@ -159,11 +160,17 @@ function readPackageName(path: string): string | null {
   return typeof parsed?.name === 'string' ? parsed.name : null;
 }
 
+/**
+ * B-cdf6 CHK-002: the bin map is now additive — `proof-or-stop` is canonical and
+ * `lattice` is retained as a deprecated alias. Require the CANONICAL entry so a
+ * package that only ships the deprecated alias is reported as needing a refresh,
+ * while a package shipping both still passes.
+ */
 function packageBinHasLattice(path: string): boolean {
   const parsed = readJsonFile(path);
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
-    (bin as Record<string, unknown>).lattice === 'dist/cli.js';
+    (bin as Record<string, unknown>)[PROOF_OR_STOP_PRIMARY_BIN] === 'dist/cli.js';
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
@@ -225,7 +232,7 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 
 function looksLikeProject(dir: string): boolean {
   return existsSync(join(dir, 'lattice.config.json')) ||
-    existsSync(join(dir, LATTICE_DIR)) ||
+    existsSync(join(dir, PROOF_OR_STOP_DIR)) ||
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
     existsSync(join(dir, 'CLAUDE.md')) ||
@@ -247,8 +254,8 @@ function buildGitProbe(projectRoot: string): RolloutProjectGit {
 
 function buildStoryProbe(projectRoot: string, branch: string | null): RolloutProjectStoryState {
   const activeDir = [
-    join(projectRoot, LATTICE_DIR, 'story', 'actives'),
-  ].find((candidate) => existsSync(candidate)) ?? join(projectRoot, LATTICE_DIR, 'story', 'actives');
+    join(projectRoot, PROOF_OR_STOP_DIR, 'story', 'actives'),
+  ].find((candidate) => existsSync(candidate)) ?? join(projectRoot, PROOF_OR_STOP_DIR, 'story', 'actives');
   let activeStoryCount = 0;
   try {
     activeStoryCount = readdirSync(activeDir).filter(entry => {
@@ -287,7 +294,10 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const mainPackagePath = join(projectRoot, 'packages', 'main', 'package.json');
   const mainPackageVersion = readPackageVersion(mainPackagePath);
   const mainPackageName = readPackageName(mainPackagePath);
-  const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
+  // B-cdf6 CHK-002: the canonical wrapper is bin/proof-or-stop.js; bin/lattice.js
+  // remains as a deprecated alias and is reported separately rather than gating.
+  const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_PRIMARY_BIN}.js`));
+  const hasDeprecatedWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_DEPRECATED_BIN}.js`));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
   const isSelfLayout = mainPackageName === '@lattice/core';
   const ok = isSelfLayout
@@ -295,17 +305,17 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; bin=lattice-only:${hasBinAliases}`
-    : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; deprecatedAliasWrapper=${hasDeprecatedWrapper}; bin=${PROOF_OR_STOP_PRIMARY_BIN}:${hasBinAliases}`
+    : `external project; global ${formatProofOrStopProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
-    label: 'Proofbound config doctor',
+    label: `${PROOF_OR_STOP_PRODUCT_NAME} config doctor`,
     status,
-    command: 'lattice lattice_config_doctor --format=json',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} lattice_config_doctor --format=json`,
     executed: 'filesystem-probe',
     readOnly: true,
     detail,
-    ...(status === 'warn' ? { nextAction: 'Refresh the local CLI package/wrappers, then rerun lattice lattice_config_doctor.' } : {}),
+    ...(status === 'warn' ? { nextAction: `Refresh the local CLI package/wrappers, then rerun ${PROOF_OR_STOP_PRIMARY_BIN} lattice_config_doctor.` } : {}),
   };
 }
 
@@ -315,7 +325,7 @@ function buildRuntimeProbe(result: RuntimeEnvironmentReport): RolloutProbe {
     id: 'runtime_footprint',
     label: 'Runtime footprint',
     status,
-    command: 'lattice check --json',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} check --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `${result.runtimeMode.mode}/${result.runtimeMode.source}; projectLocalJS=${result.runtimeMode.requiresProjectJavaScriptRuntime}; facts=${result.summary.pass} pass, ${result.summary.warn} warn, ${result.summary.fail} fail`,
@@ -329,11 +339,11 @@ function buildManagedAssetProbe(result: ManagedAssetCheckResult): RolloutProbe {
     id: 'managed_assets',
     label: 'Managed assets',
     status,
-    command: 'lattice check --json',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} check --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `mode=${result.mode}; OK=${result.summary.OK ?? 0}; MISSING=${result.summary.MISSING ?? 0}; STALE_SAFE=${result.summary.STALE_SAFE ?? 0}; STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT ?? 0}; INCOMPATIBLE=${result.summary.INCOMPATIBLE ?? 0}`,
-    ...(status !== 'pass' ? { nextAction: 'Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Run ${PROOF_OR_STOP_PRIMARY_BIN} check manually, review unsafe items, then use ${PROOF_OR_STOP_PRIMARY_BIN} check --apply or --upgrade only after operator approval.` } : {}),
   };
 }
 
@@ -346,7 +356,7 @@ function buildAgentAssetResolutionProbe(projectRoot: string): RolloutProbe {
     id: 'agent_asset_resolution',
     label: 'Agent asset resolution',
     status,
-    command: 'lattice verify_codex --json',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} verify_codex --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `${summarizeAgentAssetResolution(resolution)}; ${resolution.authorityBoundary.text}`,
@@ -369,18 +379,18 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
     id: 'doctor_readonly_subset',
     label: 'Doctor readiness',
     status,
-    command: 'lattice doctor --format=json',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} doctor --format=json`,
     executed: 'in-process',
     readOnly: true,
     detail,
-    ...(status !== 'pass' ? { nextAction: 'Run lattice doctor for full health details; use --repair only as an explicit maintenance action.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Run ${PROOF_OR_STOP_PRIMARY_BIN} doctor for full health details; use --repair only as an explicit maintenance action.` } : {}),
   };
 }
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
   const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
-  const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story'));
+  const hasStoryRoot = existsSync(join(projectRoot, PROOF_OR_STOP_DIR, 'story'));
   const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
@@ -393,20 +403,20 @@ function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectSto
     id: 'transcript_scope',
     label: 'Transcript and story scope',
     status,
-    command: 'lattice session_brief',
+    command: `${PROOF_OR_STOP_PRIMARY_BIN} session_brief`,
     executed: 'filesystem-probe',
     readOnly: true,
     detail: parts.join('; '),
-    ...(status !== 'pass' ? { nextAction: 'Initialize or refresh managed project guidance with lattice init/check so transcript and story evidence have a clear home.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Initialize or refresh managed project guidance with ${PROOF_OR_STOP_PRIMARY_BIN} init/check so transcript and story evidence have a clear home.` } : {}),
   };
 }
 
 function nextActionFor(status: RolloutStatus, probes: RolloutProbe[]): string {
-  if (status === 'pass') return 'Ready for Proofbound CLI rollout.';
+  if (status === 'pass') return `Ready for ${PROOF_OR_STOP_PRODUCT_NAME} rollout.`;
   const firstFail = probes.find(probe => probe.status === 'fail');
   if (firstFail?.nextAction) return firstFail.nextAction;
   const firstWarn = probes.find(probe => probe.status === 'warn');
-  return firstWarn?.nextAction ?? 'Review warnings and rerun lattice rollout_check.';
+  return firstWarn?.nextAction ?? `Review warnings and rerun ${PROOF_OR_STOP_PRIMARY_BIN} rollout_check.`;
 }
 
 function scanProject(projectRoot: string): RolloutProjectResult {
@@ -490,7 +500,7 @@ function statusIcon(status: RolloutStatus): string {
 
 export function renderRolloutCheckText(result: RolloutCheckResult): string {
   const lines: string[] = [];
-  lines.push(`${formatLatticeProductLine()} rollout check (${result.schemaVersion})`);
+  lines.push(`${formatProofOrStopProductLine()} rollout check (${result.schemaVersion})`);
   lines.push(`readOnly: ${result.readOnly}; macAppRequired: ${result.macAppRequired}`);
   lines.push(`summary: total=${result.summary.total}; pass=${result.summary.pass}; warn=${result.summary.warn}; fail=${result.summary.fail}; skip=${result.summary.skip}`);
   lines.push(`root: ${result.root}`);

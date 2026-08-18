@@ -204,7 +204,7 @@ function hashes(root: string) {
 function writePassingTestEvidence(root: string, store: StoryStore): void {
   const h = hashes(root);
   const evidence: TestEvidenceData = {
-    command: `lattice validate --story=${STORY_ID} --json`,
+    command: `proof-or-stop validate --story=${STORY_ID} --json`,
     output: JSON.stringify({ allPass: true, status: 'pass' }),
     result: 'PASS',
     timestamp: new Date().toISOString(),

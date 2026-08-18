@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3434",
+  "sourceText": "The operator directed this fix after story B-9ff1 completed all review work but could not enter TEST. Investigation showed the metadata commit path cannot read a staged blob larger than one mebibyte, and the resulting error names concurrent modification instead of the buffer limit. The operator asked for the problem to be solved and driven to DONE.",
+  "normalizedOutcome": "A story whose validation evidence artifact exceeds one mebibyte can persist that evidence and enter TEST, and any future unreadable blob reports its real cause instead of presenting as a digest difference.",
+  "acceptanceClaim": "A committed regression stages a blob larger than one mebibyte, drives the metadata commit path, and the commit succeeds where it previously failed with verified metadata changed after manifest verification.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:2b558d68ebc0794c5a9ccaf316d9f0251f742fa0019f3c3fd8c7ecc59deb31a1",
+  "createdAt": "2026-08-15T10:26:31.554Z",
+  "updatedAt": "2026-08-15T10:26:31.554Z"
+}

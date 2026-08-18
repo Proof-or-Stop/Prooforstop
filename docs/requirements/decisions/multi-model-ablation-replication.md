@@ -4,11 +4,11 @@
 **协议哈希**: 冻结时 SHA256 写入 `experiments/multi-model-ablation/protocol.lock.json`
 **对应论文缺口**: §5.2 / Table 9（9,240 格全部单一 Sonnet executor + Claude reviewer）、§11 "self-built/self-reviewed"、§12 "multi-model generalization … future extensions"、摘要 "limited to one model family and 24 tasks"
 **目标产出**: 回答两个问题——(Q1) +1.6pp / 31→2 的效应是控制层的性质还是 Sonnet 的性质；(Q2) 同厂商 reviewer（Claude 审 Claude）是否使 v1 低估了真实放大率
-**执行分类**: research / paper-evidence campaign。它不是当前 Proofbound CLI correctness blocker，不是默认 story gate，也不应被接入 DONE / playbook activation / production runtime guidance。
+**执行分类**: research / paper-evidence campaign。它不是当前 Proof-or-Stop CLI correctness blocker，不是默认 story gate，也不应被接入 DONE / playbook activation / production runtime guidance。
 
 ## 0. 执行边界与采纳原则
 
-本协议只在需要支撑论文或公开材料中的 **multi-model generalization** claim 时启动。它的价值是补强研究证据，而不是优化 Proofbound 的日常开发流程；因此不得因为"看起来更完整"而默认执行。
+本协议只在需要支撑论文或公开材料中的 **multi-model generalization** claim 时启动。它的价值是补强研究证据，而不是优化 Proof-or-Stop 的日常开发流程；因此不得因为"看起来更完整"而默认执行。
 
 **默认采纳范围**: 先做 M0 spike（E2 harness 工具面等价性、A2′ 预算机制、分析脚本复核）。只有 M0 证明工具面等价且论文 wording 确实需要升级时，才进入阶段 1；阶段 2 必须有单独的成本预算、协议冻结和启动记录。
 
@@ -227,7 +227,7 @@ A3/A4 的 reviewer 实验采用 executor × reviewer 的 2×2 设计；A2′ 无
 | M3 | 阶段 2 启动判定（按 §3.3 冻结规则） | 决策留痕（含不启动的情形） |
 | M4 | 阶段 2（最终 powered matrix=19,200 格，k=5，E1 同窗重跑；增量按 §3.2 计算） | 全记录落盘；增量/全量重跑口径写入 analysis notes |
 | M5 | 分析 + 独立复算（另一会话重提取，对齐 v1 Appendix B） | 数字一致或差异被解释 |
-| M6 | 论文 v2 更新（按 §3.5 措辞表执行） | 仅受本 research protocol 的 protocol lock、independent recompute 与 wording guard 约束；不得自动变更 Proofbound product gates/playbooks/runtime |
+| M6 | 论文 v2 更新（按 §3.5 措辞表执行） | 仅受本 research protocol 的 protocol lock、independent recompute 与 wording guard 约束；不得自动变更 Proof-or-Stop product gates/playbooks/runtime |
 
 **启动纪律**: M0 可以作为小 story 执行；M2+ 不应和普通产品 story 绑定，也不应自动排入 unattended development。M2/M4 是有成本的研究 campaign，必须由 human approval 明确启动。
 
@@ -244,4 +244,4 @@ A3/A4 的 reviewer 实验采用 executor × reviewer 的 2×2 设计；A2′ 无
 
 ## 8. 与 Tier-C 协议的关系
 
-本协议的 R-cross reviewer 配置与 Tier-C campaign 共享 vendor-diversity 问题意识，但不依赖已经存在的 runtime quorum 或 multi-key verdict 基础设施。Tier-C M0 是 doc-only threat model 与 key-management decision work；cross-host review/quorum 属于 Tier-C M1；pinned-key/signature provenance 属于 M-crypto。因此，本协议 M0 只能与 Tier-C M0 的文档决策对齐；后续若 Tier-C M1/M-crypto 已实现，本协议才可以复用其 cross-host review、key/signature provenance 与审计基础设施。两个 campaign 的执行顺序建议收缩为: **Tier-C M0 文档决策对齐 → 本协议 M0/阶段 1（如获 human approval）→ Tier-C M1/M-crypto 实现后再考虑 Tier-C 主 campaign 与本协议阶段 2 并行**（不同资源: 前者吃 wall-clock，后者吃 token 预算）。Tier-C/vendor-diversity 结论在本协议中只作为 research evidence；不得自动进入 Proofbound gate、playbook 或 runtime guidance，除非另走 §0 的 source lineage / dedup / exposure / structured outcome 流程。
+本协议的 R-cross reviewer 配置与 Tier-C campaign 共享 vendor-diversity 问题意识，但不依赖已经存在的 runtime quorum 或 multi-key verdict 基础设施。Tier-C M0 是 doc-only threat model 与 key-management decision work；cross-host review/quorum 属于 Tier-C M1；pinned-key/signature provenance 属于 M-crypto。因此，本协议 M0 只能与 Tier-C M0 的文档决策对齐；后续若 Tier-C M1/M-crypto 已实现，本协议才可以复用其 cross-host review、key/signature provenance 与审计基础设施。两个 campaign 的执行顺序建议收缩为: **Tier-C M0 文档决策对齐 → 本协议 M0/阶段 1（如获 human approval）→ Tier-C M1/M-crypto 实现后再考虑 Tier-C 主 campaign 与本协议阶段 2 并行**（不同资源: 前者吃 wall-clock，后者吃 token 预算）。Tier-C/vendor-diversity 结论在本协议中只作为 research evidence；不得自动进入 Proof-or-Stop gate、playbook 或 runtime guidance，除非另走 §0 的 source lineage / dedup / exposure / structured outcome 流程。

@@ -28,6 +28,7 @@ import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { BRAND_ENV_PREFIX } from '../core/brand-env.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
@@ -494,7 +495,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
-      // Record caller identity (env var LATTICE_AGENT is set by subagent)
+      // Record caller identity (env var PROOF_OR_STOP_AGENT, or the deprecated
+      // LATTICE_AGENT, is set by the subagent; brand-env reads both)
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
@@ -631,7 +633,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
           ...(readEvidence?.readLog ? { readLog: readEvidence.readLog } : {}),
           ...(readEvidence?.readDiagnostics ? { readDiagnostics: readEvidence.readDiagnostics } : {}),
           hardWarning: missingAttribution
-            ? 'finding_add called without agent/LATTICE_AGENT; recorded as main and REVIEW/TEST gates may reject it'
+            ? `finding_add called without agent/${BRAND_ENV_PREFIX}AGENT; recorded as main and REVIEW/TEST gates may reject it`
             : undefined,
         });
       } catch (e) {
@@ -647,7 +649,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        ? '\n⚠ finding_add is missing agent/LATTICE_AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.'
+        // B-cdf6: teach the canonical env var name. `lattice-review-*` in this same
+        // string is a FROZEN role ID (subagent_type value) and must NOT be renamed.
+        ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.`
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'

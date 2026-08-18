@@ -2,7 +2,7 @@
 
 The **prewrite scope guard** is a story-scoped projection that tracks whether an
 agent dispatched to implement a checklist item stays within its declared scope
-contract. Starting a guard session tells Proofbound which runtime host is running
+contract. Starting a guard session tells Proof-or-Stop which runtime host is running
 the agent so it can choose the right protection strategy.
 
 B-e781 closure status: the B-43de M4-M12 parent roadmap rows are closed by
@@ -16,10 +16,10 @@ capability unlock.
 - **`native-pretool` (pre-tool blocking)** — a host with a verified pre-tool
   hook can reject a forbidden write before the file is modified.
 - **`wrapped-preapply` (dispatch pre-apply blocking)** — Codex and
-  Antigravity/agy can use this only when running through Proofbound
+  Antigravity/agy can use this only when running through Proof-or-Stop
   dispatch/pre-apply flow.
 - **`watcher-fallback` (post-write detection)** — any host without a verified
-  pre-tool or wrapped-preapply context is observed after the fact. Proofbound
+  pre-tool or wrapped-preapply context is observed after the fact. Proof-or-Stop
   detects the violation when `guard_session_check` runs and blocks lifecycle
   progression, but the forbidden file has already been written.
 
@@ -42,8 +42,8 @@ host-specific session envs belong only in adapter, dispatch, or test code.
 |---|---|---|
 | `claude`, `claude-code`, `claude_code`, `claudecode` with verified hook | `native-pretool` | Host hook fires before the write |
 | `codex` with verified Codex hook | `native-pretool` | Codex native hook fires before the write |
-| `codex` through Proofbound dispatch/pre-apply flow | `wrapped-preapply` | Proofbound wrapper checks the patch before apply |
-| `antigravity`, `agy` through Proofbound dispatch/pre-apply flow | `wrapped-preapply` | Proofbound wrapper checks the patch before apply while preserving the Antigravity CLI host identity |
+| `codex` through Proof-or-Stop dispatch/pre-apply flow | `wrapped-preapply` | Proof-or-Stop wrapper checks the patch before apply |
+| `antigravity`, `agy` through Proof-or-Stop dispatch/pre-apply flow | `wrapped-preapply` | Proof-or-Stop wrapper checks the patch before apply while preserving the Antigravity CLI host identity |
 | `codex`, `antigravity`, `agy` without a verified context | `watcher-fallback` | Diff detected after write; no pre-tool interception |
 | `gemini`, `gemini-cli` | legacy/deprecated compatibility only | Not a current guard-provider path; use `antigravity`/`agy` for current third-host flows |
 | Any other string | `watcher-fallback` | Default; no pre-tool hook assumption |
@@ -51,7 +51,7 @@ host-specific session envs belong only in adapter, dispatch, or test code.
 `guard_session_start` derives the mode automatically from the `provider` you
 pass.  You never configure the mode directly.
 
-> **Important:** Proofbound never overclaims `native-pretool` mode. Even if you
+> **Important:** Proof-or-Stop never overclaims `native-pretool` mode. Even if you
 > pass `provider=claude-code` or `provider=codex`, the guard session can only
 > intercept writes when a verified host hook is installed. Without that proof,
 > it reports `wrapped-preapply` only for dispatch/pre-apply flow or
@@ -76,10 +76,10 @@ A guard session is automatically re-checked at each `story_advance` gate
 ### Start a guard session
 
 ```bash
-lattice guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
-lattice guard_session_start '{"storyId":"B-xxxx","provider":"codex"}'
-lattice guard_session_start '{"storyId":"B-xxxx","provider":"antigravity","viaDispatch":true}'
-lattice guard_session_start '{"storyId":"B-xxxx","provider":"agy","viaDispatch":true}'
+proof-or-stop guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
+proof-or-stop guard_session_start '{"storyId":"B-xxxx","provider":"codex"}'
+proof-or-stop guard_session_start '{"storyId":"B-xxxx","provider":"antigravity","viaDispatch":true}'
+proof-or-stop guard_session_start '{"storyId":"B-xxxx","provider":"agy","viaDispatch":true}'
 ```
 
 Output includes `guardMode: native-pretool`, `guardMode: wrapped-preapply`, or
@@ -88,7 +88,7 @@ Output includes `guardMode: native-pretool`, `guardMode: wrapped-preapply`, or
 ### Check for violations
 
 ```bash
-lattice guard_session_check '{"storyId":"B-xxxx"}'
+proof-or-stop guard_session_check '{"storyId":"B-xxxx"}'
 ```
 
 Re-evaluates the current worktree diff against the scope contract.  Violation
@@ -98,7 +98,7 @@ check returns to a clean state.
 ### Simulate a write (dry-run)
 
 ```bash
-lattice guard_session_check '{"storyId":"B-xxxx","simulatedWrites":["src/forbidden.ts"]}'
+proof-or-stop guard_session_check '{"storyId":"B-xxxx","simulatedWrites":["src/forbidden.ts"]}'
 ```
 
 Injects a path as if it had been written without touching the file.  Useful for
@@ -107,14 +107,14 @@ testing scope contracts without making real changes.
 ### Inspect current state
 
 ```bash
-lattice guard_session_status '{"storyId":"B-xxxx"}'
-lattice guard_session_status '{"storyId":"B-xxxx","json":true}'
+proof-or-stop guard_session_status '{"storyId":"B-xxxx"}'
+proof-or-stop guard_session_status '{"storyId":"B-xxxx","json":true}'
 ```
 
-### Run `lattice doctor` to see all active guard sessions
+### Run `proof-or-stop doctor` to see all active guard sessions
 
 ```bash
-lattice doctor
+proof-or-stop doctor
 ```
 
 The "Guard session scan" section reports:
@@ -127,7 +127,7 @@ The "Guard session scan" section reports:
 ### JSON output
 
 ```bash
-lattice doctor --format=json | jq '.guardSessions'
+proof-or-stop doctor --format=json | jq '.guardSessions'
 ```
 
 Fields:
@@ -165,7 +165,7 @@ a file.  Without it, the guard session can only detect violations after the fact
 ### Check whether it is installed
 
 ```bash
-lattice doctor
+proof-or-stop doctor
 # look for: PreToolUse hook (Claude Code): installed (N hooks)
 # or:       PreToolUse hook (Claude Code): not installed
 ```
@@ -173,7 +173,7 @@ lattice doctor
 Or via JSON:
 
 ```bash
-lattice doctor --format=json | jq '.guardSessions.preToolUseHook'
+proof-or-stop doctor --format=json | jq '.guardSessions.preToolUseHook'
 ```
 
 ### Installing the hook
@@ -200,15 +200,15 @@ Add a `PreToolUse` entry to `.claude/settings.json` (create the file if absent):
 
 > **Note:** A `prewrite-scope-guard.cjs` hook script is not yet shipped as a
 > managed asset.  Until it is, the guard session provides watcher-fallback
-> protection for all providers.  `lattice doctor` will report the hook as
+> protection for all providers.  `proof-or-stop doctor` will report the hook as
 > "not installed" and advise accordingly.  This is correct and expected during
 > the current rollout phase.
 
 ### Managed asset drift
 
-`lattice check` scans managed assets (CLAUDE.md, `.claude/hooks`, …) for drift.
-Once the `prewrite-scope-guard.cjs` hook becomes a managed asset, `lattice check`
-will report it as `MISSING` and `lattice check --apply` will install it.
+`proof-or-stop check` scans managed assets (CLAUDE.md, `.claude/hooks`, …) for drift.
+Once the `prewrite-scope-guard.cjs` hook becomes a managed asset, `proof-or-stop check`
+will report it as `MISSING` and `proof-or-stop check --apply` will install it.
 
 ## Watcher-fallback: what it means in practice
 
@@ -216,7 +216,7 @@ A `watcher-fallback` guard session still provides meaningful protection:
 
 - Every `story_advance` re-checks the diff before allowing lifecycle progression.
 - `guard_session_check` can be called manually at any point during DEV.
-- Violations are recorded in the session and surfaced in `lattice doctor`.
+- Violations are recorded in the session and surfaced in `proof-or-stop doctor`.
 - The lifecycle gate blocks if violations are present, regardless of mode.
 
 The only thing `watcher-fallback` cannot do is prevent the forbidden file from
@@ -233,12 +233,12 @@ fabricates violations from a missing contract.
 
 ```bash
 # Set up a scope contract before starting a guard session
-lattice scope_contract_set '{"storyId":"B-xxxx","mode":"enforce","allowedModify":["src/foo.ts"],...}'
+proof-or-stop scope_contract_set '{"storyId":"B-xxxx","mode":"enforce","allowedModify":["src/foo.ts"],...}'
 # or derive one from the plan
-lattice scope_contract_init_from_plan '{"storyId":"B-xxxx"}'
+proof-or-stop scope_contract_init_from_plan '{"storyId":"B-xxxx"}'
 
 # Then start the guard session
-lattice guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
+proof-or-stop guard_session_start '{"storyId":"B-xxxx","provider":"claude-code"}'
 ```
 
 See `docs/requirements/decisions/lifecycle-artifact-scope.md` for the scope

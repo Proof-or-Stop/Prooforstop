@@ -2,7 +2,7 @@
  * evidence-stale-hint — single source of truth for stale verificationEvidence UX.
  *
  * Design:
- *   - Any user-visible surface (session_brief / story_advance pre-check / lattice validate
+ *   - Any user-visible surface (session_brief / story_advance pre-check / proof-or-stop validate
  *     text output / hints.ts decorators) that detects stale verification evidence must call this module's
  *     renderEvidenceStaleHint; reconstructing marker strings or recovery commands inside the surface is not allowed.
  *   - The three surfaces produce byte-identical output (B-a2f1 decision.json preMortem #2).
@@ -85,10 +85,10 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
  *     Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.
  *     Drift class: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift (refresh, do not re-review); a storyFilesHash change is story-owned drift that needs re-review/re-quorum.
  *     Run to recover (refresh re-executes a pinned verifier; without a passing re-run a command-backed result:pass is demoted to a non-mechanical attestation — re-run it and re-record via verification_evidence_add):
- *       lattice verification_evidence_refresh_stale --storyId=B-xxxx
- *       lattice validate --story=B-xxxx --json
+ *       proof-or-stop verification_evidence_refresh_stale --storyId=B-xxxx
+ *       proof-or-stop validate --story=B-xxxx --json
  *     Or, when converging TEST to DONE, do the ordered recovery in one step:
- *       lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate
+ *       proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate
  *
  * Do not output literal placeholders like `<storyId>` / `<B-xxx>` (preMortem #3).
  */
@@ -105,10 +105,10 @@ export function renderEvidenceStaleHint(
     `  Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.`,
     `  Drift class: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift (refresh, do not re-review); a storyFilesHash change is story-owned drift that needs re-review/re-quorum.`,
     `  Run to recover (refresh re-executes a pinned verifier; without a passing re-run a command-backed result:pass is demoted to a non-mechanical attestation — re-run it and re-record via verification_evidence_add):`,
-    `    lattice verification_evidence_refresh_stale --storyId=${storyId}`,
-    `    lattice validate --story=${storyId} --json`,
+    `    proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`,
+    `    proof-or-stop validate --story=${storyId} --json`,
     `  Or, when converging TEST to DONE, do the ordered recovery in one step:`,
-    `    lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`,
+    `    proof-or-stop done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`,
   ];
   return lines.join('\n');
 }

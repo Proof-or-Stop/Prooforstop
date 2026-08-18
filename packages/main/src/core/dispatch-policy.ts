@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, normalize, sep } from 'node:path';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 
 export type DispatchPolicyStatus = 'authorized' | 'supervised' | 'refused';
 export type DispatchNetworkPolicy = 'none' | 'local' | 'restricted';
@@ -132,7 +132,7 @@ function normalizeHostList(value: string | string[] | undefined): { hosts: strin
 }
 
 function policiesDir(root: string): string {
-  return join(root, LATTICE_DIR, 'dispatch-policies');
+  return join(root, PROOF_OR_STOP_DIR, 'dispatch-policies');
 }
 
 function policyPath(root: string, policy: string): string {

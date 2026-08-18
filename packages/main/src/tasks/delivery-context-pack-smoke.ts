@@ -21,7 +21,7 @@ import { acquireOwnerLease, ownerLeasePath, resetSessionIdForTest } from '../cor
 
 const STORY_ID = 'B-delivctx';
 const NOW = '2026-06-21T00:00:00.000Z';
-const USER_SEES = 'lattice delivery_context_pack --storyId=<story> prints the delivery context pack.';
+const USER_SEES = 'proof-or-stop delivery_context_pack --storyId=<story> prints the delivery context pack.';
 const PLAN_PROMISE = 'README documents the delivery_context_pack command surface.';
 const ARTIFACT_REL = 'evidence/delivery-context-pack.json';
 const TEST_FILE = 'packages/main/src/tasks/delivery-context-pack-smoke.ts';

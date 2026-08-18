@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, execFileSync } from 'node:child_process';
-import { tmpdir } from 'node:os';
+import { availableParallelism, tmpdir } from 'node:os';
 import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -118,11 +118,16 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:lattice-residue'), repoRead('test:proof-or-stop-prompt-baseline'),
+  // B-cdf6: both added to test:serial-reference by this story. Membership authority is
+  // test:serial-reference and a member without a policy fails closed before execution,
+  // so the policy entry is mandatory, not optional. Both only read the repo and hold no
+  // exclusive path, port or runtime lock, so the plain repoRead policy is correct.
+  repoRead('test:codex-heartbeat-timeout'), repoRead('test:audit-scan-bin-token'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
-  isolated('test:flow-stability-smoke', { timeoutMs: 540_000 }), isolated('test:review-assurance-floor-smoke'),
+  isolated('test:flow-stability-smoke', { timeoutMs: 300_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
-  isolated('test:milestone-status', { timeoutMs: 240_000, priority: 700 }), repoRead('test:global-core-realpath'),
+  isolated('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
   isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
@@ -240,8 +245,88 @@ export function parseRunnerArgs(argv: string[]): { jobs?: number; jsonOutput?: s
   return parsed;
 }
 
+/**
+ * Whole-suite wall-clock budget. This MUST stay strictly greater than
+ * longestEntryTimeoutMs(): a budget at or below the longest single entry's own
+ * allowance is unsatisfiable by construction -- one entry running to its cap
+ * exhausts the whole suite's budget on its own, so the guard fails for reasons
+ * no change to the suite can fix. That is exactly the state this constant was
+ * in at 300_000 while two entries were each allowed 300_000.
+ * fullSuiteBudgetIsSatisfiable() states the invariant; the runner smoke asserts it.
+ *
+ * 1_200_000 is measured, not picked: a green 49/49 run at the derived default
+ * concurrency took 832.8s on the reference machine. This is a runaway-growth
+ * guard with ~1.4x headroom over a passing run, not a tight performance target.
+ */
+export const FULL_SUITE_BUDGET_MS = 1_200_000;
+
+/**
+ * Entry timeoutMs values are STANDALONE budgets -- what the entry costs with the
+ * machine to itself. The runner then chooses to run `jobs` of them at once, so
+ * the contention that inflates them is the runner's own doing, and the cap it
+ * enforces has to account for it. Without this, every entry whose standalone
+ * cost sits near its declared cap fails under the concurrency the runner itself
+ * created, and the only available repair is to hand-raise that one entry's
+ * number -- which is whack-a-mole, not a fix: raising flow-stability-smoke's cap
+ * simply promoted review-incremental-context-smoke to the next casualty.
+ *
+ * Measured on a 10-core machine (4 performance cores) at jobs=4 with the normal
+ * desktop load this repository is developed under:
+ *   review-incremental-context-smoke  161-164s standalone, exceeded its 180s cap
+ *   flow-stability-smoke              190.1s standalone, on the 120s default
+ *   proofstory-acceptance-rollout     293.1s observed inside a jobs=4 run
+ *   milestone-status                  78-81s standalone, on the 120s default
+ * 1.5 covers the observed inflation with margin while keeping the effective
+ * ceiling (450_000) below FULL_SUITE_BUDGET_MS, so the budget stays satisfiable.
+ */
+export const CONCURRENCY_HEADROOM_FACTOR = 1.5;
+
+/** The cap actually enforced for an entry at a given concurrency. */
+export function effectiveEntryTimeoutMs(entry: FullSuiteEntry, jobs: number): number {
+  const base = entry.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  return jobs > 1 ? Math.round(base * CONCURRENCY_HEADROOM_FACTOR) : base;
+}
+
+/** The entry as the scheduler should run it: declared budget scaled to the concurrency in force. */
+export function withConcurrencyHeadroom(entry: FullSuiteEntry, jobs: number): FullSuiteEntry {
+  return { ...entry, timeoutMs: effectiveEntryTimeoutMs(entry, jobs) };
+}
+
+/** The largest allowance actually in force, read from the entries rather than restated. */
+export function longestEntryTimeoutMs(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES, jobs = 4): number {
+  return Math.max(DEFAULT_TIMEOUT_MS, ...entries.map(entry => effectiveEntryTimeoutMs(entry, jobs)));
+}
+
+/** False when the whole-suite budget cannot accommodate a single entry running to its own cap. */
+export function fullSuiteBudgetIsSatisfiable(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES, jobs = 4): boolean {
+  return FULL_SUITE_BUDGET_MS > longestEntryTimeoutMs(entries, jobs);
+}
+
 export function isUnderFullSuiteBudget(durationMs: number): boolean {
-  return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < 300_000;
+  return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < FULL_SUITE_BUDGET_MS;
+}
+
+/**
+ * Default concurrency, derived from the machine rather than fixed at 4.
+ *
+ * A suite entry is not one process: the heavier smokes spawn their own
+ * concurrent CLI children (review-incremental-context-smoke alone drives eight
+ * concurrent built-CLI calls and five-way mixed writer runs). So `jobs` is
+ * nominal concurrency, and the real figure is jobs x per-entry fan-out. At a
+ * hardcoded 4 on a 10-core machine (4 performance cores) that reached a load
+ * average of 26 -- 2.6x oversubscription -- and entries began failing on
+ * timeouts INTERNAL to the tests, which no runner-level cap can reach:
+ * milestone-status failed its own assertion with actual 'ETIMEDOUT' at 98.3s,
+ * well inside its cap, and review-incremental-context-smoke inflated from
+ * 161-164s standalone to 321.5s.
+ *
+ * Measured on the same machine at jobs=2: 49/49 passed, every entry inside its
+ * cap, 832.8s wall clock. Budgeting one job per four logical CPUs reproduces
+ * that (10 -> 2) and still scales up on a larger CI host, capped at the former
+ * default of 4 so this can only reduce oversubscription, never introduce it.
+ */
+export function defaultJobs(cpuCount: number = availableParallelism()): number {
+  return Math.max(1, Math.min(4, Math.floor(cpuCount / 4)));
 }
 
 export function shouldEnforceFullSuiteBudget(jobs: number): boolean {
@@ -440,7 +525,7 @@ async function main(): Promise<void> {
   if (!serialReference) throw new Error('missing test:serial-reference membership authority');
   FULL_SUITE_ENTRIES = canonicalizeEntries(entriesFromSerialReference(serialReference, pkg.scripts), cwd);
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
-  const jobs = args.jobs ?? 4;
+  const jobs = args.jobs ?? defaultJobs();
   const startIdentity = readIdentity(cwd);
   const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();
@@ -451,7 +536,8 @@ async function main(): Promise<void> {
   process.once('SIGINT', () => requestInterrupt('SIGINT', runState));
   process.once('SIGTERM', () => requestInterrupt('SIGTERM', runState));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
-    const result = await runEntry(entry, cwd, 'npm', () => { processLaunchCount++; }, runState);
+    // Declared budgets are standalone; enforce them scaled to the concurrency this runner chose.
+    const result = await runEntry(withConcurrencyHeadroom(entry, jobs), cwd, 'npm', () => { processLaunchCount++; }, runState);
     process.stdout.write(`${result.status} ${result.name} ${(result.durationMs / 1000).toFixed(1)}s${result.reason ? ` (${result.reason})` : ''}\n`);
     return result;
   }, fullSuiteSchedulerOptions(runState));
@@ -464,7 +550,7 @@ async function main(): Promise<void> {
   const performanceBudgetApplied = shouldEnforceFullSuiteBudget(jobs);
   const budgetBreached = fullSuiteBudgetBreached(durationMs, jobs);
   if (identityDrift) process.stderr.write('\nfull-suite identity drift: HEAD/material changed during execution\n');
-  if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= 300000ms\n`);
+  if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= ${FULL_SUITE_BUDGET_MS}ms\n`);
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (jsonOutput) writeResultArtifact(jsonOutput, {

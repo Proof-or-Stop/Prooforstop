@@ -1,0 +1,1281 @@
+{
+  "passes": [
+    {
+      "id": "B-cdf6:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-review bound to current tree (head 0d52b70). Independently re-verified all 6 round-1 fixes (F-001,F-002,F-003,F-004,F-009,F-012) against live file content and live command output, plus checked the 4 flagged post-round-1 code changes for new doc drift. All confirmed correct; no new inconsistencies found; no blocker this round.",
+      "createdAt": "2026-08-12T04:02:49.094Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-008",
+      "envelopeId": "c444bff660fa5889d41d4619d8e0f19244204ef144243a8161012d89875e652d",
+      "writerSessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/brand-env.ts",
+          "scripts/verify-brand-gate-negative.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abc71a1117c1d3f42b2664541f250c09c3447ea0d79d541852db09b1a6e13b5a"
+    },
+    {
+      "id": "B-cdf6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-completeness re-review bound to head c0e9a5b. F-014 fix confirmed. F-011 accepted_risk confirmed pre-existing/out-of-scope. Targeted sweep for F-016-class read-both compat holes found and filed F-020 (medium): runtime-environment-checks.ts:333 bypasses readBrandEnv for LATTICE_CODEX_ENTRYPOINT while the same file uses it correctly at line 1129. No other functional compat holes found; remaining lattice-* residue inspected is cosmetic identifier naming or correctly frozen/aliased per the mapping table.",
+      "createdAt": "2026-08-12T04:14:35.272Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-010",
+      "envelopeId": "db9e69bc1f1be0a66f19b149da972f3a906342a0fb8f5b04fa31a682b06c8f10",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/lattice.js",
+          "bin/proof-or-stop-codex.js",
+          "bin/proof-or-stop.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/audit-config.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e81156b06b2ab8e0551847227bc26c90b45e5c086187e14cadeda81e7697066"
+    },
+    {
+      "id": "B-cdf6:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-023 fix and its chain-of-custody claim rather than trusting the summary. Repinned third mirror (verify-process-fact-contract.mjs:1985-1986) confirmed byte-consistent with the F-022 hashes across both files (grep for old 1ec6b25b/4df69379 literals returns zero hits anywhere; new b6f153f4/d03acdc4 hashes match in both mirror + guard file). Independently re-ran all 5 fast contract verifiers myself just now (runtime-fact, process-fact, lattice-residue, prompt-baseline, retired-authority-guard) - all PASS. Then independently ran the full npm test myself (not reusing the reported run): exit=0, wall time 24m31s, no FAIL/Error/AssertionError lines in output, against current HEAD 4737780 with git status clean except a harmless dispatch-log append. This confirms the reported chain-of-custody: the green run is valid for the tree that exists now, postdating every material commit (3069923b99 at 14:16:43). Spot-checked code content for F-016 (idleLattice/idleProofOrStop dual-read + @deprecated field), F-017 (verify-entrypoints.mjs + serve.ts both repinned to proof-or-stop serve), F-018 (brand-env.ts exports exactly 9 symbols, all 4 named dead exports removed), F-019 (verify-brand-gate-negative.mjs now uses readFileSync/writeFileSync snapshot-restore instead of git checkout --), F-020 (readBrandEnv(CODEX_ENTRYPOINT) used consistently at both call sites), F-021 (CHK-005:happy:0 evidence row now correctly shows kind=waiver/waiverType=deferred_gate_evidence, no false mechanical claim) - all match their resolvedReason text exactly. checked the wave-4 ProofStory acceptance-rollout coverage boundary in my own role prompt: this storys touches to that subsystem are two mechanical brand-env/string-literal edits, and npm test itself demonstrated ProofStory acceptance rollout smoke: PASS (57 assertions), so that boundary is intact, not broken or newly introduced by this story. All 23 findings on this story are resolved or dismissed with verified evidence. No blocker found this round.",
+      "createdAt": "2026-08-12T07:11:48.053Z",
+      "reviewRound": "2026-08-12T05:39:22.640Z",
+      "reviewRunId": "B-cdf6:RR-014",
+      "envelopeId": "6eab91dd69384947ab426e9bdecef846310e10c35d5e713bf65b6e9dd2a79ee4",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/verifier/serve.ts",
+          "scripts/verify-brand-gate-negative.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "426eb82c3b78130b34e1f97475da5e641bc8fb5f44ff90e192dd5f3a612aa3af"
+    },
+    {
+      "id": "B-cdf6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS bound to head f3b2aca. CHK-005:happy:0 receipt verified genuine (mechanical/exit0/selectorMatched, headHash=8aad7ddb2e is the fix commit, storyFilesHash matches current context, timeoutOverride lives only in the tool-owned receipt not the caller schema). F-012 fix verified sound via smoke suite plus a personal mutation test on checklist.ts (neutered if(run.timedOut), confirmed the smoke breaks with the OLD misdiagnosis, restored and reconfirmed green). No selector-laundering hole for this receipt (verify-done-suite-green.mjs is a strong witness). Independent verification pass: tsc clean, process-fact-contract/prompt-baseline/lattice-residue/tool-executed-evidence-receipt-smoke all green on fresh rebuild. All 24 prior findings resolved/dismissed. Filed one new low advisory F-025 (pre-existing verify-entrypoints.mjs stdout/stderr mismatch, reproduced identically on clean main, confirmed not part of npm test chain, does not affect this receipt). No blocker this round.",
+      "createdAt": "2026-08-12T10:38:47.167Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-016",
+      "envelopeId": "d790a6cc1b41dd4ad40bda99327e77eb3c8de43a71307c94dfe6b5fae3641522",
+      "writerSessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "scripts/verify-done-suite-green.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc308a6615684f52d03d23e585616e086f6d3f70f76a0607bc65c0eaa23de55c"
+    },
+    {
+      "id": "B-cdf6:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Independently verified all 14 symbols flagged by validate --concept. (1) detectLatticeBrand, formatLatticeProductLine, formatLatticeVersionLine, isAnyLatticeStoryMetadataPath, isLatticeLifecycleArtifactPath, renderLatticeBootstrapScript, renderLatticeCodexAdapterManifest, renderLatticeCodexWrapperScript: all still-exported deprecated aliases (export const X = <new-canonical-name>), confirmed live call sites in cli-engine.ts, lattice-only-absence-smoke.ts, verify-codex-assets.mjs. (2) runLattice, runLatticeExpectFail, runLatticeRaw, writeLatticeConfig: module-local helpers renamed atomically per-file (def + all call sites in same commit) to runProofOrStopRaw / writeProofOrStopConfig; the only remaining substring hits (runLatticeResidueGate, runLatticeFromCwdExpectFail) are distinct symbols that merely share a prefix, zero cross-file dangling callers. (3) resolveLatticeCommandPath: fully renamed to resolveGlobalCliCommandPath with both call sites updated in the same diff, zero remaining references anywhere. (4) main (15226/15335=99.3% of residuals): substring-scanner false-positive avalanche matching the ubiquitous word / packages/main path segment repo-wide; the one real deletion (bin/lattice-codex.js own main()) was replaced by delegation to bin/proof-or-stop-codex.js's own main(), no dangling caller. Cross-check: npx tsc --noEmit clean on packages/main, packages/utils, packages/lab. Manually inspected all 109 non-main residual entries via structured --json output; every one is pattern (a) live alias or (b) same-file rename/substring collision, zero genuine dangling references. F-012 commandTimeoutMs override and brand-env.ts F-018 dead-export cleanup checked and unrelated to any brand-symbol deletion, consistent with clean build. Verdict: gate residual count is a false positive by construction. No blocker found.",
+      "createdAt": "2026-08-12T10:53:57.218Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-017",
+      "envelopeId": "70c7c515e727bbc76bdd45fee6585fd10fd8ea5240e1a655e60f485f4388e41a",
+      "writerSessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-done-merge-preflight.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/brand-env.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b74d7031318a4b597e149bdbadff52bedb87a332f39e263d159e9f0f7414174"
+    },
+    {
+      "id": "B-cdf6:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed for RR-018 (head 6da79bb). All 6 checklist items done; every must-priority verificationIntent (36 total across CHK-001..005) has a matching verificationEvidence row by intentRef, zero gaps; CHK-006 has zero must intents. CHK-005:happy:0 previously carried an F-024-flagged permanent waiver; that waiver is now gone, replaced by a real mechanical receipt (scripts/verify-done-suite-green.mjs, exitCode 0, selectorMatched, earned under the new bounded/audited commandTimeoutMs override) independently confirmed to not be a text claim. Independently verified both claims in the rebind request rather than trusting them: (1) B-META F-013 heartbeat-timeout fix - read resolveGlobalFallbackHeartbeatTimeoutMs end to end (Zod + handler + core resolver triple validation, no drift possible), ran codex-heartbeat-timeout-smoke.ts directly (pass, includes negative cases: non-zero-exit fallback still fails, zero-exit-no-activity fallback still fails, above-cap refused not clamped, short/missing reason refused, reason-without-budget refused), then reproduced live against the real CLI: verify_codex --heartbeatTimeoutMs=120000 with a valid reason now reports 8/8 pass with the override visibly armed and attributed in the check detail; separately reproduced all three refusal paths live at the CLI boundary (above-cap, short-reason, reason-without-override all refused). Override is scoped to the global-fallback heartbeat only, does not touch the 10s local-wrapper probe. Conclusion: the override does not weaken the check's guarantee - a genuinely broken fallback still fails, distinctly from a budget timeout. (2) Suite-green claim - ran a fresh npm test myself against this exact head (6da79bb, unchanged since review_run_start), completed in ~26 minutes with exit code 0 per the harness completion notification; grepped the full ~1550-line log for AssertionError (0), ENFILE (0), npm ERR (0), non-zero exit markers (0); both explicit TOTAL/PASS/FAIL summary lines read FAIL 0. Ordering confirmed: HEAD did not move between review_run_start and this run. All 25 findings on this story remain resolved (24) or accepted_risk (1, F-025); no open findings. No blocker identified; recording a clean pass so the gate can proceed to CLI preflight.",
+      "createdAt": "2026-08-12T15:00:41.856Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-018",
+      "envelopeId": "6c3763ca15ea50751a160faf4c175ace621071536a78ca74027945204a33e234",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "66f3b7b5d93feeefd6e1968a25a38ca0c2ef54cb2f9f3572802f19b6ae29b757"
+    },
+    {
+      "id": "B-cdf6:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Rebind at frozen head b5a9aa904c. Since RP-005: only 2 commits landed - 6da79bb1c9 (B-META F-013 heartbeat-timeout fix) and b5a9aa904c (gap-log-only, .lattice/story/actives/B-META-framework-audit/ 2 files, zero product/docs/test code). Verified the reported additive-only export-boundary metric (0 removed vs 4 added export decls) and WIDENED it per instructions: scanned all removed lines matching function/const/let/interface/type/class declarations (exported or not) in 6da79bb1c9 - the only 3 hits are internal reflow of checkGlobalFallback (same function name, signature widened with new override params in the SAME commit, single call site updated in the SAME commit, zero dangling references) plus one local var/call reflow inside it. No rename, no delete-without-replacement. validate --concept reports 14 deleted symbols / 15338 residuals, matching RP-005 baseline (~15335; delta explained by unrelated line-number drift in .githooks/pre-push main-substring collisions) - confirmed by diffing 2fe21dc4f7..HEAD: none of the files containing the flagged deleted-symbol definitions (lattice-brand.ts, cli-engine.ts, lifecycle-registry.ts, lattice-only-absence-smoke.ts, codex adapter renderers) changed since RP-005's passing round. All flagged symbols re-verified present as compat-preserving definitions or confirmed zero-reference dead code, consistent with prior rounds. No new concept deletion/replacement introduced since RP-005. No blocker.",
+      "createdAt": "2026-08-12T16:40:10.099Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-019",
+      "envelopeId": "f58bd85a81a962cbeec05dce35ebc4644b28f2c28bb3b393c9e31b6f30101d53",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63b17019b1803d24801e2c3a06127bb9ac6a2005bc977624a9dec4640e48ff43"
+    },
+    {
+      "id": "B-cdf6:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-026 SPLIT resolution and accept both halves; see readManifest for exact files checked. Claim 1 (CHK-006 zero verificationIntent/evidence) confirmed via checklist_get + phase_transition timestamps + live verification_intent_repair dry-run reproducing no-repair-possible + F-005/B-META F-016 cross-check. Minor correction noted: verificationIntent window is INIT-or-PLAN not INIT-only per checklist.ts, does not change conclusion since CHK-006 postdates PLAN->DEV. Claim 2 (LATTICE_* survivors are compat contract not defect) confirmed via broader-than-claimed grep across all packages/*/src (zero unrouted reads), brand-env.ts read in full as genuine read-both resolver, and concept-gate precedent (F-011/F-014/F-020). Also confirmed 0 open findings, tsc clean, both red-b2aa7 receipts pass, full validate progressing clean at verdict time. No new blocker.",
+      "createdAt": "2026-08-13T04:18:57.495Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-021",
+      "envelopeId": "f21b0c71bddf4cd213147f7f41438f2f31e5857ac526276e7d4ffdfd3ca20ed9",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/process-events.jsonl",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40aa3269a4cd1ab2399d6fab7fba71a71a4113675601258e03115e52b56ddb2a"
+    },
+    {
+      "id": "B-cdf6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Fresh full re-review bound to HEAD b9f9734, 22 changed files. Symbol extraction on the code files in scope (command-catalog.ts, codex-adapter-checks.ts, validation-executor.ts, checklist.ts, codex-adapter.ts, review-run.ts, runtime-environment-checks.ts, types.ts, plus smokes/tests) yielded timeout/heartbeat override identifiers. Traced each to the two new CLAUDE.md sections (pinned command timeout override, verify_codex heartbeat timeout override) plus the residue-gate table row and the 17-role/13-lattice-prefix claim; compared line-by-line against source. Verified: (1) DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270000, EVIDENCE_COMMAND_TIMEOUT_CAP_MS=7200000, boundary-inclusive cap check, all three error codes present with exact 30-char reason floor; receipt .strip() mechanism confirmed intact. (2) DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS=30000, cap=600000 boundary-inclusive, heartbeat_command_timeout is a distinct code path from heartbeat command failed, all four heartbeat error codes present. Both CLI schema fields exist with matching cap/min constants imported from the same source (no duplicate literals); verification_run confirmed to have no override field, matching the docs claim. (3) Registry role count: 17 templates, 13 with lattice- prefix, matches CLAUDE.md corrected claim and EXPECTED_ROLE_COUNT=17. (4) Ran verify-lattice-residue.mjs --self-test (38/38) and plain scan (koala/brand-prose/brand-exec all PASS) with scan-root sets matching CLAUDE.md's gate table row verbatim. (5) Re-checked prior docs-lie findings F-009 (docs/CLI.md now says canonical, no only-active claim survives) and F-012 (alias section now points at brand-rename-mapping.md, which contains a real substantive rationale table; zero hits for the old CHANGELOG.md alias inventory string repo-wide). (6) Ran npm run test:process-fact-contract and npm run test:runtime-fact-contract, both PASS. No doc-code drift found in scope; no finding registered.",
+      "createdAt": "2026-08-13T04:56:48.199Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-023",
+      "envelopeId": "a7092a2cb4cf6389ff488600ba4e88be13e015f93e7f7907c17f5d6dc27e7017",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "bin/proof-or-stop-codex.js",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/templates/agents",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-done-suite-green.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80d6e7f8ebfeee00a1beba4e03dbd682640b2cf520bc2616a60579019292607e"
+    },
+    {
+      "id": "B-cdf6:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Verified fix for B-cdf6:F-027 (dead agentsWithCurrentValidEvidence computation at review-run.ts:1591) on commit 03b39c852c, current HEAD 4fe883b292. Confirmed the dead Set computation is deleted; the identifier's only live-code hit repo-wide is a retained backward-reference in the historical comment at review-run.ts:1602, describing the removed conjunct without claiming the Set still exists; the surrounding prose was reworded to drop the identifier as reported. Independently reproduced build clean, tsc clean, flow-stability-smoke pass, both red receipts exit 0, all three lattice-residue checks PASS. Scope note re unused params in startRunHint/latestRunHint confirmed pre-existing via git blame to 4edf2925a9, correctly out of concept-lane scope (style nit, not concept residue), disclosed not hidden. No blocker.",
+      "createdAt": "2026-08-13T05:02:56.565Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-025",
+      "envelopeId": "667e1158ea8f3179967d95f04eb848822be48b4e88f6a09247b7efc243918268",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e4ce4c2538e76befb9eaefc3a05ff3c4d77bc5b010fb612d763bdab8a6f3fb4"
+    },
+    {
+      "id": "B-cdf6:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Verified fix for my own F-028 (and independently-filed F-027) in commit 03b39c852c on review-run.ts. Confirmed: (1) agentsWithCurrentValidEvidence Set at old line 1591 is fully deleted, grep shows zero remaining live-code references (only the adjacent historical-rationale comment survives, correctly reworded to no longer name the deleted identifier); this function is self-contained (all locals declared within collectReviewerEvidenceState, not exported), so no cross-file consumer was ever possible. (2) The valid array (populated lines 1570-1581) that actually feeds the load-bearing hasNewerValidEvidence check at line 1628 is completely untouched by this diff -- the deletion was purely subtractive on a value with zero readers. (3) Re-ran build myself: npm --prefix packages/main run build clean, npx tsc --noEmit -p packages/main clean. (4) Re-ran the F-019 regression test myself: node packages/main/dist/tasks/flow-stability-smoke.js -> flow stability smoke passed. (5) Re-ran both red receipts myself: red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs both exit 0. (6) Re-ran scripts/verify-lattice-residue.mjs: all three checks PASS. (7) git blame -L 851,851 packages/main/src/core/review-run.ts attributes the unused storyId/lane params in latestRunHint to commit 4edf2925a9, a different author, predating and untouched by this story diff -- correctly out of scope, no finding filed. Conclusion: the load-bearing safety property in machine.ts:774-810 (round-1 quorum/coverage reads only evidenceState.valid) is unaffected by this purely-subtractive dead-code removal. No blocker.",
+      "createdAt": "2026-08-13T05:03:59.086Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-026",
+      "envelopeId": "f89856bef1ea29a321095e6bc711945dfe7eda89676ca198b92dabd61e594d6a",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4e51c0b34cd0487f37b64089d21d3e5f1e752103aa17df1187708630fdacfe77"
+    },
+    {
+      "id": "B-cdf6:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Fresh round bound to HEAD 339138dbaa (storyFilesHash fa56287b). review_incremental_context confirmed exactly 2 changed files since prior pass (RP-009/RR-023, invalidated by material fix 03b39c852c): packages/main/src/tasks/rollout-check-smoke.ts and packages/main/src/core/review-run.ts. (1) rollout-check-smoke.ts (602bf8b8dd): measured actual help output myself -- node bin/proof-or-stop.js story_create --help gives exactly 5 hits of proof-or-stop story_create / 0 hits of lattice story_create, and 2 hits of proof-or-stop session_brief / 0 hits of lattice session_brief, matching both the new assert.match/doesNotMatch pairs and the added comment (lines 115-119) word for word; the comment accurately narrates why the old pinned-brand assertion inverted into a false failure after the rename succeeded. (2) review-run.ts (03b39c852c): confirmed the dead agentsWithCurrentValidEvidence computation is gone (grep for the identifier returns exactly one hit, line 1602) and that one surviving hit sits inside a paragraph explicitly framed as historical (Why the old ... conjunct was a deadlock) describing code that no longer exists in the function body below it (which now computes hasNewerValidEvidence inline, lines 1627-1633) -- reads as retained rationale, not stale prose naming a live identifier. (3) Verified the two docs-lies flagged for extra scepticism are genuinely fixed: docs/CLI.md:5 now says canonical (not only active) and bin/lattice.js --version / bin/proof-or-stop.js --version both print the same version, confirming canonical is accurate; docs/CLI.md:17 now names the three aliases inline (bin/proof-or-stop.js, bin/proof-or-stop-codex.js, npm proof-or-stop) rather than pointing at a nonexistent CHANGELOG.md alias inventory, and a repo-wide grep for the old placeholder string returns zero hits. (4) Verified the two cited B-META framework-gap line references against source: evidence-freshness.ts:458 currentStoryFilesHash filters via isMaterialExcludedPath at line 464 exactly as F-023 states; scripts/verify-lattice-residue.mjs:553 does render dollar-n slash dollar-n detector unit tests from the live self-test count exactly as F-024 states (confirmed by running --self-test: currently 38/38, consistent with the counter having grown from the 29/29 the finding describes). (5) Ran verify-lattice-residue.mjs plain scan and --self-test: all PASS (koala/brand-prose/brand-exec, 38/38 self-test). No doc-code drift found in scope; no finding registered.",
+      "createdAt": "2026-08-13T05:29:51.658Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-028",
+      "envelopeId": "8e2fe1ffe956858ab82caaa2534a5af795d26b7ca3b661180d5ae922b5d2b16d",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f0a6b923d3c6b7d7b81f613c7d0ee857d50e97b465bd882458a1b54d6df9ce8"
+    },
+    {
+      "id": "B-cdf6:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind pass for new round 2026-08-13T05:25:24.496Z at head 339138dbaa. Scope per review_incremental_context: only packages/main/src/tasks/rollout-check-smoke.ts changed since my prior pass (B-cdf6:RP-011). Verified commit 602bf8b8dd directly: the two rewritten assertions are a genuine fix, not a substitute-guard - independently measured 5x proof-or-stop story_create, 2x proof-or-stop session_brief, 0x lattice in story_create --help, matching the commit message exactly. runCli/runJson use execFileSync against the real compiled CLI. Each new assert.match is paired with doesNotMatch on the deprecated form, strengthening not disabling the guard. Ran rollout-check-smoke.js: PASS exit 0. tsc --noEmit -p packages/main: clean. JC1 (CHK-004:edge:0 waiverType=permanent): substance verified genuinely green (self-test 38/38 exit0; koala/brand-prose/brand-exec all PASS exit0). Confirmed verify-lattice-residue.mjs:553 renders a live counter, not a literal; git log -S29/29 on the file returns no commit. Confirmed both refusals are real (checklist.ts:733 receipt_selector_mismatch on durable resubmission, :792 receipt_selector_absent on re-run) and no repair path was overlooked (verification_intent_repair only backfills missing lanes; intent frozen from DEV). Confirmed proofstory.ts:846-851 makes deferred_gate_evidence vs permanent load-bearing (deferred returns false, permanent+non-fail returns true) - a real distinction, not decorative. Cross-checked story-scoped F-024: that waiver was correctly reverted permanent->deferred because F-012s timeout-override fix later made a real receipt obtainable (verified CHK-005:happy:0 now has a mechanical receipt). CHK-004:edge:0 differs structurally: no future fix restores 29/29 short of deleting 9 tests (a regression), so permanent is the honest label, not a repeat of the laundering pattern. JC2 (B-META F-021..F-024): verified all cited mechanisms. F-021: convergence-breaker.ts:838 gates on isAdvance||isTakeoverCommand; cli-engine.ts:1395-1398 computes isTakeoverCommand from parsed.takeover||parsed.forceTakeover with no story_resume carve-out; command-policy.ts:155 classifies story_resume storyScopedMutating; ownership-gate.ts:255-259 confirms plain non-owner resume is separately refused. Both refusal paths are live and unexempted as claimed. F-023: evidence-freshness.ts:458/464 currentStoryFilesHash filters via isMaterialExcludedPath before hashing, confirmed verbatim. F-023 is a genuine timestamped self-correction of F-022 (created ~16min later, narrows the claim with a measured hash-drift example), not retconning. No inaccuracies found in any of the four B-META findings. Verdict: PASS, no quality findings this round.",
+      "createdAt": "2026-08-13T05:32:51.837Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-030",
+      "envelopeId": "d64bd7e7d4544da7b3cb99b8019341f7379a78859637bd47920c8418bc9a6acc",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b74b1cd18bad166d4b21d6d61fa7a01a00ba190023ad15b466767dea72978b2f"
+    },
+    {
+      "id": "B-cdf6:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASSED (fresh round, bound to HEAD 339138dbaa, storyFilesHash fa56287b). Audited all 36 must-intents across CHK-001..CHK-006: 35 covered by passing evidence or a correctly-typed permanent waiver, 1 (CHK-002:adversarial:1) is a deferred_gate_evidence waiver correctly excluded from mechanical coverage and pointing at independently-corroborated framework defect B-META-framework-audit:F-005 (visible gap, not laundered). Independently re-executed rather than trusted: (1) node packages/main/dist/tasks/rollout-check-smoke.js exit=0 PASS, matching the claimed re-earned receipt for CHK-002:adversarial:2 verbatim, and confirmed rollout-check-smoke.ts:112-123 asserts paired match(canonical)/doesNotMatch(deprecated) exactly as described; commit 602bf8b8dd exists with matching message. (2) node scripts/verify-lattice-residue.mjs --self-test exit=0 printing PASS lattice-residue self-test: 38/38 detector unit tests, matching the CHK-004:edge:0 waiver note verbatim; confirmed script line 553 renders a live ${n}/${n} counter (not a literal) and git log -S\"29/29\" -- scripts/verify-lattice-residue.mjs returns zero commits, proving 29/29 was never a durable/committed property so the pin is unsatisfiable-by-construction absent a test-deletion regression. Confirmed proofstory.ts rowCoversIntent (line 845-851) treats waiverType=permanent as coverage and waiverType=deferred_gate_evidence as non-coverage by design -- this waiver uses the correct instrument and does not fit the F-024 pattern (that case was a genuinely-obtainable-later obligation mislabeled to dodge visibility; this pin cannot become satisfiable again without a regression). Also independently reproduced: npx tsc --noEmit -p packages/main clean; node packages/main/dist/tasks/flow-stability-smoke.js PASS; both red-b2aa7 receipts (chk006, f005) exit 0; npm run test:lattice-residue all three checks (koala/brand-prose/brand-exec) PASS; finding_list confirms 28 findings, 0 open. No blocker found.",
+      "createdAt": "2026-08-13T05:38:27.850Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-027",
+      "envelopeId": "c8534412527417b4b12b7cd5b65be1b6e8b499fee1f56b49a83b42f5958aaa23",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8e5266a3896dd67c7ddaf8b048f39310a4e56a0a899899101748d949db8ff3e1"
+    },
+    {
+      "id": "B-cdf6:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Verified fix for F-030 (commit 2cc15f0db7) on lattice-cli-migration-smoke.ts. Independently reran every claim on current HEAD f78856fe61: (1) live-ran story_create/story_advance --help, all 4 fixed match/doesNotMatch pairs correct against actual output; (2) confirmed via git show main:... these 4 assertions were the literal /lattice .../ form on clean main, proving they were this story's own regression; (3) built smoke still exits 1 at the pre-existing host-status/host-dispatch alias-rendering assertion, unrelated to the rename (confirmed independently: help | grep -icE 'host (status|dispatch)' is 0 on clean main too) -- fixed assertions remain masked-but-verified, matches what was reported, no misrepresentation; (4) reran completeness sweep grep -rEc for the pinned-lattice-in-help pattern over packages/main/src/tasks/*.ts myself: zero hits repo-wide; (5) tsc --noEmit -p packages/main clean; (6) verify-lattice-residue.mjs plain scan + --self-test both PASS (38/38); (7) decision-doc-promotion-smoke, rollout-check-smoke, flow-stability-smoke all exit 0; (8) git tree clean at f78856fe61 except this story's own framework state files. No new commits landed since the F-030 fix, so this is a scoped verification pass. On the reviewer's own offer to reorder the file so fixed assertions execute before the pre-existing failure: not required -- the host-status gap is a distinct already-triaged defect (F-029) outside this story's remit; reordering purely for reachability is an unnecessary refactor. F-030 verdict: FIXED, verified. No blocker.",
+      "createdAt": "2026-08-13T12:07:15.559Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-032",
+      "envelopeId": "2545df99159a16414140375340c0986fb8359a6fa723eed71c70c3e32c490cb8",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1658dacf6d45306044ea3e8025a9e4634fa1d321212778ecaf5d1301dd56df5e"
+    },
+    {
+      "id": "B-cdf6:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Docs-lane re-review bound to current HEAD (review_run_start reported head 0edef71f8; f78856fe61 plus one intervening metadata-only commit recording another lanes review_pass_set -- diffed 0edef71f8 vs f78856fe61 and confirmed the delta touches only .lattice/story/actives/B-cdf6/* process files, zero material change). review_incremental_context for lattice-review-docs confirmed the same 2 material files as the dispatch: packages/main/src/tasks/decision-doc-promotion-smoke.ts and lattice-cli-migration-smoke.ts, classification RELATED_STORY_MATERIAL_DRIFT off prior pass RP-012/RR-028. Independently verified both explanatory comments against live CLI output (not trusting the prose): (1) decision-doc-promotion-smoke.ts comment on decision_doc_proposal/_preview/_save --help -- ran all three help commands live, confirmed exactly 2x proof-or-stop decision_doc_* occurrences each, Alias: proof-or-stop decision doc * present, zero lattice occurrences -- comment accurate. (2) lattice-cli-migration-smoke.ts comment claims (a) the 4 fixed assertions were MASKED by the pre-existing host-status alias assertion throwing first -- ran the built smoke (dist/tasks/lattice-cli-migration-smoke.js), confirmed it still exits 1 at the lattice host status alias match assertion (that string is absent from live help output), before ever reaching the fixed lines -- MASKED claim confirmed true; (b) measured output for the 4 fixed assertions is the proof-or-stop form -- ran story_create --help and story_advance --help live, confirmed proof-or-stop story_create with checklist / proof-or-stop story_advance phase=INIT_CHECK / proof-or-stop story_review / the pinned story_advance example all present, zero lattice-prefixed equivalents -- comment accurate. Also independently executed all 8 assertions (4 match + 4 doesNotMatch) as a standalone script against the live built CLI (not the authors script, my own): all 8 passed, corroborating the authors claimed standalone verification. No comment overstates the smokes coverage: CLAUDE.md does not reference this file; finding_list resolvedReason for the underlying finding and the concept lanes independent RP-015 pass both state explicitly that the smoke still exits 1, with no green-coverage overclaim anywhere I found. Checked B-META-framework-audit:F-025 (run-all-smokes red baseline outside doneRequiredCommands): confirmed lattice.config.json doneRequiredCommands has exactly 2 entries (packages/main build, npm test) and npm test in package.json is a curated ~46-target chain that does not invoke run-all-smokes/test:all/test:legacy anywhere; test:all and test:legacy separately map to run-all-smokes.js per package.json scripts. Cited files run-all-smokes.ts and milestone-status.test.mjs:3158 exist and match the described content (discoverSmokes near line 125; a 2000ms-ceiling timeout assertion at 3158). Claim holds, no correction needed. Re-ran scripts/verify-lattice-residue.mjs myself: all 3 checks (koala, brand-prose, brand-exec) PASS, exit 0. finding_list confirms 30 findings total, 0 open, consistent with story state summary. No doc-drift or comment-vs-code mismatch found in my lane. PASS.",
+      "createdAt": "2026-08-13T12:16:01.827Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-033",
+      "envelopeId": "ec250ea22481115f85025dce44a19a852e4c14eaa055eedcf6e85cb0335537da",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e538c51ea9b44a906dcb74d45fb7c27c1e203d2ec4575cb705aa81827461d3bb"
+    },
+    {
+      "id": "B-cdf6:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane review re-bound to head 9ade8f2602 (material frozen at f78856fe61; diff since is story-metadata-only). Reviewed the 2 changed files (decision-doc-promotion-smoke.ts, lattice-cli-migration-smoke.ts): both are mechanical test-only fixes replacing pre-rename bin-name assertions with post-rename assertions plus paired doesNotMatch guards -- no dead code, no unsafe any, no empty catches, no I/O-isolation violations. Judgement call 1 (unreachable assertion): independently reproduced -- built packages/main and ran node dist/tasks/lattice-cli-migration-smoke.js directly; it throws at the genuinely pre-existing lattice host status alias assertion (line ~110, unchanged since main) before reaching the 4 fixed story_create/story_advance assertions at lines 119+. Confirmed directly against main's own built CLI (node packages/main/dist/cli.js help | grep -c host status/dispatch == 0) that this alias-rendering gap is pre-existing and unrelated to the rename -- concept lane's decision not to reorder is correct; the fix is real but currently untestable-in-CI until the separate pre-existing gap is fixed elsewhere, which the story author has honestly disclosed rather than hidden (F-030 resolution explicitly states the smoke is not green and why). Correct-but-currently-unreachable is not the same defect class as masking a real regression, and reordering would improperly couple an out-of-scope fix into this story. Judgement call 2 (F-025 audit accuracy): independently confirmed the mechanical claims -- lattice.config.json doneRequiredCommands is exactly [packages/main build, npm test]; root npm test is a hand-enumerated chain of about 46 test:* scripts that does NOT include run-all-smokes/test:all/test:legacy/test:coverage; confirmed the cited mkfifo timeout:2000 assertion exists at milestone-status.test.mjs line 3158 as described (load-fragile pattern consistent with F-025's third claim). Did not re-run the full ~41-minute suite to re-verify the exact 66/334 count (disproportionate to review budget given the mechanism claim is independently confirmed and the author already disclosed measurement care/self-correction this session); the config-enumeration and code-location claims that are load-bearing for the finding are verified accurate. One new low-severity finding (F-031) registered for two unused deprecated brand-alias exports (LATTICE_PRODUCT_NAME, LATTICE_PRIMARY_BIN) with zero import consumers, unlike LATTICE_CLI_VERSION which has documented justification to remain as the version-bump write target. Non-blocking per round-2+ severity decay policy. No promise-vs-code gaps found in the 2 changed files. PASS.",
+      "createdAt": "2026-08-13T12:19:59.792Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-034",
+      "envelopeId": "2722c2c2541c95b37e1dfebd2c1b7ccd90105a0bc19f1dbc2721ba842755114b",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7092004c4129609427183ef01283d3efb0dba9ef5e41cd0c6bdc920efe4f301"
+    },
+    {
+      "id": "B-cdf6:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified my own F-032 disposition (accepted_risk) via independent mechanical re-checks bound to head 4bb4c0e26e / round 2026-08-13T05:25:24.496Z. Reproduced the verification_evidence_add refusal for CHK-006:happy:0 live; confirmed verificationIntentProtectedPhases at checklist.ts:1406; confirmed PLAN->DEV vs CHK-006 startTime gap (~5.5h) from process-events.jsonl; confirmed 6/6 checklist items done; ran verify-lattice-residue.mjs live (3/3 PASS); tsc --noEmit -p packages/main clean; confirmed sibling RP-015/RP-016/RP-017 bound to this same current round; confirmed B-META-framework-audit:F-016 open/high with legitimate checklist.ts:1277 cross-reference; confirmed accepted_risk is a real resolutionType enum at finding.ts:206; spot-checked CHK-002:adversarial:2 (fresh mechanical receipt) and CHK-004:edge:0 (sound permanent waiver); recounted 36 must-intents directly. finding_list: 32 total, 31 resolved + 1 dismissed, 0 open. Disposition holds: accepted_risk is the honest instrument, not a rationalization -- verified-but-unbound work is mechanically distinct from missing binding. No new blocker found. PASS.",
+      "createdAt": "2026-08-13T13:03:55.714Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-036",
+      "envelopeId": "f4a6aba0d3896fe6295af126acfabc10573a9ec545b4f032dfb91b758e71ef7f",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/process-events.jsonl",
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8c1bfbd710ddc936658458e359a8908713610e23a16374633da299ee5f37bed"
+    },
+    {
+      "id": "B-cdf6:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-bound to HEAD 5cb348a80a (round 2026-08-13T05:25:24.496Z). Re-verified all three specific claims in the re-run brief. (1) Waiver typing: CHK-002:adversarial:1 evidence record still carries waiverType=deferred_gate_evidence (not upgraded to permanent), read directly from checklist.json verificationEvidence. Its note correctly attributes the remaining failure to B-META-framework-audit:F-005 (now mostly fixed) and stays honest that the suite still cannot reach green. (2) Coverage count: 36 must-priority intents total (unchanged). Precise re-tally: 34 covered by non-waiver passing evidence plus 2 waivers (CHK-002:adversarial:1 deferred_gate_evidence, CHK-004:edge:0 permanent -- pre-existing from an earlier round and unrelated to this round's material changes, correctly distinguished per its own note referencing F-024) plus 0 hard gaps. Note: the dispatch brief's framing of 35/36-covered-1-gap undercounts by one waiver (there are 2 waivers total, not 1); this is a prose-precision slip in the briefing message, not a flow-fact or evidence-record defect -- checklist_get itself correctly reports waivers:1 per item independently for CHK-002 and CHK-004. Not filing as a finding since no coverage was misrepresented in stored evidence and nothing needs fixing. (3) Failure claim honesty: independently ran node scripts/verify-entrypoints.mjs myself rather than trusting the self-report. It passed checks 1 through 7, including the F-005 mirror-count fix, then threw 'Error: lattice check should pass immediately after init' at line 551, matching the claimed failure site exactly. Cross-checked against B-META-framework-audit findings F-005 (fixed at three sites -- cli-init.ts, managed-assets.ts, verify-entrypoints.mjs:1010 -- confirmed by HEAD commit 8f18a193a1) and F-026 (new, correctly scoped as owned by the B-097f agent-prompt-consolidation plan rather than this rename story, and proven pre-existing on pristine main per its own text). Both findings are internally consistent with the current HEAD commit history, where 5cb348a80a logs F-026 immediately after the F-005 fix commit. review_incremental_context confirms the three changed files since prior pass RP-018 map exactly onto CHK-002's intent set, so this was a correctly scoped incremental re-review. No drift toward claiming unearned coverage was found. PASS.",
+      "createdAt": "2026-08-14T04:10:21.901Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-040",
+      "envelopeId": "e8ad2a4a00fa7f598ea3eaf9340ac62168b56890ddd50613ddb60bcdb84a8a04",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd26ada703afec52fe818b6dd70fc8e3ed23fcfde66e09f005dd962733bfb60b"
+    },
+    {
+      "id": "B-cdf6:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Scope: incremental review bound to changedFiles=[cli-init.ts, managed-assets.ts, scripts/verify-entrypoints.mjs] since prior pass RP-016. Independently reproduced every claim rather than trusting resolution text: (1) F-033 byte/UTF-16 fix at cli-init.ts:976 verified by measuring Buffer.byteLength vs .length on the live registry render: raw=3945B/3939 units, expected=9008B/8998 units, matching exactly; confirmed managed-assets.ts has no such comment. (2) F-034 THIRD-copy claim verified against git history: 8f18a193a1 fixed cli-init.ts + managed-assets.ts .lattice-codex block; fbb517121c fixed the separate sibling .claude/agents block; swept all isModularReviewerRoleId/isModularComplexRoleId call sites and confirmed no fourth copy exists. (3) bin-alias fix verified against listManagedAssetDefinitions signature: root=packageRoot() is a distinct earlier positional param from projectRoot=process.cwd(); pre-fix code passed root where projectRoot was needed; caller at :1261 confirms packageRoot() is passed as root. (4) De-dup refactor byte-identical claim verified by rebuilding the pre-refactor commit in a scratch worktree and diffing renderPromptEntryForHost output against the reconstructed old per-site logic for all 17 roles on both hosts: 0 mismatches after correcting my own first (flawed) repro attempt. (5) Reproduced verify-entrypoints.mjs to a completed 28/28 exit-0 run, and separately observed multiple runs taking well over 100s without finishing, corroborating the load-sensitivity claim in real time. verify-lattice-residue.mjs 3/3 PASS; tsc -p packages/main clean; CHANGELOG.md diff empty (FROZEN held). (6) Gap-log line references verified exactly: seed at :519, check at :550-551, cleanup at :620 (F-028 retraction accurate); banner assertion at :681 and serve.ts:826 both use the exact string, confirming F-027's timing-not-defect characterization. (7) Honesty boundary confirmed live: CHK-002:adversarial:1 evidence is still kind=waiver/deferred_gate_evidence, not fabricated as pass; no doc claims the receipt was earned or the script is reliably green. CLAUDE.md already states the corrected 17-total/13-lattice-prefixed count. No new doc-code drift found. F-034/F-035 remain open, correctly outside this lane, not a blocker. Additionally, filed B-cdf6:F-037 (low) for a genuinely pre-existing, non-blocking defect found while sweeping this scope: global-agents-init-smoke.ts:85 hardcodes a stale literal 16 one line below the correct dynamic 17-role check at :84, live-reproduced as currently red both on this branch and on pristine main HEAD 3a5036095c, outside the DONE-blocking npm test chain. Low severity, not a blocker for this pass.",
+      "createdAt": "2026-08-14T08:57:24.782Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-049",
+      "envelopeId": "8c0f11c083f7a241e343bc79431cc28ee6c839caed2951550dcbb449b998f215",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "CLAUDE.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/verifier/serve.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ffbf439d9c4fae3c555b16aba0f5dc37d270ef72578002072e37ee466d92dcd"
+    },
+    {
+      "id": "B-cdf6:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS. Originally reviewed at head a06ab64 (RR-057) but HEAD moved to 7724ab9 mid-review (another lane landed F-046, same class of residual lattice-string fix, e.g. handlers/lattice-cli.ts note/detail/error strings + lattice-cli-migration-smoke.ts assertion message, coordinated prod+test pairs, no weakening); re-verified checklist/findings unaffected by that delta and re-bound to fresh RR-060 at current HEAD before recording. Verified all 5 flagged questions independently: (1) no verificationEvidence row references acceptance_matrix commands, so the isLatticeWrapper/isAcceptanceMatrixDerivedEvidence F-042 fix cannot have altered coverage for this story; (2) mechanically parsed checklist.json: CHK-002:adversarial:1=deferred_gate_evidence, CHK-004:edge:0=permanent (unchanged, not relabeled to pass), coverage recomputed as 36 must-intents = 34 non-waiver evidence + 2 waivers, 0 missing/failed; (3) built and ran the pre-fix commit (9f6fb6ecc4^) directly in an isolated worktree, confirmed global-agents-unit-smoke was genuinely RED there (AssertionError on the exact claimed lattice/proof-or-stop mismatch) and is genuinely GREEN at HEAD, with a paired doesNotMatch guard added; the one assertion rename lacking an explicit paired negative guard is backed by a stronger self-updating assert.equal(content, expectedShim(file)) one line above that structurally cannot mask a stale string; broader diff scan of 120 removed/236 added assertions across the story shows coordinated rename pairs (prod string + test assertion updated together), not deletions or loosening; (4) built pristine main in an isolated worktree and independently reproduced both remaining red smokes (prompt-token-cost-smoke, proofstory-acceptance-topology-smoke) failing at the identical assertion function and line number on both branch and main -- confirmed not a regression, refuting my own earlier exit-code-only comparison the same way test-coverage refuted it for F-042; (5) confirmed the CHK-002 waiver is typed deferred_gate_evidence (not permanent, no fabricated result:pass) and correctly cites B-META-framework-audit:F-005 as the real blocker, consistent with F-027 flakiness being honestly reported rather than papered over with a lucky re-roll. Ledger mechanically verified via direct findings.json parse at both heads: 45 then 46 findings, 0 open, no duplicate ids both times -- matches claimed state. Independently reconstructed the F-042 destruction from git history (35c0773ad4->b8d0d0170e->36501da2de->4201ce6681 non-monotonic count sequence) confirming my original isLatticeWrapper finding (RR-056) was overwritten by a differently-timestamped lattice-review-quality finding reusing the same id; content survives as F-041 (resolved) -- matches B-META-framework-audit:F-029 exactly. tsc clean, all 3 lattice-residue checks pass (plain scan, --self-test, npm run test:lattice-residue), flow-stability/rollout-check/decision-doc-promotion/both red-b2aa7 receipts (chk006, f005) all exit 0, and the in-progress 94-command validate run reached 60/94 all-green with zero failures before HEAD moved.",
+      "createdAt": "2026-08-14T12:09:07.848Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-060",
+      "envelopeId": "2be14ccafe18a095046e228370589d8754739d80cc0731b6fe00caec1b3ad3c1",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c7ba6f0c162aecd3439ddc07c52d2d680f791d048fdb99409bc4fbdc89c4d76"
+    },
+    {
+      "id": "B-cdf6:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Fresh run RR-059 bound to HEAD 7724ab966c (tree had moved past the requested a06ab64 binding mid-review; original RR-058 was rejected by the framework as stale, per session_brief Prompt-Envelope-invalid, so I restarted). Verified all claims made this round with direct execution, not text-trust: (1) F-045 git-notes remedy on 56da8b5e4b confirmed byte-for-byte (831-line polluted message, note attached at refs/notes/commits, correctly states cause/non-evidence/tsc-clean boundary/no-rewrite-rationale; git log shows the note by default). (2) F-042 acceptance-topology.ts fix confirmed: isLatticeWrapper was deprecated-bin-only (backwards from read-both), now accepts both proof-or-stop and lattice with deprecated retained deliberately -- exact code match to the commit message and checklist claims. (3) All five F-041/F-044 comment sites (global-agents-unit-smoke.ts, lattice-cli.ts, verifier.ts, story-review.ts, autopilot-executor.ts) verified against the actual diff in 9f6fb6ecc4 -- each comment accurately states what was wrong. (4) Self-correction in 9f6fb6ecc4 verified empirically: ran proofstory-acceptance-topology-smoke.js on both this branch and a scratch worktree of pristine main -- both fail at the identical assertion (line 333, checklist_update_executable_evidence_unenforced regex), confirming the branch/main comparison claim (previously wrongly compared by exit code alone at :135 vs :333). Also ran prompt-token-cost-smoke.js on both -- identical assertion text (extractLatticeBlock/assertPromptReductions, 'expected lattice managed block'), corroborating the CHK-002:adversarial:1 honesty-boundary claim (comparing assertion text AND location, not just exit code). (5) B-META-framework-audit:F-029 git archaeology verified directly against git history: 36501da2de=42/tail F-040,F-041,F-042 -> b8d0d0170e=41/tail F-039,F-040,F-041 -> 35c0773ad4=42/tail F-040,F-041,F-042 -> 4201ce6681=43/tail F-041,F-042,F-043; confirmed F-041/F-042 at those two points hold completely different agent/content (concept+test-coverage originals vs quality's later reuse of the same ids) -- the id-aliasing claim is accurate. (6) New material discovered mid-review (F-046, landed after original binding): verified all four sites in 5ea04e5e36 against the diff, verified lattice_config_repair now prints 'proof-or-stop config doctor' live, verified lattice-cli-migration-smoke.ts fails identically on branch and pristine main at the pre-existing 'lattice host status' help-alias assertion (not a regression), and verified the F-030 root-cause claim that packages/main/src is absent from both DOC_SCAN_ROOTS and EXECUTABLE_SCAN_ROOTS in verify-lattice-residue.mjs. (7) Re-ran the STATE claims at the fresh head: tsc clean (0 errors across packages/main), global-agents-unit-smoke exit 0, global-agents-init-smoke exit 0, flow-stability-smoke exit 0, rollout-check-smoke exit 0, decision-doc-promotion-smoke exit 0 (9 checks), all three verify-lattice-residue.mjs checks PASS, red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs (the two touched by this story) both exit 0. finding_list confirms 46 findings total, 0 open, no duplicate ids. CHK-002:adversarial:1 verified still deferred_gate_evidence with an honest, specific root-cause note (B-META-framework-audit:F-005, itself still open even though a related F-026/F-028 retraction shows most of its consequences were separately fixed) -- no doc, comment, or commit message anywhere claims that waiver as earned or claims the two identically-failing smokes are green. CHANGELOG.md and .lattice/story/ archives outside B-cdf6/B-META-framework-audit remain untouched in git diff main...HEAD --stat. Symbol-diff step 1 over the 9 changed files (relative to prior pass) yielded 3 module-local const/param identifiers, no exported/public symbols, so no README/CLAUDE.md paragraph anchors this incremental slice; no stale doc references to isLatticeWrapper/acceptance-topology internals or the old configRepairCommandFor/config-doctor error strings found in README.md/CLAUDE.md/AGENTS.md/docs/**. No inconsistencies found between docs and code for this round; no doc-promise-undelivered found. Closing self-check: no new proof-or-stop command examples, handler-schema fields, env vars, or behavior-description paragraphs introduced by this incremental slice in active docs (all changes are internal comments/private implementation/error strings, already verified above). Every honesty-boundary claim in this round is corroborated by direct mechanical evidence, not by trusting the prose.",
+      "createdAt": "2026-08-14T12:11:35.693Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-059",
+      "envelopeId": "a166fe331303ffd128c2d5a7dddee2cb06b0d9846f82a7dc48c2f331d7f8ba09",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "CLAUDE.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cabde38b2e1993d9eaa3101f3300b89d8223a9b0eba4589323f9e43d4f0e9499"
+    },
+    {
+      "id": "B-cdf6:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind after F-046 fix (commit 5ea04e5e36). Verified fresh at HEAD 88950c57: working tree clean, only story-bookkeeping files changed vs d43cfb1147 (process-events.jsonl, prompt-envelopes.json, review-runs.json), no source touched. Reviewed the 13-file incremental delta plus re-inspected the F-046 diff directly: handlers/lattice-cli.ts:174 now calls configRepairCommandFor() instead of a hardcoded deprecated-bin string; :345 error message and :205 plus tasks/lattice-cli-migration-smoke.ts:253,256 config-doctor detail and test assertion corrected from the false only-lattice-bin claim to the true dual-bin state, matching the finding exactly with no regression. New core/brand-env.ts read-both write-both env compat helper is sound (presence-based precedence, canonical wins, deprecated always still read and written) and threads correctly into verifier.ts, managed-assets.ts, cli-init.ts. cli-init.ts wrapper-generation writes only canonical bin names for fresh projects while leaving pre-existing deprecated-named wrappers untouched. Mechanical checks fresh at this head: tsc clean across all 3 tsconfigs; finding_list shows 46 total findings, 0 open, 0 duplicate ids; global-agents-unit-smoke and global-agents-init-smoke PASS; flow-stability-smoke, rollout-check-smoke, decision-doc-promotion-smoke PASS after rebuilding dist (stale dist was my own artifact, not a code defect); verify-lattice-residue.mjs 3/3 PASS (koala, brand-prose, brand-exec) and self-test 38/38 PASS; verify-residue-inject-repro.mjs and verify-brand-gate-negative.mjs both PASS. Confirmed by direct source diff against main that prompt-token-cost-smoke (fails at extractLatticeBlock expected-lattice-managed-block, line untouched by this story) and lattice-cli-migration-smoke (fails at the literal lattice host status help-alias assertion, also untouched) are genuinely pre-existing failures identical on main, documented as such in the F-046 commit message itself. No new findings warranted; quality lane clear to pass at this head.",
+      "createdAt": "2026-08-14T12:21:35.564Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-065",
+      "envelopeId": "9a4b88ced9a29e92f0a4aca42cbaa62976b6d426c9e599f62eaeaa10736fb59d",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d0ee0b4d62e6343a460c54322041c670684da358e2f41c157ff7adb34fcbac5"
+    },
+    {
+      "id": "B-cdf6:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass, bound to RR-076 @ head 4533d128. Ledger quoted fresh at this exact head, twice independently (finding_list + review_incremental_context.unresolvedFindings): 54 findings, 0 open, 50 resolved earlier + F-052/F-053/F-054 resolved in fix commit 813874cfdf + 1 dismissed. Coverage mechanically re-derived from checklist_get: 36 must-priority verificationIntent entries across CHK-001..CHK-005 (CHK-006 has zero intents), all 36 accounted for as 34 non-waiver verificationEvidence with result=pass (zero fail/pending/skipped) + exactly 2 waivers (CHK-002:adversarial:1 type=deferred_gate_evidence citing pre-existing verified B-META-framework-audit:F-005; CHK-004:edge:0 type=permanent citing an unsatisfiable-by-construction monotonic-counter pin while the underlying check itself passes 38/38) -- both substantive and unrelated to the recent rename fixes. Verified F-049 fix diff (477520541c): straight rename plus one added assert.doesNotMatch negative guard plus one corrected assertion-failure message describing an already-correct constant -- no weakened assertion, worktree.ts:673 remains the sole legitimate read-both call site as claimed. Verified F-052/F-053/F-054 fix (813874cfdf) by reading the diff, rebuilding packages/main from clean tsc, and running flow-stability-smoke.js directly -- exit 0, including the new F-052 read-both proof block. I independently hit and was correctly rejected by the framework scope-binding gate mid-review (finding_add on stale RR-075 failed with diff_pack_changed) when the ledger I had just read went stale under me exactly as this story history describes -- re-bound via fresh review_run_start (RR-076) before concluding. Three previously-red smokes in one validate log were an artifact of a concurrent dist/ rebuild racing that run (MODULE_NOT_FOUND mid-run, reuse.reusable=false) not real regressions -- confirmed by rebuilding cleanly and re-running red-f88e-downgrade-non-regression.mjs directly (OK). One unrelated real failure found (retired-authority-vocabulary-guard-smoke.js on cli-engine.ts:814) traces to byte-identical pre-existing code on main this story never touches -- out of scope, not filed.",
+      "createdAt": "2026-08-14T13:57:04.877Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-076",
+      "envelopeId": "de352d913668fce12b773252258b2ed51f82f1d5beb4851a4a2841ed5ae6cc60",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "checklist.json",
+          "findings.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-cdf6/background.md",
+          "docs/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4459f312ea223794901e1559433c1313b4ddd9b53305cd0d5c4c377c7bae2b31"
+    },
+    {
+      "id": "B-cdf6:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-verified F-052/F-054/F-055 fixes and prior judgement calls rather than trusting the brief's narrative. F-052: deleted the deprecated-prefix branch of matchesRuntimeCommitSubject myself, rebuilt, confirmed flow-stability-smoke fails with exactly the claimed assertion message; restored and confirmed pass + clean git status. Not vacuous. F-053: confirmed the accept-both regex against real commit subjects present in this branch's own git log. F-054/F-055: grepped whole diff for stale lattice: record / lattice metadata auto-committed prose -- zero stray hits besides the intentional F-049 negative-guard literal at flow-stability-smoke.ts:3376. Judgement calls: F-043 ruling holds (global-agents.ts:244 uses a distinct minimal shim renderer, not one of the ~15 renderPromptEntryForHost call sites serving a different target); auto-commit-metadata.ts exports are not surface-for-tests-only (both constants have real internal/production consumers beyond the new test). Checked review-run.ts F-019 dead-code fix for the same substitute-reporting shape -- clean. Mechanically confirmed via finding_list --json: 55 findings, 0 open, all resolved/dismissed. Confirmed material diff between frozen HEAD 2001b46106 and current HEAD is story-metadata-only; review remains validly bound. Rebuilt and reran: tsc clean, flow-stability-smoke passes, all three lattice-residue checks pass. No new findings.",
+      "createdAt": "2026-08-14T15:18:18.852Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-079",
+      "envelopeId": "ff8c221533ed38698bef4ade852f758101bd675d869b11b6d2b99ea02a049506",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "df7b2eb613947cfd8db806ed1bb41f83c79407450b075c418cee63fc61eb0ee8"
+    },
+    {
+      "id": "B-cdf6:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind after F-057/F-058 repin (commit 0be3fbd206), bound to head 627f492d5b. Mechanically re-verified rather than trusted: (1) cli-engine.ts diff main...HEAD contains zero import()/require() touches (grep on the diff itself is empty); the two actual dynamic-loader call sites (init's `file://${initPath}` and dashboard's `./dashboard.js`) are byte-identical to main -- confirmed by direct git show comparison. So the repin (61136cc5...->34a45a75...) is a justified re-approval, not a rubber stamp; ran retired-authority-vocabulary-guard-smoke directly and it passes (exit 0, builds=782). (2) The reworded done-prepare-auto-closeout-smoke.ts comment no longer places the word production immediately before DONE: anywhere -- read the exact lines; the new wording note describes the past trigger in third person and does not reproduce the pattern; guard confirms clean. (3) Independently reproduced the corrected disclosure of exactly three genuinely-red-on-main smokes using a clean detached worktree of main (abe666af4f) with its own build: prompt-token-cost-smoke (assertion: expected lattice managed block, still absent on main), lattice-cli-migration-smoke and proofstory-acceptance-topology-smoke both fail via their compiled dist/tasks/*.js on genuine pre-rename assertions unrelated to B-cdf6. tsc -p packages/main is clean. Diff since my prior RP-025 (head 2001b46106) touches only these two smoke files plus story-tracking JSON/metadata -- no other source changed, so no new dead-code/type-safety/swallowed-error/guard-substitution surface to audit beyond what was already reviewed. B-META-framework-audit:F-032 (dist/ freeze-discipline gap) is correctly filed at the cross-story meta level, not as a B-cdf6 finding -- it describes a framework evidence-binding blind spot (git-hash staleness detection cannot see gitignored dist/ mutation), not a defect in this story's diff; no duplicate finding needed here. No blocker.",
+      "createdAt": "2026-08-15T07:21:10.341Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-085",
+      "envelopeId": "fb569be8eda28f1dbe981a5dffad2f76c5c72241a3e6fd797f0b20dbbe1cdeed",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          ".lattice/story/actives/B-cdf6/review-runs.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e29799d997d43aad1730b8d8878af4bb9e9f346fc21ca44631846f814abb3b5b"
+    },
+    {
+      "id": "B-cdf6:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified mechanically at 627f492d5b: coverage unchanged (36 must=34 non-waiver+2 waivers at CHK-002:adv:1 deferred_gate_evidence and CHK-004:edge:0 permanent), no weakened tests in 0be3fbd206 (repin diff touches zero import/require calls, approved loader call site byte-identical to main; comment-only reword with assertions unchanged), corrected red-smoke count of exactly 3 independently reproduced on a fresh clean detached main worktree, finding_list 58/0-open. No blocker.",
+      "createdAt": "2026-08-15T07:23:20.769Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-084",
+      "envelopeId": "31ce9e3b78ab98ace1c9e9a058dce67511c32dfec6ca82e2d4ec3c170715bb35",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0b50d7da39a3598a22676a8cd69fa8dddbccbea1da8ca3a5fcfb4d787ec1d323"
+    },
+    {
+      "id": "B-cdf6:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "No blocker. Independently verified all 4 ledger claims: cli-engine.ts diff is brand-string-only (no loader/import changes), the F-057 repin holds (guard exits 0), the F-053 reworded comment is accurate and does not retrip the guard, commit 0be3fbd206 correctly says THREE (not four) smokes remain red, and B-META F-032's git-hash-vs-gitignored-dist reasoning is technically sound (verified against review-run.ts/evidence-freshness.ts source). Independently rebuilt pristine main in a scratch worktree and reproduced all three named red smokes failing with matching assertions. finding_list re-counted: 58 total, 0 open.",
+      "createdAt": "2026-08-15T07:24:11.774Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-083",
+      "envelopeId": "2a902cf8ebccb9988dfe4e388c211d107ec5f8df34c40ea2819aa3ffb790281b",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c997c7cf1df31191df4bfe84e50f3f1d279441d8b9ca555f4017409ead72f142"
+    },
+    {
+      "id": "B-cdf6:RP-029",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind at head 2ededfa. Incremental context shows exactly 1 changed file since prior pass RP-026: unlock-layer3-real-execution-udm-baseline.md. Verified commit 160b3dfc8a directly: single-line prose fix normalizing a stale lattice validate reference, sibling frozen file correctly left untouched. No source/tests/config changed, no dead code/type-safety/IO issues introduced. No blocker.",
+      "createdAt": "2026-08-15T18:42:36.786Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-088",
+      "envelopeId": "7a55747d67aff949bc991539a5c4304ce98367997e8c535e5ae7c7c3fb4980ba",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "973a1e71f0f772acaf42104b15505acd6844b3766716fe571a1fdbdef657a760"
+    },
+    {
+      "id": "B-cdf6:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Re-bound docs-lane pass, superseding RP-028 (frozen material HEAD 2ededfa090; RR-089 head hash differs only due to framework .lattice/ metadata auto-commit from a prior review_run_start/review_pass_set attempt, not a story-owned material change). review_incremental_context confirmed exactly one material file changed since RP-028: unlock-layer3-real-execution-udm-baseline.md, matching resolved F-059 (TEST/lattice validate -> TEST/proof-or-stop validate at the UDM-REAL-REPAIR sequence line). Direct diff confirms the fix and the file self-identifies as the actively-maintained execution plan for real Proof-or-Stop lifecycle proof. Checked the scope boundary on legacy-to-lattice-role-naming-execution-plan.md: its own opening paragraph explicitly self-declares as the documented historical exception for the B-ffa2 rename map, so leaving its lattice validate references untouched is correct on the files own stated terms. Cross-checked finding_list: 59 total, 0 open, matching the stated ledger. Spot-checked honesty-boundary claims (three red smokes exist as named smoke tasks; CHK-002 deferred_gate_evidence waiver note present and consistent) against repo artifacts; no misrepresentation found. No blocking issue.",
+      "createdAt": "2026-08-15T18:43:42.274Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-089",
+      "envelopeId": "f9c1e2a5f28de8475c0c17f90b092fe2b5b615d152ff95c00c7f51d0ee3b45c4",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b2f4f11dd6201d9d480ad0017cad6302163d1309ff72e6064264bfbea1c75fdf"
+    },
+    {
+      "id": "B-cdf6:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified test-coverage pass after F-059 fix (160b3dfc8a). Material diff since prior pass (RP-027 at 627f492d5b) is exactly one file: docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md, confirmed via review_incremental_context (isFirstPass=false, impactedIntentRefs=[]) and git diff excluding .lattice/. Diff is a 2-line brand-string swap in prose (lattice validate -> proof-or-stop validate); zero test/assertion files touched. checklist.json is byte-identical to prior pass so coverage is unchanged: 36 must-intents = 34 non-waiver + 2 waivers, CHK-002:adversarial:1=deferred_gate_evidence, CHK-004:edge:0=permanent, both confirmed by direct inspection. Independently ran all three claimed red smokes at current HEAD: prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke -- all fail for reasons unrelated to the reviewed doc-only diff, confirming red-smoke count stays exactly 3. Verified STATE claims directly: tsc clean, retired-authority-vocabulary-guard-smoke PASS, all three lattice-residue checks PASS, findings ledger 59 total / 0 open matches claim. No coverage regression, no weakened test.",
+      "createdAt": "2026-08-15T18:46:15.700Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-090",
+      "envelopeId": "0ab8c64878503a0de2592b2a6365ea7242cdc4646290fa1c8a8b8210aaaae8db",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "87870d4ceacc64bf9cd0c6c6654d97aacf3254768ecde5bed1481c3c9a37349d"
+    },
+    {
+      "id": "B-cdf6:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Re-bound concept-lane verdict at head 2ededfa090 (RR-086), scope f78856fe..HEAD (39 files), superseding stale prior pass RP-015 bound to f78856fe. Corrected the dispatch's one-file scope claim (measured from 627f492d5b, itself already past my true prior baseline f78856fe) using review_incremental_context; reviewed the full 39-file delta instead. F-059 fix confirmed exact at unlock-layer3-real-execution-udm-baseline.md:264. Sibling-file boundary in legacy-to-lattice-role-naming-execution-plan.md accepted as correct application of the past-evidence freeze criterion (closed prior rename plan, rewriting would falsify history). finding_list: 0 open, F-059 resolved with matching evidence. Grepped full diff for concept residue independent of the framework's own script: only documented dual-token compat found (ACCEPTANCE_WRAPPER_BASENAMES, DEPRECATED_COMMIT_SUBJECT_PREFIX, dual-prefix regex), all per CHK-006 mandate. Reran claimed-green checks myself: tsc clean; all 3 lattice-residue checks + self-test (38/38) pass; retired-authority-vocabulary-guard, version-bump, global-agents-unit-smoke pass. flow-stability-smoke and done-prepare-auto-closeout-smoke initially errored under my own incorrect tsx-on-source invocation; pass cleanly via proper npm scripts against rebuilt dist. Spot-checked still-red proofstory-acceptance-topology-smoke: pre-existing assertion mismatch unrelated to brand tokens, matches prior pristine-main characterization. git status clean. No concept-residue blocker this round.",
+      "createdAt": "2026-08-15T18:49:04.558Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-086",
+      "envelopeId": "d3f5864f3e970e6ae2bcb3d9172dd5858df19535c435a24f582a0d24f14c3302",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/init-check-metadata-sync.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/safe-init-commit.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/gitroot-cwd-routing-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts",
+          "packages/main/src/tasks/global-agents-unit-smoke.ts",
+          "packages/main/src/tasks/init-window-data-loss-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/main-write-lock-coverage.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-init-check-bootstrap.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "939c95a7208933830c944e25adddcb03b98d0ec1bbc1fe9501a99f069bd594da"
+    },
+    {
+      "id": "B-cdf6:RP-033",
+      "agent": "lattice-review-quality",
+      "note": "Round scoped to the single material change since last round (commit 3ffbbe31ef; verified via git diff 988fa34204..f4c1e94fac --stat = only .lattice metadata + this one commit): the 10-line fingerprint repin in scripts/verify-process-fact-contract.mjs. Independently recomputed the canonical-AST-fingerprint (typescript-printer-remove-comments-sha256-v1) of packages/main/src/cli-engine.ts from scratch in a standalone node script (not copy-pasted from either pinned file) and got 34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f, matching both the verifier's new value AND the guard's own allowlist at retired-authority-vocabulary-guard-smoke.ts:384 -- so the two pins now agree with each other AND with ground truth, not just with each other. Grepped for a third stale copy of the old value 61136cc5...: none found. Grepped for other cli-engine.ts hash-pin consumers: verify-runtime-fact-contract.mjs reads source directly (no frozen literal, no staleness class). Ran the exact commands named in the escalation rather than trusting the commit message: node scripts/verify-process-fact-contract.mjs (exit 0); built dist and ran packages/main/dist/tasks/red-evidence-target-binding-smoke.js (exit 0) and packages/main/tests/red/red-w2b-wiring-contract.mjs (exit 0); npx tsc --noEmit -p packages/main/tsconfig.json (exit 0); verify-lattice-residue.mjs plain + --self-test (all 3 checks + 38/38 unit tests, exit 0); verify-runtime-fact-contract.mjs and verify-entrypoints.mjs (exit 0). For the 3 claimed-pre-existing red smokes (prompt-token-cost, proofstory-acceptance-topology, lattice-cli-migration) I did not take the claim on faith: built a disposable detached git worktree of pristine main (abe666af4f) at a scratch path, linked node_modules, built dist, and ran all three there -- got the same failure modes (missing lattice managed block assertion; assertion mismatch on checklist_update_executable_evidence_unenforced regex; assertion mismatch on host status regex), confirming they are pre-existing and unrelated to this story. Cleaned up the scratch worktree afterward. No dead code, type-safety escape, or swallowed error in the diff -- it is a pure string-literal edit plus an explanatory comment. Quality lane clean for this round; no blocking finding.",
+      "createdAt": "2026-08-16T08:12:56.747Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-092",
+      "envelopeId": "763ae24d7c9bfd5b5bd3b7df44a150d7f7aad85889748416988e178940723059",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "784985da95b7b200164c90de30c3f81e709c684a3098437a02d960d7ad60b08e"
+    },
+    {
+      "id": "B-cdf6:RP-034",
+      "agent": "lattice-review-docs",
+      "note": "Scope this round (review_incremental_context): 1 changed file since prior pass RP-030, scripts/verify-process-fact-contract.mjs. Verified commit 3ffbbe31ef and its comment: second-copy fingerprint updated 61136cc5...->34a45a752f..., byte-matches the guard own value (retired-authority-vocabulary-guard-smoke.ts:384). Comment accurately scopes what was checked (zero import()/require() touches in diff, byte-identical loader call site) and does not overstate. Ran verify-process-fact-contract.mjs directly: exit 0 (was 1). tsc clean. All three lattice-residue checks exit 0 (self-test 38/38). git status clean. finding_list: 59 findings, 0 open, matches claimed state. Independently reran prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke: all three genuinely red with the described failures, and spot-checked prompt-token-cost-smoke against a pristine-main worktree - identical assertion text, line offset explained by unrelated insertion. Confirmed CHK-002:adversarial:1 evidence entry is still kind=waiver/waiverType=deferred_gate_evidence, consistent with 35/36 coverage claim, no receipt re-rolled to green. No doc/comment/commit-message overstatement found. No blocker.",
+      "createdAt": "2026-08-16T08:14:09.050Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-093",
+      "envelopeId": "c06d30e5a99a89531f01b122ee0a7c5c79648e620d5d29c732a0732721e4eb98",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7856b32b6cc42dcc9a70209af756d56cc1619153ee11831a6b1c2a6e64368bee"
+    },
+    {
+      "id": "B-cdf6:RP-035",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage round 2 (round 2026-08-16T08:06:30.924Z, head f4c1e94fac): coverage is 36/36 must-intents (34 non-waiver evidence + 2 correctly-typed waivers: CHK-002:adversarial:1=deferred_gate_evidence citing pre-existing B-META-framework-audit:F-005, CHK-004:edge:0=permanent for the unsatisfiable-by-construction live-counter pin), verified by mechanically byte-diffing checklist.json between the pre-refresh (5762cdea04) and post-refresh (194cc53572) commits: all 21 mechanical:false entries only moved headHash/materialHash/storyFilesHash/timestamp forward with result unchanged and an honest nonMechanicalReason citing refresh_stale (no silent demotion masquerading as pass), while all 13 mechanical:true entries carry a fresh receipt.executedAt inside this refresh window. I independently re-executed 8 of the 13 mechanical commands myself just now (rollout-check-smoke, verify-lattice-residue --self-test/plain, verify-residue-inject-repro x3 runs, verify-brand-gate-negative, audit-scan-bin-token-smoke, verify-process-fact-contract.mjs, test:proof-or-stop-prompt-baseline) and all exit 0 with the tree left clean, so zero-demotion holds and none of them rest on something that did not execute. Fingerprint fix (3ffbbe31ef, second copy of the cli-engine.ts AST fingerprint in verify-process-fact-contract.mjs): recomputed the canonical AST fingerprint myself with ts.createPrinter({removeComments:true}) directly against the current cli-engine.ts source and got 34a45a752fcec4230e85bcc878a40ff6d400baca94914857a554a6519931f09f byte-identical to the new pin and to the value already present in retired-authority-vocabulary-guard-smoke.ts - genuine pin refresh reflecting real current source, not a fabricated/relaxed value. Confirmed red-evidence-target-binding-smoke, red-w2b-wiring-contract and retired-authority-vocabulary-guard-smoke all exit 0 now. Reviewed the full main...HEAD diff of verify-process-fact-contract.mjs: every hunk is a string-literal rename (lattice validate -> proof-or-stop validate, product-name prose, acceptance_basis_generate command literal, additional hash re-pins of the same class) or an additive bin-token widening (commandBlocks regex now also matches proof-or-stop, still matches lattice/koala) - no assert() removed, no threshold loosened. Three red smokes (prompt-token-cost-smoke, proofstory-acceptance-topology-smoke, lattice-cli-migration-smoke): built a fresh detached worktree of pristine main (npm install + packages/main npm install + build), ran all three there and on this branch - both fail identically at the same assertion (expected lattice managed block / checklist_update_executable_evidence_unenforced regex miss / help exposes alias lattice host status), confirming genuinely pre-existing and unrelated to this story, not weakened or newly broken. State re-verified mechanically at f4c1e94fac: 59/59 findings resolved (0 open) via finding_list --json, tree clean via git status, tsc clean across all three tsconfigs (packages/main, packages/lab, packages/utils), all three lattice-residue checks pass (self-test, plain scan, inject-repro - one transient non-reproducing exit-1 on inject-repro was investigated and does not repro across 3 subsequent runs, tree left clean each time), checklist 6/6 done. No blocking findings from this lane this round.",
+      "createdAt": "2026-08-16T08:20:21.476Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-094",
+      "envelopeId": "ab085c0ba3bf0e45f837b0d8871a5ea77ba269ca392f3b0e7807540a5f8cd4ef",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "scripts/verify-brand-gate-negative.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-residue-inject-repro.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "808f49f1f02677bd2ab39d5beb30aa07bc210b8c23f20dd95b9e87ee046db534"
+    },
+    {
+      "id": "B-cdf6:RP-036",
+      "agent": "lattice-review-concept",
+      "note": "Round bound to head f4c1e94/round 2026-08-16T08:06:30.924Z. review_incremental_context confirmed the ONLY material change since RP-032 (B-cdf6:RR-086) is scripts/verify-process-fact-contract.mjs. Independently re-derived the canonical AST fingerprint of cli-engine.ts using the guard's own algorithm (ts.createPrinter removeComments + sha256): got 34a45a75...31f09f, matching BOTH the guard pin and the new verifier pin -- verified against live source, not merely internally consistent. Ran test:process-fact-contract (PASS), guard smoke directly (PASS), red-evidence-target-binding-smoke and red-w2b-wiring-contract (both OK exit 0), tsc --noEmit on packages/main (clean), verify-lattice-residue.mjs self-test and both scan modes (all 3 PASS), verify-proof-or-stop-prompt-baseline.mjs (all PASS, 17 roles). Hunted whole repo for OTHER second copies of pinned/allowlisted values touched by this story: only two files hold a cli-engine.ts source fingerprint and both now agree with live source. Checked the LATTICE_CLI_VERSION/BRAND_EXPORT_RE coupling flagged in code comments: symbol deliberately unrenamed so regex still matches; version-bump-smoke passes 86 assertions. Verified the three claimed pre-existing red smokes fail with identical assertion shapes on a freshly rebuilt pristine main worktree, confirming unrelated to this story. Concept-residue hunt over active docs: remaining stray-spelling hits are documented FROZEN exceptions (GitHub repo slug matching live git remote, BibTeX citation key) or historical decision-doc prose out of CHK-003 scope. --version confirmed prints new prose name via both entrypoints. Root package name deliberately frozen; pre-push accepts both old/new package name so tsc gate does not self-disarm. Working tree clean throughout. No blocker found for the concept lane this round.",
+      "createdAt": "2026-08-16T08:35:30.792Z",
+      "reviewRound": "2026-08-16T08:06:30.924Z",
+      "reviewRunId": "B-cdf6:RR-091",
+      "envelopeId": "683cecf9f0fce39cef71b251dacef385421332ee181351e425cf27ba5d625d40",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/package.json",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5181ba3db0897d41bcea840f9f02dcc822bc5bcce0b472c004f34fb855f7d61"
+    },
+    {
+      "id": "B-cdf6:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review, sixth pass. Verified F-068 fix (inferCodexEntrypoint now recognizes both wrapper filenames; reproduced coordinators exact 4-path matrix against compiled dist and it matches) and F-067 disposition (independently confirmed pre-existing via git diff main...HEAD empty on log-tools.cjs and predicate byte-identical on main; correctly resolved superseded not fixed, escalated to B-META-framework-audit:F-034). Did one more exhaustive hunt per the standing instruction across: all brand-keyed env comparisons in lattice-dispatch.ts (SESSION_ID_ENV_NAMES consolidation confirmed complete, no other site left unrouted), all 22 managedDoc/wholeFile ownership and okWhen predicates in managed-assets.ts (each checked against its actual generator output via the compiled dist, not just read statically), the codex-entrypoint inference and hook-wiring checks, schema-version switch statements (command-spec v1/v2, dirtyCategoryLabel), and startsWith/endsWith prefix checks on lattice-review-*/.lattice/ paths. All remaining hits correctly reference FROZEN literals (signature salts, .lattice/ paths, lattice-review-* role-ID prefixes, lattice-scope-pretool.cjs frozen hook filename) or are symmetric internal enum comparisons where both writer and reader share the same TypeScript literal type. No new comparison/parser-class or dead-predicate-class defects found. tsc --noEmit clean, 0 open findings.",
+      "createdAt": "2026-08-17T03:14:28.956Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-098",
+      "envelopeId": "1afb596ed96e7b16e1176b87eb9ee368f1e0c8b4ebed729026c4e842973c697c",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/lifecycle-readiness.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/guard-session.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/hooks/log-tools.cjs",
+          ".claude/hooks/session-brief-reminder.cjs",
+          "docs/guide-hooks.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/hooks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9632a09418fe9f4da0148ba2f24e34ee3b63bd7dc964c80277567e4b1012d5d"
+    },
+    {
+      "id": "B-cdf6:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for the 14 symbols flagged by validate --concept (detectLatticeBrand, formatLatticeProductLine, formatLatticeVersionLine, isAnyLatticeStoryMetadataPath, isLatticeLifecycleArtifactPath, main, renderLatticeBootstrapScript, renderLatticeCodexAdapterManifest, renderLatticeCodexWrapperScript, resolveLatticeCommandPath, runLattice, runLatticeExpectFail, runLatticeRaw, writeLatticeConfig). Verified each individually against git diff main...HEAD and the gate JSON output: 8 are properly @deprecated pure re-export aliases with live test coverage; 3 (resolveLatticeCommandPath/runLatticeRaw/writeLatticeConfig) show 0 residuals -- fully clean renames; runLattice/runLatticeExpectFail exact-name sites were fully renamed in touched files, remaining hits are untouched out-of-scope scripts or unrelated substring matches; main is a gate false positive (99.3% of all residuals, matching the bare word main/package-path/branch-name, not a deleted symbol -- the one real main() deletion moved intact into bin/proof-or-stop-codex.js with zero external importers). No blocking concept-cleanup defect found. Filed low-severity non-blocking finding B-cdf6:F-070 recommending the gate heuristic use exact-identifier matching instead of substring/generic-word matching.",
+      "createdAt": "2026-08-17T03:29:05.960Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-099",
+      "envelopeId": "c3545575be503e54fa10924edc50596dec90475508de29338d74dd0457658889",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/review-run-clean-tree-preflight-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-dev-memory.mjs",
+          "scripts/verify-done-merge-preflight.mjs",
+          "scripts/verify-worktree-baseline-risk.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+          "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+          "packages/main/src/tasks/experience-layer-hint-injection-smoke.ts",
+          "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/product-capability-release-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd329943c6b0ead9a1bef2c7a8de1a1b21656e2757cc125fc97f162dbc06e1a5"
+    },
+    {
+      "id": "B-cdf6:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review, seventh pass, judging 558d1092ba (F-071 fix). Q1 (is stripCanonicalBrandEnvTwins the right abstraction/location): verified core/brand-env.ts already hosts the read-both precedence contract (setBrandEnv/applyBrandEnv/readBrandEnv) with the same production-code-consumed-by-tests pattern; no shared test-utils module exists in this codebase (smokes already import core/*.ts directly per existing convention), and the helper is not re-exported through cli-engine.ts public surface -- location is consistent with precedent, not a new violation. Q2 (does routing validate-progress-heartbeat-smoke through the shared helper preserve the original inline-loop behavior exactly): wrote a standalone comparison harness reimplementing the ORIGINAL 6fbb55a03b inline loop byte-for-byte and diffed its output against stripCanonicalBrandEnvTwins across 3 scenarios (populated canonical+deprecated+unrelated keys, all-canonical keys, no brand keys) -- JSON-identical in all three, including confirming unrelated caller config (UNRELATED_VAR, PROOF_OR_STOP_AGENT) survives untouched in both. Also independently reproduced all four claimed pass/fail combinations against the compiled dist (not rebuilt): validate-progress-heartbeat-smoke clean/canonical-override both pass; done-prepare-closure-heartbeat-smoke clean passes AND canonical-override now passes (previously failed with the exact AssertionError text quoted in the commit -- reproduced that failure myself in the prior round before this fix landed). Q3 (anything else in 558d1092ba): reviewed all 5 changed files -- core/brand-env.ts (the helper), the two smoke files (routed through it), and two B-META-framework-audit metadata files; the findings.json diff is B-META-framework-audit:F-035 (the concept-gate substring-matching finding from the colleague concept reviewer, correctly escalated rather than fixed inline, unrelated to this quality-lane review). tsc --noEmit clean, verify-lattice-residue 3/3 pass, retired-authority-vocabulary-guard-smoke pass, 0 open findings.",
+      "createdAt": "2026-08-17T05:11:11.242Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-101",
+      "envelopeId": "e65564f176c4895d4481b68b2cd98083ac0e96b31be12d8d1a5165e31f108bef",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6030d528a09e5e246d5ea8bfc361a2423e05a106abd48d36ff2018f3e983bfb5"
+    },
+    {
+      "id": "B-cdf6:RP-040",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review, eighth pass, rebind after convergence-breaker clearance. Verified commit 8cb0cd12dc matches its claim exactly: git show --stat confirms 1 file / 2 insertions in .lattice/story/actives/B-cdf6/process-events.jsonl only; diffed the two appended JSONL lines against the working-tree diff I had already inspected in the prior round (human_confirmation record from story_resume --ack, and a dispatch record matching my own earlier dispatch call by dispatchPromptDigest/hostRenderIdentityDigest/dispatchBindingDigest, differing only in timestamp) -- both are exactly the audit-state appends claimed, no source or test content. Confirmed RESUME-B-cdf6.md is gone from the working tree and was never tracked (untracked-file removal, not a git rm, consistent with it never having been committed). Re-ran git diff 36bd61cdf1..HEAD --name-only: still exactly two files total since my RP-039 pass (checklist.json evidence rebinding, already reviewed in full; process-events.jsonl, reviewed this round) -- zero source or test files in the full range. git status --short is empty. review_run_start and dispatch both succeeded on the first plain attempt, no --takeover needed. 0 open findings.",
+      "createdAt": "2026-08-17T05:57:18.683Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-102",
+      "envelopeId": "063f4639511ac16f20edf6675d6d4fad590c37376ad2b4b9eea606367ece05b2",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/process-events.jsonl"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1fa1f10a8b0c06a14783bc0e596f379d691db9f63d4918fc655899c957dd7ef2"
+    },
+    {
+      "id": "B-cdf6:RP-041",
+      "agent": "lattice-review-concept",
+      "note": "Rebind of RP-038 after material drift (invalid Prompt Envelope bind). Independently verified via review_incremental_context that exactly 3 files changed since my prior pass: packages/main/src/core/brand-env.ts, packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts, packages/main/src/tasks/validate-progress-heartbeat-smoke.ts (commits 6fbb55a03b, 558d1092ba, fix(F-071) test-harness canonical-env-twin stripping). Confirmed by full diff inspection: purely additive -- new exported helper stripCanonicalBrandEnvTwins plus two call-site wire-ups, zero function/export deletions or renames in this range (grep for deleted function/export lines returns empty). None of the 3 changed files intersects the 14 symbols or their host files (lattice-brand.ts, lifecycle-registry.ts, init-assets.ts, bin/lattice-codex.js, bin/proof-or-stop-codex.js) from my original review. Re-ran validate --concept --json at the new head: identical deletedSymbols list and identical per-symbol residual counts (main=15326, runLattice=88, runLatticeExpectFail=3, others 1-7, total=15435) as my original RP-038 analysis -- confirming zero symbol-level change. Original verdict stands: no genuine concept-cleanup defect; the 14 flagged symbols are either correctly @deprecated live aliases, fully-clean renames with 0 residuals, or gate false positives (substring matching on unrelated helper names / the bare word main matching git branch name and packages/main path, 99.3% of all residuals). Also reviewed the F-070 disposition (resolutionType=superseded, escalated to B-META-framework-audit:F-035): agree with this call -- the finding is about the validate --concept gate matching heuristic itself, not a defect introduced by this story, and patching that gate mid-review would alter the instrument judging this very story; escalating to a separate framework story rather than inline-patching is correct and the resolution is honest about not claiming a fix that did not happen.",
+      "createdAt": "2026-08-17T06:01:37.284Z",
+      "reviewRound": "2026-08-17T02:24:56.778Z",
+      "reviewRunId": "B-cdf6:RR-103",
+      "envelopeId": "c8f5e91067f4d0296ba786c6550be1d0d7b33560a31977fafdfbac6c740086b3",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b717abd2ce2bf88eb8aed9e6e222358bbbfeb0a9a70ec3f553ff4ae6ef0c6477"
+    }
+  ]
+}
