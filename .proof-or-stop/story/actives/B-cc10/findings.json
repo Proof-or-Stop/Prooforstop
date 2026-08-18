@@ -129,7 +129,7 @@
       "desc": "CHK-003:adversarial:0 witness scripts/verify-state-dir-migration.mjs:49 uses a loose threshold (n > 7000) for trackedArchiveFiles instead of an exact expected count, so it would not catch a partial loss of up to several hundred archive files during the move (current count is 7583/7588). This check has only coarse discriminating power on its own; it is not the sole line of defense (the two named-archive readability + phase checks and the git log --follow check in the same script do have real discriminating power for content/history loss), so this is advisory rather than blocking.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T03:45:10.406Z",
@@ -140,7 +140,8 @@
         "scripts/verify-state-dir-migration.mjs"
       ],
       "signatureTag": "edge|mjs|adversarial-witness-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:09:03.966Z"
     },
     {
       "id": "B-cc10:F-009",
