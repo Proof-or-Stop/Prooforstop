@@ -917,7 +917,7 @@
       "desc": "packages/main/src/core/lattice-brand.ts:20-23 and :61-63 -- doc comments say verbatim 'lattice still runs' and PROOF_OR_STOP_DEPRECATED_BIN is 'kept working so in-flight stories, git hooks and operator muscle memory keep resolving' / 'B-cdf6 makes the rename additive at the CLI boundary: proof-or-stop is canonical, lattice still runs.' This is now FALSE: this story's CHK-006 deleted bin/lattice.js (verified: `node bin/lattice.js --version` -> Cannot find module). The constant PROOF_OR_STOP_DEPRECATED_BIN='lattice' and PROOF_OR_STOP_BIN_NAMES still list 'lattice' as a recognized invokedAs token (used only for usage-line normalization if someone symlinks/renames the compiled entry to 'lattice' themselves -- not a functional claim), but the surrounding prose overclaims persistent compatibility that this same story intentionally ended. File was never touched by any commit in this story (confirmed via git log main...HEAD -- lattice-brand.ts, zero output). Same class as the already-fixed F-038: stale doc-comment residue misleading the next reader about actual runtime behavior.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T10:58:03.661Z",
@@ -925,7 +925,8 @@
       "reviewRunId": "B-cc10:RR-059",
       "_hash": "d795a40ff24352a4bf105aaa48f67fa4145c0901bfb339064327b7c1aed710e5",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T11:08:16.067Z"
     },
     {
       "id": "B-cc10:F-051",
