@@ -71,6 +71,27 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1e1f:F-005",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:683-688 CHK-004:test-or-verifier-mutation-invalidates is a must edge intent (material write to test or verifier inputs invalidates ADMITTED/RUNNING) but the pinned invalidation smoke only commits src/app.ts and then asserts State: INVALIDATED. currentCertificationIdentity always hardcodes PRECERT_VERIFIER_IDENTITY/PRECERT_TEST_IDENTITY (handlers/certification-window.ts:145-146), so the verifier/test identity-drift branch in detectCertificationWindowMaterialDrift (core/certification-window.ts:681-694) is never executed. Evidence note 'material change invalidates at next status' does not correspond to the test/verifier discriminator. high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T09:25:42.296Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-003",
+      "_hash": "49dee09fd6b2dd93e3c1c7ee149871b43fa1fbc658ed4f8e83ce0f0f005a7ad2",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
