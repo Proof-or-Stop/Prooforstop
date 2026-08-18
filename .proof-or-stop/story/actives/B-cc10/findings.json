@@ -578,7 +578,7 @@
       "desc": "verification_evidence_refresh_stale left 4 of 24 must-priority intents (CHK-002:happy:0, CHK-003:adversarial:0, CHK-008:edge:0, CHK-008:adversarial:0) demoted to mechanical:false with nonMechanicalReason=\"receipt invalidated by verification_evidence_refresh_stale... pinned command was not re-run here\". Per core/verification.ts:141 (coverageStatusForCoveredEvidence), mechanical:false NEVER counts as covered -- it is classified non_mechanical. This directly contradicts the claim that all 24 receipts were refreshed with ZERO demotions. CHK-003:adversarial:0 is the content-purity/fail-closed-tamper-detection check and CHK-008 covers both the half-done-move detector and the single-commit-revert proof -- these are exactly the highest-value adversarial checks for an irreversible 7500+ file git mv, and they currently have no live mechanical receipt. Must re-run verification_evidence_add (or refresh with real re-execution) for these 4 intentRefs before DONE.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T09:22:52.146Z",
@@ -589,7 +589,8 @@
         "packages/main/src/core/verification.ts"
       ],
       "signatureTag": "missing|ts|verification-evidence-refresh",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T10:01:29.775Z"
     },
     {
       "id": "B-cc10:F-033",
