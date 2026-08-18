@@ -428,6 +428,31 @@
         "scanEscalationReason": null
       },
       "_hash": "98639e4591c07a56f2898841ae25c2587b8d35954add70bc2432964004fa0e70"
+    },
+    {
+      "id": "B-7dff:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 re-review after metadata-only changes since RP-013: all 5 checklist items done with happy/edge/adversarial verificationIntent covered by valid verificationEvidence (12 mechanical logic_test/integration_test rows, all selectorMatched, plus 2 disclosed permanent waivers on CHK-001:happy:0 and CHK-005:happy:0). verification_evidence_refresh_stale --dryRun reports zero stale rows. F-013/F-014 resolution rewrites verified as claims a reader can mechanically check: B-9e3d exists on main at phase INIT (git show main:.lattice/story/actives/B-9e3d/index.json), and main:packages/main/src/tasks/full-suite-runner.ts:634 genuinely reads performanceBudgetMs: FULL_SUITE_BUDGET_MS (commit 92534bc237, confirmed a descendant of this branchs merge-base with main, whereas this worktrees HEAD still carries the old 300_000 literal at line 558, consistent with the fix arriving on the next mergeMain). Both waivers still read honestly and are internally consistent with prior rounds. No blocker from this lane.",
+      "createdAt": "2026-08-18T23:02:35.988Z",
+      "reviewRound": "2026-08-18T22:56:37.139Z",
+      "reviewRunId": "B-7dff:RR-029",
+      "envelopeId": "7a7fb546877b74b3a99d2f1951596b0c49a6a4825afd9aa94ff8548f94032bbe",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/checklist.json",
+          ".lattice/story/actives/B-7dff/findings.json",
+          ".lattice/story/actives/B-7dff/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f9b34df4702d765c1145b4a57e75d28fa14b11cac1dec2cc08ba533022662746"
     }
   ]
 }
