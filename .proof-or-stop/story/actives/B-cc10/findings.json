@@ -776,6 +776,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-042",
+      "desc": "scripts/verify-state-dir-migration.mjs:53 prints console.log(archiveFloorHeld=true) as a hardcoded string literal BEFORE the actual floor comparison (n >= preMoveCount) is computed on lines 60-77, so it is not a computed invariant -- it prints true unconditionally regardless of the real outcome. Verified live: patching preMoveCount to an artificially high value still prints archiveFloorHeld=true while the script correctly emits not ok ... and exits 1 via the separate fail() path, so the overall gate result stays correct today, but the token itself is decorative and would pass vacuously if any future selector pinned it directly instead of the exit code or the not ok line. This is the exact mutation-that-mutates-nothing / assertion-that-looks-computed-but-isnt anti-pattern this story exists to eliminate elsewhere (verify-process-fact-contract drop-acceptance-basis-prompt). No current CHK-003 selector depends on this token (confirmed by reading verificationIntent), so this is not currently exploitable, but should be fixed to derive the string from the real boolean.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-18T10:43:27.567Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-052",
+      "_hash": "527de1b6b90312b02ef3a0e2d75d28c33d26e1b6b787b98028a2f63839e003aa",
+      "files": [
+        "scripts/verify-state-dir-migration.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-state",
+      "signatureTagSource": "auto"
     }
   ]
 }
