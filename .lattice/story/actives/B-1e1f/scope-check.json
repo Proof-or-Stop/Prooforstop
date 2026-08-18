@@ -1,6 +1,6 @@
 {
   "storyId": "B-1e1f",
-  "checkedAt": "2026-08-18T07:01:25.393Z",
+  "checkedAt": "2026-08-18T07:09:44.374Z",
   "features": [
     {
       "feature": "Represent CertificationWindow and the PRE_CERT receipt as signed, registry-backed, gate-consumed process facts with an explicit gateConsumer",
@@ -55,7 +55,7 @@
       "feature": "Do not implement CausalEvidence execution-key cache / U-03a receipt transaction",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "CHK-001 excludes: CausalEvidence execution-key cache",
+      "excluded_by": "CHK-001 excludes: CausalEvidence execution-key cache; scopeBoundary excluded: CausalEvidence DAG / execution-key receipt reuse (U-03)",
       "source": "description"
     },
     {
@@ -69,7 +69,7 @@
       "feature": "Do not implement AcceptanceAmendment (U-05)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "CHK-002 excludes: AcceptanceAmendment for missing intents",
+      "excluded_by": "CHK-002 excludes: AcceptanceAmendment for missing intents; scopeBoundary excluded: AcceptanceAmendment (U-05)",
       "source": "description"
     },
     {
@@ -97,7 +97,7 @@
       "feature": "Do not implement ReviewRemediation ledger transaction (U-04)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "CHK-004 excludes: ReviewRemediation ledger transaction",
+      "excluded_by": "CHK-004 excludes: ReviewRemediation ledger transaction; scopeBoundary excluded: ReviewRemediation atomic close (U-04)",
       "source": "description"
     },
     {
@@ -116,85 +116,92 @@
     },
     {
       "feature": "PRE_CERT admit requires open verified blocking findings to be closed (spec 7.1.4 item 2)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "PRE_CERT admit requires focused/adversarial quick checks to pass (spec 7.1.4 item 3)",
+      "feature": "Do not implement a new 1-3 minute focused/adversarial suite (U-07); existing coverage + clean-tree + git/evidence preflight stand in for spec 7.1.4 item 3",
       "covered_by": null,
-      "status": "gap",
+      "status": "excluded",
+      "excluded_by": "decision.json principle: PRE_CERT is admission, not another test; existing CHK-002 coverage/clean-tree/git-index+evidence-target preflight stand in",
+      "source": "description"
+    },
+    {
+      "feature": "PRE_CERT admit requires a cheap preflight of Git index plus evidence-target writability (spec 7.1.4 item 7, git/evidence subset)",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "PRE_CERT admit requires a cheap preflight of provider/Git index/ports/process group/evidence-target writability (spec 7.1.4 item 7)",
+      "feature": "Do not implement provider/port/process-group supervisor preflight (U-02 / ManagedRunSupervisor)",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "scopeBoundary excluded: ManagedRunSupervisor (U-02); CHK-002 keeps git-index + evidence-target writability only",
       "source": "description"
     },
     {
-      "feature": "Keep current strict freshness: do not treat whole-tree materialHash-only drift as fresh and do not add a cache-relaxation path",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Keep current strict freshness: do not treat whole-tree materialHash-only drift as fresh and do not add a second freshness hash or cache-relaxation path",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:docs/requirements/decisions/story-files-hash-material-drift.md"
     },
     {
-      "feature": "Bind expected main SHA plus frozen headHash/storyFilesHash/test-verifier identity on the admitted PRE_CERT window",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Bind expected main SHA plus frozen headHash/materialHash/storyFilesHash/test-verifier identity on the admitted PRE_CERT window",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
       "feature": "While ADMITTED/RUNNING, certification-evidence and story-metadata writes remain allowed (window freezes source/test/verifier only)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Report post_cert_source_commits=0 as a required PRE_CERT acceptance metric",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Report post_cert_source_commits=0 as a required PRE_CERT acceptance metric on the replay line",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
     },
     {
       "feature": "Do not implement ManagedRunSupervisor (U-02) in this U-01b slice",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "scopeBoundary excluded: ManagedRunSupervisor (U-02); decision.json constraints",
       "source": "description"
     },
     {
       "feature": "Do not reduce independent host-quorum counts",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json constraints: Do not reduce reviewer lanes or host quorum",
       "source": "decisions:docs/requirements/decisions/review-assurance-floor-execution-plan.md"
     },
     {
       "feature": "Do not skip final full validate, DONE-required, or delivery gates",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json principle: heavy suites stay exactly as they are; they just cannot start without a current window",
       "source": "decisions:docs/requirements/decisions/story-lifecycle.md"
     },
     {
       "feature": "Register the CertificationWindow artifact as story-metadata/lifecycle (not unknown .lattice dirt and not an extra HEAD-moving commit)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:docs/requirements/decisions/lifecycle-artifact-scope.md"
     },
     {
       "feature": "Routine validate without --full and REVIEW preflight slices (--channel/--concept/--lint) stay outside the CertificationWindow",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:docs/requirements/decisions/testing-infra.md"
     }
@@ -206,6 +213,7 @@
       "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
       "docs/requirements/decisions/lifecycle-artifact-scope.md",
       "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
       "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
       "docs/requirements/decisions/story-files-hash-material-drift.md",
@@ -288,7 +296,6 @@
       "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
       "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
       "docs/requirements/decisions/project-vision.md",
-      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
@@ -337,15 +344,15 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 28,
-    "covered": 6,
-    "excluded": 10,
-    "gaps": 12,
+    "total": 29,
+    "covered": 14,
+    "excluded": 15,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "03d078a38c8f1f0a535b0fa61a5d006a49c53c6db7e86c0fb0e48bd7fc5e47b0",
+  "_hash": "977e96f76fb6cd5fe49d3c5050d08651b5fe4b2756d66f13ed3d221fc9a4283a",
   "openQuestions": [
     {
       "id": "OQ-1",
@@ -356,9 +363,7 @@
         ".lattice/story/actives/B-1e1f/decision.json",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
-      ],
-      "resolution": "The committed objective spec for this PLAN is this story envelope: background.md, understanding.json, decision.json, checklist.json, and plan.md. Those artifacts transcribe U-01b from a local untracked analysis file that is not yet in the decisions corpus. Until that file is committed, do not treat its absence as a second source of truth. The committed constraint docs that still bind this story are docs/requirements/decisions/story-files-hash-material-drift.md, docs/requirements/decisions/done-prepare-automation-execution-plan.md, docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, and B-3f3d review-inventory-epoch-and-saturation-gate.md once story/B-3f3d is merged. DEV of CHK-001 may add the analysis file as a tracked decision; that is documentation, not a new scope.",
-      "resolvedAt": "2026-08-18T07:03:24.845Z"
+      ]
     },
     {
       "id": "OQ-2",
@@ -367,9 +372,7 @@
       "sourcePointers": [
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         ".lattice/story/actives/B-1e1f/decision.json"
-      ],
-      "resolution": "Follow story-files-hash-material-drift.md consumer table. storyFilesHash remains the story-owned related-drift signal. PRE_CERT window identity records both materialHash and storyFilesHash plus expected main SHA; admit does not treat materialHash-only whole-tree drift as an unchanged certification identity, and it does not rewrite stored receipt hashes. DONE-required stays on the current strict policy. This is not a new freshness function and not a cache-relaxation path.",
-      "resolvedAt": "2026-08-18T07:03:26.024Z"
+      ]
     }
   ]
 }
