@@ -352,7 +352,7 @@
       "desc": "packages/main/src/cli-init.ts:217 detectInitProfile()'s hasCodexMarkers = existsSync(join(root, 'AGENTS.md')) || existsSync(join(root, '.lattice-codex')) hardcodes the DEPRECATED-only adapter dir spelling (no brand-paths import, no ADAPTER_DIR_NAMES/adapterDirCandidates usage), even though this same file was heavily edited elsewhere in this diff for CHK-002/004/007 to use the resolver. On a project that has been fully migrated (canonical .proof-or-stop-codex/ present, no .lattice-codex/, and no AGENTS.md e.g. a thin/global-thin project without the AGENTS marker file), re-running init/init --upgrade would fail to auto-detect the existing Codex profile via the directory marker and could silently fall through to profile 'core' or 'claude', changing which assets init manages. Should use ADAPTER_DIR_NAMES.some(dir => existsSync(join(root, dir))) from brand-paths.ts, matching the read-both pattern used a few lines away by detectManagedAssetProfile() in managed-assets.ts.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T04:00:43.249Z",
@@ -360,7 +360,8 @@
       "reviewRunId": "B-cc10:RR-021",
       "_hash": "1341ab0df80d8ee33d5f490cdddaaef08362bc48a969e6d7cfc6bf8b27a32750",
       "signatureTag": "missing|unknown|packages-main-init",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:17:40.085Z"
     },
     {
       "id": "B-cc10:F-021",
