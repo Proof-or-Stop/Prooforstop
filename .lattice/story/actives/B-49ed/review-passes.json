@@ -372,6 +372,30 @@
         "scanEscalationReason": null
       },
       "_hash": "90512a33bd7a81e934398b1ea4d0ad0aa2c3b6519bcbe3427c86c9b9ccb02bbe"
+    },
+    {
+      "id": "B-49ed:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Re-review scoped to 2 files changed since prior pass. Independently verified both fixes rather than trusting commit text; ran mutant/control for both, confirmed no over-match, cross-checked sibling -topology regex still bites, scanned all 20 mutation branches for other brand-hardcoded prose regexes -- none found. No findings.",
+      "createdAt": "2026-08-18T15:42:03.183Z",
+      "reviewRound": "2026-08-18T12:55:09.009Z",
+      "reviewRunId": "B-49ed:RR-044",
+      "envelopeId": "40f56da2d1204ca472cab4fdefb4f5dc343094b0e5e50747bf9da81a665b4c12",
+      "writerSessionId": "sess-4292375d1d751b41",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb613d85f44c1aebbd4d23555971393f6ef79625c114b7239027ea9086e79923"
     }
   ]
 }
