@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-1e1f",
+  "status": "FAIL",
+  "startedAt": "2026-08-18T14:24:41.714Z",
+  "endedAt": "2026-08-18T14:27:44.786Z",
+  "durationMs": 183072,
+  "headHash": "b73dce39cd56baab50e6b5c0703eb67905d46db1",
+  "materialHash": "f398ba5576b3c772e2d57b2e058e19b806db0382c1671d01c7b85f72003d82a1",
+  "storyFilesHash": "e33de1ec82429cbd39e57c7cc3142051979ebb07c6bf32dfc47a1c43d556acc6",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-1e1f",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-1e1f",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 956,
+      "outputDigest": "f884f679d0239a6c889aefa95f72b49422aa4c8abcf72d23a7ef6b0753e29d6d",
+      "outputTail": "\n> @lattice/core@0.3.262 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-18T14:24:41.715Z",
+      "endedAt": "2026-08-18T14:24:42.671Z",
+      "effectiveEnvironmentDigest": "7bd52eb5151807c02ef3f09bd63c8ed43c6e980410e4220dc9ef5d8b4abb2219",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "b73dce39cd56baab50e6b5c0703eb67905d46db1",
+      "materialHash": "f398ba5576b3c772e2d57b2e058e19b806db0382c1671d01c7b85f72003d82a1",
+      "storyFilesHash": "e33de1ec82429cbd39e57c7cc3142051979ebb07c6bf32dfc47a1c43d556acc6"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-1e1f",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-1e1f",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 181851,
+      "outputDigest": "8f1e9f37767d17862879df136073fc174b56f593b4450e1b2cc97ae32faa86fc",
+      "outputTail": "acceptance-rollout INTERRUPTED ---\n\n> lattice@0.3.262 test:proofstory-acceptance-rollout\n> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js\n\n[0.0s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[1.0s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.2s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.7s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.6s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.2s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.4s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.3s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.6s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.7s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.2s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.3s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.6s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.3s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.1s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.3s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[1.0s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[1.2s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.1s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.2s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[0.9s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[1.0s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.4s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[1.0s] pre_review_check_read done\n[0.0s] running acceptance_topology_check...\n[0.3s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[0.9s] pre_review_check_read done\n[0.1s] running acceptance_topology_check...\n[0.3s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[1.0s] pre_review_check_read done\n[0.0s] running acceptance_topology_check...\n[0.3s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[0.9s] pre_review_check_read done\n[0.0s] running acceptance_topology_check...\n[0.3s] acceptance_topology_check done\n[0.0s] running pre_review_check_read...\n[0.8s] pre_review_check_read done\nSwitched to a new branch 'story/B-REAL'\n\nfull-suite: 33/49 passed in 180.6s; retries=0; jobs=4\n",
+      "startedAt": "2026-08-18T14:24:42.792Z",
+      "endedAt": "2026-08-18T14:27:44.643Z",
+      "effectiveEnvironmentDigest": "7bd52eb5151807c02ef3f09bd63c8ed43c6e980410e4220dc9ef5d8b4abb2219",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "b73dce39cd56baab50e6b5c0703eb67905d46db1",
+      "materialHash": "f398ba5576b3c772e2d57b2e058e19b806db0382c1671d01c7b85f72003d82a1",
+      "storyFilesHash": "e33de1ec82429cbd39e57c7cc3142051979ebb07c6bf32dfc47a1c43d556acc6"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
