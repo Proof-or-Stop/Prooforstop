@@ -24,6 +24,21 @@
         "test": [
           "packages/main/src/tasks/full-suite-runner-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run test:full-suite-runner-smoke with the result field mapped as performanceBudgetMs: FULL_SUITE_BUDGET_MS → exits 0 and prints full-suite-runner-smoke: PASS, proving the result artifact derives its budget telemetry from the canonical constant.",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Temporarily mutate only the result-field initializer from performanceBudgetMs: FULL_SUITE_BUDGET_MS to performanceBudgetMs: 300_000 and run npm --prefix packages/main run test:full-suite-runner-smoke → exits nonzero because the numeric shadow copy is rejected; restore the exact original initializer and rerun → prints full-suite-runner-smoke: PASS, with no production-file diff remaining.",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
