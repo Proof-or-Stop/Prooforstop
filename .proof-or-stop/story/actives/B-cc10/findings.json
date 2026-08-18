@@ -1113,7 +1113,7 @@
       "desc": "packages/main/src/core/brand-paths.ts:200-202 isStateDirPath ALWAYS returns false in current HEAD source (return false; // FAULT INJECTION). This is a leftover fault-injection artifact captured live into commit 04e3316cbc (fix(F-058,F-059,F-060): un-duplicate the managed .gitignore block...) whose own diff shows it replacing the correct `return STATE_DIR_NAMES.includes(firstSegment(path));` body. Confirmed against the built dist: isStateDirPath(\".proof-or-stop/story/x\")===false and isStateDirPath(\".lattice/story/x\")===false, neither spelling recognized. Blast radius (3 production consumers): artifact-release.ts:77 `if (isStateDirPath(path)) return false;` never fires so state-dir paths are no longer excluded from artifact-release eligibility; semantic-scope-gate.ts:174 `if (hunk.path.startsWith(chr(34)docs/story/chr(34)) || isStateDirPath(hunk.path)) continue;` never skips state-dir hunks so all .proof-or-stop/.lattice diff hunks now score as ordinary content changes in scope-gate classification; done-prepare.ts:1358 loses its state-dir branch in path classification. Rebuilding dist and re-executing brand-path-resolver-smoke.js (the CHK-002 mechanical witness for exactly this function) FAILS: AssertionError isStateDirPath must accept the .proof-or-stop spelling, false !== true. Yet checklist.json CHK-002:adversarial:0 verification evidence claims exitCode=0/selectorMatched=true bound to headHash=a2be792, a prior HEAD before this regression landed at 04e3316cbc; that stale receipt was never refreshed past the regression. This is the same defect class (verification-evidence-exists-but-guarded-function-regressed-after-capture) already documented by F-054/055/056 in this story. Fix: restore `return STATE_DIR_NAMES.includes(firstSegment(path));`, rebuild packages/main, re-run brand-path-resolver-smoke to confirm PASS, then refresh CHK-002 verification evidence at the post-fix HEAD.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T13:48:39.419Z",
@@ -1127,7 +1127,8 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T13:53:33.914Z"
     }
   ]
 }
