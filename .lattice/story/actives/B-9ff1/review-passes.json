@@ -1714,6 +1714,35 @@
         "scanEscalationReason": null
       },
       "_hash": "3d4c44f1783f2b7385ae8d9ecb578dbb802db77e10941107307862de4bb6d41a"
+    },
+    {
+      "id": "B-9ff1:RP-055",
+      "agent": "lattice-review-behavior",
+      "note": "Narrow re-verification round per dispatcher scope, no module re-audit. (1) red_evidence_envelope_check with no policy configured still names WHERE (redEvidence block in lattice.config.json) and emits red_evidence_policy_missing: pinnedPath -- unchanged. (2) red-w2d-specificity-conjunction.mjs exit 0, five characterization rows unchanged: SIGSEGV 15.65/ENOMEM 11.51/HTTP 404 20.00/Error 500 21.77 reject, test failed 34.05 admit. (3) THE JUDGEMENT: summary.json pitfalls field re-read. The old headline (across six rounds code drew zero findings, prose drew nine, every one filed by the concept lane) is gone -- verified by direct grep: no 'nine', no 'filed by the concept lane', no 'CODE drew'. The new text states WITHOUT a count (three prior count attempts were each false per F-066/067/068/069) and explicitly negates the prose-uniformity claim ('all prose, zero code findings was false at every width I tried it'), so it no longer mis-describes this lane's F-057/F-058/F-059. limitations field diffed byte-for-byte against the prior committed version (git diff 891f67ccb6 bf72877f09): zero change -- specificity inversion, all four measured pairs (SIGSEGV/ENOMEM/HTTP 404/Error 500 vs test failed), and the ENOMEM 12-bit non-tunable hard-floor point are all intact and unchanged; correcting pitfalls did not disturb limitations. dev-memory/experience.jsonl cross-checked: latest entry e367ec1 (20:52:15Z) supersedes both a67bb17 and 8d1d2bb, carries the same no-count framing, and matches the pitfalls text -- consistent across both artifacts. (4) Ran the remaining four red harnesses (rejection-matrix, command-readonly, assertion-digest-scope, entropy-differential) plus the dist envelope smoke: all exit 0. findings.json 69 total, 0 open (resolved/dismissed only). git rev-list --count HEAD..main = 0. git status --porcelain empty.",
+      "createdAt": "2026-08-18T21:02:41.453Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-087",
+      "envelopeId": "8828d8253cfebea898bce822bc38721f5a6150462db81acc1de1aafbd26f6d26",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/summary.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb384a1b87dc8de8ab3599550e442b66fd65656d25c1eccca04fa987a2f1fce1"
     }
   ]
 }
