@@ -1507,7 +1507,7 @@
       "desc": ".lattice/dev-memory/experience.jsonl entry 8d1d2bb (SECOND CORRECTION on entry f260849) states the flat 900000ms budget applies to \"any command other than done_required_validate / done_prepare / live_smoke_transcript\", citing packages/main/src/core/done-required-timeout-budget.ts:290. That line (`if (command !== 'done_prepare') return { timeoutMs: 15 * 60_000, source: 'default' };`) itself excludes only done_prepare by name; done_required_validate is excluded one line above (289) unconditionally, but live_smoke_transcript is excluded only conditionally at line 279 (`command === 'live_smoke_transcript' && typeof args.capture === 'string'`). live_smoke_transcript has a documented capture-less default/status mode (packages/main/src/core/lifecycle-orchestrate.ts:265 comment: \"live_smoke_transcript STATUS = its read-only DEFAULT (NO --capture/--write)\"; CLI usage in packages/main/src/handlers/live-smoke-transcript.ts:23 shows --capture as optional). In that default status invocation, live_smoke_transcript falls through exactly like a standalone `validate` call and DOES get the flat 900000ms default -- it is not unconditionally excluded as the entry lists it alongside done_required_validate/done_prepare. The correction, written specifically to fix a prior imprecision about this same line, introduces a new one.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T20:48:48.733Z",
@@ -1515,7 +1515,11 @@
       "reviewRunId": "B-9ff1:RR-081",
       "_hash": "841dda395e814abd172c0db486f358e9f9dc010fe24fd8cac1ec87a28555e5af",
       "signatureTag": "edge|unknown|lattice-memory-experience",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld. Three lanes - test-coverage (F-067), concept (F-068) and behavior (F-069) - independently falsified the same correction I had written to fix an earlier false claim, each from a different angle: a conditional exclusion restated as unconditional, a self-contradiction between the correction and the finding that prompted it, and a lane settling what its OWN findings were about. All three are right. I stopped writing versions and measured. Grouping findings.json by createdAt and grepping resolvedReason for cited commits: TWENTY findings were filed on 2026-08-18 (concept 11, behavior 4, main 3, test-coverage 2), not nine, and FOUR cite a source commit - F-052 and F-053 to 19aeb9de6, F-059 to 77a5ffab9, F-060 to 90c21f7f4. A finding that produced a source commit is not a finding against prose. Version 2 was additionally self-contradictory, listing F-050 among the 'prose' nine while F-066's own text called F-050 a code-versus-spec divergence - behavior caught exactly that. FIXED by a superseding dev-memory entry that makes NO count claim at all. It keeps the part that survives without a number - the lane auditing the author's statements found defects there repeatedly, in a story whose code was in good shape - and it ships the QUERY so a reader re-derives the numbers from findings.json instead of trusting a restatement. That is the same derive-do-not-restate rule this repository already learned for code, and which I applied correctly to this story's own F-060 test fixture (every measured value computed at runtime) while failing to apply it to my own sentences three times in a row. The 900000ms exclusion list from F-067 is corrected in the same entry: live_smoke_transcript is excluded only conditionally at done-required-timeout-budget.ts:279 when args.capture is a string, so its documented capture-less status mode takes the flat default. NOT CLAIMED: a67bb17 and 8d1d2bb remain in the append-only ledger with their false sentences intact; experience.jsonl has no update or withdraw command, so the correction is reachable only through the supersedes tags and reusePrompts, not by deletion. Three superseded-but-live entries on one lesson is itself a signal that the ledger needs a withdraw mechanism; that belongs to B-def6's neighbourhood, not to this story.",
+      "resolvedAt": "2026-08-18T20:52:16.352Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-068",
