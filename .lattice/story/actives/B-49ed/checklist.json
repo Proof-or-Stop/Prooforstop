@@ -239,7 +239,7 @@
       "title": "Prove the guard bites under mutation",
       "context": "Assert that explicit-env, derived-ppid and generated-token are each refused for a critic receipt, and that a genuine host-adapter session is still accepted. Without a mutation-style negative test this repeats finding B-3f3d F-115, where a security-relevant change shipped with no coverage at all.",
       "relatedDocs": [
-        "CLAUDE.md#handler-coding-conventions"
+        "CLAUDE.md"
       ],
       "userSees": "proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source.",
       "status": "done",
