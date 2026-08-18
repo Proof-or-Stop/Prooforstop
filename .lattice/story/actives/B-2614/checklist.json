@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the whole-suite performance guard robust to host speed",
+      "context": "isUnderFullSuiteBudget in packages/main/src/tasks/full-suite-runner.ts hardcodes 300000ms and fullSuiteBudgetBreached sets exitCode 1 for any jobs > 1 run above it. Five complete runs with every member passing measured 333.7-357.5s on the current host, against 221s recorded on 2026-08-17T00:46, so the constant now fails green suites. Do not simply raise it: the runner already records cpuInventory user/system seconds, workerUtilization and a baselineComparison against historicalSerialMs 1688918, so a CPU-time or baseline-ratio formulation is available. Whatever is chosen must still fail a genuine regression and must state what the new threshold means.",
+      "relatedDocs": [
+        "CLAUDE.md#pre-push-hook--递归-tsc-gate"
+      ],
+      "userSees": "A fully passing suite on a slow host prints \"full-suite: 47/47 passed in <N>s\" and exits 0, while a run that is slow for the reason the guard exists to catch still fails with a message naming the measure that breached.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Give every at-risk full-suite member an explicit budget sized to measured contended duration",
+      "context": "DEFAULT_TIMEOUT_MS is 120000ms. test:flow-stability-smoke rides that default while measuring 150.0s standalone and 161.1s across four workers, so it times out on main today (verified on a clean detached worktree at 860b7b45cf: TIMEOUT 120.0s, 48/49 passed). test:milestone-status is the only other default rider under a 2x margin at 68.3s. Note story B-7dff already raised these two on its branch (flow-stability to 540000, milestone-status to 240000) as a targeted unblock; check what has landed before duplicating, and reconcile rather than reverting. Do not raise members that are not at risk, since an inflated budget hides a genuinely hung member.",
+      "relatedDocs": [
+        "CLAUDE.md#pre-push-hook--递归-tsc-gate"
+      ],
+      "userSees": "npm test reports 47/47 (or the current member count) with no TIMEOUT lines on a host where every member completes, and a member that genuinely hangs still fails with its own timeout.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Let resolvePinnedCommandTimeoutMs see commands declared in doneRequiredCommands",
+      "context": "packages/main/src/handlers/checklist.ts:46 matches a pinned command only against configuredValidationCommands, so npm test - declared in doneRequiredCommands with timeoutMs 7200000 - falls back to the 270000ms default and any intent pinned to it returns receipt_exit_nonzero exit 124. The functions own docstring states its purpose is to avoid silently falling back to the hardcoded 270s default for commands with a deliberately higher configured budget, so this is an incomplete lookup rather than new design. Story B-7dff carries a deferred_gate_evidence waiver on CHK-001:happy:0 that exists solely because of this gap.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "verification_evidence_add for an intent pinned to a command declared in doneRequiredCommands runs to that commands configured budget and mints a real receipt instead of returning exit 124.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Decide and record whether the 900s CLI max timeout still covers a full validate run",
+      "context": "A full 107-command lattice validate hit the framework 900000ms CLI max-timeout at command 74/107, while the same plan measured 1474.9s at jobs=4 and 2225.0s at jobs=1. Operators are currently working around this by exporting LATTICE_MAX_TIMEOUT_MS by hand on every closeout command, which is undocumented tribal knowledge and silently breaks anyone who forgets. Either raise or derive the default so a configured plan can complete, or make the failure state say plainly that the plan needs a larger budget and name the variable.",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent-evidence"
+      ],
+      "userSees": "A full lattice validate on the configured plan either completes without a hand-exported LATTICE_MAX_TIMEOUT_MS, or fails with a message that names the variable and the budget the plan needs.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
