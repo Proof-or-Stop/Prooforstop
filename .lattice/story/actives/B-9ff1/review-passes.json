@@ -1039,6 +1039,43 @@
         "scanEscalationReason": null
       },
       "_hash": "33e48fa0770368c3f0257a7048900289d87a2bb8e819b909d8d2b8e46656416e"
+    },
+    {
+      "id": "B-9ff1:RP-033",
+      "agent": "lattice-review-concept",
+      "note": "Read spec section 1.1-1.12 (docs/requirements/decisions/red-evidence-subsystem-spec.md lines 134-698) and read packages/main/src/core/red-evidence/envelope.ts (740 lines, full) plus specificity.ts (141 lines, full) plus policy.ts/registries.ts (HARD_FLOORS check).\n(1) Spec-vs-code: no disagreement found on required-field validation, rejection coverage, or unauthorised extra validation except one LOW finding filed (F-050, exit:<n> leading-zero strictness not spec-authorised but fail-closed/defensible).\n(2) Audit notes honoured: pattern-language removal (kind enum limited to literal-line and class, no anchored-regex alias), harness-token-only method (artifact-presence and path-touch REMOVED), timeout-is-failure plus script-exit schema-time reject, targetBindingDigest createdAt-stripped 3-field allowlist scope (target-bindings.ts), syntactic-only path validation deferring lstat/realpath to the runner leaf, section 1.3 rule-3 class-matcher-never-sole-red-evidence -- all verified present and correctly tagged in code, none reverted to a superseded design.\n(3) Section 1.12 hard floors verified GENUINELY non-tunable: HARD_FLOORS in registries.ts (minMatcherLenMin 4, minMatcherEntropyBitsMin 12, maxMatchersMax 32, maxMatcherLenMax 4096, timeoutMsMax 3600000) are literal as-const numbers, not read from any config/env/policy path (grepped: zero process.env reads anywhere under core/red-evidence/, zero external overrides of HARD_FLOORS outside registries.ts and policy.ts); policy.ts resolveRedEvidencePolicy clamp-REJECTS (fail-closed diagnostic) rather than silently clamping when a resolved value crosses a floor -- matches section 1.12 explicit \"fails CLOSED, does not silently clamp\" text exactly.\n(4) Executed both required differentials: node packages/main/tests/red/red-w2d-entropy-differential.mjs PASS (9/12 differential rows, total-bits vs per-symbol diverge as spec requires) and node packages/main/tests/red/red-w2d-specificity-conjunction.mjs PASS (14 differential rows including length-only/entropy-only single-floor cases where AND correctly rejects and OR would wrongly admit); confirmed in source specificity.ts line 128 \"rule2 = lengthFloor and entropyFloor\" -- a true conjunction, comment explicitly warns against simplifying to OR.\n(5) Residue scan: grepped story artifacts (background.md, plan.md, checklist.json) and all W2d-authored files (envelope.ts, specificity.ts, red-evidence-envelope-smoke.ts, handlers/red-evidence.ts docblocks, command-catalog.ts entry) for retirement/superseded/deprecated claims about the v1 red_evidence_create / redEvidenceRecordSatisfied surface -- found NONE; v1 command and v1 gate-consumption function (core/proofstory.ts, 0 diff from merge-base) remain fully present and unmodified, and the story's own docblocks correctly describe the new command as read-only/advisory alongside v1 rather than claiming any retirement. No claim wider than the code found.\nNOTE for the record: the dispatch briefing stated \"only 3 prior countable findings on this story -- it has not been ground down,\" which I could not verify -- findings.json actually shows 49 total findings (48 resolved, 1 dismissed) across RR-001 through RR-048 including 4 prior concept-lane findings (F-019, F-021, F-022, F-037), reflecting a heavily-adjudicated file with per-decision comments citing prior finding IDs; I reviewed independently rather than relying on that framing.\nOne new LOW finding filed (F-050); no blocking findings.",
+      "createdAt": "2026-08-18T17:06:14.901Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-049",
+      "envelopeId": "76d2400cce8e92c148433677a96bc8292f2f1c5bb13cf778ee52fedd13d43b2f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8bdd0edc9e6e01bb7612a20760a267f5262fa3ef75cf295ab9ac07e4cfb61b7"
     }
   ]
 }
