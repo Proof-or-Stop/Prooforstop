@@ -1562,6 +1562,43 @@
         "scanEscalationReason": null
       },
       "_hash": "1e8be515c5073f0899f049d52da82d7ba268ab20f505918b927d8b6a14755d57"
+    },
+    {
+      "id": "B-9ff1:RP-050",
+      "agent": "lattice-review-test-coverage",
+      "note": "Ninth re-bind closeout re-anchor verified, no re-audit performed. All 108 checklist verificationEvidence records share the current materialHash 43b7757370c8...834cea and storyFilesHash 22d05673170c...4fc37f01; 106 non-waiver records are mechanical:true/receipt.selectorMatched:true/receipt.exitCode:0; headHash spans 22 distinct commits in a 5x21+3 pattern (108 total); command distribution is 66 rejection-matrix / 15 specificity-conjunction / 8 command-readonly / 6 assertion-digest-scope / 6 entropy-differential / 4 envelope-smoke / 1 w2c-validate-registration + 2 waivers (CHK-012, CHK-013), both with clear immutable-pin notes. lattice.config.json validate.commands (111 entries) contains each of the five red-w2d-*.mjs plus dist/tasks/red-evidence-envelope-smoke.js exactly once. The F-060 characterization fixture (red-w2d-specificity-conjunction.mjs) still runs and prints SIGSEGV 15.65 / ENOMEM 11.51 / HTTP 404 20.00 / Error 500 21.77 / test failed 34.05, exit 0; F-060 status is resolved in findings.json. Ran all five red-w2d-*.mjs harnesses plus the built smoke: all exit 0. git rev-list --count HEAD..main = 0; git status --porcelain empty; findings.json has 65 findings, 0 open (64 resolved, 1 dismissed). Dev-memory judgement on f260849 (tool-quirk): source-verified accurate, not garbled -- review-escalation.ts:1006 contains the exact quoted drift-accept advisory string; done-required-timeout-budget.ts:290 confirms the flat 900000ms (15*60_000) default budget for any command other than done_required_validate/done_prepare/live_smoke_transcript (so story_advance and a standalone validate share it) versus done_prepare's derived-command-budget; cli-engine.ts:1057-1058 confirms the 5min-idle/15min-max CLI watchdog defaults (300000/900000ms) cited; checklist.ts verification_evidence_batch_add (~1852-1866) confirms per-entry pinned-command execution is a serial for-loop, not parallel, consistent with the observed 5-5-...-3 headHash batching pattern actually present in the evidence. A second independent dev-memory entry (cde49d9, sourced from B-3434) records the identical validate/story_advance-vs-done_prepare budget asymmetry, corroborating f260849 rather than conflicting with it. One stylistic imprecision only: attributing the flat 900000ms default to story_advance reads as story_advance-specific when it is really the generic CLI default shared by any undifferentiated command (including a standalone validate invocation) -- not a factual error, just terse framing consistent with how the corroborating B-3434 entry phrases the same mechanic. No blocking findings.",
+      "createdAt": "2026-08-18T20:39:54.999Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-076",
+      "envelopeId": "fdf3ad80f24e345c5a58ab717d06aff5218c5123a889548cf8dd730218ad8b77",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/dev-memory/experience.jsonl",
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d950d856542155c57be9b12499d99e04db38916e6b454b578a8307c0d77b517"
     }
   ]
 }
