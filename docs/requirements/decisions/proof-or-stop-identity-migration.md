@@ -261,10 +261,13 @@ written — so treat any single number here as a floor, not a ceiling:
 | Measured by validate | 25 | ordinary failures |
 | Vacuously-passing guards (F-054/F-055/F-056) | +3 | scan roots named the renamed adapter dir, so they scanned zero files and reported PASS |
 | Found after the "28" was written (F-057, F-061, the second CLAUDE.md/AGENTS.md destruction, the second `**/*.lock/` loss, F-062) | +5 | four were self-inflicted during repair, not rename fallout; one was a fix that was not durable |
+| Gate-blind literals (F-064 policy keys + `approvedRoots`, F-065 doc comments) | +2 | the retired literal was a DATA VALUE in a policy table, compared one level removed via `pathIsContained()`; the `[brand-decision]` regex only sees direct comparisons |
+| Missed WRITE path + missing witness (F-067, F-068) | +2 | F-067: dead deprecated-dir `mkdirSync` in the same file I had claimed was fully routed. F-068: one of the five F-064 sites had NO witness — reverting it left all four named suites green, because that key only feeds `claimsConflict()` string equality, so a regression degrades scheduling SILENTLY instead of throwing |
+| Doc claims false when written (F-063, F-066, F-069) | +0 | not validate defects — counted separately below; recorded because three separate reviewer rounds caught this file asserting things about itself that were not true |
 
-One more arrived after that table was written (F-064/F-065, test-coverage lane), so the count
-is **35** — and the fact that it keeps moving is itself the finding, which is why this section
-is framed as waves rather than a total.
+Every later wave is a ROW in that table rather than prose appended after it — B-cc10 F-069 was
+filed because a running-commentary sentence said "one more arrived" for what were actually two
+defects (F-064/F-065). Prose that trails a table decays every time the number moves; rows do not.
 
 F-064 deserves its own note because it widens the "invisible" class above. The
 `[brand-decision]` gate flags the retired literal when it appears in a comparison
@@ -283,12 +286,12 @@ clean up — which is why nothing surfaced it until a reviewer read the data flo
 Prefer making the retired spelling *unrepresentable* (resolver-derived helpers) over adding
 another pattern to the gate.
 
-**Honest total: 35 validate-suite defects fixed**, of which 8 were invisible to the suite used
-to measure the first 25. **All 35 are fixed.**
+**Honest total: 37 validate-suite defects fixed**, of which 8 were invisible to the suite used
+to measure the first 25. **All 37 are fixed.**
 
-Do not confuse that 35 with the **65 reviewer findings** in this story's finding ledger (64
+Do not confuse that 37 with the **69 reviewer findings** in this story's finding ledger (68
 resolved, 1 dismissed as a probe artifact, 3 of them critical). The two count different things:
-35 is defects that broke the validate suite; 65 is everything seven reviewer rounds raised,
+37 is defects that broke the validate suite; 69 is everything eight reviewer rounds raised,
 including docs drift, dead code, and overclaims in this very file. Final state:
 `status=pass`, `allPass=true`, verification coverage **24/24** (21 mechanical receipts +
 3 audited permanent waivers).
