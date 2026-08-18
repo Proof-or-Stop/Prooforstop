@@ -1135,7 +1135,7 @@
       "desc": "quality: .gitignore:78-101 managed block is now byte-correct, but core/cli-init.ts mergeLatticeRuntimeIgnores() (invoked by every `init` / `init --upgrade`) will silently DROP `**/*.lock/` and its 4-line explanatory comment the next time it regenerates the block. Verified mechanically: replaying mergeLatticeRuntimeIgnores() against the current .gitignore content produces a new block missing `**/*.lock/`, because that pattern is not a member of listRuntimeArtifactIgnorePatterns() (core/runtime-artifact-registry.ts) — it was hand-typed directly into the managed block rather than added to the registry, so the generator has no way to reproduce it. This is exactly the class of defect the dispatch flagged (a generator-owned block containing a line the generator does not know about); it will resurface as a THIRD accidental deletion of this same line the next time `init --upgrade` runs in any project, including this one. Fix: add `**/*.lock/` (with its comment, or an equivalent preserved via the registry entry) as a proper RUNTIME_ARTIFACT_REGISTRY entry so listRuntimeArtifactIgnorePatterns() includes it and the merge becomes a true no-op / regenerable state.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T15:55:12.840Z",
@@ -1143,7 +1143,8 @@
       "reviewRunId": "B-cc10:RR-084",
       "_hash": "08eb7944a8d091094c20329a0e45cefa2e8b6625a36f6985b20b20b88db40a2e",
       "signatureTag": "missing|unknown|quality-gitignore-managed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T15:57:32.846Z"
     }
   ]
 }
