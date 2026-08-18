@@ -248,6 +248,21 @@
       ],
       "signatureTag": "missing|md|code-drift-changelog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-015",
+      "desc": "packages/main/src/core/prompt-registry.ts:309 renderCodexPromptContent() rewrites `.claude/agents/` to the DEPRECATED `.lattice-codex/agents/` (hardcoded literal, not derived from brand-paths.ts PROOF_OR_STOP_ADAPTER_DIR). This function is exercised by init-assets.ts renderCodexAgentContent() when materializing Codex-host prompt copies. Today it is a no-op because no template currently contains the literal `.claude/agents/`, but the transform explicitly exists to translate host-specific paths for Codex output, and if a future template (or the README template that shares this pipeline) references `.claude/agents/`, the Codex-rendered copy would silently emit the pre-migration `.lattice-codex/agents/` spelling instead of the canonical `.proof-or-stop-codex/agents/` — the exact regression class this story exists to close. Should read `${PROOF_OR_STOP_ADAPTER_DIR}/agents/` from brand-paths.ts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T03:47:18.047Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-015",
+      "_hash": "ff2037808b1ecb5b532883501aae7646fa0cd150dcc40984b7bdcbff460ff71d",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
