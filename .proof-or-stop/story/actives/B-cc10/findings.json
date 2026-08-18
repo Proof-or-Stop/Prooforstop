@@ -60,7 +60,7 @@
       "desc": "Two hardcoded .lattice paths survive CHK-003's move and both are verified live, not speculative. (1) cli-init.ts still writes Lattice.md under a hardcoded .lattice/ while the same init writes the manifest to .proof-or-stop/ — init therefore STRADDLES two state dirs, creating a stray legacy directory on every fresh init. Found by the CHK-006 implementer; I confirmed the literal is still present. This blocks thin-init-assets-smoke and verify-entrypoints.mjs. (2) runtime-artifact-registry.ts lists ONLY '.lattice/locks/' as a material-excluded runtime path, so the runtime now writes .proof-or-stop/locks/ into a directory git does not ignore — measured consequence: validate-execution-lock-smoke fails with unexpected_dirty_files=2. Both are the same defect class as F-001: a path probe pinned to one spelling. Assigned to CHK-007, which owns re-pinning and the residue-gate scan roots.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-08-17T16:26:12.422Z",
@@ -71,7 +71,8 @@
         "packages/main/src/core/runtime-artifact-registry.ts"
       ],
       "signatureTag": "missing|ts|hardcoded-lattice-paths",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:09:02.617Z"
     },
     {
       "id": "B-cc10:F-005",
