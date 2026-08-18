@@ -233,3 +233,46 @@ coverage that proves read-both works. Distinguishing per-file requires reading e
 intent, which is its own scoped task.
 
 Recorded here so it is a known, bounded residual with a stated reason, not an omission.
+
+## Validate suite state at close (B-cc10)
+
+The rename broke 25 of 104 validate commands. 23 were fixed; 2 remain, both established as
+NOT this story's defects by running them on the `main` checkout rather than assuming.
+
+| Remaining | Verdict |
+|---|---|
+| `validation-reuse-merge-lineage-smoke` | **Not a defect.** PASSES standalone; fails only inside the full suite with `ENOTEMPTY` on a temp dir — concurrent-run interference. Do not "fix" it. |
+| `proofstory-acceptance-basis-smoke` | **Pre-existing on main.** On `main` it fails at an earlier assertion (`drop-acceptance-basis-prompt bites the real contract verifier`); here it reaches the later symlink case because this story's config-cleanup fix moved it forward. Independent of the rename. |
+
+### The dominant defect class, and why it matters
+
+Nearly every one of the 23 was the same shape: **a fixture setting up state at a path the
+runtime had stopped reading.** Three sub-kinds, in ascending order of danger:
+
+1. **Loud** — `ENOENT` / `pathspec did not match`. Self-announcing.
+2. **Quiet** — a fixture writes config or a gitignore the runtime never reads, so a guard
+   silently returns the wrong verdict (`parallel-decomposition`: `canStartDevGuard` FALSE
+   because `audit-config.json` was written where nothing read it).
+3. **Dangerous — sabotage that misses.** Tests that force failures by breaking a file
+   (`experience.jsonl` replaced with a directory, a planted broken `evidence/refs/by-id`)
+   did so at the deprecated path. After the rename the sabotage missed entirely: the
+   operation SUCCEEDED, the expected exception never fired, and the assertions passed
+   vacuously. `dev-memory-lifecycle-gates` had TWO such sites, the first masking the second.
+   **A test whose sabotage misses still reports green — strictly worse than a red test.**
+
+One case ran the other way: `red-1734-bootstrap-depfree` pinned the OLD brand string while
+production correctly printed the new one — **code right, test stale.** Its regex now accepts
+either brand so it survives the next rename.
+
+### Two defects in this story's own product code, found by these tests
+
+- `resolveSnapshotConfigFilename` (CHK-004) dropped cached probe failures for EVERY
+  non-resolved config spelling, though its own comment scoped the intent to ABSENT names. An
+  existing-but-unreadable config (over `MAX_LATTICE_CONFIG_BYTES`) had its oversize failure
+  discarded, so the bounded-read blind spot never surfaced — the guard erased the signal it
+  exists to report. Now absent-only, via `lstatSync` (not `existsSync`, which follows
+  symlinks and would reintroduce the same hole).
+- `.gitignore` never covered the canonical state dir at all, so every worktree showed
+  `?? .proof-or-stop/` and broke every clean-tree assertion. Mirrored additively; verified
+  the `!` negations still hold (7592 archives still tracked, ledgers and story indexes not
+  ignored).
