@@ -326,7 +326,7 @@
       "desc": "quality-cleanup: scripts/verify-process-fact-contract.mjs:1890 still requires retired-authority-vocabulary-guard-smoke.ts to contain closeout-trust-smoke digest adb4b265eb726c0919808d3f99b191f646ac88b4f0f2c30bd904a6938a14d932, but 8af9bf8b950 only repinned packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:367 to 49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37. The contract asserts retiredVocabularyGuardText.includes(token) at line 2604; B-cdf6:F-057 already documented that these two copies must move together or test:process-fact-contract fail-closes. Canonical AST hash of closeout-trust-smoke.ts matches the new pin; approved createLegacyLocalOnlyDeliveryClaims shape/occurrence count (2) is unchanged.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-18T15:20:27.583Z",
@@ -338,7 +338,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|mjs|quality-cleanup-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "scripts/verify-process-fact-contract.mjs now pins the same closeout-trust-smoke digest 49af0859 as PINNED_EXECUTABLE_SOURCE_FINGERPRINTS. npm run test:process-fact-contract exits 0.",
+      "resolvedAt": "2026-08-18T15:23:33.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
