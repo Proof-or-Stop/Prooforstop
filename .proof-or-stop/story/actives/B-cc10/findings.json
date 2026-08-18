@@ -198,7 +198,7 @@
       "desc": "doc-promise-undelivered / scope violation: commit ad5dc15253 (message: \"test(CHK-005): register the OQ-2 boundary guard so it actually runs\", body states \"Scope: scripts block only\") in fact deletes 1106 of 1118 lines from CLAUDE.md and 592 of 604 lines from AGENTS.md, permanently removing all project-specific process documentation this repo depends on (行为准则/Story lifecycle table/CLI cheatsheet/Reviewer opt-in routing/verification-intent rules/Handler coding convention/角色分工/etc.), replacing both files with only the 8-12 line managed block. No later commit in main...HEAD restores this content, and no equivalent content exists anywhere else in the working tree (grep for distinctive strings like \"两条通道，状态机自动判定\" and \"禁止直接读写 docs/story\" returns zero hits repo-wide). The story contract doc docs/requirements/decisions/proof-or-stop-identity-migration.md and plan.md CHK-006 authorize modifying CLAUDE.md only to remove stale bin/lattice.js references, not to delete unrelated project documentation. This is a severe undisclosed content-loss regression bundled into a commit whose own message claims a much narrower scope.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T03:46:36.872Z",
@@ -211,7 +211,8 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-scope",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:00:12.841Z"
     },
     {
       "id": "B-cc10:F-013",
