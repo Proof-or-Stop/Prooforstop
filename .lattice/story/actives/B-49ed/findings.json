@@ -144,7 +144,7 @@
       "desc": "topology-signing-source-guard-smoke.ts section 3 (lines 133-170, added by commit f3bf7456a0 fixing F-005) drives deriveRoleProvenance to full completion for both TOPOLOGY_CRITIC_ROLE and TOPOLOGY_EXCLUSION_APPROVER_ROLE against ACCEPTED sources, asserting agentId and sessionId binding, and prints accepted sources complete provenance for: critic + exclusion approver. No verificationEvidence entry in checklist.json references this new section: every recorded evidence entry pointing at this file (CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:edge:0, CHK-002:adversarial:0, CHK-002:happy:0, CHK-003:happy:0, CHK-003:edge:0, CHK-005:happy:0, CHK-005:adversarial:0) has a timestamp <= 2026-08-18T02:48:04Z, all strictly before f3bf7456a0 landed at 2026-08-18T03:46:46Z. F-005 itself was resolved by pointing at this new section (resolvedReason cites it explicitly, resolveEvidenceStrength=strong), but the resolution recorded evidence on the FINDING, not on any checklist verificationIntent -- the genuinely new positive-path coverage this section adds exists in the repo and (independently re-run by this reviewer) passes, but it is not wired to any CHK-xxx:lane:n intent, so verification_evidence coverage reporting for this story does not reflect it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:04:31.861Z",
@@ -155,7 +155,11 @@
         "packages/main/src/tasks/topology-signing-source-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|topology-signing-source",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct: section 3 was added to fix F-005 after the existing evidence for that file was recorded, so the new positive-path coverage had no intent attesting to it.\n\nRe-ran the pinned verification for CHK-001:edge:0 via verification_run, which re-executes the same smoke against current code and therefore now exercises section 3. That intent is the right home for it: CHK-001:edge:0 asserts BOTH call sites are bound, including the scope-plan exclusion approver at proofstory.ts:550, and section 3 is precisely what proves that by running deriveRoleProvenance to completion for both roles rather than only proving accepted sources clear the source gate.\n\nNote: my first attempt tried to re-pin the intent to section 3's own selector line. A pre-tool hook refused it, correctly -- the intent is immutably pinned (B-ec67) and re-pinning would have silently changed what the evidence attests to. verification_run is the sanctioned path and reuses the existing pin.",
+      "resolvedAt": "2026-08-18T04:07:03.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-49ed:F-009",
