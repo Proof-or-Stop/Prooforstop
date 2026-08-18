@@ -311,14 +311,46 @@ export function parseRunnerArgs(argv: string[]): { jobs?: number; jsonOutput?: s
  */
 export const FULL_SUITE_BUDGET_MS = 600_000;
 
-/** The largest per-entry allowance actually in force, read from the entries rather than restated. */
-export function longestEntryTimeoutMs(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES): number {
-  return Math.max(DEFAULT_TIMEOUT_MS, ...entries.map(entry => entry.timeoutMs ?? DEFAULT_TIMEOUT_MS));
+/**
+ * Entry timeoutMs values are STANDALONE budgets -- what the entry costs with the
+ * machine to itself. The runner then chooses to run `jobs` of them at once, so
+ * the contention that inflates them is the runner's own doing, and the cap it
+ * enforces has to account for it. Without this, every entry whose standalone
+ * cost sits near its declared cap fails under the concurrency the runner itself
+ * created, and the only available repair is to hand-raise that one entry's
+ * number -- which is whack-a-mole, not a fix: raising flow-stability-smoke's cap
+ * simply promoted review-incremental-context-smoke to the next casualty.
+ *
+ * Measured on a 10-core machine (4 performance cores) at jobs=4 with the normal
+ * desktop load this repository is developed under:
+ *   review-incremental-context-smoke  161-164s standalone, exceeded its 180s cap
+ *   flow-stability-smoke              190.1s standalone, on the 120s default
+ *   proofstory-acceptance-rollout     293.1s observed inside a jobs=4 run
+ *   milestone-status                  78-81s standalone, on the 120s default
+ * 1.5 covers the observed inflation with margin while keeping the effective
+ * ceiling (450_000) below FULL_SUITE_BUDGET_MS, so the budget stays satisfiable.
+ */
+export const CONCURRENCY_HEADROOM_FACTOR = 1.5;
+
+/** The cap actually enforced for an entry at a given concurrency. */
+export function effectiveEntryTimeoutMs(entry: FullSuiteEntry, jobs: number): number {
+  const base = entry.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  return jobs > 1 ? Math.round(base * CONCURRENCY_HEADROOM_FACTOR) : base;
+}
+
+/** The entry as the scheduler should run it: declared budget scaled to the concurrency in force. */
+export function withConcurrencyHeadroom(entry: FullSuiteEntry, jobs: number): FullSuiteEntry {
+  return { ...entry, timeoutMs: effectiveEntryTimeoutMs(entry, jobs) };
+}
+
+/** The largest allowance actually in force, read from the entries rather than restated. */
+export function longestEntryTimeoutMs(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES, jobs = 4): number {
+  return Math.max(DEFAULT_TIMEOUT_MS, ...entries.map(entry => effectiveEntryTimeoutMs(entry, jobs)));
 }
 
 /** False when the whole-suite budget cannot accommodate a single entry running to its own cap. */
-export function fullSuiteBudgetIsSatisfiable(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES): boolean {
-  return FULL_SUITE_BUDGET_MS > longestEntryTimeoutMs(entries);
+export function fullSuiteBudgetIsSatisfiable(entries: FullSuiteEntry[] = FULL_SUITE_ENTRIES, jobs = 4): boolean {
+  return FULL_SUITE_BUDGET_MS > longestEntryTimeoutMs(entries, jobs);
 }
 
 export function isUnderFullSuiteBudget(durationMs: number): boolean {
@@ -554,7 +586,8 @@ async function main(): Promise<void> {
   process.once('SIGINT', () => requestInterrupt('SIGINT'));
   process.once('SIGTERM', () => requestInterrupt('SIGTERM'));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
-    const result = await runEntry(entry, cwd, 'npm', () => { processLaunchCount++; });
+    // Declared budgets are standalone; enforce them scaled to the concurrency this runner chose.
+    const result = await runEntry(withConcurrencyHeadroom(entry, jobs), cwd, 'npm', () => { processLaunchCount++; });
     process.stdout.write(`${result.status} ${result.name} ${(result.durationMs / 1000).toFixed(1)}s${result.reason ? ` (${result.reason})` : ''}\n`);
     return result;
   });

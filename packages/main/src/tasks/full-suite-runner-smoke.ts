@@ -11,6 +11,7 @@ import {
   FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   FULL_SUITE_BUDGET_MS, fullSuiteBudgetIsSatisfiable, longestEntryTimeoutMs,
+  CONCURRENCY_HEADROOM_FACTOR, effectiveEntryTimeoutMs, withConcurrencyHeadroom,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
@@ -195,6 +196,17 @@ async function main(): Promise<void> {
   // The invariant whose violation made this gate unsatisfiable: the whole-suite
   // budget must exceed the largest single-entry allowance actually in force.
   assert(fullSuiteBudgetIsSatisfiable(), `whole-suite budget ${FULL_SUITE_BUDGET_MS}ms must exceed the longest entry allowance ${longestEntryTimeoutMs()}ms`);
+  // Declared budgets are standalone; the runner enforces them scaled to the
+  // concurrency it chose. Asserted by execution rather than by reading the
+  // constant back: a serial run must NOT be scaled, a parallel run must be, and
+  // the scaled entry the scheduler actually hands to runEntry must carry it.
+  const headroomProbe: FullSuiteEntry = { name: 'test:headroom-probe', resources: [], timeoutMs: 200_000 };
+  const defaultedProbe: FullSuiteEntry = { name: 'test:headroom-default-probe', resources: [] };
+  assert(effectiveEntryTimeoutMs(headroomProbe, 1) === 200_000, 'serial execution enforces the declared standalone budget unscaled');
+  assert(effectiveEntryTimeoutMs(headroomProbe, 4) === Math.round(200_000 * CONCURRENCY_HEADROOM_FACTOR), 'parallel execution scales the declared budget by the concurrency headroom factor');
+  assert(effectiveEntryTimeoutMs(defaultedProbe, 4) === Math.round(120_000 * CONCURRENCY_HEADROOM_FACTOR), 'an entry with no declared timeout scales the default rather than staying at it');
+  assert(withConcurrencyHeadroom(headroomProbe, 4).timeoutMs === effectiveEntryTimeoutMs(headroomProbe, 4) && withConcurrencyHeadroom(headroomProbe, 4).name === headroomProbe.name, 'the scheduler-facing entry carries the scaled cap and nothing else changes');
+  assert(!fullSuiteBudgetIsSatisfiable([{ name: 'test:oversized', resources: [], timeoutMs: FULL_SUITE_BUDGET_MS }], 1), 'an entry allowed the whole budget makes the gate unsatisfiable');
   assert(!shouldEnforceFullSuiteBudget(1) && shouldEnforceFullSuiteBudget(4), 'serial oracle is exempt while canonical parallel execution enforces the performance budget');
   assert(!fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS - 0.001, 4) && fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS, 4) && fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS + 1, 4), 'jobs4 performance predicate bites below, at, and above the exact boundary');
   assert(!fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS, 1) && !fullSuiteBudgetBreached(FULL_SUITE_BUDGET_MS * 3, 1), 'jobs1 serial oracle reports but does not enforce the parallel performance boundary');
