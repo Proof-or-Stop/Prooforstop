@@ -1267,7 +1267,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-identity-migration.md:254-256 says \"One more arrived after that table was written (F-064/F-065, test-coverage lane), so the count is 35\". The arithmetic is right (25+3+5+2=35) but the prose undercounts the event: F-064 and F-065 are two genuinely distinct defects per findings.json (F-064: full-suite-runner.ts hardcoded resource-scheduling keys/approvedRoots containment allowlist; F-065: main-write-lock.ts stale doc-comment paths) -- not one finding with two IDs. \"One more arrived\" reads as +1, but the total jumps +2 (33->35). Given this exact section's stated purpose is auditing count precision after three prior miscounts, the phrasing should say \"two more\" (or \"two more findings\") to match the +2 delta, even though the final total of 35 is correct.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-18T18:26:24.100Z",
@@ -1278,7 +1278,8 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T18:27:58.424Z"
     }
   ]
 }
