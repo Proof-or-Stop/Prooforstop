@@ -635,6 +635,16 @@ Behavior:
     checklistIds: z.array(z.string()).describe('Checklist item IDs covered by this review.'),
     note: z.string().optional().describe('Review note.'),
   }},
+  { name: 'certification_window_begin', description: 'Begin a PRE_CERT CertificationWindow; fail-closed unless inventory, merge, clean-tree, and coverage facts admit', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+  }},
+  { name: 'certification_window_status', description: 'Inspect the current PRE_CERT CertificationWindow; prints State and exactly one Next command', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+  }},
+  { name: 'certification_window_cancel', description: 'Cancel a BLOCKED, ADMITTED, or RUNNING CertificationWindow without granting heavy-certification authority', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    reason: z.string().min(5).describe('Why the window is cancelled (at least 5 characters).'),
+  }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),

@@ -98,6 +98,9 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   verification_evidence_refresh_stale: 'execution-status',
   verification_run: 'execution-status',
   review_run_start: 'review-run',
+  certification_window_begin: 'gate-evidence',
+  certification_window_status: 'gate-evidence',
+  certification_window_cancel: 'gate-evidence',
   review_pass_set: 'review-pass',
   finding_add: 'finding',
   finding_resolve: 'finding',
@@ -126,6 +129,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
+  certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -219,6 +225,30 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {
+  certification_window_begin: {
+    name: 'certification-window.json',
+    path: 'certification-window.json',
+    signed: true,
+    signature: 'signCertificationWindow/verifyCertificationWindow and signPrecertReceipt/verifyPrecertReceipt; inventory-completeness-only receipts never authorize PRE_CERT',
+    producerCommand: 'certification_window_begin/certification_window_status/certification_window_cancel',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+  },
+  certification_window_status: {
+    name: 'certification-window.json',
+    path: 'certification-window.json',
+    signed: true,
+    signature: 'signCertificationWindow/verifyCertificationWindow',
+    producerCommand: 'certification_window_status',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+  },
+  certification_window_cancel: {
+    name: 'certification-window.json',
+    path: 'certification-window.json',
+    signed: true,
+    signature: 'signCertificationWindow/verifyCertificationWindow with CANCELLED state',
+    producerCommand: 'certification_window_cancel',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+  },
   agent_prompt: {
     name: 'prompt-envelopes.json',
     path: 'prompt-envelopes.json',
@@ -1319,6 +1349,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_loop_start,
     rationale: 'Review reflection loop start/iteration/close records provide REVIEW blocker-state for bounded retry and escalation policy.',
+  },
+  {
+    name: 'artifact:certification-window.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/certification-window',
+    consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
+    rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Inventory completeness receipts never authorize certification.',
   },
   {
     name: 'artifact:draft-check.json',

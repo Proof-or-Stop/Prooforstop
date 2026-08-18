@@ -35,6 +35,11 @@ import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 import type { PromptEnvelopeData } from './prompt-contracts.js';
+import {
+  CERTIFICATION_WINDOW_FILE,
+  emptyCertificationWindowData,
+  type CertificationWindowData,
+} from './certification-window.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -851,6 +856,24 @@ export class StoryStore {
 
   writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
     this.writeJson(storyId, 'acceptance-basis.json', data);
+  }
+
+  readCertificationWindows(storyId: string): CertificationWindowData {
+    try {
+      const data = this.readJson<CertificationWindowData>(storyId, CERTIFICATION_WINDOW_FILE);
+      return {
+        schemaVersion: data.schemaVersion ?? emptyCertificationWindowData().schemaVersion,
+        windows: Array.isArray(data.windows) ? data.windows : [],
+        receipts: Array.isArray(data.receipts) ? data.receipts : [],
+      };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return emptyCertificationWindowData();
+      throw e;
+    }
+  }
+
+  writeCertificationWindows(storyId: string, data: CertificationWindowData): void {
+    this.writeJson(storyId, CERTIFICATION_WINDOW_FILE, data);
   }
 
   readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {

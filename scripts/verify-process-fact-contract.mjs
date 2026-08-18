@@ -132,6 +132,9 @@ const requiredProcessFactSemantics = {
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
+  certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -513,6 +516,7 @@ const processFactCommandNamePatterns = [
   /^story_advance$/,
   /^story_review$/,
   /^review_run_start$/,
+  /^certification_window_(begin|status|cancel)$/,
   /^review_pass_set$/,
   /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
@@ -4964,6 +4968,56 @@ function policyBlockHasOwnershipClass(policy, ownershipClass) {
     || policy.block.includes(`"ownershipClass":"${ownershipClass}"`);
 }
 
+function assertCertificationWindowCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const commands = ['certification_window_begin', 'certification_window_status', 'certification_window_cancel'];
+  for (const commandName of commands) {
+    assert(cliToolNameSet.has(commandName), `MAIN_TOOLS missing ${commandName}`);
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: ${commandName} missing from PROCESS_FACT_LEVELS`);
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.category === 'certification-window', `${processFactLevelRegistryPath}: ${commandName} category must stay certification-window`);
+    assert(levelEntry.owner === 'handlers/certification-window', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(
+      /done_required_validate \/ validate --full PRE_CERT certification-window gate/.test(levelEntry.gateConsumer || ''),
+      `${processFactLevelRegistryPath}: ${commandName} must name the PRE_CERT certification-window gateConsumer`,
+    );
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: ${commandName} missing from PROCESS_FACT_REGISTRY`);
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${commandName} registry level must stay L4`);
+    assert(registryEntry.artifact?.path === 'certification-window.json', `${processFactRegistryPath}: ${commandName} must write certification-window.json`);
+    assert(registryEntry.artifact?.signed === true, `${processFactRegistryPath}: ${commandName} artifact must stay signed`);
+    assert(
+      registryEntry.semantics.includes('signed-artifact') && registryEntry.semantics.includes('gate-evidence'),
+      `${processFactRegistryPath}: ${commandName} must carry signed-artifact + gate-evidence`,
+    );
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: ${commandName} missing COMMAND_POLICIES entry`);
+    assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence`);
+    if (commandName === 'certification_window_status') {
+      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
+      assert(
+        policyBlockHasOwnershipClass(policy, 'readOnly'),
+        `${commandPolicyPath}: ${commandName} must stay readOnly`,
+      );
+    } else {
+      assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+      assert(
+        policyBlockHasOwnershipClass(policy, 'storyScopedMutating'),
+        `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
+      );
+    }
+  }
+  const statusSource = read('packages/main/src/core/certification-window.ts');
+  assert(
+    /status must never claim inventory completeness is certification/.test(statusSource),
+    'packages/main/src/core/certification-window.ts must refuse status prose that treats inventory completeness as certification',
+  );
+  assert(
+    /inventoryReceiptAuthorizesPrecert/.test(statusSource),
+    'packages/main/src/core/certification-window.ts must keep inventoryReceiptAuthorizesPrecert as the inventory-not-PRE_CERT fence',
+  );
+}
+
 function assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   const artifact = registry.get('artifact:review-loops.jsonl');
   assert(artifact, `${processFactRegistryPath}: review-loop artifact missing: artifact:review-loops.jsonl`);
@@ -7265,6 +7319,7 @@ function assertProcessFactCommandInventory() {
   assertCommandPolicyInventory(cliToolNames);
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
+  assertCertificationWindowCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
