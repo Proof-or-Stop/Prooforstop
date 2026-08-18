@@ -222,6 +222,49 @@
       },
       "readDiagnostics": [],
       "_hash": "cb350fbbaeda598aaf27109756483e1eb57eb56e2e1b086443be70ecd8bf0ee0"
+    },
+    {
+      "id": "B-1e1f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD and validate --concept report zero deleted exports/files; B-1e1f only adds CertificationWindow/PRE_CERT in packages/main/src/core/certification-window.ts, packages/main/src/handlers/certification-window.ts, and command-catalog certification_window_begin/status/cancel. Incremental edits since RP-001 tighten windowAuthorizesHeavyCertification plus hashUnavailable fail-closed and replace CJK relatedDocs anchors with AGENTS.md; they do not rename or leave residual old symbols. Wave4 acceptance_topology_check chain and existing heavy commands remain. CLAUDE.md/README have no undelivered certification_window promises. Concept residue check completed, no blocker.",
+      "createdAt": "2026-08-18T10:23:46.794Z",
+      "reviewRound": "2026-08-18T10:16:19.045Z",
+      "reviewRunId": "B-1e1f:RR-009",
+      "envelopeId": "5c3b75bd903de68e04d699b506bf44ee6ca1d6dbb32aa4c961aaf8a347dab67d",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c1464c5e35eccc63cea052d4dcd7525e61e2bf1e3faa80d7a9ddc92f5513d77c"
     }
   ]
 }
