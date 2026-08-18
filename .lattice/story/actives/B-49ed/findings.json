@@ -496,6 +496,25 @@
       "_hash": "8f9b03781e7157b2a287da0f5ab573e3edf49b686d7f66c06af51fca81caf7a2",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49ed:F-026",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:143-145 the second cleanup root, process.cwd(), is not something this test proved it created. It is a guess at where resolveSessionIdentity landed the owner-session-tokens store, added only because a prior round observed the root test:signing-guard-mutation-proof invocation path lands there instead of resolve(here, \"../..\"). But packages/main/src/core/owner-session.ts:59 shows process.cwd() is itself a FALLBACK inside git-root discovery when no .git is found upward -- i.e. under an unexpected cwd (nested worktree, CI sandbox launched from a different directory, a future caller that chdir()s before invoking this script), this line deletes <that cwd>/.lattice/runtime/owner-session-tokens unconditionally, with force:true and no existence/ownership check first. Contrast with the frameworks own runner-cleanable mechanism in full-suite-runner.ts (cleanupManifestForEntry / cleanupOwnedTargets, lines 199-224): it records existedBefore before the run, refuses to delete anything that pre-existed launch (target pre-existed launch; cleanup refused), checks an ownership marker/token before touching a directory, and rejects symlinks in the path (assertOwnedPathHasNoSymlink). This proof bypasses all of that and is registered in RESOURCE_POLICY as a plain repoRead (access: shared) -- i.e. declared read-only -- when it actually performs an unscoped, ungated, force-deleting write. Fix: capture existedBefore for both candidate roots BEFORE the resolveSessionIdentity probes run, and only rmSync a root that (a) did not exist beforehand or (b) can be confirmed via an ownership marker this run wrote, mirroring cleanupOwnedTargets rather than reinventing an unguarded version of it. At minimum, stop deleting under process.cwd() unconditionally -- that path was never proved to be this runs artifact.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T05:30:11.975Z",
+      "reviewRound": "2026-08-18T05:27:28.263Z",
+      "reviewRunId": "B-49ed:RR-027",
+      "_hash": "316eebec4fc884c3e1af3aab06c430f47b83552ba22103091ccfc7552cc06654",
+      "files": [
+        "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
