@@ -1,0 +1,35 @@
+{
+  "task": "withdrawnChecklistItemIdsFrom exists at core/proofstory.ts:1622 but its only caller is a smoke test, so evaluateReviewCompleteness reads withdrawal at binding and milestone granularity but never at item granularity, and validate-channel.ts has none at all - a user-approved withdrawal has no mechanical completion path.",
+  "outcome": "An operator whose story has a checklist item withdrawn via scope_shrinkage_decision_set runs the advance and it goes through, with the withdrawn item named as skipped rather than demanded:\n\n  $ lattice story_advance --storyId=B-xxxx --phase=TEST\n  [channel] * pass\n    Covered: CHK-001, CHK-002, CHK-003\n    withdrawn (SD-7319de10): CHK-004\n\n  ProofStory REVIEW completeness: pass (mode=enforce, blocking=no)\n\n  Story B-xxxx advanced to TEST\n\nToday the identical command fails twice, verbatim as observed on B-8df9:\n\n  [channel] x fail: Normal channel gate failure: 1 CHKs missing dispatch/subagent_result evidence\n    channel gate fail: CHK-004 has no dispatch/subagent_result evidence\n\n  ProofStory REVIEW completeness: fail (mode=enforce, blocking=yes)\n    - review_completeness_missing_evidence: Verification intent CHK-004:happy:0 is bound to ProofStory acceptance or milestone coverage but lacks passing verification evidence.\n\n  Error: Cannot enter TEST: ProofStory REVIEW completeness gate did not pass\n\nand the operator's only exit is to hand-write three kind=waiver rows. The observable difference is exactly those two transcripts, plus the absence of any waiver in the second one.",
+  "facts": [
+    "evaluateReviewCompleteness is defined at core/proofstory.ts:2084; handlers/phase-gates.ts only imports (line 65) and calls (line 389) it",
+    "core/proofstory.ts contains 28 references to withdrawn - it reads withdrawal at BINDING and MILESTONE granularity",
+    "withdrawnChecklistItemIdsFrom, the ITEM-level helper, exists at core/proofstory.ts:1622; its only caller anywhere is tasks/scope-shrinkage-withdrawal-floor-smoke.ts:36,119 - no production caller. Capability built, tested, never wired",
+    "withdrawnChecklistItemIdsFrom calls decisionAuthorizesWithdrawal (core/proofstory.ts:1614) which requires decision==='confirmed' AND userConfirmed===true, so the backing is structural: the helper takes the DECISION RECORD as input and never inspects a checklist item",
+    "handlers/validate-channel.ts checkDispatchEvidence iterates every checklist item with zero reference to item.status or decisionRef - no withdrawal awareness of any kind",
+    "core/checklist-status.ts has 11 import-based consumers and ZERO decisionRef awareness in its 41 lines; routing this fix through it would produce a bare status-string bypass",
+    "checkDispatchEvidence already has an exemptedItems concept rendered as 'plan.md Owner=main-agent exempted: ...' (validate-channel.ts:336-338), so a distinct skip category is an existing pattern rather than a new one",
+    "B-1909 (DONE) built this mechanism, wired those same 11 consumers by hand, and recorded limitations 'none - fully covered'; that is true for its DONE-path scope. Its own trigger sentence is 'When review proves a planned item undeliverable', i.e. a REVIEW-time withdrawal - the granularity it left unwired",
+    "Observed live on B-8df9: scope-shrinkage-decision.json recorded withdrawnChecklistItemRefs ['CHK-004'] populated and withdrawnAcceptanceBindingRefs [] empty - exactly the granularity the gate does not consult",
+    "A second scope_shrinkage_decision_set call with decision='rejected' overwrites decision/userConfirmed while the union logic preserves withdrawnChecklistItemRefs, so the unconfirmed-decision bypass case is CLI-reachable and must be covered"
+  ],
+  "constraints": [
+    "MUST NOT skip on a bare status string. Skipping is permitted ONLY through withdrawnChecklistItemIdsFrom(decision). A gate bypassable by writing one word into a JSON file would be far worse than the bug being fixed",
+    "MUST NOT route through core/checklist-status.ts - zero decisionRef awareness; it is a blocked path in the execution boundary",
+    "MUST NOT weaken either gate for items that are not withdrawn",
+    "MUST NOT mutate acceptance bindings or unfreeze proofstory_contract_set from PLAN-only",
+    "MUST NOT change B-8df9 beyond deleting its three obsolete CHK-004 waiver rows",
+    "MUST NOT push to any remote"
+  ],
+  "unknowns": [
+    "Whether the withdrawn skip should render as its own category or join the existing exemptedItems line in checkDispatchEvidence; decide in CHK-003 with the operator transcript in mind"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/validate-channel.ts",
+    "packages/main/tests/red/",
+    "lattice.config.json",
+    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+  ],
+  "timestamp": "2026-08-16T22:59:55.838Z"
+}
