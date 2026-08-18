@@ -121,7 +121,7 @@
       "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:372,383,384,403,487 call deriveRoleProvenance({...}) WITHOUT the now-required sessionSource field (added by this story CHK-001 at core/topology-critic-receipt.ts:158). Independently reproduced with `rm -rf packages/main/dist packages/main/dist.staging` then `npm --prefix packages/main run build` AND standalone `npx tsc --noEmit -p packages/main/tsconfig.json`: both fail at HEAD with 5x TS2345 Property sessionSource is missing, exactly at those 5 line numbers. This means every verificationEvidence receipt whose mechanical:true+receipt was captured before this compile break is now stale relative to current HEAD -- e.g. CHK-002:happy:0 evidence (headHash 1f790e1, timestamp 2026-08-18T02:48:04Z) predates commit f3bf7456a0 (F-005 fix, landed 03:46:46Z) which itself did not fix these 5 call sites because they live in proofstory-topology-critic-smoke.ts, a different file from the one F-005 touched (topology-signing-source-guard-smoke.ts). The CLI gate validate --lint (mandatory REVIEW->TEST preflight per CLAUDE.md pre-push-hook / CLI-gate section) has never actually been run successfully against this HEAD -- process-events.jsonl for B-49ed shows zero lint-gate events. The story currently CANNOT produce a fresh dist build, so it cannot currently pass validate --lint.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T04:04:18.500Z",
@@ -133,7 +133,11 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct and serious: the story did not compile. proofstory-topology-critic-smoke.ts had reverted to main's pre-guard version, calling deriveRoleProvenance without the sessionSource argument this story's CHK-001 added, producing 5x TS2345 and leaving packages/main/dist absent.\n\nI found the same break independently while attempting REVIEW->TEST, and traced the cause: a reviewer legitimately mutated that file in place to prove a test bites (checking out main's copy, running it, intending to restore), and a CLI metadata auto-commit (f0046f5202) captured the reverted state before the restore landed. git status therefore looked clean, because the clobbered version was what HEAD held.\n\nFixed in commit restoring the file from 930539c28e, the implementer's CHK-001/CHK-002 commit. Verified exactly as this finding demanded: rm -rf packages/main/dist packages/main/dist.staging && npm --prefix packages/main run build now completes with 0 TS errors and dist/cli.js present, and the guard smoke passes end to end.\n\nThis also upgrades the severity evidence for F-006, which I had accepted as low on the strength of a transient flake. The same hazard -- parallel reviewers mutating one shared worktree plus auto-commit -- can persist a probe's intermediate state into committed source, not merely cause a flake.",
+      "resolvedAt": "2026-08-18T04:07:02.138Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-49ed:F-008",
