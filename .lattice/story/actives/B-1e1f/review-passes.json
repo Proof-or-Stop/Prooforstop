@@ -57,6 +57,63 @@
       },
       "readDiagnostics": [],
       "_hash": "d18a7019e9d59a635777cd0cd8194916c5c00bd98ab820b246a88bdb412b655f"
+    },
+    {
+      "id": "B-1e1f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of F-001..F-009 after 6a26e8cc13. F-001 holds: collectAdmitFacts fail-closes coverage throws as MAX_SAFE_INTEGER and finding/policy throws as <findings-unreadable>, both refused by evaluateCertificationWindowAdmit. F-002 holds: windowAuthorizesHeavyCertification now requires a verified PrecertReceipt whose windowId/storyId/receiptId and frozen identity match; missing receipts[] no longer authorizes heavy. F-003 holds: currentCertificationIdentity sets hashUnavailable when a git repo cannot read materialHash/storyFilesHash, and detectCertificationWindowMaterialDrift invalidates instead of treating undefined as no drift. F-004 holds: persistHint reports persist:certification-window via reportHealthIssue. No new high/critical quality issues: no unused imports/dead fail-open paths in the admit/authorize/persist fix, persistHint is no longer a silent empty catch, cancel reason is runtime-checked at persistCancelled (>=5), inventory lineage already refuses missing hashes, and CLAUDE.md/README were not promised-but-undelivered. Smoke now exercises verifier-identity drift, peer-story write isolation, baseline lanes, receipt frozen binding, and retry storm.",
+      "createdAt": "2026-08-18T09:40:10.819Z",
+      "reviewRound": "2026-08-18T09:32:35.438Z",
+      "reviewRunId": "B-1e1f:RR-005",
+      "envelopeId": "873995ebd3f77b304ed988b8dafbad084c4ef134d93228feb69e991956069fb1",
+      "writerSessionId": "sess-review-quality-b1e1f",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/package-lock.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a6b9612feaf4743837d0d4974f3b0741abf6a844d65eb2edfd21cc6da210b51b"
+      },
+      "readDiagnostics": [],
+      "_hash": "0e85050c05227ff970b55dd6dab971bccff38695767a7a77bc30004b2563e41f"
     }
   ]
 }
