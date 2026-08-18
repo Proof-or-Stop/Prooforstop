@@ -336,6 +336,38 @@
         "scanEscalationReason": null
       },
       "_hash": "a61bfda76175ec0619f618e2608fc993f80f407a852835d08bd88a7847159f80"
+    },
+    {
+      "id": "B-7dff:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Final round re-verification on the frozen tree since my last finding round (RR-019, headHash dae74467, materialHash aa8059fb). Confirmed source-frozen: git diff dae74467..5808e8f8 and again dae74467..current-HEAD (b2814ae, after a parallel concept-reviewer metadata commit landed) both show zero changes outside .lattice/story/actives/B-7dff/*; materialHash is identical across all three points. Re-verified every load-bearing behavioral property named in this round, independently rather than by trusting stored evidence text: (1) run-all vs cancel-on-first-failure split -- grep confirms full-suite-runner.ts:497 passes cancellation:cancel-on-first-failure and validation-executor.ts:1775 passes cancellation:run-all into the same runScheduled; full-suite-runner-smoke assertions cancelOnFirstFailure=true and runAll=true both pass. (2) Per-run scheduler state isolation -- keyed-scheduler.ts:155-161 declares pending/running/resourceBlockedAt/results/terminalFailureName/cancellationReason as local closures inside runScheduled, nothing module-scoped; smoke assertion a concurrent scheduler run never observes another run cancellation passes (schedulerIsolation:true in the receipt). (3) Fail-closed barrier default -- resolveValidationCommandResourceClaims (validation-executor.ts:1636-1664) gives an undeclared command a single exclusive claim on the synthetic barrier key; independently re-ran validate-resource-claims.test.mjs (34/34 pass) and got the identical count the rewritten CHK-005:happy:0 waiver states -- 110 commands, 97 declared, 13 exclusive-by-default, and the same 10 audited-barrier names held. Also independently confirmed the three commands the waiver names as merged in and still undeclared (validation-evidence-buffer-smoke.js, codex-heartbeat-timeout-smoke.js, red-b3434-blob-buffer-ceiling.mjs) all carry resources:null in lattice.config.json, i.e. still fall to the exclusive default as claimed. (4) Pollution attribution properties (F-006/F-010) -- independently re-ran validate-pollution-attribution.test.mjs, 61 of 61 pass, including the concurrent-not-misattributed, serial-still-exact, barrier-exact-under-jobs-4, no-detection-lost, gate-consumes-set-record and the F-006 no-field-dropped assertions. (5) Main headroom scaling (CONCURRENCY_HEADROOM_FACTOR) reaches the entry the scheduler actually runs -- traced withConcurrencyHeadroom applied at full-suite-runner.ts:540 into runEntry, which arms its setTimeout from that same scaled entry timeoutMs at line 443, not a stale unscaled copy; smoke assertions the scheduler-facing entry carries the scaled cap and nothing else changes and parallel execution scales the declared budget by the concurrency headroom factor both pass. Independently confirmed validation-executor.ts does NOT apply this factor, a flat lattice.config.json ceiling regardless of jobs -- this is F-014 deferred gap, correctly still open and superseded to a follow-on task, not a regression. (6) Budget satisfiability invariant -- computed directly from source via tsx, not dist: fullSuiteBudgetIsSatisfiable() returns true, FULL_SUITE_BUDGET_MS=1200000 greater than longestEntryTimeoutMs at jobs=4 which is 450000, 49 entries, defaultJobs() is 2; smoke assertion whole-suite budget 1200000ms must exceed the longest entry allowance 450000ms passes. Also spot-checked the two rewritten waiver rows (CHK-001:happy:0, CHK-005:happy:0): both are internally consistent with the numbers I independently reproduced (49/49 members, 110/97/13 counts, FULL_SUITE_BUDGET_MS=1_200_000, three named merged-in barriers). No behavioral defect found. No blocker for this reviewer lane.",
+      "createdAt": "2026-08-18T21:54:30.994Z",
+      "reviewRound": "2026-08-18T21:47:17.192Z",
+      "reviewRunId": "B-7dff:RR-027",
+      "envelopeId": "ef9db36cf3ec27e668b9f1f334ec8998cd8b1be0692a866e9ed48b26154176bd",
+      "writerSessionId": "sess-c8142ac4cb69f1c755df4c1fc223e028",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dff/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/tests/validate-pollution-attribution.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7dff/background.md",
+          ".lattice/story/actives/B-7dff/plan.md",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b50d959d329459245f6d508b180fa16beeca637d0a7c61d30f9e13ca0c31b393"
     }
   ]
 }
