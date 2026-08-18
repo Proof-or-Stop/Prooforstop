@@ -1581,7 +1581,7 @@
       "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer. dev-memory entry e367ec1 was written to correct two earlier entries whose fault was restating counts in prose, and its own stated rule is to ship the query rather than the number - yet it restates 'TWENTY', a lane-by-lane split, 'FOUR', and re-enumerates the done_required_validate / done_prepare / live_smoke_transcript exclusion list it was correcting. It is therefore not count-free, and the F-067 and F-069 resolutions that describe it as making 'NO count claim at all' are false in turn. Reproduced by rg and by dev_memory_search.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-18T21:13:19.936Z",
@@ -1592,7 +1592,11 @@
         ".lattice/story/actives/B-9ff1/findings.json"
       ],
       "signatureTag": "doc-code-drift|jsonl|cross-vendor-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld; the sharpest instance of this defect in the story, because the entry contradicts its own stated rule in its own body. Verified before accepting: e367ec1 does contain the counts and the reproduced exclusion list. FIXED by a fourth entry, e918048, which supersedes all three predecessors and carries NEITHER a count NOR any reproduced list - it states only what survives measurement (a lane auditing the author's statements found defects there repeatedly, in a story whose code was in good shape, none self-caught), tells the reader to run the query against findings.json at the moment they need a number, and warns to resolve hex tokens against git log first because several look like commits but are dev-memory ids or recovery blob refs - a mistake a lane caught in an earlier version of the same count. On the timeout budget it reproduces no list at all and points at done-required-timeout-budget.ts's flat-default branch, noting only that one exclusion is conditional on an argument, which is what made both prose versions wrong. Self-verified BEFORE claiming: the new entry was re-read from the ledger and checked to contain no count words and no exclusion-list names. NOT CLAIMED: the three superseded entries remain in the append-only ledger; retrieval surfaces the correction first via supersedes tags, but that protection is emergent rather than enforced, which is B-1b2b's narrowed scope.",
+      "resolvedAt": "2026-08-18T21:13:22.446Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-071",
