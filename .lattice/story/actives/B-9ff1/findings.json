@@ -1668,7 +1668,7 @@
       "desc": "F-071's resolvedReason claims the finding was 'corrected by an appended tradeoff note on B-def6' naming checklist_update as the true INIT/PLAN/DEV phase-list source, and that 'the appended note tells the next reader to read allowedPhases at command-policy.ts'. No such note exists: git log -- .lattice/story/actives/B-def6/background.md shows only the single INIT commit 78975820d5, and git diff HEAD -- that path is empty. The file's Key Insights section (line 28) still reads verbatim 'scope_contract_acknowledge is not available in TEST phase (allowed phases are INIT, PLAN, DEV)' - the original false claim F-071 was filed against, uncorrected and unqualified. The underlying source citation itself is accurate (command-policy.ts:411 confirms scope_contract_acknowledge allowedPhases=['DEV','REVIEW'], and command-policy.ts:173 confirms checklist_update allowedPhases=['INIT','PLAN','DEV']) but the claimed remediation artifact was never written.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-18T21:22:38.508Z",
@@ -1680,7 +1680,11 @@
         ".lattice/story/actives/B-9ff1/findings.json"
       ],
       "signatureTag": "doc-code-drift|md|resolvedreason-claims-finding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Upheld, and the lane is right about the part that matters: the remediation artifact I claimed did not exist in the record. F-071's resolution said the correction was 'corrected by an appended tradeoff note on B-def6'. I had run background_append and it returned success - but from the MAIN repository root, so the text landed in main's working tree and was never committed. git log on the file showed only its INIT commit, and the worktree this story lives in had no copy at all. The lane checked the record; I had checked the command's exit code. This is the same defect as F-064's 'filed as follow-up' with nothing filed, in a new place. NOW ACTUALLY IN THE RECORD: committed on main as c44410f6f8 and merged into this worktree, where the correction is now present in .lattice/story/actives/B-def6/background.md. The underlying facts the lane independently verified are unchanged and correct: command-policy.ts:411 gives scope_contract_acknowledge allowedPhases ['DEV','REVIEW'], and line 173 gives checklist_update ['INIT','PLAN','DEV'] - which is exactly the conflation the appended note names as the cause. B-def6's central gap is untouched: scope_contract_acknowledge is still unavailable in TEST, the phase where the scope gate reports the violation and prints remediation naming that command.",
+      "resolvedAt": "2026-08-18T21:25:30.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9ff1:F-075",
