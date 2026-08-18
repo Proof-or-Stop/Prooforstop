@@ -157,6 +157,33 @@
         "scanEscalationReason": null
       },
       "_hash": "277317fbd948b47458916830f1a6c0db718fd2ab796c0ad9abd247acfeef71d2"
+    },
+    {
+      "id": "B-cc10:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified F-072 fix at HEAD 5360cdb01c. Zero hardcoded ledger counts remain (69/70/71/72/73 grep hits are line citations only, e.g. brand-rename-mapping.md:72); embedded one-liner ran live, printed 72 total resolved=71 dismissed=1 matching zero-open state. All-37-fixed claim untouched, wave table sums to 37. CLAUDE.md=1118/AGENTS.md=598 lines byte-identical to main. test:process-fact-contract and verify-lattice-residue.mjs both exit 0 checked via actual dollar-question-mark. F-070/F-071 fixed by b2d698895c, correctly excluded from the 104-command validate.commands wave table since they run via run-all-smokes filesystem discovery under an opt-out manifest. Reproduced validation-protocol-smoke AssertionError live: dev-memory-preflight gate short-circuits before review-record check; git diff main HEAD on machine.ts shows only a brand-prose string fix at that site, gate ordering pre-existing and out of scope. No blocking doc defects found.",
+      "createdAt": "2026-08-18T19:16:13.546Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-099",
+      "envelopeId": "ee91d34c803d02a79419bf093cb01356aff0e139d27eb1e7867d7cd8392c4ce9",
+      "writerSessionId": "sess-7de7f5d7530405b4a63b84da4e683b63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-cc10/checklist.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "03c9644ad2fa00c39be1ff0eee8d32921d720137c53050f81e676e3b63b9d73d"
     }
   ]
 }
