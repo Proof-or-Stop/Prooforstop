@@ -148,7 +148,7 @@
       "desc": "CHK-005:adversarial:0 intent literally asks for a repo-wide grep for @lattice/core outside node_modules/dist/state-dir returning nothing, but scripts/verify-core-package-rename.mjs only checks packages/utils and packages/lab dependency declarations plus the root package.json name -- it does not grep the wider source tree (tests/fixtures/comments) for stray @lattice/core occurrences. I independently grepped and found the remaining occurrences are all legitimate deprecated-name compatibility literals (DEPRECATED_CORE_PACKAGE_NAME constants, fixture data, comments documenting the rename) rather than unmigrated real dependency declarations, so this is not a functional gap today, but the witness is narrower than the intent text describes and would not catch a genuinely stray @lattice/core dependency reference introduced outside utils/lab package.json in the future. Advisory, not blocking.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-18T03:45:42.985Z",
@@ -159,7 +159,8 @@
         "scripts/verify-core-package-rename.mjs"
       ],
       "signatureTag": "adversarial|mjs|adversarial-intent-literally",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-18T04:09:05.328Z"
     },
     {
       "id": "B-cc10:F-010",
