@@ -1777,6 +1777,35 @@
         "scanEscalationReason": null
       },
       "_hash": "057a2a3e35dca11387bd34545c2434a8f1dd17473afed00e3fad960725666bbc"
+    },
+    {
+      "id": "B-9ff1:RP-057",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after RP-053: git diff f5c5d98..HEAD over packages/docs/scripts/lattice.config.json is empty (only .lattice metadata changed since RP-053: F-070/F-071/F-072 filed+resolved, dev-memory entry, background corrections on B-def6/B-1b2b, one evidence re-bind). tsc --noEmit clean, all 5 red-w2d harnesses pass, envelope smoke exit 0, findings.json 72/72 none open, HEAD..main=0.",
+      "createdAt": "2026-08-18T21:18:26.418Z",
+      "reviewRound": "2026-08-18T20:31:09.389Z",
+      "reviewRunId": "B-9ff1:RR-090",
+      "envelopeId": "b0b6a6077883f7a55b357b5c0857d6d70241c4b5a5f71285eb36870c948d73d0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/findings.json",
+          ".lattice/story/actives/B-9ff1/review-passes.json",
+          ".lattice/story/actives/B-9ff1/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4d824e40ee731f9ea12fc1f7769a49da158f20cd9a6d47114c28f9c57450d964"
     }
   ]
 }
