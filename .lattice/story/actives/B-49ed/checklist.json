@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Require sessionSource host-adapter in deriveRoleProvenance",
+      "context": "topology-critic-receipt.ts deriveRoleProvenance accepts sessionId but never checks its provenance. Add a sessionSource parameter and refuse anything other than host-adapter. explicit-env is whatever was put in LATTICE_SESSION_ID and derived-ppid is a process-tree hash; neither is evidence of an independent actor. Both call sites are in packages/main/src/handlers/proofstory.ts at lines 550 and 565 (note a distinct packages/main/src/core/proofstory.ts also exists), and both can read getSessionIdentity().sessionSource.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "topology_critic_receipt_set from a session whose id came from LATTICE_SESSION_ID fails with: role eligibility failed: lattice-review-topology-critic must sign from a host-adapter session, received \"explicit-env\".",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Migrate test session setup from LATTICE_SESSION_ID to adapter env",
+      "context": "LATTICE_SESSION_ID appears on 167 lines (170 total occurrences; 3 lines carry it twice) across 29 files under packages/main/src/tasks. Both counts are correct under different methodologies: grep -c counts lines, grep -o counts occurrences. An earlier figure of 208/30 in this story was simply wrong, because the glob matched only the top level instead of recursing. LATTICE_SESSION_ID resolves to explicit-env and would be refused by CHK-001. Replace with LATTICE_OWNER_SESSION_ADAPTER_PROVIDER plus TASK plus AGENT so the adapter derives the session the way a real host does. The derived id depends on projectRoot, so fixtures that compare hardcoded ids such as sess-critic must resolve them through deriveAdapterOwnerSessionId rather than matching the literal.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "npm run test:legacy completes with the same pass count as before the change, and no test sets LATTICE_SESSION_ID to establish a signing identity.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove the guard bites under mutation",
+      "context": "Assert that explicit-env, derived-ppid and generated-token are each refused for a critic receipt, and that a genuine host-adapter session is still accepted. Without a mutation-style negative test this repeats finding B-3f3d F-115, where a security-relevant change shipped with no coverage at all.",
+      "relatedDocs": [
+        "CLAUDE.md#handler-编码约定"
+      ],
+      "userSees": "proofstory-topology-critic-smoke reports PASS, and reverting the CHK-001 guard makes it fail with an assertion naming the forgeable session source.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove a genuine dispatched critic can complete receipt signing end to end",
+      "context": "INIT-002: CHK-001 and CHK-003 only prove forged sessions are refused. Neither proves the positive case, which is the reason the story exists: BUG-CRITIC-DISPATCH-PROVENANCE-UNSATISFIABLE means no correctly sandboxed critic could sign at all. The 9f9f53a514 behaviour referenced here is the fix committed during B-3f3d, which moved the acceptance-basis requirement off an unconditional throw and onto the pass branch only, so a critic can record request_changes over a stale basis while pass still requires a verified one. Drive the full path with a real host-adapter session: dispatch the critic, review_run_start, then topology_critic_receipt_set for both verdicts. request_changes must succeed on a stale basis and pass must still be refused while the basis is stale. Without this the story could ship a guard that blocks everything including legitimate critics.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-49ed/background.md"
+      ],
+      "userSees": "A critic dispatched through a host adapter records a receipt, and topology_critic_receipt_check reports the recorded verdict instead of no current registered dispatch provenance.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

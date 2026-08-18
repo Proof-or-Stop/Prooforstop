@@ -1,0 +1,54 @@
+{
+  "storyId": "B-49ed",
+  "name": "host-adapter-critic-session",
+  "title": "Require a host-adapter session to sign a topology-critic receipt",
+  "description": "An implementer who also dispatches can currently mint a session id, record a dispatch event under it, hand that id to the critic subagent via LATTICE_SESSION_ID, and have independenceMatrix report session independence as true. Bind critic receipt signing to sessionSource host-adapter, which is derived from provider plus task plus agent identity and therefore cannot be chosen by the implementer.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-17T15:23:01.407Z",
+  "startedAt": "2026-08-17T15:23:01.407Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-17T15:23:01.957Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-be66cefde50c74df3e9acd344e6b43d6",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-17T15:38:55.930Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-be66cefde50c74df3e9acd344e6b43d6",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive per the documented mention-vs-modify limitation. The keyword matched the phrase production call sites in CHK-001 context, which means source-code call sites in proofstory.ts, not a production environment, deployment, or emergency. This story only changes an identity check in the topology-critic receipt path and the test harness that exercises it. The Security/Credentials signal is deliberately NOT dismissed: it is substantively correct, since this story governs who may sign a signed critic receipt, so the elevated priority and the high-risk decision plus preMortem gates remain in force.",
+      "at": "2026-08-17T15:32:42.553Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-49ed",
+    "branch": "story/B-49ed",
+    "createdAt": "2026-08-17T15:38:52.747Z"
+  }
+}

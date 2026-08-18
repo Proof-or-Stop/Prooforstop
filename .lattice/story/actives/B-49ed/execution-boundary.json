@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-49ed",
+  "allowedCommands": [
+    "git add/commit within the story worktree",
+    "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:legacy",
+    "proof-or-stop validate"
+  ],
+  "allowedTools": [
+    "lattice-implementer subagent",
+    "lattice-review-* reviewer subagents",
+    "product-reviewer"
+  ],
+  "allowedPaths": [],
+  "excludedCommands": [
+    "Any command that sets LATTICE_SESSION_ID to establish a signing identity, which is the bypass this story closes",
+    "Direct edits to .lattice/story/ metadata (CLAUDE.md rule 8; use CLI commands)",
+    "git push (remote publication is blocked by .githooks/pre-push and needs a human release approval)",
+    "git reset --hard / git restore on tracked work"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "qipan",
+  "createdAt": "2026-08-17T15:38:38.915Z",
+  "updatedAt": "2026-08-17T15:38:38.915Z",
+  "_hash": "606e3fbc239a91207e1a242afe734e119c58e33a3011ffcf29aa7f4e6765676b"
+}
