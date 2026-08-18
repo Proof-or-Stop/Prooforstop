@@ -71,9 +71,11 @@ async function main(): Promise<void> {
     || (osProbe.status === 2 && osReceipt.overallStatus === 'UNSUPPORTED' && osReceipt.mutationDetected === false), 'dedicated fixed-port OS receipt never disguises unsupported capability as collision detection');
   rmSync(osReceiptPath, { force: true });
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
+  const runnerSource = readFileSync(join(process.cwd(), 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
   assert(rootPackage.scripts?.build?.startsWith('npm --prefix packages/main run build && npm --prefix packages/utils run build'), 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
   assert(rootPackage.scripts?.build?.endsWith('node scripts/verify-full-suite-build-binding.mjs'), 'standard root build fails closed on stale full-suite dist');
+  assert(/performanceBudgetMs:\s*FULL_SUITE_BUDGET_MS\b/.test(runnerSource) && !/performanceBudgetMs:\s*\d[\d_]*/.test(runnerSource), 'result artifact derives its performance budget from the canonical constant without a numeric shadow copy');
   const canonicalClassCounts = new Map<string, number>();
   for (const item of FULL_SUITE_ENTRIES) for (const resource of item.resources) canonicalClassCounts.set(resource.class, (canonicalClassCounts.get(resource.class) ?? 0) + 1);
   for (const resourceClass of ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock']) {
