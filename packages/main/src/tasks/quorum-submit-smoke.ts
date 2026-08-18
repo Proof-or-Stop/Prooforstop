@@ -44,7 +44,7 @@ import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
 import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
-import { STATE_DIR_NAMES } from '../core/brand-paths.js';
+import { STATE_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -210,7 +210,9 @@ function makeFixture(
   write(root, '.lattice/lattice.json', `${JSON.stringify({ assetMode }, null, 2)}\n`);
   if (assetMode === 'full') {
     const promptRegistry = readPromptRegistry();
-    const assetDir = selectedHost === 'codex' ? '.lattice-codex/agents' : '.claude/agents';
+    // B-cc10: the runtime resolves the codex prompt dir canonically, so a fixture writing to
+    // the deprecated spelling made every reviewer prompt asset look missing.
+    const assetDir = selectedHost === 'codex' ? `${PROOF_OR_STOP_ADAPTER_DIR}/agents` : '.claude/agents';
     for (const lane of REVIEW_LANES) {
       const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
       const hostTemplate = renderPromptEntryForHost(entry, selectedHost);
@@ -985,7 +987,7 @@ try {
       const thin = makeFixture('global-thin');
       try {
         process.chdir(thin.root);
-        assert.equal(existsSync(join(thin.root, '.lattice-codex/agents')), false);
+        assert.equal(existsSync(join(thin.root, `${PROOF_OR_STOP_ADAPTER_DIR}/agents`)), false);
         assert.equal(existsSync(join(thin.root, '.claude/agents')), false);
         recordReviewerPasses(thin.registry, selected.provider);
         const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
@@ -1403,7 +1405,7 @@ try {
       {
         host: 'codex',
         provider: 'codex',
-        assetPath: '.lattice-codex/agents/lattice-review-quality.md',
+        assetPath: `${PROOF_OR_STOP_ADAPTER_DIR}/agents/lattice-review-quality.md`,
         otherAssetDir: '.claude/agents',
       },
       {
