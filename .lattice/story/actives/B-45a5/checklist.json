@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Prove both gates ignore an item-level withdrawal, repro-first",
       "context": "Isolated fixture (mkdtemp, never a real story): take it to REVIEW, withdraw one checklist item that SHARES an acceptance binding with a delivered item, then observe story_advance --phase=TEST refused twice - evaluateReviewCompleteness with review_completeness_missing_evidence naming the withdrawn intents, and the channel gate with 'has no dispatch/subagent_result evidence'. Both must be OBSERVED. Include controls: a non-withdrawn item with genuinely missing evidence must still be refused (rules out 'skips everything'), and a fully-covered item must still pass (rules out 'refuses everything'). If either gate already handles item-level withdrawal, the premise is refuted and items 2-5 must be re-scoped rather than executed.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-18T22:24:28.655Z",
-      "endTime": null,
+      "endTime": "2026-08-18T22:42:21.106Z",
       "userSees": "node packages/main/tests/red/red-b45a5-*.mjs prints RED rows for both gates on the pre-fix tree and exits non-zero.",
       "files": {
         "modify": [
@@ -115,7 +115,14 @@
           "storyFilesHash": "93da6b994c90ad81e25229377dd5f64253fc9566161db3b7fbe50fbf478ceaac",
           "timestamp": "2026-08-18T22:42:10.156Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "3e019f4688266dfa596860b7b3dc8f91312bcd108e2f36ccf3f43054b44805c2",
+        "storyFilesHash": "93da6b994c90ad81e25229377dd5f64253fc9566161db3b7fbe50fbf478ceaac",
+        "headHash": "2bc07949bcacbe025a0a0acec4eccb8bc71ef37c",
+        "attestedAt": "2026-08-18T22:42:21.444Z",
+        "materialHash": "0c2490c923f274fd2558627b6df2550148ea7642463510a288c9d4fa3a5fae0c"
+      }
     },
     {
       "id": "CHK-002",
