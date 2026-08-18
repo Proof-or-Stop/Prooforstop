@@ -359,6 +359,21 @@
       "resolvedAt": "2026-08-18T04:49:50.699Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-49ed:F-019",
+      "desc": "packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts:90 the new .lattice cleanup (F-017) runs BEFORE the code that actually creates the residue it claims to clean up. rmSync(resolve(here, \"../../.lattice\")) is at line 90, but the four resolveSessionIdentity(...) calls that write packages/main/.lattice/runtime/owner-session-tokens/ are at lines 108-118, strictly after the cleanup already ran. Reproduced directly: ran node dist/tasks/signing-guard-mutation-proof-smoke.js from packages/main (matching cwd, so the write target equals the cleanup target) and packages/main/.lattice/runtime/owner-session-tokens/<hash>/<hash>.json remained on disk after a PASS exit. The smoke never removes what it creates; the commit message and code comment both assert the opposite (the smoke created it, so the smoke removes it), which is false as written. Separately, when this smoke is invoked via the root npm script (npm run test:signing-guard-mutation-proof / test:serial-reference, which do not cd into packages/main), process.cwd() is the repo root, so root: process.cwd() in the resolveSessionIdentity calls makes the token store land at <repo-root>/.lattice/runtime/owner-session-tokens/ instead -- a location this cleanup line, which always targets packages/main/.lattice derived from the compiled files own file path rather than from where writes actually land, never touches at all. Net effect: this smoke leaves untracked residue on every real invocation path in the DONE-blocking suite; it happens to be silently swept by an unrelated pre-existing .gitignore rule when landing at the repo root, but is genuinely untracked and unignored when landing at packages/main/.lattice (confirmed via git check-ignore -v, exit 1, not ignored). Fix: move the rmSync call to after the resolveSessionIdentity block (after line 118), and use the same root value the resolveSessionIdentity calls use (process.cwd()) rather than a path derived from the guard files own location, so cleanup always targets where the writes actually happened regardless of invocation cwd.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-18T04:54:25.869Z",
+      "reviewRound": "2026-08-18T04:50:11.775Z",
+      "reviewRunId": "B-49ed:RR-022",
+      "_hash": "842e1fd737ab4b2194771265cc5fcac6fc248a6b378b80edc043c979c372ae2c",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
