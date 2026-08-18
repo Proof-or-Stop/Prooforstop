@@ -1,0 +1,62 @@
+{
+  "passes": [
+    {
+      "id": "B-1e1f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. git diff main...HEAD is additive (5004/16): new CertificationWindow/PRE_CERT owner, not a rename of Review Inventory, CausalEvidence, ReviewRemediation, or AcceptanceAmendment. Commands certification_window_begin/status/cancel exist in catalog, policy, registry, handlers, and process-fact L4 with PRE_CERT gateConsumer. Inventory completeness stays non-authority (inventoryReceiptAuthorizesPrecert always false). Heavy choke is done_required_validate + validate --full; cheap --channel/--concept/--lint stay outside. Invalidation is materialHash/storyFilesHash/verifier/test identity, not headHash-only. CLAUDE.md/README/AGENTS.md gained no new proof-or-stop command promises. Concept residue check completed, no blocker.",
+      "createdAt": "2026-08-18T09:23:51.346Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-001",
+      "envelopeId": "fae90712dc27c559344827864f5edeb992c1eab819c68da1f4704db15701bfde",
+      "writerSessionId": "sess-c5e3cefbb7429cdb",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1e1f/background.md",
+          ".lattice/story/actives/B-1e1f/decision.json",
+          ".lattice/story/actives/B-1e1f/plan.md",
+          ".lattice/story/actives/B-1e1f/understanding.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts",
+          "packages/main/src/tasks/certification-window-invalidation-smoke.ts",
+          "packages/main/src/tasks/certification-window-replay-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "faa02c0a70cedb2077212933bdf3e9764f747670d2fbfa7d505347ba2b6ae22d"
+      },
+      "readDiagnostics": [],
+      "_hash": "d18a7019e9d59a635777cd0cd8194916c5c00bd98ab820b246a88bdb412b655f"
+    }
+  ]
+}
