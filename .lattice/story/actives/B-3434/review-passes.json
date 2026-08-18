@@ -1273,6 +1273,30 @@
         "scanEscalationReason": null
       },
       "_hash": "236f9c9f3fbc7ddbe343f8319f470788553ed4f4aa266f0ab60ad4af60a7c9f1"
+    },
+    {
+      "id": "B-3434:RP-049",
+      "agent": "lattice-review-quality",
+      "note": "Capped round on 97d56156fc (3 files, 3 lines). Verified independently: git show confirms exactly lattice.config.json / red-1734-bootstrap-depfree.mjs / verify-process-fact-contract.mjs, 1 line each. Re-ran all 4 drop-acceptance-basis-* mutations myself (not trusting the transcript): prompt/handler/registry/contract all exit 1, unmutated exits 0 (matches claim exactly). red-1734-bootstrap-depfree.mjs and red-b3434-blob-buffer-ceiling.mjs pass; tsc -p packages/main clean. bin/bootstrap-runner.js:32 confirmed literally prints proof-or-stop local bootstrap is not ready. (grepped source, not the test). lattice.config.json 300000ms matches sibling convention (red-b49d4-registration-derivation.mjs, red-1734-reader-race.mjs already 300000). Judgement on the explicitExclude (Q1): PASS. verify-process-fact-contract.mjs is excluded per OQ-B3434-1 specifically because bounding the serialised artifact might introduce a new process fact; that concern does not extend to this edit, which repairs a stale mutation-test regex and touches zero process facts, contract rules, registry entries or vocabulary. Raised explicitly via ack 7 (not silent), matches this story's established precedent for touching machinery outside allowedModify (ack 4), and I reproduced the before/after mutation-exit-code claim myself rather than trusting the record. Flagging for the note rather than as a blocker: explicitExclude is a stronger bar than allowedModify precisely so no single instance's merits get re-litigated story-by-story: this story already carries 7 acknowledgements, and a future story should not read this as licence to touch these 4 files again on a similar minimal/blocking/disclosed argument -- each such edit needs its own fresh explicit review, and this exclusion set is worth revisiting once B-3434 closes. Q3 (brand-agnostic alternation vs re-pin): correct call, not a rename-completeness regression. Confirmed scripts/verify-lattice-residue.mjs (CHECK 2, bare lattice CLI invocation in active docs) is the dedicated, purpose-built brand-completeness gate; neither touched regex was ever that gate -- one is a mutation-test trigger string, the other a RED-test recovery-hint assertion, and the sibling red-1734-reader-race.mjs already uses a brand-agnostic /bootstrap is not ready/i substring with no pin at all. Decoupling these two from brand identity removes accidental incidental coupling, not real coverage. No correctness/security/data-integrity blocker found. Did not run full validate/npm test per instruction; did not re-audit the story.",
+      "createdAt": "2026-08-18T08:01:07.950Z",
+      "reviewRound": "2026-08-17T15:06:34.379Z",
+      "reviewRunId": "B-3434:RR-094",
+      "envelopeId": "6b8a65bd33679fcf7ec9b99321dccff70ab0d609a0aa788d907f610f985a0071",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "lattice.config.json",
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "not applicable: capped verification round on a single commit per explicit dispatch instruction, not a full story audit"
+      },
+      "_hash": "283f374a92c340f14e117b5a46455d711511dc5031262aa595b7ee1896459c36"
     }
   ]
 }
