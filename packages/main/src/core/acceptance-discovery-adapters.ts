@@ -417,8 +417,18 @@ const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
  * failure bookkeeping is shared with the subsequent read rather than duplicated.
  */
 function resolveSnapshotConfigFilename(context: SourceReadContext): string {
+  // B-cc10: prefer a spelling that is PRESENT on disk, even if reading it safely fails.
+  // readSourceSafely deliberately refuses symlinks, so probing by readability alone made a
+  // symlinked config look ABSENT: the resolver fell through to the other spelling, and the
+  // reported blind spot became `snapshot_missing: <other name>` instead of the real
+  // "traverses symlink" refusal. Presence-first keeps the specific diagnosis attached to the
+  // file the operator actually has.
+  const presentByLstat = (name: string): boolean => {
+    try { lstatSync(join(context.physicalRoot, name)); return true; } catch { return false; }
+  };
   const resolved = resolveConfigFilename(
-    (name) => readSourceSafely(context, name, MAX_LATTICE_CONFIG_BYTES).text !== undefined,
+    (name) => presentByLstat(name)
+      || readSourceSafely(context, name, MAX_LATTICE_CONFIG_BYTES).text !== undefined,
   );
   // Probing a spelling that is simply ABSENT is not a blind spot — it is the
   // expected outcome for the name this project does not use. Drop those cached

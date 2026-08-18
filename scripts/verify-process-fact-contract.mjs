@@ -595,7 +595,12 @@ function read(relPath) {
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
   if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
-    text = text.replace(/^Acceptance-basis boundary: only `lattice acceptance_basis_generate`.*$/m, '');
+    // B-cc10: accept either brand. This pinned `lattice acceptance_basis_generate`, but the
+    // prompt now reads `proof-or-stop acceptance_basis_generate`, so the regex stopped
+    // matching, the mutation dropped NOTHING, and the verifier passed — meaning the negative
+    // control silently stopped proving the contract bites. A mutation that mutates nothing is
+    // the same failure mode as sabotage that misses.
+    text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|lattice) acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
