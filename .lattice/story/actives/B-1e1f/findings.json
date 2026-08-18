@@ -53,6 +53,24 @@
       ],
       "signatureTag": "edge|ts|quality-fail-closed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1e1f:F-004",
+      "desc": "quality-cleanup: packages/main/src/handlers/certification-window.ts:43-48 persistHint swallows autoCommitStoryMetadata errors with an empty catch and returns empty string. Persist failures are PERSIST-class and must reportHealthIssue, not stay silent. A failed metadata commit after begin/cancel leaves a dirty unsigned window with no health trace.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T09:23:00.877Z",
+      "reviewRound": "2026-08-18T09:16:08.689Z",
+      "reviewRunId": "B-1e1f:RR-002",
+      "_hash": "5644788fce8d3d67f36699d646ca352b557b84290510da2bc3c3270171872082",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
