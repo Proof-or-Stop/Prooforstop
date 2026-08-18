@@ -616,6 +616,35 @@
       },
       "readDiagnostics": [],
       "_hash": "3af0bbfa8dc9caf6021b5bce7332db2dcc82d76ade566dd877faac7a60ce500b"
+    },
+    {
+      "id": "B-1e1f:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality review after RP-013 (ee7064c). Scope: lifecycle-registry.ts + closeout-trust-smoke.ts (c9ca69cd976 persistSyntheticAdmittedWindowForTest before done_required_validate; 77e1774ec68 registers review-inventory-epochs.json). persist helper is used, not dead; authorizesTest forced false; refuseHeavyCertificationUnlessAdmitted unchanged since prior pass. Registry adds are consumed (FILENAMES classify + PROTOCOL_METADATA ignore so independently gated signed facts are not untrusted closeout). No as-any, empty catch, shell/fn leak, or promised-but-undelivered in this increment.",
+      "createdAt": "2026-08-18T14:52:46.242Z",
+      "reviewRound": "2026-08-18T14:48:05.483Z",
+      "reviewRunId": "B-1e1f:RR-018",
+      "envelopeId": "1727922099ec679c8877fbf6ae0904be6fe7e121067f7d3c0aabd1a2ae5abce2",
+      "writerSessionId": "sess-cf96145de9cf012e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "684df9a3908a48c83d0d00c37d8c3605edef42ebe72471b430ef1e1624d3fb70"
     }
   ]
 }
