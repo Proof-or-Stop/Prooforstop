@@ -1107,6 +1107,23 @@
       ],
       "signatureTag": "spec-boundary|md|cross-vendor-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-053",
+      "desc": "Cross-vendor review host B (codex, 2026-08-18), first surfacer, in response to an unprompted question put to it by the story owner. envelope.ts:87 read 'adjudicated — do not re-litigate.' A source comment instructing a future reviewer not to re-examine a decision is convenient for the author and hostile to review. Host B noted precisely that the prohibition occurred ONLY in the digest block; the matcher block at :70 was merely labelled 'adjudicated'.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-18T17:17:58.839Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "_hash": "e8d30adc76d1777bfecb1e7b9d33f28f58d0e88119390f63cf9e247050641c1a",
+      "files": [
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "cleanup|ts|cross-vendor-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
