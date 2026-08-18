@@ -1332,6 +1332,34 @@
         "scanEscalationReason": null
       },
       "_hash": "913a8dd82de4b1e7d5a39c44b90ebfdfc92fddcad610cd356ec782bfbdc6c382"
+    },
+    {
+      "id": "B-9ff1:RP-042",
+      "agent": "lattice-review-quality",
+      "note": "Scoped to the single delta since RP-038: commit 90c21f7f4d adds only the F-060 characterization block to red-w2d-specificity-conjunction.mjs (git show confirms 1 file, 50 insertions, 0 deletions). Live-mutated the compiled specificity.ts in a /tmp copy two ways: (1) a surgical +2-bit-per-digit entropy bonus flips HTTP 404 / Error 500 to ADMIT while leaving every pre-existing assertion in the same file untouched -- the harness fails specifically inside the new block with its intended re-derive message, not from an earlier unrelated assertion; (2) a narrow +50-bit bonus restricted to pure-uppercase values (SIGSEGV/ENOMEM) leaves all 5 individual verdicts and admittedCount unchanged yet independently breaks the ORDERING assertion, proving that check is not trivially true given the fixture data. No hard-coded measured literal (15.65/11.51/20.00/21.77/34.05) appears in any assertion -- only in an explanatory comment; all five numbers are computed via valueByteLength/entropyBits at runtime. No dead code, no unsafe casts, no shell-isolation or proof-metadata concerns (pure test file, no proof/receipt/job/run metadata touched). tsc --noEmit clean; all 5 red-w2d harnesses + red-evidence-envelope-smoke.js exit 0 on the unmutated tree. Merged 2 unrelated main-only story-init commits (B-38b7, .lattice/ only) into the worktree during review; rev-list HEAD..main now 0.",
+      "createdAt": "2026-08-18T18:34:47.776Z",
+      "reviewRound": "2026-08-14T03:33:29.693Z",
+      "reviewRunId": "B-9ff1:RR-069",
+      "envelopeId": "f332522aa87b8885be107d8ab09b2534bc704e359d78b626c667f473b4b0cde7",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0dfb5ed638a6f7c43ac7613469f95ed3ae0263a50bbd2d98d16473581fd05fdc"
     }
   ]
 }
