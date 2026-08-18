@@ -523,10 +523,16 @@ function cleanupClaudeAssets() {
 
 function cleanupCodexAssets() {
   removeIfManagedDoc('AGENTS.md', 'AGENTS.md');
-  removePathIfExists('.lattice-codex/agents', '.lattice-codex/agents');
-  removePathIfExists('.lattice-codex/README.md', '.lattice-codex/README.md');
+  // B-cc10 F-026: sweep EVERY accepted adapter-dir spelling. This only removed the
+  // deprecated dir, so profile cleanup on a migrated project orphaned
+  // .proof-or-stop-codex/agents and README.md. ADAPTER_DIR_NAMES is already imported
+  // and used correctly by removeCodexManifestIfManaged / removeCodexWrapperIfManaged.
+  for (const dir of ADAPTER_DIR_NAMES) {
+    removePathIfExists(`${dir}/agents`, `${dir}/agents`);
+    removePathIfExists(`${dir}/README.md`, `${dir}/README.md`);
+  }
   removeCodexManifestIfManaged();
-  cleanupEmptyDirChain('.lattice-codex');
+  for (const dir of ADAPTER_DIR_NAMES) cleanupEmptyDirChain(dir);
   removeCodexWrapperIfManaged();
   removeCodexNativeHooksIfManaged();
 }

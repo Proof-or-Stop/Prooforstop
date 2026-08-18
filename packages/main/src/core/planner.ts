@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
 import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { STATE_DIR_NAMES } from './brand-paths.js';
 
 /**
  * @task B-e3d9
@@ -367,7 +368,13 @@ const LEASE_DEFAULT_RENEWAL_MS = 120_000;
 const LEASE_DEFAULT_GRACE_MS = 30_000;
 
 // The executor must never edit story/fixture JSON directly (Non-Goals + §B2).
-const FORBIDDEN_WORKTREE_GLOBS = ['.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'] as const;
+// B-cc10 F-030: same defect as worktree-policy.ts — the canonical state dir was not
+// covered, so the forbidden-path guard had a hole exactly where stories now live.
+const FORBIDDEN_WORKTREE_GLOBS = [
+  ...STATE_DIR_NAMES.map((dir) => `${dir}/story/**`),
+  'docs/story/**',
+  '**/tests/fixtures/**',
+] as const;
 
 const REQUIRED_EVIDENCE_KINDS = ['run_record', 'provider_event', 'command_event', 'validation_evidence', 'git_evidence', 'gate_request', 'stop_summary'] as const;
 

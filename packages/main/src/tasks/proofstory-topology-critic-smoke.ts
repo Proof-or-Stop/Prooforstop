@@ -22,6 +22,7 @@ import {
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo, TopologyCriticReceiptV1 } from '../core/types.js';
+import { ADAPTER_DIR_NAMES } from '../core/brand-paths.js';
 import {
   canonicalTopologyReceiptContext,
   deriveImplementationProvenance,
@@ -262,7 +263,14 @@ smokeSuite: try {
   assert.equal(extractTemplateFrontmatter(readFileSync(promptEntry!.sourcePath, 'utf8'), promptEntry!.sourcePath).name, TOPOLOGY_CRITIC_ROLE, 'real prompt parser accepts topology critic frontmatter');
   const canonicalPrompt = readFileSync(join(sourceRoot, 'templates/agents/lattice-review-topology-critic.md'), 'utf8');
   assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
-  assert.equal(readFileSync(join(repositoryRoot, '.lattice-codex/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');
+  // B-cc10 F-029: assert against whichever adapter-dir spelling actually exists on disk.
+  // This hardcoded the deprecated path against the REAL repo root (not a scratch fixture),
+  // so after the rename the readFileSync threw ENOENT instead of comparing anything.
+  const codexMirror = ADAPTER_DIR_NAMES
+    .map((dir) => join(repositoryRoot, `${dir}/agents/lattice-review-topology-critic.md`))
+    .find((candidate) => existsSync(candidate));
+  assert.ok(codexMirror, `no Codex prompt mirror found under any of: ${ADAPTER_DIR_NAMES.join(', ')}`);
+  assert.equal(readFileSync(codexMirror, 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');
 
   const topLevelFields = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'] as const satisfies readonly (keyof TopologyCriticReceiptV1)[];
   assert.deepEqual([...topLevelFields].sort(), Object.keys(receipt).sort(), 'receipt field inventory stays exact with the actual TopologyCriticReceiptV1 artifact');

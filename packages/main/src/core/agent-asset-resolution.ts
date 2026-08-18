@@ -2,11 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  MANIFEST_FILENAMES,
-  adapterManifestCandidates,
-  stateDirCandidates,
-} from './brand-paths.js';
+import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, ADAPTER_DIR_NAMES } from './brand-paths.js';
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -50,9 +46,13 @@ interface LocalAssetModeHint {
   source: string | null;
 }
 
+// B-cc10 F-022: the codex entry hardcoded the DEPRECATED adapter dir, so on a migrated
+// project (canonical .proof-or-stop-codex only) inspectHostAssets always reported codex
+// prompt assets as ABSENT — which is what doctor's agentAssetMode reads. Enumerate every
+// accepted spelling, canonical first, the same way localAssetModeHint already does.
 const HOST_ASSET_DIRS: Array<{ host: PromptHost; relDir: string }> = [
   { host: 'claude', relDir: '.claude/agents' },
-  { host: 'codex', relDir: '.lattice-codex/agents' },
+  ...ADAPTER_DIR_NAMES.map((dir) => ({ host: 'codex' as PromptHost, relDir: `${dir}/agents` })),
 ];
 
 function packageRoot(): string {

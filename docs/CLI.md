@@ -407,7 +407,7 @@ a receipt bound to the topology, scope artifacts, workspace identity,
   bounded source-directory inventory;
 - `sourceSnapshotDigest` / `sourceSnapshotCount` for safely read source files;
 - `configSnapshotDigest` for the single bounded, no-follow
-  `lattice.config.json` snapshot used to choose the source root;
+  `proof-or-stop.config.json` snapshot used to choose the source root (the deprecated `lattice.config.json` is still read);
 - `status` (`complete | partial`), closed machine-coded `issues`, and the
   canonical `sealDigest` over those fields.
 
@@ -920,9 +920,9 @@ The checked-in regression contract includes a genuine exact-12 child-process sta
 
 A bare `npm test` or direct full-suite invocation is outside this lease and is not protected. Do not run it concurrently with either official validation entrypoint. The lease does not change command inventories, timeouts, evidence formats, or routine versus DONE-required semantics.
 
-The canonical and only active project config file is `lattice.config.json`. `proof-or-stop validate`'s automatic fallback set contains only `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`; Swift / Mac Native App is retired and is **not** in the automatic fallback list, so `validate.commands` must be configured explicitly for `swift test` to run.
+The canonical project config file is `proof-or-stop.config.json`; the deprecated `lattice.config.json` is still READ for compatibility but is never written. `proof-or-stop validate`'s automatic fallback set contains only `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`; Swift / Mac Native App is retired and is **not** in the automatic fallback list, so `validate.commands` must be configured explicitly for `swift test` to run.
 
-`doctor` also outputs `Runtime scan:`, which is not process gate evidence but a runtime-environment drift check. Runtime facts are defined in `packages/main/src/core/runtime-fact-registry.ts` and protected by `scripts/verify-runtime-fact-contract.mjs`, covering worktree entrypoint authority, the CLI entrypoint, the global `@proof-or-stop/core` realpath, the project-local `node_modules/.bin/lattice`, the Node/package version, the validate source, and `external-reference-policy`. External projects receive only warn/advisory and are never hard-failed because of the Orchestrate repo's own symlink expectations. `external-reference-policy` scans only `lattice.config.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, and `docs/requirements/**/*.md`, excluding story/fixture/build/source-comment noise; it reports only a policy warning and does not assert a connectivity pass.
+`doctor` also outputs `Runtime scan:`, which is not process gate evidence but a runtime-environment drift check. Runtime facts are defined in `packages/main/src/core/runtime-fact-registry.ts` and protected by `scripts/verify-runtime-fact-contract.mjs`, covering worktree entrypoint authority, the CLI entrypoint, the global `@proof-or-stop/core` realpath, the project-local `node_modules/.bin/proof-or-stop`, the Node/package version, the validate source, and `external-reference-policy`. External projects receive only warn/advisory and are never hard-failed because of the Orchestrate repo's own symlink expectations. `external-reference-policy` scans only `proof-or-stop.config.json` (and the deprecated `lattice.config.json`), `AGENTS.md`, `CLAUDE.md`, `README.md`, and `docs/requirements/**/*.md`, excluding story/fixture/build/source-comment noise; it reports only a policy warning and does not assert a connectivity pass.
 
 Proof-or-Stop runtime artifacts are a separate table: `packages/main/src/core/runtime-artifact-registry.ts` defines the ignore, materialHash, and repair semantics for runtime files such as `.lattice/activity.jsonl`, legacy `docs/story/activity.jsonl`, `.lattice/runtime/`, `.lattice/traces/`, `.lattice-serve.json`, and debug/browser logs. `proof-or-stop init` merges missing runtime ignore rules into the existing `.gitignore`; `proof-or-stop doctor` reports runtime artifacts already tracked by git, and on `--repair` runs `git rm --cached` only for paths the registry marks as repairable. These files do not make materialHash-backed verification evidence stale; `.lattice/story/` is process evidence and is not treated as a runtime artifact.
 
@@ -975,7 +975,7 @@ npm --prefix packages/main run build
 npm run test:legacy -- outcome-semantics
 ```
 
-A story worktree created via `proof-or-stop story_advance ... INIT_CHECK` does not need a manual copy of `.lattice-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.lattice-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
+A story worktree created via `proof-or-stop story_advance ... INIT_CHECK` does not need a manual copy of `.proof-or-stop-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.proof-or-stop-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
 
 ### 3. The first step of a new session
 
@@ -1006,7 +1006,7 @@ This validates the current worktree's repo-local entrypoints / generated local w
 - repo-local default init generates only Proof-or-Stop management assets, not the starter `src/core` / `src/shells` / `tests`
 - repo-local `init --starter` / `init --with-template` generates the legacy starter template and uses `scanRoot: "src"`
 - a Python no-src project's default init does not create `src/` and uses `scanRoot: "."`
-- whether `.lattice-codex/README.md` contains the correct fallback entry-point notes
+- whether `.proof-or-stop-codex/README.md` contains the correct fallback entry-point notes
 
 ### 6. Verify that the Codex assets have not drifted
 
@@ -1021,7 +1021,7 @@ This checks:
 - in legacy/full prompt mode, whether `.proof-or-stop-codex/agents` is missing any prompt newly added to `.claude/agents`
 - in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.proof-or-stop-codex/proof-or-stop.json` matches the package registry and Codex prompt renderability is fine
 - whether `.proof-or-stop-codex/proof-or-stop.json` declares the Proof-or-Stop-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
-- whether `.lattice-codex/README.md` retains the correct Codex fallback entry point
+- whether `.proof-or-stop-codex/README.md` retains the correct Codex fallback entry point
 - whether `README.md` / `AGENTS.md` still contain the key Codex integration notes
 
 `node bin/proof-or-stop-codex.js verify_codex` (the general local entry point is `node bin/proof-or-stop.js verify_codex`) reuses the same shared checks and additionally runs the local wrapper and global fallback heartbeat: it confirms that the activity record contains `source=codex`, session, and entrypoint, and appends a `codex_adapter_verification` carrying the current HEAD/material hash to the current story's `process-events.jsonl`. A story that touches the Codex adapter has this evidence distinguished as missing / failing / stale / passing at the REVIEW/DONE gate, with a directly re-runnable local wrapper command provided.
@@ -1131,7 +1131,7 @@ node scripts/real-story-replay-benchmark.mjs
 The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.proof-or-stop-codex/settings.json`. What Proof-or-Stop generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.proof-or-stop-codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.proof-or-stop-codex/proof-or-stop.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.proof-or-stop-codex/hooks` alias. `.proof-or-stop-codex/proof-or-stop.json` also records the Proof-or-Stop-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
-- [.lattice-codex/README.md](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/README.md:1)
+- [.proof-or-stop-codex/README.md](/Users/jek/Documents/Work/Orchestrate/.proof-or-stop-codex/README.md:1)
 - `.proof-or-stop/proof-or-stop.json` (global-thin default init primary; full/thin mode projects may use `.proof-or-stop-codex/proof-or-stop.json` instead)
 - [.proof-or-stop-codex/agents/](/Users/jek/Documents/Work/Orchestrate/.proof-or-stop-codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
