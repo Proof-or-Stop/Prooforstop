@@ -451,6 +451,24 @@
       ],
       "signatureTag": "missing|md|concept-cleanup-adapter",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc10:F-026",
+      "desc": "packages/main/src/cli-init.ts:524-531 cleanupCodexAssets() only removes the deprecated-only adapter dir spelling: removePathIfExists('.lattice-codex/agents', ...), removePathIfExists('.lattice-codex/README.md', ...), and cleanupEmptyDirChain('.lattice-codex') never touch the canonical .proof-or-stop-codex counterpart. This is the same file that imports ADAPTER_DIR_NAMES (line 59) and correctly uses it read-both in hasCodexMarkers (line 213-214, the confirmed F-020 fix) and in removeCodexManifestIfManaged (line 500, loops adapterManifestCandidates() with an explicit comment about half-migrated checkouts) and removeCodexWrapperIfManaged (line 484-491, loops both bin names). cleanupCodexAssets was missed. Live impact confirmed on this repo's own worktree: only .proof-or-stop-codex exists (.lattice-codex is absent post-CHK-003 move), so running proof-or-stop init with a profile that excludes codex leaves .proof-or-stop-codex/agents and .proof-or-stop-codex/README.md orphaned on disk -- profile cleanup silently no-ops for any canonical-only project, which after this story merges is every project. Fix: loop ADAPTER_DIR_NAMES for the agents/README.md removePathIfExists calls and for the final cleanupEmptyDirChain, same pattern already used two functions below it in the same file.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-18T04:23:50.185Z",
+      "reviewRound": "2026-08-18T03:33:16.325Z",
+      "reviewRunId": "B-cc10:RR-028",
+      "_hash": "eb302990978002088164b3f1e888a86f6e79b4466333b480e44d9e9532e10888",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-init",
+      "signatureTagSource": "auto"
     }
   ]
 }
